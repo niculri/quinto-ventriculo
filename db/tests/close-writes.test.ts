@@ -136,6 +136,8 @@ describe('writes only through the functions', () => {
       'admin_deck_impact',
       'admin_invite_emails',
       'admin_remove_invites',
+      // Step 2.10 b: naming or removing an administrator, only for the owner with the session open
+      'admin_set_admin',
       'bury_cards',
       // Step 2.3: «Descargar mis datos», only theirs
       'export_my_data',

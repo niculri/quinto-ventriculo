@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
-import type { NewCardReport, RemoveResult, ReportStatus } from './repository';
+import type { NewCardReport, RemoveResult, ReportStatus, SetAdminResult } from './repository';
 
 const REPORTS = ['card-reports'] as const;
 
@@ -102,6 +102,16 @@ export function useRemoveInvites() {
   const client = useQueryClient();
   return useMutation<RemoveResult, Error, { emails: string[] } | { list: string }>({
     mutationFn: (target) => admin.removeInvites(target),
+    onSettled: () => client.invalidateQueries({ queryKey: ACCESS }),
+  });
+}
+
+/** Step 2.10 b: the owner names or removes an administrator. */
+export function useSetAdmin() {
+  const { admin } = useServices();
+  const client = useQueryClient();
+  return useMutation<SetAdminResult, Error, { email: string; admin: boolean }>({
+    mutationFn: (input) => admin.setAdmin(input),
     onSettled: () => client.invalidateQueries({ queryKey: ACCESS }),
   });
 }

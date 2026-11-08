@@ -45,6 +45,8 @@ const SEEDS: Record<string, string> = {
   '20261101000100_invites.sql': `insert into public.invited_emails (email, note) values
     ('${OWNER_EMAIL}', 'Autor'), ('${FRIEND_EMAIL}', 'Invitado de prueba');`,
   '20261101000500_admin.sql': `insert into public.admin_emails (email, note) values ('${OWNER_EMAIL}', 'Autor');`,
+  // Step 2.10 b: the owner's row is marked in production after migrating (the line is in the private repository).
+  '20261116000000_admin_owner.sql': `update public.admin_emails set owner = true where email = '${OWNER_EMAIL}';`,
 };
 
 /** Applies one migration of `db/<name>` (after `createDatabase(…, until)`). */

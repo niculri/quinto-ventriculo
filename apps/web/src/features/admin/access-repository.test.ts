@@ -74,7 +74,60 @@ describe('supabaseAdminRepository: «Acceso»', () => {
           lastSignInAt: null,
         },
       ],
+      // Step 2.10 b: a database of before that step does not say who the owner is: nobody is, and no buttons.
+      owner: null,
+      youAreOwner: false,
     });
+  });
+
+  it('step 2.10 b: the report says who the owner is and whether it is who looks', async () => {
+    const { client } = clientWith(async () => ({
+      data: {
+        open_to_domain: false,
+        lists: [],
+        invited: [],
+        accounts_without_invite: [],
+        owner: 'dueno@ug.uchile.cl',
+        you_are_owner: true,
+      },
+      error: null,
+    }));
+    expect(await supabaseAdminRepository(client).accessReport()).toMatchObject({
+      owner: 'dueno@ug.uchile.cl',
+      youAreOwner: true,
+    });
+  });
+
+  it('step 2.10 b: names or removes an administrator with { p: { email, admin } }, and says each refusal', async () => {
+    const { client, spy } = clientWith(async () => ({
+      data: { email: 'ana.perez@ug.uchile.cl', admin: true, changed: true },
+      error: null,
+    }));
+    const repo = supabaseAdminRepository(client);
+    expect(await repo.setAdmin({ email: 'ana.perez@ug.uchile.cl', admin: true })).toEqual({
+      email: 'ana.perez@ug.uchile.cl',
+      admin: true,
+      changed: true,
+    });
+    expect(spy).toHaveBeenLastCalledWith('admin_set_admin', {
+      p: { email: 'ana.perez@ug.uchile.cl', admin: true },
+    });
+    await repo.setAdmin({ email: 'ana.perez@ug.uchile.cl', admin: false });
+    expect(spy).toHaveBeenLastCalledWith('admin_set_admin', {
+      p: { email: 'ana.perez@ug.uchile.cl', admin: false },
+    });
+    const cases: [Rpc, string][] = [
+      [refused('42501', 'owner_only'), 'Solo el dueño del sitio nombra o quita administradores.'],
+      [refused('42501', 'owner_stays'), 'Al dueño del sitio no se le quita.'],
+      // Not «Esa lista ya no existe» (P0002 too).
+      [refused('P0002', 'not_invited'), 'Primero tiene que estar invitado. Recarga la página.'],
+      [refused('42501', 'admin_only'), 'Solo para administradores.'],
+      [refused('28000', 'session_closed'), 'Tu sesión se cerró. Sal y vuelve a entrar.'],
+    ];
+    for (const [rpc, said] of cases) {
+      const r = supabaseAdminRepository(clientWith(rpc).client);
+      await expect(r.setAdmin({ email: 'x@ug.uchile.cl', admin: true })).rejects.toThrow(said);
+    }
   });
 
   it('invites with { p: { emails, list, note } } and never sends who invites (the database takes it from the token)', async () => {

@@ -274,15 +274,39 @@ export function createApp(deps: Dependencies) {
 
   /**
    * Only for an administrator, and only if the API has what the route needs (`ready`): anybody else gets «no existe»
-   * (the panel's URL does not exist for them).
+   * (the panel's URL does not exist for them). A write by an administrator removed less than a minute ago: 403.
    */
   const adminOnly = (ready: () => boolean) =>
     createMiddleware<AppEnv>(async (c, next) => {
       // Revisión de cero (1.7, parte 2): never kept, also the «no existe» (a minute of a 404 kept by the browser would
       // hide the panel from someone just made an administrator, or after a failed is_admin()).
       c.header('Cache-Control', 'no-store');
-      if (!ready() || !deps.admins || !(await deps.admins.isAdmin(c.get('token')))) {
+      const token = c.get('token');
+      if (!ready() || !deps.admins || !(await deps.admins.isAdmin(token))) {
         return c.json(apiError('not_found', 'No existe esa ruta.'), 404);
+      }
+      // Step 2.10 b: what writes (publish, revert, mark, the site's switch, and any other) asks the database again,
+      // not the answer remembered up to a minute: an administrator the owner just removed cannot change anything any
+      // more. What only reads keeps the remembered answer (the preview asks many times a page).
+      if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
+        const stillAdmin = deps.admins.isAdminNow
+          ? await deps.admins.isAdminNow(token)
+          : await deps.admins.isAdmin(token);
+        if (stillAdmin === null) {
+          return c.json(
+            apiError(
+              'admin_unavailable',
+              'No se pudo comprobar que sigues siendo administrador. Intenta de nuevo en un rato.',
+            ),
+            503,
+          );
+        }
+        if (!stillAdmin) {
+          return c.json(
+            apiError('admin_only', 'Ya no eres administrador. Recarga la página.'),
+            403,
+          );
+        }
       }
       await next();
     });

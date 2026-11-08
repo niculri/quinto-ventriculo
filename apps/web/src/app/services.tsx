@@ -43,10 +43,11 @@ export function createServices(): Services {
       previewApi: createApiClient(token, '', PREVIEW_HEADERS),
       study: withCardSync(localStudyRepository(), api, userOf(session)),
       quiz: localQuizRepository(),
-      // The demo's user is an administrator, to see the panel; `qv-demo-role` = `student` makes it a student (the e2e
-      // tests of what a student does not see).
+      // The demo's user is the owner, to see the whole panel; `qv-demo-role` = `student` makes it a student, and
+      // `admin` an administrator who is not the owner (the e2e tests of what they do not see).
       admin: localAdminRepository({
         admin: demoRole() !== 'student',
+        owner: demoRole() !== 'admin',
         storage: window.localStorage,
         email: DEMO_EMAIL,
       }),

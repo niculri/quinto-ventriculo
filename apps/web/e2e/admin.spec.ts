@@ -236,6 +236,71 @@ test('«Acceso»: invite into a new list, see what it did, and remove a person w
   expect(browserDialogs).toEqual([]);
 });
 
+test('«Acceso», step 2.10 b: the owner names an administrator and removes them, with popups of their own', async ({
+  page,
+}) => {
+  const browserDialogs: string[] = [];
+  page.on('dialog', (d) => {
+    browserDialogs.push(d.type());
+    void d.dismiss();
+  });
+  await signIn(page);
+  await page.goto('/admin/access');
+  const course = page.getByRole('article', { name: 'Lista Curso de prueba' });
+  const name = course.getByRole('button', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' });
+  await expect(name).toBeVisible();
+  // The demo's user is the owner: their own row says so, without buttons.
+  const team = page.getByRole('article', { name: 'Lista Equipo' });
+  await expect(team.getByText('Dueño', { exact: true })).toBeVisible();
+  await expect(team.getByRole('button', { name: /administrador a / })).toHaveCount(0);
+  // Nothing wider than the screen (the phone too).
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+
+  await name.click();
+  const dialog = page.getByRole('dialog', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' });
+  const go = dialog.getByRole('button', { name: 'Hacer administrador', exact: true });
+  await expect(go).toBeDisabled();
+  await dialog.getByLabel(/Para confirmar/).fill('Ana.Perez@ug.uchile.cl');
+  await go.click();
+  const done = page.getByRole('dialog', { name: 'Listo' });
+  await expect(done).toContainText('ana.perez@ug.uchile.cl ya es administrador.');
+  await done.getByRole('button', { name: 'Listo' }).click();
+  await expect(course.getByText('Administrador', { exact: true })).toBeVisible();
+  await expect(course.getByRole('button', { name: 'Sacar a ana.perez@ug.uchile.cl' })).toHaveCount(
+    0,
+  );
+
+  await course
+    .getByRole('button', { name: 'Quitar administrador a ana.perez@ug.uchile.cl' })
+    .click();
+  const remove = page.getByRole('dialog', {
+    name: 'Quitar administrador a ana.perez@ug.uchile.cl',
+  });
+  await expect(remove).toContainText('Deja de poder cambiar cosas de inmediato');
+  await expect(remove).toContainText('hasta un minuto');
+  await remove.getByLabel(/Para confirmar/).fill('ana.perez@ug.uchile.cl');
+  await remove.getByRole('button', { name: 'Quitar administrador', exact: true }).click();
+  const gone = page.getByRole('dialog', { name: 'Listo' });
+  await expect(gone).toContainText('ana.perez@ug.uchile.cl ya no es administrador.');
+  await gone.getByRole('button', { name: 'Listo' }).click();
+  await expect(
+    course.getByRole('button', { name: 'Sacar a ana.perez@ug.uchile.cl' }),
+  ).toBeVisible();
+  expect(browserDialogs).toEqual([]);
+});
+
+test('«Acceso», step 2.10 b: another administrator uses it, without naming or removing administrators', async ({
+  page,
+}) => {
+  await page.addInitScript(() => window.localStorage.setItem('qv-demo-role', 'admin'));
+  await signIn(page);
+  await page.goto('/admin/access');
+  await expect(page.getByRole('button', { name: 'Sacar a ana.perez@ug.uchile.cl' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /administrador a / })).toHaveCount(0);
+});
+
 test('«Fuera del sitio»: what is off now and the record, only to look at', async ({ page }) => {
   await signIn(page);
   await page.goto('/admin/unpublished');

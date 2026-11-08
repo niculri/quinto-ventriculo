@@ -49,6 +49,17 @@ export interface AccessReport {
   invited: AccessInvite[];
   /** Accounts that exist without an invitation (there should be none). */
   accountsWithoutInvite: { email: string; createdAt: string; lastSignInAt: string | null }[];
+  /** The owner of the site (step 2.10 b): never removed as an administrator. Null until the row is marked. */
+  owner: string | null;
+  /** Whoever is looking is the owner: only they name and remove administrators. */
+  youAreOwner: boolean;
+}
+
+/** What naming or removing an administrator did. `changed` is false when it already was as asked. */
+export interface SetAdminResult {
+  email: string;
+  admin: boolean;
+  changed: boolean;
 }
 
 export type InviteRejection = 'domain' | 'invalid' | 'repeated' | 'empty';
@@ -97,6 +108,10 @@ export interface AdminRepository {
   invite(input: { emails: string[]; list: string; note: string | null }): Promise<InviteResult>;
   /** Removes some people or a whole list, never an administrator; their sessions close. */
   removeInvites(target: { emails: string[] } | { list: string }): Promise<RemoveResult>;
+  /**
+   * Names an invited person administrator, or removes one (step 2.10 b). Only the owner; never the owner.
+   */
+  setAdmin(input: { email: string; admin: boolean }): Promise<SetAdminResult>;
 }
 
 interface ReportRow {
@@ -128,6 +143,9 @@ interface AccessReportRow {
     last_sign_in_at: string | null;
   }[];
   accounts_without_invite: { email: string; created_at: string; last_sign_in_at: string | null }[];
+  /** Step 2.10 b (…_admin_owner.sql); absent from a database of before that step. */
+  owner?: string | null;
+  you_are_owner?: boolean;
 }
 
 const accessReportOf = (r: AccessReportRow): AccessReport => ({
@@ -148,12 +166,24 @@ const accessReportOf = (r: AccessReportRow): AccessReport => ({
     createdAt: a.created_at,
     lastSignInAt: a.last_sign_in_at,
   })),
+  owner: r.owner ?? null,
+  youAreOwner: r.you_are_owner === true,
 });
 
 /** The database's refusal (admin_*() of the users' database), in words for the panel. */
 function accessError(error: { code?: string; message: string }): AccessError {
   if (error.code === '28000' || /session_closed/.test(error.message)) {
     return new AccessError('Tu sesión se cerró. Sal y vuelve a entrar.');
+  }
+  // Step 2.10 b: before the codes (they share 42501 and P0002 with the refusals of step 2.10).
+  if (/owner_only/.test(error.message)) {
+    return new AccessError('Solo el dueño del sitio nombra o quita administradores.');
+  }
+  if (/owner_stays/.test(error.message)) {
+    return new AccessError('Al dueño del sitio no se le quita.');
+  }
+  if (/not_invited/.test(error.message)) {
+    return new AccessError('Primero tiene que estar invitado. Recarga la página.');
   }
   if (error.code === '42501') return new AccessError('Solo para administradores.');
   if (error.code === 'P0002') return new AccessError('Esa lista ya no existe. Recarga la página.');
@@ -266,6 +296,11 @@ export function supabaseAdminRepository(client: SupabaseClient): AdminRepository
         openToDomain: r.open_to_domain,
       };
     },
+    async setAdmin({ email, admin }) {
+      const { data, error } = await client.rpc('admin_set_admin', { p: { email, admin } });
+      if (error) throw accessError(error);
+      return data as SetAdminResult;
+    },
   };
 }
 
@@ -302,6 +337,8 @@ export function localAdminRepository(
     storage?: Storage | null;
     /** Who the administrator is (who invites). */
     email?: string;
+    /** They are the owner of the site (step 2.10 b); by default, the administrator is. */
+    owner?: boolean;
     /** The invitations to start with (by default, made-up ones). */
     invites?: AccessInvite[];
     accountsWithoutInvite?: AccessReport['accountsWithoutInvite'];
@@ -346,6 +383,10 @@ export function localAdminRepository(
   const onlyAdmin = async () => {
     if (!(options.admin ?? false)) throw new AccessError('Solo para administradores.');
   };
+  const me = options.email ?? 'demo@ug.uchile.cl';
+  const youAreOwner = (options.admin ?? false) && (options.owner ?? true);
+  // Who the owner is: the administrator, if they are; if not, nobody of these invitations (the owner is somebody else).
+  const ownerEmail = youAreOwner ? me : null;
   const sorted = (list: AccessInvite[]) =>
     [...list].sort((a, b) => a.list.localeCompare(b.list) || a.email.localeCompare(b.email));
   return {
@@ -362,7 +403,24 @@ export function localAdminRepository(
         })),
         invited: sorted(invites),
         accountsWithoutInvite: options.accountsWithoutInvite ?? [],
+        owner: ownerEmail,
+        youAreOwner,
       };
+    },
+    async setAdmin({ email, admin }) {
+      await onlyAdmin();
+      if (!youAreOwner) {
+        throw new AccessError('Solo el dueño del sitio nombra o quita administradores.');
+      }
+      const e = normalizeEmail(email);
+      const found = invites.find((i) => i.email === e);
+      if (!admin && e === ownerEmail) throw new AccessError('Al dueño del sitio no se le quita.');
+      if (admin && !found) {
+        throw new AccessError('Primero tiene que estar invitado. Recarga la página.');
+      }
+      const changed = !!found && found.admin !== admin;
+      if (changed) keepInvites(invites.map((i) => (i.email === e ? { ...i, admin } : i)));
+      return { email: e, admin, changed };
     },
     async invite({ emails, list, note }) {
       await onlyAdmin();
@@ -392,7 +450,7 @@ export function localAdminRepository(
               email,
               list: name,
               note: note?.trim() || null,
-              invitedBy: options.email ?? 'demo@ug.uchile.cl',
+              invitedBy: me,
               invitedAt: new Date().toISOString(),
               admin: false,
               hasAccount: false,

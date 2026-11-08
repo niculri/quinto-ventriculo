@@ -1,7 +1,7 @@
 import { useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { TriangleAlert, UserMinus, UserPlus, Users } from 'lucide-react';
+import { ShieldCheck, ShieldMinus, TriangleAlert, UserMinus, UserPlus, Users } from 'lucide-react';
 import { formatDate, formatDateTime } from '../../lib/dates';
 import { Loading } from '../../ui/Loading';
 import { Notice } from '../../ui/Notice';
@@ -9,7 +9,7 @@ import { Reserved } from '../../ui/Reserved';
 import { Select } from '../../ui/Select';
 import { button, card } from '../../ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
-import { useAccessReport, useInvite, useRemoveInvites } from './queries';
+import { useAccessReport, useInvite, useRemoveInvites, useSetAdmin } from './queries';
 import { AccessError, MAX_EMAILS, normalizeEmail } from './repository';
 import type {
   AccessInvite,
@@ -17,6 +17,7 @@ import type {
   InviteRejection,
   InviteResult,
   RemoveResult,
+  SetAdminResult,
 } from './repository';
 
 /**
@@ -26,6 +27,10 @@ import type {
  * list, and removing a person or a whole list (a popup that asks to write what goes). An administrator is never
  * removed from here. Whether the whole domain is in (`open_to_domain`, step 4) is shown, not changed. Everything goes
  * straight to the users' database with the administrator's own token (admin_*() of …_admin_access.sql).
+ *
+ * Step 2.10 b: the owner of the site (and only them: `youAreOwner` comes with the report, so nothing appears after it)
+ * names an invited person administrator and removes one, never themself, with a popup that asks to write the email
+ * (admin_set_admin() of …_admin_owner.sql).
  */
 export function AccessPage() {
   const report = useAccessReport();
@@ -60,8 +65,12 @@ const messageOf = (e: unknown) => (e instanceof AccessError ? e.message : GENERI
 
 type Removing = { kind: 'person'; email: string } | { kind: 'list'; list: string; count: number };
 
+/** Naming (`admin: true`) or removing (`false`) an administrator. */
+type Appointing = { email: string; admin: boolean };
+
 function Access({ report }: { report: AccessReport }) {
   const [removing, setRemoving] = useState<Removing | null>(null);
+  const [appointing, setAppointing] = useState<Appointing | null>(null);
   const byList = useMemo(() => {
     const m = new Map<string, AccessInvite[]>();
     for (const i of report.invited) m.set(i.list, [...(m.get(i.list) ?? []), i]);
@@ -122,7 +131,10 @@ function Access({ report }: { report: AccessReport }) {
                       <InviteRow
                         key={p.email}
                         invite={p}
+                        isOwner={p.email === report.owner}
+                        youAreOwner={report.youAreOwner}
                         onRemove={() => setRemoving({ kind: 'person', email: p.email })}
+                        onAppoint={(admin) => setAppointing({ email: p.email, admin })}
                       />
                     ))}
                   </ul>
@@ -140,6 +152,13 @@ function Access({ report }: { report: AccessReport }) {
           key={removing.kind === 'person' ? `p:${removing.email}` : `l:${removing.list}`}
           target={removing}
           onClose={() => setRemoving(null)}
+        />
+      ) : null}
+      {appointing ? (
+        <AdminDialog
+          key={`${appointing.admin ? 'a' : 'r'}:${appointing.email}`}
+          target={appointing}
+          onClose={() => setAppointing(null)}
         />
       ) : null}
     </>
@@ -184,7 +203,21 @@ function Strays({ report }: { report: AccessReport }) {
   );
 }
 
-function InviteRow({ invite: i, onRemove }: { invite: AccessInvite; onRemove: () => void }) {
+function InviteRow({
+  invite: i,
+  isOwner,
+  youAreOwner,
+  onRemove,
+  onAppoint,
+}: {
+  invite: AccessInvite;
+  /** This row is the owner's: never removed, as an administrator or as invited. */
+  isOwner: boolean;
+  /** Whoever looks is the owner: only they see «Hacer administrador» and «Quitar administrador». */
+  youAreOwner: boolean;
+  onRemove: () => void;
+  onAppoint: (admin: boolean) => void;
+}) {
   return (
     <li className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
       <div className="min-w-0">
@@ -200,20 +233,46 @@ function InviteRow({ invite: i, onRemove }: { invite: AccessInvite; onRemove: ()
           {i.note ? ` · ${i.note}` : ''}
         </p>
       </div>
-      {i.admin ? (
-        <span className="rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand">
-          Administrador
-        </span>
-      ) : (
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label={`Sacar a ${i.email}`}
-          className={`${button.base} ${button.secondary} px-3 py-1.5`}
-        >
-          Sacar
-        </button>
-      )}
+      <div className="flex flex-wrap items-center gap-2">
+        {i.admin ? (
+          <>
+            <span className="rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand">
+              {isOwner ? 'Dueño' : 'Administrador'}
+            </span>
+            {youAreOwner && !isOwner ? (
+              <button
+                type="button"
+                onClick={() => onAppoint(false)}
+                aria-label={`Quitar administrador a ${i.email}`}
+                className={`${button.base} ${button.secondary} px-3 py-1.5`}
+              >
+                Quitar administrador
+              </button>
+            ) : null}
+          </>
+        ) : (
+          <>
+            {youAreOwner ? (
+              <button
+                type="button"
+                onClick={() => onAppoint(true)}
+                aria-label={`Hacer administrador a ${i.email}`}
+                className={`${button.base} ${button.secondary} px-3 py-1.5`}
+              >
+                Hacer administrador
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onRemove}
+              aria-label={`Sacar a ${i.email}`}
+              className={`${button.base} ${button.secondary} px-3 py-1.5`}
+            >
+              Sacar
+            </button>
+          </>
+        )}
+      </div>
     </li>
   );
 }
@@ -626,6 +685,137 @@ function RemoveDialog({ target: t, onClose }: { target: Removing; onClose: () =>
                 <span className="col-start-1 row-start-1">
                   {busy ? 'Sacando…' : t.kind === 'person' ? 'Sacar' : 'Sacar la lista'}
                 </span>
+              </span>
+            </button>
+          </div>
+        </form>
+      )}
+    </Shell>
+  );
+}
+
+/** The longest refusal the popup of administrators can show: its place is there from the start. */
+const LONGEST_ADMIN_REFUSAL = 'Solo el dueño del sitio nombra o quita administradores.';
+
+/**
+ * Step 2.10 b: naming an invited person administrator, or removing one. The popup says what it means and asks to write
+ * the email (never `confirm`); then it says what was done. It does not close while it works.
+ */
+function AdminDialog({ target: t, onClose }: { target: Appointing; onClose: () => void }) {
+  const id = useId();
+  const setAdmin = useSetAdmin();
+  const [typed, setTyped] = useState('');
+  const [done, setDone] = useState<SetAdminResult | null>(null);
+  const matches = normalizeEmail(typed) === normalizeEmail(t.email);
+  const busy = setAdmin.isPending;
+  const close = () => {
+    if (busy) return;
+    onClose();
+  };
+  const action = t.admin ? 'Hacer administrador' : 'Quitar administrador';
+  return (
+    <Shell open onClose={close} busy={busy} title={done ? 'Listo' : `${action} a ${t.email}`}>
+      {done ? (
+        <>
+          <Dialog.Description className="mt-2 text-sm break-words text-muted">
+            <span className="font-mono break-all">{done.email}</span>{' '}
+            {done.admin
+              ? done.changed
+                ? 'ya es administrador.'
+                : 'ya era administrador.'
+              : done.changed
+                ? 'ya no es administrador. Ya no puede cambiar nada; lo que solo se mira puede quedarle hasta un minuto.'
+                : 'no era administrador.'}
+          </Dialog.Description>
+          <div className="mt-5 flex justify-end">
+            <button type="button" onClick={close} className={`${button.base} ${button.primary}`}>
+              Listo
+            </button>
+          </div>
+        </>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!matches || busy) return;
+            setAdmin.mutate({ email: t.email, admin: t.admin }, { onSuccess: setDone });
+          }}
+        >
+          <Dialog.Description asChild>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">
+              {t.admin ? (
+                <>
+                  <li>
+                    Puede usar todo este panel: publicar, la vista previa, los reportes y el acceso
+                    (invitar y sacar personas).
+                  </li>
+                  <li>No puede nombrar ni quitar administradores: eso queda solo para ti.</li>
+                  <li>
+                    Verá «Administración» en el menú de su cuenta la próxima vez que abra o recargue
+                    el sitio.
+                  </li>
+                  <li>Se le puede quitar cuando quieras, desde aquí.</li>
+                </>
+              ) : (
+                <>
+                  <li>Sigue invitado, con su cuenta, su avance y sus sesiones.</li>
+                  <li>
+                    Deja de poder cambiar cosas de inmediato: publicar, deshacer, el interruptor del
+                    sitio, invitar o sacar personas.
+                  </li>
+                  <li>
+                    Ver la vista previa y lo que muestran Publicaciones, Sitio y Fuera del sitio
+                    puede quedarle hasta un minuto.
+                  </li>
+                  <li>Después, si hace falta, se puede sacar como a cualquier invitado.</li>
+                </>
+              )}
+            </ul>
+          </Dialog.Description>
+          <label htmlFor={`${id}-confirm`} className="mt-5 block text-sm font-medium">
+            Para confirmar, escribe el correo (
+            <span className="font-mono break-all">{t.email}</span>)
+          </label>
+          <input
+            id={`${id}-confirm`}
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+            disabled={busy}
+            className="mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink sm:text-sm"
+          />
+          <Reserved longest={LONGEST_ADMIN_REFUSAL} className="mt-2 text-sm">
+            {setAdmin.isError ? (
+              <p role="alert" className="text-state-learn">
+                {messageOf(setAdmin.error)}
+              </p>
+            ) : null}
+          </Reserved>
+          <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={close}
+              disabled={busy}
+              className={`${button.base} ${button.secondary}`}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={!matches || busy}
+              className={`${button.base} ${t.admin ? button.primary : button.danger}`}
+            >
+              {t.admin ? (
+                <ShieldCheck className="size-4" aria-hidden="true" />
+              ) : (
+                <ShieldMinus className="size-4" aria-hidden="true" />
+              )}
+              <span className="grid place-items-center">
+                <span aria-hidden="true" className="invisible col-start-1 row-start-1">
+                  {action}
+                </span>
+                <span className="col-start-1 row-start-1">{busy ? 'Guardando…' : action}</span>
               </span>
             </button>
           </div>

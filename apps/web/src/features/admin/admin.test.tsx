@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { SiteSettings, UnpublishedLog } from '@qv/schema';
 import { CATALOG, fakeApi, renderApp } from '../../test/render';
-import { localAdminRepository } from './repository';
-import type { AdminRepository } from './repository';
+import { AccessError, localAdminRepository } from './repository';
+import type { AccessInvite, AdminRepository } from './repository';
 import { readEmails } from './AccessPage';
 
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>
@@ -453,6 +453,160 @@ describe('«Acceso» (step 2.10)', () => {
     expect(
       screen.getByRole('dialog', { name: 'Sacar a luis.soto@ug.uchile.cl' }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('«Acceso»: administrators (step 2.10 b)', () => {
+  const people = (): AccessInvite[] => [
+    person('dueno@ug.uchile.cl', 'Equipo', true),
+    person('segunda.admin@ug.uchile.cl', 'Equipo', true),
+    person('ana.perez@ug.uchile.cl', 'Curso de prueba', false),
+  ];
+  function person(email: string, list: string, isAdmin: boolean): AccessInvite {
+    return {
+      email,
+      list,
+      note: null,
+      invitedBy: null,
+      invitedAt: '2026-11-01T12:00:00.000Z',
+      admin: isAdmin,
+      hasAccount: true,
+      lastSignInAt: null,
+    };
+  }
+
+  it('the owner sees «Hacer administrador» and «Quitar administrador»; never on their own row', async () => {
+    renderApp('/admin/access', { admin: admin({ invites: people() }) });
+    const team = await screen.findByRole('article', { name: 'Lista Equipo' });
+    expect(within(team).getByText('Dueño')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Quitar administrador a dueno@ug.uchile.cl' }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Quitar administrador a segunda.admin@ug.uchile.cl' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' }),
+    ).toBeInTheDocument();
+  });
+
+  it('another administrator uses the panel, but sees none of those buttons', async () => {
+    renderApp('/admin/access', {
+      admin: admin({ email: 'segunda.admin@ug.uchile.cl', owner: false, invites: people() }),
+    });
+    expect(
+      await screen.findByRole('button', { name: 'Sacar a ana.perez@ug.uchile.cl' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /administrador a / })).toBeNull();
+  });
+
+  it('naming asks to write the email; then the row says «Administrador», without «Sacar»', async () => {
+    const calls: unknown[] = [];
+    const repo = admin({ invites: people() });
+    renderApp('/admin/access', {
+      admin: {
+        ...repo,
+        setAdmin: async (input) => {
+          calls.push(input);
+          return repo.setAdmin(input);
+        },
+      },
+    });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' }),
+    );
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Hacer administrador a ana.perez@ug.uchile.cl',
+    });
+    expect(dialog).toHaveTextContent('No puede nombrar ni quitar administradores');
+    // Revisión de cero (2.10 b): their web asks is_admin() again only on loading (or ten minutes later).
+    expect(dialog).toHaveTextContent('la próxima vez que abra o recargue el sitio');
+    const go = within(dialog).getByRole('button', { name: 'Hacer administrador' });
+    expect(go).toBeDisabled();
+    await userEvent.type(within(dialog).getByLabelText(/Para confirmar/), 'ana.perez@ug.uchile.c');
+    expect(go).toBeDisabled();
+    await userEvent.type(within(dialog).getByLabelText(/Para confirmar/), 'L ');
+    await userEvent.click(go);
+    const done = await screen.findByRole('dialog', { name: 'Listo' });
+    expect(done).toHaveTextContent('ana.perez@ug.uchile.cl ya es administrador.');
+    expect(calls).toEqual([{ email: 'ana.perez@ug.uchile.cl', admin: true }]);
+    await userEvent.click(within(done).getByRole('button', { name: 'Listo' }));
+    const course = screen.getByRole('article', { name: 'Lista Curso de prueba' });
+    await waitFor(() => expect(within(course).getByText('Administrador')).toBeInTheDocument());
+    expect(within(course).queryByRole('button', { name: /^Sacar/ })).toBeNull();
+    expect(
+      within(course).getByRole('button', {
+        name: 'Quitar administrador a ana.perez@ug.uchile.cl',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('removing says it can take up to a minute; then they can be removed like anybody invited', async () => {
+    renderApp('/admin/access', { admin: admin({ invites: people() }) });
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: 'Quitar administrador a segunda.admin@ug.uchile.cl',
+      }),
+    );
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Quitar administrador a segunda.admin@ug.uchile.cl',
+    });
+    expect(dialog).toHaveTextContent('Sigue invitado, con su cuenta, su avance y sus sesiones.');
+    // Revisión de cero (2.10 b): what writes is cut at once (the Worker asks the database again); what only reads, up to
+    // a minute.
+    expect(dialog).toHaveTextContent('Deja de poder cambiar cosas de inmediato');
+    expect(dialog).toHaveTextContent('hasta un minuto');
+    await userEvent.type(
+      within(dialog).getByLabelText(/Para confirmar/),
+      'segunda.admin@ug.uchile.cl',
+    );
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Quitar administrador' }));
+    const done = await screen.findByRole('dialog', { name: 'Listo' });
+    expect(done).toHaveTextContent(
+      'segunda.admin@ug.uchile.cl ya no es administrador. Ya no puede cambiar nada;',
+    );
+    await userEvent.click(within(done).getByRole('button', { name: 'Listo' }));
+    expect(
+      await screen.findByRole('button', { name: 'Sacar a segunda.admin@ug.uchile.cl' }),
+    ).toBeInTheDocument();
+  });
+
+  it('a refusal of the database is said in the popup, which stays open', async () => {
+    const repo = admin({ invites: people() });
+    renderApp('/admin/access', {
+      admin: {
+        ...repo,
+        setAdmin: async () => {
+          throw new AccessError('Primero tiene que estar invitado. Recarga la página.');
+        },
+      },
+    });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.type(within(dialog).getByLabelText(/Para confirmar/), 'ana.perez@ug.uchile.cl');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Hacer administrador' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Primero tiene que estar invitado.',
+    );
+    expect(
+      screen.getByRole('dialog', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' }),
+    ).toBeInTheDocument();
+  });
+
+  it('the demo repository refuses as the database does', async () => {
+    const owner = admin({ invites: people() });
+    await expect(owner.setAdmin({ email: 'dueno@ug.uchile.cl', admin: false })).rejects.toThrow(
+      'Al dueño del sitio no se le quita.',
+    );
+    await expect(owner.setAdmin({ email: 'nadie@ug.uchile.cl', admin: true })).rejects.toThrow(
+      'Primero tiene que estar invitado.',
+    );
+    const other = admin({ email: 'segunda.admin@ug.uchile.cl', owner: false, invites: people() });
+    await expect(other.setAdmin({ email: 'ana.perez@ug.uchile.cl', admin: true })).rejects.toThrow(
+      'Solo el dueño del sitio',
+    );
   });
 });
 

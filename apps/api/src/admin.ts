@@ -5,7 +5,14 @@
  * Worker no recibe la clave de servicio de usuarios»).
  */
 export interface AdminChecker {
+  /** Remembered a while (`ttl`): what only reads (the preview, the panel's pages) asks this. */
   isAdmin(token: string): Promise<boolean>;
+  /**
+   * Asked to the database now, never the remembered answer, and remembered after (step 2.10 b): what writes asks this,
+   * so that an administrator who was removed cannot publish, revert, mark or change the site a minute longer. `null`:
+   * it could not be asked. Without it (a checker that remembers nothing), `isAdmin()` is used.
+   */
+  isAdminNow?(token: string): Promise<boolean | null>;
 }
 
 export interface AdminCheckerOptions {
@@ -28,32 +35,37 @@ export function supabaseAdminChecker(op: AdminCheckerOptions): AdminChecker {
   const doFetch = op.fetch ?? fetch;
   const now = op.now ?? Date.now;
   const remembered = new Map<string, { admin: boolean; until: number }>();
+  /** The database's answer, remembered; `null` if it could not be asked (a failure is not remembered). */
+  const ask = async (token: string): Promise<boolean | null> => {
+    let admin: boolean;
+    try {
+      const r = await doFetch(`${base}/rest/v1/rpc/is_admin`, {
+        method: 'POST',
+        headers: {
+          apikey: op.publishableKey,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: '{}',
+      });
+      if (!r.ok) return null;
+      admin = (await r.json()) === true;
+    } catch {
+      return null;
+    }
+    if (remembered.size >= MAX_REMEMBERED) remembered.clear();
+    remembered.set(token, { admin, until: now() + ttl });
+    return admin;
+  };
   return {
     async isAdmin(token) {
       const hit = remembered.get(token);
       if (hit && hit.until > now()) return hit.admin;
-      let admin: boolean;
-      try {
-        const r = await doFetch(`${base}/rest/v1/rpc/is_admin`, {
-          method: 'POST',
-          headers: {
-            apikey: op.publishableKey,
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: '{}',
-        });
-        // A failure is not remembered: the next request asks again.
-        if (!r.ok) return false;
-        admin = (await r.json()) === true;
-      } catch {
-        return false;
-      }
-      if (remembered.size >= MAX_REMEMBERED) remembered.clear();
-      remembered.set(token, { admin, until: now() + ttl });
-      return admin;
+      // A failure is «no», and the next request asks again.
+      return (await ask(token)) ?? false;
     },
+    isAdminNow: ask,
   };
 }
 

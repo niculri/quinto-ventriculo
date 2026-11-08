@@ -1,1 +1,1 @@
-export { AdminPage as default } from '../../features/admin/AdminPage';
+export { AdminLayout as default } from '../../features/admin/AdminLayout';

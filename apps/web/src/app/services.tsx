@@ -43,8 +43,13 @@ export function createServices(): Services {
       previewApi: createApiClient(token, '', PREVIEW_HEADERS),
       study: withCardSync(localStudyRepository(), api, userOf(session)),
       quiz: localQuizRepository(),
-      // The demo's user is an administrator, to see the panel.
-      admin: localAdminRepository({ admin: true, storage: window.localStorage }),
+      // The demo's user is an administrator, to see the panel; `qv-demo-role` = `student` makes it a student (the e2e
+      // tests of what a student does not see).
+      admin: localAdminRepository({
+        admin: demoRole() !== 'student',
+        storage: window.localStorage,
+        email: DEMO_EMAIL,
+      }),
       account: localAccountRepository({
         storage: window.localStorage,
         email: DEMO_EMAIL,
@@ -78,6 +83,14 @@ export function createServices(): Services {
     admin: supabaseAdminRepository(client),
     account: supabaseAccountRepository(client, { url, key }),
   };
+}
+
+function demoRole(): string | null {
+  try {
+    return window.localStorage.getItem('qv-demo-role');
+  } catch {
+    return null;
+  }
 }
 
 /** The demo's download: what it keeps of the demo's account in this browser. */

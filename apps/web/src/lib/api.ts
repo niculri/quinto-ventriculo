@@ -22,6 +22,7 @@ import {
   RevertResult,
   SearchResponse,
   SiteSettings,
+  UnpublishedLog,
 } from '@qv/schema';
 import type { PublishRequest, ReleaseItemKind, ReleaseMarkId } from '@qv/schema';
 
@@ -133,6 +134,9 @@ export function createApiClient(
       request('/api/admin/site-settings', SiteSettings, signal),
     setSiteSettings: (body: { hideEmptySemesters: boolean }) =>
       request('/api/admin/site-settings', SiteSettings, undefined, { method: 'PUT', body }),
+    /** What was taken off the site (step 2.10), newest first: only for an administrator (anybody else gets 404). */
+    unpublishedLog: (signal?: AbortSignal) =>
+      request('/api/admin/unpublished', UnpublishedLog, signal),
     // ── Releases (step 1.7): only for an administrator (anybody else gets 404) ──
     /** What the draft changes, and the content version the site on line understands. */
     releaseOverview: (signal?: AbortSignal) =>

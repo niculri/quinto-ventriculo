@@ -129,9 +129,13 @@ describe('writes only through the functions', () => {
       'accept_legal',
       // Step 2.1: the Worker asks the state of the student's own session (step 2.3: with the versions to accept)
       'access_status',
+      // Step 2.10: «Acceso» in the administration panel, only for an administrator with the session open
+      'admin_access_report',
       'admin_card_reports',
       // Step 1.7, part 2: whom a release reaches, only for an administrator (it checks is_admin() itself)
       'admin_deck_impact',
+      'admin_invite_emails',
+      'admin_remove_invites',
       'bury_cards',
       // Step 2.3: «Descargar mis datos», only theirs
       'export_my_data',

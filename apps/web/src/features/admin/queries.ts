@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
-import type { NewCardReport, ReportStatus } from './repository';
+import type { NewCardReport, RemoveResult, ReportStatus } from './repository';
 
 const REPORTS = ['card-reports'] as const;
 
@@ -73,5 +73,44 @@ export function useSetSiteSettings() {
         })
         .catch(() => undefined);
     },
+  });
+}
+
+const ACCESS = ['access-report'] as const;
+
+/**
+ * «Acceso» (step 2.10): who is invited, by list, and the accounts without an invitation. Straight to the users'
+ * database, with the administrator's own token (it checks is_admin() and the open session).
+ */
+export function useAccessReport() {
+  const { admin } = useServices();
+  return useQuery({ queryKey: ACCESS, queryFn: () => admin.accessReport() });
+}
+
+export function useInvite() {
+  const { admin } = useServices();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { emails: string[]; list: string; note: string | null }) =>
+      admin.invite(input),
+    onSettled: () => client.invalidateQueries({ queryKey: ACCESS }),
+  });
+}
+
+export function useRemoveInvites() {
+  const { admin } = useServices();
+  const client = useQueryClient();
+  return useMutation<RemoveResult, Error, { emails: string[] } | { list: string }>({
+    mutationFn: (target) => admin.removeInvites(target),
+    onSettled: () => client.invalidateQueries({ queryKey: ACCESS }),
+  });
+}
+
+/** «Fuera del sitio» (step 2.10): the record of what was taken off the site, only to look at. */
+export function useUnpublishedLog() {
+  const { api } = useServices();
+  return useQuery({
+    queryKey: ['unpublished-log'],
+    queryFn: ({ signal }) => api.unpublishedLog(signal),
   });
 }

@@ -8,7 +8,7 @@ import { DECK_URL, signIn } from './helpers';
  * added and one taken out, a question whose key changes and one whose explanation does) and what the database gives
  * for it (e2e/content/release, written by db/tests/release.test.ts). The demo's user is an administrator.
  */
-const PANEL = '/settings/admin/releases';
+const PANEL = '/admin/releases';
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const DRAFT_TEXT = 'una mayor y una menor';
 

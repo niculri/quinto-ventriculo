@@ -7,6 +7,7 @@ import type { MediaStore } from './media';
 import { memoryRepository } from './repositories/memory';
 import { folderReleaseRepository } from './repositories/memory-release';
 import { memorySiteSettings } from './repositories/memory-settings';
+import { folderUnpublishedRepository } from './repositories/memory-unpublished';
 import { supabaseVerifier } from './session';
 import type { SessionVerifier } from './session';
 
@@ -66,6 +67,7 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     releases: await folderReleaseRepository(outputFolder),
     // In memory: the switch of the panel lasts until the server stops.
     settings: memorySiteSettings(),
+    unpublished: await folderUnpublishedRepository(outputFolder),
     // The demo's user is an administrator (as in the web's demo); with a real session, nobody is.
     admins: { isAdmin: async (token) => !options.supabaseUrl && token === DEMO_TOKEN },
   });

@@ -12,6 +12,7 @@ import type {
   RevertResult,
   SearchResult,
   SiteSettings,
+  UnpublishedLog,
 } from '@qv/schema';
 
 /**
@@ -116,4 +117,13 @@ export interface SiteSettingsRepository {
   get(): Promise<SiteSettings>;
   /** Only an administrator gets here (the API checks it); `by` is their email. */
   set(input: { hideEmptySemesters: boolean; by: string }): Promise<SiteSettings>;
+}
+
+/**
+ * What was taken off the site (step 1.5), for «Fuera del sitio» in the administration panel (step 2.10): the record
+ * of the content database (`unpublish_log_entries()`), only to look at. Always the published schema's.
+ */
+export interface UnpublishedRepository {
+  /** The latest entries (at most 200), newest first; an image's `onSite` is null (the image store knows it). */
+  log(): Promise<UnpublishedLog>;
 }

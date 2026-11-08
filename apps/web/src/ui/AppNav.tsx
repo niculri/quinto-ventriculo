@@ -8,6 +8,7 @@ import {
   Layers,
   ListChecks,
   Settings,
+  ShieldCheck,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import type { Catalog, CourseWithAssessments, NoteSummary, SemesterWithCourses } from '@qv/schema';
@@ -21,6 +22,8 @@ import {
 import { buildAnkiTree, courseDeck, hasPage } from '../features/anki/tree';
 import type { AnkiTree, CourseDeckNode } from '../features/anki/tree';
 import { useSettingsGroups } from '../features/settings/useSettingsGroups';
+import { useIsAdmin } from '../features/admin/queries';
+import { ADMIN_SECTIONS } from '../features/admin/sections';
 
 /** What the URL is showing, as far as the menu cares. */
 export interface Where {
@@ -34,6 +37,8 @@ export interface Where {
   /** The deck open (or being studied), by id. */
   deckId: string | null;
   settings: boolean;
+  /** «Administración» (step 2.10). */
+  admin: boolean;
 }
 
 const NOWHERE: Where = {
@@ -45,6 +50,7 @@ const NOWHERE: Where = {
   quizSlug: null,
   deckId: null,
   settings: false,
+  admin: false,
 };
 
 const decode = (s: string) => {
@@ -58,6 +64,7 @@ const decode = (s: string) => {
 /** Where a path is in the material (app/paths.ts builds them). */
 export function locate(pathname: string, catalog: Catalog | null, tree: AnkiTree | null): Where {
   if (pathname.startsWith('/settings')) return { ...NOWHERE, settings: true };
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return { ...NOWHERE, admin: true };
   const m =
     /^\/semesters\/(\d+)(?:\/courses\/([^/]+)(?:\/(notes|tests|anki|assessments)(?:\/(.*))?)?)?\/?$/.exec(
       pathname,
@@ -250,6 +257,8 @@ function NavTree({
       </li>
       {where.settings ? (
         <SettingsBranch pathname={pathname} onNavigate={onNavigate} />
+      ) : where.admin ? (
+        <AdminBranch pathname={pathname} onNavigate={onNavigate} />
       ) : semester ? (
         // Inside a semester: only it (the others are a step back, in «Inicio»).
         <SemesterBranch
@@ -528,6 +537,36 @@ function AssessmentParts({
         </li>
       ) : null}
     </>
+  );
+}
+
+/**
+ * «Administración» and its sections, as the page has them (only for an administrator: anybody else on its URL sees «no
+ * existe», and nothing here).
+ */
+function AdminBranch({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const isAdmin = useIsAdmin();
+  if (isAdmin.data !== true) return null;
+  return (
+    <li>
+      <p className={`${row} font-medium text-ink`}>
+        <ShieldCheck className={icon} aria-hidden="true" /> Administración
+      </p>
+      <ul className="mt-1 space-y-0.5">
+        {ADMIN_SECTIONS.map(({ label, to, icon: Icon }) => (
+          <li key={to}>
+            <NavLink
+              to={to}
+              active={pathname === to}
+              icon={<Icon className={icon} aria-hidden="true" />}
+              onNavigate={onNavigate}
+            >
+              {label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </li>
   );
 }
 

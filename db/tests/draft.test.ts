@@ -688,9 +688,9 @@ describe('the draft with content', () => {
   });
 
   it('the review link of the import report', () => {
-    expect(draftReviewUrl({})).toBe('https://www.quintoventriculo.cl/settings/admin/releases');
+    expect(draftReviewUrl({})).toBe('https://www.quintoventriculo.cl/admin/releases');
     expect(draftReviewUrl({ QV_SITE_URL: 'http://localhost:5173/' })).toBe(
-      'http://localhost:5173/settings/admin/releases',
+      'http://localhost:5173/admin/releases',
     );
   });
 });

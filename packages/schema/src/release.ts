@@ -10,7 +10,7 @@ export const CONTENT_SCHEMA_VERSION = 1;
 /**
  * What the draft changes against what is published (step 1.7, part 2): the shapes that `release_summary()`,
  * `release_items()`, `release_texts()` and `release_media()` of the content database give (migration
- * 20261110000000_release_review.sql), as the API passes them to the panel /settings/admin/releases.
+ * 20261110000000_release_review.sql), as the API passes them to the panel /admin/releases.
  */
 
 export const ReleaseOp = z.enum(['added', 'removed', 'changed', 'moved']);

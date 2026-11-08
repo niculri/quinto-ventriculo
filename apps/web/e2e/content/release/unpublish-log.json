@@ -1,0 +1,41 @@
+{
+  "total": 3,
+  "entries": [
+    {
+      "id": 3,
+      "kind": "image",
+      "itemId": "notes/ffffffffffffffffffffffffffffffff.webp",
+      "title": null,
+      "reason": "Imagen de prueba que se sacó",
+      "by": "demo",
+      "doneAt": "2026-11-07T18:00:00.000Z",
+      "removed": {
+        "staleNotes": 1,
+        "usedBy": [{ "kind": "note", "id": "AP-XX-01", "title": "Artículo de prueba" }]
+      },
+      "onSite": null
+    },
+    {
+      "id": 2,
+      "kind": "quiz",
+      "itemId": "test-de-prueba",
+      "title": "Test de prueba",
+      "reason": "Una clave mal puesta",
+      "by": "demo",
+      "doneAt": "2026-11-06T12:00:00.000Z",
+      "removed": { "quizzes": 1, "questions": 4 },
+      "onSite": true
+    },
+    {
+      "id": 1,
+      "kind": "note",
+      "itemId": "AP-XX-01",
+      "title": "Artículo de prueba",
+      "reason": "Figura con un error",
+      "by": "demo",
+      "doneAt": "2026-11-05T12:00:00.000Z",
+      "removed": { "notes": 1, "sections": 3 },
+      "onSite": false
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { paths } from '../app/paths';
-import { CircleHelp, LogOut, Settings } from 'lucide-react';
+import { CircleHelp, LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useIsAdmin } from '../features/admin/queries';
 import { useSession, useUser } from '../features/session/context';
 import { ThemePicker } from './ThemePicker';
 
@@ -41,6 +42,7 @@ export function UserMenu() {
   const user = useUser();
   const { signOut } = useSession();
   const navigate = useNavigate();
+  const isAdmin = useIsAdmin();
   const item =
     'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-2';
 
@@ -74,6 +76,12 @@ export function UserMenu() {
           <Menu.Item className={item} onSelect={() => navigate(paths.settings)}>
             <Settings className="size-4 text-muted" aria-hidden="true" /> Opciones
           </Menu.Item>
+          {/* Step 2.10: its own page, only for an administrator (the menu opens after the answer is known). */}
+          {isAdmin.data === true ? (
+            <Menu.Item className={item} onSelect={() => navigate(paths.admin)}>
+              <ShieldCheck className="size-4 text-muted" aria-hidden="true" /> Administración
+            </Menu.Item>
+          ) : null}
           <Menu.Item className={item} onSelect={() => navigate(paths.help)}>
             <CircleHelp className="size-4 text-muted" aria-hidden="true" /> Ayuda
           </Menu.Item>

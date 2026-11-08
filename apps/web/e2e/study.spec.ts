@@ -143,8 +143,8 @@ test('a student reports an error in a card and the administrator sees it in the 
   await expect(page.getByText('Gracias: tu reporte le llegó al autor.')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Mostrar respuesta' })).toBeVisible();
 
-  await page.goto('/settings/admin');
-  await expect(page.getByRole('heading', { name: 'Panel de administración' })).toBeVisible();
+  await page.goto('/admin/reports');
+  await expect(page.getByRole('heading', { level: 2, name: 'Reportes' })).toBeVisible();
   await expect(page.getByText('La respuesta 1 está mal')).toBeVisible();
   await page.getByRole('button', { name: 'Marcar resuelto' }).click();
   await expect(page.getByText('La respuesta 1 está mal')).toHaveCount(0);

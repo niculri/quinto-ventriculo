@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { CircleCheck, CircleX, LoaderCircle, TriangleAlert } from 'lucide-react';
@@ -17,15 +17,12 @@ import type {
 } from '@qv/schema';
 import { Skeleton } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
-import { NotFoundPage } from '../../ui/NotFoundPage';
 import { Reserved } from '../../ui/Reserved';
 import { Switch } from '../../ui/Switch';
 import { button, card } from '../../ui/styles';
-import { Loading } from '../../ui/Loading';
-import { SettingsLayout } from '../settings/SettingsLayout';
 import { usePreview } from '../preview/preview';
 import { useUser } from '../session/context';
-import { useIsAdmin } from './queries';
+import { AdminSectionTitle } from './AdminLayout';
 import {
   usePublishRelease,
   useReleaseImpact,
@@ -38,30 +35,22 @@ import {
 } from './releaseQueries';
 
 /**
- * «Opciones» → «Publicaciones» (step 1.7, part 2), only for administrators: the preview of the draft, what the draft
+ * «Administración» → «Publicaciones» (step 1.7, part 2; its own page since step 2.10), only for administrators (the
+ * layout checks it): the preview of the draft, what the draft
  * changes against what is published (by course and assessment, with the before and after of each card, article
  * section and question, how it is classified and whom it reaches) and the review list; and (part 3) «Publicar», with
  * its confirmation, the last publication with «Deshacer la última publicación», and the log. Nothing moves when it
  * loads nor when it publishes: the last publication's card and the bar of «Publicar» keep their height.
  */
 export function ReleasesPage() {
-  const isAdmin = useIsAdmin();
-  useEffect(() => {
-    document.title = 'Publicaciones · El Quinto Ventrículo';
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, []);
-  if (isAdmin.isPending) return <Loading />;
-  if (!isAdmin.data) return <NotFoundPage />;
   return (
-    <SettingsLayout>
-      <h2 className="font-serif text-2xl font-semibold">Publicaciones</h2>
+    <>
+      <AdminSectionTitle title="Publicaciones" />
       <PreviewCard />
       <LastRelease />
       <ReleaseBody />
       <ReleaseLogSection />
-    </SettingsLayout>
+    </>
   );
 }
 

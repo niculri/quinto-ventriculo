@@ -85,6 +85,49 @@ export type SiteSettings = z.infer<typeof SiteSettings>;
 export const SiteSettingsUpdate = z.object({ hideEmptySemesters: z.boolean() }).strict();
 export type SiteSettingsUpdate = z.infer<typeof SiteSettingsUpdate>;
 
+/** What `npm run unpublish` takes off (step 1.5). */
+export const UnpublishedKind = z.enum(['note', 'deck', 'quiz', 'image']);
+export type UnpublishedKind = z.infer<typeof UnpublishedKind>;
+
+/**
+ * A piece taken off the site (step 1.5), as the record of the content database keeps it, for «Fuera del sitio» in
+ * the administration panel (step 2.10). `removed`: what went with it (an article and its sections, a test and its
+ * questions, the decks below and their cards, or the pieces that used an image). `onSite`: published again (imported
+ * after `--restore`); null if it could not be told.
+ */
+export const UnpublishedEntry = z.object({
+  id: z.number().int(),
+  kind: UnpublishedKind,
+  itemId: z.string(),
+  title: z.string().nullable(),
+  reason: z.string(),
+  by: z.string(),
+  doneAt: z.iso.datetime({ offset: true }),
+  removed: z
+    .object({
+      notes: z.number().int(),
+      sections: z.number().int(),
+      quizzes: z.number().int(),
+      questions: z.number().int(),
+      decks: z.number().int(),
+      ankiNotes: z.number().int(),
+      cards: z.number().int(),
+      staleNotes: z.number().int(),
+      assessments: z.array(z.string()),
+      usedBy: z.array(z.object({ kind: z.string(), id: z.string(), title: z.string().nullable() })),
+    })
+    .partial(),
+  onSite: z.boolean().nullable(),
+});
+export type UnpublishedEntry = z.infer<typeof UnpublishedEntry>;
+
+/** The latest entries of the record (at most 200), newest first, and how many there are in all. */
+export const UnpublishedLog = z.object({
+  total: z.number().int().nonnegative(),
+  entries: z.array(UnpublishedEntry),
+});
+export type UnpublishedLog = z.infer<typeof UnpublishedLog>;
+
 /** A semester has material when one of its courses has an article, a test or an Anki deck with cards. */
 export function semesterHasMaterial(catalog: Catalog, semester: SemesterWithCourses): boolean {
   return (

@@ -6,6 +6,7 @@ import {
   supabaseReleaseRepository,
   supabaseRepository,
   supabaseSiteSettingsRepository,
+  supabaseUnpublishedRepository,
 } from './repositories/supabase';
 import { supabaseVerifier } from './session';
 
@@ -43,6 +44,10 @@ function getApp(env: Env) {
     preview: supabaseRepository(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY, 'draft'),
     releases: supabaseReleaseRepository(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY),
     settings: supabaseSiteSettingsRepository(
+      env.CONTENT_SUPABASE_URL,
+      env.CONTENT_SERVICE_ROLE_KEY,
+    ),
+    unpublished: supabaseUnpublishedRepository(
       env.CONTENT_SUPABASE_URL,
       env.CONTENT_SERVICE_ROLE_KEY,
     ),

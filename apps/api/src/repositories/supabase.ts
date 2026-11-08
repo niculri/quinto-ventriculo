@@ -18,12 +18,14 @@ import {
   SearchResult,
   Semester,
   SiteSettings,
+  UnpublishedLog,
 } from '@qv/schema';
 import type {
   ContentRepository,
   Refused,
   ReleaseRepository,
   SiteSettingsRepository,
+  UnpublishedRepository,
 } from '../repository';
 import { buildCatalog } from './build-catalog';
 import { nonNull } from './stream';
@@ -431,6 +433,30 @@ export function supabaseSiteSettingsRepository(
       const r = await db.rpc('set_site_settings', { p: { hideEmptySemesters, by } });
       if (r.error) throw new Error(`Content database (set_site_settings): ${r.error.message}`);
       return parse(r.data);
+    },
+  };
+}
+
+/**
+ * The record of what was taken off the site (step 2.10): `unpublish_log_entries()` of the content database, in
+ * `public`, with the service key. At most 200 entries: parsed here (it is small).
+ */
+export function supabaseUnpublishedRepository(
+  url: string,
+  serviceKey: string,
+): UnpublishedRepository {
+  const db: SupabaseClient = createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  return {
+    async log() {
+      const r = await db.rpc('unpublish_log_entries', { max_entries: 200 });
+      if (r.error) throw new Error(`Content database (unpublish_log_entries): ${r.error.message}`);
+      const data = r.data as { total: number; entries: { doneAt: string }[] };
+      return UnpublishedLog.parse({
+        ...data,
+        entries: data.entries.map((e) => ({ ...e, doneAt: new Date(e.doneAt).toISOString() })),
+      });
     },
   };
 }

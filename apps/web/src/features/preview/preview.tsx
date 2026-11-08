@@ -56,11 +56,16 @@ const store = (on: boolean) => {
   }
 };
 
-/** What of the site's cache is the same in the preview (who the user is, their preferences, the release panel). */
+/**
+ * What of the site's cache is the same in the preview (who the user is, their preferences, the administration panel's:
+ * the releases, the reports, who is invited and what was taken off the site, step 2.10).
+ */
 const SHARED = (key: readonly unknown[]) =>
   key[0] === 'is-admin' ||
   key[0] === 'release' ||
   key[0] === 'card-reports' ||
+  key[0] === 'access-report' ||
+  key[0] === 'unpublished-log' ||
   (key[0] === studyKeys.preferences[0] && key[1] === studyKeys.preferences[1]);
 
 /**

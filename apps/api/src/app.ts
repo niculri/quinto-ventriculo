@@ -25,12 +25,18 @@ import type {
   QuizIndex,
   SearchResponse,
   SiteSettings,
+  UnpublishedLog,
 } from '@qv/schema';
 import type { AccessChecker } from './access';
 import type { AdminChecker } from './admin';
 import { isValidKey } from './media';
 import type { MediaStore, MediaSigner } from './media';
-import type { ContentRepository, ReleaseRepository, SiteSettingsRepository } from './repository';
+import type {
+  ContentRepository,
+  ReleaseRepository,
+  SiteSettingsRepository,
+  UnpublishedRepository,
+} from './repository';
 import { tokenFromHeader } from './session';
 import type { User, SessionVerifier } from './session';
 
@@ -60,6 +66,11 @@ export interface Dependencies {
    * panel's switch does not exist.
    */
   settings?: SiteSettingsRepository;
+  /**
+   * What was taken off the site (step 1.5), for «Fuera del sitio» in the administration panel (step 2.10), only to
+   * look at. Without it, the route does not exist (404).
+   */
+  unpublished?: UnpublishedRepository;
   /**
    * The id of the Worker version that answers (Cloudflare's version metadata binding), shown by `/api/health` so
    * that the smoke test (step 1.9) can tell which version is live, for example after a rollback. Nothing else.
@@ -277,6 +288,7 @@ export function createApp(deps: Dependencies) {
     });
   const requireAdmin = adminOnly(() => !!deps.releases);
   const requireSettingsAdmin = adminOnly(() => !!deps.settings);
+  const requireUnpublishedAdmin = adminOnly(() => !!deps.unpublished);
 
   /**
    * The site's settings, for the catalog. If they cannot be read (a Worker deployed before its migration, a failure),
@@ -424,6 +436,39 @@ export function createApp(deps: Dependencies) {
     }
     const saved = await deps.settings!.set({ ...body.data, by: c.get('user').email });
     return c.json(saved satisfies SiteSettings);
+  });
+
+  // ── What was taken off the site (step 2.10), only for an administrator and only to look at ──
+
+  // The record of `npm run unpublish`, newest first. Whether an image is on the site again is what the image store
+  // says (at most 40 asked: each one is a request to the store, and a Worker has a limit of them; the rest stay null).
+  // Revisión de cero (2.10): a failure of the store is «no se pudo saber» (null) for that image, not a page without the
+  // record.
+  app.get('/admin/unpublished', requireSession, requireUnpublishedAdmin, async (c) => {
+    const log = await deps.unpublished!.log();
+    const keys = [
+      ...new Set(log.entries.filter((e) => e.kind === 'image').map((e) => e.itemId)),
+    ].slice(0, 40);
+    const there = new Map<string, boolean | null>();
+    for (const key of keys) {
+      let onSite: boolean | null;
+      try {
+        onSite = !isValidKey(key)
+          ? false
+          : deps.media.has
+            ? await deps.media.has(key)
+            : await deps.media.get(key).then((o) => o !== null);
+      } catch {
+        onSite = null;
+      }
+      there.set(key, onSite);
+    }
+    return c.json({
+      ...log,
+      entries: log.entries.map((e) =>
+        e.kind === 'image' ? { ...e, onSite: there.get(e.itemId) ?? null } : e,
+      ),
+    } satisfies UnpublishedLog);
   });
 
   // ── Releases (step 1.7, part 2): what the draft changes and its review list, only for an administrator ──

@@ -45,7 +45,7 @@ afterEach(() => window.sessionStorage.clear());
 
 describe('the release panel', () => {
   it('a student does not see it in the menu, and its URL does not exist for them', async () => {
-    renderApp('/settings/admin/releases');
+    renderApp('/admin/releases');
     expect(
       await screen.findByRole('heading', { name: /no aparece ni en el Netter/ }),
     ).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('the release panel', () => {
           : [],
       }),
     );
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({ setReleaseMark }),
     });
@@ -76,7 +76,7 @@ describe('the release panel', () => {
     const menu = screen.getByRole('navigation', { name: 'Menú del sitio' });
     expect(within(menu).getByRole('link', { name: 'Publicaciones' })).toHaveAttribute(
       'href',
-      '/settings/admin/releases',
+      '/admin/releases',
     );
     await userEvent.click(screen.getByRole('switch', { name: 'Vi lo nuevo en el teléfono' }));
     await waitFor(() =>
@@ -86,7 +86,7 @@ describe('the release panel', () => {
   });
 
   it('a draft equal to what is published says so', async () => {
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({
         releaseOverview: async () => ({
@@ -135,7 +135,7 @@ describe('publishing and undoing', () => {
   });
 
   it('«Publicar» is off while the list is not ready, and so is undoing without a publication', async () => {
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi(),
     });
@@ -155,7 +155,7 @@ describe('publishing and undoing', () => {
       overview = { ...READY, summary: { ...READY.summary, assessments: [], findings: [] } };
       return { id: 1, title: body.title, publishedAt: '2026-11-07T15:00:00Z', changes: {} };
     });
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({
         releaseOverview: async () => overview,
@@ -235,7 +235,7 @@ describe('publishing and undoing', () => {
         ],
       },
     };
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({ releaseOverview: async () => overview }),
     });
@@ -266,7 +266,7 @@ describe('publishing and undoing', () => {
         'El borrador o lo publicado cambió: revisa de nuevo lo que trae.',
       );
     });
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({ releaseOverview: async () => READY, publishRelease }),
     });
@@ -291,7 +291,7 @@ describe('publishing and undoing', () => {
       log = [record(2, 'reverted'), { ...record(1), canRevert: false }];
       return { id, revertedAt: '2026-11-07T15:10:00Z', changes: {} };
     });
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({ releaseLog: async () => ({ releases: log }), revertRelease }),
     });
@@ -321,7 +321,7 @@ describe('the preview of the draft', () => {
   it('reads the site with the preview API, in a cache of its own, and leaves nothing when it ends', async () => {
     const published = vi.fn(async () => CATALOG);
     const draft = vi.fn(async () => CATALOG);
-    const { router } = renderApp('/settings/admin/releases', {
+    const { router } = renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi({ catalog: published }),
       previewApi: adminApi({ catalog: draft }),
@@ -337,7 +337,7 @@ describe('the preview of the draft', () => {
     await act(() => router.navigate('/home'));
     await waitFor(() => expect(draft).toHaveBeenCalled());
     expect(published).not.toHaveBeenCalled();
-    await act(() => router.navigate('/settings/admin/releases'));
+    await act(() => router.navigate('/admin/releases'));
     await userEvent.click(
       await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' }),
     );
@@ -445,7 +445,7 @@ describe('the preview of the draft', () => {
         return { marks };
       },
     };
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi(server),
       previewApi: adminApi(server),
@@ -466,7 +466,7 @@ describe('the preview of the draft', () => {
   });
 
   it('Revisión de cero (1.7, parte 2): signing out leaves the preview', async () => {
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi(),
       previewApi: adminApi(),
@@ -553,7 +553,7 @@ describe('the preview of the draft', () => {
   });
 
   it('without the preview API (a build that cannot), the switch is off and does nothing', async () => {
-    renderApp('/settings/admin/releases', {
+    renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi(),
     });

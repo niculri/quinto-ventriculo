@@ -366,7 +366,7 @@ export interface CloudConfig {
  */
 export function draftReviewUrl(env: NodeJS.ProcessEnv = {}): string {
   const site = (env.QV_SITE_URL ?? 'https://www.quintoventriculo.cl').replace(/\/+$/, '');
-  return `${site}/settings/admin/releases`;
+  return `${site}/admin/releases`;
 }
 
 /** Environment variables the «draft» target and `npm run unpublish` need (see docs/configuracion.md). */

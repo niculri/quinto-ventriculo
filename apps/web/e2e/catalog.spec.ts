@@ -189,7 +189,7 @@ test.describe('the semesters without material', () => {
     const home = await frame(page, false);
     const degree = (await main.getByRole('heading', { name: 'La carrera' }).boundingBox())!;
 
-    await page.goto('/settings/admin');
+    await page.goto('/admin/site');
     const toggle = page.getByRole('switch', { name: 'Ocultar los semestres sin contenido' });
     await expect(toggle).toBeEnabled();
     await expect(toggle).not.toBeChecked();
@@ -220,7 +220,7 @@ test.describe('the semesters without material', () => {
     ).toBeVisible();
 
     // Off again: back as it was.
-    await page.goto('/settings/admin');
+    await page.goto('/admin/site');
     await toggle.click();
     await expect(toggle).not.toBeChecked();
     await page.goto('/home');

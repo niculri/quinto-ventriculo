@@ -17,7 +17,9 @@
  *   /settings/account                               «Opciones» → «Datos de usuario» (/settings opens it)
  *   /settings/anki                                  «Opciones» → «Anki general» (every deck)
  *   /settings/deck-options?preset=Default           «Opciones» → «Configuración de mazos» (a preset open)
- *   /settings/admin/releases                        «Opciones» → «Publicaciones» (administrators)
+ *   /admin/releases                                 «Administración» → «Publicaciones» (administrators; /admin opens
+ *                                                   it); also /admin/reports, /admin/access, /admin/site and
+ *                                                   /admin/unpublished
  *
  * Anki goes course by course: there is no page with the decks of several courses (the root «() Medicina
  * UCH» and the semesters' decks exist, as in Anki, but are not studied from the web).
@@ -119,10 +121,21 @@ export const paths = {
   accountSettings: '/settings/account',
   /** «Opciones» → «Anki general»: the preferences of every deck. */
   ankiSettings: '/settings/anki',
-  /** «Opciones» → «Panel de administración» (only for administrators). */
-  admin: '/settings/admin',
-  /** «Opciones» → «Publicaciones»: what the draft changes, its review list and the preview (administrators). */
-  adminReleases: '/settings/admin/releases',
+  /**
+   * «Administración» of the user menu (only for administrators, step 2.10): its own page, by sections; it opens the
+   * first one.
+   */
+  admin: '/admin',
+  /** «Administración» → «Publicaciones»: what the draft changes, its review list, publishing and the preview. */
+  adminReleases: '/admin/releases',
+  /** «Administración» → «Reportes»: the errors the students reported. */
+  adminReports: '/admin/reports',
+  /** «Administración» → «Acceso»: who is invited, inviting and removing. */
+  adminAccess: '/admin/access',
+  /** «Administración» → «Sitio»: how the site is shown. */
+  adminSite: '/admin/site',
+  /** «Administración» → «Fuera del sitio»: what was taken off the site, only to look at. */
+  adminUnpublished: '/admin/unpublished',
   /**
    * «Opciones» → «Configuración de mazos», with a preset open: an author's by its name, one of the user's by
    * its id; or the one a deck uses (`deck`, the page shows it as `preset`).

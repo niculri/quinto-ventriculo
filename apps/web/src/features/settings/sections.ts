@@ -1,4 +1,4 @@
-import { GitCompareArrows, Layers, ShieldCheck, SlidersHorizontal, UserRound } from 'lucide-react';
+import { Layers, SlidersHorizontal, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../app/paths';
 
@@ -13,14 +13,13 @@ export interface SettingsSection {
 export interface SettingsGroup {
   /** Shown above its sections in the side menu: a heading, not a link. */
   title: string;
-  /** Only administrators see it (features/admin). */
-  adminOnly?: boolean;
   sections: readonly SettingsSection[];
 }
 
 /**
  * The side menu of «Opciones»: its groups, each with a title and its sections, in order. `/settings` opens the
- * first section; a new section is a page, its route (app/routes.tsx) and a line here.
+ * first section; a new section is a page, its route (app/routes.tsx) and a line here. Only the account and Anki:
+ * what is of the administrators has its own page since step 2.10 (features/admin/sections.ts).
  */
 export const SETTINGS_GROUPS = [
   {
@@ -37,14 +36,6 @@ export const SETTINGS_GROUPS = [
         icon: SlidersHorizontal,
         fullAnkiOnly: true,
       },
-    ],
-  },
-  {
-    title: 'Administración',
-    adminOnly: true,
-    sections: [
-      { label: 'Panel de administración', to: paths.admin, icon: ShieldCheck },
-      { label: 'Publicaciones', to: paths.adminReleases, icon: GitCompareArrows },
     ],
   },
 ] as const satisfies readonly SettingsGroup[];

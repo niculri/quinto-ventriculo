@@ -638,6 +638,8 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
     // The site's settings (step 1.8): only for an administrator.
     siteSettings: notAdmin,
     setSiteSettings: notAdmin,
+    // What was taken off the site (step 2.10): only for an administrator.
+    unpublishedLog: notAdmin,
     ...changes,
   };
 }

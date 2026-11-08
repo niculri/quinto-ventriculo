@@ -7,6 +7,7 @@ import { ProtectedRoute } from '../features/session/ProtectedRoute';
 import { RouteError } from '../ui/RouteError';
 import { paths } from './paths';
 import { SETTINGS_GROUPS } from '../features/settings/sections';
+import { ADMIN_SECTIONS } from '../features/admin/sections';
 import { NotFoundPage } from '../ui/NotFoundPage';
 import {
   LegacyCourseRedirect,
@@ -87,8 +88,26 @@ export const routes: RouteObject[] = [
           { path: 'settings/account', lazy: page(() => import('./pages/account-settings')) },
           { path: 'settings/anki', lazy: page(() => import('./pages/settings')) },
           { path: 'settings/deck-options', lazy: page(() => import('./pages/deck-options')) },
-          { path: 'settings/admin', lazy: page(() => import('./pages/admin')) },
-          { path: 'settings/admin/releases', lazy: page(() => import('./pages/releases')) },
+          // «Administración» (step 2.10): its own page, by sections, only for administrators. The layout stays
+          // mounted while the sections change; /admin opens the first one (features/admin/sections.ts).
+          {
+            path: 'admin',
+            lazy: page(() => import('./pages/admin')),
+            children: [
+              { index: true, element: <Navigate to={ADMIN_SECTIONS[0].to} replace /> },
+              { path: 'releases', lazy: page(() => import('./pages/releases')) },
+              { path: 'reports', lazy: page(() => import('./pages/admin-reports')) },
+              { path: 'access', lazy: page(() => import('./pages/admin-access')) },
+              { path: 'site', lazy: page(() => import('./pages/admin-site')) },
+              { path: 'unpublished', lazy: page(() => import('./pages/admin-unpublished')) },
+            ],
+          },
+          // Until step 2.10 the panel was inside «Opciones».
+          { path: 'settings/admin', element: <Navigate to={paths.adminReports} replace /> },
+          {
+            path: 'settings/admin/releases',
+            element: <Navigate to={paths.adminReleases} replace />,
+          },
           // Old forms (saved links and progress, ?next=): to the canonical URL, with ?query and #anchor.
           { path: 'courses/:courseId', Component: LegacyCourseRedirect },
           { path: 'notes/:slug', Component: LegacyNoteRedirect },

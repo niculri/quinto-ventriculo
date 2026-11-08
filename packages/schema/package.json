@@ -1,0 +1,17 @@
+{
+  "name": "@qv/schema",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Content and API types and validation (zod), shared by every package",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}

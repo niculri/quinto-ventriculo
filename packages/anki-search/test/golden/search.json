@@ -1,0 +1,4727 @@
+{
+  "ankiVersion": "25.09.5",
+  "generatedAt": 1793497706,
+  "timing": {
+    "now": 1793497706,
+    "today": 400,
+    "nextDayAt": 1793516400
+  },
+  "learnAheadSecs": 1200,
+  "decks": [
+    {
+      "id": "1793497706840",
+      "name": "() Medicina UCH"
+    },
+    {
+      "id": "1793497706839",
+      "name": "() Medicina UCH::1° Semestre"
+    },
+    {
+      "id": "1793497706838",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I"
+    },
+    {
+      "id": "1793497706837",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1"
+    },
+    {
+      "id": "1793497706836",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica"
+    },
+    {
+      "id": "1793497706841",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral"
+    },
+    {
+      "id": "1793497706842",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral::Extras"
+    },
+    {
+      "id": "1793497706843",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::02 - Vértebras"
+    },
+    {
+      "id": "1793497706846",
+      "name": "() Medicina UCH::2° Semestre"
+    },
+    {
+      "id": "1793497706845",
+      "name": "() Medicina UCH::2° Semestre::🧬 Biología celular"
+    },
+    {
+      "id": "1793497706844",
+      "name": "() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2"
+    },
+    {
+      "id": "1793497706847",
+      "name": "() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2::08 - (pre) Ácidos nucleicos"
+    },
+    {
+      "id": "1",
+      "name": "Predeterminado"
+    },
+    {
+      "id": "1793497706848",
+      "name": "Raro"
+    },
+    {
+      "id": "1793497706851",
+      "name": "Raro::comillas \"dobles\" y \\barra"
+    },
+    {
+      "id": "1793497706849",
+      "name": "Raro::uno_dos*tres"
+    },
+    {
+      "id": "1793497706850",
+      "name": "Raro::unoXdosYYtres"
+    }
+  ],
+  "noteTypes": [
+    {
+      "id": "1793497706832",
+      "name": "Básico",
+      "kind": "normal",
+      "fields": ["Anverso", "Reverso"],
+      "templates": ["Tarjeta 1"]
+    },
+    {
+      "id": "1793497706833",
+      "name": "Básico (y tarjeta invertida)",
+      "kind": "normal",
+      "fields": ["Anverso", "Reverso"],
+      "templates": ["Tarjeta 1", "Tarjeta 2"]
+    },
+    {
+      "id": "1793497706836",
+      "name": "Respuesta anidada",
+      "kind": "cloze",
+      "fields": ["Texto", "Reverso Extra"],
+      "templates": ["Respuesta anidada"]
+    },
+    {
+      "id": "1793497706838",
+      "name": "Medicina (código) · Básica",
+      "kind": "normal",
+      "fields": ["Frente", "Frase", "Código"],
+      "templates": ["Pregunta"]
+    }
+  ],
+  "cards": [
+    {
+      "noteGuid": "LT.ZoO9oCb",
+      "ord": 0,
+      "deckId": "1793497706851",
+      "noteTypeId": "1793497706832",
+      "tags": ["control"],
+      "fields": ["en el mazo con comillas", "x"],
+      "createdMs": 1790841600150,
+      "type": "relearn",
+      "queue": "suspended",
+      "due": 1793497506,
+      "interval": 2,
+      "reps": 5,
+      "lapses": 2,
+      "flag": 0,
+      "stability": 1.7,
+      "difficulty": 8.0,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "q*`>Su)Z.U",
+      "ord": 0,
+      "deckId": "1793497706847",
+      "noteTypeId": "1793497706832",
+      "tags": [],
+      "fields": ["sin fsrs", "repaso antiguo"],
+      "createdMs": 1790841600170,
+      "type": "review",
+      "queue": "review",
+      "due": 399,
+      "interval": 4,
+      "reps": 3,
+      "lapses": 0,
+      "flag": 0,
+      "stability": null,
+      "difficulty": null,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "d1]X0?sM/~",
+      "ord": 0,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706836",
+      "tags": ["control", "S3"],
+      "fields": [
+        "{{c1::Atlas}} y {{c2::axis}} son vértebras {{c3::cervicales::región}}",
+        "C1 y C2"
+      ],
+      "createdMs": 1792569600040,
+      "type": "relearn",
+      "queue": "learn",
+      "due": 1793497646,
+      "interval": 3,
+      "reps": 8,
+      "lapses": 1,
+      "flag": 0,
+      "stability": 1.9,
+      "difficulty": 7.5,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "d1]X0?sM/~",
+      "ord": 1,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706836",
+      "tags": ["control", "S3"],
+      "fields": [
+        "{{c1::Atlas}} y {{c2::axis}} son vértebras {{c3::cervicales::región}}",
+        "C1 y C2"
+      ],
+      "createdMs": 1792569600040,
+      "type": "review",
+      "queue": "suspended",
+      "due": 397,
+      "interval": 6,
+      "reps": 4,
+      "lapses": 0,
+      "flag": 4,
+      "stability": 7.0,
+      "difficulty": 4.5,
+      "lastReview": 1792716506,
+      "decay": null
+    },
+    {
+      "noteGuid": "d1]X0?sM/~",
+      "ord": 2,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706836",
+      "tags": ["control", "S3"],
+      "fields": [
+        "{{c1::Atlas}} y {{c2::axis}} son vértebras {{c3::cervicales::región}}",
+        "C1 y C2"
+      ],
+      "createdMs": 1792569600040,
+      "type": "new",
+      "queue": "buried",
+      "due": null,
+      "interval": 0,
+      "reps": 0,
+      "lapses": 0,
+      "flag": 0,
+      "stability": null,
+      "difficulty": null,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "tucWf3U<?b",
+      "ord": 0,
+      "deckId": "1793497706847",
+      "noteTypeId": "1793497706838",
+      "tags": [],
+      "fields": ["AND", "or", ""],
+      "createdMs": 1792569600080,
+      "type": "review",
+      "queue": "review",
+      "due": 370,
+      "interval": 3,
+      "reps": 7,
+      "lapses": 3,
+      "flag": 1,
+      "stability": 2.5,
+      "difficulty": 8.8,
+      "lastReview": 1790642906,
+      "decay": 0.3
+    },
+    {
+      "noteGuid": "sa6KGKDxb!",
+      "ord": 0,
+      "deckId": "1793497706842",
+      "noteTypeId": "1793497706838",
+      "tags": ["Anatomía"],
+      "fields": ["Fr dato", "Frase dato", "ÁRBOL"],
+      "createdMs": 1793001600160,
+      "type": "learn",
+      "queue": "learn",
+      "due": 1793518200,
+      "interval": 0,
+      "reps": 1,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 2.6,
+      "difficulty": 5.5,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "Qp@^+0T|%[",
+      "ord": 0,
+      "deckId": "1793497706842",
+      "noteTypeId": "1793497706832",
+      "tags": [],
+      "fields": ["Niño ñandú", "NIÑO"],
+      "createdMs": 1793174400030,
+      "type": "review",
+      "queue": "review",
+      "due": 404,
+      "interval": 8,
+      "reps": 5,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 9.0,
+      "difficulty": 4.4,
+      "lastReview": 1793148506,
+      "decay": 0.1542
+    },
+    {
+      "noteGuid": "pH<[R!<!%1",
+      "ord": 0,
+      "deckId": "1793497706847",
+      "noteTypeId": "1793497706832",
+      "tags": ["BC::clase8"],
+      "fields": ["x*y", "barra \\ invertida"],
+      "createdMs": 1793174400060,
+      "type": "learn",
+      "queue": "learn",
+      "due": 1793501306,
+      "interval": 0,
+      "reps": 1,
+      "lapses": 0,
+      "flag": 7,
+      "stability": 2.0,
+      "difficulty": 5.0,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "jT3ZjwR>1Q",
+      "ord": 0,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706836",
+      "tags": ["Anatomía::Columna"],
+      "fields": ["El {{c1::cuerpo}} vertebral y el {{c2::arco}}", ""],
+      "createdMs": 1793174400120,
+      "type": "learn",
+      "queue": "suspended",
+      "due": 1793497606,
+      "interval": 0,
+      "reps": 1,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 1.0,
+      "difficulty": 6.5,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "jT3ZjwR>1Q",
+      "ord": 1,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706836",
+      "tags": ["Anatomía::Columna"],
+      "fields": ["El {{c1::cuerpo}} vertebral y el {{c2::arco}}", ""],
+      "createdMs": 1793174400120,
+      "type": "learn",
+      "queue": "buried",
+      "due": 1793497806,
+      "interval": 0,
+      "reps": 1,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 1.1,
+      "difficulty": 6.6,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "d_2JXAjo/A",
+      "ord": 0,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706833",
+      "tags": ["S3"],
+      "fields": ["Apófisis espinosa", "Bífida en C2–C6"],
+      "createdMs": 1793174400140,
+      "type": "learn",
+      "queue": "dayLearn",
+      "due": 401,
+      "interval": 0,
+      "reps": 2,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 3.3,
+      "difficulty": 4.4,
+      "lastReview": 1793407706,
+      "decay": null
+    },
+    {
+      "noteGuid": "d_2JXAjo/A",
+      "ord": 1,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706833",
+      "tags": ["S3"],
+      "fields": ["Apófisis espinosa", "Bífida en C2–C6"],
+      "createdMs": 1793174400140,
+      "type": "relearn",
+      "queue": "dayLearn",
+      "due": 400,
+      "interval": 4,
+      "reps": 8,
+      "lapses": 1,
+      "flag": 2,
+      "stability": 2.4,
+      "difficulty": 7.0,
+      "lastReview": 1793407706,
+      "decay": null
+    },
+    {
+      "noteGuid": "hWX!zPtKXx",
+      "ord": 0,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706832",
+      "tags": ["Anatomía::Columna::Torácica", "S3"],
+      "fields": ["Fóvea costal", "Superior e inferior"],
+      "createdMs": 1793260800130,
+      "type": "learn",
+      "queue": "dayLearn",
+      "due": 398,
+      "interval": 0,
+      "reps": 2,
+      "lapses": 0,
+      "flag": 6,
+      "stability": 2.2,
+      "difficulty": 5.3,
+      "lastReview": 1793148506,
+      "decay": null
+    },
+    {
+      "noteGuid": "G;Z~/Z[`<G",
+      "ord": 0,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706832",
+      "tags": ["anatomía::Dorso"],
+      "fields": ["árbol de la vida", "cerebelo"],
+      "createdMs": 1793347200010,
+      "type": "review",
+      "queue": "review",
+      "due": 400,
+      "interval": 5,
+      "reps": 4,
+      "lapses": 0,
+      "flag": 1,
+      "stability": 6.1,
+      "difficulty": 4.0,
+      "lastReview": 1793062106,
+      "decay": null
+    },
+    {
+      "noteGuid": "s(5&p$$NIw",
+      "ord": 0,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706833",
+      "tags": ["S3"],
+      "fields": ["VÉRTEBRA lumbar", "Vértebra con cuerpo grande"],
+      "createdMs": 1793347200020,
+      "type": "review",
+      "queue": "review",
+      "due": 393,
+      "interval": 10,
+      "reps": 6,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 11.0,
+      "difficulty": 3.5,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "s(5&p$$NIw",
+      "ord": 1,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706833",
+      "tags": ["S3"],
+      "fields": ["VÉRTEBRA lumbar", "Vértebra con cuerpo grande"],
+      "createdMs": 1793347200020,
+      "type": "learn",
+      "queue": "learn",
+      "due": 1793497106,
+      "interval": 0,
+      "reps": 1,
+      "lapses": 0,
+      "flag": 2,
+      "stability": 2.31,
+      "difficulty": 5.1,
+      "lastReview": 1793494106,
+      "decay": null
+    },
+    {
+      "noteGuid": "v)cov-X<[k",
+      "ord": 0,
+      "deckId": "1793497706847",
+      "noteTypeId": "1793497706833",
+      "tags": ["BC::clase8::extra", "Ñandú"],
+      "fields": ["comillas \"dobles\"", "(paréntesis) y dos:puntos"],
+      "createdMs": 1793347200070,
+      "type": "new",
+      "queue": "suspended",
+      "due": null,
+      "interval": 0,
+      "reps": 0,
+      "lapses": 0,
+      "flag": 0,
+      "stability": null,
+      "difficulty": null,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "v)cov-X<[k",
+      "ord": 1,
+      "deckId": "1793497706847",
+      "noteTypeId": "1793497706833",
+      "tags": ["BC::clase8::extra", "Ñandú"],
+      "fields": ["comillas \"dobles\"", "(paréntesis) y dos:puntos"],
+      "createdMs": 1793347200070,
+      "type": "review",
+      "queue": "buried",
+      "due": 400,
+      "interval": 5,
+      "reps": 4,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 5.0,
+      "difficulty": 5.0,
+      "lastReview": 1793062106,
+      "decay": null
+    },
+    {
+      "noteGuid": "A9gn2q@mD!",
+      "ord": 0,
+      "deckId": "1",
+      "noteTypeId": "1793497706832",
+      "tags": ["Química"],
+      "fields": ["cafe café CAFÉ", "Ångström ﬁn"],
+      "createdMs": 1793347200110,
+      "type": "review",
+      "queue": "review",
+      "due": 440,
+      "interval": 60,
+      "reps": 9,
+      "lapses": 2,
+      "flag": 5,
+      "stability": 70.5,
+      "difficulty": 2.5,
+      "lastReview": 1791766106,
+      "decay": null
+    },
+    {
+      "noteGuid": "z$2^W&%kO#",
+      "ord": 0,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706832",
+      "tags": [],
+      "fields": ["aprendiendo sin lrt", "x"],
+      "createdMs": 1793347200180,
+      "type": "learn",
+      "queue": "learn",
+      "due": 1793497406,
+      "interval": 0,
+      "reps": 2,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 1.5,
+      "difficulty": 5.5,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "F[z%]--3hW",
+      "ord": 0,
+      "deckId": "1793497706841",
+      "noteTypeId": "1793497706832",
+      "tags": ["Anatomía::Columna::Lumbar"],
+      "fields": ["Árbol bronquial", "Se ramifica"],
+      "createdMs": 1793433600000,
+      "type": "new",
+      "queue": "new",
+      "due": null,
+      "interval": 0,
+      "reps": 0,
+      "lapses": 0,
+      "flag": 0,
+      "stability": null,
+      "difficulty": null,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "k+fFqTW?_h",
+      "ord": 0,
+      "deckId": "1793497706843",
+      "noteTypeId": "1793497706838",
+      "tags": ["repetida_borrar"],
+      "fields": ["Pregunta 50% de", "a_b", "T-A1-S3-02-047"],
+      "createdMs": 1793433600050,
+      "type": "learn",
+      "queue": "dayLearn",
+      "due": 400,
+      "interval": 0,
+      "reps": 2,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 2.9,
+      "difficulty": 5.5,
+      "lastReview": 1793321306,
+      "decay": null
+    },
+    {
+      "noteGuid": "I&/g!YTw%;",
+      "ord": 0,
+      "deckId": "1793497706849",
+      "noteTypeId": "1793497706832",
+      "tags": ["Raro"],
+      "fields": ["dato en raro", ""],
+      "createdMs": 1793433600090,
+      "type": "new",
+      "queue": "new",
+      "due": null,
+      "interval": 0,
+      "reps": 0,
+      "lapses": 0,
+      "flag": 3,
+      "stability": null,
+      "difficulty": null,
+      "lastReview": null,
+      "decay": null
+    },
+    {
+      "noteGuid": "kU9n++)[eF",
+      "ord": 0,
+      "deckId": "1793497706850",
+      "noteTypeId": "1793497706832",
+      "tags": ["Raro::sub"],
+      "fields": ["otro raro", "12"],
+      "createdMs": 1793433600100,
+      "type": "learn",
+      "queue": "learn",
+      "due": 1793498306,
+      "interval": 0,
+      "reps": 2,
+      "lapses": 0,
+      "flag": 0,
+      "stability": 1.2,
+      "difficulty": 6.0,
+      "lastReview": 1793494106,
+      "decay": null
+    }
+  ],
+  "revlog": [
+    {
+      "noteGuid": "LT.ZoO9oCb",
+      "ord": 0,
+      "ease": 1,
+      "atMs": 1790992800020
+    },
+    {
+      "noteGuid": "A9gn2q@mD!",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1791770400016
+    },
+    {
+      "noteGuid": "I&/g!YTw%;",
+      "ord": 0,
+      "ease": 0,
+      "atMs": 1792461600013
+    },
+    {
+      "noteGuid": "d1]X0?sM/~",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1792634400007
+    },
+    {
+      "noteGuid": "s(5&p$$NIw",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1792720800002
+    },
+    {
+      "noteGuid": "v)cov-X<[k",
+      "ord": 1,
+      "ease": 4,
+      "atMs": 1792980000011
+    },
+    {
+      "noteGuid": "G;Z~/Z[`<G",
+      "ord": 0,
+      "ease": 1,
+      "atMs": 1793066400001
+    },
+    {
+      "noteGuid": "d_2JXAjo/A",
+      "ord": 0,
+      "ease": 2,
+      "atMs": 1793152800019
+    },
+    {
+      "noteGuid": "Qp@^+0T|%[",
+      "ord": 0,
+      "ease": 4,
+      "atMs": 1793239200005
+    },
+    {
+      "noteGuid": "s(5&p$$NIw",
+      "ord": 0,
+      "ease": 2,
+      "atMs": 1793325600003
+    },
+    {
+      "noteGuid": "d_2JXAjo/A",
+      "ord": 1,
+      "ease": 3,
+      "atMs": 1793325600018
+    },
+    {
+      "noteGuid": "k+fFqTW?_h",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1793412000008
+    },
+    {
+      "noteGuid": "v)cov-X<[k",
+      "ord": 1,
+      "ease": 3,
+      "atMs": 1793412000012
+    },
+    {
+      "noteGuid": "I&/g!YTw%;",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1793412000014
+    },
+    {
+      "noteGuid": "G;Z~/Z[`<G",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1793433600000
+    },
+    {
+      "noteGuid": "s(5&p$$NIw",
+      "ord": 1,
+      "ease": 1,
+      "atMs": 1793433840004
+    },
+    {
+      "noteGuid": "d1]X0?sM/~",
+      "ord": 0,
+      "ease": 1,
+      "atMs": 1793433960006
+    },
+    {
+      "noteGuid": "k+fFqTW?_h",
+      "ord": 0,
+      "ease": 2,
+      "atMs": 1793434140009
+    },
+    {
+      "noteGuid": "pH<[R!<!%1",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1793434200010
+    },
+    {
+      "noteGuid": "A9gn2q@mD!",
+      "ord": 0,
+      "ease": 4,
+      "atMs": 1793434500015
+    },
+    {
+      "noteGuid": "hWX!zPtKXx",
+      "ord": 0,
+      "ease": 1,
+      "atMs": 1793434620017
+    },
+    {
+      "noteGuid": "LT.ZoO9oCb",
+      "ord": 0,
+      "ease": 0,
+      "atMs": 1793434860021
+    },
+    {
+      "noteGuid": "sa6KGKDxb!",
+      "ord": 0,
+      "ease": 3,
+      "atMs": 1793434920022
+    },
+    {
+      "noteGuid": "z$2^W&%kO#",
+      "ord": 0,
+      "ease": 2,
+      "atMs": 1793434980023
+    }
+  ],
+  "searches": [
+    {
+      "query": "",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "   ",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "árbol",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "Árbol",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "ÁRBOL",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "arbol",
+      "cards": []
+    },
+    {
+      "query": "ARBOL",
+      "cards": []
+    },
+    {
+      "query": "vértebra",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "VÉRTEBRA",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "VÉRTEBRA lumbar",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "\"vértebra lumbar\"",
+      "cards": []
+    },
+    {
+      "query": "\"VÉRTEBRA lumbar\"",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "niño",
+      "cards": [["Qp@^+0T|%[", 0]]
+    },
+    {
+      "query": "NIÑO",
+      "cards": [["Qp@^+0T|%[", 0]]
+    },
+    {
+      "query": "ñandú",
+      "cards": [["Qp@^+0T|%[", 0]]
+    },
+    {
+      "query": "Ñandú",
+      "cards": []
+    },
+    {
+      "query": "cafe",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "café",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "CAFÉ",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "CAFE",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "ﬁn",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "fin",
+      "cards": []
+    },
+    {
+      "query": "caf_",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "c_fe",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "v*bra",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "v*bra*lumbar",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "árbol*cerebelo",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "vida*cerebelo",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "x\\*y",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "x*y",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["pH<[R!<!%1", 0]
+      ]
+    },
+    {
+      "query": "a\\_b",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "a_b",
+      "cards": [
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["k+fFqTW?_h", 0]
+      ]
+    },
+    {
+      "query": "50%",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "50\\%",
+      "error": "SearchError: Búsqueda no válida: ⁨la secuencia de escape `⁨\\%⁩` no está definida. Si desea buscar una barra invertida literal `\\`, anteponga otra: `\\\\`.⁩"
+    },
+    {
+      "query": "barra \\\\ invertida",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "\"barra \\\\ invertida\"",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "\"comillas \\\"dobles\\\"\"",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "comillas \\\"dobles\\\"",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "\\(paréntesis\\)",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "\"(paréntesis)\"",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "dos\\:puntos",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "\"dos:puntos\"",
+      "cards": []
+    },
+    {
+      "query": "dos:puntos",
+      "cards": []
+    },
+    {
+      "query": "T-A1-S3-02-047",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "-T-A1",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "t-a1-s3",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "12",
+      "cards": [["kU9n++)[eF", 0]]
+    },
+    {
+      "query": "C2",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "query": "árbol　vida",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "árbol\tvida",
+      "cards": []
+    },
+    {
+      "query": "  árbol  ",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "_",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "**",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\\\\",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "and",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un `and`, pero no está conectando dos términos de búsqueda. Si desea buscar la palabra en sí, enciérrela entre comillas dobles: `\"and\"`.⁩"
+    },
+    {
+      "query": "AND",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un `and`, pero no está conectando dos términos de búsqueda. Si desea buscar la palabra en sí, enciérrela entre comillas dobles: `\"and\"`.⁩"
+    },
+    {
+      "query": "\"and\"",
+      "cards": [
+        ["Qp@^+0T|%[", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "\"or\"",
+      "cards": [
+        ["hWX!zPtKXx", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "atlas",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "{{c1::atlas",
+      "cards": []
+    },
+    {
+      "query": "c1",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "query": "región",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "Ångström",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "angstrom",
+      "cards": []
+    },
+    {
+      "query": "nc:arbol",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "nc:ARBOL",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "nc:nino",
+      "cards": [["Qp@^+0T|%[", 0]]
+    },
+    {
+      "query": "nc:NINO",
+      "cards": [["Qp@^+0T|%[", 0]]
+    },
+    {
+      "query": "nc:vertebra",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "nc:cafe",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "nc:angstrom",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "nc:fin",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "nc:ñandu",
+      "cards": [["Qp@^+0T|%[", 0]]
+    },
+    {
+      "query": "nc:a*b",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "re:^árbol",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0]
+      ]
+    },
+    {
+      "query": "re:ÁRBOL",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "\"re:v.rtebra\\s+lumbar\"",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "re:\\d{2}",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "\"re:(atlas|axis)\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "re:^dato",
+      "cards": [["I&/g!YTw%;", 0]]
+    },
+    {
+      "query": "re:raro$",
+      "cards": []
+    },
+    {
+      "query": "re:^$",
+      "cards": []
+    },
+    {
+      "query": "\"re:\\bcafé\\b\"",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "re:c\\x{e1}f",
+      "cards": []
+    },
+    {
+      "query": "re:(",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un paréntesis de apertura`)`, pero no había ningún paréntesis de cierre`(` precediéndolo. Si desea buscar un paréntesis `(` literal, envuélvalo entre comillas dobles o anteponga una barra invertida: `\"(\"` o ` \\(` .⁩"
+    },
+    {
+      "query": "\"re:a[b\"",
+      "error": "InvalidInput: <pre>regex parse error:\n    (?i)a[b\n         ^\nerror: unclosed character class</pre>"
+    },
+    {
+      "query": "re:\\x1f",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "w:raro",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "w:rar",
+      "cards": []
+    },
+    {
+      "query": "w:atlas",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "w:café",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "w:caf*",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "w:vértebra",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "sc:Atlas y axis",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "Atlas y axis",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "sc:cervicales",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "\"sc:atlas y axis\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "\"sc:son vértebras cervicales\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "sc:región",
+      "cards": []
+    },
+    {
+      "query": "anverso:árbol*",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "\"anverso:árbol bronquial\"",
+      "cards": []
+    },
+    {
+      "query": "anverso:ÁRBOL*",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "anverso:Árbol*",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "anverso:*bronquial",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "ANVERSO:*bronquial",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "reverso:",
+      "cards": [["I&/g!YTw%;", 0]]
+    },
+    {
+      "query": "reverso:_*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "reverso:*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "reverso:*_",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "Reverso:12",
+      "cards": [["kU9n++)[eF", 0]]
+    },
+    {
+      "query": "código:t-a1*",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "CÓDIGO:T-A1-S3-02-047",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "código:T-A1-S3-02-04_",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "fr*:a_b",
+      "cards": []
+    },
+    {
+      "query": "fr*:*a_b",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "fr*:pregunta*",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "fr*:*",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "fr*:_*",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "fr*:fr dato",
+      "cards": []
+    },
+    {
+      "query": "fr*:fr dato*",
+      "cards": []
+    },
+    {
+      "query": "\"fr*:fr dato*\"",
+      "cards": [["sa6KGKDxb!", 0]]
+    },
+    {
+      "query": "\"fr*:*frase dato\"",
+      "cards": [["sa6KGKDxb!", 0]]
+    },
+    {
+      "query": "frase:frase dato",
+      "cards": []
+    },
+    {
+      "query": "\"frase:frase dato\"",
+      "cards": [["sa6KGKDxb!", 0]]
+    },
+    {
+      "query": "*:dog",
+      "cards": []
+    },
+    {
+      "query": "*:atlas*",
+      "cards": []
+    },
+    {
+      "query": "*:*atlas*",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "*:ÁRBOL*",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "*:árbol",
+      "cards": [["sa6KGKDxb!", 0]]
+    },
+    {
+      "query": "*:12",
+      "cards": [["kU9n++)[eF", 0]]
+    },
+    {
+      "query": "_*:12",
+      "cards": [["kU9n++)[eF", 0]]
+    },
+    {
+      "query": "*:re:^árbol",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "anverso:re:lumbar$",
+      "cards": [
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "anverso:re:^ÁRBOL",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0]
+      ]
+    },
+    {
+      "query": "anverso:nc:arbol*",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0]
+      ]
+    },
+    {
+      "query": "anverso:nc:ARBOL*",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0]
+      ]
+    },
+    {
+      "query": "texto:*atlas*",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "texto:",
+      "cards": []
+    },
+    {
+      "query": "noexiste:x",
+      "cards": []
+    },
+    {
+      "query": "a*:x*",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "*so:12",
+      "cards": []
+    },
+    {
+      "query": "re*:*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "anverso:\\(paréntesis\\)*",
+      "cards": []
+    },
+    {
+      "query": "reverso:\\(paréntesis\\)*",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "reverso:nc:(parentesis)*",
+      "cards": []
+    },
+    {
+      "query": "reverso:barra \\\\ invertida",
+      "cards": []
+    },
+    {
+      "query": "\"reverso:barra \\\\ invertida\"",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "deck:() Medicina UCH",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un grupo `(...)`, pero no había nada entre paréntesis que buscar. Si desea buscar paréntesis literales, enciérrelos entre comillas dobles: `\"( )\"`.⁩"
+    },
+    {
+      "query": "\"deck:() Medicina UCH\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\"deck:() medicina uch\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "deck:\\(\\)*",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral::Extras\"",
+      "cards": [
+        ["Qp@^+0T|%[", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "\"deck:() Medicina UCH::1° Semestre\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\"deck:() Medicina UCH::*::Extras\"",
+      "cards": [
+        ["Qp@^+0T|%[", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "deck:Raro::uno_dos*tres",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "deck:Raro::uno\\_dos\\*tres",
+      "cards": [["I&/g!YTw%;", 0]]
+    },
+    {
+      "query": "deck:*Vértebras",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0]
+      ]
+    },
+    {
+      "query": "deck:*vértebras",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0]
+      ]
+    },
+    {
+      "query": "deck:*VÉRTEBRAS",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0]
+      ]
+    },
+    {
+      "query": "deck:vértebras",
+      "cards": []
+    },
+    {
+      "query": "deck:",
+      "cards": []
+    },
+    {
+      "query": "deck:*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "deck:filtered",
+      "cards": []
+    },
+    {
+      "query": "-deck:Raro*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "deck:predeterminado",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "deck:Raro",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "deck:raro::*",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "deck:Raro::",
+      "cards": []
+    },
+    {
+      "query": "deck:Raro:: ",
+      "cards": []
+    },
+    {
+      "query": "deck:()",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un grupo `(...)`, pero no había nada entre paréntesis que buscar. Si desea buscar paréntesis literales, enciérrelos entre comillas dobles: `\"( )\"`.⁩"
+    },
+    {
+      "query": "\"deck:Raro::comillas \\\"dobles\\\" y \\\\barra\"",
+      "cards": [["LT.ZoO9oCb", 0]]
+    },
+    {
+      "query": "deck:*comillas*",
+      "cards": [["LT.ZoO9oCb", 0]]
+    },
+    {
+      "query": "deck:*1°*",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "deck:current",
+      "unsupported": true,
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "tag:anatomía",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "tag:ANATOMÍA",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "tag:Anatomía::Columna",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "query": "tag:anatomía::columna::lumbar",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "tag:Anat*",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "tag:*lumbar",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "tag:*::lumbar",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "tag:none",
+      "cards": [
+        ["Qp@^+0T|%[", 0],
+        ["q*`>Su)Z.U", 0],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "tag:*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "-tag:*",
+      "cards": []
+    },
+    {
+      "query": "tag:s3",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "tag:bc",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "tag:bc::clase8",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "tag:ñandú",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "tag:Ñ*",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "tag:re:^bc",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "tag:re:lumbar$",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "tag:re:^$",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "tag:raro",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "tag:repetida_borrar",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "tag:repetida\\_borrar",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "tag:repetida?borrar",
+      "cards": []
+    },
+    {
+      "query": "tag:anatomía::",
+      "cards": []
+    },
+    {
+      "query": "tag:*a",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "tag:_3",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "\"tag:a b\"",
+      "cards": []
+    },
+    {
+      "query": "-tag:none",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "note:básico",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "note:BÁSICO",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "note:Básico*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "note:*invertida*",
+      "cards": [
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "note:respuesta anidada",
+      "cards": []
+    },
+    {
+      "query": "\"note:respuesta anidada\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "query": "\"note:Medicina (código) · Básica\"",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "note:medicina*",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "note:b_sico",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "card:1",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "card:2",
+      "cards": [
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 1],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "card:3",
+      "cards": [["d1]X0?sM/~", 2]]
+    },
+    {
+      "query": "card:0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "card:Tarjeta 1",
+      "cards": []
+    },
+    {
+      "query": "\"card:tarjeta 2\"",
+      "cards": [
+        ["d_2JXAjo/A", 1],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "\"card:Respuesta anidada\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["jT3ZjwR>1Q", 0]
+      ]
+    },
+    {
+      "query": "card:pregunta",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "card:tarjeta*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "card:TARJETA*",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "card:+2",
+      "cards": [
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 1],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "is:new",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "is:learn",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "is:review",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 1],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "is:due",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "is:suspended",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "is:buried",
+      "cards": [
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 1],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "-is:suspended",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "is:new -is:suspended",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "is:foo",
+      "error": "SearchError: Búsqueda no válida: ⁨`⁨is:⁩` recibió un parámetro inválido '`⁨foo⁩`' .⁩"
+    },
+    {
+      "query": "is:NEW",
+      "error": "SearchError: Búsqueda no válida: ⁨`⁨is:⁩` recibió un parámetro inválido '`⁨NEW⁩`' .⁩"
+    },
+    {
+      "query": "-is:due",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["pH<[R!<!%1", 0],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "is:due is:learn",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["s(5&p$$NIw", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "flag:0",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "flag:1",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "flag:3",
+      "cards": [["I&/g!YTw%;", 0]]
+    },
+    {
+      "query": "flag:7",
+      "cards": [["pH<[R!<!%1", 0]]
+    },
+    {
+      "query": "flag:8",
+      "error": "SearchError: Búsqueda no válida: ⁨`flag:` debe ir seguido de un número de marcador válido: `1` (rojo), `2` (naranja), `3` (verde), `4` (azul), `5` (rosa), `6 ` (turquesa), `7` (morado) o `0` (no marcada).⁩"
+    },
+    {
+      "query": "flag:x",
+      "error": "SearchError: Búsqueda no válida: ⁨`flag:` debe ir seguido de un número de marcador válido: `1` (rojo), `2` (naranja), `3` (verde), `4` (azul), `5` (rosa), `6 ` (turquesa), `7` (morado) o `0` (no marcada).⁩"
+    },
+    {
+      "query": "-flag:0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "flag:+4",
+      "cards": [["d1]X0?sM/~", 1]]
+    },
+    {
+      "query": "prop:due=0",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:due<0",
+      "cards": [
+        ["hWX!zPtKXx", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "prop:due>0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0]
+      ]
+    },
+    {
+      "query": "prop:due<=-2",
+      "cards": [
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "prop:due=1",
+      "cards": [["d_2JXAjo/A", 0]]
+    },
+    {
+      "query": "prop:due>=4",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["Qp@^+0T|%[", 0]
+      ]
+    },
+    {
+      "query": "prop:due!=0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["hWX!zPtKXx", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "prop:due=-7",
+      "cards": [["s(5&p$$NIw", 0]]
+    },
+    {
+      "query": "prop:due>-100",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:ivl>=5",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 1],
+        ["s(5&p$$NIw", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:ivl=0",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:ivl<4",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:reps>3",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 1],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:lapses>0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "prop:lapses=1",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1]
+      ]
+    },
+    {
+      "query": "prop:lapses!=0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "prop:s>2",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:s<5",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:s>=2.31",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:s=2.31",
+      "cards": []
+    },
+    {
+      "query": "prop:s<2.31",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "-prop:s>2",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:s!=6.1",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:d>0.5",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    },
+    {
+      "query": "prop:d<0.3",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["s(5&p$$NIw", 0]
+      ]
+    },
+    {
+      "query": "prop:d=0.5",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:d>=0.5",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "-prop:d<0.5",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:r<0.9",
+      "cards": [
+        ["d1]X0?sM/~", 1],
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:r>0.8",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:r<0.5",
+      "cards": []
+    },
+    {
+      "query": "-prop:r<0.9",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:r>=0.99",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:r<0.95",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:r>0.6",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:foo",
+      "error": "SearchError: Búsqueda no válida: ⁨`⁨prop:⁩` recibió un parámetro inválido '`⁨foo⁩`' .⁩"
+    },
+    {
+      "query": "prop:ivl",
+      "error": "SearchError: Búsqueda no válida: ⁨`prop:⁨ivl⁩` debe ir seguido de uno de los siguientes operadores de comparación: `=`, `!=`, `<`, `>`, `<=` o `>=`.⁩"
+    },
+    {
+      "query": "prop:ivl>x",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨ivl>x⁩`\", pero se encontró \"`⁨x⁩`\".⁩"
+    },
+    {
+      "query": "prop:due>1.5",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero en \"`⁨due>1.5⁩`\", pero se encontró \"`⁨1.5⁩`\".⁩"
+    },
+    {
+      "query": "prop:IVL>1",
+      "error": "SearchError: Búsqueda no válida: ⁨`⁨prop:⁩` recibió un parámetro inválido '`⁨IVL>1⁩`' .⁩"
+    },
+    {
+      "query": "prop:ivl==3",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨ivl==3⁩`\", pero se encontró \"`⁨=3⁩`\".⁩"
+    },
+    {
+      "query": "prop:s>x",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número en \"`⁨s>x⁩`\", pero se encontró  \"`⁨x⁩`\".⁩"
+    },
+    {
+      "query": "prop:ivl>-1",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨ivl>-1⁩`\", pero se encontró \"`⁨-1⁩`\".⁩"
+    },
+    {
+      "query": "prop:ease>2",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "prop:pos>1",
+      "unsupported": true,
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "prop:rated=-1",
+      "unsupported": true,
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["k+fFqTW?_h", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "prop:resched=0",
+      "unsupported": true,
+      "cards": [["LT.ZoO9oCb", 0]]
+    },
+    {
+      "query": "prop:cdn:x>1",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "prop:rated>1",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número menor o igual a 0 en \"`⁨rated>1⁩`\", pero se encontró \"`⁨1⁩`\".⁩"
+    },
+    {
+      "query": "rated:1",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:2",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 0],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:3:1",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "rated:7",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:7:3",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["d_2JXAjo/A", 1],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "query": "rated:30",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:0",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:x",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨rated:⁩`\", pero se encontró \"`⁨x⁩`\".⁩"
+    },
+    {
+      "query": "rated:1:5",
+      "error": "SearchError: Búsqueda no válida: ⁨Se esperaba un botón de respuesta entre 1-4 en \"`⁨1:5⁩`\",  pero se encontró \"`⁨5⁩`\".⁩"
+    },
+    {
+      "query": "rated:1:0",
+      "error": "SearchError: Búsqueda no válida: ⁨Se esperaba un botón de respuesta entre 1-4 en \"`⁨1:0⁩`\",  pero se encontró \"`⁨0⁩`\".⁩"
+    },
+    {
+      "query": "-rated:7",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["q*`>Su)Z.U", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "rated:2:2",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:11",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "rated:13",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "introduced:1",
+      "cards": [
+        ["hWX!zPtKXx", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "introduced:2",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "introduced:5",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "introduced:13",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "introduced:30",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "introduced:x",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨introduced:⁩`\", pero se encontró \"`⁨x⁩`\".⁩"
+    },
+    {
+      "query": "added:1",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "added:2",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "added:4",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "added:30",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "added:0",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "added:-1",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨added:⁩`\", pero se encontró \"`⁨-1⁩`\".⁩"
+    },
+    {
+      "query": "added:x",
+      "error": "SearchError: Búsqueda no válida: ⁨Era esperado un número entero positivo en \"`⁨added:⁩`\", pero se encontró \"`⁨x⁩`\".⁩"
+    },
+    {
+      "query": "árbol or vértebra",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "árbol OR vértebra",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "árbol vértebra",
+      "cards": []
+    },
+    {
+      "query": "árbol and vértebra",
+      "cards": []
+    },
+    {
+      "query": "árbol or vértebra is:new",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "(árbol or vértebra) is:new",
+      "cards": [["d1]X0?sM/~", 2]]
+    },
+    {
+      "query": "-(árbol or vértebra)",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "-árbol -vértebra",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "is:new or is:due -flag:0",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 1],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "(is:new or is:due) (deck:Raro* or tag:s3)",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "query": "- árbol",
+      "cards": []
+    },
+    {
+      "query": "--árbol",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "-",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "query": "a and",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un `and`, pero no está conectando dos términos de búsqueda. Si desea buscar la palabra en sí, enciérrela entre comillas dobles: `\"and\"`.⁩"
+    },
+    {
+      "query": "or a",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un `or`, pero no está conectando dos términos de búsqueda. Si desea buscar la palabra en sí, enciérrela entre comillas dobles: `\"or\"`.⁩"
+    },
+    {
+      "query": "a or or b",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un `or`, pero no está conectando dos términos de búsqueda. Si desea buscar la palabra en sí, enciérrela entre comillas dobles: `\"or\"`.⁩"
+    },
+    {
+      "query": "a and and b",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un `and`, pero no está conectando dos términos de búsqueda. Si desea buscar la palabra en sí, enciérrela entre comillas dobles: `\"and\"`.⁩"
+    },
+    {
+      "query": "(a",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un paréntesis de apertura`)`, pero no había ningún paréntesis de cierre`(` precediéndolo. Si desea buscar un paréntesis `(` literal, envuélvalo entre comillas dobles o anteponga una barra invertida: `\"(\"` o ` \\(` .⁩"
+    },
+    {
+      "query": "a)",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un paréntesis de cierre `)`, pero no había ningún paréntesis de apertura `(` precediéndolo. Si desea buscar un paréntesis  `)` literal, envuélvalo entre comillas dobles o anteponga una barra invertida: `\")\"` o ` \\)`.⁩"
+    },
+    {
+      "query": "()",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un grupo `(...)`, pero no había nada entre paréntesis que buscar. Si desea buscar paréntesis literales, enciérrelos entre comillas dobles: `\"( )\"`.⁩"
+    },
+    {
+      "query": "( )",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un grupo `(...)`, pero no había nada entre paréntesis que buscar. Si desea buscar paréntesis literales, enciérrelos entre comillas dobles: `\"( )\"`.⁩"
+    },
+    {
+      "query": "\"\"",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un par de comillas dobles `\"\"`, pero no había nada entre ellas para buscar. Si desea buscar comillas dobles literales, anteponga barras invertidas: `\\\"\\\"` .⁩"
+    },
+    {
+      "query": "\"a",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró comillas de apertura `\"`, pero no se encontró comillas de cierre. Si solo desea buscar por `\"` literal, anteponga una barra invertida: `\\\"`.⁩"
+    },
+    {
+      "query": ":a",
+      "error": "SearchError: Búsqueda no válida: ⁨Se encontraron dos puntos `:`, pero no había ninguna palabra clave que lo precediera. Si desea buscar `:` literal, coloque una barra invertida: `\\:`.⁩"
+    },
+    {
+      "query": "a\\x",
+      "error": "SearchError: Búsqueda no válida: ⁨la secuencia de escape `⁨\\x⁩` no está definida. Si desea buscar una barra invertida literal `\\`, anteponga otra: `\\\\`.⁩"
+    },
+    {
+      "query": "a\\",
+      "error": "SearchError: Búsqueda no válida: ⁨la secuencia de escape `⁨\\⁩` no está definida. Si desea buscar una barra invertida literal `\\`, anteponga otra: `\\\\`.⁩"
+    },
+    {
+      "query": "(árbol)",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "((árbol))",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "((árbol) or (raro))",
+      "cards": [
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "\"is:new\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "IS:new",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "Deck:Raro*",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "query": "árbol (",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un paréntesis de apertura`)`, pero no había ningún paréntesis de cierre`(` precediéndolo. Si desea buscar un paréntesis `(` literal, envuélvalo entre comillas dobles o anteponga una barra invertida: `\"(\"` o ` \\(` .⁩"
+    },
+    {
+      "query": "is:new or (flag:3 tag:raro)",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["I&/g!YTw%;", 0],
+        ["d1]X0?sM/~", 2],
+        ["v)cov-X<[k", 0]
+      ]
+    },
+    {
+      "query": "-(-árbol)",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "árbol -(vida or bronquial)",
+      "cards": []
+    },
+    {
+      "query": "a\\ b",
+      "error": "SearchError: Búsqueda no válida: ⁨la secuencia de escape `⁨\\ b⁩` no está definida. Si desea buscar una barra invertida literal `\\`, anteponga otra: `\\\\`.⁩"
+    },
+    {
+      "query": "\"a\\\"",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró comillas de apertura `\"`, pero no se encontró comillas de cierre. Si solo desea buscar por `\"` literal, anteponga una barra invertida: `\\\"`.⁩"
+    },
+    {
+      "query": "árbol)(",
+      "error": "SearchError: Búsqueda no válida: ⁨se encontró un paréntesis de cierre `)`, pero no había ningún paréntesis de apertura `(` precediéndolo. Si desea buscar un paréntesis  `)` literal, envuélvalo entre comillas dobles o anteponga una barra invertida: `\")\"` o ` \\)`.⁩"
+    },
+    {
+      "query": "x:y:z",
+      "cards": []
+    },
+    {
+      "query": "\\-árbol",
+      "cards": []
+    },
+    {
+      "query": "dato -\\-",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "re:(?-i)ÁRBOL",
+      "cards": []
+    },
+    {
+      "query": "\"re:(?-i)ÁRBOL\"",
+      "cards": [["sa6KGKDxb!", 0]]
+    },
+    {
+      "query": "\"re:(?-i)Árbol\"",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "query": "\"re:(?-i)árbol\"",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "query": "\"re:(?i)árbol\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "\"re:(?-i:Á)rbol\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "query": "\"re:(?s)dato.en\"",
+      "cards": [["I&/g!YTw%;", 0]]
+    },
+    {
+      "query": "re:\\pL+\\x1f",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "\"re:a(?-i)RBOL|ÑANDÚ\"",
+      "cards": []
+    },
+    {
+      "query": "prop:r<0.7",
+      "cards": [["tucWf3U<?b", 0]]
+    },
+    {
+      "query": "prop:r<0.6",
+      "cards": [["tucWf3U<?b", 0]]
+    },
+    {
+      "query": "prop:r>0.97",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:r!=1",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "prop:due=-30",
+      "cards": [["tucWf3U<?b", 0]]
+    },
+    {
+      "query": "prop:due<=0 is:learn",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "w:c2",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "query": "w:bífida",
+      "cards": [
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1]
+      ]
+    },
+    {
+      "query": "card:2 note:respuesta*",
+      "cards": [
+        ["d1]X0?sM/~", 1],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "query": "tag:control -deck:Raro*",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "query": "-is:new -is:review",
+      "cards": [
+        ["d_2JXAjo/A", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "nid:1",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "cid:1",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "did:1",
+      "unsupported": true,
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "query": "mid:1",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "dupe:1,x",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "edited:1",
+      "unsupported": true,
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "query": "preset:Default",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "has-cd:x",
+      "unsupported": true,
+      "cards": []
+    },
+    {
+      "query": "resched:1",
+      "unsupported": true,
+      "cards": [["LT.ZoO9oCb", 0]]
+    },
+    {
+      "query": "nid:x",
+      "error": "SearchError: Búsqueda no válida: ⁨expected only digits and commas in nid:⁩"
+    },
+    {
+      "query": "dupe:1",
+      "error": "SearchError: Búsqueda no válida: ⁨invalid 'dupe:' search⁩"
+    }
+  ],
+  "terms": [
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH",
+      "term": "\"deck:() Medicina UCH\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre",
+      "term": "\"deck:() Medicina UCH::1° Semestre\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre::🦴 Anatomía I",
+      "term": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1",
+      "term": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica",
+      "term": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["k+fFqTW?_h", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral",
+      "term": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral\"",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["Qp@^+0T|%[", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["sa6KGKDxb!", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral::Extras",
+      "term": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::01 - Columna vertebral::Extras\"",
+      "cards": [
+        ["Qp@^+0T|%[", 0],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::02 - Vértebras",
+      "term": "\"deck:() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Columna vertebral, músculos del dorso y pared torácica::02 - Vértebras\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["k+fFqTW?_h", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::2° Semestre",
+      "term": "\"deck:() Medicina UCH::2° Semestre\"",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::2° Semestre::🧬 Biología celular",
+      "term": "\"deck:() Medicina UCH::2° Semestre::🧬 Biología celular\"",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2",
+      "term": "\"deck:() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2\"",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2::08 - (pre) Ácidos nucleicos",
+      "term": "\"deck:() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2::08 - (pre) Ácidos nucleicos\"",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["tucWf3U<?b", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "Predeterminado",
+      "term": "deck:Predeterminado",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "kind": "deck",
+      "value": "Raro",
+      "term": "deck:Raro",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "kind": "deck",
+      "value": "Raro::comillas \"dobles\" y \\barra",
+      "term": "\"deck:Raro::comillas \\\"dobles\\\" y \\\\barra\"",
+      "cards": [["LT.ZoO9oCb", 0]]
+    },
+    {
+      "kind": "deck",
+      "value": "Raro::unoXdosYYtres",
+      "term": "deck:Raro::unoXdosYYtres",
+      "cards": [["kU9n++)[eF", 0]]
+    },
+    {
+      "kind": "deck",
+      "value": "Raro::uno_dos*tres",
+      "term": "deck:Raro::uno\\_dos\\*tres",
+      "cards": [["I&/g!YTw%;", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "Anatomía",
+      "term": "tag:Anatomía",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1],
+        ["sa6KGKDxb!", 0]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "Anatomía::Columna",
+      "term": "tag:Anatomía::Columna",
+      "cards": [
+        ["F[z%]--3hW", 0],
+        ["hWX!zPtKXx", 0],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "Anatomía::Columna::Lumbar",
+      "term": "tag:Anatomía::Columna::Lumbar",
+      "cards": [["F[z%]--3hW", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "Anatomía::Columna::Torácica",
+      "term": "tag:Anatomía::Columna::Torácica",
+      "cards": [["hWX!zPtKXx", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "BC::clase8",
+      "term": "tag:BC::clase8",
+      "cards": [
+        ["pH<[R!<!%1", 0],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "BC::clase8::extra",
+      "term": "tag:BC::clase8::extra",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "Química",
+      "term": "tag:Química",
+      "cards": [["A9gn2q@mD!", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "Raro",
+      "term": "tag:Raro",
+      "cards": [
+        ["I&/g!YTw%;", 0],
+        ["kU9n++)[eF", 0]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "Raro::sub",
+      "term": "tag:Raro::sub",
+      "cards": [["kU9n++)[eF", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "S3",
+      "term": "tag:S3",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["hWX!zPtKXx", 0],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "anatomía::Dorso",
+      "term": "tag:anatomía::Dorso",
+      "cards": [["G;Z~/Z[`<G", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "control",
+      "term": "tag:control",
+      "cards": [
+        ["LT.ZoO9oCb", 0],
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2]
+      ]
+    },
+    {
+      "kind": "tag",
+      "value": "repetida_borrar",
+      "term": "tag:repetida\\_borrar",
+      "cards": [["k+fFqTW?_h", 0]]
+    },
+    {
+      "kind": "tag",
+      "value": "Ñandú",
+      "term": "tag:Ñandú",
+      "cards": [
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "note",
+      "value": "Básico",
+      "term": "note:Básico",
+      "cards": [
+        ["A9gn2q@mD!", 0],
+        ["F[z%]--3hW", 0],
+        ["G;Z~/Z[`<G", 0],
+        ["I&/g!YTw%;", 0],
+        ["LT.ZoO9oCb", 0],
+        ["Qp@^+0T|%[", 0],
+        ["hWX!zPtKXx", 0],
+        ["kU9n++)[eF", 0],
+        ["pH<[R!<!%1", 0],
+        ["q*`>Su)Z.U", 0],
+        ["z$2^W&%kO#", 0]
+      ]
+    },
+    {
+      "kind": "note",
+      "value": "Básico (y tarjeta invertida)",
+      "term": "\"note:Básico (y tarjeta invertida)\"",
+      "cards": [
+        ["d_2JXAjo/A", 0],
+        ["d_2JXAjo/A", 1],
+        ["s(5&p$$NIw", 0],
+        ["s(5&p$$NIw", 1],
+        ["v)cov-X<[k", 0],
+        ["v)cov-X<[k", 1]
+      ]
+    },
+    {
+      "kind": "note",
+      "value": "Respuesta anidada",
+      "term": "\"note:Respuesta anidada\"",
+      "cards": [
+        ["d1]X0?sM/~", 0],
+        ["d1]X0?sM/~", 1],
+        ["d1]X0?sM/~", 2],
+        ["jT3ZjwR>1Q", 0],
+        ["jT3ZjwR>1Q", 1]
+      ]
+    },
+    {
+      "kind": "note",
+      "value": "Medicina (código) · Básica",
+      "term": "\"note:Medicina (código) · Básica\"",
+      "cards": [
+        ["k+fFqTW?_h", 0],
+        ["sa6KGKDxb!", 0],
+        ["tucWf3U<?b", 0]
+      ]
+    }
+  ]
+}

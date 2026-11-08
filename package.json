@@ -1,0 +1,45 @@
+{
+  "name": "el-quinto-ventriculo",
+  "private": true,
+  "description": "El Quinto Ventrículo — el ventrículo que no aparece en el Netter",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "db"
+  ],
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @qv/web",
+    "dev:demo": "npm run dev:demo -w @qv/web",
+    "dev:local": "npm run dev:local -w @qv/web",
+    "build": "npm run build -w @qv/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "npm run e2e -w @qv/web",
+    "import": "npm run import -w @qv/importer --",
+    "unpublish": "npm run unpublish -w @qv/importer --",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "deploy": "tsx packages/ops/src/deploy-cli.ts",
+    "smoke": "tsx packages/ops/src/smoke-cli.ts",
+    "prepare": "sh .githooks/install.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "eslint": "10.14.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
+  }
+}

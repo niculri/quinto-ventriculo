@@ -1,0 +1,36 @@
+{
+  "name": "@qv/importer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Takes the notes and the Anki decks from the material folder to the content database and their images to R2 (or to a folder, in dry-run mode)",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "bin": {
+    "qv-import": "./src/cli.ts",
+    "qv-unpublish": "./src/unpublish-cli.ts"
+  },
+  "scripts": {
+    "import": "tsx src/cli.ts",
+    "unpublish": "tsx src/unpublish-cli.ts",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1161.0",
+    "@qv/anki-format": "0.0.0",
+    "@qv/anki-render": "0.0.0",
+    "@qv/notes-md": "0.0.0",
+    "@qv/schema": "0.0.0",
+    "@supabase/supabase-js": "2.118.0",
+    "sanitize-html": "2.18.1",
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@qv/quiz": "0.0.0",
+    "tsx": "4.23.15",
+    "@types/sanitize-html": "2.16.2"
+  }
+}

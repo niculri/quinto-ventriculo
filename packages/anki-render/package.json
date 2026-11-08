@@ -1,0 +1,23 @@
+{
+  "name": "@qv/anki-render",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Anki's card template language (fields, conditionals, cloze, Image Occlusion), faithful to Anki's own renderer",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "compare": "tsx scripts/compare.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "entities": "9.0.0"
+  },
+  "devDependencies": {
+    "@qv/anki-format": "0.0.0",
+    "tsx": "4.23.15"
+  }
+}

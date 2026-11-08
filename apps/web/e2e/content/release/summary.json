@@ -1,0 +1,157 @@
+{
+  "decks": [],
+  "marks": [],
+  "catalog": [],
+  "presets": [],
+  "findings": [
+    {
+      "key": "AP-BC-C2-10",
+      "rule": "class_without_year",
+      "detail": {
+        "title": "Núcleo celular"
+      },
+      "assessmentId": "biologia-celular/certamen-2"
+    },
+    {
+      "key": "anatomia-1/certamen-1",
+      "rule": "guid_candidates",
+      "detail": {
+        "added": [
+          {
+            "code": "T-PR-01-004",
+            "guid": "nueva-e2e-1",
+            "text": "¿Cuántas vértebras torácicas hay?"
+          }
+        ],
+        "removed": [
+          {
+            "code": null,
+            "guid": "extra-basica-1",
+            "text": "Frente con espacios duros"
+          }
+        ],
+        "addedTotal": 1,
+        "removedTotal": 1
+      },
+      "assessmentId": "anatomia-1/certamen-1"
+    }
+  ],
+  "noteTypes": [],
+  "assessments": [
+    {
+      "id": "anatomia-1/certamen-1",
+      "name": "Certamen 1",
+      "cards": {
+        "added": 1,
+        "moved": 0,
+        "notes": 4,
+        "answer": 2,
+        "format": 0,
+        "removed": 1,
+        "noAnswer": 3
+      },
+      "decks": [
+        {
+          "id": "2059400110",
+          "op": "changed",
+          "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "cardsAfter": 13,
+          "nameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "cardsBefore": 12,
+          "presetAfter": "Default",
+          "presetBefore": "Default"
+        },
+        {
+          "id": "2059400111",
+          "op": "changed",
+          "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba::Extras",
+          "cardsAfter": 3,
+          "nameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba::Extras",
+          "cardsBefore": 4,
+          "presetAfter": "Extras",
+          "presetBefore": "Extras"
+        }
+      ],
+      "quizzes": [],
+      "articles": {
+        "added": 0,
+        "format": 0,
+        "content": 0,
+        "removed": 0
+      },
+      "courseId": "anatomia-1",
+      "semester": 1,
+      "questions": {
+        "added": 0,
+        "moved": 0,
+        "total": 0,
+        "answer": 0,
+        "format": 0,
+        "removed": 0,
+        "noAnswer": 0,
+        "keyChanged": 0
+      },
+      "courseName": "Anatomía I",
+      "impactDecks": [
+        {
+          "id": "2059400110",
+          "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "cards": 2
+        },
+        {
+          "id": "2059400111",
+          "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba::Extras",
+          "cards": 1
+        }
+      ],
+      "suggestedDate": null,
+      "suggestedDateBefore": null
+    },
+    {
+      "id": "biologia-celular/certamen-2",
+      "name": "Certamen 2",
+      "cards": {
+        "added": 0,
+        "moved": 0,
+        "notes": 0,
+        "answer": 0,
+        "format": 0,
+        "removed": 0,
+        "noAnswer": 0
+      },
+      "decks": [],
+      "quizzes": [
+        {
+          "id": "biologia-celular-certamen-2-preguntas-de-practica",
+          "op": "changed",
+          "title": "Preguntas de práctica"
+        }
+      ],
+      "articles": {
+        "added": 0,
+        "format": 0,
+        "content": 1,
+        "removed": 0
+      },
+      "courseId": "biologia-celular",
+      "semester": 2,
+      "questions": {
+        "added": 0,
+        "moved": 0,
+        "total": 2,
+        "answer": 1,
+        "format": 0,
+        "removed": 0,
+        "noAnswer": 1,
+        "keyChanged": 1
+      },
+      "courseName": "Biología celular",
+      "impactDecks": [],
+      "suggestedDate": null,
+      "suggestedDateBefore": null
+    }
+  ],
+  "fingerprint": "6bbcd4571f779b65884ecc001932fa22",
+  "unpublished": [],
+  "schemaVersion": 1
+}

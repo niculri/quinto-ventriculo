@@ -1,0 +1,14 @@
+{
+  "name": "@qv/quiz",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The logic of a practice test round (order, answers, verdict, score, repeat the wrong ones, going back to read, saved rounds), without React or network",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  }
+}

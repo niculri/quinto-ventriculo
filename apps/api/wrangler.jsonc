@@ -1,0 +1,36 @@
+// A single Worker serves the web (static files from apps/web/dist) and the API (/api/*), on the same domain.
+// Secrets (not here): npx wrangler secret put CONTENT_SERVICE_ROLE_KEY | MEDIA_SECRET
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "quinto-ventriculo",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "../web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+  // The site's own domain (zone in the same Cloudflare account; Cloudflare creates the DNS record and the certificate).
+  // The site lives on www; a Cloudflare Redirect Rule sends the bare domain to www (it runs before the Worker).
+  // The *.workers.dev URL stays on as well.
+  "routes": [
+    { "pattern": "www.quintoventriculo.cl", "custom_domain": true },
+    { "pattern": "quintoventriculo.cl", "custom_domain": true },
+  ],
+  "workers_dev": true,
+  // The id of the version that answers, for /api/health and the smoke test (npm run smoke, step 1.9).
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "quinto-ventriculo-media" }],
+  "vars": {
+    // Filled in when the Supabase projects are created (docs/configuracion.md).
+    "USERS_SUPABASE_URL": "https://nepxecanupunoezfblon.supabase.co",
+    "CONTENT_SUPABASE_URL": "https://digqrtjqzdqlgjscnznj.supabase.co",
+    // The users' publishable key (not secret: the web has it too). With it the Worker asks is_admin() with the
+    // student's own token, for the preview and the releases panel (step 1.7). Here, not in Cloudflare's panel:
+    // wrangler deploy replaces the variables of the panel.
+    "USERS_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_aoi84HOhmVNxCV6KWt1-JQ_hXe4strw",
+  },
+  "observability": { "enabled": true },
+}

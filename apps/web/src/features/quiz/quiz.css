@@ -1,0 +1,1058 @@
+/*
+ * A practice test: cover (what to practice) → one question per card → score and the review of the wrong ones. Its colors
+ * are the site's, in both themes (--ink comes from the site as it is); the recreated figures (inline SVG) are drawn with
+ * these tokens, and --g1…--g3 are the colors of each course's charts: the page puts them in --t-<token>-l and -d.
+ * Everything under `.quiz`, so nothing leaks to the app.
+ */
+.quiz {
+  --surf: var(--surface);
+  --surf2: var(--surface-2);
+  --papel: #ffffff;
+  --ink2: color-mix(in srgb, var(--ink) 72%, var(--muted));
+  --mute: var(--muted);
+  --line: var(--border-strong);
+  --line2: var(--border);
+  --ok: #186b45;
+  --ok-b: #d8ede2;
+  --ok-l: #8fcbaf;
+  --mal: #a62a2a;
+  --mal-b: #f6dedc;
+  --mal-l: #dfa09b;
+  --fdisp: var(--font-sans);
+  --fbody: var(--font-sans);
+  --fmono: var(--font-sans);
+  --r: 12px;
+  --sh: var(--shadow);
+  --ac: var(--brand);
+  --ac-b: var(--brand-soft);
+  --ac2: var(--brand-2);
+  --ac2-b: color-mix(in srgb, var(--brand) 18%, var(--surface));
+  --on-ac: #ffffff;
+  --g1: var(--t-g1-l);
+  --g2: var(--t-g2-l);
+  --g3: var(--t-g3-l);
+  color: var(--ink);
+  font-family: var(--fbody);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.dark .quiz {
+  --papel: #e6ebef;
+  --ok: #66c795;
+  --ok-b: #16301f;
+  --ok-l: #2f6448;
+  --mal: #ec8b84;
+  --mal-b: #341a1a;
+  --mal-l: #6e3230;
+  --on-ac: #0a1316;
+  --g1: var(--t-g1-d);
+  --g2: var(--t-g2-d);
+  --g3: var(--t-g3-d);
+}
+
+.quiz [hidden] {
+  display: none !important;
+}
+.quiz img {
+  max-width: 100%;
+}
+.quiz h1,
+.quiz h2,
+.quiz h3 {
+  font-family: var(--fdisp);
+  font-weight: 600;
+  text-wrap: balance;
+  margin: 0;
+}
+.quiz .wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-inline: 16px;
+}
+/* The cover and the results: as every page of the site (ui/styles.ts «page»: 55.5rem centered, 16px of padding,
+   20px from 640px); the questions keep their 720px. */
+.quiz .wrap.wide {
+  max-width: 55.5rem;
+}
+@media (min-width: 640px) {
+  .quiz .wrap.wide {
+    padding-inline: 20px;
+  }
+}
+.quiz button {
+  font-family: var(--fbody);
+  font-size: 15px;
+  cursor: pointer;
+}
+.quiz :focus-visible {
+  outline: 2.5px solid var(--ac);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* the test's bar, under the app's (sticky): name, counter, live score, «Reiniciar», «Temas», progress */
+.quiz .qz-bar {
+  position: sticky;
+  top: 4rem;
+  z-index: 30;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line2);
+}
+.quiz .hrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+}
+.quiz .hname {
+  font-family: var(--fdisp);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+/* Two lines: the course and assessment, small, over the test's name; each one cut with «…» if it does not fit. */
+.quiz .hname {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.quiz .hwhere,
+.quiz .htitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quiz .hwhere {
+  font-family: var(--fbody);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--ink2);
+  text-decoration: none;
+}
+.quiz .hwhere a {
+  color: inherit;
+  text-decoration: none;
+}
+.quiz .hwhere a:hover {
+  text-decoration: underline;
+}
+/* The test's toolbar uses the whole screen, like the site's own bar (AppShell: 90rem, 16 px / 24 px). */
+.quiz .qz-bar .hrow {
+  max-width: 90rem;
+}
+@media (min-width: 640px) {
+  .quiz .qz-bar .hrow {
+    padding-inline: 24px;
+  }
+}
+.quiz .hgrow {
+  flex: 1;
+}
+.quiz .cont {
+  font-family: var(--fmono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.quiz .marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--fmono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.quiz .marca b {
+  font-weight: 600;
+}
+.quiz .marca .vb {
+  color: var(--ok);
+}
+.quiz .marca .vm {
+  color: var(--mal);
+}
+.quiz .hacc {
+  display: flex;
+  gap: 6px;
+}
+.quiz .hbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  padding: 5px 10px;
+  color: var(--ink2);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.quiz .hbtn:hover {
+  border-color: var(--ac);
+  color: var(--ac);
+}
+.quiz .hbtn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+@media (max-width: 560px) {
+  .quiz .hrow {
+    gap: 9px;
+  }
+  .quiz .hbtn {
+    padding: 6px 7px;
+  }
+  .quiz .hbtn span {
+    display: none;
+  }
+}
+.quiz .pb {
+  height: 3px;
+  background: var(--line2);
+  overflow: hidden;
+}
+.quiz .pb i {
+  display: block;
+  height: 100%;
+  background: var(--ac);
+  width: 0;
+  transition: width 0.25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .quiz .pb i {
+    transition: none;
+  }
+}
+
+/* cover */
+.quiz .portada {
+  /* The breadcrumbs are just above (the page's top padding): the title right under them, as everywhere. */
+  padding-block: 0 26px;
+}
+.quiz .kicker {
+  font-family: var(--fmono);
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ac);
+  margin: 0 0 10px;
+}
+.quiz .portada h1 {
+  font-family: var(--font-serif);
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.025em;
+}
+.quiz .lead {
+  color: var(--ink2);
+  margin: 12px 0 0;
+  max-width: 56ch;
+}
+.quiz .aviso {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--ac2-b);
+  border-radius: 10px;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+/* tabs: sections of the test with their own groups and round (original questions and new ones) */
+.quiz .tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 6px;
+  margin: 22px 0 0;
+  padding: 5px;
+  background: var(--surf2);
+  border: 1px solid var(--line2);
+  border-radius: 14px;
+}
+.quiz .tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 10px 13px;
+  color: var(--ink2);
+  min-width: 0;
+}
+.quiz .tab:hover {
+  color: var(--ink);
+}
+.quiz .tab[aria-selected='true'] {
+  background: var(--surf);
+  border-color: var(--ac);
+  color: var(--ink);
+  box-shadow: var(--sh);
+}
+.quiz .tab .tn {
+  font-family: var(--fdisp);
+  font-weight: 600;
+  font-size: 15.5px;
+  line-height: 1.2;
+}
+.quiz .tab .tc {
+  font-family: var(--fmono);
+  font-size: 12px;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+}
+/* the section's list (the subjects that were not in the past exams) */
+.quiz .listado {
+  margin-top: 14px;
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14.5px;
+}
+.quiz .listado summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink);
+}
+.quiz .listado ul {
+  margin: 10px 0 2px;
+  padding-left: 20px;
+  color: var(--ink2);
+  list-style: disc;
+}
+.quiz .listado li {
+  margin: 4px 0;
+}
+.quiz .listado li.lsub {
+  list-style: none;
+  margin: 8px 0 8px -20px;
+}
+.quiz .listado li.lsub summary {
+  font-weight: 600;
+  color: var(--ink2);
+}
+.quiz .listado li.lsub ul {
+  margin-top: 6px;
+}
+/* a round saved halfway: continued from the cover */
+/* confirmation inside the page */
+.quiz-dlg-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, #152230 40%, transparent);
+}
+.quiz .dlg {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 20px;
+}
+.quiz .dlg h2 {
+  font-size: 19px;
+}
+.quiz .dlg p {
+  margin: 8px 0 0;
+  color: var(--ink2);
+}
+.quiz .dlg .acciones {
+  margin-top: 18px;
+}
+
+.quiz fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.quiz .acciones {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.quiz .btn {
+  background: var(--ac);
+  color: var(--on-ac);
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.quiz .btn:hover {
+  filter: brightness(1.07);
+}
+.quiz .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+.quiz .btn2 {
+  background: var(--surf);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 600;
+}
+.quiz .btn2:hover {
+  border-color: var(--ac);
+}
+.quiz .nota {
+  font-size: 13.5px;
+  color: var(--mute);
+}
+
+/* question */
+.quiz .quizq {
+  padding-block: 20px 40px;
+}
+.quiz .meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.quiz .tag {
+  font-family: var(--fmono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--ac-b);
+  color: var(--ac);
+}
+.quiz .tag.t2 {
+  background: var(--surf2);
+  color: var(--mute);
+}
+.quiz .tag.tsec {
+  background: transparent;
+  border: 1.5px solid currentColor;
+  padding: 2px 8px;
+  color: var(--ac2);
+}
+.quiz .tag.tsec.s1 {
+  color: var(--ac);
+}
+.quiz .qcard {
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 18px;
+}
+/*
+ * The statement (case, experiment, data, statements I, II, III) and the question are read in order, top to
+ * bottom: the same size, color and line height (the owner, 2026-11-01: the statement is needed to answer, it
+ * must not look like a side note). The question is only a little heavier, after a small space. Unlike the
+ * skill's page, where the question was bigger and bold and the statement smaller and gray.
+ */
+.quiz .enun,
+.quiz .preg {
+  color: var(--ink);
+  font-family: var(--fbody);
+  font-size: 17px;
+  line-height: 1.55;
+  letter-spacing: normal;
+  text-wrap: pretty;
+}
+.quiz .enun {
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+.quiz .preg {
+  font-weight: 550;
+  margin: 0;
+}
+.quiz .preg + .preg {
+  margin-top: 10px;
+}
+/*
+ * Statements I, II, III (in the question's text): a list of their own, apart from the text above and from the
+ * alternatives below, each numeral aligned with a hanging indent (the owner, 2026-11-01).
+ */
+.quiz .afirm {
+  list-style: none;
+  margin: 12px 0 2px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.quiz .afirm li {
+  display: grid;
+  grid-template-columns: 2.6em minmax(0, 1fr);
+  align-items: baseline;
+}
+.quiz .afirm .rn {
+  font-weight: 600;
+  color: var(--ink2);
+  font-variant-numeric: tabular-nums;
+}
+.quiz .afirm + .preg,
+.quiz .afirm + .enun {
+  margin-top: 12px;
+}
+.quiz .fallo .afirm {
+  font-size: 14.5px;
+  gap: 4px;
+  margin: 6px 0;
+  font-weight: 400;
+}
+@media (max-width: 560px) {
+  .quiz .afirm {
+    font-size: 16px;
+  }
+}
+@media (max-width: 560px) {
+  .quiz .enun,
+  .quiz .preg {
+    font-size: 16px;
+  }
+}
+.quiz .figura {
+  margin: 20px 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+.quiz .figura svg {
+  max-width: 100%;
+  height: auto;
+}
+/* «pie»: a short caption under a figure («Imagen recreada a partir de la original») */
+.quiz .fcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+}
+.quiz .fsvg {
+  display: contents;
+}
+.quiz .fpie {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--mute);
+  font-style: italic;
+  text-align: center;
+  max-width: 48ch;
+}
+.quiz .fpie.todo {
+  max-width: none;
+}
+.quiz .figura:not(.lado) > .fpie.todo {
+  flex-basis: 100%;
+  margin-top: -6px;
+}
+.quiz .fimg {
+  display: block;
+  background: var(--papel);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  padding: 6px;
+  height: auto;
+  cursor: zoom-in;
+}
+.quiz .fbtn {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: 100%;
+  cursor: zoom-in;
+}
+/* «fig_izq»: the figure to the left of the alternatives (above them on a phone) */
+.quiz .conlado {
+  display: grid;
+  grid-template-columns: minmax(0, var(--fw, 42%)) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 26px;
+}
+.quiz .conlado > .opts {
+  margin: 0;
+}
+.quiz .figura.lado {
+  margin: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.quiz .figura.lado .fimg,
+.quiz .figura.lado .fbtn {
+  width: 100%;
+  max-width: 100%;
+}
+.quiz .figura.lado .fcon {
+  width: 100%;
+}
+.quiz .figura.lado .zhint {
+  font-size: 12.5px;
+  color: var(--mute);
+}
+@media (max-width: 640px) {
+  .quiz .conlado {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.quiz .tablabox {
+  margin: 16px 0 4px;
+  overflow-x: auto;
+}
+.quiz table {
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+.quiz th,
+.quiz td {
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  text-align: center;
+}
+.quiz th {
+  background: var(--surf2);
+  font-family: var(--fbody);
+  font-weight: 600;
+  font-size: 13px;
+}
+.quiz td.hl,
+.quiz th.hl {
+  font-weight: 700;
+  color: var(--ac);
+  background: var(--ac-b);
+}
+.quiz th.vacia,
+.quiz td.vacia {
+  border: 0;
+  background: transparent;
+}
+.quiz .tcap {
+  font-size: 13px;
+  color: var(--mute);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.quiz .opts {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.quiz .opt {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  background: var(--surf);
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 13px;
+  color: var(--ink);
+  font-size: 15.5px;
+  line-height: 1.4;
+  transition:
+    border-color 0.13s,
+    background 0.13s;
+}
+.quiz button.opt:hover:not(:disabled) {
+  border-color: var(--ac);
+  background: var(--surf2);
+}
+.quiz .opt:disabled {
+  cursor: default;
+}
+.quiz .opt .lt {
+  flex: none;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-family: var(--fmono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mute);
+  margin-top: 1px;
+}
+.quiz .opt.buena {
+  border-color: var(--ok-l);
+  background: var(--ok-b);
+}
+.quiz .opt.buena .lt {
+  border-color: var(--ok);
+  color: var(--ok);
+  background: var(--surf);
+}
+.quiz .opt.mala {
+  border-color: var(--mal-l);
+  background: var(--mal-b);
+}
+.quiz .opt.mala .lt {
+  border-color: var(--mal);
+  color: var(--mal);
+  background: var(--surf);
+}
+.quiz .opt.tenue {
+  opacity: 0.62;
+}
+/* an explanation for each alternative («expo»): a list under the alternatives, with the letter on screen */
+.quiz .opt .otx {
+  min-width: 0;
+}
+.quiz .xalt {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quiz .xalt li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  color: var(--ink2);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.quiz .xalt li b {
+  color: var(--ink);
+}
+.quiz .xalt .xl {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-family: var(--fmono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mute);
+  margin-top: 1px;
+}
+.quiz .xalt .xt {
+  min-width: 0;
+}
+.quiz .xalt li.xa-ok .xl {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+.quiz .xalt li.xa-mal .xl {
+  border-color: var(--mal);
+  color: var(--mal);
+}
+.quiz .fexp {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--ink2);
+}
+
+/* a question without alternatives: the answer is shown and the user marks whether they knew it */
+.quiz .abierta {
+  margin-top: 16px;
+}
+.quiz .resp,
+.quiz .exp {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.quiz .resp {
+  background: var(--ac-b);
+  color: var(--ink);
+}
+.quiz .exp {
+  background: var(--surf2);
+  color: var(--ink2);
+}
+.quiz .rl {
+  font-family: var(--fmono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 4px;
+}
+.quiz .resp .rl {
+  color: var(--ac);
+}
+.quiz .autoev {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.quiz .bsi,
+.quiz .bno {
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 600;
+  border: 1.5px solid;
+}
+.quiz .bsi {
+  background: var(--ok-b);
+  color: var(--ok);
+  border-color: var(--ok-l);
+}
+.quiz .bno {
+  background: var(--mal-b);
+  color: var(--mal);
+  border-color: var(--mal-l);
+}
+.quiz .bsi:hover,
+.quiz .bno:hover {
+  filter: brightness(1.05);
+}
+
+.quiz .veredicto {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  font-family: var(--fdisp);
+  font-weight: 600;
+  font-size: 16px;
+}
+.quiz .veredicto.bien {
+  color: var(--ok);
+}
+.quiz .veredicto.mal {
+  color: var(--mal);
+}
+.quiz .vi {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-size: 14px;
+  color: var(--surf);
+}
+.quiz .bien .vi {
+  background: var(--ok);
+}
+.quiz .mal .vi {
+  background: var(--mal);
+}
+.quiz .pie {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.quiz .pie .btn {
+  margin-left: auto;
+}
+.quiz .pie .btn2:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.quiz .atajo {
+  font-size: 13px;
+  color: var(--mute);
+}
+.quiz .atajo kbd {
+  font-family: var(--fmono);
+  font-size: 11.5px;
+  background: var(--surf2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+@media (hover: none) {
+  .quiz .atajo {
+    display: none;
+  }
+}
+
+/* results */
+.quiz .res {
+  padding-block: 28px 44px;
+}
+.quiz .res h1 {
+  font-size: clamp(26px, 6vw, 34px);
+  line-height: 1.1;
+}
+.quiz .marcador {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 20px 0 6px;
+}
+.quiz .mcell {
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  padding: 16px;
+  box-shadow: var(--sh);
+}
+.quiz .mcell .n {
+  font-family: var(--fdisp);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.quiz .mcell .l {
+  font-size: 13px;
+  color: var(--mute);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+.quiz .mcell.g .n {
+  color: var(--ok);
+}
+.quiz .mcell.r .n {
+  color: var(--mal);
+}
+.quiz .mcell.p .n {
+  color: var(--ac);
+}
+.quiz .barra {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--mal-l);
+  overflow: hidden;
+  display: flex;
+  margin-top: 14px;
+}
+.quiz .barra i {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+}
+.quiz .repaso {
+  margin-top: 30px;
+}
+.quiz .repaso h2 {
+  font-size: 17px;
+}
+.quiz .fallo {
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-left: 3px solid var(--mal);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 10px;
+}
+.quiz .fallo.limpio {
+  border-left-color: var(--ok);
+}
+.quiz .fallo .fq {
+  font-weight: 550;
+  font-size: 15px;
+  line-height: 1.45;
+}
+/* the statement before the question, in the same reading order as on the question's screen */
+.quiz .fallo .fctx {
+  font-weight: 400;
+  margin: 0 0 6px;
+}
+.quiz .fallo .fl {
+  font-family: var(--fmono);
+  font-size: 12px;
+  color: var(--mute);
+  margin-bottom: 6px;
+}
+.quiz .fallo dl {
+  margin: 10px 0 0;
+  font-size: 14.5px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+}
+.quiz .fallo dt {
+  font-size: 12.5px;
+  color: var(--mute);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+.quiz .fallo dd {
+  margin: 0;
+  min-width: 0;
+}
+.quiz .fallo .cb {
+  color: var(--ok);
+  font-weight: 600;
+}
+.quiz .fallo .cm {
+  color: var(--mal);
+}
+.quiz .fallo .fx {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--ink2);
+}
+.quiz .qz-foot {
+  padding-block: 6px 30px;
+  color: var(--mute);
+  font-size: 13px;
+  text-align: center;
+}
+.quiz .qz-crumbs {
+  /* As the other pages (pt-5): without the test's bar above. */
+  padding-top: 20px;
+}
+.quiz .qz-warn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--mal-b);
+  color: var(--mal);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+}

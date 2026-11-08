@@ -1,0 +1,14 @@
+{
+  "name": "@qv/ops",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Publishing safely without branch protection (step 1.9): npm run deploy (only a pushed commit with green CI), npm run smoke (the site answers, without a session)",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

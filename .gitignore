@@ -1,0 +1,36 @@
+node_modules/
+dist/
+# wrangler deploy --dry-run --outdir dist-worker (the CI's check of the Worker)
+dist-worker/
+*.tsbuildinfo
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+# Importer output in dry-run mode (copyrighted content: never in the repo)
+.output/
+# Importer cache of the converted images (WebP by hash of the source)
+.cache/
+.DS_Store
+# MCP settings of Claude Code: they may carry a token
+.mcp.json
+# Local settings of Claude Code on each computer, in any folder it is opened from (prettier skips them too: it reads
+# this file)
+**/.claude/settings.local.json
+# Claude Code: the private repository's instructions, loaded on the author's computer only (CLAUDE.local.md imports
+# them), and anything of Claude's own work kept out of the public code
+CLAUDE.local.md
+.claude/specs/
+.claude/history/
+# Safety net (Revisión de cero, 2.4): what belongs to the private repository never goes in here, even if it is
+# written in this folder by habit (content/, docs/, the real-material tests, Claude's notes). Remove a line only to
+# publish something on purpose.
+/content/
+/docs/
+/tests/
+/.claude/*
+!/.claude/settings.json

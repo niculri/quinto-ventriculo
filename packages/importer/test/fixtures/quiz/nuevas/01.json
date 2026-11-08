@@ -1,0 +1,13 @@
+{
+  "nombre": "Clase 1",
+  "preguntas": [
+    { "q": "¿Qué hebra se copia?", "r": "La hebra molde", "nota": "[N-01] …" },
+    {
+      "q": "¿Cuántas subunidades tiene el ribosoma?",
+      "o": ["Dos", "Tres"],
+      "ok": "A",
+      "expo": ["**Verdadera.** Dos.", "**Falsa.** Dos."],
+      "nota": "[N-02] …"
+    }
+  ]
+}

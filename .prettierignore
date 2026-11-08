@@ -1,0 +1,8 @@
+dist
+.output
+coverage
+playwright-report
+test-results
+package-lock.json
+*.md
+packages/srs/test/golden

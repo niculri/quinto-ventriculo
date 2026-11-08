@@ -1,0 +1,27 @@
+{
+  "name": "@qv/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API on Cloudflare Workers (Hono): session, catalog, notes, search and signed images. It also serves the web.",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/app.ts",
+    "./demo": "./src/demo.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "@qv/schema": "0.0.0",
+    "@supabase/supabase-js": "2.118.0",
+    "hono": "4.13.14",
+    "jose": "6.2.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261031.1",
+    "wrangler": "4.156.0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@qv/notes-md",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Converts clase-a-apunte's apunte.md (callouts, figures, columns) into sanitized HTML, a table of contents and sections for search",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@qv/schema": "0.0.0",
+    "entities": "9.0.0",
+    "markdown-it": "15.0.3",
+    "sanitize-html": "2.18.1"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "14.2.0",
+    "@types/sanitize-html": "2.16.2"
+  }
+}

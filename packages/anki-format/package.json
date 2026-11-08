@@ -1,0 +1,17 @@
+{
+  "name": "@qv/anki-format",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reads Anki packages (.apkg, classic format) with node:sqlite: note types, decks, presets, notes, cards and media",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "fflate": "0.8.3"
+  }
+}

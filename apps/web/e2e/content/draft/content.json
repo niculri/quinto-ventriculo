@@ -1,0 +1,816 @@
+{
+  "semesters": [
+    {
+      "number": 1,
+      "name": "1° Semestre"
+    },
+    {
+      "number": 2,
+      "name": "2° Semestre"
+    },
+    {
+      "number": 3,
+      "name": "3° Semestre"
+    }
+  ],
+  "courses": [
+    {
+      "id": "biologia-celular",
+      "semester": 2,
+      "name": "Biología celular",
+      "emoji": "🧬",
+      "position": 1
+    },
+    {
+      "id": "fisica",
+      "semester": 2,
+      "name": "Física",
+      "emoji": "🧲",
+      "position": 2
+    },
+    {
+      "id": "anatomia-1",
+      "semester": 1,
+      "name": "Anatomía I",
+      "emoji": "🦴",
+      "position": 1
+    }
+  ],
+  "assessments": [
+    {
+      "id": "biologia-celular/certamen-2",
+      "courseId": "biologia-celular",
+      "name": "Certamen 2",
+      "position": 2
+    },
+    {
+      "id": "anatomia-1/certamen-1",
+      "courseId": "anatomia-1",
+      "name": "Certamen 1",
+      "position": 1
+    }
+  ],
+  "notes": [
+    {
+      "id": "AP-BC-C2-10",
+      "slug": "10-nucleo-celular",
+      "courseId": "biologia-celular",
+      "assessmentId": "biologia-celular/certamen-2",
+      "kind": "lecture",
+      "title": "Núcleo celular",
+      "subtitle": "Clase de prueba",
+      "position": 1,
+      "updatedAt": "2026-10-30T12:00:00.000Z",
+      "sources": ["Fuentes: contenido de prueba"],
+      "html": "<h2 id=\"nucleolo\">El nucléolo</h2><p>Sitio donde se arman las subunidades ribosómicas.</p>",
+      "toc": [
+        {
+          "anchor": "nucleolo",
+          "title": "El nucléolo",
+          "level": 2
+        }
+      ],
+      "sections": [
+        {
+          "anchor": "nucleolo",
+          "title": "El nucléolo",
+          "level": 2,
+          "text": "Sitio donde se arman las subunidades ribosómicas."
+        }
+      ],
+      "hash": "e2e-1",
+      "media": []
+    },
+    {
+      "id": "AP-BC-C2-11",
+      "slug": "11-traduccion",
+      "courseId": "biologia-celular",
+      "assessmentId": "biologia-celular/certamen-2",
+      "kind": "lecture",
+      "title": "Traducción",
+      "position": 2,
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "sources": ["Clase 11 de prueba, semestre de primavera 2026: diapositivas y grabación."],
+      "html": "<aside class=\"callout callout-datos\"><p class=\"callout-label\">Datos clave</p><ul>\n<li>El <strong>ribosoma</strong> tiene dos subunidades.</li>\n<li>La cadena crece de N a C.</li>\n</ul>\n</aside><h2 id=\"ribosomas\">1. Ribosomas</h2><p>Los ribosomas tienen dos subunidades, una mayor y una menor, que este semestre se ven juntas.</p><figure class=\"figure\" style=\"width:60%\"><img data-media=\"notes/0123456789abcdef0123456789abcdef.webp\" alt=\"Ribosoma\" width=\"640\" height=\"360\" loading=\"lazy\" decoding=\"async\"><figcaption>Un ribosoma</figcaption></figure><aside class=\"callout callout-profe\"><p class=\"callout-label\">Lo que enfatizó el profe</p><p>Entra en la prueba.</p></aside><h3 id=\"sitios\">Sitios A, P y E</h3><p>El tRNA pasa del sitio A al P y del P al E.</p><p>Párrafo de relleno 1 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 2 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 3 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 4 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 5 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 6 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 7 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 8 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 9 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 10 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 11 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 12 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><h2 id=\"elongacion\">2. Elongación</h2><p>La cadena crece de a un aminoácido.</p><p>Párrafo de relleno 1 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 2 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 3 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 4 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 5 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 6 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 7 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 8 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 9 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 10 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 11 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><p>Párrafo de relleno 12 para que el artículo sea largo y el índice tenga que seguir la lectura.</p><aside class=\"callout callout-clinica\"><p class=\"callout-label\">Relevancia clínica</p><p>Antibióticos que atacan al ribosoma bacteriano.</p></aside><section class=\"note-summary\"><h2 id=\"resumen\">Resumen</h2><ul>\n<li>El ribosoma traduce el mRNA.</li>\n</ul>\n</section>",
+      "toc": [
+        {
+          "anchor": "ribosomas",
+          "title": "1. Ribosomas",
+          "level": 2
+        },
+        {
+          "anchor": "sitios",
+          "title": "Sitios A, P y E",
+          "level": 3
+        },
+        {
+          "anchor": "elongacion",
+          "title": "2. Elongación",
+          "level": 2
+        },
+        {
+          "anchor": "resumen",
+          "title": "Resumen",
+          "level": 2
+        }
+      ],
+      "sections": [
+        {
+          "anchor": "ribosomas",
+          "title": "1. Ribosomas",
+          "level": 2,
+          "text": "Los ribosomas tienen dos subunidades, una mayor y una menor, que este semestre se ven juntas. Un ribosoma"
+        },
+        {
+          "anchor": "sitios",
+          "title": "Sitios A, P y E",
+          "level": 3,
+          "text": "El tRNA pasa del sitio A al P y del P al E."
+        },
+        {
+          "anchor": "elongacion",
+          "title": "2. Elongación",
+          "level": 2,
+          "text": "La cadena crece de a un aminoácido."
+        }
+      ],
+      "hash": "e2e-2c",
+      "media": ["notes/0123456789abcdef0123456789abcdef.webp"],
+      "code": "QV-BC-C2-11",
+      "header": {
+        "number": "11",
+        "lecturer": "Prof. de prueba",
+        "institution": "ICBM, Universidad de Chile",
+        "term": "spring",
+        "year": 2026
+      },
+      "version": 2,
+      "publishedAt": "2026-11-01T12:00:00.000Z",
+      "versionAt": "2026-11-02T12:00:00.000Z",
+      "versionHash": "e2e-v3",
+      "practice": {
+        "quizId": "biologia-celular-certamen-2-preguntas-de-practica",
+        "section": "pautas",
+        "groups": ["02"]
+      }
+    }
+  ],
+  "ankiNoteTypes": [
+    {
+      "id": "1607392319",
+      "name": "Prueba · Básica",
+      "kind": "normal",
+      "occlusion": false,
+      "fields": ["Frente", "Reverso", "Imagen", "Extra", "Pista", "Código"],
+      "templates": [
+        {
+          "name": "Directa",
+          "qfmt": "<!-- comentario de la plantilla -->\n<div class=\"tema\">{{Subdeck}} · {{Type}} · {{Card}}</div>\n<div class=\"pregunta\">{{Frente}}</div>\n{{#Pista}}{{hint:Pista}}{{/Pista}}\n{{^Extra}}<div class=\"sin-extra\">sin extra</div>{{/Extra}}\n{{#Código}}<div class=\"pie\">Hecho para las pruebas · {{Código}}</div>{{/Código}}",
+          "afmt": "{{FrontSide}}\n\n<hr id=answer>\n\n<div class=\"respuesta\">{{Reverso}}</div>\n{{#Imagen}}<div class=\"imagen\">{{Imagen}}</div>{{/Imagen}}\n{{#Extra}}<div class=\"extra\">{{Extra}}</div>{{/Extra}}\n<div class=\"texto\">{{text:Frente}}</div>\n<div class=\"etiquetas\">{{Tags}} · {{Deck}}</div>"
+        },
+        {
+          "name": "Inversa",
+          "qfmt": "{{#Imagen}}<div>{{Reverso}}</div>{{/Imagen}}",
+          "afmt": "{{FrontSide}}<hr id=answer>{{Frente}}{{#c1}}nunca{{/c1}}"
+        }
+      ],
+      "css": "\n.card {\n  --fondo: #ffffff; --texto: #1f2328; --acento: #1a64d6;\n  font-family: Arial, sans-serif; font-size: 20px; text-align: center;\n  color: var(--texto); background-color: var(--fondo); padding: 16px;\n}\n.card.nightMode, .nightMode .card { --fondo: #1c1f24; --texto: #e6e8eb; --acento: #6ea8ff; }\nb, strong { color: var(--acento); }\n.cloze { color: var(--acento); font-weight: 700; }\n.extra { margin-top: 12px; font-size: 0.8em; }\n#image-occlusion-canvas {\n  --inactive-shape-color: #ffe08a;\n  --active-shape-color: #ff7b72;\n  --inactive-shape-border: 1px #3d3d3d;\n  --active-shape-border: 1px #3d3d3d;\n  --highlight-shape-color: #ff7b7200;\n  --highlight-shape-border: 2px #ff4f45;\n}\n.nightMode #image-occlusion-canvas { --inactive-shape-color: #d9b44a; --active-shape-color: #e5534b; }\n.pie { position: fixed; right: 10px; bottom: 6px; font-size: 8px; opacity: 0.5; }\n",
+      "sortField": 0
+    },
+    {
+      "id": "1607392320",
+      "name": "Prueba · Cloze",
+      "kind": "cloze",
+      "occlusion": false,
+      "fields": ["Texto", "Extra", "Código"],
+      "templates": [
+        {
+          "name": "Cloze",
+          "qfmt": "<div class=\"texto-cloze\">{{cloze:Texto}}</div>\n{{#Código}}<div class=\"pie\">Hecho para las pruebas · {{Código}}</div>{{/Código}}",
+          "afmt": "<div class=\"texto-cloze\">{{cloze:Texto}}</div>\n{{#Extra}}<div class=\"extra\">{{Extra}}</div>{{/Extra}}\n{{#c2}}<div>tarjeta 2</div>{{/c2}}\n{{#Código}}<div class=\"pie\">Hecho para las pruebas · {{Código}}</div>{{/Código}}"
+        }
+      ],
+      "css": "\n.card {\n  --fondo: #ffffff; --texto: #1f2328; --acento: #1a64d6;\n  font-family: Arial, sans-serif; font-size: 20px; text-align: center;\n  color: var(--texto); background-color: var(--fondo); padding: 16px;\n}\n.card.nightMode, .nightMode .card { --fondo: #1c1f24; --texto: #e6e8eb; --acento: #6ea8ff; }\nb, strong { color: var(--acento); }\n.cloze { color: var(--acento); font-weight: 700; }\n.extra { margin-top: 12px; font-size: 0.8em; }\n#image-occlusion-canvas {\n  --inactive-shape-color: #ffe08a;\n  --active-shape-color: #ff7b72;\n  --inactive-shape-border: 1px #3d3d3d;\n  --active-shape-border: 1px #3d3d3d;\n  --highlight-shape-color: #ff7b7200;\n  --highlight-shape-border: 2px #ff4f45;\n}\n.nightMode #image-occlusion-canvas { --inactive-shape-color: #d9b44a; --active-shape-color: #e5534b; }\n.pie { position: fixed; right: 10px; bottom: 6px; font-size: 8px; opacity: 0.5; }\n",
+      "sortField": 0
+    },
+    {
+      "id": "1607392321",
+      "name": "Prueba · Oclusión",
+      "kind": "cloze",
+      "occlusion": true,
+      "fields": ["Oclusión", "Imagen", "Encabezado", "Reverso extra", "Comentarios"],
+      "templates": [
+        {
+          "name": "Oclusión",
+          "qfmt": "{{#Encabezado}}<div class=\"encabezado\">{{Encabezado}}</div>{{/Encabezado}}\n<div style=\"display: none\">{{cloze:Oclusión}}</div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    {{Imagen}}\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n<script>\ntry {\n    anki.imageOcclusion.setup();\n} catch (exc) {\n    document.getElementById(\"err\").innerHTML = `Error al cargar la oclusión de imagen.<br><br>${exc}`;\n}\n</script>\n",
+          "afmt": "{{#Encabezado}}<div class=\"encabezado\">{{Encabezado}}</div>{{/Encabezado}}\n<div style=\"display: none\">{{cloze:Oclusión}}</div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    {{Imagen}}\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n<script>\ntry {\n    anki.imageOcclusion.setup();\n} catch (exc) {\n    document.getElementById(\"err\").innerHTML = `Error al cargar la oclusión de imagen.<br><br>${exc}`;\n}\n</script>\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n{{#Reverso extra}}<div class=\"extra\">{{Reverso extra}}</div>{{/Reverso extra}}\n{{#Comentarios}}<div class=\"fuente\">{{Comentarios}}</div>{{/Comentarios}}"
+        }
+      ],
+      "css": "\n.card {\n  --fondo: #ffffff; --texto: #1f2328; --acento: #1a64d6;\n  font-family: Arial, sans-serif; font-size: 20px; text-align: center;\n  color: var(--texto); background-color: var(--fondo); padding: 16px;\n}\n.card.nightMode, .nightMode .card { --fondo: #1c1f24; --texto: #e6e8eb; --acento: #6ea8ff; }\nb, strong { color: var(--acento); }\n.cloze { color: var(--acento); font-weight: 700; }\n.extra { margin-top: 12px; font-size: 0.8em; }\n#image-occlusion-canvas {\n  --inactive-shape-color: #ffe08a;\n  --active-shape-color: #ff7b72;\n  --inactive-shape-border: 1px #3d3d3d;\n  --active-shape-border: 1px #3d3d3d;\n  --highlight-shape-color: #ff7b7200;\n  --highlight-shape-border: 2px #ff4f45;\n}\n.nightMode #image-occlusion-canvas { --inactive-shape-color: #d9b44a; --active-shape-color: #e5534b; }\n.pie { position: fixed; right: 10px; bottom: 6px; font-size: 8px; opacity: 0.5; }\n",
+      "sortField": 0
+    }
+  ],
+  "ankiPresets": [
+    {
+      "name": "Default",
+      "config": {
+        "autoplay": true,
+        "id": 1,
+        "lapse": {
+          "delays": [10],
+          "leechAction": 0,
+          "leechFails": 8,
+          "minInt": 1,
+          "mult": 0
+        },
+        "maxTaken": 60,
+        "mod": 0,
+        "name": "Default",
+        "new": {
+          "bury": true,
+          "delays": [1, 10],
+          "initialFactor": 2500,
+          "ints": [1, 4, 7],
+          "order": 1,
+          "perDay": 20,
+          "separate": true
+        },
+        "replayq": true,
+        "rev": {
+          "bury": true,
+          "ease4": 1.3,
+          "fuzz": 0.05,
+          "ivlFct": 1,
+          "maxIvl": 36500,
+          "minSpace": 1,
+          "perDay": 100
+        },
+        "timer": 0,
+        "usn": 0
+      }
+    },
+    {
+      "name": "Extras",
+      "config": {
+        "autoplay": true,
+        "id": 1700000000001,
+        "lapse": {
+          "delays": [10],
+          "leechAction": 0,
+          "leechFails": 8,
+          "minInt": 1,
+          "mult": 0
+        },
+        "maxTaken": 60,
+        "mod": 0,
+        "name": "Extras",
+        "new": {
+          "bury": true,
+          "delays": [1, 10],
+          "initialFactor": 2500,
+          "ints": [1, 4, 7],
+          "order": 1,
+          "perDay": 0,
+          "separate": true
+        },
+        "replayq": true,
+        "rev": {
+          "bury": true,
+          "ease4": 1.3,
+          "fuzz": 0.05,
+          "ivlFct": 1,
+          "maxIvl": 36500,
+          "minSpace": 1,
+          "perDay": 100
+        },
+        "timer": 0,
+        "usn": 0
+      }
+    }
+  ],
+  "ankiDecks": [
+    {
+      "id": "1253733533499951883",
+      "name": "() Medicina UCH",
+      "description": "",
+      "parentId": null,
+      "semester": null,
+      "courseId": null,
+      "assessmentId": null,
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "2186877412970325107",
+      "name": "() Medicina UCH::1° Semestre",
+      "description": "",
+      "parentId": "1253733533499951883",
+      "semester": 1,
+      "courseId": null,
+      "assessmentId": null,
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "4150986326234719914",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I",
+      "description": "",
+      "parentId": "2186877412970325107",
+      "semester": 1,
+      "courseId": "anatomia-1",
+      "assessmentId": null,
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "5203457438898801311",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1",
+      "description": "",
+      "parentId": "4150986326234719914",
+      "semester": 1,
+      "courseId": "anatomia-1",
+      "assessmentId": "anatomia-1/certamen-1",
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "1006809718735317183",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba",
+      "description": "",
+      "parentId": "5203457438898801311",
+      "semester": 1,
+      "courseId": "anatomia-1",
+      "assessmentId": "anatomia-1/certamen-1",
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "2059400110",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+      "description": "Mazo sintético para las pruebas",
+      "parentId": "1006809718735317183",
+      "semester": 1,
+      "courseId": "anatomia-1",
+      "assessmentId": "anatomia-1/certamen-1",
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "2059400111",
+      "name": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba::Extras",
+      "description": "",
+      "parentId": "2059400110",
+      "semester": 1,
+      "courseId": "anatomia-1",
+      "assessmentId": "anatomia-1/certamen-1",
+      "preset": "Extras",
+      "position": 0
+    }
+  ],
+  "ankiNotes": [
+    {
+      "guid": "Or&8~[!Z2<",
+      "noteTypeId": "1607392319",
+      "fields": {
+        "Frente": "¿Cuántas vértebras <b>cervicales</b> hay?",
+        "Reverso": "<b>Siete</b>",
+        "Imagen": "<img src=\"prueba_vertebra.png\">",
+        "Extra": "Contando el atlas y el axis &amp; la C7.",
+        "Pista": "Empieza con 7",
+        "Código": "T-PR-01-001.3"
+      },
+      "tags": ["columna::cervical", "prueba"],
+      "code": "T-PR-01-001",
+      "version": 3,
+      "createdAt": "2026-11-01T01:51:07.159Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400110",
+          "frontHtml": "\n<div class=\"tema\">Mazo de prueba · Prueba · Básica · Directa</div>\n<div class=\"pregunta\">¿Cuántas vértebras <b>cervicales</b> hay?</div>\n\n<a class=\"hint\" href=\"#\" draggable=\"false\">\nPista</a>\n<div id=\"hint0ca56a3da336fa23\" class=\"hint\" style=\"display:none\">Empieza con 7</div>\n\n\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-001.3</div>",
+          "backHtml": "\n<div class=\"tema\">Mazo de prueba · Prueba · Básica · Directa</div>\n<div class=\"pregunta\">¿Cuántas vértebras <b>cervicales</b> hay?</div>\n\n<a class=\"hint\" href=\"#\" draggable=\"false\">\nPista</a>\n<div id=\"hint0ca56a3da336fa23\" class=\"hint\" style=\"display:none\">Empieza con 7</div>\n\n\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-001.3</div>\n\n<hr id=\"answer\" />\n\n<div class=\"respuesta\"><b>Siete</b></div>\n<div class=\"imagen\"><img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" /></div>\n<div class=\"extra\">Contando el atlas y el axis &amp; la C7.</div>\n<div class=\"texto\">¿Cuántas vértebras cervicales hay?</div>\n<div class=\"etiquetas\">columna::cervical prueba · () Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba</div>",
+          "sortField": "¿Cuántas vértebras cervicales hay?"
+        },
+        {
+          "ord": 1,
+          "deckId": "2059400110",
+          "frontHtml": "<div><b>7</b></div>",
+          "backHtml": "<div><b>7</b></div><hr id=\"answer\" />¿Cuántas vértebras <b>cervicales</b> hay?",
+          "sortField": "¿Cuántas vértebras cervicales hay?"
+        }
+      ],
+      "hash": "7eb67a012644f7713aaae1599dd334c9849ecba292c6da37fb6d6c072d2521b4-borrador",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": ["cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp"]
+    },
+    {
+      "guid": "s@/AqX%n?#",
+      "noteTypeId": "1607392319",
+      "fields": {
+        "Frente": "Pregunta sin extra ni pista",
+        "Reverso": "Respuesta",
+        "Imagen": "",
+        "Extra": "<br>",
+        "Pista": " ",
+        "Código": "T-PR-01-002.1"
+      },
+      "tags": ["prueba"],
+      "code": "T-PR-01-002",
+      "version": 1,
+      "createdAt": "2026-11-01T01:51:07.162Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400110",
+          "frontHtml": "\n<div class=\"tema\">Mazo de prueba · Prueba · Básica · Directa</div>\n<div class=\"pregunta\">Pregunta sin extra ni pista</div>\n\n<div class=\"sin-extra\">sin extra</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-002.1</div>",
+          "backHtml": "\n<div class=\"tema\">Mazo de prueba · Prueba · Básica · Directa</div>\n<div class=\"pregunta\">Pregunta sin extra ni pista</div>\n\n<div class=\"sin-extra\">sin extra</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-002.1</div>\n\n<hr id=\"answer\" />\n\n<div class=\"respuesta\">Respuesta</div>\n\n\n<div class=\"texto\">Pregunta sin extra ni pista</div>\n<div class=\"etiquetas\">prueba · () Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba</div>",
+          "sortField": "Pregunta sin extra ni pista"
+        }
+      ],
+      "hash": "af5aa3eab12461d0ee4787a1ba244bcfc500e9dabbdacc61c52da5ef1cc18247",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": []
+    },
+    {
+      "guid": "cloze-1",
+      "noteTypeId": "1607392320",
+      "fields": {
+        "Texto": "La columna tiene {{c1::7}} vértebras cervicales, {{c2::12::número}} torácicas y {{c3::5}} lumbares; en total {{c1::33 a 34}}.",
+        "Extra": "El sacro y el cóccix están <i>fusionados</i> en el adulto.",
+        "Código": "T-PR-01-003.1"
+      },
+      "tags": ["cloze", "prueba"],
+      "code": "T-PR-01-003",
+      "version": 1,
+      "createdAt": "2026-11-01T01:51:07.164Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"texto-cloze\">La columna tiene <span class=\"cloze\" data-cloze=\"7\" data-ordinal=\"1\">[...]</span> vértebras cervicales, <span class=\"cloze-inactive\" data-ordinal=\"2\">12</span> torácicas y <span class=\"cloze-inactive\" data-ordinal=\"3\">5</span> lumbares; en total <span class=\"cloze\" data-cloze=\"33 a 34\" data-ordinal=\"1\">[...]</span>.</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-003.1</div>",
+          "backHtml": "<div class=\"texto-cloze\">La columna tiene <span class=\"cloze\" data-ordinal=\"1\">7</span> vértebras cervicales, <span class=\"cloze-inactive\" data-ordinal=\"2\">12</span> torácicas y <span class=\"cloze-inactive\" data-ordinal=\"3\">5</span> lumbares; en total <span class=\"cloze\" data-ordinal=\"1\">33 a 34</span>.</div>\n<div class=\"extra\">El sacro y el cóccix están <i>fusionados</i> en el adulto.</div>\n\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-003.1</div>",
+          "sortField": "La columna tiene 7 vértebras cervicales, 12 torácicas y 5 lumbares; en total 33 a 34."
+        },
+        {
+          "ord": 1,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"texto-cloze\">La columna tiene <span class=\"cloze-inactive\" data-ordinal=\"1\">7</span> vértebras cervicales, <span class=\"cloze\" data-cloze=\"12\" data-ordinal=\"2\">[número]</span> torácicas y <span class=\"cloze-inactive\" data-ordinal=\"3\">5</span> lumbares; en total <span class=\"cloze-inactive\" data-ordinal=\"1\">33 a 34</span>.</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-003.1</div>",
+          "backHtml": "<div class=\"texto-cloze\">La columna tiene <span class=\"cloze-inactive\" data-ordinal=\"1\">7</span> vértebras cervicales, <span class=\"cloze\" data-ordinal=\"2\">12</span> torácicas y <span class=\"cloze-inactive\" data-ordinal=\"3\">5</span> lumbares; en total <span class=\"cloze-inactive\" data-ordinal=\"1\">33 a 34</span>.</div>\n<div class=\"extra\">El sacro y el cóccix están <i>fusionados</i> en el adulto.</div>\n<div>tarjeta 2</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-003.1</div>",
+          "sortField": "La columna tiene 7 vértebras cervicales, 12 torácicas y 5 lumbares; en total 33 a 34."
+        },
+        {
+          "ord": 2,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"texto-cloze\">La columna tiene <span class=\"cloze-inactive\" data-ordinal=\"1\">7</span> vértebras cervicales, <span class=\"cloze-inactive\" data-ordinal=\"2\">12</span> torácicas y <span class=\"cloze\" data-cloze=\"5\" data-ordinal=\"3\">[...]</span> lumbares; en total <span class=\"cloze-inactive\" data-ordinal=\"1\">33 a 34</span>.</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-003.1</div>",
+          "backHtml": "<div class=\"texto-cloze\">La columna tiene <span class=\"cloze-inactive\" data-ordinal=\"1\">7</span> vértebras cervicales, <span class=\"cloze-inactive\" data-ordinal=\"2\">12</span> torácicas y <span class=\"cloze\" data-ordinal=\"3\">5</span> lumbares; en total <span class=\"cloze-inactive\" data-ordinal=\"1\">33 a 34</span>.</div>\n<div class=\"extra\">El sacro y el cóccix están <i>fusionados</i> en el adulto.</div>\n\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-003.1</div>",
+          "sortField": "La columna tiene 7 vértebras cervicales, 12 torácicas y 5 lumbares; en total 33 a 34."
+        }
+      ],
+      "hash": "67f29d69a108c109e0b6a0affafdfe8a5cd501a9973fc1b6e0432cfd805b736f-borrador",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": []
+    },
+    {
+      "guid": "oclusion-1",
+      "noteTypeId": "1607392321",
+      "fields": {
+        "Oclusión": "{{c1::image-occlusion:rect:left=.05:top=.0667:width=.1875:height=.0667:oi=1}}<br>{{c1::image-occlusion:rect:left=.75:top=.0667:width=.1875:height=.0667:oi=1}}<br>{{c2::image-occlusion:ellipse:left=.3125:top=.25:width=.375:height=.4167:rx=.1875:ry=.2083:oi=1}}<br>{{c3::image-occlusion:polygon:left=.1875:top=.2:points=.1875,.2 .3125,.3333 .1875,.4333:oi=1}}<br>{{c4::image-occlusion:rect:left=.05:top=.8667:width=.1875:height=.0667:angle=500:fill=#00aaff:oi=1}}<br>{{c5::image-occlusion:text:left=.7:top=.85:text=Pedículo\\: base:scale=1.2:fs=.04:oi=1}}<br>{{c6::image-occlusion:rect:left=.45:top=.6667:width=.1:height=.2667}}",
+        "Imagen": "<img src=\"prueba_vertebra.png\">",
+        "Encabezado": "Vértebra de prueba",
+        "Reverso extra": "Partes de la vértebra",
+        "Comentarios": "Dibujo hecho para las pruebas"
+      },
+      "tags": ["oclusion"],
+      "code": null,
+      "version": null,
+      "createdAt": "2026-11-01T01:51:07.168Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-highlight\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-highlight\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n<div class=\"extra\">Partes de la vértebra</div>\n<div class=\"fuente\">Dibujo hecho para las pruebas</div>",
+          "sortField": "Vértebra de prueba"
+        },
+        {
+          "ord": 1,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-highlight\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n<div class=\"extra\">Partes de la vértebra</div>\n<div class=\"fuente\">Dibujo hecho para las pruebas</div>",
+          "sortField": "Vértebra de prueba"
+        },
+        {
+          "ord": 2,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-highlight\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n<div class=\"extra\">Partes de la vértebra</div>\n<div class=\"fuente\">Dibujo hecho para las pruebas</div>",
+          "sortField": "Vértebra de prueba"
+        },
+        {
+          "ord": 3,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-highlight\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n<div class=\"extra\">Partes de la vértebra</div>\n<div class=\"fuente\">Dibujo hecho para las pruebas</div>",
+          "sortField": "Vértebra de prueba"
+        },
+        {
+          "ord": 4,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-highlight\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n<div class=\"extra\">Partes de la vértebra</div>\n<div class=\"fuente\">Dibujo hecho para las pruebas</div>",
+          "sortField": "Vértebra de prueba"
+        },
+        {
+          "ord": 5,
+          "deckId": "2059400110",
+          "frontHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "<div class=\"encabezado\">Vértebra de prueba</div>\n<div style=\"display:none\"><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".05\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".75\" data-top=\".0667\" data-width=\".1875\" data-height=\".0667\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"2\" data-shape=\"ellipse\" data-left=\".3125\" data-top=\".25\" data-width=\".375\" data-height=\".4167\" data-rx=\".1875\" data-ry=\".2083\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"3\" data-shape=\"polygon\" data-left=\".1875\" data-top=\".2\" data-points=\".1875,.2 .3125,.3333 .1875,.4333\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"4\" data-shape=\"rect\" data-left=\".05\" data-top=\".8667\" data-width=\".1875\" data-height=\".0667\" data-angle=\"500\" data-fill=\"#00aaff\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-inactive\" data-ordinal=\"5\" data-shape=\"text\" data-left=\".7\" data-top=\".85\" data-text=\"Pedículo: base\" data-scale=\"1.2\" data-font-size=\".04\" data-occludeinactive=\"1\"></div><br /><div class=\"cloze-highlight\" data-ordinal=\"6\" data-shape=\"rect\" data-left=\".45\" data-top=\".6667\" data-width=\".1\" data-height=\".2667\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n<div class=\"extra\">Partes de la vértebra</div>\n<div class=\"fuente\">Dibujo hecho para las pruebas</div>",
+          "sortField": "Vértebra de prueba"
+        }
+      ],
+      "hash": "3ae8cd0a15cf23a43e9410825e40803bce5a9393d095b504af554416d5f2bb70",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": ["cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp"]
+    },
+    {
+      "guid": "cloze-anidado",
+      "noteTypeId": "1607392320",
+      "fields": {
+        "Texto": "Anidado: {{c1::uno {{c2::dos}} tres::pista}} y {{c3::<b>negrita</b>}}.",
+        "Extra": "",
+        "Código": ""
+      },
+      "tags": ["cloze"],
+      "code": null,
+      "version": null,
+      "createdAt": "2026-11-01T01:51:07.177Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400111",
+          "frontHtml": "<div class=\"texto-cloze\">Anidado: <span class=\"cloze\" data-cloze=\"uno &lt;span class=&quot;cloze-inactive&quot; data-ordinal=&quot;2&quot;&gt;dos&lt;/span&gt; tres\" data-ordinal=\"1\">[pista]</span> y <span class=\"cloze-inactive\" data-ordinal=\"3\"><b>negrita</b></span>.</div>\n",
+          "backHtml": "<div class=\"texto-cloze\">Anidado: <span class=\"cloze\" data-ordinal=\"1\">uno <span class=\"cloze-inactive\" data-ordinal=\"2\">dos</span> tres</span> y <span class=\"cloze-inactive\" data-ordinal=\"3\"><b>negrita</b></span>.</div>\n\n\n",
+          "sortField": "Anidado: uno {{c2 tres::pista}} y negrita."
+        },
+        {
+          "ord": 2,
+          "deckId": "2059400111",
+          "frontHtml": "<div class=\"texto-cloze\">Anidado: <span class=\"cloze-inactive\" data-ordinal=\"1\">uno <span class=\"cloze-inactive\" data-ordinal=\"2\">dos</span> tres</span> y <span class=\"cloze\" data-cloze=\"&lt;b&gt;negrita&lt;/b&gt;\" data-ordinal=\"3\">[...]</span>.</div>\n",
+          "backHtml": "<div class=\"texto-cloze\">Anidado: <span class=\"cloze-inactive\" data-ordinal=\"1\">uno <span class=\"cloze-inactive\" data-ordinal=\"2\">dos</span> tres</span> y <span class=\"cloze\" data-ordinal=\"3\"><b>negrita</b></span>.</div>\n\n\n",
+          "sortField": "Anidado: uno {{c2 tres::pista}} y negrita."
+        }
+      ],
+      "hash": "79df6fc4689872b7453b7cb635f63592b5ef3e58dad20878a4bb355d8f1fb4bf",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": []
+    },
+    {
+      "guid": "oclusion-2",
+      "noteTypeId": "1607392321",
+      "fields": {
+        "Oclusión": "{{c1::image-occlusion:rect:left=.45:top=.1:width=.1:height=.8}}",
+        "Imagen": "<img src=\"prueba_corazon.png\">",
+        "Encabezado": "",
+        "Reverso extra": "",
+        "Comentarios": ""
+      },
+      "tags": ["oclusion"],
+      "code": null,
+      "version": null,
+      "createdAt": "2026-11-01T01:51:07.180Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400111",
+          "frontHtml": "\n<div style=\"display:none\"><div class=\"cloze\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".45\" data-top=\".1\" data-width=\".1\" data-height=\".8\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/67ceea88be75a8bbe271da358969f336.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n",
+          "backHtml": "\n<div style=\"display:none\"><div class=\"cloze-highlight\" data-ordinal=\"1\" data-shape=\"rect\" data-left=\".45\" data-top=\".1\" data-width=\".1\" data-height=\".8\"></div></div>\n<div id=\"err\"></div>\n<div id=\"image-occlusion-container\">\n    <img data-media=\"cards/67ceea88be75a8bbe271da358969f336.webp\" />\n    <canvas id=\"image-occlusion-canvas\"></canvas>\n</div>\n\n\n<div><button id=\"toggle\">Mostrar / ocultar máscaras</button></div>\n\n",
+          "sortField": ""
+        }
+      ],
+      "hash": "bd2796c57984814002537917bf90f13b785882ebb961614565195fdc1fe8c791",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": ["cards/67ceea88be75a8bbe271da358969f336.webp"]
+    },
+    {
+      "guid": "nueva-e2e-1",
+      "noteTypeId": "1607392319",
+      "fields": {
+        "Frente": "¿Cuántas vértebras torácicas hay?",
+        "Reverso": "12",
+        "Imagen": "",
+        "Extra": "<br>",
+        "Pista": " ",
+        "Código": "T-PR-01-004.1"
+      },
+      "tags": ["prueba"],
+      "code": "T-PR-01-004",
+      "version": 1,
+      "createdAt": "2026-11-01T01:51:07.162Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400110",
+          "frontHtml": "\n<div class=\"tema\">Mazo de prueba · Prueba · Básica · Directa</div>\n<div class=\"pregunta\">¿Cuántas vértebras torácicas hay?</div>\n\n<div class=\"sin-extra\">sin extra</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-004.1</div>",
+          "backHtml": "\n<div class=\"tema\">Mazo de prueba · Prueba · Básica · Directa</div>\n<div class=\"pregunta\">¿Cuántas vértebras torácicas hay?</div>\n\n<div class=\"sin-extra\">sin extra</div>\n<div class=\"pie\">Hecho para las pruebas · T-PR-01-004.1</div>\n\n<hr id=\"answer\" />\n\n<div class=\"respuesta\">12</div>\n\n\n<div class=\"texto\">¿Cuántas vértebras torácicas hay?</div>\n<div class=\"etiquetas\">prueba · () Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba</div>",
+          "sortField": "¿Cuántas vértebras torácicas hay?"
+        }
+      ],
+      "hash": "e2e-nueva-1",
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+      "media": []
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "biologia-celular-certamen-2-preguntas-de-practica",
+      "slug": "preguntas-de-practica",
+      "courseId": "biologia-celular",
+      "assessmentId": "biologia-celular/certamen-2",
+      "title": "Preguntas de práctica",
+      "position": 1,
+      "questionCount": 5,
+      "sectionCount": 2,
+      "kicker": "",
+      "heading": "",
+      "footer": "",
+      "theme": {
+        "light": {
+          "ac": "#1F6F75",
+          "ac-b": "#D5EAEB",
+          "ac2": "#B8621F",
+          "ac2-b": "#F6E3D2",
+          "on-ac": "#FFFFFF",
+          "g1": "#1F6F75",
+          "g2": "#E08A3C",
+          "g3": "#5B6FB5"
+        },
+        "dark": {
+          "ac": "#6CC3C8",
+          "ac-b": "#163338",
+          "ac2": "#EBA06A",
+          "ac2-b": "#3A2718",
+          "on-ac": "#0E1720",
+          "g1": "#5DB8BD",
+          "g2": "#EBA06A",
+          "g3": "#93A3E0"
+        }
+      },
+      "sections": [
+        {
+          "id": "pautas",
+          "name": "Pautas de prueba",
+          "label": "Pauta original",
+          "description": "Las 3 preguntas de la pauta de prueba.",
+          "notice": "Aviso de la pauta de prueba.",
+          "groupsTitle": "Qué temas practicar",
+          "questionCount": 3,
+          "hasChoices": true,
+          "groups": [
+            {
+              "id": "01",
+              "name": "Transcripción",
+              "topic": "Clase 1",
+              "questions": [
+                {
+                  "id": "P-01",
+                  "context": "Un gen se expresa en dos tejidos y el gel muestra dos bandas de distinto tamaño.",
+                  "prompt": "¿Qué explica el resultado?",
+                  "figures": [
+                    {
+                      "kind": "svg",
+                      "svg": "<svg viewBox=\"0 0 120 60\" width=\"240\" role=\"img\" aria-label=\"Gel de prueba\"><rect x=\"5\" y=\"5\" width=\"110\" height=\"50\" rx=\"4\" fill=\"var(--surf2)\" stroke=\"var(--line)\" /><rect x=\"20\" y=\"20\" width=\"30\" height=\"5\" fill=\"var(--ink)\" /><rect x=\"70\" y=\"35\" width=\"30\" height=\"5\" fill=\"var(--g1)\" /></svg>",
+                      "caption": "Imagen recreada a partir de la original."
+                    }
+                  ],
+                  "figureBeside": true,
+                  "explanation": "Idea clave de la primera.",
+                  "origin": "Certamen 2021",
+                  "kind": "choice",
+                  "options": ["Splicing alternativo", "Una mutación", "Un error del gel"],
+                  "correct": 1,
+                  "optionExplanations": [
+                    "<b>Falsa.</b> No explica el gel.",
+                    "<b>Verdadera.</b> Una mutación cambia el tamaño.",
+                    "<b>Falsa.</b> El gel está bien."
+                  ],
+                  "fixedOrder": false
+                },
+                {
+                  "id": "P-02",
+                  "prompt": "Respecto de TBP, es correcto:<br>I. Se une a la caja TATA.<br>II. Es parte de TFIID.<br>III. Corta el RNA.",
+                  "figures": [],
+                  "figureBeside": false,
+                  "table": {
+                    "rows": [
+                      [
+                        {
+                          "html": "Factor",
+                          "header": true
+                        },
+                        {
+                          "html": "Sitio",
+                          "header": true
+                        }
+                      ],
+                      [
+                        {
+                          "html": "TBP",
+                          "header": false
+                        },
+                        {
+                          "html": "TATA",
+                          "header": false,
+                          "highlight": true
+                        }
+                      ]
+                    ]
+                  },
+                  "kind": "choice",
+                  "options": ["Sólo I", "Sólo I y II", "I, II y III"],
+                  "correct": 1,
+                  "fixedOrder": true
+                }
+              ]
+            },
+            {
+              "id": "02",
+              "name": "Núcleo",
+              "questions": [
+                {
+                  "id": "P-03",
+                  "prompt": "¿Qué muestra la foto?",
+                  "figures": [
+                    {
+                      "kind": "image",
+                      "media": "tests/ee87cca7e9c56116af5c6b3160fd6450.webp",
+                      "width": 240,
+                      "height": 160,
+                      "alt": "Foto de prueba",
+                      "displayWidth": 240
+                    }
+                  ],
+                  "figureBeside": false,
+                  "kind": "choice",
+                  "options": ["Un núcleo", "Un ribosoma"],
+                  "correct": 0,
+                  "fixedOrder": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "nuevas",
+          "name": "Preguntas nuevas",
+          "label": "Pregunta nueva",
+          "description": "Las <b>2 preguntas</b>, con su texto textual. En las de alternativas te dice al instante si está bien o mal; en las de respuesta corta ves la respuesta y marcas si la sabías. Al terminar muestra cuántas buenas y cuántas malas.",
+          "notice": "Aviso de las nuevas.",
+          "groupsTitle": "Qué clases practicar",
+          "listing": {
+            "title": "Materia nueva",
+            "items": [
+              "Un tema",
+              {
+                "title": "Clase 1",
+                "items": ["Otro tema"]
+              }
+            ]
+          },
+          "questionCount": 2,
+          "hasChoices": true,
+          "groups": [
+            {
+              "id": "01",
+              "name": "Clase 1",
+              "questions": [
+                {
+                  "id": "N-01",
+                  "prompt": "¿Qué hebra se copia?",
+                  "figures": [],
+                  "figureBeside": false,
+                  "kind": "short",
+                  "answer": "La hebra molde",
+                  "explanation": "La RNA polimerasa lee la hebra molde."
+                },
+                {
+                  "id": "N-02",
+                  "prompt": "¿Cuántas subunidades tiene el ribosoma?",
+                  "figures": [],
+                  "figureBeside": false,
+                  "kind": "choice",
+                  "options": ["Dos", "Tres"],
+                  "correct": 0,
+                  "optionExplanations": ["<b>Verdadera.</b> Dos.", "<b>Falsa.</b> Dos."],
+                  "fixedOrder": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "media": ["tests/ee87cca7e9c56116af5c6b3160fd6450.webp"],
+      "hash": "e2f7221414a7241273c04410552dffcbdab6c03e97bd8ad06066ebe986b417e3-borrador",
+      "updatedAt": "2026-11-01T12:00:00.000Z"
+    }
+  ]
+}

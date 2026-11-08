@@ -1,0 +1,17 @@
+{
+  "name": "@qv/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Migrations of the two databases (users and content) and their tests with PGlite",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.14",
+    "@qv/importer": "0.0.0",
+    "@qv/schema": "0.0.0",
+    "@qv/srs": "0.0.0"
+  }
+}

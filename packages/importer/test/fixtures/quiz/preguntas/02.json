@@ -1,0 +1,12 @@
+{
+  "nombre": "Núcleo",
+  "preguntas": [
+    {
+      "q": "¿Qué muestra la foto?",
+      "o": ["Un núcleo", "Un ribosoma"],
+      "ok": "A",
+      "fig": { "tipo": "imagen", "src": "figuras/foto.png", "alt": "Foto de prueba", "ancho": 240 },
+      "nota": "[P-03] …"
+    }
+  ]
+}

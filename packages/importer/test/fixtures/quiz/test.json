@@ -1,0 +1,31 @@
+{
+  "titulo": "Test de prueba",
+  "id": "test-de-prueba",
+  "kicker": "Certamen de prueba",
+  "encabezado": "Practica la prueba",
+  "grupos_titulo": "Qué temas practicar",
+  "pie": "Pie de prueba",
+  "tema": "teal",
+  "secciones": [
+    {
+      "id": "pautas",
+      "nombre": "Pautas de prueba",
+      "etiqueta": "Pauta original",
+      "carpeta": "preguntas",
+      "descripcion": "Las {n} preguntas de la pauta de prueba.",
+      "aviso": "Aviso de la pauta de prueba."
+    },
+    {
+      "id": "nuevas",
+      "nombre": "Preguntas nuevas",
+      "etiqueta": "Pregunta nueva",
+      "carpeta": "nuevas",
+      "grupos_titulo": "Qué clases practicar",
+      "aviso": "Aviso de las nuevas.",
+      "listado": {
+        "titulo": "Materia nueva",
+        "items": ["Un tema", { "titulo": "Clase 1", "items": ["Otro tema"] }]
+      }
+    }
+  ]
+}

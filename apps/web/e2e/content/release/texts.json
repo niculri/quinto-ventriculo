@@ -1,0 +1,51 @@
+[
+  {
+    "key": "a:AP-BC-C2-11#",
+    "kind": "article",
+    "text": "Traducción · Clase 11 de prueba, semestre de primavera 2026: diapositivas y grabación.",
+    "label": "Traducción",
+    "assessmentId": "biologia-celular/certamen-2"
+  },
+  {
+    "key": "a:AP-BC-C2-11#00000",
+    "kind": "article",
+    "text": "1. Ribosomas · Los ribosomas tienen dos subunidades, una mayor y una menor, que este semestre se ven juntas. Un ribosoma",
+    "label": "Traducción › 1. Ribosomas",
+    "assessmentId": "biologia-celular/certamen-2"
+  },
+  {
+    "key": "a:AP-BC-C2-11#00001",
+    "kind": "article",
+    "text": "Sitios A, P y E · El tRNA pasa del sitio A al P y del P al E.",
+    "label": "Traducción › Sitios A, P y E",
+    "assessmentId": "biologia-celular/certamen-2"
+  },
+  {
+    "key": "a:AP-BC-C2-11#00002",
+    "kind": "article",
+    "text": "2. Elongación · La cadena crece de a un aminoácido.",
+    "label": "Traducción › 2. Elongación",
+    "assessmentId": "biologia-celular/certamen-2"
+  },
+  {
+    "key": "q:biologia-celular-certamen-2-preguntas-de-practica",
+    "kind": "quiz",
+    "text": "Preguntas de práctica |  |  |  | pautas | Pautas de prueba | Pauta original | 01 | Transcripción | Clase 1 | 2 | 02 | Núcleo | 1 | Aviso de la pauta de prueba. | true | Las 3 preguntas de la pauta de prueba. | Qué temas practicar | 3 | nuevas | Preguntas nuevas | Pregunta nueva | 01 | Clase 1 | 2 | Aviso de las nuevas. | Un tema | Otro tema | Clase 1 | Materia nueva | true | Las 2 preguntas , con su texto textual. En las de alternativas te dice al instante si está bien o mal; en las de respuesta corta ves la respuesta y marcas si la sabías. Al terminar muestra cuántas buenas y cuántas malas. | Qué clases practicar | 2",
+    "label": "Preguntas de práctica",
+    "assessmentId": "biologia-celular/certamen-2"
+  },
+  {
+    "key": "q:biologia-celular-certamen-2-preguntas-de-practica/N-01",
+    "kind": "question",
+    "text": "La hebra molde | ¿Qué hebra se copia? | La RNA polimerasa lee la hebra molde.",
+    "label": "N-01",
+    "assessmentId": "biologia-celular/certamen-2"
+  },
+  {
+    "key": "q:biologia-celular-certamen-2-preguntas-de-practica/P-01",
+    "kind": "question",
+    "text": "Certamen 2021 | ¿Qué explica el resultado? | Un gen se expresa en dos tejidos y el gel muestra dos bandas de distinto tamaño. | Splicing alternativo | Una mutación | Un error del gel | Idea clave de la primera. | Falsa. No explica el gel. | Verdadera. Una mutación cambia el tamaño. | Falsa. El gel está bien.",
+    "label": "P-01",
+    "assessmentId": "biologia-celular/certamen-2"
+  }
+]

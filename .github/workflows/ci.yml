@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  # A push or a pull request that only changes the docs, Claude's notes or the Markdown files at the root does not run
+  # the CI: none goes into the build nor is read by a test. Same list
+  # as CI_IGNORED_PATHS in packages/ops/src/deploy.ts; npm run deploy accepts such a commit when the last one with
+  # code before it has the CI green. The nightly run is not filtered.
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '.claude/**', '*.md']
+  pull_request:
+    paths-ignore: ['docs/**', '.claude/**', '*.md']
+  # Every night (step 1.9), the whole CI on main without deploying (deploy.yml only takes a run of a push).
+  # 05:30 UTC = 02:30 in Chile in summer (UTC−3) and 01:30 in winter (UTC−4): before 4:00, when the site's day
+  # starts and a test that depends on the hour can fail (exam.spec.ts did). GitHub may start it late, and mails the
+  # owner when it fails. (GitHub turns schedules off after 60 days without activity only in public repositories.)
+  schedule:
+    - cron: '30 5 * * *'
+  workflow_dispatch:
+
+concurrency:
+  # By event: a nightly run must not cancel the run of a push of the same commit (npm run deploy needs it green).
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Types, lint, format and tests
+    runs-on: ubuntu-latest
+    steps:
+      # Without the private repository (content/ and the real material): the checks that need it are skipped and say
+      # why; the pre-push hook of the owner's clone runs them (step 2.4).
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+
+  e2e:
+    name: End to end (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/test-results
+          retention-days: 7
+
+  build:
+    name: Build the web and the Worker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_USERS_SUPABASE_URL: https://example.supabase.co
+          VITE_USERS_SUPABASE_PUBLISHABLE_KEY: sb_publishable_example
+      - run: npx wrangler deploy --dry-run --outdir dist-worker
+        working-directory: apps/api

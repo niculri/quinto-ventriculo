@@ -1,0 +1,17 @@
+{
+  "name": "@qv/srs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Anki's v3 scheduler with FSRS (ts-fsrs): card states, answer buttons, the study queue and deck options",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "ts-fsrs": "6.0.0"
+  }
+}

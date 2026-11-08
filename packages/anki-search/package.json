@@ -1,0 +1,14 @@
+{
+  "name": "@qv/anki-search",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Anki's search syntax (25.9): parser and evaluator over cards in memory, checked against real Anki",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  }
+}

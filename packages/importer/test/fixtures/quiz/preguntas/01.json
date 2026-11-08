@@ -1,0 +1,41 @@
+{
+  "nombre": "Transcripción",
+  "tema": "Clase 1",
+  "preguntas": [
+    {
+      "e": "Un gen se expresa en dos tejidos y el gel muestra dos bandas de distinto tamaño.",
+      "q": "¿Qué explica el resultado?",
+      "o": ["Splicing alternativo", "Una mutación", "Un error del gel"],
+      "ok": "A",
+      "exp": "Idea clave de la primera.",
+      "expo": [
+        "**Verdadera.** Dos tamaños.",
+        "**Falsa.** No hay mutación.",
+        "**Falsa.** El gel está bien."
+      ],
+      "origen": "Certamen 2021",
+      "cambio": "Revisión: no se publica.",
+      "fig": {
+        "tipo": "svg",
+        "svg": "<svg viewBox=\"0 0 120 60\" width=\"240\" role=\"img\" aria-label=\"Gel de prueba\"><rect x=\"5\" y=\"5\" width=\"110\" height=\"50\" rx=\"4\" fill=\"var(--surf2)\" stroke=\"var(--line)\"/><rect x=\"20\" y=\"20\" width=\"30\" height=\"5\" fill=\"var(--ink)\"/><rect x=\"70\" y=\"35\" width=\"30\" height=\"5\" fill=\"var(--g1)\"/></svg>",
+        "pie": "Imagen recreada a partir de la original."
+      },
+      "fig_izq": true,
+      "nota": "[P-01] nota interna"
+    },
+    {
+      "q": "Respecto de TBP, es correcto:\nI. Se une a la caja TATA.\nII. Es parte de TFIID.\nIII. Corta el RNA.",
+      "o": ["Sólo I", "Sólo I y II", "I, II y III"],
+      "ok": "B",
+      "fijas": true,
+      "tabla": {
+        "cab": 1,
+        "filas": [
+          ["Factor", "Sitio"],
+          ["TBP", { "t": "TATA", "hl": true }]
+        ]
+      },
+      "nota": "[P-02] …"
+    }
+  ]
+}

@@ -1,0 +1,616 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/source-serif-4';
+@import '@fontsource-variable/source-serif-4/wght-italic.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------- tokens */
+
+:root {
+  --chrome: var(--bg);
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #f1efea;
+  --ink: #1a1f24;
+  --muted: #5b6670;
+  --border: #e3e0d9;
+  --border-strong: #cfcbc2;
+  --brand: #0f3d4c;
+  --brand-2: #16596d;
+  --brand-soft: #e3eef0;
+  --accent: #d9772f;
+  --highlight: #fde7b0;
+  --shadow: 0 1px 2px rgb(16 24 32 / 0.05), 0 4px 16px rgb(16 24 32 / 0.06);
+  /* Anki's colors of the card states: new blue, learning red, review green */
+  --state-new: #1e64c8;
+  --state-learn: #c62828;
+  --state-review: #2e7d32;
+  color-scheme: light;
+}
+
+.dark {
+  /* Two depths of background, as GitHub's dark theme, with the site's own turquoise: the top bar almost black, the
+     content and the menu a step lighter, its boxes one more. */
+  --chrome: #050b0d;
+  --bg: #0c1316;
+  --surface: #141d21;
+  --surface-2: #1e2a2f;
+  --ink: #eaf1f2;
+  --muted: #93a4a9;
+  --border: #2a383d;
+  --border-strong: #3a4b51;
+  --brand: #6fcbd8;
+  --brand-2: #9adfe9;
+  --brand-soft: #143038;
+  --accent: #f2a65a;
+  --highlight: #5a4512;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  --state-new: #7fb2ff;
+  --state-learn: #ff8a80;
+  --state-review: #85d08a;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-chrome: var(--chrome);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-state-new: var(--state-new);
+  --color-state-learn: var(--state-learn);
+  --color-state-review: var(--state-review);
+  --shadow-soft: var(--shadow);
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--brand) 22%, transparent);
+}
+
+/* In the base layer, so that a component's own `outline-none` (the search box, the card viewer…) wins. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+mark {
+  background: var(--highlight);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ---------------------------------------------------------------- note */
+
+.note-body {
+  --c: #1a64d6;
+  font-family: var(--font-serif);
+  font-size: 1.075rem;
+  line-height: 1.7;
+  color: var(--ink);
+  overflow-wrap: break-word;
+}
+
+.note-body h2,
+.note-body h3,
+.note-body h4 {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  /* On top of the page's scroll-padding-top (5rem, the site's bar). */
+  scroll-margin-top: 0.75rem;
+}
+.note-body h2 {
+  font-size: 1.5rem;
+  font-weight: 650;
+  line-height: 1.25;
+  margin: 3rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.note-body > h2:first-child {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+.note-body h3 {
+  font-size: 1.2rem;
+  font-weight: 620;
+  margin: 2rem 0 0.6rem;
+}
+/* «####» (no number, no TOC entry): a small heading with a short bar, inside a «###». */
+.note-body h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1.02rem;
+  font-weight: 650;
+  margin: 1.6rem 0 0.4rem;
+  color: var(--ink);
+}
+.note-body h4::before {
+  content: '';
+  flex: none;
+  width: 0.85rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--brand-2);
+  transform: translateY(-0.25em);
+}
+.note-body p {
+  margin: 0.75rem 0;
+}
+.note-body strong {
+  font-weight: 650;
+}
+.note-body ul,
+.note-body ol {
+  margin: 0.6rem 0 0.9rem;
+  padding-left: 1.4rem;
+}
+.note-body ul {
+  list-style: disc;
+}
+.note-body ul ul {
+  list-style: circle;
+}
+.note-body ol {
+  list-style: decimal;
+}
+.note-body li {
+  margin: 0.3rem 0;
+  padding-left: 0.2rem;
+}
+.note-body li::marker {
+  color: var(--brand-2);
+}
+.note-body a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.note-body hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.note-body sup,
+.note-body sub {
+  font-size: 0.72em;
+  line-height: 0;
+}
+
+/* Tables */
+.note-body table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.note-body th,
+.note-body td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  text-align: left;
+}
+.note-body th {
+  background: var(--surface-2);
+  font-weight: 620;
+}
+
+/* Figures */
+.note-body .figure {
+  margin: 1.5rem auto;
+  max-width: 100%;
+  width: 92%;
+}
+.note-body .figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 34rem;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  cursor: zoom-in;
+}
+.note-body .figure-plate img {
+  max-height: none;
+}
+.dark .note-body .figure img {
+  padding: 6px;
+}
+.note-body figcaption {
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+.note-body .figure-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin: 1.5rem 0;
+}
+.note-body .figure-row .figure {
+  flex: 1 1 0;
+  margin: 0;
+  width: auto;
+}
+.note-body .side {
+  display: flow-root;
+  margin: 1rem 0;
+}
+.note-body .figure-float {
+  margin: 0.35rem 0 1rem;
+}
+.note-body .side-right > .figure-float,
+.note-body .callout > .figure-float {
+  float: right;
+  margin-left: 1.5rem;
+}
+.note-body .side-left > .figure-float {
+  float: left;
+  margin-right: 1.5rem;
+}
+.note-body .missing-image {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Callouts */
+.note-body .callout {
+  display: flow-root;
+  margin: 1.4rem 0;
+  padding: 0.85rem 1.1rem;
+  border-left: 3px solid var(--c);
+  border-radius: 0 10px 10px 0;
+  background: color-mix(in oklab, var(--c) 7%, var(--surface));
+  font-size: 0.99rem;
+  line-height: 1.65;
+}
+.dark .note-body .callout {
+  background: color-mix(in oklab, var(--c) 13%, var(--surface));
+}
+.note-body .callout > :first-child {
+  margin-top: 0;
+}
+.note-body .callout > :last-child {
+  margin-bottom: 0;
+}
+.note-body .callout-label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c);
+  margin-bottom: 0.35rem !important;
+}
+.note-body .callout-error .callout-label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.86rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.note-body .callout-error .callout-label::before {
+  content: '';
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.note-body .callout-note {
+  --c: #2563c9;
+}
+.note-body .callout-profe {
+  --c: #a87300;
+}
+.note-body .callout-clinica {
+  --c: #be185d;
+}
+.note-body .callout-ojo {
+  --c: #7a4bc9;
+}
+.note-body .callout-clave {
+  --c: #2a7a4e;
+}
+.note-body .callout-libro {
+  --c: #45738b;
+}
+.note-body .callout-video {
+  --c: #0f766e;
+}
+.note-body .callout-preparado {
+  --c: #8a5a2b;
+}
+.note-body .callout-error {
+  --c: #c2410c;
+}
+.note-body .callout-termino {
+  --c: #4f46a8;
+}
+.dark .note-body .callout-note {
+  --c: #7fa9f0;
+}
+.dark .note-body .callout-profe {
+  --c: #e2b24a;
+}
+.dark .note-body .callout-clinica {
+  --c: #f48fb8;
+}
+.dark .note-body .callout-ojo {
+  --c: #b99af0;
+}
+.dark .note-body .callout-clave {
+  --c: #74c49a;
+}
+.dark .note-body .callout-libro {
+  --c: #8fb7cb;
+}
+.dark .note-body .callout-video {
+  --c: #5fc9bd;
+}
+.dark .note-body .callout-preparado {
+  --c: #d3a473;
+}
+.dark .note-body .callout-error {
+  --c: #f59a62;
+}
+.dark .note-body .callout-termino {
+  --c: #a7a1f0;
+}
+
+/* Icons of the callouts' labels (the error's is its own, above). */
+.note-body .callout-datos > .callout-label,
+.note-body .callout-clinica > .callout-label,
+.note-body .callout-question > .callout-label,
+.note-body .callout-ojo > .callout-label,
+.note-body .callout-profe > .callout-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.note-body .callout-datos > .callout-label::before,
+.note-body .callout-clinica > .callout-label::before,
+.note-body .callout-question > .callout-label::before,
+.note-body .callout-ojo > .callout-label::before,
+.note-body .callout-profe > .callout-label::before {
+  content: '';
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask: var(--icon) center / contain no-repeat;
+}
+.note-body .callout-datos {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='7.5' cy='15.5' r='4.5'/%3E%3Cpath d='m10.7 12.3 9.3-9.3M16 7l3 3M14 9l2 2'/%3E%3C/svg%3E");
+}
+.note-body .callout-clinica {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 2v2M5 2v2M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1'/%3E%3Cpath d='M8 15a6 6 0 0 0 12 0v-3'/%3E%3Ccircle cx='20' cy='10' r='2'/%3E%3C/svg%3E");
+}
+.note-body .callout-question {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01'/%3E%3C/svg%3E");
+}
+.note-body .callout-ojo {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+.note-body .callout-profe {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 11 18-5v12L3 14v-3z'/%3E%3Cpath d='M11.6 16.8a3 3 0 1 1-5.8-1.6'/%3E%3C/svg%3E");
+}
+
+/* «Datos clave»: the box at the top of an article (Kenhub's «Key facts»), unlike the other callouts. */
+.note-body .callout-datos {
+  --c: #0e7490;
+  margin: 0 0 2.2rem;
+  padding: 0;
+  border: 1px solid color-mix(in oklab, var(--c) 30%, var(--border));
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.dark .note-body .callout-datos {
+  --c: #5ccfe6;
+  background: var(--surface);
+}
+.note-body .callout-datos > .callout-label {
+  margin: 0 !important;
+  padding: 0.7rem 1.15rem;
+  font-size: 0.78rem;
+  background: color-mix(in oklab, var(--c) 11%, var(--surface));
+  border-bottom: 1px solid color-mix(in oklab, var(--c) 22%, var(--border));
+}
+.note-body .callout-datos > ul,
+.note-body .callout-datos > p {
+  margin: 0;
+  padding: 0.85rem 1.15rem 1rem 2.55rem;
+}
+.note-body .callout-datos > p {
+  padding-left: 1.15rem;
+}
+.note-body .callout-datos li {
+  margin: 0.4rem 0;
+}
+.note-body .callout-datos li::marker {
+  color: var(--c);
+}
+
+/* «Pregunta de la guía» (seminars): the question, then its answer in the text. */
+.note-body .callout-question {
+  --c: #4f46e5;
+  margin: 2rem 0 1rem;
+  border-left-width: 4px;
+  border-radius: 0 12px 12px 0;
+  font-size: 1.03rem;
+}
+.dark .note-body .callout-question {
+  --c: #a5b4fc;
+}
+.note-body .callout-question em {
+  color: var(--ink);
+}
+.note-body .callout-tag {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--c);
+  color: var(--surface);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* «Resumen»: the closing of the article, highlighted. */
+.note-body .note-summary {
+  margin: 3.5rem 0 0;
+  padding: 1.3rem 1.4rem 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--brand) 22%, var(--border));
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--brand) 5%, var(--surface));
+}
+.dark .note-body .note-summary {
+  background: color-mix(in oklab, var(--brand) 8%, var(--surface));
+}
+.note-body .note-summary > h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.6rem;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 1.3rem;
+}
+.note-body .note-summary > h2::before {
+  content: '';
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  background: var(--brand);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h10'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.note-body .note-summary > :last-child {
+  margin-bottom: 0;
+}
+
+.note-body .source {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Flash when arriving at a section: a rounded box that hugs the heading's text (features/notes/flash.ts). */
+.flash-host {
+  position: relative;
+  isolation: isolate;
+}
+.flash-mark {
+  position: absolute;
+  z-index: -1;
+  border-radius: 0.5rem;
+  pointer-events: none;
+  animation: flash 2.2s ease-out forwards;
+}
+@keyframes flash {
+  0%,
+  35% {
+    background: color-mix(in oklab, var(--accent) 25%, transparent);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* Below lg the TOC is a bar that sticks under the site's bar: the headings stop below both. */
+@media (max-width: 1023.98px) {
+  .note-body h2,
+  .note-body h3,
+  .note-body h4 {
+    scroll-margin-top: 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .note-body {
+    font-size: 1.02rem;
+  }
+  .note-body .callout-datos > ul {
+    padding-left: 2.1rem;
+    padding-right: 0.9rem;
+  }
+  .note-body .note-summary {
+    padding: 1.1rem 1rem 0.9rem;
+  }
+  .note-body .side-right > .figure-float,
+  .note-body .side-left > .figure-float,
+  .note-body .callout > .figure-float {
+    float: none;
+    width: 100% !important;
+    margin: 0.5rem 0 1rem;
+  }
+  .note-body .figure-row {
+    flex-direction: column;
+  }
+  .note-body .figure {
+    width: 100% !important;
+  }
+}
+
+@media print {
+  header,
+  nav,
+  aside.toc {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

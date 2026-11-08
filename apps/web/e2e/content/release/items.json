@@ -1,0 +1,287 @@
+{
+  "anatomia-1/certamen-1|card": [
+    {
+      "op": "changed",
+      "code": "T-PR-01-001",
+      "guid": "Or&8~[!Z2<",
+      "cards": [
+        {
+          "op": "changed",
+          "ord": 0,
+          "deckAfter": "2059400110",
+          "deckBefore": "2059400110",
+          "deckNameAfter": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "deckNameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba"
+        },
+        {
+          "op": "changed",
+          "ord": 1,
+          "deckAfter": "2059400110",
+          "deckBefore": "2059400110",
+          "deckNameAfter": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "deckNameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba"
+        }
+      ],
+      "noteType": {
+        "id": "1607392319",
+        "kind": "normal",
+        "name": "Prueba · Básica",
+        "fields": ["Frente", "Reverso", "Imagen", "Extra", "Pista", "Código"],
+        "occlusion": false
+      },
+      "fieldsAfter": {
+        "Extra": "Contando el atlas y el axis &amp; la C7.",
+        "Pista": "Empieza con 7",
+        "Frente": "¿Cuántas vértebras <b>cervicales</b> hay?",
+        "Imagen": "<img src=\"prueba_vertebra.png\">",
+        "Código": "T-PR-01-001.3",
+        "Reverso": "<b>Siete</b>"
+      },
+      "fieldsBefore": {
+        "Extra": "Contando el atlas y el axis &amp; la C7.",
+        "Pista": "Empieza con 7",
+        "Frente": "¿Cuántas vértebras <b>cervicales</b> hay?",
+        "Imagen": "<img src=\"prueba_vertebra.png\">",
+        "Código": "T-PR-01-001.2",
+        "Reverso": "<b>7</b>"
+      },
+      "versionAfter": 3,
+      "changedFields": ["Código", "Reverso"],
+      "versionBefore": 2,
+      "classification": "answer"
+    },
+    {
+      "op": "changed",
+      "code": "T-PR-01-003",
+      "guid": "cloze-1",
+      "cards": [
+        {
+          "op": "changed",
+          "ord": 0,
+          "deckAfter": "2059400110",
+          "deckBefore": "2059400110",
+          "deckNameAfter": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "deckNameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba"
+        },
+        {
+          "op": "changed",
+          "ord": 1,
+          "deckAfter": "2059400110",
+          "deckBefore": "2059400110",
+          "deckNameAfter": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "deckNameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba"
+        },
+        {
+          "op": "changed",
+          "ord": 2,
+          "deckAfter": "2059400110",
+          "deckBefore": "2059400110",
+          "deckNameAfter": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "deckNameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba"
+        }
+      ],
+      "noteType": {
+        "id": "1607392320",
+        "kind": "cloze",
+        "name": "Prueba · Cloze",
+        "fields": ["Texto", "Extra", "Código"],
+        "occlusion": false
+      },
+      "fieldsAfter": {
+        "Extra": "El sacro y el cóccix están <i>fusionados</i> en el adulto.",
+        "Texto": "La columna tiene {{c1::7}} vértebras cervicales, {{c2::12::número}} torácicas y {{c3::5}} lumbares; en total {{c1::33 a 34}}.",
+        "Código": "T-PR-01-003.1"
+      },
+      "fieldsBefore": {
+        "Extra": "El sacro y el cóccix están <i>fusionados</i>.",
+        "Texto": "La columna tiene {{c1::7}} vértebras cervicales, {{c2::12::número}} torácicas y {{c3::5}} lumbares; en total {{c1::33 a 34}}.",
+        "Código": "T-PR-01-003.1"
+      },
+      "versionAfter": 1,
+      "changedFields": ["Extra"],
+      "versionBefore": 1,
+      "classification": "no_answer"
+    },
+    {
+      "op": "removed",
+      "code": null,
+      "guid": "extra-basica-1",
+      "cards": [
+        {
+          "op": "removed",
+          "ord": 0,
+          "deckAfter": null,
+          "deckBefore": "2059400111",
+          "deckNameAfter": null,
+          "deckNameBefore": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba::Extras"
+        }
+      ],
+      "noteType": {
+        "id": "1607392319",
+        "kind": "normal",
+        "name": "Prueba · Básica",
+        "fields": ["Frente", "Reverso", "Imagen", "Extra", "Pista", "Código"],
+        "occlusion": false
+      },
+      "fieldsAfter": null,
+      "fieldsBefore": {
+        "Extra": "<div><br /></div>",
+        "Pista": "",
+        "Frente": "Frente con espacios&nbsp;duros",
+        "Imagen": "",
+        "Código": "",
+        "Reverso": "Detrás"
+      },
+      "versionAfter": null,
+      "changedFields": [],
+      "versionBefore": null,
+      "classification": null
+    },
+    {
+      "op": "added",
+      "code": "T-PR-01-004",
+      "guid": "nueva-e2e-1",
+      "cards": [
+        {
+          "op": "added",
+          "ord": 0,
+          "deckAfter": "2059400110",
+          "deckBefore": null,
+          "deckNameAfter": "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba",
+          "deckNameBefore": null
+        }
+      ],
+      "noteType": {
+        "id": "1607392319",
+        "kind": "normal",
+        "name": "Prueba · Básica",
+        "fields": ["Frente", "Reverso", "Imagen", "Extra", "Pista", "Código"],
+        "occlusion": false
+      },
+      "fieldsAfter": {
+        "Extra": "<br>",
+        "Pista": " ",
+        "Frente": "¿Cuántas vértebras torácicas hay?",
+        "Imagen": "",
+        "Código": "T-PR-01-004.1",
+        "Reverso": "12"
+      },
+      "fieldsBefore": null,
+      "versionAfter": 1,
+      "changedFields": [],
+      "versionBefore": null,
+      "classification": null
+    }
+  ],
+  "anatomia-1/certamen-1|article": [],
+  "anatomia-1/certamen-1|question": [],
+  "biologia-celular/certamen-2|card": [],
+  "biologia-celular/certamen-2|article": [
+    {
+      "id": "AP-BC-C2-11",
+      "op": "changed",
+      "title": "Traducción",
+      "sections": [
+        {
+          "op": "changed",
+          "after": "Los ribosomas tienen dos subunidades, una mayor y una menor, que este semestre se ven juntas. Un ribosoma",
+          "title": "1. Ribosomas",
+          "anchor": "ribosomas",
+          "before": "Los ribosomas tienen dos subunidades. Un ribosoma"
+        }
+      ],
+      "titleBefore": "Traducción",
+      "practiceAfter": {
+        "groups": ["02"],
+        "quizId": "biologia-celular-certamen-2-preguntas-de-practica",
+        "section": "pautas"
+      },
+      "versionBefore": 1,
+      "classification": "content",
+      "practiceBefore": {
+        "groups": ["02"],
+        "quizId": "biologia-celular-certamen-2-preguntas-de-practica",
+        "section": "pautas"
+      }
+    }
+  ],
+  "biologia-celular/certamen-2|question": [
+    {
+      "id": "N-01",
+      "op": "changed",
+      "key": "biologia-celular-certamen-2-preguntas-de-practica/N-01",
+      "after": {
+        "id": "N-01",
+        "kind": "short",
+        "answer": "La hebra molde",
+        "prompt": "¿Qué hebra se copia?",
+        "explanation": "La RNA polimerasa lee la hebra molde.",
+        "figureBeside": false
+      },
+      "moved": false,
+      "before": {
+        "id": "N-01",
+        "kind": "short",
+        "answer": "La hebra molde",
+        "prompt": "¿Qué hebra se copia?",
+        "figureBeside": false
+      },
+      "quizId": "biologia-celular-certamen-2-preguntas-de-practica",
+      "groupAfter": "01",
+      "keyChanged": false,
+      "groupBefore": "01",
+      "sectionAfter": "nuevas",
+      "sectionBefore": "nuevas",
+      "classification": "no_answer",
+      "figuresChanged": false
+    },
+    {
+      "id": "P-01",
+      "op": "changed",
+      "key": "biologia-celular-certamen-2-preguntas-de-practica/P-01",
+      "after": {
+        "id": "P-01",
+        "kind": "choice",
+        "origin": "Certamen 2021",
+        "prompt": "¿Qué explica el resultado?",
+        "context": "Un gen se expresa en dos tejidos y el gel muestra dos bandas de distinto tamaño.",
+        "correct": 1,
+        "options": ["Splicing alternativo", "Una mutación", "Un error del gel"],
+        "fixedOrder": false,
+        "explanation": "Idea clave de la primera.",
+        "figureBeside": true,
+        "optionExplanations": [
+          "<b>Falsa.</b> No explica el gel.",
+          "<b>Verdadera.</b> Una mutación cambia el tamaño.",
+          "<b>Falsa.</b> El gel está bien."
+        ]
+      },
+      "moved": false,
+      "before": {
+        "id": "P-01",
+        "kind": "choice",
+        "origin": "Certamen 2021",
+        "prompt": "¿Qué explica el resultado?",
+        "context": "Un gen se expresa en dos tejidos y el gel muestra dos bandas de distinto tamaño.",
+        "correct": 0,
+        "options": ["Splicing alternativo", "Una mutación", "Un error del gel"],
+        "fixedOrder": false,
+        "explanation": "Idea clave de la primera.",
+        "figureBeside": true,
+        "optionExplanations": [
+          "<b>Verdadera.</b> Dos tamaños.",
+          "<b>Falsa.</b> No hay mutación.",
+          "<b>Falsa.</b> El gel está bien."
+        ]
+      },
+      "quizId": "biologia-celular-certamen-2-preguntas-de-practica",
+      "groupAfter": "01",
+      "keyChanged": true,
+      "groupBefore": "01",
+      "sectionAfter": "pautas",
+      "sectionBefore": "pautas",
+      "classification": "answer",
+      "figuresChanged": false
+    }
+  ]
+}

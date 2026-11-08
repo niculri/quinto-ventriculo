@@ -1,0 +1,42 @@
+#!/bin/sh
+# Before every push to GitHub (step 1.9): types, lint, format and Vitest, the fast part of the CI. The end to end
+# tests are not here (slow): the CI runs them. In an emergency, `git push --no-verify` skips this hook.
+# Activated with `git config core.hooksPath .githooks` (npm install does it: .githooks/install.sh).
+
+# Never in the CI (a CI that pushes would run it twice).
+if [ -n "$CI" ] || [ -n "$GITHUB_ACTIONS" ]; then
+  exit 0
+fi
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# A git app (or a shell) without Node in its PATH: say so, instead of «falló npm run typecheck».
+if ! command -v npm >/dev/null 2>&1 || ! command -v node >/dev/null 2>&1; then
+  echo "pre-push: no encuentro npm en el PATH de este git, así que no puedo correr las pruebas." >&2
+  echo "  Haz el push desde una terminal con Node (o, solo en una emergencia, git push --no-verify)." >&2
+  exit 1
+fi
+
+# The checks against the author's real material (step 2.4) are skipped where the private repository is not (the
+# public CI, anybody else's clone). The owner's clone says it must have them, with `git config qv.requirePrivate
+# true`: there a missing private repository (next to this one, or QV_PRIVATE_DIR) fails instead of skipping them.
+if [ "$(git config --bool --get qv.requirePrivate 2>/dev/null)" = "true" ]; then
+  export QV_REQUIRE_PRIVATE=1
+fi
+
+# Step 2.4: nothing of the owner's data goes to the public repository. If the private repository has its list of
+# forbidden patterns (tests/prohibidos.txt), every commit of this push is read against it (git gives the refs on the
+# standard input); without the list, nothing is checked. It runs before the slow checks.
+node .githooks/forbidden.mjs "$1" || exit 1
+
+echo "pre-push: tipos, lint, formato y Vitest (en una emergencia, git push --no-verify lo salta)…"
+fail() {
+  echo "" >&2
+  echo "pre-push: falló «$1». El push se canceló: arréglalo y vuelve a hacer push." >&2
+  exit 1
+}
+npm run --silent typecheck || fail "npm run typecheck"
+npm run --silent lint || fail "npm run lint"
+npm run --silent format:check || fail "npm run format:check"
+npm test --silent || fail "npm test (Vitest)"
+echo "pre-push: todo en orden."

@@ -1,0 +1,15 @@
+{
+  "name": "El Quinto Ventrículo",
+  "short_name": "Quinto Ventrículo",
+  "description": "El ventrículo que no aparece en el Netter. Apuntes y tarjetas de medicina de la Universidad de Chile.",
+  "lang": "es",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f3d4c",
+  "theme_color": "#0f3d4c",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

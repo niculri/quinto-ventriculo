@@ -52,3 +52,10 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## Review Heatmap
+
+Los cálculos de «Días de estudio» (los tonos de cada día, el promedio diario, los días estudiados, las rachas y lo que
+hay por repasar cada día; en `apps/web/src/features/stats/heatmap.ts` y en `study_heatmap()` de la base de usuarios)
+siguen las reglas del complemento «Review Heatmap» de Anki (https://github.com/glutanimate/review-heatmap,
+© glutanimate, AGPL-3.0), sin copiar su código.

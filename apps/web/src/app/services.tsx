@@ -6,6 +6,7 @@ import type { ApiClient } from '../lib/api';
 import { localStudyRepository, supabaseStudyRepository } from '../features/study/repository';
 import type { StudyRepository } from '../features/study/repository';
 import { withCardSync } from '../features/study/sync';
+import { withDemoHistory } from '../features/stats/demo';
 import { localQuizRepository, supabaseQuizRepository } from '../features/quiz/repository';
 import type { QuizRepository } from '../features/quiz/repository';
 import { localAdminRepository, supabaseAdminRepository } from '../features/admin/repository';
@@ -45,7 +46,10 @@ export function createServices(): Services {
       session,
       api,
       previewApi: createApiClient(token, '', PREVIEW_HEADERS),
-      study: withCardSync(localStudyRepository(), api, userOf(session)),
+      // The heatmap with a made-up past (features/stats/demo.ts), so that the demo shows something.
+      study: withDemoHistory(withCardSync(localStudyRepository(), api, userOf(session)), () =>
+        api.catalog(),
+      ),
       quiz: localQuizRepository(),
       // The demo's user is the owner, to see the whole panel; `qv-demo-role` = `student` makes it a student, and
       // `admin` an administrator who is not the owner (the e2e tests of what they do not see).

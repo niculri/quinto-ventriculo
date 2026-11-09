@@ -73,5 +73,7 @@ export function withCardSync(
     allCards: after(study.allCards),
     deckProgress: after(study.deckProgress),
     answeredDecks: after(study.answeredDecks),
+    // What is due goes by the cards' decks too.
+    heatmap: after(study.heatmap),
   };
 }

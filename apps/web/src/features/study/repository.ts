@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { dayOf, dayOfStart } from '@qv/srs';
+import { dayNumber, isoOfDay } from '../stats/heatmap';
+import type { HeatmapData } from '../stats/heatmap';
 
 /**
  * Each user's study data, in the USERS database (protected with RLS, like the reading progress): the state
@@ -225,6 +228,27 @@ export interface ReconcileResult {
   changed: number;
 }
 
+/** Answers of practice of a deck, since the last batch sent. */
+export interface PracticeCount {
+  deckId: string;
+  n: number;
+}
+
+/** At most this many answers of practice in a batch, and this many decks (the database's caps). */
+export const PRACTICE_BATCH_MAX = 1000;
+export const PRACTICE_BATCH_DECKS = 100;
+/**
+ * At most this many answers of practice count in a student's day; the database counts up to there and takes the rest
+ * without counting it nor failing, so the final review goes on.
+ */
+export const PRACTICE_DAY_MAX = 5000;
+
+/**
+ * The database refused a batch of practice (the day's cap, a batch too large, a student no longer invited): sending it
+ * again would fail the same way, so it is not retried.
+ */
+export class PracticeRefusedError extends Error {}
+
 /** «card_changed»: the card was answered elsewhere (another tab or device) since it was shown. */
 export class CardChangedError extends Error {
   constructor() {
@@ -284,6 +308,16 @@ export interface StudyRepository {
   forget(cards: CardRef[], resetCounts: boolean): Promise<void>;
   /** Undoes the user's last action; null if there is none. */
   undo(): Promise<UndoResult | null>;
+  /**
+   * The heatmap (plan step 3.1): every day with something studied, by deck, and the reviews scheduled from today
+   * on; only those decks with `deckIds`, all of the user's with null.
+   */
+  heatmap(deckIds: string[] | null): Promise<HeatmapData>;
+  /**
+   * Practice that does not change dates (the final review), added to today: how many answers of each deck. It
+   * touches neither the cards' states nor the log.
+   */
+  recordPractice(counts: PracticeCount[]): Promise<void>;
   /** Up to which change of the content the user's cards follow the decks (0: none yet). */
   cardsSyncedTo(): Promise<number>;
   /**
@@ -708,6 +742,38 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
       if (error) fail('leer tu tiempo por tarjeta', error);
       return (data as number | null) ?? null;
     },
+    async heatmap(deckIds) {
+      const { data, error } = await client.rpc(
+        'study_heatmap',
+        deckIds === null ? {} : { p_deck_ids: deckIds },
+      );
+      if (error) fail('leer tus días de estudio', error);
+      const raw = (data ?? {}) as {
+        days?: [string, string, number, number][];
+        due?: [string, number][];
+      };
+      return {
+        days: (raw.days ?? []).map(([day, deckId, answers, practice]) => ({
+          day: dayNumber(day),
+          deckId,
+          answers,
+          practice,
+        })),
+        due: (raw.due ?? []).map(([day, cards]) => ({ day: dayNumber(day), cards })),
+      };
+    },
+    async recordPractice(counts) {
+      const decks = counts.filter((c) => c.n > 0);
+      if (!decks.length) return;
+      const { error } = await client.rpc('record_practice', { p: { decks } });
+      if (error) {
+        // not_allowed (42501), invalid or too large (22023), the day's cap (P0001): the answer, not the network.
+        if (['42501', '22023', 'P0001'].includes((error as { code?: string }).code ?? '')) {
+          throw new PracticeRefusedError(`No se pudo guardar tu repaso: ${error.message}`);
+        }
+        fail('guardar tu repaso', error);
+      }
+    },
     async recordReview(input) {
       const { data, error } = await write('record_review', {
         a: {
@@ -821,6 +887,8 @@ interface LocalData {
   durations: number[];
   /** As `card_sync`: up to which change of the content the cards follow the decks. */
   syncedTo?: number;
+  /** Practice that did not change dates, by day («2026-11-03») and deck (study_days' `practice`). */
+  practice?: { day: string; deckId: string; n: number }[];
 }
 
 const empty = (): LocalData => ({
@@ -1129,6 +1197,73 @@ export function localStudyRepository(
       const sorted = [...recent].sort((a, b) => a - b);
       const mid = (sorted.length - 1) / 2;
       return Math.round((sorted[Math.floor(mid)]! + sorted[Math.ceil(mid)]!) / 2);
+    },
+    async heatmap(deckIds) {
+      const d = read();
+      const prefs = d.preferences ?? defaultPreferences();
+      const only = deckIds === null ? null : new Set(deckIds);
+      const nowSecs = Date.now() / 1000;
+      const today = dayOf(nowSecs, prefs.timeZone, prefs.dayStartsAt);
+      const days = new Map<
+        string,
+        { day: number; deckId: string; answers: number; practice: number }
+      >();
+      const add = (day: number, deckId: string, answers: number, practice: number) => {
+        if (only && !only.has(deckId)) return;
+        const key = `${day}:${deckId}`;
+        const row = days.get(key) ?? { day, deckId, answers: 0, practice: 0 };
+        row.answers += answers;
+        row.practice += practice;
+        days.set(key, row);
+      };
+      for (const l of d.log) {
+        if (l.rating === null) continue;
+        add(
+          dayOf(Date.parse(l.reviewedAt) / 1000, prefs.timeZone, prefs.dayStartsAt),
+          l.deckId,
+          1,
+          0,
+        );
+      }
+      for (const p of d.practice ?? []) add(dayNumber(p.day), p.deckId, 0, p.n);
+      const due = new Map<number, number>();
+      for (const c of d.cards) {
+        if (only && !only.has(c.deckId)) continue;
+        if (!c.interday || c.phase === 'new' || c.due === null || c.suspended || c.retiredAt)
+          continue;
+        if (c.buriedUntil !== null && Date.parse(c.buriedUntil) > Date.now()) continue;
+        const day = dayOfStart(Date.parse(c.due) / 1000, prefs.timeZone, prefs.dayStartsAt);
+        if (day >= today) due.set(day, (due.get(day) ?? 0) + 1);
+      }
+      return {
+        days: [...days.values()].sort((a, b) => a.day - b.day || a.deckId.localeCompare(b.deckId)),
+        due: [...due].sort((a, b) => a[0] - b[0]).map(([day, cards]) => ({ day, cards })),
+      };
+    },
+    async recordPractice(counts) {
+      const decks = counts.filter((c) => c.n > 0);
+      if (!decks.length) return;
+      if (
+        decks.length > PRACTICE_BATCH_DECKS ||
+        decks.reduce((t, c) => t + c.n, 0) > PRACTICE_BATCH_MAX
+      ) {
+        throw new PracticeRefusedError('No se pudo guardar tu repaso: too_large');
+      }
+      const d = read();
+      const prefs = d.preferences ?? defaultPreferences();
+      const day = isoOfDay(dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt));
+      const practice = [...(d.practice ?? [])];
+      // As the database's record_practice(): up to PRACTICE_DAY_MAX a day, in the order of the batch.
+      let room = PRACTICE_DAY_MAX - practice.reduce((t, p) => t + (p.day === day ? p.n : 0), 0);
+      for (const c of decks) {
+        const n = Math.min(c.n, Math.max(0, room));
+        if (n === 0) break;
+        room -= n;
+        const i = practice.findIndex((p) => p.day === day && p.deckId === c.deckId);
+        if (i >= 0) practice[i] = { ...practice[i]!, n: practice[i]!.n + n };
+        else practice.push({ day, deckId: c.deckId, n });
+      }
+      write({ ...d, practice });
     },
     async recordReview(input) {
       const d = read();

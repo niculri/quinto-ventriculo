@@ -22,6 +22,10 @@ test.describe('without a session', () => {
       main.getByRole('link', { name: 'github.com/niculri/quinto-ventriculo' }),
     ).toHaveAttribute('href', SOURCE);
     await expect(main).toContainText('Ankitects Pty Ltd');
+    await expect(main.getByRole('link', { name: 'Review Heatmap' })).toHaveAttribute(
+      'href',
+      'https://github.com/glutanimate/review-heatmap',
+    );
     await expect(main).toContainText('El material de estudio no es parte del código');
     const list = page.getByRole('list', { name: 'Paquetes de terceros' });
     await expect(list.getByRole('listitem').filter({ hasText: /^react \d/ })).toContainText('MIT');

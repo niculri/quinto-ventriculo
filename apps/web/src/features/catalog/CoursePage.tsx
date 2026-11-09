@@ -30,6 +30,7 @@ import { assessmentView } from '../study/pace';
 import { usePreferences, useStudyPlan, useToday } from '../study/queries';
 import { UNIT_DEPTH, activeUnits } from '../study/simple';
 import type { StudyPlan } from '../study/simple';
+import { Heatmap } from '../stats/HeatmapCard';
 
 export function CoursePage() {
   const { courseId = '', number = '' } = useParams();
@@ -100,6 +101,17 @@ function CourseView({
         <span aria-hidden="true">{course.emoji}</span> {course.name}
       </h1>
       {material ? <p className="mt-2 text-muted">{material}</p> : null}
+
+      {decks ? (
+        // Only this course's decks, with a scale of its own.
+        <Heatmap
+          scope={`course:${course.id}`}
+          deckIds={catalog.anki.decks.filter((d) => d.courseId === course.id).map((d) => d.id)}
+          catalog={catalog}
+          groupBy="assessment"
+          className="mt-8"
+        />
+      ) : null}
 
       {assessments.length === 0 ? (
         <p className="mt-6 text-muted">Todavía no hay material de este ramo.</p>

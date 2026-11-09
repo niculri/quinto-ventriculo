@@ -110,6 +110,17 @@ describe('access', () => {
       ).toHaveAttribute('href', 'https://github.com/niculri/quinto-ventriculo');
       expect(main).toHaveTextContent(/Ankitects Pty Ltd/);
       expect(main).toHaveTextContent(/fsrs-rs/);
+      // Step 3.1: the heatmap follows the rules of Anki's «Review Heatmap» add-on, without its code.
+      expect(main).toHaveTextContent(
+        /siguen las reglas del complemento «Review Heatmap» de Anki \(de glutanimate\), sin copiar su código\./,
+      );
+      expect(within(main).getByRole('link', { name: 'Review Heatmap' })).toHaveAttribute(
+        'href',
+        'https://github.com/glutanimate/review-heatmap',
+      );
+      expect(main).toHaveTextContent(
+        /Anki, FSRS y Review Heatmap no tienen relación con este sitio ni lo respaldan\./,
+      );
       expect(main).toHaveTextContent(/El material de estudio no es parte del código/);
       // The «Appropriate Legal Notices» of AGPL section 5 d: a copyright notice and that there is no warranty.
       expect(main).toHaveTextContent(/© 2026 Nico Ulriksen\. Se entrega sin ninguna garantía/);

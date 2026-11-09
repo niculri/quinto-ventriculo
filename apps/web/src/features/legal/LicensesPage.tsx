@@ -17,8 +17,9 @@ const link = 'text-brand underline underline-offset-2';
 
 /**
  * /licenses (step 2.4): the license of the site's code (AGPL-3.0-or-later) and where its source is (section 13), the
- * projects part of it comes from (Anki, FSRS), that the course material is not part of the code, and the licenses of
- * the third-party packages. Public, like /terms and /privacy.
+ * projects part of it comes from (Anki, FSRS) or follows (the rules of Anki's «Review Heatmap» add-on, step 3.1), that
+ * the course material is not part of the code, and the licenses of the third-party packages. Public, like /terms and
+ * /privacy.
  */
 export function LicensesPage() {
   const [packages, setPackages] = useState<ThirdParty[] | 'loading' | 'error'>('loading');
@@ -93,8 +94,17 @@ export function LicensesPage() {
             </a>{' '}
             y en NOTICE.md del código.
           </li>
+          <li>
+            Los cálculos de «Días de estudio» (los tonos de cada día, el promedio diario, los días
+            estudiados, las rachas y lo que hay por repasar cada día) siguen las reglas del
+            complemento «
+            <a href="https://github.com/glutanimate/review-heatmap" className={link}>
+              Review Heatmap
+            </a>
+            » de Anki (de glutanimate), sin copiar su código.
+          </li>
         </ul>
-        <p>Anki y FSRS no tienen relación con este sitio ni lo respaldan.</p>
+        <p>Anki, FSRS y Review Heatmap no tienen relación con este sitio ni lo respaldan.</p>
       </Part>
 
       <Part id="material" title="3. El material de estudio no es parte del código">

@@ -32,6 +32,7 @@ import { cardKey } from './scheduler';
 import type { StudyData } from './scheduler';
 import { MaterialLink, RATINGS, ReportEntry, StudyCard } from './StudyPage';
 import { useCountOpen } from '../usage/count';
+import { usePracticeRecorder } from '../stats/practice';
 
 /** «Marcar para revisar» is one flag, as when studying. */
 const REVIEW_FLAG = 1;
@@ -84,6 +85,12 @@ function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) 
   const deckPath = paths.deck(node.ref);
   const client = useQueryClient();
   const marked = useRef(false);
+  // Each answer is practice: it counts in the heatmap and the streak, without changing any date.
+  const { add: addPractice, flush: flushPractice } = usePracticeRecorder();
+  const finished = !!round && !round.queue[0];
+  useEffect(() => {
+    if (finished) flushPractice();
+  }, [finished, flushPractice]);
 
   useEffect(() => {
     document.title = `Repaso final de ${node.label} · El Quinto Ventrículo`;
@@ -124,7 +131,12 @@ function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) 
       {!round ? (
         <ChooseReview node={node} pools={pools} onChoose={(cards) => setRound(startRound(cards))} />
       ) : round.queue[0] ? (
-        <ReviewScreen round={round} onChange={setRound} current={round.queue[0]} />
+        <ReviewScreen
+          round={round}
+          onChange={setRound}
+          onAnswer={addPractice}
+          current={round.queue[0]}
+        />
       ) : (
         <RoundDone
           round={round}
@@ -198,10 +210,13 @@ function ReviewScreen({
   round,
   current,
   onChange,
+  onAnswer,
 }: {
   round: Round;
   current: CardRef;
   onChange: (next: Round) => void;
+  /** An answer of this round (of the deck of the card): practice. */
+  onAnswer: (deckId: string) => void;
 }) {
   const night = useDarkMode();
   const { api } = useServices();
@@ -233,9 +248,11 @@ function ReviewScreen({
     }
     if (reveals) {
       e.preventDefault();
+      if (revealed) onAnswer(current.deckId);
       onChange(revealed ? answerRound(round, 'good') : revealCard(round));
     } else if (revealed && (e.key === '1' || e.key === '2')) {
       e.preventDefault();
+      onAnswer(current.deckId);
       onChange(answerRound(round, e.key === '1' ? 'again' : 'good'));
     }
   });
@@ -251,6 +268,7 @@ function ReviewScreen({
     <button
       type="button"
       onClick={(e) => {
+        onAnswer(current.deckId);
         onChange(answerRound(round, which));
         e.currentTarget.blur();
       }}

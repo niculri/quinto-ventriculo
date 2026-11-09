@@ -15,6 +15,7 @@ import { activeUnits } from '../study/simple';
 import { buildAnkiTree, courseDeck, descendants } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import { useUser } from '../session/context';
+import { Heatmap } from '../stats/HeatmapCard';
 import {
   MORE_SEMESTERS_SOON,
   countDecks,
@@ -52,6 +53,16 @@ export function HomePage() {
       ) : (
         <>
           <Today catalog={catalog.data} />
+          {/* Every deck of the student, also those no longer on the site. */}
+          {catalog.data.anki.decks.length ? (
+            <Heatmap
+              scope="all"
+              deckIds={null}
+              catalog={catalog.data}
+              groupBy="course"
+              className="mt-8"
+            />
+          ) : null}
           <Semesters catalog={catalog.data} />
         </>
       )}

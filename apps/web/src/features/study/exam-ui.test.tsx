@@ -6,6 +6,7 @@ import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../test/ren
 import { cardShadowRoot } from '../decks/CardFrame';
 import { dateOfDay } from './pace';
 import { roughToday } from './queries';
+import { countsByDay, heatmapStats } from '../stats/heatmap';
 import { localStudyRepository } from './repository';
 import type { CardRef, StudyRepository } from './repository';
 
@@ -348,11 +349,17 @@ describe('the final review', () => {
     );
   });
 
-  it('answering writes nothing: neither the state of the cards nor the log', async () => {
+  it('answering touches neither the state of the cards nor the log: it only counts as practice', async () => {
     const study = await student();
     await seenCards(study);
     const before = await saved(study);
     const writes: string[] = [];
+    const practice: { deckId: string; n: number }[] = [];
+    const record = study.recordPractice.bind(study);
+    study.recordPractice = (counts) => {
+      practice.push(...counts);
+      return record(counts);
+    };
     for (const name of [
       'recordReview',
       'bury',
@@ -415,6 +422,66 @@ describe('the final review', () => {
 
     expect(writes).toEqual([]);
     expect(await saved(study)).toBe(before);
+    // The 4 answers (one «Otra vez», three «Bien») went as practice, at the end of the round, to today.
+    await waitFor(() => expect(practice.reduce((t, c) => t + c.n, 0)).toBe(4));
+    const today = (await study.heatmap(null)).days.filter((d) => d.practice > 0);
+    expect(today).toEqual([{ day: roughToday(), deckId: '20', answers: 3, practice: 4 }]);
+  });
+
+  it('a day with only the final review keeps the streak', async () => {
+    // Studied yesterday (the answers dated a day ago), nothing today but the final review.
+    const refs: CardRef[] = DECK.cards
+      .filter((c) => c.deckId === '20')
+      .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
+    const yesterday = localStudyRepository(null, { welcomeSeen: true });
+    await yesterday.setDeckActivation(WEEK_ID, true);
+    const day = 86_400_000;
+    for (const card of refs) {
+      await yesterday.recordReview({
+        card,
+        expectedUpdatedAt: null,
+        rating: 3,
+        queueBefore: 'new',
+        interval: 3,
+        lastInterval: 0,
+        durationMs: 4000,
+        state: {
+          phase: 'review',
+          interday: true,
+          remainingSteps: 0,
+          due: new Date(Date.now() + 2 * day).toISOString(),
+          interval: 3,
+          stability: 3,
+          difficulty: 5,
+          reps: 1,
+          lapses: 0,
+          lastReview: new Date(Date.now() - day).toISOString(),
+          suspended: false,
+          leech: false,
+        },
+        bury: [],
+        buriedUntil: null,
+      });
+    }
+    const streak = async () => {
+      const today = roughToday();
+      return heatmapStats(countsByDay((await yesterday.heatmap(null)).days, today), today)
+        .currentStreak;
+    };
+    expect(await streak()).toBe(1);
+    renderApp(REVIEW_PATH, { study: yesterday });
+    await userEvent.click(await screen.findByRole('button', { name: /^Todo lo visto/ }));
+    for (let i = 0; i < 10 && !screen.queryByText('Terminaste el repaso'); i++) {
+      await userEvent.click(await screen.findByRole('button', { name: 'Mostrar respuesta' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Bien' }));
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: 'Mostrar respuesta' }) ??
+            screen.getByText('Terminaste el repaso'),
+        ).toBeInTheDocument(),
+      );
+    }
+    await waitFor(async () => expect(await streak()).toBe(2));
   });
 
   it('marking is the one thing that saves, and it does not touch the dates', async () => {

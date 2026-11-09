@@ -26,6 +26,8 @@
   --state-new: #1e64c8;
   --state-learn: #c62828;
   --state-review: #2e7d32;
+  /* The heatmap's turquoise (the strongest shade; the others mix it with --brand-soft) */
+  --heat: #0b7480;
   color-scheme: light;
 }
 
@@ -49,6 +51,7 @@
   --state-new: #7fb2ff;
   --state-learn: #ff8a80;
   --state-review: #85d08a;
+  --heat: #7dd6e2;
   color-scheme: dark;
 }
 

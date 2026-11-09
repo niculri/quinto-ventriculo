@@ -155,6 +155,8 @@ describe('writes only through the functions', () => {
       'my_reports',
       // Step 1.3: the content's changes, applied to the caller's own cards
       'reconcile_cards',
+      // Step 3.1: practice that does not change dates (the final review), to the caller's day
+      'record_practice',
       'record_review',
       // Step 2.6: reporting, only through it (the limits, the block and the place)
       'report_content',
@@ -164,6 +166,8 @@ describe('writes only through the functions', () => {
       'save_quiz_progress',
       'set_flag',
       'set_flags',
+      // Step 3.1: the heatmap, the caller's days and what they have due
+      'study_heatmap',
       'suspend_cards',
       'unbury_cards',
       'undo_last_review',

@@ -205,6 +205,8 @@ async function useEverything(db: PGlite, claims: Claims, round: string) {
   await accept(db, claims);
   await asUser(db, claims, async (tx) => {
     await tx.query('select public.record_review($1)', [answer(`n-${claims.sub.slice(-2)}`)]);
+    // Step 3.1: practice of the final review, in study_days (the download and the deletion must take it too).
+    await tx.query('select public.record_practice($1)', [{ decks: [{ deckId: DECK, n: 3 }] }]);
     await tx.query('select public.save_quiz_progress($1)', [quizStep(round)]);
     await tx.query('select public.report_content($1::jsonb)', [
       JSON.stringify({

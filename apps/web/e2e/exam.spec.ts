@@ -145,12 +145,21 @@ test('a student turns on a week, puts a date, sees the pace, studies and reviews
   await expect(back(page)).toBeVisible();
   await page.keyboard.press('2');
 
-  // No answer wrote anything.
+  // No answer touched the cards' states nor the log.
   expect(rows(await page.evaluate(() => localStorage.getItem('qv-demo-study')))).toBe(rows(saved));
 
-  // One can leave whenever.
+  // One can leave whenever. The answers count as practice (the heatmap and the streak), and still no date moved.
   await page.getByRole('link', { name: 'Volver a Certamen 1' }).first().click();
   await expect(page).toHaveURL(new RegExp(`${ASSESSMENT_URL}$`));
+  await expect
+    .poll(async () => {
+      const d = JSON.parse((await page.evaluate(() => localStorage.getItem('qv-demo-study')))!) as {
+        practice?: { n: number }[];
+      };
+      return (d.practice ?? []).reduce((t, p) => t + p.n, 0);
+    })
+    .toBe(2);
+  expect(rows(await page.evaluate(() => localStorage.getItem('qv-demo-study')))).toBe(rows(saved));
   await expect(page.getByRole('link', { name: 'Repaso final' })).toBeVisible();
 
   // On the course: dominio above 0 and the summary.

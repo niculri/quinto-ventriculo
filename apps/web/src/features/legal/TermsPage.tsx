@@ -69,8 +69,9 @@ export function TermsPage() {
       <Part id="errores" title="5. Puede tener errores">
         <p>
           El material lo hacen estudiantes y puede tener errores: compáralo con tus clases y tus
-          libros. Si encuentras uno, repórtalo con «Reportar error» en la tarjeta o escribe a{' '}
-          <ContactLink /> con el código de lo que viste. Así se corrige para todos.
+          libros. Si encuentras uno, repórtalo con «Reportar error» en la tarjeta, el apunte o la
+          pregunta del test, o escribe a <ContactLink /> con el código de lo que viste. Así se
+          corrige para todos.
         </p>
       </Part>
 
@@ -78,7 +79,9 @@ export function TermsPage() {
         <p>
           No intentes ver los datos de otras personas, saltarte los límites del sitio, sobrecargarlo
           ni usar programas para bajar el material. A una cuenta que lo haga se le puede quitar el
-          acceso.
+          acceso. «Reportar error» es para avisar errores del material: a quien lo use para otra
+          cosa (insultos, mensajes repetidos o sin relación) se le puede quitar el permiso de
+          reportar.
         </p>
       </Part>
 

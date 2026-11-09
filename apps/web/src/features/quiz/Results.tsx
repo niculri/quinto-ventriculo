@@ -1,3 +1,4 @@
+import { MessageSquareWarning } from 'lucide-react';
 import { resultTitle, score, wrongAnswers } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import { Html, TextWithStatements } from './Figures';
@@ -11,6 +12,7 @@ export function Results({
   onRepeatAll,
   onRepeatWrong,
   onHome,
+  onReport,
 }: {
   round: Round;
   entries: Map<string, QuestionEntry>;
@@ -19,6 +21,8 @@ export function Results({
   onRepeatAll: () => void;
   onRepeatWrong: () => void;
   onHome: () => void;
+  /** «Reportar error» of a question of the finished round (step 2.6). */
+  onReport?: (entry: QuestionEntry) => void;
 }) {
   const s = score(round);
   const wrong = wrongAnswers(round);
@@ -79,7 +83,15 @@ export function Results({
               return (
                 <div key={a.position} className="fallo">
                   <div className="fl">
-                    <Html html={e.group.name} /> · pregunta {e.number}
+                    <span>
+                      <Html html={e.group.name} /> · pregunta {e.number}
+                    </span>
+                    {onReport ? (
+                      <button type="button" className="qz-report" onClick={() => onReport(e)}>
+                        <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar
+                        error
+                      </button>
+                    ) : null}
                   </div>
                   <div className="fq">
                     {q.context ? (

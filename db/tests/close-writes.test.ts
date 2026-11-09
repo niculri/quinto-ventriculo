@@ -136,8 +136,13 @@ describe('writes only through the functions', () => {
       'admin_deck_impact',
       'admin_invite_emails',
       'admin_remove_invites',
+      // Step 2.6: the reports of every content, grouped by content, and blocking who writes them
+      'admin_reopen_reports',
+      'admin_report_queue',
+      'admin_resolve_reports',
       // Step 2.10 b: naming or removing an administrator, only for the owner with the session open
       'admin_set_admin',
+      'admin_set_report_block',
       'bury_cards',
       // Step 2.3: «Descargar mis datos», only theirs
       'export_my_data',
@@ -145,9 +150,13 @@ describe('writes only through the functions', () => {
       'is_admin',
       // Step 2.1: about the caller only. is_invited(), which takes any email, is not for a student any more.
       'is_allowed_user',
+      // Step 2.6: «Mis reportes»
+      'my_reports',
       // Step 1.3: the content's changes, applied to the caller's own cards
       'reconcile_cards',
       'record_review',
+      // Step 2.6: reporting, only through it (the limits, the block and the place)
+      'report_content',
       // Step 2.3: «Eliminar mi cuenta», and entering again (it cancels it)
       'request_account_deletion',
       'resume_account',

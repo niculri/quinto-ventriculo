@@ -15,7 +15,7 @@ import { studyKeys } from '../study/queries';
  *   - the web keeps its data in a cache of its own (another QueryClient), emptied when leaving, so nothing of the
  *     draft stays in the published site and nothing of the published site is shown as the draft;
  *   - studying and answering a test write nothing in the users' database: the demo mode's repositories, in memory,
- *     starting from what the administrator chose (`previewStudyRepository`), and thrown away when leaving. «Reportar error» writes nothing either. The cards' changes of the draft never reach
+ *     starting from what the administrator chose (`previewStudyRepository`), and thrown away when leaving. «Reportar error» (any content) writes nothing either. The cards' changes of the draft never reach
  *     `reconcile_cards()` (the cursor of the published site would move).
  * It lasts while the tab is open (sessionStorage): a reload stays in it; another tab does not start in it. Only an
  * administrator stays in it: signing out leaves it, and so does a tab whose user is not one (another person who signs
@@ -63,7 +63,8 @@ const store = (on: boolean) => {
 const SHARED = (key: readonly unknown[]) =>
   key[0] === 'is-admin' ||
   key[0] === 'release' ||
-  key[0] === 'card-reports' ||
+  key[0] === 'report-queue' ||
+  key[0] === 'my-reports' ||
   key[0] === 'access-report' ||
   key[0] === 'unpublished-log' ||
   (key[0] === studyKeys.preferences[0] && key[1] === studyKeys.preferences[1]);
@@ -146,7 +147,7 @@ export function PreviewSwitch({
             ...services,
             ...repos,
             api: services.previewApi,
-            admin: { ...services.admin, reportCard: async () => {} },
+            reports: { ...services.reports, send: async () => {} },
           }
         : null,
     [repos, services],

@@ -44,7 +44,8 @@ import { FLAGS } from './flags';
 export { FLAGS };
 import type { CongratsInfo, HideAction } from './session';
 import { keys } from '../../ui/keys';
-import { ReportCardDialog } from '../admin/ReportCardDialog';
+import { ReportDialog } from '../reports/ReportDialog';
+import { cardTarget } from '../reports/targets';
 
 /** Studying a deck of the tree: it and everything below it, with the limits of each level (as Anki). */
 export function StudyPage({ node }: { node: CourseDeckNode }) {
@@ -473,14 +474,14 @@ export function ReportEntry({
 }) {
   const card = useCard(entry.noteGuid, entry.ord);
   return (
-    <ReportCardDialog
-      card={{
+    <ReportDialog
+      target={cardTarget({
         noteGuid: entry.noteGuid,
         ord: entry.ord,
         deckId: card.data?.deckId ?? null,
         code: card.data?.code ?? null,
         version: card.data?.version ?? null,
-      }}
+      })}
       onClose={onClose}
       onSent={onSent}
     />

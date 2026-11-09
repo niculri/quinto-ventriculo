@@ -1,6 +1,8 @@
 import { localAdminRepository } from '../features/admin/repository';
 import type { AdminRepository } from '../features/admin/repository';
 import { localAccountRepository } from '../features/account/repository';
+import { localReportsRepository } from '../features/reports/repository';
+import type { ReportsRepository } from '../features/reports/repository';
 import type { AccountRepository } from '../features/account/repository';
 import { render } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
@@ -685,6 +687,8 @@ export function renderApp(
     study?: StudyRepository;
     quiz?: QuizRepository;
     admin?: AdminRepository;
+    /** The reports (step 2.6); by default in memory, for an administrator if `admin` is one. */
+    reports?: ReportsRepository;
     /** The account (step 2.3); by default the versions in force are already accepted. */
     account?: AccountRepository;
     /** The API asking for the draft (the preview, step 1.7). */
@@ -699,6 +703,7 @@ export function renderApp(
     study: op.study ?? fullAnkiStudy(),
     quiz: op.quiz ?? localQuizRepository(null),
     admin: op.admin ?? localAdminRepository(),
+    reports: op.reports ?? localReportsRepository({ admin: true }),
     account: op.account ?? acceptedAccount(),
     ...(op.previewApi ? { previewApi: op.previewApi } : {}),
   };

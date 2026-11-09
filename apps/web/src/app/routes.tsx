@@ -86,6 +86,7 @@ export const routes: RouteObject[] = [
             element: <Navigate to={SETTINGS_GROUPS[0].sections[0].to} replace />,
           },
           { path: 'settings/account', lazy: page(() => import('./pages/account-settings')) },
+          { path: 'settings/reports', lazy: page(() => import('./pages/my-reports')) },
           { path: 'settings/anki', lazy: page(() => import('./pages/settings')) },
           { path: 'settings/deck-options', lazy: page(() => import('./pages/deck-options')) },
           // «Administración» (step 2.10): its own page, by sections, only for administrators. The layout stays

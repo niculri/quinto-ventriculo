@@ -21,6 +21,10 @@ import { Results } from './Results';
 import { useQuizDetail, useQuizSection, useSavedQuiz } from './queries';
 import type { SavedQuiz } from './repository';
 import { useQuizSession } from './useQuizSession';
+import type { QuestionEntry } from './useQuizSession';
+import { ReportDialog } from '../reports/ReportDialog';
+import { plainText } from '../reports/labels';
+import type { ReportTarget } from '../reports/repository';
 import { useFocusMode } from '../../ui/focus';
 import './quiz.css';
 
@@ -240,6 +244,27 @@ function QuizScreen({
   }, [screen, location, navigate]);
   const [zoom, setZoom] = useState<OpenImage | null>(null);
   const [confirming, setConfirming] = useState(false);
+  // Step 2.6: «Reportar error» of a question (answered, or of the finished round), and the thanks after it.
+  const [reporting, setReporting] = useState<QuestionEntry | null>(null);
+  const [thanks, setThanks] = useState(false);
+  useEffect(() => {
+    if (!thanks) return;
+    const id = setTimeout(() => setThanks(false), 3000);
+    return () => clearTimeout(id);
+  }, [thanks]);
+  const reportTarget = (e: QuestionEntry): ReportTarget => ({
+    kind: 'quiz_question',
+    id: `${quiz.id}/${e.question.id}`,
+    code: null,
+    version: null,
+    location: {
+      path: paths.quiz(course, quiz, quiz.sections.length > 1 ? section.id : null),
+      title: `${quiz.title} · ${plainText(e.group.name)} · Pregunta ${e.number}`.slice(0, 200),
+      quizId: quiz.id,
+      sectionId: section.id,
+      number: e.number,
+    },
+  });
   // A short question with its answer shown (before saying whether the user knew it).
   const [revealedAt, setRevealedAt] = useState<string | null>(null);
   const sectionIndex = quiz.sections.findIndex((s) => s.id === section.id);
@@ -256,7 +281,7 @@ function QuizScreen({
   // The keys of the skill's page: 1–6 answer, Enter goes on, ← goes back; Space and 1/2 on short ones.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (zoom || confirming || screen !== 'question' || !round || !current) return;
+      if (zoom || confirming || reporting || screen !== 'question' || !round || !current) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea, select')) return;
       const done = isAnswered(round);
@@ -297,7 +322,7 @@ function QuizScreen({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [actions, confirming, current, reveal, revealed, round, screen, zoom]);
+  }, [actions, confirming, current, reporting, reveal, revealed, round, screen, zoom]);
 
   const s = round ? score(round) : null;
   const tab = (id: string) => {
@@ -464,6 +489,7 @@ function QuizScreen({
             onNext={actions.next}
             onBack={actions.back}
             onZoom={setZoom}
+            onReport={() => setReporting(current)}
           />
         </>
       ) : null}
@@ -478,6 +504,7 @@ function QuizScreen({
             onRepeatAll={actions.repeatAll}
             onRepeatWrong={actions.repeatWrong}
             onHome={actions.home}
+            onReport={setReporting}
           />
           <p className="wrap wide qz-foot">
             <Link to={paths.course(course)} className="underline">
@@ -500,6 +527,24 @@ function QuizScreen({
         />
       ) : null}
       <ImageViewer image={zoom} onClose={() => setZoom(null)} />
+      <ReportDialog
+        target={reporting ? reportTarget(reporting) : null}
+        onClose={() => setReporting(null)}
+        onSent={() => {
+          setReporting(null);
+          setThanks(true);
+        }}
+      />
+      {thanks ? (
+        <div
+          role="status"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        >
+          <p className="rounded-lg bg-ink px-4 py-2 text-sm text-bg shadow-soft">
+            Gracias: tu reporte le llegó al autor.
+          </p>
+        </div>
+      ) : null}
     </>
   );
 }

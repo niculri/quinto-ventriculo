@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
-import type { NewCardReport, RemoveResult, ReportStatus, SetAdminResult } from './repository';
-
-const REPORTS = ['card-reports'] as const;
+import type { RemoveResult, SetAdminResult } from './repository';
 
 /** Whether the signed-in user is an administrator (the database enforces it; this only shows the panel). */
 export function useIsAdmin() {
@@ -13,30 +11,6 @@ export function useIsAdmin() {
     staleTime: 10 * 60_000,
     // A failure here only hides the panel: it must not bother anybody.
     retry: false,
-  });
-}
-
-export function useCardReports(enabled: boolean) {
-  const { admin } = useServices();
-  return useQuery({ queryKey: REPORTS, queryFn: () => admin.listReports(), enabled });
-}
-
-export function useReportCard() {
-  const { admin } = useServices();
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (report: NewCardReport) => admin.reportCard(report),
-    onSuccess: () => client.invalidateQueries({ queryKey: REPORTS }),
-  });
-}
-
-export function useSetReportStatus() {
-  const { admin } = useServices();
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: ReportStatus }) =>
-      admin.setReportStatus(id, status),
-    onSuccess: () => client.invalidateQueries({ queryKey: REPORTS }),
   });
 }
 

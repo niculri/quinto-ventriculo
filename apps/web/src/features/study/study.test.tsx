@@ -436,6 +436,8 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     const links = within(nav).getAllByRole('link');
     expect(links.map((l) => [l.textContent?.trim(), l.getAttribute('href')])).toEqual([
       ['Datos de usuario', '/settings/account'],
+      // Step 2.6
+      ['Mis reportes', '/settings/reports'],
       ['General', '/settings/anki'],
       ['Configuración de mazos', '/settings/deck-options'],
     ]);
@@ -445,11 +447,12 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
         .getAllByRole('group')
         .map((g) => g.getAttribute('aria-labelledby')),
     ).toHaveLength(2);
-    expect(within(nav).getByRole('group', { name: 'Anki' })).toContainElement(links[1]!);
+    expect(within(nav).getByRole('group', { name: 'Anki' })).toContainElement(links[2]!);
     expect(within(nav).getByRole('group', { name: 'Cuenta' })).toContainElement(links[0]!);
+    expect(within(nav).getByRole('group', { name: 'Cuenta' })).toContainElement(links[1]!);
     expect(within(nav).queryByRole('link', { name: 'Anki' })).toBeNull();
     expect(links[0]).toHaveAttribute('aria-current', 'page');
-    await userEvent.click(links[1]!);
+    await userEvent.click(links[2]!);
     await waitFor(() => expect(router.state.location.pathname).toBe('/settings/anki'));
     expect(
       await screen.findByRole('heading', { level: 2, name: 'Anki general' }),

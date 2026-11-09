@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { MessageSquareWarning } from 'lucide-react';
 import { LETTERS, answerAt, canGoBack, displayOrder } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import type { QuizQuestion } from '@qv/schema';
@@ -121,6 +122,7 @@ export function QuestionCard({
   onNext,
   onBack,
   onZoom,
+  onReport,
 }: {
   round: Round;
   entry: QuestionEntry;
@@ -134,6 +136,8 @@ export function QuestionCard({
   onNext: () => void;
   onBack: () => void;
   onZoom: (image: OpenImage) => void;
+  /** «Reportar error» of this question, once it is answered (step 2.6). */
+  onReport?: () => void;
 }) {
   const { question, group, number } = entry;
   const answer = answerAt(round);
@@ -266,11 +270,18 @@ export function QuestionCard({
           </div>
         ) : null}
         {verdict ? (
-          <div className={`veredicto ${verdict.good ? 'bien' : 'mal'}`} role="status">
-            <span className="vi" aria-hidden="true">
-              {verdict.good ? '✓' : '✗'}
-            </span>
-            <span>{verdict.text}</span>
+          <div className="vfila">
+            <div className={`veredicto ${verdict.good ? 'bien' : 'mal'}`} role="status">
+              <span className="vi" aria-hidden="true">
+                {verdict.good ? '✓' : '✗'}
+              </span>
+              <span>{verdict.text}</span>
+            </div>
+            {onReport ? (
+              <button type="button" className="qz-report" onClick={onReport}>
+                <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar error
+              </button>
+            ) : null}
           </div>
         ) : null}
         {done ? (

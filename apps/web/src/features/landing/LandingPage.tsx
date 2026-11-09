@@ -207,9 +207,10 @@ export function LandingPage() {
                 con la Universidad de Chile ni con su Facultad de Medicina.
               </Question>
               <Question q="Encontré un error, ¿cómo aviso?">
-                Al estudiar una tarjeta, usa «Reportar error». Para un apunte, un test o cualquier
-                otra cosa, escribe a <ContactLink /> con el nombre o el código de lo que viste (por
-                ejemplo, QV-BC-C2-11 o T-BC-C2-11-086) y qué está mal.
+                En una tarjeta, un apunte o una pregunta de un test, usa «Reportar error»; en un
+                apunte también puedes seleccionar el texto que está mal. En Opciones → Mis reportes
+                ves qué pasó con cada uno. Para cualquier otra cosa, escribe a <ContactLink /> con
+                el nombre o el código de lo que viste (por ejemplo, QV-BC-C2-11 o T-BC-C2-11-086).
               </Question>
               <Question q="¿Puedo pedir que se saque algo del sitio?">
                 Sí. Si algo tuyo aparece en el sitio y quieres que se saque, escribe a{' '}

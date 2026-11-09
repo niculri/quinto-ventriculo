@@ -146,7 +146,10 @@ test('a student reports an error in a card and the administrator sees it in the 
   await page.goto('/admin/reports');
   await expect(page.getByRole('heading', { level: 2, name: 'Reportes' })).toBeVisible();
   await expect(page.getByText('La respuesta 1 está mal')).toBeVisible();
-  await page.getByRole('button', { name: 'Marcar resuelto' }).click();
+  // Step 2.6: one decision for every report of the card, with a note for whoever reported it.
+  await page.getByRole('button', { name: 'Resolver' }).click();
+  const resolve = page.getByRole('dialog', { name: 'Resolver' });
+  await resolve.getByRole('button', { name: 'Resolver el reporte' }).click();
   await expect(page.getByText('La respuesta 1 está mal')).toHaveCount(0);
   await page.getByRole('button', { name: /Resueltos/ }).click();
   await expect(page.getByText('La respuesta 1 está mal')).toBeVisible();

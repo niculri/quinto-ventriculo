@@ -9,7 +9,8 @@ import { ErrorWithRetry } from '../../ui/Notice';
 import { button } from '../../ui/styles';
 import { CardFrame, useDarkMode } from '../decks/CardFrame';
 import { useCard } from '../decks/queries';
-import { ReportCardDialog } from '../admin/ReportCardDialog';
+import { ReportDialog } from '../reports/ReportDialog';
+import { cardTarget } from '../reports/targets';
 import { studyKeys } from '../study/queries';
 import type { CardLogEntry } from '../study/repository';
 import { cellText, recall, shortDate } from './data';
@@ -76,14 +77,14 @@ export function CardPreview({
       </div>
       <CardInfo card={card} timing={timing} />
       {reporting ? (
-        <ReportCardDialog
-          card={{
+        <ReportDialog
+          target={cardTarget({
             noteGuid: card.noteGuid,
             ord: card.ord,
             deckId: card.deckId,
             code: detail.data?.code ?? null,
             version: detail.data?.version ?? null,
-          }}
+          })}
           onClose={() => setReporting(false)}
           onSent={() => {
             setReporting(false);

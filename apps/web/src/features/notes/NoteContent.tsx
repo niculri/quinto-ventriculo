@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { Ref } from 'react';
 import DOMPurify from 'dompurify';
 import type { OpenImage } from './ImageViewer';
+import { sectionAt } from './reporting';
 
 /**
  * The note HTML. It already comes sanitized from the importer; it is sanitized again here just in case
@@ -34,6 +35,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
           src: img.currentSrc || img.src,
           alt: img.alt,
           caption: img.closest('figure')?.querySelector('figcaption')?.textContent ?? '',
+          ...sectionAt(e.currentTarget, img),
         });
       }}
       dangerouslySetInnerHTML={{ __html: clean }}

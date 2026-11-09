@@ -23,6 +23,7 @@ import { localStudyRepository } from '../study/repository';
 import { PreviewSwitch, previewStudyRepository, usePreview } from '../preview/preview';
 import type { Preview, PreviewParts } from '../preview/preview';
 import { localAdminRepository } from './repository';
+import { localReportsRepository } from '../reports/repository';
 
 /** What the database gives for the e2e folder's draft (db/tests/release.test.ts writes it). */
 const SUMMARY = ReleaseSummary.parse(
@@ -503,6 +504,7 @@ describe('the preview of the draft', () => {
       study: spy('study', fullAnkiStudy()),
       quiz: spy('quiz', localQuizRepository(null)),
       admin: spy('admin', localAdminRepository({ admin: true })),
+      reports: spy('reports', localReportsRepository({ admin: true })),
       account: acceptedAccount(),
     };
     let parts: PreviewParts | null = null;
@@ -528,7 +530,7 @@ describe('the preview of the draft', () => {
     const card = { noteGuid: 'g', ord: 0, deckId: '20' };
     const attempts: (() => Promise<unknown>)[] = [
       () => s.quiz.save({ quizId: 'q', sectionId: 's' } as never),
-      () => s.admin.reportCard({ noteGuid: 'g', ord: 0, comment: 'x' } as never),
+      () => s.reports.send({ kind: 'card', id: 'g:0', comment: 'x' } as never),
       () => s.study.savePreferences({ fullAnki: false } as never),
       () => s.study.setDeckActivation('21', true),
       () => s.study.saveAssessmentSetting({ assessmentId: 'a', examDate: '2026-12-01' } as never),

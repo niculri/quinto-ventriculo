@@ -119,6 +119,8 @@ export const paths = {
   settings: '/settings',
   /** «Opciones» → «Datos de usuario». */
   accountSettings: '/settings/account',
+  /** «Opciones» → «Mis reportes» (step 2.6): what the student reported and what happened with it. */
+  myReports: '/settings/reports',
   /** «Opciones» → «Anki general»: the preferences of every deck. */
   ankiSettings: '/settings/anki',
   /**

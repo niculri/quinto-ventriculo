@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ChevronDown, ListTree } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, ListTree, MessageSquareWarning } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router';
 import { paths } from '../../app/paths';
 import { Canonical } from '../catalog/Redirects';
@@ -8,7 +8,7 @@ import { ApiRequestError } from '../../lib/api';
 import { ErrorWithRetry } from '../../ui/Notice';
 import { Skeleton } from '../../ui/Loading';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { page } from '../../ui/styles';
+import { button, page } from '../../ui/styles';
 import { Rail } from '../../ui/rail';
 import { NotFoundPage } from '../../ui/NotFoundPage';
 import { locateNote, useNote, useCatalog } from '../catalog/queries';
@@ -21,6 +21,10 @@ import { useActiveSection } from './useActiveSection';
 import { ImageViewer } from './ImageViewer';
 import { flashHeading } from './flash';
 import type { OpenImage } from './ImageViewer';
+import { SelectionReportBar, useArticleSelection } from './reporting';
+import { ReportDialog } from '../reports/ReportDialog';
+import type { ReportLocation, ReportTarget } from '../reports/repository';
+import type { ReportCategory } from '@qv/schema';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
@@ -45,10 +49,30 @@ export function NotePage() {
 
 function NoteView({ note, location }: { note: Note; location: NoteLocation | null }) {
   const content = useRef<HTMLDivElement>(null);
+  const body = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<OpenImage | null>(null);
+  // Step 2.6: «Reportar error» from the end, from a selection (the bar at the bottom) or from an image.
+  const [reporting, setReporting] = useState<{
+    target: ReportTarget;
+    category?: ReportCategory;
+  } | null>(null);
+  const [thanks, setThanks] = useState(false);
+  useEffect(() => {
+    if (!thanks) return;
+    const id = setTimeout(() => setThanks(false), 3000);
+    return () => clearTimeout(id);
+  }, [thanks]);
+  const selected = useArticleSelection(body, !reporting && !image);
   const [tocOpen, setTocOpen] = useState(false);
   const { active, progress } = useActiveSection(content, true);
-  const { hash } = useLocation();
+  const { hash, pathname } = useLocation();
+  const targetOf = (place: ReportLocation): ReportTarget => ({
+    kind: 'note',
+    id: note.id,
+    code: note.code ?? null,
+    version: note.version ?? null,
+    location: { path: pathname, title: note.title, ...place },
+  });
   const located = location !== null;
   const practice = usePractice(note, location);
   const hasPractice = !!location && !!(practice.quiz || practice.deck);
@@ -72,6 +96,11 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
   useEffect(() => {
     if (!hash) return;
     let id = hash.slice(1);
+    // A text fragment («#sección:~:text=…», the panel's link to a quote): the browsers that do not take it out of the
+    // hash leave it here.
+    const directive = id.indexOf(':~:');
+    if (directive >= 0) id = id.slice(0, directive);
+    if (!id) return;
     try {
       id = decodeURIComponent(id);
     } catch {
@@ -178,8 +207,20 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
         ) : null}
 
         <div ref={content}>
-          <NoteContent html={note.html} onOpenImage={setImage} />
+          <NoteContent ref={body} html={note.html} onOpenImage={setImage} />
           {location && hasPractice ? <Practice note={note} location={location} /> : null}
+        </div>
+
+        <div className="mt-12 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-6">
+          <button
+            type="button"
+            onClick={() => setReporting({ target: targetOf({}) })}
+            className={`${button.base} ${button.secondary}`}
+          >
+            <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar un error en este
+            apunte
+          </button>
+          <p className="text-sm text-muted">O selecciona el texto que está mal.</p>
         </div>
 
         {location ? <Neighbors location={location} /> : null}
@@ -189,7 +230,44 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
       <Rail>
         <Toc toc={toc} active={active} progress={progress} />
       </Rail>
-      <ImageViewer image={image} onClose={() => setImage(null)} />
+      <ImageViewer
+        image={image}
+        onClose={() => setImage(null)}
+        onReport={(img) => {
+          setImage(null);
+          setReporting({
+            target: targetOf({
+              ...(img.section ? { section: img.section } : {}),
+              ...(img.sectionTitle ? { sectionTitle: img.sectionTitle } : {}),
+              figure: (img.caption || img.alt || 'Imagen sin leyenda').slice(0, 300),
+            }),
+            category: 'image',
+          });
+        }}
+      />
+      {selected && !reporting ? (
+        <SelectionReportBar onReport={() => setReporting({ target: targetOf(selected) })} />
+      ) : null}
+      {thanks && !selected ? (
+        <div
+          role="status"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        >
+          <p className="rounded-lg bg-ink px-4 py-2 text-sm text-bg shadow-soft">
+            Gracias: tu reporte le llegó al autor.
+          </p>
+        </div>
+      ) : null}
+      <ReportDialog
+        target={reporting?.target ?? null}
+        {...(reporting?.category ? { category: reporting.category } : {})}
+        onClose={() => setReporting(null)}
+        onSent={() => {
+          setReporting(null);
+          document.getSelection()?.removeAllRanges();
+          setThanks(true);
+        }}
+      />
     </div>
   );
 }

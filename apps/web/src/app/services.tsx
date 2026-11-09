@@ -11,6 +11,8 @@ import type { QuizRepository } from '../features/quiz/repository';
 import { localAdminRepository, supabaseAdminRepository } from '../features/admin/repository';
 import type { AdminRepository } from '../features/admin/repository';
 import { localAccountRepository, supabaseAccountRepository } from '../features/account/repository';
+import { localReportsRepository, supabaseReportsRepository } from '../features/reports/repository';
+import type { ReportsRepository } from '../features/reports/repository';
 import type { AccountRepository } from '../features/account/repository';
 import { DEMO_EMAIL, demoSessionService } from '../features/session/demo';
 import { supabaseSessionService } from '../features/session/service';
@@ -23,6 +25,8 @@ export interface Services {
   study: StudyRepository;
   quiz: QuizRepository;
   admin: AdminRepository;
+  /** Reports of errors in every content (step 2.6): sending, «Mis reportes» and the panel's queue. */
+  reports: ReportsRepository;
   /** Accepting the terms, downloading one's data and deleting the account (step 2.3). */
   account: AccountRepository;
   /**
@@ -49,6 +53,11 @@ export function createServices(): Services {
         admin: demoRole() !== 'student',
         owner: demoRole() !== 'admin',
         storage: window.localStorage,
+        email: DEMO_EMAIL,
+      }),
+      reports: localReportsRepository({
+        storage: window.localStorage,
+        admin: demoRole() !== 'student',
         email: DEMO_EMAIL,
       }),
       account: localAccountRepository({
@@ -82,6 +91,7 @@ export function createServices(): Services {
     study: withCardSync(supabaseStudyRepository(client), api, userOf(session)),
     quiz: supabaseQuizRepository(client),
     admin: supabaseAdminRepository(client),
+    reports: supabaseReportsRepository(client),
     account: supabaseAccountRepository(client, { url, key }),
   };
 }

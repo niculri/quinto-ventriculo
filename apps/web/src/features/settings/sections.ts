@@ -1,4 +1,4 @@
-import { Layers, SlidersHorizontal, UserRound } from 'lucide-react';
+import { Flag, Layers, SlidersHorizontal, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../app/paths';
 
@@ -24,7 +24,11 @@ export interface SettingsGroup {
 export const SETTINGS_GROUPS = [
   {
     title: 'Cuenta',
-    sections: [{ label: 'Datos de usuario', to: paths.accountSettings, icon: UserRound }],
+    sections: [
+      { label: 'Datos de usuario', to: paths.accountSettings, icon: UserRound },
+      // Step 2.6: what the student reported and what happened.
+      { label: 'Mis reportes', to: paths.myReports, icon: Flag },
+    ],
   },
   {
     title: 'Anki',

@@ -859,6 +859,42 @@
   font-weight: 600;
   font-size: 16px;
 }
+.quiz .vfila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.quiz .vfila .veredicto {
+  margin-top: 0;
+}
+.quiz .vfila .qz-report,
+.quiz .fallo .qz-report {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--mute);
+  font-family: var(--fbody, inherit);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.quiz .vfila .qz-report:hover,
+.quiz .fallo .qz-report:hover {
+  color: var(--ink);
+  border-color: var(--line);
+}
+.quiz .fallo .fl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .quiz .veredicto.bien {
   color: var(--ok);
 }

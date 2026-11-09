@@ -4,6 +4,7 @@ import {
   DATA_CONTROLLER,
   INACTIVE_ACCOUNT_MONTHS,
   LEGAL_VERSIONS,
+  REPORT_LIMITS,
 } from '@qv/schema';
 import { paths } from '../../app/paths';
 import { ContactLink } from '../../ui/ContactLink';
@@ -67,8 +68,11 @@ export function PrivacyPage() {
             elegiste y si estaba bien) y lo que llevas en cada test, para seguir donde quedaste.
           </li>
           <li>
-            <strong>Tus reportes de errores.</strong> Lo que escribiste sobre una tarjeta, con su
-            código, su versión y la fecha.
+            <strong>Tus reportes de errores.</strong> Lo que escribiste sobre una tarjeta, un apunte
+            o una pregunta de un test, con su código, su versión, la página desde donde lo enviaste,
+            la fecha, el tipo de error que elegiste y, en un apunte, el texto que seleccionaste (o
+            la leyenda de la imagen) y su sección; y lo que se decidió con cada uno. Si se te quita
+            el permiso de reportar, también eso.
           </li>
           <li>
             <strong>Tu aceptación.</strong> Qué versión de los términos de uso y de esta política
@@ -80,7 +84,10 @@ export function PrivacyPage() {
           </li>
           <li>
             <strong>Contadores.</strong> Cuántas tarjetas tienes, cuántos cambios hiciste en el día
-            y cuánto ocupa lo que llevas en los tests, para poner límites que eviten abusos.
+            y cuánto ocupa lo que llevas en los tests, para poner límites que eviten abusos. Los
+            reportes tienen su propio límite ({REPORT_LIMITS.perDay} al día, y{' '}
+            {REPORT_LIMITS.openPerPlace} sin revisar en un mismo lugar), que se cuenta con los
+            reportes mismos.
           </li>
         </ul>
         <p>
@@ -145,15 +152,17 @@ export function PrivacyPage() {
           </li>
           <li>
             <strong>Los demás estudiantes</strong> no ven nada tuyo: ni tu avance, ni tus tests, ni
-            tus reportes.
+            tus reportes, ni si alguien más reportó lo mismo que tú.
           </li>
           <li>
             <strong>El administrador del sitio</strong> (hoy, el responsable) ve la lista de
             invitados (correo, lista, nota, fecha, si ya tienes cuenta y tu último ingreso), los
-            reportes de errores con el nombre y el correo de quien los escribió, y cifras que suman
-            a muchos estudiantes sin decir quiénes (por ejemplo, cuántos estudiaron un mazo). Como
-            administra la base de datos, también puede ver lo guardado: solo lo usa para mantener el
-            sitio y responder tus pedidos.
+            reportes de errores con el nombre y el correo de quien los escribió (ocultos hasta que
+            los pide), y cifras que suman a muchos estudiantes sin decir quiénes (por ejemplo,
+            cuántos estudiaron un mazo). Qué parte de tus reportes resultaron ser errores no lo ve:
+            el sitio solo lo usa para ordenar los reportes que revisa primero. Como administra la
+            base de datos, también puede ver lo guardado: solo lo usa para mantener el sitio y
+            responder tus pedidos.
           </li>
           <li>
             <strong>Si escribes al correo de contacto</strong>, tu mensaje llega a la casilla de
@@ -223,6 +232,12 @@ export function PrivacyPage() {
             ni tu correo, porque sirven para corregir el material.
           </li>
           <li>
+            <strong>Tus reportes de errores,</strong> con tu nombre mientras se revisan y hasta 12
+            meses después de que se decide qué hacer con ellos (lo ves en Opciones → Mis reportes).
+            Pasado ese plazo quedan sin tu nombre ni tu correo: el error y la decisión siguen, quién
+            lo escribió ya no.
+          </li>
+          <li>
             <strong>Si pasas {INACTIVE_ACCOUNT_MONTHS} meses sin entrar,</strong> te avisaremos a tu
             correo y después se borrará tu cuenta, igual que si pidieras eliminarla.
           </li>
@@ -274,8 +289,10 @@ export function PrivacyPage() {
         </ul>
         <p>
           Lo que pidas por correo lo respondemos en 30 días corridos como máximo. El sitio no toma
-          decisiones sobre ti de forma automática: lo único automático es calcular cuándo te toca
-          repasar cada tarjeta.
+          decisiones sobre ti de forma automática. Lo automático es calcular cuándo te toca repasar
+          cada tarjeta, aplicar los límites de los reportes (punto 2) y ordenar los reportes que
+          revisa el administrador según qué parte de los tuyos resultaron ser errores. Quitarle a
+          alguien el permiso de reportar lo decide una persona, no el sitio.
         </p>
       </Part>
 

@@ -390,6 +390,7 @@ describe('downloading my data', () => {
     expect(Object.entries(counts).filter(([, n]) => n === 0)).toEqual([
       ['account_deletions', 0],
       ['admin_emails', 0],
+      ['report_blocks', 0],
     ]);
     const text = JSON.stringify(data);
     expect(text).not.toContain(LUIS.sub);
@@ -534,6 +535,11 @@ describe('deleting my account', () => {
       { user_id: null, comment: 'La respuesta dice 70S y es 80S.' },
       { user_id: LUIS.sub, comment: 'La respuesta dice 70S y es 80S.' },
     ]);
+    // Step 2.6: the copy in content_reports (the web of before still wrote card_reports) too, without an author.
+    const copies = await db.query<{ user_id: string | null; comment: string }>(
+      `select user_id, comment from public.content_reports order by user_id nulls first`,
+    );
+    expect(copies.rows).toEqual(reports.rows);
     // The administrator still sees the report, without an author.
     const panel = await one<{ reporter_email: string | null }[]>(
       db,

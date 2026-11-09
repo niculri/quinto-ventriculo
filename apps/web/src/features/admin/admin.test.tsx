@@ -6,6 +6,8 @@ import { CATALOG, fakeApi, renderApp } from '../../test/render';
 import { AccessError, localAdminRepository } from './repository';
 import type { AccessInvite, AdminRepository } from './repository';
 import { readEmails } from './AccessPage';
+import { localReportsRepository } from '../reports/repository';
+import { cardTarget } from '../reports/targets';
 
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>
   localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl', ...o });
@@ -34,7 +36,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
       expect(
         await screen.findByRole('heading', { name: /no aparece ni en el Netter/ }),
       ).toBeInTheDocument();
-      expect(screen.queryByText('Errores reportados en tarjetas')).toBeNull();
+      expect(screen.queryByText('Errores reportados')).toBeNull();
       expect(
         screen.queryByRole('navigation', { name: 'Secciones de la administración' }),
       ).toBeNull();
@@ -87,17 +89,20 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     await waitFor(() => expect(b.router.state.location.pathname).toBe('/admin/releases'));
   });
 
-  it('«Reportes»: the errors reported in the cards', async () => {
-    const repo = admin();
-    await repo.reportCard({
-      noteGuid: 'g',
-      ord: 0,
-      deckId: null,
-      code: 'T-BC-C2-11-086',
-      version: 2,
+  it('«Reportes»: the errors reported, by content (step 2.6)', async () => {
+    const reports = localReportsRepository({ admin: true });
+    await reports.send({
+      ...cardTarget({
+        noteGuid: 'g',
+        ord: 0,
+        deckId: null,
+        code: 'T-BC-C2-11-086',
+        version: 2,
+      }),
+      category: 'fact',
       comment: 'Dice 80S y es 60S',
     });
-    renderApp('/admin/reports', { admin: repo });
+    renderApp('/admin/reports', { admin: admin(), reports });
     expect(await screen.findByText('Dice 80S y es 60S')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'Reportes' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'T-BC-C2-11-086.2' })).toBeInTheDocument();

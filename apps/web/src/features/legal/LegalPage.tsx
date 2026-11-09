@@ -4,10 +4,10 @@ import { Link } from 'react-router';
 import { paths } from '../../app/paths';
 import { formatDay } from '../../lib/dates';
 import { Logo } from '../../ui/Logo';
-import { CREDITS, SOURCE_CODE_URL } from '../../ui/credits';
+import { SiteFooter } from '../../ui/SiteFooter';
 
 /**
- * The frame of /privacy, /terms (step 2.3) and /licenses (step 2.4): public, with or without a session, and nothing of the material. The
+ * The frame of /privacy, /terms (step 2.3), /licenses (step 2.4) and /about (step 2.7): public, with or without a session, and nothing of the material. The
  * same width as the site's pages (55.5rem). Their version and date are LEGAL_VERSIONS of @qv/schema.
  */
 export function LegalPage({
@@ -52,25 +52,7 @@ export function LegalPage({
         ) : null}
         <div className="mt-8 space-y-8 leading-relaxed text-ink">{children}</div>
       </main>
-      <footer className="border-t border-border bg-chrome">
-        <div className="mx-auto flex max-w-[90rem] flex-wrap items-center justify-between gap-3 px-4 py-6 text-xs text-muted sm:px-6">
-          <p>El Quinto Ventrículo · {CREDITS}</p>
-          <nav aria-label="Textos legales" className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link to={paths.terms} className="hover:text-ink">
-              Términos de uso
-            </Link>
-            <Link to={paths.privacy} className="hover:text-ink">
-              Privacidad
-            </Link>
-            <Link to={paths.licenses} className="hover:text-ink">
-              Licencias
-            </Link>
-            <a href={SOURCE_CODE_URL} className="hover:text-ink">
-              Código fuente
-            </a>
-          </nav>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

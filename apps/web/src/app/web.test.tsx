@@ -125,17 +125,122 @@ describe('access', () => {
     }
   });
 
-  it('with a session, the footer links to the licenses and the source code', async () => {
+  it('with a session, the footer: the site (help, about, report a problem) and the legal texts (step 2.7)', async () => {
     renderApp('/home');
-    const more = await screen.findByRole('navigation', { name: 'Más información' });
-    expect(within(more).getByRole('link', { name: 'Licencias' })).toHaveAttribute(
+    const site = await screen.findByRole('navigation', { name: 'Sobre el sitio' });
+    const legal = screen.getByRole('navigation', { name: 'Textos legales' });
+    const links = (nav: HTMLElement) =>
+      within(nav)
+        .getAllByRole('link')
+        .map((a) => [a.textContent, a.getAttribute('href')]);
+    expect(links(site)).toEqual([
+      ['Ayuda', '/help'],
+      ['Acerca de', '/about'],
+      ['Reportar un problema', `mailto:${CONTACT_EMAIL}`],
+    ]);
+    expect(links(legal)).toEqual([
+      ['Privacidad', '/privacy'],
+      ['Términos de uso', '/terms'],
+      ['Licencias', '/licenses'],
+      ['Código fuente', 'https://github.com/niculri/quinto-ventriculo'],
+    ]);
+    expect(screen.getByRole('contentinfo')).toHaveTextContent(
+      'El Quinto Ventrículo · Sitio de estudiantes, sin relación oficial con la Universidad de Chile · Creado por Nico Ulriksen · 2026',
+    );
+  });
+
+  it('without a session, the footer offers no help (it is behind the login), and the rest works', async () => {
+    renderApp('/', { session: null });
+    const site = await screen.findByRole('navigation', { name: 'Sobre el sitio' });
+    expect(within(site).queryByRole('link', { name: 'Ayuda' })).toBeNull();
+    expect(within(site).getByRole('link', { name: 'Acerca de' })).toHaveAttribute('href', '/about');
+  });
+
+  it('/about is public: what it is, who makes it (initials without the picture), how it is reviewed and the thanks', async () => {
+    renderApp('/about', { session: null });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Acerca de' })).toBeInTheDocument();
+    const main = screen.getByRole('main');
+    expect(
+      within(main)
+        .getAllByRole('heading', { level: 2 })
+        .map((h) => h.textContent),
+    ).toEqual([
+      'Quién lo hace',
+      'De dónde sale cada pieza',
+      'Cómo se hace y se revisa',
+      'Agradecimientos',
+    ]);
+    expect(main).toHaveTextContent(/Nico Ulriksen\s*Creador y desarrollador/);
+    // The owner's words (2026-11-09), exactly.
+    expect(main).toHaveTextContent(
+      'Estudiante de primer año de Medicina en la Universidad de Chile. Titulado de ingeniero civil en computación de Beauchef.',
+    );
+    // Decision 33: that it is written with AI, in one sentence, with how it is reviewed. The past years' questions are
+    // not written by it: only the new ones and the explanations.
+    expect(main).toHaveTextContent(
+      /Los apuntes, las tarjetas, las preguntas nuevas y las explicaciones de los tests se redactan con inteligencia artificial \(Claude, de Anthropic\) a partir de esas fuentes, y otro agente de IA revisa cada pieza de cero contra ellas antes de publicarlas\./,
+    );
+    // Without the private repository there is no picture: the initials, in the same reserved square.
+    const picture = screen.getByTestId('creator-picture');
+    expect(picture.tagName).toBe('DIV');
+    expect(picture).toHaveTextContent('NU');
+    expect(picture).toHaveClass('size-24');
+    // Thanks by group (decision 34), the software through /licenses and how to appear with a name.
+    const thanks = screen.getByRole('heading', { level: 2, name: 'Agradecimientos' })
+      .parentElement as HTMLElement;
+    // Three groups: the PAD's tutors are not thanked for now (the owner, 2026-11-09).
+    expect(
+      within(thanks)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual([
+      'A los compañeros que compartieron grabaciones, transcripciones, apuntes y pruebas de años anteriores.',
+      'A quienes reportan errores: cada reporte mejora el material para todos.',
+      'Al software libre en que se apoya el sitio: Anki, FSRS y las demás librerías de la página de Licencias.',
+    ]);
+    expect(thanks).not.toHaveTextContent(/PAD|Ayudantes/);
+    expect(within(thanks).getByRole('link', { name: 'Licencias' })).toHaveAttribute(
       'href',
       '/licenses',
     );
-    expect(within(more).getByRole('link', { name: 'Código fuente' })).toHaveAttribute(
+    expect(within(thanks).getByRole('link', { name: CONTACT_EMAIL })).toHaveAttribute(
       'href',
-      'https://github.com/niculri/quinto-ventriculo',
+      `mailto:${CONTACT_EMAIL}`,
     );
+    // No list of teachers: no titles of a teacher's name.
+    expect(main).not.toHaveTextContent(/\b(Dra?|Prof|Profa|Klgo|TM)\.\s/);
+  });
+
+  it('the landing page, /about and the footer speak of the site and its author in the third person', async () => {
+    // The owner (2026-11-09): «Escribe siempre en tercera persona cosas de la página web». Telling the reader what to
+    // do («usa…», «escribe a…») is fine, and so are the questions of the FAQ, in the reader's voice («¿qué hago?»); the
+    // site never says «I», «we», «our», «tell us».
+    const FIRST_PERSON =
+      /(?<!\p{L})(yo|me|mí|mi|conmigo|nos|nosotros|nosotras|nuestr[oa]s?|hacemos|dinos|escr[ií]benos|cont[aá]ctanos|av[ií]sanos|te contamos)(?!\p{L})/iu;
+    for (const url of ['/', '/about']) {
+      const { unmount } = renderApp(url, { session: null });
+      const footer = await screen.findByRole('contentinfo');
+      const said = (text: string | null) => FIRST_PERSON.exec(text ?? '')?.[0] ?? null;
+      expect(said(screen.getByRole('main').textContent)).toBeNull();
+      expect(said(footer.textContent)).toBeNull();
+      unmount();
+    }
+  });
+
+  it('/about with the picture of the build: the same 96 px square, with its size set', async () => {
+    vi.stubEnv('VITE_CREATOR_PHOTO', '/assets/creator-0123456789.webp');
+    try {
+      renderApp('/about', { session: null });
+      await screen.findByRole('heading', { level: 1, name: 'Acerca de' });
+      const picture = screen.getByTestId('creator-picture');
+      expect(picture.tagName).toBe('IMG');
+      expect(picture).toHaveAttribute('src', '/assets/creator-0123456789.webp');
+      expect(picture).toHaveAttribute('width', '96');
+      expect(picture).toHaveAttribute('height', '96');
+      expect(picture).toHaveClass('size-24');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('without a session, an inner page goes back to the landing page remembering where it was going', async () => {

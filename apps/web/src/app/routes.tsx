@@ -33,7 +33,7 @@ const page = (load: () => Promise<{ default: ComponentType }>) => async () => ({
 
 /**
  * Site map. Only the landing page, the Google callback, the privacy policy and terms of use (step 2.3: they are read
- * before entering, and show nothing of the material) and the licenses (step 2.4) are public; everything else goes
+ * before entering, and show nothing of the material), the licenses (step 2.4) and /about (step 2.7) are public; everything else goes
  * through ProtectedRoute.
  */
 export const routes: RouteObject[] = [
@@ -46,6 +46,7 @@ export const routes: RouteObject[] = [
       { path: 'privacy', lazy: page(() => import('./pages/privacy')) },
       { path: 'terms', lazy: page(() => import('./pages/terms')) },
       { path: 'licenses', lazy: page(() => import('./pages/licenses')) },
+      { path: 'about', lazy: page(() => import('./pages/about')) },
       {
         Component: ProtectedRoute,
         children: [

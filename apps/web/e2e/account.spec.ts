@@ -34,7 +34,7 @@ test.describe('without a session', () => {
       .click();
     await expect(page).toHaveURL(/\/terms$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Términos de uso' })).toBeVisible();
-    await expect(page.getByText(/sin relación oficial/)).toBeVisible();
+    await expect(page.getByRole('main').getByText(/sin relación oficial/)).toBeVisible();
     expect(await fitsTheWidth(page)).toBe(true);
     // Nothing of the material, and no request for it.
     const asked: string[] = [];

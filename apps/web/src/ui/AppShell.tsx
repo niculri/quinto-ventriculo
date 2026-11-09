@@ -9,7 +9,7 @@ import { FocusContext } from './focus';
 import { RailContext } from './rail';
 import { Logo } from './Logo';
 import { UserMenu } from './UserMenu';
-import { CREDITS, SOURCE_CODE_URL } from './credits';
+import { SiteFooter } from './SiteFooter';
 import { keys } from './keys';
 import { usePreview } from '../features/preview/preview';
 
@@ -28,7 +28,7 @@ export function AppShell() {
   const studying = pathname.endsWith('/study') || pathname.endsWith('/review');
   // The browser of cards has its own columns: it takes the right one too.
   const browsing = pathname.startsWith('/anki/browse');
-  // Studying a deck is as answering a test: nothing but the card.
+  // Studying a deck is as answering a test: nothing but the card (no menu, no right column, no footer).
   const hideNav = focus || studying;
 
   useEffect(() => {
@@ -145,22 +145,8 @@ export function AppShell() {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <footer className={`border-t border-border bg-chrome ${studying ? 'hidden' : ''}`}>
-        <div className="mx-auto flex max-w-[90rem] flex-wrap items-center justify-between gap-2 px-4 py-6 text-xs text-muted sm:px-6">
-          <p>El Quinto Ventrículo · Medicina, Universidad de Chile · {CREDITS}</p>
-          <nav aria-label="Más información" className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link to={paths.help} className="hover:text-ink">
-              Ayuda
-            </Link>
-            <Link to={paths.licenses} className="hover:text-ink">
-              Licencias
-            </Link>
-            <a href={SOURCE_CODE_URL} className="hover:text-ink">
-              Código fuente
-            </a>
-          </nav>
-        </div>
-      </footer>
+      {/* Hidden too while answering a test's questions (the owner, 2026-11-09); its cover and results keep it. */}
+      <SiteFooter hidden={hideNav} />
 
       <SearchPalette open={searching} onOpenChange={setSearching} />
     </div>

@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
+import { creatorPhoto } from './build/creator-photo';
 import { thirdPartyLicenses } from './build/licenses';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -123,6 +124,7 @@ export default defineConfig(({ command, mode }) => {
       ...(local ? [demoApi(env.VITE_USERS_SUPABASE_URL)] : []),
       securityHeaders(env.VITE_USERS_SUPABASE_URL ?? ''),
       thirdPartyLicenses(),
+      creatorPhoto(),
     ],
     define: { 'import.meta.env.VITE_DEMO': JSON.stringify(demo ? '1' : '') },
     server: {

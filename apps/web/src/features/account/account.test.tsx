@@ -91,7 +91,8 @@ describe('/privacy and /terms', () => {
     expect(
       screen.getByText(`Versión ${LEGAL_VERSIONS.terms.version} · 8 de noviembre de 2026`),
     ).toBeInTheDocument();
-    expect(screen.getByText(/sin relación oficial/)).toBeInTheDocument();
+    // In the text (the footer says it too, step 2.7).
+    expect(within(screen.getByRole('main')).getByText(/sin relación oficial/)).toBeInTheDocument();
     expect(screen.getByText(/No lo copies ni lo compartas fuera del sitio/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '4. No es consejo médico' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'política de privacidad' })).toHaveAttribute(

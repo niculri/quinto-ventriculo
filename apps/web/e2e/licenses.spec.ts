@@ -49,7 +49,7 @@ test.describe('without a session', () => {
 
 test('with a session, the footer links to the licenses and the source code', async ({ page }) => {
   await signIn(page);
-  const more = page.getByRole('navigation', { name: 'Más información' });
-  await expect(more.getByRole('link', { name: 'Licencias' })).toHaveAttribute('href', '/licenses');
-  await expect(more.getByRole('link', { name: 'Código fuente' })).toHaveAttribute('href', SOURCE);
+  const legal = page.getByRole('navigation', { name: 'Textos legales' });
+  await expect(legal.getByRole('link', { name: 'Licencias' })).toHaveAttribute('href', '/licenses');
+  await expect(legal.getByRole('link', { name: 'Código fuente' })).toHaveAttribute('href', SOURCE);
 });

@@ -16,11 +16,11 @@ import { paths } from '../../app/paths';
 import { Notice } from '../../ui/Notice';
 import { Loading } from '../../ui/Loading';
 import { button } from '../../ui/styles';
-import { Logo, LogoMark } from '../../ui/Logo';
+import { Logo } from '../../ui/Logo';
 import { HowToUse } from '../help/HowToUse';
 import { noticeText, noticeTitle } from '../session/notices';
 import { useSession } from '../session/context';
-import { CREDITS, SOURCE_CODE_URL } from '../../ui/credits';
+import { SiteFooter } from '../../ui/SiteFooter';
 import { ContactLink, withContactLink } from '../../ui/ContactLink';
 import { safeDestination } from '../session/AuthCallbackPage';
 
@@ -204,7 +204,12 @@ export function LandingPage() {
               <Question q="¿Quién hace los apuntes?">
                 Estudiantes, a partir de las clases, las diapositivas, las guías y los libros del
                 curso. Cada apunte dice sus fuentes al comienzo. El sitio no tiene relación oficial
-                con la Universidad de Chile ni con su Facultad de Medicina.
+                con la Universidad de Chile ni con su Facultad de Medicina. Cómo se hace y se revisa
+                cada pieza está en{' '}
+                <Link to={paths.about} className="text-brand underline underline-offset-2">
+                  Acerca de
+                </Link>
+                .
               </Question>
               <Question q="Encontré un error, ¿cómo aviso?">
                 En una tarjeta, un apunte o una pregunta de un test, usa «Reportar error»; en un
@@ -214,7 +219,7 @@ export function LandingPage() {
               </Question>
               <Question q="¿Puedo pedir que se saque algo del sitio?">
                 Sí. Si algo tuyo aparece en el sitio y quieres que se saque, escribe a{' '}
-                <ContactLink /> y dinos qué es.
+                <ContactLink /> e indica qué es.
               </Question>
               <Question q="¿Cuesta algo?">No. Es gratis.</Question>
             </dl>
@@ -222,28 +227,7 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-8 text-sm text-muted sm:px-6">
-          <span className="flex items-center gap-3">
-            <LogoMark className="size-6" />
-            El Quinto Ventrículo · Medicina, Universidad de Chile · {CREDITS}
-          </span>
-          <nav aria-label="Textos legales" className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link to={paths.terms} className="hover:text-ink">
-              Términos de uso
-            </Link>
-            <Link to={paths.privacy} className="hover:text-ink">
-              Privacidad
-            </Link>
-            <Link to={paths.licenses} className="hover:text-ink">
-              Licencias
-            </Link>
-            <a href={SOURCE_CODE_URL} className="hover:text-ink">
-              Código fuente
-            </a>
-          </nav>
-        </div>
-      </footer>
+      <SiteFooter variant="landing" />
     </div>
   );
 }

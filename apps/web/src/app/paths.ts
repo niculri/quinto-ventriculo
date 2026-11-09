@@ -66,6 +66,8 @@ export const paths = {
   terms: '/terms',
   /** The license of the code, its source and the third-party licenses (step 2.4): public, like the two above. */
   licenses: '/licenses',
+  /** What the site is, who makes it, where its material comes from and the thanks (step 2.7): public too. */
+  about: '/about',
   help: '/help',
   search: (query?: string) => withQuery('/search', { q: query?.trim() }),
   semester: (number: number) => `/semesters/${number}`,

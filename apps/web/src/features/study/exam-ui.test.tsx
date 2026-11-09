@@ -341,6 +341,11 @@ describe('the final review', () => {
     for (const link of screen.getAllByRole('link', { name: 'Volver a Certamen 1' })) {
       expect(link).toHaveAttribute('href', ASSESSMENT_PATH);
     }
+    // The one on top, as studying: the course and the assessment.
+    expect(screen.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' })).toHaveAttribute(
+      'href',
+      ASSESSMENT_PATH,
+    );
   });
 
   it('answering writes nothing: neither the state of the cards nor the log', async () => {

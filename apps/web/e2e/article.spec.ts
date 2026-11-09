@@ -121,7 +121,7 @@ test('the site menu: the way to the note, the other parts of its assessment, and
   await page.getByRole('button', { name: 'Comenzar' }).click();
   await expect(page.getByLabel('Pregunta actual')).toBeVisible();
   await expect(menu).toHaveCount(0);
-  await page.getByRole('button', { name: 'Volver a elegir los temas' }).click();
+  await page.getByRole('button', { name: 'Volver a Biología celular · Certamen 2' }).click();
   await expect(menu).toBeVisible();
 });
 

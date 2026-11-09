@@ -21,7 +21,7 @@ async function noSideScroll(page: Page) {
   ).toBeLessThanOrEqual(0);
 }
 
-test('a round: right and wrong, going back to read, continuing after reloading, the wrong ones again', async ({
+test('a round: right and wrong, «Saltar», continuing after reloading, «Volver» to the cover, the wrong ones again', async ({
   page,
 }) => {
   await signIn(page);
@@ -56,7 +56,7 @@ test('a round: right and wrong, going back to read, continuing after reloading, 
   await noSideScroll(page);
   await next.click();
 
-  // 2: statements as a list of their own, a table; wrong.
+  // 2: statements as a list of their own, a table; skipped (answered wrong at the end).
   await expect(heading(page)).toHaveText('Respecto de TBP, es correcto:');
   const statements = page.getByRole('list', { name: 'Afirmaciones' }).getByRole('listitem');
   await expect(statements).toHaveText([
@@ -65,42 +65,59 @@ test('a round: right and wrong, going back to read, continuing after reloading, 
     'III.Corta el RNA.',
   ]);
   await expect(page.getByRole('cell', { name: 'TATA' })).toBeVisible();
-  await option(page, /Sólo I$/).click();
-  await expect(page.getByText('Incorrecta. La correcta es la B')).toBeVisible();
 
-  // «Volver»: the first one as it was answered, only to read it.
-  await page.getByRole('button', { name: '← Volver' }).click();
-  await expect(heading(page)).toHaveText('¿Qué explica el resultado?');
-  await expect(page.getByText('Correcta', { exact: true })).toBeVisible();
-  await expect(option(page, /Una mutación/)).toBeDisabled();
-  await page.getByRole('button', { name: 'Siguiente' }).click();
-  await page.getByRole('button', { name: 'Siguiente' }).click();
+  // «Saltar»: to the end of the round, without counting it; the photo takes its place.
+  const skip = page.getByRole('button', { name: 'Saltar' });
+  await skip.click();
 
-  // 3: a photo (signed URL); reloading continues on the same question.
+  // 3: a photo (signed URL), at the same place of the round.
   await expect(heading(page)).toHaveText('¿Qué muestra la foto?');
+  await expect(page.getByLabel('Pregunta actual')).toHaveText('2 / 3');
+  await expect(page.getByLabel('1 buenas y 0 malas')).toBeVisible();
+  const nextBox = await next.boundingBox();
   const photo = page.getByRole('img', { name: 'Foto de prueba' });
   await expect
     .poll(() => photo.evaluate((i: HTMLImageElement) => i.naturalWidth))
     .toBeGreaterThan(0);
+  await option(page, /Un ribosoma/).click();
+  await expect(page.getByText(/^Incorrecta/)).toBeVisible();
+  // Answered: «Saltar» goes, «Siguiente» stays where it was.
+  await expect(skip).toBeHidden();
+  expect(await next.boundingBox()).toEqual(nextBox);
+  await next.click();
+
+  // The skipped one, last; reloading continues on it.
+  await expect(heading(page)).toHaveText('Respecto de TBP, es correcto:');
   await page.reload();
-  await expect(heading(page)).toHaveText('¿Qué muestra la foto?');
+  await expect(heading(page)).toHaveText('Respecto de TBP, es correcto:');
   await expect(page.getByLabel('Pregunta actual')).toHaveText('3 / 3');
   await expect(page.getByLabel('1 buenas y 1 malas')).toBeVisible();
+  // The last one left cannot be skipped (neither with its key).
+  await expect(page.getByRole('button', { name: 'Saltar' })).toBeDisabled();
+  await page.keyboard.press('s');
+  await expect(heading(page)).toHaveText('Respecto de TBP, es correcto:');
 
-  // «Temas» keeps the round; «Continuar» goes back to it.
-  await page.getByRole('button', { name: 'Volver a elegir los temas' }).click();
+  // «Volver», on top, keeps the round; «Continuar» goes back to it. No «Temas» nor the old «← Volver».
+  await expect(page.getByRole('button', { name: /Temas|elegir los temas/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '← Volver' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Volver a Biología celular · Certamen 2' }).click();
   await expect(page.getByRole('region', { name: 'Ronda a medias' })).toContainText(
     'Vas en la pregunta 3 de 3 · 1 buena y 1 mala',
   );
   await page.getByRole('button', { name: 'Continuar' }).click();
-  await option(page, /Un ribosoma/).click();
+  await expect(heading(page)).toHaveText('Respecto de TBP, es correcto:');
+  await option(page, /Sólo I$/).click();
+  await expect(page.getByText('Incorrecta. La correcta es la B')).toBeVisible();
   await page.getByRole('button', { name: 'Ver resultado' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Hay que repasar' })).toBeVisible();
   await expect(page.getByText('33%')).toBeVisible();
   await noSideScroll(page);
 
-  // «Repetir solo las malas»: the two wrong ones, in order.
+  // «Repetir solo las malas»: the two wrong ones, in the order they were asked; «S» skips there too.
   await page.getByRole('button', { name: 'Repetir solo las malas' }).click();
+  await expect(heading(page)).toHaveText('¿Qué muestra la foto?');
+  await expect(page.getByLabel('Pregunta actual')).toHaveText('1 / 2');
+  await page.keyboard.press('s');
   await expect(heading(page)).toHaveText('Respecto de TBP, es correcto:');
   await expect(page.getByLabel('Pregunta actual')).toHaveText('1 / 2');
   await option(page, /Sólo I y II/).click();
@@ -141,9 +158,10 @@ test('in the middle of a round, a link to the test opens its cover; a reload goe
   await expect(heading(page)).toHaveText(question!);
   await expect(page.getByLabel('Pregunta actual')).toBeVisible();
   // To the course and back to the test from the menu: the cover, with the round to continue.
+  await page.getByRole('button', { name: 'Volver a Biología celular · Certamen 2' }).click();
   await page
-    .getByRole('link', { name: /Biología celular/ })
-    .first()
+    .getByRole('navigation', { name: 'Ruta' })
+    .getByRole('link', { name: 'Biología celular' })
     .click();
   await expect(page).toHaveURL(/\/courses\/biologia-celular$/);
   await page

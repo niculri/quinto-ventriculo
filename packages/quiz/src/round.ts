@@ -1,7 +1,7 @@
 /**
  * A round of a practice test, as the `pauta-a-test` page plays it: one question at a time, the verdict at
- * once, the score, «Volver» to read the previous one (answered, not again), «Siguiente» through the answered
- * ones up to the one that was next, the results, «Repetir todo» and «Repetir solo las malas». The round is a
+ * once, the score, «Saltar» to leave one for the end of the round, «Siguiente» through the answered ones up to
+ * the one that was next (a round saved with the old «Volver» may be behind it), the results, «Repetir todo» and «Repetir solo las malas». The round is a
  * plain JSON value: every change returns a new one (nothing is mutated), so it can be saved as it is and
  * continued after reloading.
  */
@@ -256,6 +256,30 @@ export function next(round: Round): Round {
     return { ...round, index: round.index + 1, top: round.index + 1 };
   }
   return finish(round);
+}
+
+/**
+ * «Saltar»: the question on screen, not answered yet, goes to the end of the round (it comes back after the
+ * others), without counting as right or wrong. Only on the furthest question reached, and only if another one
+ * is still waiting after it: the last one left cannot be skipped (it would come back at once). The questions
+ * before it keep their positions (and their answers, saved by position); the ones after it move up one.
+ */
+export function skip(round: Round): Round {
+  if (!canSkip(round)) return round;
+  const i = round.index;
+  const move = <T>(items: readonly T[]) => [...items.slice(0, i), ...items.slice(i + 1), items[i]!];
+  return { ...round, queue: move(round.queue), orders: move(round.orders) };
+}
+
+export function canSkip(round: Round): boolean {
+  return (
+    round.screen === 'question' &&
+    round.index === round.top &&
+    round.index + 1 < round.queue.length &&
+    !isAnswered(round) &&
+    // Nothing answered after it (a round always answers in order up to `top`; this keeps it so).
+    round.answers.every((a) => a.position < round.index)
+  );
 }
 
 /** «Volver»: the previous question, to read it as it was answered. */

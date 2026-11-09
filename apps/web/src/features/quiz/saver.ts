@@ -2,7 +2,7 @@ import type { QuizRepository, QuizStep } from './repository';
 
 /**
  * The steps of a test, saved in order and in the background (the page does not wait for them). A step that
- * only moves around (Siguiente, Volver, Temas) joins the one still waiting, if it is of the same round; an
+ * only moves around (Siguiente, Saltar, back to the cover) joins the one still waiting, if it is of the same round; an
  * answer is never dropped. If saving fails it retries twice; then it stops (`failed`) and keeps the steps for
  * the next try (the next step or «Reintentar»).
  */

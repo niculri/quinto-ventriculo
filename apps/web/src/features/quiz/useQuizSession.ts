@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import { useQueryClient } from '@tanstack/react-query';
 import {
   answerChoice,
-  back,
   currentQuestionId,
   finish,
   isAnswered,
@@ -15,6 +14,7 @@ import {
   resume,
   selectQuestions,
   selfAssess,
+  skip,
   startRound,
   toCover,
 } from '@qv/quiz';
@@ -194,8 +194,9 @@ export function useQuizSession(options: {
       next() {
         if (round) commit(next(round));
       },
-      back() {
-        if (round) commit(back(round));
+      /** «Saltar»: the question on screen to the end of the round, without an answer. */
+      skip() {
+        if (round) commit(skip(round));
       },
       finishNow() {
         if (round) commit(finish(round));

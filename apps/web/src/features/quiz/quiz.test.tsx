@@ -95,7 +95,7 @@ describe('a practice test', () => {
     expect(screen.queryByRole('group', { name: 'Qué clases practicar' })).toBeNull();
   });
 
-  it('a round: right and wrong at once, explanations, «Volver» to read, results and the wrong ones again', async () => {
+  it('a round: right and wrong at once, explanations, «Saltar», results and the wrong ones again', async () => {
     const user = userEvent.setup();
     const { repo, steps } = recording();
     renderApp(`${BASE}/pautas`, { quiz: repo });
@@ -122,34 +122,42 @@ describe('a practice test', () => {
     expect(option(/Nada/)).toBeDisabled();
     expect(screen.getByLabelText('1 buenas y 0 malas')).toBeInTheDocument();
 
-    // 2: wrong (with the keyboard), a table.
+    // 2: a table; «Saltar» leaves it for the end, without counting it.
     await user.keyboard('{Enter}');
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '1 min' })).toHaveClass('hl');
-    await user.keyboard('2');
-    expect(screen.getByText('Incorrecta. La correcta es la A')).toBeInTheDocument();
+    expect(screen.getByText(/saltar/, { selector: '.atajo' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Saltar' }));
 
-    // «Volver»: the previous one as it was answered; it cannot be answered again.
-    await user.click(screen.getByRole('button', { name: '← Volver' }));
-    expect(
-      screen.getByRole('heading', { level: 2, name: '¿Qué muestra el gel?' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Correcta')).toBeInTheDocument();
-    expect(option(/Nada/)).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
-    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
-
-    // 3: a photo; the last one goes to the results.
+    // 3: a photo, on the same place of the round; the skipped one is still to come.
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Qué es la lámina?' }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('2 / 3');
+    expect(screen.getByLabelText('1 buenas y 0 malas')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Micrografía' })).toHaveAttribute(
       'src',
       '/api/media/tests/x.webp',
     );
     await user.click(option(/Microtúbulos/));
+    // Answered: «Saltar» goes away (its place stays).
+    expect(screen.queryByRole('button', { name: 'Saltar' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
+
+    // The skipped one, last: it cannot be skipped again. Wrong, with the keyboard.
+    expect(
+      await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('3 / 3');
+    expect(screen.getByRole('button', { name: 'Saltar' })).toBeDisabled();
+    await user.keyboard('s');
+    expect(
+      screen.getByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
+    ).toBeInTheDocument();
+    await user.keyboard('2');
+    expect(screen.getByText('Incorrecta. La correcta es la A')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Ver resultado' }));
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Hay que repasar' }),
@@ -157,12 +165,17 @@ describe('a practice test', () => {
     expect(screen.getByText('33%')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Para repasar (2)' })).toBeInTheDocument();
 
-    // «Repetir solo las malas»: the two wrong ones, in order.
+    // «Repetir solo las malas»: the two wrong ones, in the order they were asked.
     await user.click(screen.getByRole('button', { name: 'Repetir solo las malas' }));
+    expect(
+      await screen.findByRole('heading', { level: 2, name: '¿Qué es la lámina?' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('1 / 2');
+    // «Saltar» there too.
+    await user.click(screen.getByRole('button', { name: 'Saltar' }));
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('1 / 2');
 
     // What was saved: the round of the cover with its 3 answers, finished; then the new one.
     await waitFor(() => expect(steps.at(-1)?.roundInfo?.origin).toBe('repeat_wrong'));
@@ -171,13 +184,21 @@ describe('a practice test', () => {
       .map((s) => [s.answer!.questionId, s.answer!.correct]);
     expect(answers).toEqual([
       ['D-p01-03', true],
-      ['D-p02-04', false],
       ['A-p04-36', false],
+      ['D-p02-04', false],
     ]);
+    // The round saved with the skipped one at the end (and its answer at that place).
+    const finished = steps.find((s) => s.roundInfo?.finished)!;
+    expect((finished.round as { queue: string[] }).queue).toEqual([
+      'D-p01-03',
+      'A-p04-36',
+      'D-p02-04',
+    ]);
+    expect(steps.filter((s) => s.answer).map((s) => s.answer!.position)).toEqual([0, 1, 2]);
     expect(steps.some((s) => s.roundInfo?.finished)).toBe(true);
   });
 
-  it('a link opens the cover, reloading continues, «Temas» keeps the round, «Reiniciar» asks first', async () => {
+  it('a link opens the cover, reloading continues, «Volver» keeps the round, «Reiniciar» asks first', async () => {
     const user = userEvent.setup();
     const storage = memoryStorage();
     const first = renderApp(`${BASE}/pautas`, { quiz: localQuizRepository(storage) });
@@ -205,8 +226,12 @@ describe('a practice test', () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText('1 buenas y 0 malas')).toBeInTheDocument();
 
-    // «Temas»: the cover offers to continue.
-    await user.click(screen.getByRole('button', { name: 'Volver a elegir los temas' }));
+    // «Volver», as studying a deck: the course and the assessment; the cover offers to continue.
+    expect(screen.queryByRole('button', { name: /temas/i })).toBeNull();
+    const back = screen.getByRole('button', { name: 'Volver a Biología celular · Certamen 2' });
+    expect(back).toHaveAttribute('title', 'Biología celular · Certamen 2');
+    expect(screen.queryByRole('button', { name: '← Volver' })).toBeNull();
+    await user.click(back);
     const banner = await screen.findByRole('region', { name: 'Ronda a medias' });
     expect(banner).toHaveTextContent('Vas en la pregunta 2 de 3 · 1 buena y 0 malas');
     await user.click(within(banner).getByRole('button', { name: 'Continuar' }));
@@ -225,6 +250,41 @@ describe('a practice test', () => {
       await screen.findByRole('heading', { level: 2, name: '¿Qué muestra el gel?' }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('0 buenas y 0 malas')).toBeInTheDocument();
+    second.unmount();
+  });
+
+  it('«Saltar» survives a reload: the same question on screen and the skipped one at the end', async () => {
+    const user = userEvent.setup();
+    const storage = memoryStorage();
+    const first = renderApp(`${BASE}/pautas`, { quiz: localQuizRepository(storage) });
+    await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
+    await screen.findByRole('heading', { level: 2, name: '¿Qué muestra el gel?' });
+    await user.keyboard('S');
+    await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    first.unmount();
+
+    const second = renderApp(
+      { pathname: `${BASE}/pautas`, state: { inRound: true } },
+      { quiz: localQuizRepository(storage) },
+    );
+    expect(
+      await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('1 / 3');
+    expect(screen.getByLabelText('0 buenas y 0 malas')).toBeInTheDocument();
+    await user.keyboard('1');
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
+    await screen.findByRole('heading', { level: 2, name: '¿Qué es la lámina?' });
+    await user.click(option(/Microtúbulos/));
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
+    // The skipped one comes back, last.
+    expect(
+      await screen.findByRole('heading', { level: 2, name: '¿Qué muestra el gel?' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('3 / 3');
     second.unmount();
   });
 

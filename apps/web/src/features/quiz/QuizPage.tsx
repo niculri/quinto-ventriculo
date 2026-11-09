@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
-import { isAnswered, progress, score } from '@qv/quiz';
+import { canSkip, isAnswered, progress, score } from '@qv/quiz';
 import { QUIZ_THEME_TOKENS } from '@qv/schema';
 import type { QuizDetail, QuizSectionDetail, QuizSectionSummary } from '@qv/schema';
 import { paths } from '../../app/paths';
 import type { CourseRef } from '../../app/paths';
+import { BackButton, backLabel } from '../../ui/BackButton';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
@@ -270,15 +271,19 @@ function QuizScreen({
   const sectionIndex = quiz.sections.findIndex((s) => s.id === section.id);
   const restartRef = useRef<HTMLButtonElement>(null);
 
-  // A new question on screen: from the top, the answer of a short one hidden again.
-  const position = round && screen === 'question' ? `${round.id}/${round.index}` : screen;
+  // A new question on screen: from the top, the answer of a short one hidden again. With its id: after
+  // «Saltar» another question is at the same position.
+  const position =
+    round && screen === 'question'
+      ? `${round.id}/${round.index}/${round.queue[round.index]}`
+      : screen;
   const revealed = revealedAt === position;
   const reveal = useCallback(() => setRevealedAt(position), [position]);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [position]);
 
-  // The keys of the skill's page: 1–6 answer, Enter goes on, ← goes back; Space and 1/2 on short ones.
+  // The keys of the skill's page: 1–6 answer, Enter goes on, S skips; Space and 1/2 on short ones.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (zoom || confirming || reporting || screen !== 'question' || !round || !current) return;
@@ -286,9 +291,9 @@ function QuizScreen({
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea, select')) return;
       const done = isAnswered(round);
       const q = current.question;
-      if (e.key === 'ArrowLeft') {
-        if (round.index > 0) {
-          actions.back();
+      if (e.key === 's' || e.key === 'S') {
+        if (canSkip(round)) {
+          actions.skip();
           e.preventDefault();
         }
         return;
@@ -337,21 +342,13 @@ function QuizScreen({
       {screen === 'question' ? (
         <div className="qz-bar">
           <div className="wrap hrow">
-            {/* Which course and assessment the test is from: the breadcrumbs are not on this screen. */}
-            <span className="hname">
-              <span className="hwhere">
-                <Link to={paths.course(course)}>
-                  {course.emoji} {course.name}
-                </Link>
-                {assessment ? (
-                  <>
-                    {' · '}
-                    <Link to={paths.assessment(course, assessment.id)}>{assessment.name}</Link>
-                  </>
-                ) : null}
-              </span>
-              <span className="htitle">{quiz.title}</span>
-            </span>
+            {/* As studying a deck: back to the cover, where the topics are chosen (the round stays saved). The
+                course and the assessment: the breadcrumbs are not on this screen. */}
+            <BackButton
+              className="qz-back"
+              label={backLabel(course.name, assessment?.name)}
+              onClick={actions.home}
+            />
             <span className="hgrow" />
             {round && s ? (
               <>
@@ -411,36 +408,15 @@ function QuizScreen({
                     </svg>
                     <span>Terminar</span>
                   </button>
-                  <button
-                    type="button"
-                    className="hbtn"
-                    title="Volver a elegir los temas (la ronda queda guardada)"
-                    aria-label="Volver a elegir los temas"
-                    onClick={actions.home}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      {/* A list with checks: the test's topics to choose from. */}
-                      <path d="m3 6 1.5 1.5L7 5" />
-                      <path d="m3 12 1.5 1.5L7 11" />
-                      <path d="m3 18 1.5 1.5L7 17" />
-                      <path d="M11 6h10M11 12h10M11 18h10" />
-                    </svg>
-                    <span>Temas</span>
-                  </button>
                 </span>
               </>
             ) : null}
           </div>
-          <div className="pb">
-            <i style={{ width: `${round ? progress(round) * 100 : 0}%` }} />
+          {/* As wide as the bar's row and the question, not from edge to edge. */}
+          <div className="wrap">
+            <div className="pb">
+              <i style={{ width: `${round ? progress(round) * 100 : 0}%` }} />
+            </div>
           </div>
         </div>
       ) : null}
@@ -487,7 +463,7 @@ function QuizScreen({
             onAnswer={actions.answer}
             onSelfAssess={actions.selfAssess}
             onNext={actions.next}
-            onBack={actions.back}
+            onSkip={actions.skip}
             onZoom={setZoom}
             onReport={() => setReporting(current)}
           />

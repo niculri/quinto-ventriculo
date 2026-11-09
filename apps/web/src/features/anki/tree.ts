@@ -117,6 +117,25 @@ export function deckCrumbs(node: CourseDeckNode, last?: Crumb): Crumb[] {
   return items;
 }
 
+/**
+ * What the «back» of studying a deck says: its course and the assessment it is in («Biología celular ·
+ * Certamen 2»), also for a deck of a lecture or week inside it; only the course for its own deck (or one that
+ * hangs from it directly). From the catalog the page already has: nothing else to load.
+ */
+export function studyBackLabel(node: DeckNode): string {
+  const course = node.course?.name ?? deckLabelAt(node, 2) ?? node.label;
+  if (node.depth < 3) return course;
+  const assessment =
+    (node.assessmentId && node.course?.assessments.find((a) => a.id === node.assessmentId)?.name) ||
+    (node.assessmentId ? deckLabelAt(node, 3) : null);
+  return assessment ? `${course} · ${assessment}` : course;
+}
+
+/** The label of the node's ancestor (or itself) at that depth. */
+function deckLabelAt(node: DeckNode, depth: number): string | null {
+  return ancestry(node).find((n) => n.depth === depth)?.label ?? null;
+}
+
 export function useAnkiTree() {
   const catalog = useCatalog();
   const tree = useMemo(() => (catalog.data ? buildAnkiTree(catalog.data) : null), [catalog.data]);

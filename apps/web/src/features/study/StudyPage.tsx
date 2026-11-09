@@ -5,7 +5,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   BookOpen,
   Flag,
   ListChecks,
@@ -22,11 +21,12 @@ import { paths } from '../../app/paths';
 import { useServices } from '../../app/services';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry, Notice } from '../../ui/Notice';
-import { button } from '../../ui/styles';
+import { BackButton } from '../../ui/BackButton';
+import { answerBar, button } from '../../ui/styles';
 import { CardFrame, useDarkMode } from '../decks/CardFrame';
 import { cardQuery, useCard, useDeck } from '../decks/queries';
 import { deckTitle } from '../anki/DeckPage';
-import { ancestry, descendants, hasPage } from '../anki/tree';
+import { ancestry, descendants, hasPage, studyBackLabel } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import type { CardKey, StudyPreferences } from './repository';
 import { ApiRequestError } from '../../lib/api';
@@ -223,20 +223,9 @@ function Reviewer({
 
   return (
     <div className="mx-auto flex h-[calc(100dvh-4rem-1px)] max-w-5xl flex-col px-2 pt-2 sm:px-4 sm:pt-3">
-      <div className="flex items-center gap-2 pb-2">
-        <Link
-          to={deckPath}
-          className={`${button.base} ${button.ghost}`}
-          aria-label={`Volver a ${rootName}`}
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          <span className="hidden max-w-[16rem] truncate sm:inline">{rootName}</span>
-        </Link>
-        <div
-          className="flex min-w-0 flex-1 justify-center"
-          aria-label="Tarjetas que quedan"
-          role="group"
-        >
+      <div className={`${answerBar} pb-2`}>
+        <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
+        <div className="flex min-w-0 justify-center" aria-label="Tarjetas que quedan" role="group">
           {full ? (
             <CountNumbers
               counts={counts}
@@ -252,59 +241,61 @@ function Reviewer({
             />
           )}
         </div>
-        {flagInfo && full ? (
-          <Flag
-            className="size-5"
-            style={{ color: flagInfo.color, fill: flagInfo.color }}
-            aria-label={`Marcador ${flagInfo.label.toLowerCase()}`}
-          />
-        ) : currentFlag && !full ? (
-          <Flag
-            className="size-5 flex-none text-brand"
-            style={{ fill: 'currentColor' }}
-            aria-label="Marcada para revisar"
-          />
-        ) : full ? null : (
-          // Its place stays: marking does not move what is on top.
-          <span className="size-5 flex-none" aria-hidden="true" />
-        )}
-        {full ? (
-          <MoreMenu
-            disabled={!shown}
-            onBury={(a) => session.hide(a)}
-            onFlag={(f) => session.flag(f)}
-            onUndo={() => session.undo()}
-            canUndo={session.canUndo}
-            currentFlag={currentFlag}
-            optionsPath={paths.deckOptions({ deck: node.id })}
-            onReport={() => setReporting(shown?.entry ?? null)}
-          />
-        ) : (
-          <>
-            <button
-              type="button"
-              disabled={!session.canUndo}
-              onClick={(e) => {
-                session.undo();
-                // Focus does not stay here: space and Enter have to keep showing the answer.
-                e.currentTarget.blur();
-              }}
-              className={`${button.base} ${button.ghost}`}
-              aria-label="Deshacer"
-              title={`Deshacer (${keys('Ctrl+Z')})`}
-            >
-              <Undo2 className="size-5 sm:size-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Deshacer</span>
-            </button>
-            <SimpleMenu
+        <div className="flex min-w-0 items-center justify-end gap-2">
+          {flagInfo && full ? (
+            <Flag
+              className="size-5"
+              style={{ color: flagInfo.color, fill: flagInfo.color }}
+              aria-label={`Marcador ${flagInfo.label.toLowerCase()}`}
+            />
+          ) : currentFlag && !full ? (
+            <Flag
+              className="size-5 flex-none text-brand"
+              style={{ fill: 'currentColor' }}
+              aria-label="Marcada para revisar"
+            />
+          ) : full ? null : (
+            // Its place stays: marking does not move what is on top.
+            <span className="size-5 flex-none" aria-hidden="true" />
+          )}
+          {full ? (
+            <MoreMenu
               disabled={!shown}
-              marked={currentFlag !== 0}
-              onHide={(a) => session.hide(a)}
-              onMark={() => session.flag(currentFlag || REVIEW_FLAG)}
+              onBury={(a) => session.hide(a)}
+              onFlag={(f) => session.flag(f)}
+              onUndo={() => session.undo()}
+              canUndo={session.canUndo}
+              currentFlag={currentFlag}
+              optionsPath={paths.deckOptions({ deck: node.id })}
               onReport={() => setReporting(shown?.entry ?? null)}
             />
-          </>
-        )}
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled={!session.canUndo}
+                onClick={(e) => {
+                  session.undo();
+                  // Focus does not stay here: space and Enter have to keep showing the answer.
+                  e.currentTarget.blur();
+                }}
+                className={`${button.base} ${button.ghost}`}
+                aria-label="Deshacer"
+                title={`Deshacer (${keys('Ctrl+Z')})`}
+              >
+                <Undo2 className="size-5 sm:size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Deshacer</span>
+              </button>
+              <SimpleMenu
+                disabled={!shown}
+                marked={currentFlag !== 0}
+                onHide={(a) => session.hide(a)}
+                onMark={() => session.flag(currentFlag || REVIEW_FLAG)}
+                onReport={() => setReporting(shown?.entry ?? null)}
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {heavy && shown ? (

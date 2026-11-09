@@ -23,6 +23,11 @@ function counts() {
 async function startStudying(study: StudyRepository = fullAnkiStudy()) {
   const r = renderApp(`${DECK_PATH}/study`, { study });
   await cardText(/Frente de la tarjeta/);
+  // A deck of a week or lecture: «Volver» still says its course and assessment, and goes to its own page.
+  expect(screen.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' })).toHaveAttribute(
+    'href',
+    DECK_PATH,
+  );
   return { ...r, study };
 }
 
@@ -220,6 +225,10 @@ describe('studying', () => {
     const c1 = renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1/study', { study });
     expect(await cardText(/Frente/)).toContain('¿Cuántas vértebras');
     expect(counts()).toEqual([3, 0, 0]);
+    // «Volver» says the course and the assessment (with the full text when it is cut).
+    const back = screen.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' });
+    expect(back).toHaveAttribute('href', '/semesters/1/courses/anatomia-1/anki/certamen-1');
+    expect(back).toHaveAttribute('title', 'Anatomía I · Certamen 1');
     await userEvent.keyboard(' ');
     await cardText(/Reverso/);
     await userEvent.keyboard('4');

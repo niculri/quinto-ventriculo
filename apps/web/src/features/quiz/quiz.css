@@ -64,17 +64,23 @@
   text-wrap: balance;
   margin: 0;
 }
+/* Answering: one reading width for everything (the bar on top, its progress bar and the question), centered and
+   with the same edges; the margins of studying a deck (px-2 / sm:px-4). */
 .quiz .wrap {
-  max-width: 720px;
+  max-width: 48rem;
   margin: 0 auto;
-  padding-inline: 16px;
+  padding-inline: 8px;
 }
 /* The cover and the results: as every page of the site (ui/styles.ts «page»: 55.5rem centered, 16px of padding,
-   20px from 640px); the questions keep their 720px. */
+   20px from 640px). */
 .quiz .wrap.wide {
   max-width: 55.5rem;
+  padding-inline: 16px;
 }
 @media (min-width: 640px) {
+  .quiz .wrap {
+    padding-inline: 16px;
+  }
   .quiz .wrap.wide {
     padding-inline: 20px;
   }
@@ -90,14 +96,13 @@
   border-radius: 4px;
 }
 
-/* the test's bar, under the app's (sticky): name, counter, live score, «Reiniciar», «Temas», progress */
+/* the test's bar, under the app's (sticky): «Volver», counter, live score, «Reiniciar», «Terminar», progress */
 .quiz .qz-bar {
   position: sticky;
   top: 4rem;
   z-index: 30;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line2);
 }
 .quiz .hrow {
   display: flex;
@@ -105,50 +110,22 @@
   gap: 12px;
   min-height: 52px;
 }
-.quiz .hname {
-  font-family: var(--fdisp);
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-/* Two lines: the course and assessment, small, over the test's name; each one cut with «…» if it does not fit. */
-.quiz .hname {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-.quiz .hwhere,
-.quiz .htitle {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.quiz .hwhere {
-  font-family: var(--fbody);
-  font-weight: 500;
-  font-size: 12px;
-  color: var(--ink2);
-  text-decoration: none;
-}
-.quiz .hwhere a {
-  color: inherit;
-  text-decoration: none;
-}
-.quiz .hwhere a:hover {
-  text-decoration: underline;
-}
-/* The test's toolbar uses the whole screen, like the site's own bar (AppShell: 90rem, 16 px / 24 px). */
+/* The row as studying a deck's (pt-2 / sm:pt-3, pb-2, 36 px of buttons): «Volver» at the same height on both
+   screens. */
 .quiz .qz-bar .hrow {
-  max-width: 90rem;
+  min-height: 52px;
+  padding-block: 8px;
 }
 @media (min-width: 640px) {
   .quiz .qz-bar .hrow {
-    padding-inline: 24px;
+    padding-top: 12px;
   }
+}
+/* «Volver», as studying a deck's (ui/BackButton): the site's text, not the test's buttons'. */
+.quiz button.qz-back {
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 .quiz .hgrow {
   flex: 1;
@@ -217,6 +194,7 @@
 }
 .quiz .pb {
   height: 3px;
+  border-radius: 2px;
   background: var(--line2);
   overflow: hidden;
 }
@@ -925,7 +903,9 @@
   align-items: center;
   justify-content: space-between;
 }
-.quiz .pie .btn {
+.quiz .pie .pacc {
+  display: flex;
+  gap: 10px;
   margin-left: auto;
 }
 .quiz .pie .btn2:disabled {

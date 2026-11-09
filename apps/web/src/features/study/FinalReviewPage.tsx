@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   BookOpen,
   Flag,
   ListChecks,
@@ -18,8 +17,10 @@ import { ApiRequestError } from '../../lib/api';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
 import { NotFoundPage } from '../../ui/NotFoundPage';
-import { button, card } from '../../ui/styles';
+import { answerBar, button, card } from '../../ui/styles';
+import { studyBackLabel } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
+import { BackButton } from '../../ui/BackButton';
 import { useDarkMode } from '../decks/CardFrame';
 import { cardQuery, useDeck } from '../decks/queries';
 import { answerRound, dropCurrent, revealCard, reviewPools, startRound } from './final-review';
@@ -93,34 +94,29 @@ function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) 
   const left = round ? round.queue.length : null;
   return (
     <div className="mx-auto flex h-[calc(100dvh-4rem-1px)] max-w-5xl flex-col px-2 pt-2 sm:px-4 sm:pt-3">
-      <div className="flex min-h-11 items-center gap-2 pb-2">
-        <Link
-          to={deckPath}
-          className={`${button.base} ${button.ghost}`}
-          aria-label={`Volver a ${node.label}`}
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          <span className="hidden max-w-[16rem] truncate sm:inline">{node.label}</span>
-        </Link>
-        <p className="flex min-w-0 flex-1 justify-center text-sm font-medium tabular-nums sm:text-base">
+      <div className={`${answerBar} min-h-11 pb-2`}>
+        <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
+        <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
           {left ? `Repaso final · quedan ${left.toLocaleString('es-CL')}` : 'Repaso final'}
         </p>
-        {round && round.queue[0] ? (
-          <ReviewMenu
-            current={round.queue[0]}
-            flag={
-              marks.get(cardKey(round.queue[0])) ??
-              data.rows.get(cardKey(round.queue[0]))?.flag ??
-              0
-            }
-            onMarked={(key, flag) => {
-              marked.current = true;
-              setMarks((m) => new Map(m).set(key, flag));
-            }}
-          />
-        ) : (
-          <span className="w-10" aria-hidden="true" />
-        )}
+        <div className="flex min-w-0 items-center justify-end">
+          {round && round.queue[0] ? (
+            <ReviewMenu
+              current={round.queue[0]}
+              flag={
+                marks.get(cardKey(round.queue[0])) ??
+                data.rows.get(cardKey(round.queue[0]))?.flag ??
+                0
+              }
+              onMarked={(key, flag) => {
+                marked.current = true;
+                setMarks((m) => new Map(m).set(key, flag));
+              }}
+            />
+          ) : (
+            <span className="w-10" aria-hidden="true" />
+          )}
+        </div>
       </div>
       {!round ? (
         <ChooseReview node={node} pools={pools} onChoose={(cards) => setRound(startRound(cards))} />

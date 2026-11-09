@@ -5,6 +5,7 @@ import {
   answerChoice,
   back,
   canGoBack,
+  canSkip,
   currentQuestionId,
   displayOrder,
   finish,
@@ -23,6 +24,7 @@ import {
   seededRandom,
   selfAssess,
   shuffled,
+  skip,
   startRound,
   toCover,
   wrongAnswers,
@@ -328,5 +330,75 @@ describe('result titles', () => {
     expect(resultTitle(60)).toBe('Vas bien, falta afinar');
     expect(resultTitle(59)).toBe('Hay que repasar');
     expect(resultTitle(0)).toBe('Hay que repasar');
+  });
+});
+
+describe('«Saltar»', () => {
+  it('sends the question on screen to the end, without an answer, with its order of alternatives', () => {
+    let r = start(false, true, 3);
+    r = play(r, true); // a
+    const orderOfB = r.orders[1];
+    const s = skip(r);
+    expect(s.queue).toEqual(['a', 'c', 'd', 'e', 'b']);
+    expect(s.orders).toEqual([r.orders[0], r.orders[2], r.orders[3], r.orders[4], orderOfB]);
+    expect(s).toMatchObject({ index: 1, top: 1, id: 'r1' });
+    expect(currentQuestionId(s)).toBe('c');
+    // It counts neither as right nor as wrong, and the bar does not move.
+    expect(score(s)).toEqual(score(r));
+    expect(progress(s)).toBe(progress(r));
+    // The answered one before it keeps its position (the history hangs from it).
+    expect(answerAt(s, 0)).toEqual(answerAt(r, 0));
+    // The original is not changed.
+    expect(r.queue).toEqual(['a', 'b', 'c', 'd', 'e']);
+  });
+
+  it('the skipped one comes back after the others, and the round ends with it answered', () => {
+    let r = skip(start()); // a to the end
+    expect(r.queue).toEqual(['b', 'c', 'd', 'e', 'a']);
+    for (let i = 0; i < 4; i++) r = play(r, true);
+    expect(currentQuestionId(r)).toBe('a');
+    expect(r.index).toBe(4);
+    r = play(r, false);
+    expect(r).toMatchObject({ screen: 'results', finished: true });
+    expect(score(r)).toMatchObject({ total: 5, answered: 5, correct: 4, wrong: 1 });
+    expect(wrongAnswers(r).map((a) => a.questionId)).toEqual(['a']);
+  });
+
+  it('the last one left cannot be skipped (it would come back at once)', () => {
+    let r = start();
+    for (let i = 0; i < 4; i++) r = play(r, true);
+    expect(r.index).toBe(4);
+    expect(canSkip(r)).toBe(false);
+    expect(skip(r)).toBe(r);
+    // Skipping many in a row: each one goes to the end until a single one is left.
+    let s = start();
+    for (let i = 0; i < 4; i++) s = skip(s);
+    expect(s.queue).toEqual(['e', 'a', 'b', 'c', 'd']);
+    expect(canSkip(s)).toBe(true);
+    s = skip(s);
+    expect(s.queue).toEqual(['a', 'b', 'c', 'd', 'e']);
+  });
+
+  it('not on an answered question, nor behind the furthest one, nor outside a question', () => {
+    let r = start();
+    const answered = answerChoice(r, q('a'), 0, T0);
+    expect(canSkip(answered)).toBe(false);
+    expect(skip(answered)).toBe(answered);
+    r = play(r, true);
+    const behind = back(r);
+    expect(canSkip(behind)).toBe(false);
+    expect(skip(behind)).toBe(behind);
+    expect(skip(toCover(r))).toEqual(toCover(r));
+    expect(canSkip(finish(r))).toBe(false);
+  });
+
+  it('works in «Repetir solo las malas»', () => {
+    let r = start();
+    for (const right of [false, true, false, true, false]) r = play(r, right);
+    let wrong = repeatWrong(r, BY_ID, { id: 'w' })!;
+    expect(wrong.queue).toEqual(['a', 'c', 'e']);
+    wrong = skip(wrong);
+    expect(wrong.queue).toEqual(['c', 'e', 'a']);
+    expect(currentQuestionId(wrong)).toBe('c');
   });
 });

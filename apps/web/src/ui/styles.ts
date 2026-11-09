@@ -22,3 +22,12 @@ export const page = 'mx-auto w-full max-w-[55.5rem] px-4 pt-5 pb-10 sm:px-5';
 
 /** A tool that needs every column (the browser of cards): all the width, the same padding. */
 export const widePage = 'w-full px-4 pt-5 pb-10 sm:px-5';
+
+/**
+ * The top row of the screens where one answers (studying a deck, a final review): «Volver» on the left, what
+ * is left in the middle of the screen whatever the length of the sides, the tools on the right. Three columns:
+ * the two sides with the same width (at least `--bar-side`, room for the tools on the right), the middle as
+ * wide as its text up to what is left (then cut).
+ */
+export const answerBar =
+  'grid grid-cols-[minmax(var(--bar-side),1fr)_minmax(0,auto)_minmax(var(--bar-side),1fr)] items-center gap-2 [--bar-side:7.5rem] sm:[--bar-side:14rem]';

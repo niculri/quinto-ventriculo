@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { MessageSquareWarning } from 'lucide-react';
-import { LETTERS, answerAt, canGoBack, displayOrder } from '@qv/quiz';
+import { LETTERS, answerAt, canSkip, displayOrder } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import type { QuizQuestion } from '@qv/schema';
 import { keys } from '../../ui/keys';
@@ -105,10 +105,9 @@ export function Explanation({
 }
 
 /**
- * The question on screen. The bar «← Volver · atajos · Siguiente» stays in the same place, under the
+ * The question on screen. The bar «atajos · Saltar · Siguiente» stays in the same place, under the
  * alternatives: what appears on answering (the verdict, the explanation, the answer of a short question)
- * goes after it, so it does not move. An answered question (reached with «Volver», or after reloading) is
- * shown as it was answered, to read it.
+ * goes after it, so it does not move. An answered question (after reloading) is shown as it was answered.
  */
 export function QuestionCard({
   round,
@@ -120,7 +119,7 @@ export function QuestionCard({
   onAnswer,
   onSelfAssess,
   onNext,
-  onBack,
+  onSkip,
   onZoom,
   onReport,
 }: {
@@ -134,7 +133,8 @@ export function QuestionCard({
   onAnswer: (original: number) => void;
   onSelfAssess: (knewIt: boolean) => void;
   onNext: () => void;
-  onBack: () => void;
+  /** «Saltar»: to the end of the round, without an answer. */
+  onSkip: () => void;
   onZoom: (image: OpenImage) => void;
   /** «Reportar error» of this question, once it is answered (step 2.6). */
   onReport?: () => void;
@@ -155,12 +155,12 @@ export function QuestionCard({
     question.kind === 'choice' ? (
       <>
         <kbd>1</kbd>–<kbd>{question.options.length}</kbd> responder · <kbd>{keys('Enter')}</kbd>{' '}
-        siguiente · <kbd>←</kbd> volver
+        siguiente · <kbd>S</kbd> saltar
       </>
     ) : (
       <>
         <kbd>Espacio</kbd> ver respuesta · <kbd>1</kbd> la sabía · <kbd>2</kbd> no ·{' '}
-        <kbd>{keys('Enter')}</kbd> siguiente · <kbd>←</kbd> volver
+        <kbd>{keys('Enter')}</kbd> siguiente · <kbd>S</kbd> saltar
       </>
     );
 
@@ -236,19 +236,29 @@ export function QuestionCard({
         ) : null}
 
         <div className="pie">
-          <button
-            type="button"
-            className="btn2"
-            disabled={!canGoBack(round)}
-            onClick={onBack}
-            title="Ver la pregunta anterior (solo para leerla)"
-          >
-            ← Volver
-          </button>
           <span className="atajo">Atajos: {shortcut}</span>
-          <button ref={nextRef} type="button" className="btn" disabled={!done} onClick={onNext}>
-            {last ? 'Ver resultado' : 'Siguiente'}
-          </button>
+          <span className="pacc">
+            {/* Answered, «Saltar» keeps its place (hidden), so «Siguiente» does not move. */}
+            <button
+              type="button"
+              className="btn2"
+              style={done ? { visibility: 'hidden' } : undefined}
+              aria-hidden={done || undefined}
+              tabIndex={done ? -1 : undefined}
+              disabled={done || !canSkip(round)}
+              onClick={onSkip}
+              title={
+                canSkip(round)
+                  ? 'Dejarla para el final de la ronda'
+                  : 'Es la última sin responder: no se puede saltar'
+              }
+            >
+              Saltar
+            </button>
+            <button ref={nextRef} type="button" className="btn" disabled={!done} onClick={onNext}>
+              {last ? 'Ver resultado' : 'Siguiente'}
+            </button>
+          </span>
         </div>
 
         {question.kind === 'short' && (revealed || done) ? (

@@ -9,6 +9,7 @@ import {
   restoreRound,
   seededRandom,
   selectQuestions,
+  skip,
   selfAssess,
   startRound,
   summarize,
@@ -93,6 +94,15 @@ describe('saving and continuing a round', () => {
     expect(restoreRound(roundTrip(covered), BY_ID)).toEqual(covered);
     const done = finish(r);
     expect(restoreRound(roundTrip(done), BY_ID)).toEqual(done);
+  });
+
+  it('a round with a skipped question reads back the same (its new order, its answers)', () => {
+    const r = skip(halfway());
+    expect(r.queue.at(-1)).toBe(halfway().queue[2]);
+    const read = restoreRound(roundTrip(r), BY_ID)!;
+    expect(read).toEqual(r);
+    expect(read.id).toBe(r.id);
+    expect(summarize(read, T0)).toEqual(summarize(r, T0));
   });
 
   it('the same order of the alternatives after reloading', () => {

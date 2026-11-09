@@ -131,7 +131,6 @@ describe('writes only through the functions', () => {
       'access_status',
       // Step 2.10: «Acceso» in the administration panel, only for an administrator with the session open
       'admin_access_report',
-      'admin_card_reports',
       // Step 1.7, part 2: whom a release reaches, only for an administrator (it checks is_admin() itself)
       'admin_deck_impact',
       'admin_invite_emails',
@@ -407,22 +406,6 @@ describe('quotas', () => {
     ).rejects.toThrow(/quota_exceeded/);
   });
 
-  it('at most 50 reports a day', async () => {
-    await asUser(db, BETO, (tx) =>
-      tx.query(
-        `insert into public.card_reports (note_guid, ord, comment)
-         select 'g' || i, 0, 'Está mal' from generate_series(1, 50) i`,
-      ),
-    );
-    await expect(
-      asUser(db, BETO, (tx) =>
-        tx.query(
-          `insert into public.card_reports (note_guid, ord, comment) values ('g', 0, 'Otra')`,
-        ),
-      ),
-    ).rejects.toThrow(/quota_exceeded/);
-  });
-
   it('the tests’ progress has at most 5 MB per user; shrinking it is always allowed', async () => {
     await asUser(db, ANA, (tx) => tx.query(call('save_quiz_progress', [0]), [quizStep()]));
     const before = await db.query<{ quiz_bytes: number }>(
@@ -450,13 +433,6 @@ describe('quotas', () => {
   });
 
   it('the columns the web writes directly have a maximum length', async () => {
-    await expect(
-      asUser(db, ANA, (tx) =>
-        tx.query(`insert into public.card_reports (note_guid, ord, comment) values ($1, 0, 'x')`, [
-          'g'.repeat(65),
-        ]),
-      ),
-    ).rejects.toThrow(/card_reports_lengths/);
     await expect(
       asUser(db, ANA, (tx) => tx.query(`update public.profiles set name = $1`, ['n'.repeat(201)])),
     ).rejects.toThrow(/profiles_name_length/);

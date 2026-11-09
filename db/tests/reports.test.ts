@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
 import { REPORT_LIMITS } from '@qv/schema';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -16,14 +14,8 @@ type User = { sub: string; email: string };
 type Claims = User & { session_id?: string };
 
 const MIGRATION = '20261117000000_content_reports.sql';
-const AFTER_DEPLOY = join(
-  import.meta.dirname,
-  '..',
-  'users',
-  'supabase',
-  'after-deploy',
-  '20261118000000_drop_card_reports.sql',
-);
+/** The second migration (applied in production on 2026-11-08): card_reports goes. */
+const DROP = '20261118000000_drop_card_reports.sql';
 
 let n = 0;
 /** A made-up invited student (or the owner), with an open session. */
@@ -515,7 +507,7 @@ describe('the copy of card_reports', () => {
   it('the table of before (card_reports, until the second migration) has the same rules', async () => {
     // Revisión de cero (2.6): its «insert own» policy is still there, and what came that way skipped the block and the
     // places.
-    // Built as the copy's test does: it keeps working once the second migration is in migrations/.
+    // Built up to the first migration, as the copy's test (the second one is in migrations/ since it was applied).
     const db = await createDatabase('users', [], MIGRATION);
     await applyMigration(db, 'users', MIGRATION);
     const owner = await person(db, OWNER_EMAIL);
@@ -649,7 +641,7 @@ describe('the copy of card_reports', () => {
     expect(await mine(db, ana)).toHaveLength(3);
 
     // The second migration (after deploying the web): card_reports goes, the reports stay, the download works.
-    await db.exec(readFileSync(AFTER_DEPLOY, 'utf8'));
+    await applyMigration(db, 'users', DROP);
     const gone = await db.query(`select to_regclass('public.card_reports') as t`);
     expect(gone.rows).toEqual([{ t: null }]);
     expect((await db.query('select count(*)::int as n from public.content_reports')).rows).toEqual([

@@ -1,8 +1,8 @@
--- Plan step 2.6, second part: card_reports goes. Apply it ONLY AFTER the web of step 2.6 is deployed (the web of before
--- writes card_reports, and its rows are copied to content_reports by mirror_card_report() until then). It is not in
--- migrations/ so that nobody applies it together with the first one: once applied in production, it moves there with
--- its date. How to check first that every row is in content_reports: docs/configuracion.md → «Publicar el paso 2.6».
--- db/tests/reports.test.ts applies it on top of the first one.
+-- Plan step 2.6, second part: card_reports goes. Applied in production on 2026-11-08, once the web of step 2.6 was
+-- deployed (the web of before wrote card_reports, and mirror_card_report() copied its rows to content_reports until
+-- then); until that day it waited outside migrations/, so that nobody applied it together with the first one. How it
+-- was checked first that every row was in content_reports: docs/configuracion.md → «Publicar el paso 2.6».
+-- db/tests/reports.test.ts applies it on top of the first one, with rows of card_reports.
 -- No backslash escapes inside a string (the Supabase connector turns them into the character).
 
 -- 1. The download without card_reports (the same as …_content_reports.sql otherwise) -------------------------------

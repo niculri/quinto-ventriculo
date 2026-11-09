@@ -206,11 +206,17 @@ async function useEverything(db: PGlite, claims: Claims, round: string) {
   await asUser(db, claims, async (tx) => {
     await tx.query('select public.record_review($1)', [answer(`n-${claims.sub.slice(-2)}`)]);
     await tx.query('select public.save_quiz_progress($1)', [quizStep(round)]);
-    await tx.query(
-      `insert into public.card_reports (note_guid, ord, deck_id, card_code, card_version, comment)
-       values ('n1', 0, $1, 'T-BC-C2-11-086', 2, 'La respuesta dice 70S y es 80S.')`,
-      [DECK],
-    );
+    await tx.query('select public.report_content($1::jsonb)', [
+      JSON.stringify({
+        kind: 'card',
+        id: 'n1:0',
+        code: 'T-XX-C1-01-001',
+        version: 2,
+        category: 'fact',
+        comment: 'La respuesta dice 70S y es 80S.',
+        location: { deckId: DECK, path: '/anki/browse?q=x', title: 'Tarjeta' },
+      }),
+    ]);
   });
   await db.query(`insert into public.study_preferences (user_id) values ($1)`, [user.sub]);
   const preset = await db.query<{ id: string }>(
@@ -529,24 +535,24 @@ describe('deleting my account', () => {
       expect(rows[0]!.n, table).toBe(0);
     }
     const reports = await db.query<{ user_id: string | null; comment: string }>(
-      `select user_id, comment from public.card_reports order by user_id nulls first`,
+      `select user_id, comment from public.content_reports order by user_id nulls first`,
     );
     expect(reports.rows).toEqual([
       { user_id: null, comment: 'La respuesta dice 70S y es 80S.' },
       { user_id: LUIS.sub, comment: 'La respuesta dice 70S y es 80S.' },
     ]);
-    // Step 2.6: the copy in content_reports (the web of before still wrote card_reports) too, without an author.
-    const copies = await db.query<{ user_id: string | null; comment: string }>(
-      `select user_id, comment from public.content_reports order by user_id nulls first`,
-    );
-    expect(copies.rows).toEqual(reports.rows);
     // The administrator still sees the report, without an author.
-    const panel = await one<{ reporter_email: string | null }[]>(
+    const panel = await one<{ open: { reports: { reporter: { email: string } | null }[] }[] }>(
       db,
       await signIn(db, OWNER),
-      'select coalesce(json_agg(r), $$[]$$::json) as r from public.admin_card_reports() r',
+      'select public.admin_report_queue() as r',
     );
-    expect(panel.map((r) => r.reporter_email).sort()).toEqual([LUIS.email, null].sort());
+    expect(
+      panel.open
+        .flatMap((g) => g.reports)
+        .map((r) => r.reporter?.email ?? null)
+        .sort(),
+    ).toEqual([LUIS.email, null].sort());
     // Luis is as he was.
     expect(await rowsOf(db, LUIS)).toEqual(luisBefore);
     // Without an invitation, the hook does not let the account be created again.

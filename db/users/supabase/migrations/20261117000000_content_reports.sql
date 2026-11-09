@@ -1,7 +1,8 @@
 -- Plan step 2.6: one model of reports for every content (EXP-B1, B5, B6 and B8 of docs/plan). Additive: three tables,
 -- the copy of card_reports, a trigger that keeps copying what the web of before still writes there, ten functions and a
 -- daily job. card_reports stays as it is (the web of before reads and writes it) and goes in a second migration, after
--- the new web is deployed (db/users/supabase/after-deploy/, docs/configuracion.md → «Publicar el paso 2.6»).
+-- the new web is deployed (20261118000000_drop_card_reports.sql, applied on 2026-11-08; docs/configuracion.md →
+-- «Publicar el paso 2.6»).
 --
 -- - content_reports: what a student found wrong in a card, an article (with the quote and the section) or a question
 --   of a test. Written only by report_content() (no direct insert): it checks the shape, the limits and the block, and

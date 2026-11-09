@@ -31,6 +31,7 @@ import type {
 } from '@qv/schema';
 import type { AccessChecker } from './access';
 import type { AdminChecker } from './admin';
+import type { DeepHealth } from './health';
 import { isValidKey } from './media';
 import type { MediaStore, MediaSigner } from './media';
 import type {
@@ -94,6 +95,11 @@ export interface Dependencies {
   usageEvents?: UsageRecorder;
   /** Seconds «Uso» keeps its figures (default 60): the same for every administrator. */
   usageTtl?: number;
+  /**
+   * `/api/health/deep` (step 2.5): whether the databases, the images and the latest copy answer, for an external
+   * monitor (health.ts). Without it, the route does not exist (404).
+   */
+  deepHealth?: DeepHealth;
 }
 
 type AppEnv = { Variables: { user: User; token: string; repository: ContentRepository } };
@@ -366,6 +372,17 @@ export function createApp(deps: Dependencies) {
   app.get('/health', (c) =>
     c.json(deps.version ? { ok: true, version: deps.version } : { ok: true }),
   );
+
+  // Without a session too, for the monitor (step 2.5): only «ok» or «fail» for each part, never why (that goes to the
+  // log). The answer is remembered a minute (health.ts): calling it a thousand times does not make a thousand queries.
+  if (deps.deepHealth) {
+    const deep = deps.deepHealth;
+    app.get('/health/deep', async (c) => {
+      const result = await deep.run();
+      c.header('Cache-Control', 'no-store');
+      return c.json({ ok: result.ok, checks: result.checks }, result.ok ? 200 : 503);
+    });
+  }
 
   app.get('/me', requireSession, (c) => c.json(c.get('user')));
 

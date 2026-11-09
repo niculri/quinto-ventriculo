@@ -183,8 +183,15 @@ export function PrivacyPage() {
           </li>
           <li>
             <strong>Cloudflare:</strong> entrega el sitio y sus imágenes, reenvía el correo de
-            contacto y cuenta las visitas (Web Analytics). Su red tiene servidores en muchos países,
-            y la empresa es de Estados Unidos.
+            contacto, cuenta las visitas (Web Analytics) y guarda las copias de seguridad cifradas
+            de la base de datos. Su red tiene servidores en muchos países, y la empresa es de
+            Estados Unidos.
+          </li>
+          <li>
+            <strong>GitHub:</strong> cada noche hace la copia de seguridad de la base de datos en
+            sus servidores y la deja cifrada en Cloudflare. La copia sin cifrar existe solo mientras
+            se hace y se borra al terminar; GitHub no la guarda. Es de Estados Unidos (de
+            Microsoft).
           </li>
           <li>
             <strong>Google:</strong> te identifica cuando entras con tu cuenta @ug.uchile.cl y
@@ -197,7 +204,10 @@ export function PrivacyPage() {
           igual al de Chile. La garantía son los acuerdos de tratamiento de datos de Supabase,
           Cloudflare y Google Cloud (en inglés, «Data Processing Agreement»), con cláusulas tipo
           para enviar datos a otros países: los obligan a usarlos solo para dar su servicio al sitio
-          y a protegerlos. Los correos que escribes al contacto llegan a una casilla de Gmail del
+          y a protegerlos. Con GitHub, cuyo acuerdo de tratamiento de datos no cubre las cuentas
+          personales como la del sitio, rigen sus términos de servicio y su declaración de
+          privacidad; por eso la copia sale de sus servidores ya cifrada, con una clave que GitHub
+          no tiene. Los correos que escribes al contacto llegan a una casilla de Gmail del
           responsable.
         </p>
       </Part>
@@ -253,9 +263,9 @@ export function PrivacyPage() {
           <li>Cada sesión, hasta que la cierras.</li>
           <li>Los registros técnicos, unos pocos días (a lo más 7).</li>
           <li>
-            Las copias de seguridad de la base de datos, cuando las hay, se guardan cifradas y por
-            30 días como máximo: lo que se borra de tu cuenta desaparece también de ellas cuando
-            vence la última copia que lo tenía.
+            Las copias de seguridad de la base de datos se hacen cada noche y se guardan cifradas en
+            Cloudflare, por 30 días como máximo: lo que se borra de tu cuenta desaparece también de
+            ellas cuando vence la última copia que lo tenía.
           </li>
           <li>
             Los correos que escribes al contacto quedan en esa casilla; si quieres que se borren,

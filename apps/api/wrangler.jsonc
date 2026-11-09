@@ -22,7 +22,13 @@
   "workers_dev": true,
   // The id of the version that answers, for /api/health and the smoke test (npm run smoke, step 1.9).
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
-  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "quinto-ventriculo-media" }],
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "quinto-ventriculo-media" },
+    // Step 2.5: the nightly copies of the users' database (encrypted; made by a workflow of the private repository).
+    // The Worker only lists them for /api/health/deep (the newest one, less than 36 hours old). The bucket has to exist
+    // before deploying, with its lifecycle and lock rules.
+    { "binding": "BACKUPS", "bucket_name": "quinto-ventriculo-backups" },
+  ],
   // Step 2.9: a note, a deck or a test opened, and a search, counted without who (src/usage.ts). Read back for «Uso»
   // with the SQL API: secrets CF_ACCOUNT_ID and CF_ANALYTICS_TOKEN (a token with only «Account Analytics: Read»).
   "analytics_engine_datasets": [{ "binding": "USAGE", "dataset": "qv_usage" }],
@@ -35,5 +41,7 @@
     // wrangler deploy replaces the variables of the panel.
     "USERS_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_aoi84HOhmVNxCV6KWt1-JQ_hXe4strw",
   },
-  "observability": { "enabled": true },
+  // Workers Logs, and (step 2.5) Workers Issues: the Worker's failures grouped, in the dashboard (Workers → the Worker →
+  // Issues). Without `issues` here, a deploy would turn it off.
+  "observability": { "enabled": true, "issues": { "enabled": true } },
 }

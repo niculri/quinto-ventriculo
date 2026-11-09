@@ -24,7 +24,7 @@ describe('/privacy and /terms', () => {
       await screen.findByRole('heading', { level: 1, name: 'Política de privacidad' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(`Versión ${LEGAL_VERSIONS.privacy.version} · 8 de noviembre de 2026`),
+      screen.getByText(`Versión ${LEGAL_VERSIONS.privacy.version} · 9 de noviembre de 2026`),
     ).toBeInTheDocument();
     expect(screen.queryByText('Traducción')).toBeNull();
     expect(screen.queryByRole('button', { name: /Entrar con Google/ })).toBeNull();
@@ -65,11 +65,15 @@ describe('/privacy and /terms', () => {
     expect(where).toHaveTextContent(/Supabase.*São Paulo, Brasil/);
     expect(where).toHaveTextContent(/Cloudflare/);
     expect(where).toHaveTextContent(/salen de Chile/);
+    // Step 2.5: GitHub makes the nightly copy, which is kept encrypted in Cloudflare.
+    expect(where).toHaveTextContent(/GitHub:.*copia de seguridad.*cifrada en Cloudflare/);
     expect(part(/Cómo los cuidamos/)).toHaveTextContent(/cifrado/);
     const time = part(/Cuánto tiempo los guardamos/);
     expect(time).toHaveTextContent(/7 días para arrepentirte/);
     expect(time).toHaveTextContent(/36 meses sin entrar/);
     expect(time).toHaveTextContent(/quedan sin tu nombre ni tu correo/);
+    expect(time).toHaveTextContent(/copias de seguridad.*cada noche.*30 días como máximo/);
+    expect(time).not.toHaveTextContent(/cuando las hay/);
     const rights = part(/Tus derechos/);
     for (const right of [/Acceso y portabilidad/, /Rectificación/, /Supresión/, /Oposición/]) {
       expect(rights).toHaveTextContent(right);

@@ -8,7 +8,8 @@
 export const LEGAL_VERSIONS = {
   // Step 2.6: the reports of every content, their limits and the 12 months with the author's name.
   terms: { version: '3', date: '2026-11-08' },
-  privacy: { version: '2', date: '2026-11-08' },
+  // Step 2.5: GitHub makes the nightly copy of the database, and the copies are kept encrypted in Cloudflare.
+  privacy: { version: '3', date: '2026-11-09' },
 } as const;
 
 /** Days between asking to delete the account and deleting it; signing in before that cancels it (decision 44). */

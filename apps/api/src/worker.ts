@@ -1,6 +1,15 @@
 import { accessUnavailable, supabaseAccessChecker } from './access';
 import { noAdmins, supabaseAdminChecker } from './admin';
 import { createApp } from './app';
+import {
+  authCheck,
+  cloudflareHealthCache,
+  contentDatabaseCheck,
+  deepHealth,
+  latestBackupCheck,
+  mediaCheck,
+  usersDatabaseCheck,
+} from './health';
 import { MediaSigner, r2Store } from './media';
 import {
   supabaseReleaseRepository,
@@ -37,11 +46,17 @@ export interface Env {
    */
   CF_ACCOUNT_ID?: string;
   CF_ANALYTICS_TOKEN?: string;
+  /**
+   * The bucket of the nightly copies of the users' database (step 2.5; wrangler.jsonc). The Worker only lists it, for
+   * `/api/health/deep`: the copies are encrypted with a key it does not have, and the bucket's lock rule keeps them
+   * from being deleted or overwritten (docs/configuracion.md → 11).
+   */
+  BACKUPS?: R2Bucket;
 }
 
 let app: ReturnType<typeof createApp> | null = null;
 
-function getApp(env: Env) {
+function getApp(env: Env, origin: string) {
   app ??= createApp({
     verifier: supabaseVerifier({
       supabaseUrl: env.USERS_SUPABASE_URL,
@@ -89,6 +104,18 @@ function getApp(env: Env) {
         ? analyticsEngineReader({ accountId: env.CF_ACCOUNT_ID, token: env.CF_ANALYTICS_TOKEN })
         : null,
     ...(env.USAGE ? { usageEvents: analyticsEngineRecorder(env.USAGE) } : {}),
+    // Step 2.5: for the external monitor. Each part with the credentials the Worker already has.
+    deepHealth: deepHealth(
+      {
+        users: usersDatabaseCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
+        auth: authCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
+        content: contentDatabaseCheck(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY),
+        media: mediaCheck(env.MEDIA),
+        backups: latestBackupCheck(env.BACKUPS),
+      },
+      // Cloudflare's `caches.default` (the WebWorker lib's CacheStorage type does not have it).
+      { shared: cloudflareHealthCache((caches as unknown as { default: Cache }).default, origin) },
+    ),
   });
   return app;
 }
@@ -97,7 +124,7 @@ export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     if (pathname === '/api' || pathname.startsWith('/api/')) {
-      return getApp(env).fetch(request, env, ctx);
+      return getApp(env, new URL(request.url).origin).fetch(request, env, ctx);
     }
     // The web (static files from apps/web/dist). Normally it does not even get here: see run_worker_first.
     return env.ASSETS.fetch(request);

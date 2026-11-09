@@ -2,6 +2,7 @@ import { access, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ContentBundle } from '@qv/schema';
 import { createApp } from './app';
+import { deepHealth } from './health';
 import { MediaSigner, isValidKey } from './media';
 import type { MediaStore } from './media';
 import { memoryRepository } from './repositories/memory';
@@ -61,9 +62,10 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
   };
   // «Uso» (step 2.9): made-up figures, and the opens of the demo (made-up, plus the ones counted while it is used).
   const usageEvents = demoUsageEvents(bundle);
+  const repository = memoryRepository(bundle);
   return createApp({
     verifier,
-    repository: memoryRepository(bundle),
+    repository,
     media,
     signer: new MediaSigner('secreto-solo-para-desarrollo-local-0123456789'),
     preview: memoryRepository(draft),
@@ -76,5 +78,14 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     usageStats: demoUsageStats(),
     usageOpens: usageEvents,
     usageEvents,
+    // Step 2.5: the demo has no databases, bucket or copies: only that the content and the images' folder answer.
+    deepHealth: deepHealth({
+      content: async () => {
+        await repository.catalog();
+      },
+      media: async () => {
+        await access(join(outputFolder, 'media'));
+      },
+    }),
   });
 }

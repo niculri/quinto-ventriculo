@@ -8,6 +8,7 @@ import { memoryRepository } from './repositories/memory';
 import { folderReleaseRepository } from './repositories/memory-release';
 import { memorySiteSettings } from './repositories/memory-settings';
 import { folderUnpublishedRepository } from './repositories/memory-unpublished';
+import { demoUsageEvents, demoUsageStats } from './repositories/memory-usage';
 import { supabaseVerifier } from './session';
 import type { SessionVerifier } from './session';
 
@@ -58,6 +59,8 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
       );
     },
   };
+  // «Uso» (step 2.9): made-up figures, and the opens of the demo (made-up, plus the ones counted while it is used).
+  const usageEvents = demoUsageEvents(bundle);
   return createApp({
     verifier,
     repository: memoryRepository(bundle),
@@ -70,5 +73,8 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     unpublished: await folderUnpublishedRepository(outputFolder),
     // The demo's user is an administrator (as in the web's demo); with a real session, nobody is.
     admins: { isAdmin: async (token) => !options.supabaseUrl && token === DEMO_TOKEN },
+    usageStats: demoUsageStats(),
+    usageOpens: usageEvents,
+    usageEvents,
   });
 }

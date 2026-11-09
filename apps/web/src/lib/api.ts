@@ -23,8 +23,10 @@ import {
   SearchResponse,
   SiteSettings,
   UnpublishedLog,
+  UsageOpenAck,
+  UsageReport,
 } from '@qv/schema';
-import type { PublishRequest, ReleaseItemKind, ReleaseMarkId } from '@qv/schema';
+import type { PublishRequest, ReleaseItemKind, ReleaseMarkId, UsageOpenRequest } from '@qv/schema';
 
 export class ApiRequestError extends Error {
   constructor(
@@ -56,7 +58,7 @@ export function createApiClient(
     path: string,
     schema: z.ZodType<T>,
     signal?: AbortSignal,
-    init: { method?: string; body?: unknown; fresh?: boolean } = {},
+    init: { method?: string; body?: unknown; fresh?: boolean; keepalive?: boolean } = {},
   ): Promise<T> {
     const token = await getToken();
     let r: Response;
@@ -75,6 +77,7 @@ export function createApiClient(
             ? { cache: 'no-cache' as const }
             : {}),
         ...(signal ? { signal } : {}),
+        ...(init.keepalive ? { keepalive: true } : {}),
       });
     } catch (e) {
       if ((e as Error).name === 'AbortError') throw e;
@@ -137,6 +140,18 @@ export function createApiClient(
     /** What was taken off the site (step 2.10), newest first: only for an administrator (anybody else gets 404). */
     unpublishedLog: (signal?: AbortSignal) =>
       request('/api/admin/unpublished', UnpublishedLog, signal),
+    /** «Uso» (step 2.9): figures of 5 students or more: only for an administrator (anybody else gets 404). */
+    usage: (signal?: AbortSignal) => request('/api/admin/usage', UsageReport, signal),
+    /**
+     * A note, a deck or a test opened by its page, or a search completed (step 2.9): counted without who. `keepalive`:
+     * it arrives even if the page changes right after (a search that opens a result).
+     */
+    usageOpen: (body: UsageOpenRequest) =>
+      request('/api/usage/open', UsageOpenAck, undefined, {
+        method: 'POST',
+        body,
+        keepalive: true,
+      }),
     // ── Releases (step 1.7): only for an administrator (anybody else gets 404) ──
     /** What the draft changes, and the content version the site on line understands. */
     releaseOverview: (signal?: AbortSignal) =>

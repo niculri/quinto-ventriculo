@@ -142,6 +142,8 @@ describe('writes only through the functions', () => {
       // Step 2.10 b: naming or removing an administrator, only for the owner with the session open
       'admin_set_admin',
       'admin_set_report_block',
+      // Step 2.9: «Uso», figures of 5 students or more, only for an administrator with the session open
+      'admin_usage',
       'bury_cards',
       // Step 2.3: «Descargar mis datos», only theirs
       'export_my_data',

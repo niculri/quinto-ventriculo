@@ -28,6 +28,7 @@ import { plainText } from '../reports/labels';
 import type { ReportTarget } from '../reports/repository';
 import { useFocusMode } from '../../ui/focus';
 import './quiz.css';
+import { useCountOpen } from '../usage/count';
 
 /** The tab last opened in this browser (a convenience: the URL is what says the tab). */
 const tabKey = (quizId: string) => `qv-quiz-tab:${quizId}`;
@@ -113,6 +114,8 @@ export function QuizPage() {
       .find((a) => a.id === `${courseId}/${assessmentSegment}`)
       ?.quizzes.find((q) => q.slug === quizSlug) ?? null;
   const quiz = useQuizDetail(summary?.id ?? null);
+  // «Uso» (step 2.9): a test's cover and its rounds are what open a test (not «Ponte a prueba»).
+  useCountOpen('quiz', quiz.data?.id ?? null);
   const saved = useSavedQuiz(quiz.data?.id ?? null);
   const sections = quiz.data?.sections ?? [];
   const active: QuizSectionSummary | null =

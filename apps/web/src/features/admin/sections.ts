@@ -1,4 +1,4 @@
-import { EyeOff, Flag, GitCompareArrows, Globe, Users } from 'lucide-react';
+import { ChartColumn, EyeOff, Flag, GitCompareArrows, Globe, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../app/paths';
 
@@ -16,6 +16,7 @@ export interface AdminSection {
 export const ADMIN_SECTIONS = [
   { label: 'Publicaciones', to: paths.adminReleases, icon: GitCompareArrows },
   { label: 'Reportes', to: paths.adminReports, icon: Flag },
+  { label: 'Uso', to: paths.adminUsage, icon: ChartColumn },
   { label: 'Acceso', to: paths.adminAccess, icon: Users },
   { label: 'Sitio', to: paths.adminSite, icon: Globe },
   { label: 'Fuera del sitio', to: paths.adminUnpublished, icon: EyeOff },

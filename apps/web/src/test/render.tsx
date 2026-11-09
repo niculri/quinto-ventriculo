@@ -642,6 +642,9 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
     setSiteSettings: notAdmin,
     // What was taken off the site (step 2.10): only for an administrator.
     unpublishedLog: notAdmin,
+    // «Uso» (step 2.9): only for an administrator; what the pages open is counted for anybody.
+    usage: notAdmin,
+    usageOpen: async () => ({ ok: true as const }),
     ...changes,
   };
 }

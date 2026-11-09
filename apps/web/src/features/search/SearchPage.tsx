@@ -5,6 +5,8 @@ import { withContactLink } from '../../ui/ContactLink';
 import { Skeleton } from '../../ui/Loading';
 import { card, page } from '../../ui/styles';
 import { paths } from '../../app/paths';
+import { useServices } from '../../app/services';
+import { countSearch } from '../usage/count';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
 import { Snippet } from './Snippet';
 import { useCatalog } from '../catalog/queries';
@@ -14,6 +16,9 @@ export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const text = params.get('q') ?? '';
   const { results, active, isPending, isError, error, query } = useSearch(text, 50);
+  const { api } = useServices();
+  // Enter or opening a result completes the search: «Uso» counts it once (step 2.9), never each text while typing.
+  const complete = () => countSearch(api, text, 'search');
   const groups = groupByNote(results);
   const catalog = useCatalog().data;
 
@@ -35,6 +40,9 @@ export function SearchPage() {
           }
           placeholder="Busca en todos los apuntes"
           aria-label="Buscar en todos los apuntes"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') complete();
+          }}
           className="h-12 w-full rounded-xl border border-border bg-surface pr-4 pl-11 text-base shadow-xs outline-none focus:border-brand focus-visible:outline-none"
         />
       </div>
@@ -68,6 +76,7 @@ export function SearchPage() {
                   </p>
                   <Link
                     to={resultLink({ ...g, anchor: '' }, catalog)}
+                    onClick={complete}
                     className="font-serif text-lg font-semibold text-ink hover:text-brand"
                   >
                     {g.noteTitle}
@@ -75,7 +84,11 @@ export function SearchPage() {
                   <ul className="mt-3 space-y-3 border-l border-border pl-4">
                     {g.sections.map((s) => (
                       <li key={s.anchor}>
-                        <Link to={resultLink(s, catalog)} className="group block">
+                        <Link
+                          to={resultLink(s, catalog)}
+                          onClick={complete}
+                          className="group block"
+                        >
                           <span className="text-sm font-medium text-brand group-hover:underline">
                             {s.section}
                           </span>

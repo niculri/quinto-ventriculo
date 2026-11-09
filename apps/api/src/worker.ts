@@ -9,6 +9,7 @@ import {
   supabaseUnpublishedRepository,
 } from './repositories/supabase';
 import { supabaseVerifier } from './session';
+import { analyticsEngineReader, analyticsEngineRecorder, supabaseUsageStats } from './usage';
 
 /** Worker variables and bindings (wrangler.jsonc; secrets with `wrangler secret put`). */
 export interface Env {
@@ -27,6 +28,15 @@ export interface Env {
   USERS_SUPABASE_PUBLISHABLE_KEY?: string;
   /** Which version of the Worker this is (wrangler.jsonc, `version_metadata`): `/api/health` shows its id. */
   CF_VERSION_METADATA?: WorkerVersionMetadata;
+  /** Where a note, a deck or a test opened (and a search) is counted, without who (step 2.9; wrangler.jsonc). */
+  USAGE?: AnalyticsEngineDataset;
+  /**
+   * To read those points back for «Uso» (Analytics Engine's SQL API): the Cloudflare account's id and a token with only
+   * «Account Analytics: Read», both with `wrangler secret put` (docs: «Publicar el paso 2.9»). Without them, «Uso» has
+   * the figures of the users' database and says that the opens are not configured.
+   */
+  CF_ACCOUNT_ID?: string;
+  CF_ANALYTICS_TOKEN?: string;
 }
 
 let app: ReturnType<typeof createApp> | null = null;
@@ -65,6 +75,20 @@ function getApp(env: Env) {
         })
       : noAdmins,
     ...(env.CF_VERSION_METADATA ? { version: env.CF_VERSION_METADATA.id } : {}),
+    // «Uso» (step 2.9): the database's figures with the administrator's token, as is_admin().
+    ...(env.USERS_SUPABASE_PUBLISHABLE_KEY
+      ? {
+          usageStats: supabaseUsageStats({
+            supabaseUrl: env.USERS_SUPABASE_URL,
+            publishableKey: env.USERS_SUPABASE_PUBLISHABLE_KEY,
+          }),
+        }
+      : {}),
+    usageOpens:
+      env.CF_ACCOUNT_ID && env.CF_ANALYTICS_TOKEN
+        ? analyticsEngineReader({ accountId: env.CF_ACCOUNT_ID, token: env.CF_ANALYTICS_TOKEN })
+        : null,
+    ...(env.USAGE ? { usageEvents: analyticsEngineRecorder(env.USAGE) } : {}),
   });
   return app;
 }

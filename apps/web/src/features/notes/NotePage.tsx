@@ -25,10 +25,13 @@ import { SelectionReportBar, useArticleSelection } from './reporting';
 import { ReportDialog } from '../reports/ReportDialog';
 import type { ReportLocation, ReportTarget } from '../reports/repository';
 import type { ReportCategory } from '@qv/schema';
+import { useCountOpen } from '../usage/count';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
   const note = useNote(slug);
+  // «Uso» (step 2.9): this page is what opens a note.
+  useCountOpen('note', note.data ? slug : null);
   const catalog = useCatalog();
 
   if (note.isError) {

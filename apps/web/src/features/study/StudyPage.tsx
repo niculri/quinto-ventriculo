@@ -46,10 +46,13 @@ import type { CongratsInfo, HideAction } from './session';
 import { keys } from '../../ui/keys';
 import { ReportDialog } from '../reports/ReportDialog';
 import { cardTarget } from '../reports/targets';
+import { useCountOpen } from '../usage/count';
 
 /** Studying a deck of the tree: it and everything below it, with the limits of each level (as Anki). */
 export function StudyPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
+  // «Uso» (step 2.9): a deck's page, its study and its final review are what open a deck.
+  useCountOpen('deck', deck.data ? node.id : null);
   if (deck.isError) {
     if (deck.error instanceof ApiRequestError && [400, 404].includes(deck.error.status)) {
       return <NotFoundPage />;

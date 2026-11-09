@@ -1,5 +1,5 @@
 // A single Worker serves the web (static files from apps/web/dist) and the API (/api/*), on the same domain.
-// Secrets (not here): npx wrangler secret put CONTENT_SERVICE_ROLE_KEY | MEDIA_SECRET
+// Secrets (not here): npx wrangler secret put CONTENT_SERVICE_ROLE_KEY | MEDIA_SECRET | CF_ACCOUNT_ID | CF_ANALYTICS_TOKEN
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "quinto-ventriculo",
@@ -23,6 +23,9 @@
   // The id of the version that answers, for /api/health and the smoke test (npm run smoke, step 1.9).
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "quinto-ventriculo-media" }],
+  // Step 2.9: a note, a deck or a test opened, and a search, counted without who (src/usage.ts). Read back for «Uso»
+  // with the SQL API: secrets CF_ACCOUNT_ID and CF_ANALYTICS_TOKEN (a token with only «Account Analytics: Read»).
+  "analytics_engine_datasets": [{ "binding": "USAGE", "dataset": "qv_usage" }],
   "vars": {
     // Filled in when the Supabase projects are created (docs/configuracion.md).
     "USERS_SUPABASE_URL": "https://nepxecanupunoezfblon.supabase.co",

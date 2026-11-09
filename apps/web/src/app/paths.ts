@@ -18,8 +18,8 @@
  *   /settings/anki                                  «Opciones» → «Anki general» (every deck)
  *   /settings/deck-options?preset=Default           «Opciones» → «Configuración de mazos» (a preset open)
  *   /admin/releases                                 «Administración» → «Publicaciones» (administrators; /admin opens
- *                                                   it); also /admin/reports, /admin/access, /admin/site and
- *                                                   /admin/unpublished
+ *                                                   it); also /admin/reports, /admin/usage, /admin/access,
+ *                                                   /admin/site and /admin/unpublished
  *
  * Anki goes course by course: there is no page with the decks of several courses (the root «() Medicina
  * UCH» and the semesters' decks exist, as in Anki, but are not studied from the web).
@@ -132,6 +132,8 @@ export const paths = {
   adminReleases: '/admin/releases',
   /** «Administración» → «Reportes»: the errors the students reported. */
   adminReports: '/admin/reports',
+  /** «Administración» → «Uso»: how much the site is used, in figures of 5 students or more. */
+  adminUsage: '/admin/usage',
   /** «Administración» → «Acceso»: who is invited, inviting and removing. */
   adminAccess: '/admin/access',
   /** «Administración» → «Sitio»: how the site is shown. */

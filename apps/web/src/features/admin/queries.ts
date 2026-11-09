@@ -90,6 +90,16 @@ export function useSetAdmin() {
   });
 }
 
+/** «Uso» (step 2.9): figures of 5 students or more, the same for every administrator (the API keeps them a minute). */
+export function useUsageReport() {
+  const { api } = useServices();
+  return useQuery({
+    queryKey: ['usage-report'],
+    queryFn: ({ signal }) => api.usage(signal),
+    staleTime: 60_000,
+  });
+}
+
 /** «Fuera del sitio» (step 2.10): the record of what was taken off the site, only to look at. */
 export function useUnpublishedLog() {
   const { api } = useServices();

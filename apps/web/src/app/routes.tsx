@@ -98,6 +98,7 @@ export const routes: RouteObject[] = [
               { index: true, element: <Navigate to={ADMIN_SECTIONS[0].to} replace /> },
               { path: 'releases', lazy: page(() => import('./pages/releases')) },
               { path: 'reports', lazy: page(() => import('./pages/admin-reports')) },
+              { path: 'usage', lazy: page(() => import('./pages/admin-usage')) },
               { path: 'access', lazy: page(() => import('./pages/admin-access')) },
               { path: 'site', lazy: page(() => import('./pages/admin-site')) },
               { path: 'unpublished', lazy: page(() => import('./pages/admin-unpublished')) },

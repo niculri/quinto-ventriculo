@@ -21,6 +21,7 @@ import { SimpleDeckTree, visibleChildren } from './SimpleDeckTree';
 import { ancestry, deckCrumbs } from './tree';
 import type { CourseDeckNode, DeckNode } from './tree';
 import type { StudyPlan } from '../study/simple';
+import { useCountOpen } from '../usage/count';
 
 /** The text of a deck for the user: a course's deck is the course («Anatomía I»), the others their name. */
 export const deckTitle = (n: DeckNode) => (n.depth === 2 && n.course ? n.course.name : n.label);
@@ -47,6 +48,9 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
 
   // A week or a lecture is chosen on its assessment's page: there is nothing more inside it.
   const assessment = node.depth > 3 ? ancestry(node).find((n) => n.depth === 3) : null;
+  // «Uso» (step 2.9): a deck's page (not one that goes on to its assessment's), its study and its final review are
+  // what open a deck.
+  useCountOpen('deck', deck.data && !assessment?.ref ? node.id : null);
   if (assessment?.ref) return <Navigate replace to={paths.deck(assessment.ref)} />;
 
   return (

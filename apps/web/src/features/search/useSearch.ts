@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import type { Catalog, SearchResult } from '@qv/schema';
+import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
 import { paths } from '../../app/paths';
 import { locateNote } from '../catalog/queries';
 import { useServices } from '../../app/services';
@@ -66,4 +66,19 @@ export function resultLink(
   return found
     ? paths.note(found.course, found.note.slug, r.anchor)
     : paths.legacyNote(r.noteSlug, r.anchor);
+}
+
+/** The kind of page of a URL, for the count of searches (step 2.9: features/usage/count.ts). */
+export function searchContext(pathname: string): SearchContext {
+  if (pathname === '/home') return 'home';
+  if (pathname === '/search') return 'search';
+  if (/\/notes\/[^/]+/.test(pathname)) return 'note';
+  if (/\/courses\/[^/]+\/anki(\/|$)/.test(pathname)) return 'deck';
+  if (/\/courses\/[^/]+\/tests\//.test(pathname)) return 'quiz';
+  if (
+    /^\/semesters\/\d+(\/courses\/[^/]+(\/assessments\/[^/]+\/(notes|tests))?)?$/.test(pathname)
+  ) {
+    return 'course';
+  }
+  return 'other';
 }

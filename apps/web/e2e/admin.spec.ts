@@ -12,6 +12,7 @@ import { signIn } from './helpers';
 const SECTIONS = [
   ['Publicaciones', '/admin/releases', 'Publicaciones'],
   ['Reportes', '/admin/reports', 'Reportes'],
+  ['Uso', '/admin/usage', 'Uso'],
   ['Acceso', '/admin/access', 'Acceso'],
   ['Sitio', '/admin/site', 'Sitio'],
   ['Fuera del sitio', '/admin/unpublished', 'Fuera del sitio'],
@@ -71,7 +72,13 @@ test('a student does not see «Administración» nor opens any of its pages', as
   await expect(page.getByRole('menuitem', { name: /Opciones/ })).toBeVisible();
   await expect(page.getByRole('menuitem', { name: /Administración/ })).toHaveCount(0);
   await page.keyboard.press('Escape');
-  for (const url of ['/admin', '/admin/access', '/admin/unpublished', '/settings/admin']) {
+  for (const url of [
+    '/admin',
+    '/admin/access',
+    '/admin/usage',
+    '/admin/unpublished',
+    '/settings/admin',
+  ]) {
     await page.goto(url);
     await expect(
       page.getByRole('heading', { level: 1, name: 'Esta página no aparece ni en el Netter' }),

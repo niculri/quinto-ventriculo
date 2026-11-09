@@ -12,6 +12,7 @@ import {
   ReleaseMarkId,
   RevertRequest,
   SiteSettingsUpdate,
+  UsageOpenRequest,
   CONTACT_EMAIL,
   Slug,
   withoutEmptySemesters,
@@ -26,6 +27,7 @@ import type {
   SearchResponse,
   SiteSettings,
   UnpublishedLog,
+  UsageReport,
 } from '@qv/schema';
 import type { AccessChecker } from './access';
 import type { AdminChecker } from './admin';
@@ -39,6 +41,8 @@ import type {
 } from './repository';
 import { tokenFromHeader } from './session';
 import type { User, SessionVerifier } from './session';
+import { usageGroups, usageReport } from './usage';
+import type { UsageEvent, UsageOpensReader, UsageRecorder, UsageStatsSource } from './usage';
 
 export interface Dependencies {
   verifier: SessionVerifier;
@@ -76,6 +80,20 @@ export interface Dependencies {
    * that the smoke test (step 1.9) can tell which version is live, for example after a rollback. Nothing else.
    */
   version?: string;
+  /**
+   * «Uso» in the administration panel (step 2.9): the figures of the users' database (`admin_usage()`, with the
+   * administrator's token). Without it, the route does not exist (404).
+   */
+  usageStats?: UsageStatsSource;
+  /** The opens counted in Workers Analytics Engine; null or absent: not configured (the page says so). */
+  usageOpens?: UsageOpensReader | null;
+  /**
+   * Where a note, a deck or a test opened (and a search) is counted: never who, nor what was searched. Never awaited:
+   * a failure does not change the answer.
+   */
+  usageEvents?: UsageRecorder;
+  /** Seconds «Uso» keeps its figures (default 60): the same for every administrator. */
+  usageTtl?: number;
 }
 
 type AppEnv = { Variables: { user: User; token: string; repository: ContentRepository } };
@@ -313,6 +331,22 @@ export function createApp(deps: Dependencies) {
   const requireAdmin = adminOnly(() => !!deps.releases);
   const requireSettingsAdmin = adminOnly(() => !!deps.settings);
   const requireUnpublishedAdmin = adminOnly(() => !!deps.unpublished);
+  const requireUsageAdmin = adminOnly(() => !!deps.usageStats);
+
+  /**
+   * Counts an open (or a search) of what is published: never the preview's. Nothing of the request goes in the point
+   * (usage.ts), and nothing of it can change the answer. Only `POST /usage/open` calls it: the GET of a note, a deck or
+   * a test are also asked by other pages (the home page's «Hoy en Anki», a course's page, «Ponte a prueba»), and the
+   * browser keeps them a while.
+   */
+  const track = (repository: ContentRepository, event: UsageEvent) => {
+    if (!deps.usageEvents || repository !== deps.repository) return;
+    try {
+      deps.usageEvents.record(event);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   /**
    * The site's settings, for the catalog. If they cannot be read (a Worker deployed before its migration, a failure),
@@ -493,6 +527,116 @@ export function createApp(deps: Dependencies) {
         e.kind === 'image' ? { ...e, onSite: there.get(e.itemId) ?? null } : e,
       ),
     } satisfies UnpublishedLog);
+  });
+
+  // ── What is opened, for «Uso» (step 2.9) ──
+
+  // What can be counted: the published notes, decks and tests (`note:<slug>`, `deck:<id>`, `quiz:<id>`), from the
+  // catalog, kept 5 minutes. An id with the right shape that is not published (a student's id, any text written as a
+  // slug) never goes into a point.
+  let publishedKept: { until: number; ids: Set<string> } | null = null;
+  const published = async (): Promise<Set<string>> => {
+    const t = now();
+    if (publishedKept && publishedKept.until > t) return publishedKept.ids;
+    const catalog = await deps.repository.catalog();
+    const ids = new Set<string>();
+    for (const s of catalog.semesters) {
+      for (const course of s.courses) {
+        for (const a of course.assessments) {
+          for (const n of a.notes) ids.add(`note:${n.slug}`);
+          for (const q of a.quizzes) ids.add(`quiz:${q.id}`);
+        }
+      }
+    }
+    for (const d of catalog.anki.decks) ids.add(`deck:${d.id}`);
+    publishedKept = { until: t + 300, ids };
+    return ids;
+  };
+
+  // The page of a note, of a deck (its page, its study or its final review) or of a test (its cover or a round) says it
+  // was opened, once when it opens, without waiting; and a search, when it is completed (sent, or a result opened), with
+  // the kind of page it was made from. Nothing of the student goes in the point.
+  app.post('/usage/open', requireSession, async (c) => {
+    c.header('Cache-Control', 'no-store');
+    const text = await c.req.text().catch(() => '');
+    let body: unknown;
+    try {
+      body = text.length <= 512 ? JSON.parse(text) : null;
+    } catch {
+      body = null;
+    }
+    const open = UsageOpenRequest.safeParse(body);
+    if (!open.success) return c.json(apiError('invalid_open', 'Eso no se puede contar.'), 400);
+    const o = open.data;
+    // The preview's opens are not counted (track() says so too): no need to read the catalog for them.
+    if (!deps.usageEvents || c.get('repository') !== deps.repository)
+      return c.json({ ok: true as const });
+    if (o.kind !== 'search') {
+      let known: Set<string>;
+      try {
+        known = await published();
+      } catch (e) {
+        console.error(e);
+        return c.json(
+          apiError('usage_unavailable', 'No se pudo contar. Intenta de nuevo en un rato.'),
+          503,
+        );
+      }
+      if (!known.has(`${o.kind}:${o.id}`)) {
+        return c.json(apiError('not_found', 'Eso no está publicado.'), 404);
+      }
+    }
+    track(
+      c.get('repository'),
+      o.kind === 'search'
+        ? { kind: 'search', path: '/api/search', context: o.from }
+        : {
+            kind: o.kind,
+            path: `/api/${o.kind === 'note' ? 'notes' : o.kind === 'deck' ? 'decks' : 'quizzes'}/${o.id}`,
+          },
+    );
+    return c.json({ ok: true as const });
+  });
+
+  // ── «Uso» (step 2.9), only for an administrator: figures of 5 students or more, never a row per student ──
+
+  // The figures of the users' database and the opens of Analytics Engine, kept a minute (they are the same for every
+  // administrator; who asks is checked before). Without the opens configured, or if they cannot be read, the page has
+  // the database's figures and says so.
+  let usageKept: { until: number; report: UsageReport } | null = null;
+  app.get('/admin/usage', requireSession, requireUsageAdmin, async (c) => {
+    const t = now();
+    if (usageKept && usageKept.until > t) return c.json(usageKept.report);
+    const catalog = await deps.repository.catalog();
+    const readOpens = async () => {
+      if (!deps.usageOpens) return { status: 'not_configured' as const };
+      try {
+        return { status: 'ok' as const, counts: await deps.usageOpens.read() };
+      } catch (e) {
+        console.error(e);
+        return { status: 'unavailable' as const };
+      }
+    };
+    const [statsResult, opens] = await Promise.all([
+      deps.usageStats!.stats(c.get('token'), usageGroups(catalog)).then(
+        (s) => ({ ok: true as const, s }),
+        (e: unknown) => ({ ok: false as const, e }),
+      ),
+      readOpens(),
+    ]);
+    if (!statsResult.ok) {
+      console.error(statsResult.e);
+      return c.json(
+        apiError(
+          'usage_unavailable',
+          'No se pudieron leer las cifras de uso. Intenta de nuevo en un rato.',
+        ),
+        503,
+      );
+    }
+    const report = usageReport(statsResult.s, opens);
+    usageKept = { until: t + (deps.usageTtl ?? 60), report };
+    return c.json(report);
   });
 
   // ── Releases (step 1.7, part 2): what the draft changes and its review list, only for an administrator ──

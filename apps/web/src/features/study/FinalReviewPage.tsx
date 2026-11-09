@@ -31,6 +31,7 @@ import type { CardKey, CardRef } from './repository';
 import { cardKey } from './scheduler';
 import type { StudyData } from './scheduler';
 import { MaterialLink, RATINGS, ReportEntry, StudyCard } from './StudyPage';
+import { useCountOpen } from '../usage/count';
 
 /** «Marcar para revisar» is one flag, as when studying. */
 const REVIEW_FLAG = 1;
@@ -38,6 +39,8 @@ const REVIEW_FLAG = 1;
 /** The final review of an assessment (`…/anki/<assessment>/review`): no menu, as studying. */
 export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
+  // «Uso» (step 2.9): a deck's page, its study and its final review are what open a deck.
+  useCountOpen('deck', deck.data ? node.id : null);
   if (deck.isError) {
     if (deck.error instanceof ApiRequestError && [400, 404].includes(deck.error.status)) {
       return <NotFoundPage />;

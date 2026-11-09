@@ -10,3 +10,4 @@ export * from './release';
 export * from './review';
 export * from './legal';
 export * from './reports';
+export * from './usage';

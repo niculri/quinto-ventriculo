@@ -26,6 +26,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
       '/admin',
       '/admin/releases',
       '/admin/reports',
+      '/admin/usage',
       '/admin/access',
       '/admin/site',
       '/admin/unpublished',
@@ -58,6 +59,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     const sections = [
       ['Publicaciones', '/admin/releases'],
       ['Reportes', '/admin/reports'],
+      ['Uso', '/admin/usage'],
       ['Acceso', '/admin/access'],
       ['Sitio', '/admin/site'],
       ['Fuera del sitio', '/admin/unpublished'],

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ArrowRight, FileText, LoaderCircle, Search } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { paths } from '../../app/paths';
+import { useServices } from '../../app/services';
+import { countSearch } from '../usage/count';
 import { useCatalog } from '../catalog/queries';
 import { Snippet } from './Snippet';
-import { resultLink, useSearch } from './useSearch';
+import { resultLink, searchContext, useSearch } from './useSearch';
 
 /** Quick search (⌘K / Ctrl+K or «/»): results while typing, arrows to move and Enter to open. */
 export function SearchPalette({
@@ -36,8 +38,12 @@ function PaletteContent({ close }: { close: () => void }) {
   const [selected, setSelected] = useState(0);
   const navigate = useNavigate();
   const catalog = useCatalog().data;
+  const { pathname } = useLocation();
+  const { api } = useServices();
   const { results, active, isFetching, query } = useSearch(text, 8);
+  // Opening a result or «Ver todos» (with the mouse or Enter) completes the search: «Uso» counts it once (step 2.9).
   const go = (to: string) => {
+    countSearch(api, text, searchContext(pathname));
     close();
     navigate(to);
   };

@@ -296,6 +296,22 @@ CATALOG.anki.decks = [
   tree('20', DECK.fullName, '5', inAssessment),
   tree('21', `${DECK.fullName}::Extras`, '20', inAssessment, 1, 'Extras'),
 ];
+// The notes of each deck, as anki_deck_tree() gives them (step 3.2).
+for (const d of CATALOG.anki.decks) {
+  const notes = new Set(DECK.cards.filter((c) => c.deckId === d.id).map((c) => c.noteGuid));
+  d.ownNoteCount = notes.size;
+  d.exclusiveNoteCount = [...notes].filter((n) =>
+    DECK.cards.filter((c) => c.noteGuid === n).every((c) => c.deckId === d.id),
+  ).length;
+  const below = new Set(
+    CATALOG.anki.decks
+      .filter((x) => x.name === d.name || x.name.startsWith(`${d.name}::`))
+      .map((x) => x.id),
+  );
+  d.closedNoteCount = [...notes].filter((n) =>
+    DECK.cards.filter((c) => c.noteGuid === n).every((c) => below.has(c.deckId)),
+  ).length;
+}
 CATALOG.anki.presets = DECK.presets;
 
 /** What `/api/decks/:id` gives for every deck of the tree (the same cards, from where it is). */

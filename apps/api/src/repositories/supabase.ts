@@ -100,6 +100,10 @@ interface DeckRow {
   assessment_id: string | null;
   note_count: number;
   card_count: number;
+  /** Step 3.2; missing before its migration. */
+  own_note_count?: number;
+  exclusive_note_count?: number;
+  closed_note_count?: number;
 }
 
 interface NoteTypeRow {
@@ -235,6 +239,11 @@ export function supabaseRepository(
           assessmentId: x.assessment_id,
           noteCount: x.note_count,
           cardCount: x.card_count,
+          ...(x.own_note_count === undefined ? {} : { ownNoteCount: x.own_note_count }),
+          ...(x.exclusive_note_count === undefined
+            ? {}
+            : { exclusiveNoteCount: x.exclusive_note_count }),
+          ...(x.closed_note_count === undefined ? {} : { closedNoteCount: x.closed_note_count }),
         }),
       );
       const noteTypes = (unwrap(t, 'note types') as NoteTypeRow[]).map((x) =>

@@ -18,7 +18,9 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
   await expect(page.getByRole('banner').getByRole('link', { name: 'Anki' })).toHaveCount(0);
   await page.goto('/anki');
   await expect(page).toHaveURL(/\/home$/);
+  await page.getByRole('main').getByRole('link', { name: 'Ver toda la carrera' }).click();
   await page
+    .getByRole('main')
     .getByRole('link', { name: /1° Semestre/ })
     .first()
     .click();

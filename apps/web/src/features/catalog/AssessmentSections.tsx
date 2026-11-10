@@ -109,7 +109,12 @@ function NoteLists({
   return (
     <>
       {assessment.notes.length === 0 ? (
-        <p className="mt-6 text-muted">Todavía no hay apuntes de este certamen.</p>
+        <div className="mt-6 text-muted">
+          <p>Todavía no hay apuntes de este certamen.</p>
+          <Link to={paths.course(course)} className={`${button.base} ${button.secondary} mt-4`}>
+            Volver a {course.name}
+          </Link>
+        </div>
       ) : null}
       {noteBlocks(assessment.notes).map((block) => (
         <div key={block.key} className="mt-8">
@@ -235,7 +240,22 @@ export function AssessmentTestsPage() {
           ))}
         </ol>
       ) : (
-        <p className="mt-6 text-muted">Todavía no hay tests de este certamen.</p>
+        <div className="mt-6 text-muted">
+          <p>
+            Todavía no hay tests de este certamen.
+            {assessment.notes.length ? ' Mientras, puedes repasar con sus apuntes.' : ''}
+          </p>
+          <Link
+            to={
+              assessment.notes.length
+                ? paths.assessmentNotes(course, assessment.id)
+                : paths.course(course)
+            }
+            className={`${button.base} ${button.secondary} mt-4`}
+          >
+            {assessment.notes.length ? 'Ver los apuntes' : `Volver a ${course.name}`}
+          </Link>
+        </div>
       )}
     </SectionFrame>
   );

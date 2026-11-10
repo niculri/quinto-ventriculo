@@ -168,8 +168,8 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     expect(screen.queryByText('No se pudo guardar. Inténtalo de nuevo.')).toBeNull();
   });
 
-  it('step 1.8: «Inicio» says that the hidden semesters are coming, in their place', async () => {
-    renderApp('/home', {
+  it('step 1.8: «La carrera» says that the hidden semesters are coming, in their place', async () => {
+    renderApp('/courses', {
       api: fakeApi({ catalog: async () => ({ ...CATALOG, hiddenSemesters: 12 }) }),
     });
     // In the page, and in the menu where the semesters are listed.

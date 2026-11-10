@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ChevronDown, ListTree, MessageSquareWarning } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  ListTree,
+  MessageSquareWarning,
+  Search,
+  X,
+} from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router';
 import { paths } from '../../app/paths';
 import { Canonical } from '../catalog/Redirects';
@@ -26,6 +34,8 @@ import { ReportDialog } from '../reports/ReportDialog';
 import type { ReportLocation, ReportTarget } from '../reports/repository';
 import type { ReportCategory } from '@qv/schema';
 import { useCountOpen } from '../usage/count';
+import { rememberNote } from '../home/lastNote';
+import { useTip } from '../tips/useTip';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
@@ -87,6 +97,11 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
         : note.toc,
     [note.toc, hasPractice],
   );
+
+  // «Seguir» on the home page (step 3.2): the last note opened on this device.
+  useEffect(() => rememberNote(note.slug), [note.slug]);
+  // A tip once (step 3.2): having read to the end, the search.
+  const tip = useTip('tip-search', progress >= 0.95);
 
   useEffect(() => {
     document.title = `${note.title} · El Quinto Ventrículo`;
@@ -225,6 +240,30 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
           </button>
           <p className="text-sm text-muted">O selecciona el texto que está mal.</p>
         </div>
+
+        {tip.slot ? (
+          // Its room from the start, below what was read: showing it or closing it moves nothing.
+          <div className="mt-6 h-16" aria-live="polite">
+            {tip.show ? (
+              <p className="flex h-full items-center gap-3 rounded-lg border border-border bg-surface-2 px-4 text-sm">
+                <Search className="size-4 flex-none text-brand" aria-hidden="true" />
+                <span className="min-w-0 flex-1">
+                  ¿Buscas otro tema? El buscador de arriba encuentra cualquier apunte
+                  {/* Only with a keyboard: on a phone there is no «/» to press (review of 3.2). */}
+                  <span className="pointer-coarse:hidden">, también con la tecla /</span>.
+                </span>
+                <button
+                  type="button"
+                  onClick={tip.close}
+                  aria-label="Cerrar el consejo"
+                  className="flex-none rounded p-1 text-muted hover:bg-surface hover:text-ink"
+                >
+                  <X className="size-4" aria-hidden="true" />
+                </button>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         {location ? <Neighbors location={location} /> : null}
       </article>

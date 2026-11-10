@@ -48,9 +48,23 @@ export interface QuizStep {
   answer?: AnswerInfo;
 }
 
+/** A round started and not finished, with something answered: «Seguir» on the home page (step 3.2). */
+export interface OpenRound {
+  quizId: string;
+  sectionId: string;
+  answered: number;
+  questionCount: number;
+  updatedAt: string;
+}
+
+/** At most this many of the latest open rounds: the home page shows two. */
+export const OPEN_ROUNDS = 5;
+
 export interface QuizRepository {
   load(quizId: string): Promise<SavedQuiz>;
   save(step: QuizStep): Promise<void>;
+  /** The user's latest open rounds, the latest first. */
+  openRounds(): Promise<OpenRound[]>;
 }
 
 export function supabaseQuizRepository(client: SupabaseClient): QuizRepository {
@@ -79,6 +93,31 @@ export function supabaseQuizRepository(client: SupabaseClient): QuizRepository {
     async save(step) {
       const r = await client.rpc('save_quiz_progress', { p: step });
       if (r.error) throw new Error(`No se pudo guardar tu avance (${r.error.message}).`);
+    },
+    async openRounds() {
+      const r = await client
+        .from('quiz_rounds')
+        .select('quiz_id, section_id, answered, question_count, updated_at')
+        .eq('status', 'active')
+        .gt('answered', 0)
+        .order('updated_at', { ascending: false })
+        .limit(OPEN_ROUNDS);
+      if (r.error) throw new Error(`No se pudo leer tus tests (${r.error.message}).`);
+      return (
+        (r.data ?? []) as {
+          quiz_id: string;
+          section_id: string;
+          answered: number;
+          question_count: number;
+          updated_at: string;
+        }[]
+      ).map((x) => ({
+        quizId: x.quiz_id,
+        sectionId: x.section_id,
+        answered: x.answered,
+        questionCount: x.question_count,
+        updatedAt: x.updated_at,
+      }));
     },
   };
 }
@@ -170,6 +209,25 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
         updatedAt: new Date().toISOString(),
       };
       write(d);
+    },
+    async openRounds() {
+      const d = read();
+      return d.rounds
+        .filter((r) => r.status === 'active')
+        .map((r) => {
+          const answers = d.answers.filter((a) => a.roundId === r.id);
+          const last = answers.reduce((t, a) => (a.answeredAt > t ? a.answeredAt : t), r.startedAt);
+          return {
+            quizId: r.quizId,
+            sectionId: r.sectionId,
+            answered: answers.length,
+            questionCount: r.questionCount,
+            updatedAt: last,
+          };
+        })
+        .filter((r) => r.answered > 0)
+        .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : a.updatedAt > b.updatedAt ? -1 : 0))
+        .slice(0, OPEN_ROUNDS);
     },
   };
 }

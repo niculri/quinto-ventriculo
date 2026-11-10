@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { dayOf, dayOfStart } from '@qv/srs';
+import { dayOf, dayOfStart, retrievability } from '@qv/srs';
 import { dayNumber, isoOfDay } from '../stats/heatmap';
 import type { HeatmapData } from '../stats/heatmap';
 
@@ -77,6 +77,13 @@ export interface StudyPreferences {
   fourButtons: boolean;
   /** The welcome of the study screen was closed. */
   welcomeSeen: boolean;
+  /** «¿En qué semestre estás?» on the home page (null: not answered yet). */
+  semester: number | null;
+  /** Courses added to «Tus ramos» from another semester, and those taken out of it with its ✕ (catalog ids). */
+  addedCourses: string[];
+  removedCourses: string[];
+  /** What the student closed and does not come back (the first steps, the one-time tips), by a short name. */
+  dismissed: string[];
 }
 
 export function defaultPreferences(timeZone = browserTimeZone()): StudyPreferences {
@@ -89,6 +96,10 @@ export function defaultPreferences(timeZone = browserTimeZone()): StudyPreferenc
     fullAnki: false,
     fourButtons: false,
     welcomeSeen: false,
+    semester: null,
+    addedCourses: [],
+    removedCourses: [],
+    dismissed: [],
   };
 }
 
@@ -147,6 +158,39 @@ export interface DeckProgress {
   /** New cards answered today and the day before. */
   newToday: number;
   newYesterday: number;
+}
+
+/**
+ * A card that can come out today, as `home_counts()` gives it: «l» a learning step of today (`due` is its moment),
+ * «d» learning past a day and «r» a review (`due` is the start of its day); Unix seconds.
+ */
+export interface HomeDueCard {
+  noteGuid: string;
+  ord: number;
+  queue: 'l' | 'd' | 'r';
+  due: number;
+}
+
+/** What the home page needs of a deck of the user to count what is left today without the deck (step 3.2). */
+export interface HomeDeckCounts {
+  deckId: string;
+  /** Cards answered and not forgotten. */
+  seen: number;
+  /** New cards that cannot come out now: suspended, or buried until later. */
+  hiddenNew: number;
+  /** Notes with a row in the deck. */
+  touched: number;
+  /** Cards under «No mostrar más». */
+  suspended: number;
+  /** The sum of FSRS's retrievability now over the cards seen and not suspended. */
+  recall: number;
+  due: HomeDueCard[];
+}
+
+export interface HomeCounts {
+  decks: HomeDeckCounts[];
+  /** Too many cards due to send: the home page reads the decks instead. */
+  truncated: boolean;
 }
 
 /** One of today's answers, for the daily limits. */
@@ -318,6 +362,12 @@ export interface StudyRepository {
    * touches neither the cards' states nor the log.
    */
   recordPractice(counts: PracticeCount[]): Promise<void>;
+  /**
+   * The home page's counts (step 3.2): for each of these decks with something of the user, what it has seen and hidden,
+   * the dominio and the cards that can come out before `until` (the start of the next day). `decay`: each deck's FSRS
+   * decay (w20).
+   */
+  homeCounts(deckIds: string[], until: Date, decay: Record<string, number>): Promise<HomeCounts>;
   /** Up to which change of the content the user's cards follow the decks (0: none yet). */
   cardsSyncedTo(): Promise<number>;
   /**
@@ -380,6 +430,31 @@ function fromRow(r: CardRow): StoredCard {
     // Kept as the database wrote it: the answer sends it back to check nobody changed the card.
     updatedAt: r.updated_at,
     retiredAt: iso(r.retired_at ?? null),
+  };
+}
+
+/** `home_counts()`'s answer, as the web uses it. */
+export function homeCountsFromJson(data: unknown): HomeCounts {
+  const raw = (data ?? {}) as {
+    decks?: [string, number, number, number, number, number, [string, number, string, number][]][];
+    truncated?: boolean;
+  };
+  return {
+    truncated: !!raw.truncated,
+    decks: (raw.decks ?? []).map(([deckId, seen, hiddenNew, touched, suspended, recall, due]) => ({
+      deckId,
+      seen,
+      hiddenNew,
+      touched,
+      suspended,
+      recall,
+      due: (due ?? []).map(([noteGuid, ord, queue, at]) => ({
+        noteGuid,
+        ord,
+        queue: queue as HomeDueCard['queue'],
+        due: at,
+      })),
+    })),
   };
 }
 
@@ -561,6 +636,11 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
         fullAnki: r['full_anki'] as boolean,
         fourButtons: r['four_buttons'] as boolean,
         welcomeSeen: r['welcome_seen'] as boolean,
+        // Before the migration of step 3.2 the row does not have them.
+        semester: (r['semester'] as number | null | undefined) ?? null,
+        addedCourses: (r['added_courses'] as string[] | null | undefined) ?? [],
+        removedCourses: (r['removed_courses'] as string[] | null | undefined) ?? [],
+        dismissed: (r['dismissed'] as string[] | null | undefined) ?? [],
       };
     },
     async savePreferences(p) {
@@ -574,6 +654,10 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
           full_anki: p.fullAnki,
           four_buttons: p.fourButtons,
           welcome_seen: p.welcomeSeen,
+          semester: p.semester,
+          added_courses: p.addedCourses,
+          removed_courses: p.removedCourses,
+          dismissed: p.dismissed,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id' },
@@ -761,6 +845,16 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
         })),
         due: (raw.due ?? []).map(([day, cards]) => ({ day: dayNumber(day), cards })),
       };
+    },
+    async homeCounts(deckIds, until, decay) {
+      if (!deckIds.length) return { decks: [], truncated: false };
+      const { data, error } = await client.rpc('home_counts', {
+        p_deck_ids: deckIds,
+        p_until: until.toISOString(),
+        p_decay: decay,
+      });
+      if (error) fail('leer tu avance', error);
+      return homeCountsFromJson(data);
     },
     async recordPractice(counts) {
       const decks = counts.filter((c) => c.n > 0);
@@ -1380,6 +1474,67 @@ export function localStudyRepository(
         ord: main.ord,
         deckId: main.deckId,
         rating: main.rating,
+      };
+    },
+    async homeCounts(deckIds, until, decay) {
+      // The same rules as home_counts().
+      const wanted = new Set(deckIds);
+      const nowMs = Date.now();
+      const hidden = (c: StoredCard) =>
+        c.suspended || (c.buriedUntil !== null && Date.parse(c.buriedUntil) > nowMs);
+      const out = new Map<string, HomeDeckCounts & { notes: Set<string> }>();
+      for (const c of read().cards) {
+        if (!wanted.has(c.deckId) || c.retiredAt) continue;
+        let deck = out.get(c.deckId);
+        if (!deck) {
+          deck = {
+            deckId: c.deckId,
+            seen: 0,
+            hiddenNew: 0,
+            touched: 0,
+            suspended: 0,
+            recall: 0,
+            due: [],
+            notes: new Set(),
+          };
+          out.set(c.deckId, deck);
+        }
+        deck.notes.add(c.noteGuid);
+        if (c.suspended) deck.suspended++;
+        if (c.phase === 'new') {
+          if (hidden(c)) deck.hiddenNew++;
+          continue;
+        }
+        deck.seen++;
+        if (!c.suspended && c.stability !== null && c.lastReview !== null) {
+          const days = Math.max(0, nowMs - Date.parse(c.lastReview)) / 86_400_000;
+          deck.recall += retrievability(
+            [...Array<number>(20).fill(0), decay[c.deckId] ?? 0.5],
+            { stability: c.stability, difficulty: c.difficulty ?? 5 },
+            days,
+          );
+        }
+        if (c.due === null || hidden(c) || (c.interday && Date.parse(c.due) >= until.getTime())) {
+          continue;
+        }
+        deck.due.push({
+          noteGuid: c.noteGuid,
+          ord: c.ord,
+          queue: c.phase === 'review' ? 'r' : c.interday ? 'd' : 'l',
+          due: Math.floor(Date.parse(c.due) / 1000),
+        });
+      }
+      return {
+        truncated: false,
+        decks: [...out.values()]
+          .sort((a, b) => (a.deckId < b.deckId ? -1 : a.deckId > b.deckId ? 1 : 0))
+          .map(({ notes, ...d }) => ({
+            ...d,
+            touched: notes.size,
+            due: d.due.sort((a, b) =>
+              a.noteGuid < b.noteGuid ? -1 : a.noteGuid > b.noteGuid ? 1 : a.ord - b.ord,
+            ),
+          })),
       };
     },
     async cardsSyncedTo() {

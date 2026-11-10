@@ -16,6 +16,7 @@ function recording(storage: Storage | null = null) {
   const steps: QuizStep[] = [];
   const repo: QuizRepository = {
     load: inner.load,
+    openRounds: inner.openRounds,
     save: async (s) => {
       steps.push(structuredClone(s));
       await inner.save(s);
@@ -357,6 +358,7 @@ describe('saving the steps', () => {
     const gate = new Promise<void>((r) => (release = r));
     const saver = new StepSaver({
       load: async () => ({}),
+      openRounds: async () => [],
       save: async (s) => {
         if (!saved.length) await gate;
         saved.push(s);
@@ -406,6 +408,7 @@ describe('saving the steps', () => {
     const saver = new StepSaver(
       {
         load: async () => ({}),
+        openRounds: async () => [],
         save: async (s) => {
           if (fail-- > 0) throw new Error('sin conexión');
           saved.push(s.round);

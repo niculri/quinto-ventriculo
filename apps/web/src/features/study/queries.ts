@@ -216,6 +216,19 @@ export function useToday(prefs: StudyPreferences | undefined): number | null {
   return prefs ? timingFor(prefs, now).today : null;
 }
 
+/** Today's answers (the daily limits), from the start of the student's day. */
+export function useAnswersToday(prefs: StudyPreferences | undefined) {
+  const { study } = useServices();
+  const today = useToday(prefs);
+  return useQuery({
+    queryKey: studyKeys.answers(today ?? -1),
+    queryFn: () =>
+      study.answersSince(new Date(dayStartsAt(today!, prefs!.timeZone, prefs!.dayStartsAt) * 1000)),
+    enabled: today !== null && !!prefs,
+    staleTime: 30_000,
+  });
+}
+
 /**
  * Everything needed to build a deck's queue: its cards' states, today's answers, the preferences, the
  * presets and the deck settings. `data` is undefined while something is missing.
@@ -224,7 +237,6 @@ export function useStudyData(deck: DeckDetail | undefined) {
   const { study } = useServices();
   const preferences = usePreferences();
   const prefs = preferences.prefs;
-  const today = useToday(prefs);
   const catalog = useCatalog();
   const decks = useMemo(
     () => (catalog.data ? treeDecks(catalog.data.anki.decks) : undefined),
@@ -237,13 +249,7 @@ export function useStudyData(deck: DeckDetail | undefined) {
     enabled: !!deck,
     staleTime: 30_000,
   });
-  const answers = useQuery({
-    queryKey: studyKeys.answers(today ?? -1),
-    queryFn: () =>
-      study.answersSince(new Date(dayStartsAt(today!, prefs!.timeZone, prefs!.dayStartsAt) * 1000)),
-    enabled: today !== null && !!prefs,
-    staleTime: 30_000,
-  });
+  const answers = useAnswersToday(prefs);
   const presets = useUserPresets();
   const settings = useDeckSettings();
   const plan = useStudyPlan();

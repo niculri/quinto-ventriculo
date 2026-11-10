@@ -24,7 +24,7 @@ describe('/privacy and /terms', () => {
       await screen.findByRole('heading', { level: 1, name: 'Política de privacidad' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(`Versión ${LEGAL_VERSIONS.privacy.version} · 9 de noviembre de 2026`),
+      screen.getByText(`Versión ${LEGAL_VERSIONS.privacy.version} · 10 de noviembre de 2026`),
     ).toBeInTheDocument();
     expect(screen.queryByText('Traducción')).toBeNull();
     expect(screen.queryByRole('button', { name: /Entrar con Google/ })).toBeNull();

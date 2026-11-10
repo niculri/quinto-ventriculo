@@ -61,7 +61,17 @@ export function SearchPage() {
             <Skeleton className="h-24 w-full" />
           </div>
         ) : groups.length === 0 ? (
-          <p className="text-sm text-muted">Nada para «{query}».</p>
+          <div className="text-sm text-muted">
+            <p>
+              Nada para «{query}». Prueba con el comienzo de la palabra, con otro nombre de la
+              estructura o sin abreviaturas.
+            </p>
+            <p className="mt-3">
+              <Link to={paths.courses} className="font-medium text-brand hover:underline">
+                Ver toda la carrera
+              </Link>
+            </p>
+          </div>
         ) : (
           <>
             <p className="mb-4 text-sm text-muted">

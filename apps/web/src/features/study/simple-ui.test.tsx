@@ -44,7 +44,7 @@ describe('a student who just arrived', () => {
     await study.setDeckActivation(WEEK_ID, true);
     const first = renderApp(`${DECK_PATH}/study`, { study });
     const dialog = await screen.findByRole('dialog', { name: 'Cómo se estudia aquí' });
-    expect(within(dialog).getByText(/Vuelve cada día/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/Intenta acordarte/)).toBeInTheDocument();
     await userEvent.click(within(dialog).getByRole('button', { name: 'Entendido' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitFor(async () => expect((await study.preferences())?.welcomeSeen).toBe(true));
@@ -332,10 +332,40 @@ describe('while the data arrives, nothing that will have to change', () => {
   });
 
   it('the home page does not offer «Estudiar» until it knows there is something to study', async () => {
-    renderApp('/home', { study: student(), api: slowDeck() });
-    await screen.findByRole('heading', { name: 'Hoy en Anki' });
-    expect(screen.queryByRole('link', { name: /Estudiar/ })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Elegir qué estudiar' })).toBeNull();
+    const study = await withWeekOn();
+    study.homeCounts = () => new Promise(() => {});
+    renderApp('/home', { study, api: slowDeck() });
+    const today = await screen.findByRole('region', { name: 'Hoy' });
+    expect(within(today).getByRole('link', { name: /Anatomía I/ })).toBeInTheDocument();
+    expect(within(today).queryByRole('link', { name: /Estudiar/ })).toBeNull();
+    expect(within(today).queryByRole('link', { name: 'Elegir qué estudiar' })).toBeNull();
+  });
+
+  it('the home page counts without the deck (step 3.2)', async () => {
+    let decks = 0;
+    const api = fakeApi({
+      deck: () => {
+        decks++;
+        return new Promise(() => {});
+      },
+    });
+    renderApp('/home', { study: await withWeekOn(), api });
+    const today = await screen.findByRole('region', { name: 'Hoy' });
+    expect(await within(today).findByRole('link', { name: /Estudiar/ })).toBeInTheDocument();
+    expect(within(today).getByRole('button', { name: /para hoy · ~\d+ min/ })).toBeInTheDocument();
+    expect(decks).toBe(0);
+  });
+
+  it('with nothing on, «Hoy» says so and offers to choose, and the first steps show', async () => {
+    renderApp('/home', { study: student() });
+    const today = await screen.findByRole('region', { name: 'Hoy' });
+    expect(
+      within(today).getByText(/Todavía no activas ninguna semana o clase/),
+    ).toBeInTheDocument();
+    expect(within(today).getByRole('link', { name: 'Elegir qué estudiar' })).toBeInTheDocument();
+    const steps = screen.getByRole('region', { name: 'Primeros pasos' });
+    expect(within(steps).getByText('Elige tus ramos')).toBeInTheDocument();
+    expect(within(steps).getAllByText(/\(pendiente\)/, { selector: 'span' })).toHaveLength(3);
   });
 });
 
@@ -348,8 +378,11 @@ describe('when the data does not arrive', () => {
   });
 
   it('the home page too', async () => {
-    renderApp('/home', { study: student(), api: failing() });
-    expect(await screen.findByText('No se pudo cargar.')).toBeInTheDocument();
+    const study = await withWeekOn();
+    study.homeCounts = () => Promise.reject(new Error('sin conexión'));
+    renderApp('/home', { study, api: failing() });
+    const today = await screen.findByRole('region', { name: 'Hoy' });
+    expect(await within(today).findByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
   });
 
   it('without the plan, the deck page offers to try again', async () => {
@@ -514,6 +547,36 @@ describe('the keyboard in the study screen', () => {
     fireEvent.keyDown(document.body, { key: 'Enter' });
     await waitFor(async () =>
       expect(await study.ratedSince(new Date(0))).toEqual([expect.objectContaining({ rating: 3 })]),
+    );
+  });
+
+  it('a tip once (step 3.2): after answering, the next answer says what «Ver apunte» is', async () => {
+    window.localStorage.removeItem('qv-tips-shown');
+    window.sessionStorage.clear();
+    const study = await withWeekOn();
+    renderApp(`${DECK_PATH}/study`, {
+      study,
+      api: fakeApi({ catalog: async () => withMaterial() }),
+    });
+    await cardText(/Frente de la tarjeta/);
+    fireEvent.keyDown(window, { key: ' ' });
+    await screen.findByRole('link', { name: 'Ver apunte' });
+    // Not before doing it.
+    expect(screen.queryByText('lleva al apunte del que sale esta tarjeta')).toBeNull();
+    fireEvent.keyDown(document.body, { key: 'Enter' });
+    await cardText(/Frente de la tarjeta/);
+    fireEvent.keyDown(window, { key: ' ' });
+    expect(
+      await screen.findByText('lleva al apunte del que sale esta tarjeta'),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cerrar el consejo' }));
+    // Closed, it keeps its room (hidden) until the visit ends: «Ver apunte» does not move (review of 3.2).
+    expect(screen.queryByRole('button', { name: 'Cerrar el consejo' })).toBeNull();
+    expect(
+      screen.getByText('lleva al apunte del que sale esta tarjeta').closest('[aria-hidden="true"]'),
+    ).toHaveClass('invisible');
+    await waitFor(async () =>
+      expect((await study.preferences())?.dismissed).toContain('tip-material'),
     );
   });
 

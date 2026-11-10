@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Counts, QueueCard } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
-import { useNow, useStudyData } from './queries';
+import { useStudyData } from './queries';
 import { buildQueue, configsFor, deckIds, queueCards, studiedToday } from './scheduler';
 import type { StudyData } from './scheduler';
 import { masteryByDeck } from './mastery';
@@ -54,18 +54,42 @@ export function deckCounts(data: StudyData, nowMs = Date.now()): Map<string, Cou
   return out;
 }
 
+/**
+ * When the counts can change by themselves: a learning step of today coming within the learn-ahead limit, or a card
+ * buried until a moment that passes. Null: not before the day changes (the study data are read again then).
+ */
+export function nextCountChange(data: StudyData, nowMs = Date.now()): number | null {
+  const ahead = data.prefs.learnAheadMinutes * 60_000;
+  let next: number | null = null;
+  const consider = (at: number) => {
+    if (at > nowMs && (next === null || at < next)) next = at;
+  };
+  for (const r of data.rows.values()) {
+    if (r.phase !== 'new' && !r.interday && r.due !== null) consider(Date.parse(r.due) - ahead);
+    if (r.buriedUntil !== null) consider(Date.parse(r.buriedUntil));
+  }
+  return next;
+}
+
 export function useDeckCounts(deck: DeckDetail | undefined) {
   const study = useStudyData(deck);
-  // Recomputed every minute: learning cards come due as time goes by.
-  const now = useNow();
-  const counts = useMemo(
-    () => (study.data ? deckCounts(study.data, now) : undefined),
-    [study.data, now],
-  );
-  const mastery = useMemo(
-    () => (study.data ? masteryByDeck(study.data, now) : undefined),
-    [study.data, now],
-  );
+  // Computed when something changed or a card came due (plan step 3.2, E6), not every minute.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!study.data) return;
+    const at = nextCountChange(study.data);
+    if (at === null) return;
+    const id = setTimeout(() => setTick((t) => t + 1), Math.min(at - Date.now() + 50, 2 ** 31 - 1));
+    return () => clearTimeout(id);
+  }, [study.data, tick]);
+  const counts = useMemo(() => {
+    void tick;
+    return study.data ? deckCounts(study.data) : undefined;
+  }, [study.data, tick]);
+  const mastery = useMemo(() => {
+    void tick;
+    return study.data ? masteryByDeck(study.data) : undefined;
+  }, [study.data, tick]);
   return { ...study, counts, mastery };
 }
 

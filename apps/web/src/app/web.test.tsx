@@ -360,9 +360,15 @@ describe('access', () => {
 });
 
 describe('catalog', () => {
-  it('home shows the semesters with their courses', async () => {
+  it('«La carrera» shows the semesters with their courses, and the home page has a line to it', async () => {
     renderApp('/home');
-    const main = await screen.findByRole('main');
+    const link = await screen.findByRole('link', { name: /Ver toda la carrera/ });
+    expect(link).toHaveAttribute('href', '/courses');
+    await userEvent.click(link);
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'La carrera' }),
+    ).toBeInTheDocument();
+    const main = screen.getByRole('main');
     expect(await within(main).findByText('2° Semestre')).toBeInTheDocument();
     expect(within(main).getByText(/Biología celular/)).toBeInTheDocument();
     expect(within(main).getByText('2 apuntes')).toBeInTheDocument();

@@ -432,6 +432,7 @@ export class StudySession {
       timing,
     );
     this.history.push({ kind: 'answer', card: ref, before, stamps, update, answer: answered });
+    this.answeredInSession++;
 
     // Anki caps the time on a card to the preset's maximum.
     const durationMs = Math.round(Math.min(now - shownAt, config.capAnswerTimeToSecs * 1000));
@@ -532,6 +533,9 @@ export class StudySession {
   }
 
   /** There is something to undo: only what was done since this study session started. */
+  /** How many cards were answered in this session (undone ones too: the tips only need to know one was). */
+  answeredInSession = 0;
+
   get canUndo(): boolean {
     return this.history.length > 0;
   }

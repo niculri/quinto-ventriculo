@@ -61,6 +61,8 @@ export const paths = {
   /** The landing page, with `next` (where to go after signing in) or a known `notice`. */
   landing: (query?: { next?: string | null; notice?: string | null }) => withQuery('/', query),
   home: '/home',
+  /** Every semester and its courses (step 3.2: «La carrera» left the home page). */
+  courses: '/courses',
   /** The privacy policy and the terms of use (step 2.3): public, with or without a session. */
   privacy: '/privacy',
   terms: '/terms',

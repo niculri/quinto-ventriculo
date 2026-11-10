@@ -14,7 +14,7 @@ import type {
 } from '@qv/schema';
 import { ErrorWithRetry } from '../../ui/Notice';
 import { Loading, Skeleton } from '../../ui/Loading';
-import { card, linkCard, page } from '../../ui/styles';
+import { button, card, linkCard, page } from '../../ui/styles';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
 import { NotFoundPage } from '../../ui/NotFoundPage';
 import { plural } from './AssessmentSections';
@@ -114,7 +114,12 @@ function CourseView({
       ) : null}
 
       {assessments.length === 0 ? (
-        <p className="mt-6 text-muted">Todavía no hay material de este ramo.</p>
+        <div className="mt-6 text-muted">
+          <p>Todavía no hay material de este ramo.</p>
+          <Link to={paths.courses} className={`${button.base} ${button.secondary} mt-4`}>
+            Ver toda la carrera
+          </Link>
+        </div>
       ) : (
         assessments.map((a) => {
           const node = deckOf(a);

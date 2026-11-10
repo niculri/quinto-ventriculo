@@ -68,6 +68,14 @@ export const AnkiTreeDeck = z.object({
   /** Notes and cards of the deck and its subdecks. */
   noteCount: z.number().int().nonnegative(),
   cardCount: z.number().int().nonnegative(),
+  /**
+   * Notes with a card directly in the deck; those whose cards are all directly in it; and those with a card directly
+   * in it and every card in it or below it (step 3.2: the home page counts new cards with them, without the deck).
+   * Missing from a content database before that migration.
+   */
+  ownNoteCount: z.number().int().nonnegative().optional(),
+  exclusiveNoteCount: z.number().int().nonnegative().optional(),
+  closedNoteCount: z.number().int().nonnegative().optional(),
 });
 export type AnkiTreeDeck = z.infer<typeof AnkiTreeDeck>;
 

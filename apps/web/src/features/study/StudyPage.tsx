@@ -14,6 +14,7 @@ import {
   PartyPopper,
   SkipForward,
   Undo2,
+  X,
 } from 'lucide-react';
 import type { QueueEntry, Rating } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
@@ -47,6 +48,7 @@ import { keys } from '../../ui/keys';
 import { ReportDialog } from '../reports/ReportDialog';
 import { cardTarget } from '../reports/targets';
 import { useCountOpen } from '../usage/count';
+import { useTip } from '../tips/useTip';
 
 /** Studying a deck of the tree: it and everything below it, with the limits of each level (as Anki). */
 export function StudyPage({ node }: { node: CourseDeckNode }) {
@@ -129,6 +131,11 @@ function Reviewer({
   const full = initial.prefs.fullAnki;
   const fourButtons = initial.prefs.fourButtons;
   const material = useCardMaterial(shown?.entry.deckId);
+  // A tip once (step 3.2): after answering a card, the next answer shown says what «Ver apunte» is.
+  const tip = useTip(
+    'tip-material',
+    !full && revealed && !!material && session.answeredInSession > 0,
+  );
   // How much is left when the session opens: from a certain load on, it warns once and offers to stop.
   const [opening] = useState(() => session.counts());
   const openingMinutes = estimateMinutes(opening, initial.plan.medianAnswerMs);
@@ -391,6 +398,24 @@ function Reviewer({
                     <MaterialLink href={material.notePath}>
                       <BookOpen className="size-3.5" aria-hidden="true" /> Ver apunte
                     </MaterialLink>
+                    {tip.shown ? (
+                      // In the line's own room: it moves nothing, and closed it does not come back. Closed, its room
+                      // stays until the visit ends, so that «Ver apunte» and «Preguntas» do not move (review of 3.2).
+                      <span
+                        aria-hidden={tip.show ? undefined : true}
+                        className={`flex min-w-0 items-center gap-1 whitespace-nowrap text-ink ${tip.show ? '' : 'invisible'}`}
+                      >
+                        <span className="truncate">lleva al apunte del que sale esta tarjeta</span>
+                        <button
+                          type="button"
+                          onClick={tip.close}
+                          aria-label="Cerrar el consejo"
+                          className="flex-none rounded p-0.5 text-muted hover:bg-surface-2 hover:text-ink"
+                        >
+                          <X className="size-3.5" aria-hidden="true" />
+                        </button>
+                      </span>
+                    ) : null}
                     {material.quizPath ? (
                       <MaterialLink href={material.quizPath}>
                         <ListChecks className="size-3.5" aria-hidden="true" /> Preguntas
@@ -422,7 +447,8 @@ function Reviewer({
         ) : null}
       </div>
 
-      {!full && !initial.prefs.welcomeSeen ? <Welcome prefs={initial.prefs} /> : null}
+      {/* Only with a card to study: with nothing on, the empty screen says what to do (step 3.2). */}
+      {!full && !initial.prefs.welcomeSeen && shown ? <Welcome prefs={initial.prefs} /> : null}
 
       {reporting ? (
         <ReportEntry
@@ -668,7 +694,7 @@ function SimpleMenu({
   );
 }
 
-/** The first time somebody enters to study: three steps, once. */
+/** The first time somebody enters to study, with a card in front: how it works, in two sentences, once. */
 function Welcome({ prefs }: { prefs: StudyPreferences }) {
   const [open, setOpen] = useState(true);
   const save = useSavePreferences();
@@ -676,53 +702,23 @@ function Welcome({ prefs }: { prefs: StudyPreferences }) {
     setOpen(false);
     save.mutate({ ...prefs, welcomeSeen: true });
   };
-  const step = (n: number, title: string, text: string) => (
-    <li className="flex gap-3">
-      <span
-        aria-hidden="true"
-        className="flex size-6 flex-none items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand"
-      >
-        {n}
-      </span>
-      <div>
-        <p className="font-medium">{title}</p>
-        <p className="mt-0.5 text-sm text-muted">{text}</p>
-      </div>
-    </li>
-  );
   return (
     <Dialog.Root open={open} onOpenChange={(o) => (o ? null : close())}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
         <Dialog.Content
-          // On a small phone the steps scroll, between the title and «Entendido», which is always in sight.
-          className="fixed top-4 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 flex-col rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:top-[12vh] sm:max-h-[calc(88dvh-1rem)]"
+          className="fixed top-4 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 flex-col rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:top-[16vh]"
           // Focus does not go to a button behind: space and Enter have to show the answer.
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <Dialog.Title className="font-serif text-xl font-semibold">
             Cómo se estudia aquí
           </Dialog.Title>
-          <Dialog.Description className="sr-only">
-            Tres pasos para empezar a estudiar con las tarjetas.
+          <Dialog.Description className="mt-3 text-sm text-muted">
+            Intenta acordarte, muestra la respuesta y elige «Otra vez» si no te la sabías o «Bien»
+            si te la sabías. Cada tarjeta vuelve justo cuando estás por olvidarla: unos minutos al
+            día rinden más que una tarde antes de la prueba.
           </Dialog.Description>
-          <ol className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto">
-            {step(
-              1,
-              'Responde «Otra vez» o «Bien»',
-              'Intenta acordarte y muestra la respuesta. «Otra vez» si no te la sabías: vuelve en unos minutos. «Bien» si te la sabías: vuelve más adelante, cada vez más separada.',
-            )}
-            {step(
-              2,
-              'Vuelve cada día',
-              'Cada tarjeta sale cuando estás por olvidarla. Unos minutos diarios rinden más que una tarde completa antes de la prueba.',
-            )}
-            {step(
-              3,
-              'Activa lo que vas viendo',
-              'Cada semana o clase parte desactivada. La activas en la página del ramo o del certamen, y sus tarjetas nuevas empiezan a salir.',
-            )}
-          </ol>
           <div className="mt-5 flex justify-end">
             <button type="button" onClick={close} className={`${button.base} ${button.primary}`}>
               Entendido

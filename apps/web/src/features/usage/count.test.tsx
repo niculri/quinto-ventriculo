@@ -68,10 +68,10 @@ describe('what is opened (step 2.9)', () => {
     expect(sent).toEqual([{ kind: 'deck', id: '20' }]);
   });
 
-  it('from the home page, «Estudiar» counts the deck (already read by «Hoy en Anki»)', async () => {
+  it('from the home page, «Estudiar» counts the deck (the home page did not read it)', async () => {
     const { api, sent } = spyApi();
     renderApp('/home', { api, study: fullAnkiStudy() });
-    const today = await screen.findByRole('region', { name: 'Hoy en Anki' });
+    const today = await screen.findByRole('region', { name: 'Hoy' });
     await userEvent.click(await within(today).findByRole('link', { name: /^Estudiar/ }));
     await screen.findByRole('button', { name: 'Mostrar respuesta' });
     await settle();

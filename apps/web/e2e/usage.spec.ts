@@ -201,8 +201,8 @@ test('what is opened: the home page and «Ponte a prueba» count nothing, a note
   await page.goto('/home');
   await expect(page.getByRole('heading', { name: /^Hola/ })).toBeVisible();
   await page.waitForTimeout(1200);
-  // «Hoy en Anki» read the course's decks, and nothing was counted.
-  expect(reads.some((p) => p.startsWith('/api/decks/'))).toBe(true);
+  // «Hoy» counts without the decks (step 3.2), and nothing was counted.
+  expect(reads.some((p) => p.startsWith('/api/decks/'))).toBe(false);
   expect(opens).toEqual([]);
 
   await page.goto('/semesters/2/courses/biologia-celular/notes/11-traduccion');

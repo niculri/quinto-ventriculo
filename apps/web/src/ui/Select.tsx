@@ -18,6 +18,7 @@ export function Select<T extends string>({
   onChange,
   disabled = false,
   modal = false,
+  placeholder = '',
   className = '',
 }: {
   id?: string;
@@ -28,15 +29,19 @@ export function Select<T extends string>({
   onChange: (value: T) => void;
   disabled?: boolean;
   modal?: boolean;
+  /** What the button says while no option is chosen (`value` is none of them): an action, «Agregar un ramo…». */
+  placeholder?: string;
   className?: string;
 }) {
-  const current = options.find((o) => o.value === value)?.label ?? '';
+  const chosen = options.find((o) => o.value === value);
+  const current = chosen?.label ?? placeholder;
   return (
     <Menu.Root modal={modal}>
       <Menu.Trigger
         id={id}
         disabled={disabled}
-        aria-label={`${label}: ${current}`}
+        // With nothing chosen (its placeholder is an action), only what it does: not «Agregar…: Agregar…».
+        aria-label={chosen ? `${label}: ${current}` : label}
         className={`group flex min-w-0 items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-left text-sm text-ink transition-colors outline-none hover:border-border-strong focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30 disabled:cursor-default disabled:opacity-60 data-[state=open]:border-brand ${className}`}
       >
         <span className="min-w-0 truncate">{current}</span>

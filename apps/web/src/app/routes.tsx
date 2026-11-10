@@ -51,6 +51,7 @@ export const routes: RouteObject[] = [
         Component: ProtectedRoute,
         children: [
           { path: 'home', lazy: page(() => import('./pages/home')) },
+          { path: 'courses', lazy: page(() => import('./pages/courses')) },
           // The URLs follow the hierarchy (app/paths.ts builds them all).
           { path: 'semesters/:number', lazy: page(() => import('./pages/semester')) },
           {

@@ -183,6 +183,8 @@ test.describe('the semesters without material', () => {
     page,
   }) => {
     await signIn(page);
+    // «La carrera» left the home page for its own (step 3.2).
+    await page.goto('/courses');
     const main = page.getByRole('main');
     const third = main.getByText('3° Semestre', { exact: true });
     await expect(third).toBeVisible();
@@ -199,12 +201,14 @@ test.describe('the semesters without material', () => {
     await expect(page.getByText(/^Cambiado el .* por demo@ug\.uchile\.cl$/)).toBeVisible();
     expect(await toggle.boundingBox()).toEqual(box);
 
-    // At once in this tab: through the menu, without reloading.
+    // At once in this tab: through the menu and the home page's line, without reloading.
     await page
       .getByRole('navigation', { name: 'Menú del sitio' })
       .getByRole('link', { name: 'Inicio' })
       .click();
     await expect(page).toHaveURL(/\/home$/);
+    await main.getByRole('link', { name: 'Ver toda la carrera' }).click();
+    await expect(page).toHaveURL(/\/courses$/);
     await expect(main.getByText('Los próximos semestres vienen pronto.')).toBeVisible();
     await expect(third).toHaveCount(0);
     expect(await frame(page, false)).toEqual(home);
@@ -223,7 +227,7 @@ test.describe('the semesters without material', () => {
     await page.goto('/admin/site');
     await toggle.click();
     await expect(toggle).not.toBeChecked();
-    await page.goto('/home');
+    await page.goto('/courses');
     await expect(third).toBeVisible();
     await expect(main.getByText('Los próximos semestres vienen pronto.')).toHaveCount(0);
   });

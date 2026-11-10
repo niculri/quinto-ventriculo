@@ -13,8 +13,12 @@ test('a new student: enters the course, turns a lecture on and studies with two 
   page,
 }) => {
   await signIn(page);
-  // Nothing turned on yet: the home page says so, and takes them to the course.
-  await page.getByRole('link', { name: 'Elegir qué estudiar' }).first().click();
+  // Nothing turned on yet: the home page says so; with their semester, it takes them to the course.
+  const home = page.getByRole('region', { name: 'Hoy' });
+  await expect(home).toContainText('Todavía no activas ninguna semana o clase');
+  await page.getByRole('button', { name: /¿En qué semestre estás\?/ }).click();
+  await page.getByRole('menuitemradio', { name: '1° Semestre' }).click();
+  await home.getByRole('link', { name: 'Elegir qué estudiar' }).click();
   await expect(page).toHaveURL(new RegExp(`${COURSE_URL}$`));
 
   // With nothing on, the list of what can be turned on is already open.
@@ -32,7 +36,7 @@ test('a new student: enters the course, turns a lecture on and studies with two 
 
   // The first time: the welcome, once.
   const welcome = page.getByRole('dialog', { name: 'Cómo se estudia aquí' });
-  await expect(welcome).toContainText('Vuelve cada día');
+  await expect(welcome).toContainText('Intenta acordarte');
   await welcome.getByRole('button', { name: 'Entendido' }).click();
   await expect(welcome).toHaveCount(0);
 
@@ -72,11 +76,11 @@ test('with nothing turned on, «Estudiar» says what to do and links to where to
 }) => {
   await signIn(page);
   await page.goto(`${COURSE_URL}/anki/study`);
-  const welcome = page.getByRole('dialog', { name: 'Cómo se estudia aquí' });
-  await welcome.getByRole('button', { name: 'Entendido' }).click();
   await expect(
     page.getByRole('heading', { name: 'Todavía no activas esta materia' }),
   ).toBeVisible();
+  // Without a card in front, the welcome does not open: the screen already says what to do (step 3.2).
+  await expect(page.getByRole('dialog', { name: 'Cómo se estudia aquí' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Elegir qué estudiar' }).click();
   await expect(page).toHaveURL(new RegExp(`${COURSE_URL}$`));
   await expect(page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' })).toBeVisible();
@@ -204,6 +208,10 @@ test('on a small phone: nothing scrolls sideways, and the welcome can be closed'
     await expect(page.locator('h1').first()).toBeVisible();
     await expect.poll(sideways, { message: url }).toBe(0);
   }
+  // The welcome comes only with a card in front.
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
+  await expect(page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' })).toBeChecked();
   await page.goto(`${DECK_URL}/study`);
   const close = page.getByRole('button', { name: 'Entendido' });
   await expect(close).toBeInViewport({ ratio: 1 });
@@ -271,7 +279,7 @@ test('the home page on a phone: the name of the course over its load and its but
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   await page.goto('/home');
-  const today = page.getByRole('region', { name: 'Hoy en Anki' });
+  const today = page.getByRole('region', { name: 'Hoy' });
   const study = today.getByRole('link', { name: 'Estudiar' });
   await expect(study).toBeVisible();
   const name = (await today.getByRole('link', { name: /Anatomía I/ }).boundingBox())!;

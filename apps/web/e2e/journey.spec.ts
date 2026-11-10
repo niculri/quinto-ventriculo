@@ -19,9 +19,11 @@ test('without a session no material is shown: only the landing page', async ({ p
 
 test('sign in and navigate to a note, with no reading progress on home', async ({ page }) => {
   await signIn(page);
-  // Each click waits for its page: on home, the «2° Semestre» card also names «Biología celular».
+  // Each click waits for its page: in «La carrera», the «2° Semestre» card also names «Biología celular».
   // In the page, not the site's menu (which has the same links).
   const main = page.getByRole('main');
+  await main.getByRole('link', { name: 'Ver toda la carrera' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'La carrera' })).toBeVisible();
   await main.getByRole('link', { name: /2° Semestre/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: '2° Semestre' })).toBeVisible();
   await main.getByRole('link', { name: /Biología celular/ }).click();
@@ -41,10 +43,14 @@ test('sign in and navigate to a note, with no reading progress on home', async (
     .poll(() => figure.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth))
     .toBeGreaterThan(0);
 
-  // There is no reading progress any more (removed at the author's request): home shows no «Seguir leyendo».
+  // There is no reading progress (removed at the author's request): home only offers the last note opened on this
+  // device, under «Seguir» (step 3.2), with no percentage.
   await page.goto('/home');
   await expect(page.getByRole('heading', { level: 1, name: /Hola/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Seguir leyendo' })).toHaveCount(0);
+  const follow = page.getByRole('region', { name: 'Seguir' });
+  await expect(follow.getByRole('link', { name: /Traducción/ })).toBeVisible();
+  await expect(follow).not.toContainText('%');
 });
 
 test('a link with a tricky destination neither leaves the site nor breaks the sign-in', async ({
@@ -115,6 +121,8 @@ test('the URLs follow the hierarchy, and old links redirect keeping the anchor',
 }) => {
   await signIn(page);
   const main = page.getByRole('main');
+  await main.getByRole('link', { name: 'Ver toda la carrera' }).click();
+  await expect(page).toHaveURL(/\/courses$/);
   await main.getByRole('link', { name: /2° Semestre/ }).click();
   await expect(page).toHaveURL(/\/semesters\/2$/);
   await main.getByRole('link', { name: /Biología celular/ }).click();

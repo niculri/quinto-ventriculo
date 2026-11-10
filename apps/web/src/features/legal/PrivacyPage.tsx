@@ -59,9 +59,11 @@ export function PrivacyPage() {
             (cuándo te toca, su intervalo, su estabilidad y dificultad, y si la suspendiste,
             enterraste o le pusiste una bandera); el historial de tus respuestas (qué botón
             elegiste, cuándo y cuánto tardaste); un resumen de cada día por mazo; lo necesario para
-            deshacer tus últimas respuestas; los mazos que activaste; la fecha de tus certámenes; y
+            deshacer tus últimas respuestas; los mazos que activaste; la fecha de tus certámenes;
             tus opciones de estudio (tu zona horaria, a qué hora empieza tu día, tus configuraciones
-            de mazos).
+            de mazos); el semestre que elegiste en Inicio y los ramos que agregaste a «Tus ramos» o
+            quitaste de ahí; y los avisos que cerraste (los primeros pasos y los consejos), para que
+            no vuelvan a aparecer.
           </li>
           <li>
             <strong>Tus tests.</strong> Cada ronda que empezaste, cada respuesta (qué alternativa
@@ -91,11 +93,12 @@ export function PrivacyPage() {
           </li>
         </ul>
         <p>
-          <strong>En tu navegador</strong> quedan tu sesión y algunas preferencias de la pantalla
-          (el tema claro u oscuro, las secciones que dejaste abiertas, la última pestaña de un
-          test). No salen de ese navegador: la sesión se borra al cerrarla, y lo demás cuando borras
-          los datos del sitio en tu navegador. El sitio no usa cookies de publicidad ni de
-          seguimiento.
+          <strong>En tu navegador</strong> quedan tu sesión, algunas preferencias de la pantalla (el
+          tema claro u oscuro, las secciones que dejaste abiertas, la última pestaña de un test, el
+          alto de Inicio y los consejos que ya se te mostraron) y el último apunte que abriste, para
+          ofrecértelo en «Seguir». No salen de ese navegador: la sesión se borra al cerrarla, y lo
+          demás cuando borras los datos del sitio en tu navegador. El sitio no usa cookies de
+          publicidad ni de seguimiento.
         </p>
         <p>
           <strong>Registros técnicos.</strong> Los servidores del sitio (Supabase y Cloudflare)

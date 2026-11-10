@@ -431,6 +431,10 @@ describe('decks and cards', () => {
         assessmentId: 'biologia-celular/certamen-2',
         noteCount: 2,
         cardCount: 3,
+        // Step 3.2: the notes with a card in the deck itself, all in it, and all in it or below it.
+        ownNoteCount: 1,
+        exclusiveNoteCount: 1,
+        closedNoteCount: 1,
       },
       {
         id: '21',
@@ -442,6 +446,9 @@ describe('decks and cards', () => {
         assessmentId: 'biologia-celular/certamen-2',
         noteCount: 1,
         cardCount: 1,
+        ownNoteCount: 1,
+        exclusiveNoteCount: 1,
+        closedNoteCount: 1,
       },
     ]);
     expect(c.anki.presets).toEqual([{ name: 'Default', config: { new: { perDay: 20 } } }]);

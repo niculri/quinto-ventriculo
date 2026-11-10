@@ -34,6 +34,19 @@ export function memoryDecks(bundle: ContentBundle) {
     const inside = cards.filter((c) => ids.has(c.card.deckId));
     return { noteCount: new Set(inside.map((c) => c.note.guid)).size, cardCount: inside.length };
   };
+  /**
+   * Notes with a card directly in the deck, those with every card in it and those with every card in it or below it
+   * (`anki_deck_tree()`, step 3.2).
+   */
+  const own = (id: string) => {
+    const notes = new Set(cards.filter((c) => c.card.deckId === id).map((c) => c.note));
+    const below = new Set(subtree(id).map((x) => x.id));
+    return {
+      ownNoteCount: notes.size,
+      exclusiveNoteCount: [...notes].filter((n) => n.cards.every((c) => c.deckId === id)).length,
+      closedNoteCount: [...notes].filter((n) => n.cards.every((c) => below.has(c.deckId))).length,
+    };
+  };
   const leaf = (name: string) => name.split('::').at(-1)!;
 
   return {
@@ -49,6 +62,7 @@ export function memoryDecks(bundle: ContentBundle) {
           courseId: d.courseId,
           assessmentId: d.assessmentId,
           ...stats(d.id),
+          ...own(d.id),
         })),
         presets: bundle.ankiPresets.map((p) => ({ name: p.name, config: p.config })),
         noteTypes: bundle.ankiNoteTypes.map((t) => ({

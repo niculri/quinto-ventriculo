@@ -76,7 +76,7 @@ const places = (page: Page) =>
       section: at(section),
       grid: at(section?.querySelector('[role="grid"]')),
       figures: at(section?.querySelector('dl')?.parentElement),
-      after: at(document.getElementById('degree')),
+      after: at(document.getElementById('my-courses')),
     };
   });
 
@@ -118,6 +118,8 @@ test('changing the year and opening a day move nothing', async ({ page }) => {
   await expect(today(page)).toBeVisible();
   await expect(box(page).locator('dd').first()).toHaveText(/\d+ respuestas?/);
   await fontsLoaded(page);
+  // Step 3.2: the first steps come above it on the home page; in sight before clicking its days.
+  await box(page).scrollIntoViewIfNeeded();
   await settle(page);
   const before = await places(page);
   const back = box(page).getByRole('button', { name: 'Año anterior' });

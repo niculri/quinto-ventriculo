@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
@@ -24,6 +24,8 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
     .getByRole('link', { name: /1° Semestre/ })
     .first()
     .click();
+  // /courses lists «Anatomía I» too: clicking it there before the semester's page came lost to that navigation.
+  await expect(page).toHaveURL(/\/semesters\/1$/);
   await page
     .getByRole('link', { name: /Anatomía I/ })
     .first()

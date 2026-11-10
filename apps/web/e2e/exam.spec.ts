@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { ONLY_ACCEPTED } from './accepted';
 import type { Locator, Page } from '@playwright/test';
 import { signIn } from './helpers';

@@ -24,4 +24,23 @@ export default tseslint.config(
     plugins: { 'react-hooks': reactHooks },
     rules: reactHooks.configs.recommended.rules,
   },
+  {
+    // The specs take `test` from e2e/test.ts, which pins the page's clock at midday (step 1.9).
+    files: ['apps/web/e2e/**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@playwright/test',
+              importNames: ['test'],
+              allowTypeImports: true,
+              message: "Import `test` from './test' (the clock pinned at midday).",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

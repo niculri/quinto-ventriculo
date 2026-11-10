@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import type { Page, Route } from '@playwright/test';
 import { signIn } from './helpers';
 

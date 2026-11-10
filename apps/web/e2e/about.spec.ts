@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { CONTACT_EMAIL } from '@qv/schema';
 import { DECK_URL, signIn } from './helpers';

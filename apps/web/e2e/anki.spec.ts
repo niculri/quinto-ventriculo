@@ -69,8 +69,10 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
     presetDialog.getByRole('link', { name: 'Editar o crear configuraciones' }),
   ).toBeVisible();
   await presetDialog.getByRole('button', { name: 'Cerrar' }).click();
-  await page.getByRole('link', { name: /Ver tarjetas de este mazo/ }).click();
-  await expect(page).toHaveURL(/\/anki\/browse\?q=/);
+  await page.getByRole('link', { name: 'Ver las tarjetas' }).click();
+  await expect(page).toHaveURL(/\/anki\/certamen-1\/cards$/);
+  // Anki's table: the «Tabla» of «Modo avanzado».
+  await page.getByRole('group', { name: 'Vista' }).getByRole('button', { name: 'Tabla' }).click();
   const grid = page.getByRole('grid', { name: 'Tarjetas' });
   await expect(page.getByText('16 tarjetas', { exact: true })).toBeVisible();
 

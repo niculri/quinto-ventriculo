@@ -44,7 +44,7 @@ export function deckSlugs(decks: readonly { id: string; name: string; parentId: 
   }
   return out;
 }
-const RESERVED = new Set(['study', 'browse', 'options', 'anki']);
+const RESERVED = new Set(['study', 'browse', 'options', 'anki', 'cards']);
 
 /** The root of every published deck («() Medicina UCH»): the `/anki` page. */
 export const ROOT_DECK_NAME = '() Medicina UCH';

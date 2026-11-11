@@ -804,7 +804,10 @@ describe('Revisión de cero (1.7, parte 3)', () => {
     await db.exec('begin');
     await db.exec(`update public.courses set emoji = '🧬' where id = 'biologia-celular';
       update draft.courses set emoji = '🧬' where id = 'biologia-celular';`);
-    await expect(q('select public.rebuild_draft()')).rejects.toThrow(/not published \(anki_cards/);
+    // (anki_browse_indexes, step 3.3, is the first table in the list: the browser's index of the draft changed too)
+    await expect(q('select public.rebuild_draft()')).rejects.toThrow(
+      /not published \(anki_browse_indexes.*anki_cards/,
+    );
     await db.exec('rollback');
   });
 
@@ -860,6 +863,7 @@ describe('Revisión de cero (1.7, parte 3)', () => {
       'semesters',
       'courses',
       'assessments',
+      'anki_browse_indexes',
       'anki_decks',
       'anki_cards',
       'notes',

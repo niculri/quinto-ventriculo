@@ -129,6 +129,13 @@ async function main() {
           ? 'Ya estaba en content/unpublished.json.'
           : 'Anotado en content/unpublished.json: haz commit en el repositorio privado.',
         'Quien ya lo tenía abierto puede seguir viéndolo en esa pestaña hasta 10 min; una visita nueva deja de verlo al minuto (docs/arquitectura.md, «Despublicar»).',
+        ...(outcome.result.kind === 'deck'
+          ? [
+              `Explorador de tarjetas: ${outcome.indexFiles ?? 0} archivos de índice borrados; esa evaluación queda sin índice hasta volver a importarla.`,
+            ]
+          : outcome.indexFiles
+            ? ['También se borró su miniatura del explorador de tarjetas.']
+            : []),
         `Tiempo: ${(outcome.ms / 1000).toFixed(1)} s (${outcome.calls.db} llamadas a la base, ${outcome.calls.store} a R2).`,
       ].join('\n'),
     );

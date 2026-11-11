@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router';
 import { History, Play, Search } from 'lucide-react';
-import { searchTerm } from '@qv/anki-search';
 import type { Counts } from '@qv/srs';
 import { paths } from '../../app/paths';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
@@ -68,11 +67,8 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
           </p>
         </div>
         <nav aria-label="Herramientas de Anki" className="flex-none">
-          <Link
-            to={paths.browse({ q: searchTerm('deck', node.name) })}
-            className={`${button.base} ${button.secondary}`}
-          >
-            <Search className="size-4" aria-hidden="true" /> Ver tarjetas de este mazo
+          <Link to={paths.cards(node.ref)} className={`${button.base} ${button.secondary}`}>
+            <Search className="size-4" aria-hidden="true" /> Ver las tarjetas
           </Link>
         </nav>
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -17,10 +17,15 @@ interface Props {
   index: number;
   onIndexChange: (index: number) => void;
   onClose: () => void;
+  /**
+   * A line of actions under the buttons (the cards page, step 3.3: Marcar, No mostrar más, Reportar error…), always as
+   * high, whatever the card.
+   */
+  actions?: ReactNode;
 }
 
 /** The card as in Anki: front, «Mostrar respuesta», back. With arrows to move through the list. */
-export function CardViewer({ cards, index, onIndexChange, onClose }: Props) {
+export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Props) {
   const current = cards[index]!;
   // The answer shown belongs to one card: moving to another one starts on its front.
   const key = `${current.noteGuid}/${current.ord}`;
@@ -52,6 +57,16 @@ export function CardViewer({ cards, index, onIndexChange, onClose }: Props) {
       origin instanceof Element &&
       origin.matches('button, a[href], summary, input, select, textarea');
     if (activates && (e.key === ' ' || e.key === 'Enter')) return;
+    // Typing (a report) or in a popup opened from the actions line: its keys are not the viewer's.
+    if (
+      origin instanceof Element &&
+      (origin.closest('input, textarea, select, [contenteditable]') ||
+        // (Inside the card's shadow root `closest` stops at its root: that is the viewer's.)
+        (origin.getRootNode() === document &&
+          origin.closest('[role="dialog"]') !== content.current))
+    ) {
+      return;
+    }
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
       toggleAnswer();
@@ -142,6 +157,15 @@ export function CardViewer({ cards, index, onIndexChange, onClose }: Props) {
               <ChevronRight className="size-4" aria-hidden="true" />
             </button>
           </footer>
+          {actions ? (
+            <div
+              role="toolbar"
+              aria-label="Acciones de la tarjeta"
+              className="flex h-12 flex-none items-center gap-1 overflow-x-auto border-t border-border px-2 sm:px-3"
+            >
+              {actions}
+            </div>
+          ) : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

@@ -1,8 +1,12 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Circle, X } from 'lucide-react';
+import { Link } from 'react-router';
+import { ChevronLeft, ChevronRight, Circle, Layers, X } from 'lucide-react';
 import type { Catalog } from '@qv/schema';
+import { paths } from '../../app/paths';
+import { buildAnkiTree, courseDeck, hasPage } from '../anki/tree';
+import type { CourseDeckNode, DeckNode } from '../anki/tree';
 import { Skeleton } from '../../ui/Loading';
 import { button, card } from '../../ui/styles';
 import { usePreferences, useToday } from '../study/queries';
@@ -17,6 +21,7 @@ import {
   dueByDay,
   dueText,
   heatmapStats,
+  isoOfDay,
   yearGrid,
   yearOf,
   yearRange,
@@ -64,6 +69,11 @@ export interface HeatmapProps {
   catalog: Catalog;
   /** What the box of a day splits its total by. */
   groupBy: 'course' | 'assessment';
+  /**
+   * The course of a course's page: the box of a day takes to its cards («Ver esas tarjetas», step 3.3). On the home
+   * page each course of the day takes to its own.
+   */
+  courseId?: string;
   title?: string;
   className?: string;
 }
@@ -73,6 +83,7 @@ export function Heatmap({
   deckIds,
   catalog,
   groupBy,
+  courseId,
   title = 'Días de estudio',
   className = '',
 }: HeatmapProps) {
@@ -100,7 +111,7 @@ export function Heatmap({
   const [chosen, setChosen] = useState<number | null>(null);
   const year = chosen ?? thisYear;
 
-  const groupOf = useGroups(catalog, groupBy);
+  const { groupOf, placeOf, whole } = useGroups(catalog, groupBy, courseId);
 
   return (
     <section className={`${card} p-4 sm:p-6 ${className}`} aria-labelledby={headingId}>
@@ -147,6 +158,8 @@ export function Heatmap({
         scale={stats?.scale ?? 20}
         data={data}
         groupOf={groupOf}
+        placeOf={placeOf}
+        whole={whole}
         error={query.isError && !data}
         onRetry={() => void query.refetch()}
       />
@@ -179,9 +192,13 @@ function YearButton({
   );
 }
 
-/** What a deck counts under in a day's box: its course (home) or its assessment (a course's page). */
-function useGroups(catalog: Catalog, groupBy: 'course' | 'assessment') {
+/**
+ * What a deck counts under in a day's box: its course (home) or its assessment (a course's page); and the page with the
+ * cards of each of those (`placeOf`) and of the whole course of the page (`whole`).
+ */
+function useGroups(catalog: Catalog, groupBy: 'course' | 'assessment', courseId?: string) {
   return useMemo(() => {
+    const tree = buildAnkiTree(catalog);
     const courses = new Map(
       catalog.semesters.flatMap((s) => s.courses.map((c) => [c.id, c] as const)),
     );
@@ -189,6 +206,7 @@ function useGroups(catalog: Catalog, groupBy: 'course' | 'assessment') {
       [...courses.values()].flatMap((c) => c.assessments.map((a) => [a.id, a.name] as const)),
     );
     const byDeck = new Map<string, string>();
+    const places = new Map<string, CourseDeckNode>();
     for (const d of catalog.anki.decks) {
       const course = d.courseId ? courses.get(d.courseId) : undefined;
       if (!course) continue;
@@ -197,9 +215,22 @@ function useGroups(catalog: Catalog, groupBy: 'course' | 'assessment') {
           ? `${course.emoji} ${course.name}`
           : ((d.assessmentId && assessments.get(d.assessmentId)) ?? course.name);
       byDeck.set(d.id, label);
+      if (places.has(label)) continue;
+      let place: DeckNode | null = courseDeck(tree, course.id);
+      if (groupBy === 'assessment') {
+        for (let n: DeckNode | null = tree.byId.get(d.id) ?? null; n; n = n.parent) {
+          if (n.depth === 3) place = n;
+        }
+      }
+      if (place && hasPage(place)) places.set(label, place);
     }
-    return (deckId: string) => byDeck.get(deckId) ?? 'Otros mazos';
-  }, [catalog, groupBy]);
+    const own = courseId ? courseDeck(tree, courseId) : null;
+    return {
+      groupOf: (deckId: string) => byDeck.get(deckId) ?? 'Otros mazos',
+      placeOf: (label: string) => places.get(label) ?? null,
+      whole: own,
+    };
+  }, [catalog, groupBy, courseId]);
 }
 
 interface Open {
@@ -220,6 +251,8 @@ function Grid({
   scale,
   data,
   groupOf,
+  placeOf,
+  whole,
   error,
   onRetry,
 }: {
@@ -231,6 +264,8 @@ function Grid({
   scale: number;
   data: HeatmapData | undefined;
   groupOf: (deckId: string) => string;
+  placeOf: (label: string) => CourseDeckNode | null;
+  whole: CourseDeckNode | null;
   error: boolean;
   onRetry: () => void;
 }) {
@@ -414,6 +449,8 @@ function Grid({
           cell={cellValue(open.day, today, studied, due, scale)}
           data={data}
           groupOf={groupOf}
+          placeOf={placeOf}
+          whole={whole}
           onClose={() => {
             const day = open.day;
             setOpen(null);
@@ -433,6 +470,8 @@ function DayBox({
   cell,
   data,
   groupOf,
+  placeOf,
+  whole,
   onClose,
   onOutside,
 }: {
@@ -441,6 +480,8 @@ function DayBox({
   cell: CellValue;
   data: HeatmapData;
   groupOf: (deckId: string) => string;
+  placeOf: (label: string) => CourseDeckNode | null;
+  whole: CourseDeckNode | null;
   onClose: () => void;
   onOutside: () => void;
 }) {
@@ -545,15 +586,42 @@ function DayBox({
         </p>
         {parts.length ? (
           <ul className="mt-2 space-y-1 border-t border-border pt-2">
-            {parts.map(([label, n]) => (
-              <li key={label} className="flex items-baseline justify-between gap-3">
-                <span className="min-w-0 truncate">{label}</span>
-                <span className="flex-none text-muted tabular-nums">
-                  {n.toLocaleString('es-CL')}
-                </span>
-              </li>
-            ))}
+            {parts.map(([label, n]) => {
+              const place = open.pinned ? placeOf(label) : null;
+              const inner = (
+                <>
+                  <span className="min-w-0 truncate">{label}</span>
+                  <span className="flex-none text-muted tabular-nums">
+                    {n.toLocaleString('es-CL')}
+                  </span>
+                </>
+              );
+              return (
+                <li key={label}>
+                  {place ? (
+                    <Link
+                      to={paths.cards(place.ref, { day: isoOfDay(open.day) })}
+                      className="-mx-1 flex items-baseline justify-between gap-3 rounded px-1 hover:bg-surface-2"
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    <span className="flex items-baseline justify-between gap-3">{inner}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
+        ) : null}
+        {open.pinned &&
+        cell.value > 0 &&
+        (whole ?? (parts.length === 1 ? placeOf(parts[0]![0]) : null)) ? (
+          <Link
+            to={paths.cards((whole ?? placeOf(parts[0]![0])!).ref, { day: isoOfDay(open.day) })}
+            className="mt-2 flex items-center gap-1.5 border-t border-border pt-2 font-medium text-brand hover:underline"
+          >
+            <Layers className="size-3.5" aria-hidden="true" /> Ver esas tarjetas
+          </Link>
         ) : null}
       </div>
     </div>,

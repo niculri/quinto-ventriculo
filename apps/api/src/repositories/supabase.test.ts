@@ -64,6 +64,8 @@ const ARTICLE_ROW = {
   },
 };
 
+/** Step 3.3: whether the content database has `anki_browse_indexes()` (one before its migration does not). */
+let withIndexes = true;
 let server: Server;
 let base = '';
 const seen: { path: string; url: string; headers: IncomingHttpHeaders; body: string }[] = [];
@@ -91,6 +93,13 @@ beforeAll(async () => {
         send(200, JSON.stringify([ARTICLE_ROW]));
       } else if (TABLES.includes(path)) {
         send(200, '[]');
+      } else if (path === '/rest/v1/rpc/anki_browse_indexes' && withIndexes) {
+        send(
+          200,
+          JSON.stringify([
+            { assessmentId: 'x/y', hash: 'a'.repeat(32), noteCount: 1, cardCount: 2, bytes: 3 },
+          ]),
+        );
       } else if (path === '/rest/v1/rpc/anki_deck_detail') {
         const { deck_id } = JSON.parse(body) as { deck_id: string };
         send(200, deck_id === '20' ? DECK : 'null');
@@ -227,6 +236,23 @@ describe('the big reads of the content database', () => {
     expect(select?.split(',')).toEqual(
       expect.arrayContaining(['code', 'version', 'published_at', 'version_at']),
     );
+  });
+
+  it('the catalog asks for the card browser indexes; a database without them still has a catalog', async () => {
+    seen.length = 0;
+    expect((await get('/api/catalog')).status).toBe(200);
+    expect(seen.map((c) => c.path)).toContain('/rest/v1/rpc/anki_browse_indexes');
+    withIndexes = false;
+    const original = console.error;
+    const errors: unknown[] = [];
+    console.error = (...a: unknown[]) => errors.push(a);
+    try {
+      expect((await get('/api/catalog')).status).toBe(200);
+    } finally {
+      console.error = original;
+      withIndexes = true;
+    }
+    expect(String(errors[0])).toMatch(/browse indexes/);
   });
 
   it('the cards that moved or were taken out, a page from the cursor', async () => {

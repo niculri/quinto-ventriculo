@@ -81,7 +81,7 @@ describe('the heatmap on the home page', () => {
     for (const r of rows) expect(r.querySelectorAll('td')).toHaveLength(54);
   });
 
-  it('a day opens a box with its total and its courses; no link that goes nowhere', async () => {
+  it('a day opens a box with its total and its courses; each course takes to its cards of that day', async () => {
     const { study } = withHeatmap(async () => DATA);
     renderApp('/home', { study });
     await grid();
@@ -94,7 +94,12 @@ describe('the heatmap on the home page', () => {
       .map((li) => li.textContent);
     // Deck 99 is no longer on the site.
     expect(parts).toEqual(['🦴 Anatomía I25', 'Otros mazos7']);
-    expect(within(box).queryByRole('link')).toBeNull();
+    // Only a course on the site has a link; with two courses, no «Ver esas tarjetas» of all of them.
+    expect(
+      within(box)
+        .getAllByRole('link')
+        .map((a) => a.getAttribute('href')),
+    ).toEqual(['/semesters/1/courses/anatomia-1/anki/cards?day=2026-11-08']);
     // It floats over the page: outside the section.
     expect(screen.getByRole('region', { name: 'Días de estudio' }).contains(box)).toBe(false);
     await userEvent.keyboard('{Escape}');

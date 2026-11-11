@@ -166,8 +166,8 @@ describe('the drift test', () => {
 
   it('draft and public are the same after every migration (draft_drift gives nothing)', async () => {
     expect(await q('select * from public.draft_drift()')).toEqual([]);
-    // Everything of the content is there: 14 tables (12 of content, the card changes and, from step 1.7 part 2,
-    // content_meta) and every function.
+    // Everything of the content is there: 15 tables (12 of content, the card changes, from step 1.7 part 2,
+    // content_meta, and from step 3.3 the browser's indexes) and every function.
     const mirror = await q<{ kind: string; n: number }>(
       `select kind, count(*)::int as n from public.draft_mirror() group by kind order by kind`,
     );
@@ -178,11 +178,11 @@ describe('the drift test', () => {
                 where c.relnamespace = 'draft'::regnamespace and not t.tgisinternal) as triggers`,
     );
     expect(Object.fromEntries(mirror.map((m) => [m.kind, m.n]))).toMatchObject({
-      table: 14,
+      table: 15,
       sequence: 1,
       function: inDraft[0]!.functions,
     });
-    expect(inDraft[0]).toMatchObject({ tables: 14, triggers: 3 });
+    expect(inDraft[0]).toMatchObject({ tables: 15, triggers: 3 });
     // What is not content stays only in public.
     const missing = await q<{ name: string }>(
       `select c.relname as name from pg_class c where c.relnamespace = 'draft'::regnamespace

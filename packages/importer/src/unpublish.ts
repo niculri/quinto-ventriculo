@@ -1,4 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { thumbKeyOf } from '@qv/schema';
 import { defaultQuizId } from './quizzes';
 import type { ContentDatabase } from './targets';
 import { UnpublishedItem, readUnpublished } from './manifest';
@@ -8,6 +9,11 @@ import type { Manifest, UnpublishedKind } from './manifest';
 export interface MediaRemover {
   has(key: string): Promise<boolean>;
   delete(key: string): Promise<void>;
+  /**
+   * Deletes every object whose key starts with `prefix` (the browser's index files of an assessment, step 3.3) and says
+   * how many. Without it, they stay in the store (no row names them any more).
+   */
+  deletePrefix?(prefix: string): Promise<number>;
 }
 
 /** What unpublish_content() says. */
@@ -71,6 +77,11 @@ export interface UnpublishOutcome {
   draft: { found: boolean; removed: number } | null;
   /** Calls to the content database and to R2. */
   calls: { db: number; store: number };
+  /**
+   * The browser's index files deleted (step 3.3): a deck taken off takes its assessments' indexes (the database takes
+   * their rows); an image, its thumbnail.
+   */
+  indexFiles?: number;
   ms: number;
 }
 
@@ -225,8 +236,25 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
     calls,
     ms: Date.now() - started,
   });
+  let indexFiles = 0;
+  /** The browser's index files of these assessments (step 3.3): no row names them any more. */
+  const dropIndexFiles = async (assessments: readonly string[]) => {
+    if (!op.store.deletePrefix) return;
+    for (const a of assessments) {
+      if (!/^[a-z0-9-]+\/[a-z0-9-]+$/.test(a)) continue;
+      calls.store++;
+      indexFiles += await op.store.deletePrefix(`browse/${a}/`);
+    }
+  };
   /** Out of the draft too (a piece that the site does not have, so no record took it out of the draft). */
   const outOfDraft = async (id: string) => {
+    if (op.kind === 'deck') {
+      // Its assessments' indexes in the draft first: unpublish_draft() takes the decks they are found by.
+      calls.db++;
+      const r = await op.db.rpc('unpublish_draft_browse_indexes', { item: id });
+      if (r.error) log(`No se pudieron revisar los índices del borrador (${r.error.message}).`);
+      else await dropIndexFiles((r.data as string[] | null) ?? []);
+    }
     calls.db++;
     const r = await op.db.rpc('unpublish_draft', { kind: op.kind, item: id });
     if (r.error) {
@@ -299,9 +327,29 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
     calls.store++;
     await op.store.delete(preview.id);
   }
+  // Its thumbnail in the browser's list (step 3.3), if it has one.
+  const thumb = op.kind === 'image' ? thumbKeyOf(preview.id) : null;
+  if (thumb) {
+    calls.store++;
+    if (await op.store.has(thumb)) {
+      calls.store++;
+      await op.store.delete(thumb);
+      indexFiles++;
+    }
+  }
+  // A deck: its assessments' index files (their rows left with it, in public and in the draft).
+  if (op.kind === 'deck' && result.found) await dropIndexFiles(result.removed.assessments ?? []);
   // Published, it left the draft with it (the record's trigger); if not, it may be only in the draft.
   if (!result.found) await outOfDraft(result.id);
-  return { result, applied: true, alreadyListed, draft, calls, ms: Date.now() - started };
+  return {
+    result,
+    applied: true,
+    alreadyListed,
+    draft,
+    calls,
+    indexFiles,
+    ms: Date.now() - started,
+  };
 }
 
 /**

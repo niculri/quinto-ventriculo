@@ -45,9 +45,20 @@ export type {
   MediaStore,
 } from './targets';
 export { buildDecks } from './decks';
+export { packCardIndexes, inPool } from './browse-index';
+export type { PackedIndex } from './browse-index';
+export type { ThumbMaker } from './targets';
 export type { DecksOptions, DecksResult } from './decks';
 export { sanitizeCard } from './card-html';
-export { ImageCache, processImage, processCardImage, processQuizImage, MAX_WIDTH } from './images';
+export {
+  ImageCache,
+  processImage,
+  processCardImage,
+  processQuizImage,
+  makeThumbnail,
+  MAX_WIDTH,
+  THUMB_WIDTH,
+} from './images';
 export {
   convertQuiz,
   inlineHtml,

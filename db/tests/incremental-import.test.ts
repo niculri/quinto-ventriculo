@@ -169,9 +169,11 @@ describe('the incremental importer (step 1.4)', () => {
       changedCards: ['bc-2'],
       changedQuizzes: ['practica-bc'],
     });
-    // Only the images of what changed are looked at (2 of the 7), and they were already there.
+    // Only the images of what changed are looked at (2 of the 7), and they were already there; and the browser's
+    // index of that assessment (step 3.3) is a new file: one look and one upload. The other's is the same.
     expect(r).toMatchObject({ mediaUploaded: 0, mediaExisting: 2 });
-    expect(storeCalls).toBe(2);
+    expect(r).toMatchObject({ indexesWritten: 1, indexesUnchanged: 1, indexesRemoved: 0 });
+    expect(storeCalls).toBe(4);
 
     const after = await snapshot();
     const version = (s: Snapshot, id: string) => s.notes.find((n) => n.id === id)!.version;

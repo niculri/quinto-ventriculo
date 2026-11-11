@@ -15,6 +15,8 @@ import {
   UsageOpenRequest,
   CONTACT_EMAIL,
   Slug,
+  THUMB_PREFIX,
+  cardIndexKey,
   withoutEmptySemesters,
 } from '@qv/schema';
 import type {
@@ -26,6 +28,7 @@ import type {
   QuizIndex,
   SearchResponse,
   SiteSettings,
+  ThumbSignature,
   UnpublishedLog,
   UsageReport,
 } from '@qv/schema';
@@ -434,6 +437,52 @@ export function createApp(deps: Dependencies) {
     return c.body(await c.get('repository').browseJson(), 200, JSON_TYPE);
   });
 
+  // The card browser's index of an assessment (step 3.3, ANK-6): the file the importer wrote in the image store, named
+  // by its content (the catalog says which is current: `cardIndex` of the assessment). Without asking the content
+  // database anything; compressed as it is stored (a browser that does not take gzip gets it decompressed).
+  app.get('/anki/index/:course/:assessment/:hash', requireSession, async (c) => {
+    const { course, assessment, hash } = c.req.param();
+    const segment = /^[a-z0-9-]{1,80}$/;
+    if (!segment.test(course) || !segment.test(assessment) || !/^[0-9a-f]{32}$/.test(hash)) {
+      return c.json(apiError('invalid_index', 'Ese índice no existe.'), 400);
+    }
+    const object = await deps.media.get(cardIndexKey(`${course}/${assessment}`, hash));
+    if (!object) {
+      return c.json(
+        apiError('not_found', 'Las tarjetas de este certamen cambiaron: recarga la página.'),
+        404,
+      );
+    }
+    const preview = c.get('repository') !== deps.repository;
+    const headers = new Headers({
+      'Content-Type': 'application/json; charset=UTF-8',
+      // The key changes with the content; 10 minutes at most, as an image, so that what is taken off stops soon.
+      'Cache-Control': preview ? 'no-store' : `private, max-age=${MEDIA_MAX_AGE}`,
+      Vary: `Authorization, ${PREVIEW_HEADER}, Accept-Encoding`,
+      'X-Content-Type-Options': 'nosniff',
+    });
+    if (preview) headers.set(PREVIEW_HEADER, PREVIEW_VALUE);
+    if (object.etag) headers.set('ETag', object.etag);
+    const body =
+      object.body instanceof ReadableStream
+        ? object.body
+        : new Response(object.body as BodyInit).body!;
+    if (/\bgzip\b/i.test(c.req.header('Accept-Encoding') ?? '')) {
+      headers.set('Content-Encoding', 'gzip');
+      // Cloudflare: the body is already compressed (without it, the Worker would compress it again).
+      return new Response(body, { headers, encodeBody: 'manual' } as ResponseInit);
+    }
+    return new Response(body.pipeThrough(new DecompressionStream('gzip')), { headers });
+  });
+
+  // The signature of every thumbnail of the card browser (step 3.3, ANK-8): one for the whole list, with the same
+  // duration as the URL of an image, instead of signing each one. A thumbnail is `/api/media/<key>?<query>`.
+  app.get('/anki/thumbs', requireSession, async (c) => {
+    const { expires, query } = await deps.signer.prefixQuery(THUMB_PREFIX, now());
+    c.header('Cache-Control', `private, max-age=${MEDIA_MAX_AGE}`);
+    return c.json({ prefix: THUMB_PREFIX, expires, query } satisfies ThumbSignature);
+  });
+
   // The cards that moved to another deck or were taken out after a change (a page of at most 2,000): the web
   // takes them to the student's progress when they enter.
   app.get('/anki/card-changes', requireSession, async (c) => {
@@ -790,7 +839,13 @@ export function createApp(deps: Dependencies) {
     if (!isValidKey(key)) return c.json(apiError('invalid_key', 'Imagen inválida.'), 400);
     const expires = Number(c.req.query('e'));
     const signature = c.req.query('s') ?? '';
-    if (!(await deps.signer.isValid(key, expires, signature, now()))) {
+    // `p`: the signature of a whole prefix (the card browser's thumbnails, step 3.3), only for keys under it.
+    const prefix = c.req.query('p');
+    const valid =
+      prefix === undefined
+        ? await deps.signer.isValid(key, expires, signature, now())
+        : await deps.signer.isValidPrefix(key, prefix, expires, signature, now());
+    if (!valid) {
       return c.json(
         apiError('link_expired', 'El enlace de la imagen venció: recarga la página.'),
         403,

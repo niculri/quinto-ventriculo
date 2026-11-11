@@ -15,9 +15,8 @@ import { RouteError } from '../ui/RouteError';
 import { resultLink } from '../features/search/useSearch';
 import { paths } from './paths';
 import { initials } from '../ui/UserMenu';
-import { searchTerm } from '@qv/anki-search';
 import { CONTACT_EMAIL } from '@qv/schema';
-import { CATALOG, DECK, DECK_PATH, NOTE, SESSION_ANA, fakeApi, renderApp } from '../test/render';
+import { CATALOG, DECK_PATH, NOTE, SESSION_ANA, fakeApi, renderApp } from '../test/render';
 import { ApiRequestError } from '../lib/api';
 
 describe('access', () => {
@@ -663,14 +662,17 @@ describe('urls', () => {
       expect(r.router.state.historyAction).toBe('REPLACE');
       r.unmount();
     }
-    // A card that was open in the deck's list: the browser, on that deck, with the card selected.
+    // A card that was open in the deck's list: the cards of its assessment, on that deck, with the card open.
     const card = renderApp(`${OLD}?note=cloze-1&ord=1`);
-    await waitFor(() => expect(card.router.state.location.pathname).toBe('/anki/browse'));
+    await waitFor(() =>
+      expect(card.router.state.location.pathname).toBe(
+        '/semesters/1/courses/anatomia-1/anki/certamen-1/cards',
+      ),
+    );
     const q = new URLSearchParams(card.router.state.location.search);
-    expect([q.get('q'), q.get('note'), q.get('ord')]).toEqual([
-      searchTerm('deck', DECK.fullName),
-      'cloze-1',
-      '1',
+    expect([q.get('unit'), q.get('card')]).toEqual([
+      's1-semana-de-prueba/mazo-de-prueba',
+      '1:cloze-1',
     ]);
   });
 

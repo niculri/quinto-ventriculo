@@ -6,6 +6,7 @@ import {
   AnkiPresetRecord,
   ImportedAnkiNote,
 } from './flashcards';
+import { CardIndexRecord } from './browse-index';
 import { ImportedQuiz } from './quizzes';
 
 /**
@@ -45,5 +46,7 @@ export const ContentBundle = z.object({
   ankiNotes: z.array(ImportedAnkiNote).default([]),
   // Practice tests (v1.4). Optional when reading, like the decks.
   quizzes: z.array(ImportedQuiz).default([]),
+  // The card browser's indexes (step 3.3): which file is each assessment's (the dry run writes them in media/browse/).
+  ankiBrowseIndexes: z.array(CardIndexRecord).optional(),
 });
 export type ContentBundle = z.infer<typeof ContentBundle>;

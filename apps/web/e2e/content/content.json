@@ -811,5 +811,14 @@
       "hash": "e2f7221414a7241273c04410552dffcbdab6c03e97bd8ad06066ebe986b417e3",
       "updatedAt": "2026-11-01T12:00:00.000Z"
     }
+  ],
+  "ankiBrowseIndexes": [
+    {
+      "assessmentId": "anatomia-1/certamen-1",
+      "hash": "f7591aaa48539149dcddabce0835b9bf",
+      "noteCount": 7,
+      "cardCount": 16,
+      "bytes": 1137
+    }
   ]
 }

@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   AnkiTreeDeck,
   Assessment,
+  CardIndexRecord,
   CardChanges,
   CardDetail,
   Course,
@@ -209,7 +210,7 @@ export function supabaseRepository(
 
   return {
     async catalog() {
-      const [s, c, a, n, d, p, t, z] = await Promise.all([
+      const [s, c, a, n, d, p, t, z, x] = await Promise.all([
         db.from('semesters').select('number, name'),
         db.from('courses').select('id, semester, name, emoji, position'),
         db.from('assessments').select('id, course_id, name, position, suggested_date'),
@@ -220,6 +221,7 @@ export function supabaseRepository(
           .from('anki_note_types')
           .select('id, name, kind, occlusion, fields, templates, sort_field'),
         db.from('quizzes').select(QUIZ_COLUMNS),
+        db.rpc('anki_browse_indexes'),
       ]);
       const semesters = unwrap(s, 'semesters').map((x) => Semester.parse(x));
       const courses = unwrap(c, 'courses').map((x) => Course.parse(x));
@@ -259,6 +261,11 @@ export function supabaseRepository(
       );
       const presets = unwrap(p, 'presets') as { name: string; config: Record<string, unknown> }[];
       const quizzes = (unwrap(z, 'quizzes') as QuizRow[]).map(quizSummary);
+      // The card browser's indexes (step 3.3). A database from before that migration does not have the function: the
+      // catalog goes without them (the browser says it has no index) rather than failing the whole site.
+      let indexes: CardIndexRecord[] = [];
+      if (x.error) console.error(`Content database (browse indexes): ${x.error.message}`);
+      else indexes = ((x.data ?? []) as unknown[]).map((r) => CardIndexRecord.parse(r));
       return buildCatalog(
         semesters,
         courses,
@@ -266,6 +273,7 @@ export function supabaseRepository(
         notes,
         { decks, presets, noteTypes },
         quizzes,
+        indexes,
       );
     },
 

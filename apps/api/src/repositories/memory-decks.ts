@@ -8,6 +8,7 @@ import type {
   ContentBundle,
   DeckDetail,
 } from '@qv/schema';
+import { ankiPlainText } from '@qv/schema';
 
 /** The Anki decks of an importer bundle, answered like the SQL functions of the content database. */
 export function memoryDecks(bundle: ContentBundle) {
@@ -178,15 +179,4 @@ const compareCodes = (a: string | null, b: string | null) =>
   a === b ? 0 : a === null ? 1 : b === null ? -1 : compare(a, b);
 
 /** A field's HTML as one line of plain text, as `anki_plain_text()` of the content database. */
-export function plainText(html: string | undefined): string {
-  return (html ?? '')
-    .replace(/<[^>]*>/g, ' ')
-    .replaceAll('&nbsp;', ' ')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#39;', "'")
-    .replaceAll('&amp;', '&')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+export const plainText = ankiPlainText;

@@ -575,8 +575,13 @@ describe('an image', () => {
 
     storeCalls.length = 0;
     const out = await run(p, { kind: 'image', id: KEY });
-    expect(out.calls).toEqual({ db: 2, store: 2 });
-    expect(storeCalls).toEqual([`has ${KEY}`, `delete ${KEY}`]);
+    // The image, and whether it has a thumbnail of the card browser (step 3.3; this note is not an occlusion: none).
+    expect(out.calls).toEqual({ db: 2, store: 3 });
+    expect(storeCalls).toEqual([
+      `has ${KEY}`,
+      `delete ${KEY}`,
+      'has cards/thumb/0123456789abcdef0123456789abcdef.webp',
+    ]);
     expect(stored.has(KEY)).toBe(false);
     // Only its hash is marked (so that it is sent again with its images); the card is still published.
     expect(await snapshot()).toEqual({

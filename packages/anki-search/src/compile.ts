@@ -43,6 +43,7 @@ interface Derived {
   low?: string;
   lowFields?: string[];
   nc?: string;
+  ncPlain?: string;
   ncFields?: string[];
   sc?: string;
 }
@@ -77,6 +78,12 @@ function lowFields(card: SearchCard): string[] {
 function ncJoined(card: SearchCard): string {
   const d = derived(card);
   return (d.nc ??= asciiLower(withoutCombining(joined(card))));
+}
+
+/** The fields joined, without accents but with their case (for a case-insensitive regex). */
+function ncPlain(card: SearchCard): string {
+  const d = derived(card);
+  return (d.ncPlain ??= withoutCombining(joined(card)));
 }
 
 function ncFields(card: SearchCard): string[] {
@@ -141,6 +148,8 @@ function compile(node: SearchNode, env: Env): Pred {
       };
     }
     case 'text': {
+      // Anki's «Ignore accents in search» turns loose text into `nc:` (sqlwriter.rs, `UnqualifiedText`).
+      if (env.ctx.ignoreAccents) return compile({ type: 'noCombining', text: node.text }, env);
       const m = likeMatcher(`%${toSql(node.text)}%`);
       return (card) => m(lowJoined(card));
     }
@@ -156,6 +165,15 @@ function compile(node: SearchNode, env: Env): Pred {
       return (card) => cloze.has(card.noteTypeId) && m(scJoined(card));
     }
     case 'wordBoundary': {
+      // With «Ignore accents in search», Anki takes the accents off the word and the fields (`w:vertebra`
+      // finds «vértebra», and `w:vértebra` still does).
+      if (env.ctx.ignoreAccents) {
+        const re = new RegExp(
+          `${WORD_BOUNDARY}${toRe(withoutCombining(node.text))}${WORD_BOUNDARY}`,
+          'iu',
+        );
+        return (card) => re.test(ncPlain(card));
+      }
       const re = new RegExp(`${WORD_BOUNDARY}${toRe(node.text)}${WORD_BOUNDARY}`, 'iu');
       return (card) => re.test(joined(card));
     }

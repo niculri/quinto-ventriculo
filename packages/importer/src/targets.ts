@@ -3,11 +3,15 @@ import { dirname, join } from 'node:path';
 import {
   DeleteObjectCommand,
   HeadObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { createClient } from '@supabase/supabase-js';
 import { CONTENT_SCHEMA_VERSION, ContentBundle } from '@qv/schema';
+import { inPool, packCardIndexes } from './browse-index';
+import type { PackedIndex } from './browse-index';
+import { makeThumbnail } from './images';
 import type { ProcessedImage } from './images';
 import { withVersion } from './versions';
 
@@ -146,6 +150,15 @@ export interface Report {
   removedQuizzes: number;
   mediaUploaded: number;
   mediaExisting: number;
+  /**
+   * The card browser's indexes (step 3.3): written (new or changed), the same as before, taken out (an assessment
+   * without cards); and their thumbnails, made and uploaded or already there.
+   */
+  indexesWritten: number;
+  indexesUnchanged: number;
+  indexesRemoved: number;
+  thumbsUploaded: number;
+  thumbsExisting: number;
 }
 
 const emptyReport = (): Report => ({
@@ -162,7 +175,27 @@ const emptyReport = (): Report => ({
   removedQuizzes: 0,
   mediaUploaded: 0,
   mediaExisting: 0,
+  indexesWritten: 0,
+  indexesUnchanged: 0,
+  indexesRemoved: 0,
+  thumbsUploaded: 0,
+  thumbsExisting: 0,
 });
+
+/** Makes a thumbnail from a card image's WebP (injected in tests). */
+export type ThumbMaker = (webp: Buffer) => Promise<Buffer>;
+
+/** The WebP of a card image, from the bundle's images (or, in the dry run, from the folder). */
+async function sourceOf(
+  media: Map<string, ProcessedImage>,
+  key: string,
+  fallback?: (key: string) => Promise<Buffer | null>,
+): Promise<Buffer> {
+  const img = media.get(key);
+  const data = img ? await img.read() : await fallback?.(key);
+  if (!data) throw new Error(`Falta la imagen ${key}, de la que sale su miniatura.`);
+  return data;
+}
 
 type CardsOf = readonly { guid: string; cards: readonly { ord: number; deckId: string }[] }[];
 
@@ -195,7 +228,17 @@ export class FolderTarget implements Target {
   constructor(
     private readonly folder: string,
     private readonly keepOthers = false,
+    private readonly thumbnail: ThumbMaker = makeThumbnail,
   ) {}
+
+  private writeIndex(
+    packed: PackedIndex,
+    media: Map<string, ProcessedImage>,
+    fallback: (key: string) => Promise<Buffer | null>,
+    report: Report,
+  ) {
+    return writeIndexFiles(this.folder, packed, media, fallback, report, this.thumbnail);
+  }
 
   async save(
     bundle: ContentBundle,
@@ -322,15 +365,60 @@ export class FolderTarget implements Target {
       await writeFile(target, await img.read());
       report.mediaUploaded++;
     }
+    // The card browser's indexes of every assessment with cards (step 3.3), as the cloud has them.
+    const indexes = packCardIndexes(anki);
+    const previousIndexes = new Map(
+      (before.ankiBrowseIndexes ?? []).map((r) => [r.assessmentId, r.hash]),
+    );
+    const fromFolder = async (key: string) =>
+      readFile(join(this.folder, 'media', key)).catch(() => null);
+    for (const packed of indexes) {
+      await this.writeIndex(packed, media, fromFolder, report);
+      if (previousIndexes.get(packed.record.assessmentId) === packed.record.hash) {
+        report.indexesUnchanged++;
+      } else {
+        report.indexesWritten++;
+      }
+    }
+    const indexed = new Set(indexes.map((p) => p.record.assessmentId));
+    report.indexesRemoved = [...previousIndexes.keys()].filter((a) => !indexed.has(a)).length;
+
     await mkdir(this.folder, { recursive: true });
     const output: ContentBundle = {
       ...bundle,
       notes: [...kept, ...notes],
       ...anki,
       quizzes,
+      ankiBrowseIndexes: indexes.map((p) => p.record),
     };
     await writeFile(file, JSON.stringify(output, null, 1));
     return report;
+  }
+}
+
+/** Writes an index and its thumbnails in the folder, each one only if it is not there yet. */
+async function writeIndexFiles(
+  folder: string,
+  packed: PackedIndex,
+  media: Map<string, ProcessedImage>,
+  fallback: (key: string) => Promise<Buffer | null>,
+  report: Report,
+  thumbnail: ThumbMaker,
+) {
+  for (const [thumb, image] of packed.thumbs) {
+    const target = join(folder, 'media', thumb);
+    if (await exists(target)) {
+      report.thumbsExisting++;
+      continue;
+    }
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, await thumbnail(await sourceOf(media, image, fallback)));
+    report.thumbsUploaded++;
+  }
+  const target = join(folder, 'media', packed.key);
+  if (!(await exists(target))) {
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, packed.body);
   }
 }
 
@@ -410,6 +498,10 @@ export interface CloudOptions {
   maxBatchBytes?: number;
   /** At most this many pieces per call (default 500; the database accepts 1000). */
   maxBatchItems?: number;
+  /** Makes the browser's thumbnails (default: `makeThumbnail`, 240 px WebP). */
+  thumbnail?: ThumbMaker;
+  /** Requests to the image store at a time for the thumbnails (default 16). */
+  storeConcurrency?: number;
 }
 
 /** The hashes of what is published (import_state). */
@@ -418,6 +510,8 @@ interface ImportState {
   quizzes: Record<string, string>;
   ankiNotes: Record<string, string>;
   latestChange: number;
+  /** The hash of each assessment's browser index (step 3.3; absent in a database from before it). */
+  ankiBrowseIndexes?: Record<string, string>;
   /** With `shared`: what of it would change for other assessments (the import stops). */
   sharedConflicts?: SharedConflict[];
 }
@@ -445,7 +539,10 @@ export function contentDatabase(
 }
 
 /** The images' bucket in R2: look, upload and (to take one off the site, step 1.5) delete. */
-export function r2Media(config: CloudConfig): MediaStore & { delete(key: string): Promise<void> } {
+export function r2Media(config: CloudConfig): MediaStore & {
+  delete(key: string): Promise<void>;
+  deletePrefix(prefix: string): Promise<number>;
+} {
   const s3 = new S3Client({
     region: 'auto',
     endpoint: `https://${config.r2AccountId}.r2.cloudflarestorage.com`,
@@ -475,6 +572,27 @@ export function r2Media(config: CloudConfig): MediaStore & { delete(key: string)
     },
     async delete(key) {
       await s3.send(new DeleteObjectCommand({ Bucket: config.r2Bucket, Key: key }));
+    },
+    // The browser's index files of an assessment (step 3.3), a page of at most 1000 at a time.
+    async deletePrefix(prefix) {
+      let deleted = 0;
+      for (let token: string | undefined; ;) {
+        const page = await s3.send(
+          new ListObjectsV2Command({
+            Bucket: config.r2Bucket,
+            Prefix: prefix,
+            ...(token ? { ContinuationToken: token } : {}),
+          }),
+        );
+        // One by one (an assessment has a few: one per import that changed it).
+        for (const o of page.Contents ?? []) {
+          if (!o.Key) continue;
+          await s3.send(new DeleteObjectCommand({ Bucket: config.r2Bucket, Key: o.Key }));
+          deleted++;
+        }
+        if (!page.IsTruncated || !page.NextContinuationToken) return deleted;
+        token = page.NextContinuationToken;
+      }
     },
   };
 }
@@ -669,6 +787,55 @@ export class CloudTarget implements Target {
       report.movedCards = moved;
       report.retiredCards = retired;
     }
+
+    if (scope.decks) await this.saveIndexes(bundle, media, scope, state, report);
     return report;
+  }
+
+  /**
+   * The browser's indexes of the imported assessments (step 3.3): only those whose file changed are uploaded (first its
+   * thumbnails, then the file, then the database's row, so the row never names what the store lacks). An import
+   * without changes asks nothing more than before (the hashes come with import_state).
+   */
+  private async saveIndexes(
+    bundle: ContentBundle,
+    media: Map<string, ProcessedImage>,
+    scope: SaveScope,
+    state: ImportState,
+    report: Report,
+  ) {
+    // A content database from before step 3.3 (its import_state() does not say): no indexes to write there.
+    if (!state.ankiBrowseIndexes) return;
+    const known = state.ankiBrowseIndexes;
+    const scoped = scope.assessments ?? null;
+    const packed = packCardIndexes(bundle, scoped);
+    const changed = packed.filter((p) => known[p.record.assessmentId] !== p.record.hash);
+    report.indexesUnchanged = packed.length - changed.length;
+    const fresh = new Set(packed.map((p) => p.record.assessmentId));
+    const remove = Object.keys(known).filter(
+      (a) => !fresh.has(a) && (!scoped || scoped.includes(a)),
+    );
+    if (!changed.length && !remove.length) return;
+
+    const { store } = this.options;
+    const thumbnail = this.options.thumbnail ?? makeThumbnail;
+    for (const p of changed) {
+      // The file is uploaded after its thumbnails: if it is in the store, they are too.
+      if (await store.has(p.key)) continue;
+      await inPool([...p.thumbs], this.options.storeConcurrency ?? 16, async ([thumb, image]) => {
+        if (await store.has(thumb)) {
+          report.thumbsExisting++;
+          return;
+        }
+        await store.put(thumb, await thumbnail(await sourceOf(media, image)), 'image/webp');
+        report.thumbsUploaded++;
+      });
+      await store.put(p.key, p.body, 'application/json');
+    }
+    await this.call('save_anki_browse_indexes', {
+      p: { items: changed.map((p) => p.record), remove },
+    });
+    report.indexesWritten = changed.length;
+    report.indexesRemoved = remove.length;
   }
 }

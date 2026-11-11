@@ -7,6 +7,7 @@ import { DECK_URL, signIn } from './helpers';
 test.use({ storageState: ONLY_ACCEPTED });
 
 const COURSE_URL = '/semesters/1/courses/anatomia-1';
+const CARDS_URL = `${COURSE_URL}/anki/certamen-1/cards`;
 const front = (page: Page) => page.getByRole('region', { name: 'Frente de la tarjeta' });
 
 test('a new student: enters the course, turns a lecture on and studies with two buttons', async ({
@@ -153,38 +154,31 @@ test('«Modo avanzado» adds options, and the four buttons are a choice of their
   await expect(page.getByRole('group', { name: 'Responder' }).getByRole('button')).toHaveCount(4);
 });
 
-test('the browser: filters of one click, no «Notas» nor «Olvidar», and «Reportar error» in the preview', async ({
+test('the cards: no table nor Anki’s syntax, filters with their counts, and «Reportar error» in the viewer', async ({
   page,
+  isMobile,
 }) => {
   await signIn(page);
-  await page.goto('/anki/browse');
-  const filters = page.getByRole('group', { name: 'Filtros rápidos' });
-  await expect(page.getByText('4 tarjetas').or(page.getByText(/^\d+ tarjetas$/))).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Notas' })).toHaveCount(0);
+  await page.goto(CARDS_URL);
+  await expect(page.getByText('7 notas · 16 tarjetas')).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Vista' })).toHaveCount(0);
+  await expect(page.getByRole('grid')).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Olvidar/ })).toHaveCount(0);
+  if (isMobile) await page.getByRole('button', { name: 'Filtros' }).click();
+  const filters = isMobile
+    ? page.getByRole('dialog', { name: 'Filtros' })
+    : page.getByRole('complementary', { name: 'Filtros' });
+  await expect(filters.getByRole('radio', { name: /^Sin ver 7/ })).toBeEnabled();
+  await expect(filters.getByRole('radio', { name: /^Ocultas 0/ })).toBeDisabled();
+  if (isMobile) await page.keyboard.press('Escape');
 
-  await filters.getByRole('button', { name: 'Nuevas' }).click();
-  await expect(page).toHaveURL(/q=is%3Anew|q=is:new/);
-  await expect(filters.getByRole('button', { name: 'Nuevas' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  // Another state replaces it; the syntax is still what the search understands.
-  await filters.getByRole('button', { name: 'Ocultas' }).click();
-  await expect(page).toHaveURL(/is(%3A|:)suspended/);
-  await expect(page).not.toHaveURL(/is(%3A|:)new/);
-  await expect(page.getByText('0 tarjetas')).toBeVisible();
-  await filters.getByRole('button', { name: 'Ocultas' }).click();
-
-  await page.getByRole('grid').getByRole('row').nth(1).click();
-  await page
-    .getByRole('complementary', { name: 'Vista previa' })
-    .getByRole('button', { name: 'Reportar error' })
-    .click();
+  await page.getByRole('button', { name: /^¿Cuántas vértebras cervicales hay\?/ }).click();
+  const actions = page.getByRole('toolbar', { name: 'Acciones de la tarjeta' });
+  await actions.getByRole('button', { name: 'Reportar error' }).click();
   const dialog = page.getByRole('dialog', { name: 'Reportar error' });
   await dialog.getByLabel('¿Qué está mal?').fill('Una falta de ortografía');
   await dialog.getByRole('button', { name: 'Enviar' }).click();
-  await expect(page.getByText('Gracias: tu reporte le llegó al autor.')).toBeVisible();
+  await expect(actions.getByText('Gracias: tu reporte le llegó al autor.')).toBeVisible();
 });
 
 test('on a small phone: nothing scrolls sideways, and the welcome can be closed', async ({
@@ -202,7 +196,7 @@ test('on a small phone: nothing scrolls sideways, and the welcome can be closed'
     `${COURSE_URL}/anki/certamen-1`,
     DECK_URL,
     '/settings/anki',
-    '/anki/browse',
+    CARDS_URL,
   ]) {
     await page.goto(url);
     await expect(page.locator('h1').first()).toBeVisible();
@@ -311,6 +305,6 @@ test('after studying, a new visit shows the answered lecture turned on, also aft
   await expect(page.getByLabel('Límite del estudio por adelantado')).toHaveCount(0);
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   await expect(page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' })).toBeChecked();
-  await page.goto(`/anki/browse?q=${encodeURIComponent('is:review')}`);
-  await expect(page.getByText('1 tarjetas').or(page.getByText('1 tarjeta'))).toBeVisible();
+  await page.goto(`${CARDS_URL}?state=seen`);
+  await expect(page.getByText('1 nota · 1 tarjeta')).toBeVisible();
 });

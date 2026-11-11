@@ -1,6 +1,7 @@
 import type {
   AnkiCatalog,
   Assessment,
+  CardIndexRecord,
   Catalog,
   Course,
   NoteSummary,
@@ -19,7 +20,10 @@ export function buildCatalog(
   notes: NoteSummary[],
   anki: AnkiCatalog = { decks: [], presets: [], noteTypes: [] },
   quizzes: QuizSummary[] = [],
+  /** The card browser's index of each assessment (step 3.3). */
+  indexes: CardIndexRecord[] = [],
 ): Catalog {
+  const indexOf = new Map(indexes.map(({ assessmentId, ...ref }) => [assessmentId, ref]));
   const byPosition = <T extends { position: number }>(a: T, b: T) => a.position - b.position;
   // An assessment's cards: those of its deck (the one of the assessment, which holds every other).
   const cards = new Map<string, number>();
@@ -45,6 +49,7 @@ export function buildCatalog(
                 notes: notes.filter((n) => n.assessmentId === a.id).sort(byPosition),
                 quizzes: quizzes.filter((q) => q.assessmentId === a.id).sort(byPosition),
                 cardCount: cards.get(a.id) ?? 0,
+                ...(indexOf.has(a.id) ? { cardIndex: indexOf.get(a.id)! } : {}),
               })),
           })),
       })),

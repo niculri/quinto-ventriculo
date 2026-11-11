@@ -75,4 +75,9 @@ export interface SearchContext {
   answers?: SearchAnswer[];
   /** First answer of each card, by `${noteGuid}\u001f${ord}` (for `introduced:`). */
   firstAnswerMs?: Map<string, number>;
+  /**
+   * Anki's «Ignore accents in search» (`ignoreAccentsInSearch`, off by default): loose text behaves like `nc:`
+   * and `w:` ignores accents on both sides. Fields, `re:`, `sc:`, names and tags do not change, as in Anki.
+   */
+  ignoreAccents?: boolean;
 }

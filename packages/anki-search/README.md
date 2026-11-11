@@ -23,15 +23,26 @@ searchTerm('deck', '() Medicina UCH::1° Semestre'); // → "deck:() Medicina UC
   `WeakMap` por el arreglo `fields`, así que la segunda búsqueda sobre las mismas tarjetas es más rápida:
   con 50 000 tarjetas, una búsqueda de texto tarda unos 5 ms.
 
+## Ignorar acentos
+
+`ignoreAccents: true` en el contexto es la preferencia «Ignorar acentos en la búsqueda» de Anki
+(`ignoreAccentsInSearch`, apagada por defecto): el texto suelto se busca como `nc:` («vertebra» encuentra
+«vértebra» y «VÉRTEBRA») y `w:` quita los acentos de la palabra y de los campos. `campo:valor`, `re:`, `sc:`,
+mazos, etiquetas y tipos de nota no cambian, igual que en Anki. La web la usa encendida.
+
 ## Prueba contra Anki real
 
 `test/golden/search.json` tiene 393 búsquedas (45 inválidas) y 35 términos de la barra lateral, con lo que
 encontró Anki 25.9.5 en una colección de prueba. La prueba exige las mismas tarjetas (o error donde Anki da
-error). Para rehacerlo (también deja el JSON con el formato de Prettier):
+error). `test/golden/search-ignore-accents.json` es la misma colección con «Ignorar acentos» encendido: las
+mismas búsquedas y 56 más que la opción podría cambiar (449). Para rehacerlos (también deja el JSON con el
+formato de Prettier; hace falta el paquete `anki` 25.9.x de PyPI):
 
 ```bash
 python3 packages/anki-search/scripts/anki_search.py \
     packages/anki-search/test/golden/search.json
+python3 packages/anki-search/scripts/anki_search.py --ignore-accents \
+    packages/anki-search/test/golden/search-ignore-accents.json
 ```
 
 ## Lo que es igual a Anki aunque sorprenda
@@ -53,7 +64,7 @@ python3 packages/anki-search/scripts/anki_search.py \
 
 - Los campos llegan en **texto plano** (sin HTML); Anki busca en el HTML guardado. Una búsqueda que calce
   con etiquetas o entidades (`&nbsp;`) puede dar distinto. No existe la opción de excluir campos de la
-  búsqueda, y «Ignorar acentos en la búsqueda» se toma apagada (como viene en Anki).
+  búsqueda.
 - Se normaliza la búsqueda a NFC y se asume que los campos ya vienen en NFC (Anki los guarda así).
 - `added:N` usa la creación de la nota (`createdMs`); Anki usa el id de la tarjeta, que es el mismo instante
   salvo en tarjetas generadas después (un cloze nuevo en una nota vieja).

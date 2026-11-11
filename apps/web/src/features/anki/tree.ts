@@ -165,8 +165,11 @@ export function courseDeck(tree: AnkiTree, courseId: string): CourseDeckNode | n
   );
 }
 
-/** What a deck's URL opens: its page, studying it, or its final review. */
-export type DeckScreen = 'page' | 'study' | 'review';
+/**
+ * What a deck's URL opens: its page, studying it, its final review, its cards (step 3.3) or a practice round with some
+ * of them.
+ */
+export type DeckScreen = 'page' | 'study' | 'review' | 'cards' | 'practice';
 
 export type Resolved =
   | { kind: 'deck'; node: CourseDeckNode; screen: DeckScreen }
@@ -209,8 +212,17 @@ function inCourse(
   subdeck: string | null,
 ): Resolved | null {
   const tail = segments.at(-1);
-  const screen: DeckScreen = tail === 'study' ? 'study' : tail === 'review' ? 'review' : 'page';
-  const path = screen === 'page' ? segments : segments.slice(0, -1);
+  const practice = tail === 'practice' && segments.at(-2) === 'cards';
+  const screen: DeckScreen = practice
+    ? 'practice'
+    : tail === 'study'
+      ? 'study'
+      : tail === 'review'
+        ? 'review'
+        : tail === 'cards'
+          ? 'cards'
+          : 'page';
+  const path = screen === 'page' ? segments : segments.slice(0, practice ? -2 : -1);
   let node: CourseDeckNode | null = course;
   for (const s of path) {
     node = (node?.children.find((c) => c.slug === s) as CourseDeckNode | undefined) ?? null;

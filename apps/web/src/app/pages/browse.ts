@@ -1,1 +1,1 @@
-export { BrowsePage as default } from '../../features/browse/BrowsePage';
+export { LegacyBrowse as default } from '../../features/cards/LegacyBrowse';

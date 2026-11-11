@@ -5,12 +5,14 @@ import { join } from 'node:path';
 import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readApkgFile } from '@qv/anki-format';
-import { ContentBundle } from '@qv/schema';
+import { CardIndex, ContentBundle, cardIndexKey } from '@qv/schema';
+import { gunzipSync } from 'node:zlib';
 import { buildBundle, hash } from './build';
+import { packCardIndexes } from './browse-index';
 import { containerDeckId } from './decks';
 import { sanitizeCard } from './card-html';
 import { FolderTarget, batches, cardMoves, sharedConflicts } from './targets';
-import { ImageCache, MAX_WIDTH, processCardImage, processImage } from './images';
+import { ImageCache, MAX_WIDTH, THUMB_WIDTH, processCardImage, processImage } from './images';
 import { readManifest, readUnpublished, validateReferences } from './manifest';
 import { sameUnpublished } from './unpublished';
 import { privateMaterial } from './private-folder';
@@ -853,6 +855,32 @@ describe('decks', () => {
       expect(JSON.stringify(bundle)).not.toMatch(/imaios/i);
     });
 
+    it('the browser index and its thumbnails (step 3.3) leave those notes out too', async () => {
+      const { bundle, media } = await decksWith(true);
+      const [packed] = packCardIndexes(bundle);
+      expect(packed!.index.notes.map((n) => n.guid)).not.toContain('oclusion-1');
+      expect(packed!.index.notes.map((n) => n.guid)).not.toContain('Or&8~[!Z2<');
+      expect(gunzipSync(packed!.body).toString()).not.toMatch(/imaios/i);
+      const folder = await mkdtemp(join(tmpdir(), 'qv-index-imaios-'));
+      try {
+        const report = await new FolderTarget(folder).save(bundle, media, {
+          notes: false,
+          decks: true,
+        });
+        expect(report).toMatchObject({ thumbsUploaded: packed!.thumbs.size, indexesWritten: 1 });
+        // None of them is made from an image of the notes left out.
+        const all = await buildDecksOnly();
+        const left = all.bundle.ankiNotes
+          .filter((n) => n.guid === 'oclusion-1' || n.guid === 'Or&8~[!Z2<')
+          .flatMap((n) => n.media)
+          .filter((k) => !bundle.ankiNotes.some((n) => n.media.includes(k)));
+        expect(left.length).toBeGreaterThan(0);
+        for (const image of packed!.thumbs.values()) expect(left).not.toContain(image);
+      } finally {
+        await rm(folder, { recursive: true, force: true });
+      }
+    });
+
     it('a deck of IMAIOS is an error, even with «excludeImaios»', async () => {
       await expect(decksWith(true, true)).rejects.toThrow(/es un mazo de IMAIOS/);
     });
@@ -1337,4 +1365,94 @@ describe('step 1.5: content/unpublished.json', () => {
       expect(items).toEqual([]);
     },
   );
+});
+
+describe('the browser index (step 3.3)', () => {
+  const withDecks: Manifest = {
+    ...structuredClone(manifest),
+    decks: [
+      { assessmentId: 'anatomia-1/certamen-1', decks: [{ apkg: 'mazos/Mazo de prueba.apkg' }] },
+    ],
+  };
+  const decksOnly = () =>
+    buildBundle({
+      manifest: withDecks,
+      root,
+      process: processImage,
+      processCardImage,
+      onlyDecks: true,
+      now: () => new Date('2026-10-31T12:00:00Z'),
+    });
+
+  it('one file per assessment, named by its content, with what the list shows of each note', async () => {
+    const { bundle } = await decksOnly();
+    const packs = packCardIndexes(bundle);
+    expect(packs.map((p) => p.record.assessmentId)).toEqual(['anatomia-1/certamen-1']);
+    const [p] = packs;
+    const index = CardIndex.parse(JSON.parse(gunzipSync(p!.body).toString()));
+    expect(index).toEqual(p!.index);
+    expect(p!.key).toBe(cardIndexKey('anatomia-1/certamen-1', p!.record.hash));
+    expect(p!.record).toMatchObject({
+      noteCount: bundle.ankiNotes.length,
+      cardCount: bundle.ankiNotes.reduce((t, n) => t + n.cards.length, 0),
+      bytes: p!.body.length,
+    });
+    // The same notes give the same file (and key); another note, another.
+    expect(packCardIndexes(bundle)[0]!.record.hash).toBe(p!.record.hash);
+    const fewer = { ...bundle, ankiNotes: bundle.ankiNotes.slice(1) };
+    expect(packCardIndexes(fewer)[0]!.record.hash).not.toBe(p!.record.hash);
+    // By code, as the class goes (the notes without a code at the end).
+    const codes = index.notes.map((n) => n.code);
+    const withCode = codes.filter((c) => c !== null);
+    expect(withCode).toEqual([...withCode].sort());
+    expect(codes.slice(withCode.length).every((c) => c === null)).toBe(true);
+    // The occlusion: its thumbnail (from its image) and its shapes; its coordinates are not in its fields.
+    const io = index.notes.find((n) => n.guid === 'oclusion-1')!;
+    expect(io.kind).toBe('occlusion');
+    expect(io.thumb).toMatch(/^cards\/thumb\/[0-9a-f]{32}\.webp$/);
+    expect(io.labels).toBeGreaterThan(0);
+    expect(io.fields.join(' ')).not.toMatch(/image-occlusion/);
+    expect(p!.thumbs.get(io.thumb!)).toBe(io.thumb!.replace('thumb/', ''));
+    expect(bundle.ankiNotes.find((n) => n.guid === 'oclusion-1')!.media).toContain(
+      p!.thumbs.get(io.thumb!),
+    );
+    // A basic note and a cloze, without a thumbnail.
+    for (const n of index.notes.filter((x) => x.kind !== 'occlusion')) {
+      expect(n.thumb).toBeNull();
+      expect(n.labels).toBe(0);
+    }
+    expect(index.notes.some((n) => n.kind === 'cloze' && /\{\{c\d+::/.test(n.front))).toBe(true);
+  });
+
+  it('the dry run writes the file and the thumbnails (240 px), and the bundle says which file is current', async () => {
+    const { bundle, media } = await decksOnly();
+    const folder = await mkdtemp(join(tmpdir(), 'qv-index-'));
+    try {
+      const report = await new FolderTarget(folder).save(bundle, media, {
+        notes: false,
+        decks: true,
+      });
+      const [p] = packCardIndexes(bundle);
+      expect(report).toMatchObject({ indexesWritten: 1, indexesUnchanged: 0 });
+      expect(report.thumbsUploaded).toBe(p!.thumbs.size);
+      const saved = ContentBundle.parse(
+        JSON.parse(await readFile(join(folder, 'content.json'), 'utf8')),
+      );
+      expect(saved.ankiBrowseIndexes).toEqual([p!.record]);
+      expect(await readFile(join(folder, 'media', p!.key))).toEqual(p!.body);
+      for (const thumb of p!.thumbs.keys()) {
+        const meta = await sharp(await readFile(join(folder, 'media', thumb))).metadata();
+        expect(meta.format).toBe('webp');
+        expect(meta.width).toBeLessThanOrEqual(THUMB_WIDTH);
+      }
+      // Again: nothing new.
+      const again = await new FolderTarget(folder).save(bundle, media, {
+        notes: false,
+        decks: true,
+      });
+      expect(again).toMatchObject({ indexesWritten: 0, indexesUnchanged: 1, thumbsUploaded: 0 });
+    } finally {
+      await rm(folder, { recursive: true, force: true });
+    }
+  });
 });

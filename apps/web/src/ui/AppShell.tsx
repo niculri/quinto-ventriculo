@@ -25,9 +25,10 @@ export function AppShell() {
   const preview = usePreview();
   // The study screen fills the window under the top bar, as Anki's reviewer: no footer to scroll to.
   const { pathname } = useLocation();
-  const studying = pathname.endsWith('/study') || pathname.endsWith('/review');
-  // The browser of cards has its own columns: it takes the right one too.
-  const browsing = pathname.startsWith('/anki/browse');
+  const studying =
+    pathname.endsWith('/study') ||
+    pathname.endsWith('/review') ||
+    pathname.endsWith('/cards/practice');
   // Studying a deck is as answering a test: nothing but the card (no menu, no right column, no footer).
   const hideNav = focus || studying;
 
@@ -110,7 +111,7 @@ export function AppShell() {
             <main id="content" className="min-w-0 flex-1">
               <Outlet />
             </main>
-            {hideNav || browsing ? null : (
+            {hideNav ? null : (
               <aside aria-label="Columna derecha" className="hidden w-64 flex-none xl:block">
                 <div
                   ref={setRail}

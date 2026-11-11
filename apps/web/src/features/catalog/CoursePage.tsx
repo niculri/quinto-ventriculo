@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowRight, ChevronRight, Layers, Search } from 'lucide-react';
-import { searchTerm } from '@qv/anki-search';
 import { Link, useParams } from 'react-router';
 import { assessmentAnchor, paths } from '../../app/paths';
 import { Canonical } from './Redirects';
@@ -109,6 +108,7 @@ function CourseView({
           deckIds={catalog.anki.decks.filter((d) => d.courseId === course.id).map((d) => d.id)}
           catalog={catalog}
           groupBy="assessment"
+          courseId={course.id}
           className="mt-8"
         />
       ) : null}
@@ -248,10 +248,10 @@ function CourseView({
             <Layers className="size-4" aria-hidden="true" /> Todos los mazos del ramo
           </Link>
           <Link
-            to={paths.browse({ q: searchTerm('deck', decks.name) })}
+            to={paths.cards(decks.ref)}
             className="inline-flex items-center gap-1.5 text-muted hover:text-ink"
           >
-            <Search className="size-4" aria-hidden="true" /> Buscar tarjetas
+            <Search className="size-4" aria-hidden="true" /> Ver las tarjetas
           </Link>
         </p>
       ) : null}

@@ -206,7 +206,7 @@ function ChooseReview({
 }
 
 /** A card of the round: the same frame and buttons as studying, with their keys. */
-function ReviewScreen({
+export function ReviewScreen({
   round,
   current,
   onChange,
@@ -326,15 +326,20 @@ function ReviewScreen({
   );
 }
 
-/** «Más»: marking a card (the only thing here that saves something) and reporting an error. */
-function ReviewMenu({
+/**
+ * «Más»: marking a card (the only thing here that saves something) and reporting an error. `markable` false: only
+ * reporting («Practicar estas» of the cards page writes nothing of the cards).
+ */
+export function ReviewMenu({
   current,
   flag,
   onMarked,
+  markable = true,
 }: {
   current: CardRef;
   flag: number;
   onMarked: (key: string, flag: number) => void;
+  markable?: boolean;
 }) {
   const { study } = useServices();
   const [reporting, setReporting] = useState<CardKey | null>(null);
@@ -379,10 +384,12 @@ function ReviewMenu({
             className="z-50 w-64 rounded-xl border border-border bg-surface p-1.5 shadow-soft"
             onCloseAutoFocus={(e) => e.preventDefault()}
           >
-            <Menu.Item className={item} onSelect={toggle}>
-              <Flag className="size-4 text-muted" aria-hidden="true" />
-              {flag ? 'Quitar la marca' : 'Marcar para revisar'}
-            </Menu.Item>
+            {markable ? (
+              <Menu.Item className={item} onSelect={toggle}>
+                <Flag className="size-4 text-muted" aria-hidden="true" />
+                {flag ? 'Quitar la marca' : 'Marcar para revisar'}
+              </Menu.Item>
+            ) : null}
             <Menu.Item className={item} onSelect={() => setReporting(current)}>
               <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" /> Reportar
               error
@@ -412,21 +419,25 @@ function ReviewMenu({
   );
 }
 
-function RoundDone({
+export function RoundDone({
   round,
   deckPath,
   label,
   onAgain,
+  title = 'Terminaste el repaso',
+  againLabel = 'Otro repaso',
 }: {
   round: Round;
   deckPath: string;
   label: string;
   onAgain: () => void;
+  title?: string;
+  againLabel?: string;
 }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
-      <h1 className="mt-4 font-serif text-2xl font-semibold">Terminaste el repaso</h1>
+      <h1 className="mt-4 font-serif text-2xl font-semibold">{title}</h1>
       <p className="mt-4 text-sm text-muted">
         {round.total.toLocaleString('es-CL')} {round.total === 1 ? 'tarjeta' : 'tarjetas'}
         {round.again > 0
@@ -438,7 +449,7 @@ function RoundDone({
           Volver a {label}
         </Link>
         <button type="button" onClick={onAgain} className={`${button.base} ${button.secondary}`}>
-          Otro repaso
+          {againLabel}
         </button>
       </div>
     </div>

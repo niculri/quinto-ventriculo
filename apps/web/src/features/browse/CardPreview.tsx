@@ -144,8 +144,19 @@ function kindOf(e: CardLogEntry): string {
   }
 }
 
-/** Anki's «Información de la tarjeta»: the numbers of the card and its history of answers. */
-export function CardInfo({ card, timing }: { card: BrowseCard; timing: SchedTiming }) {
+/**
+ * Anki's «Información de la tarjeta»: the numbers of the card and its history of answers. `simple`: without FSRS's
+ * numbers nor the note type (the simple mode's «Historial» of the cards page).
+ */
+export function CardInfo({
+  card,
+  timing,
+  simple = false,
+}: {
+  card: BrowseCard;
+  timing: SchedTiming;
+  simple?: boolean;
+}) {
   const { study } = useServices();
   const log = useQuery({
     queryKey: [...studyKeys.all, 'log', card.noteGuid, card.ord],
@@ -176,11 +187,13 @@ export function CardInfo({ card, timing }: { card: BrowseCard; timing: SchedTimi
     ['Mazo', card.deck?.name.split('::').slice(1).join(' › ') || '—'],
     ['Código', cellText(card, 'code', timing) || '—'],
   ];
+  const SIMPLE = new Set(['Primer repaso', 'Último repaso', 'Vencimiento', 'Repasos', 'Olvidos']);
+  const shown = simple ? facts.filter(([k]) => SIMPLE.has(k)) : facts;
   return (
     <section aria-label="Información de la tarjeta" className="text-sm">
-      <h3 className="mb-2 font-semibold">Información de la tarjeta</h3>
+      {simple ? null : <h3 className="mb-2 font-semibold">Información de la tarjeta</h3>}
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-        {facts.map(([k, v]) => (
+        {shown.map(([k, v]) => (
           <div key={k} className="contents">
             <dt className="text-muted">{k}</dt>
             <dd className="min-w-0 break-words">{v}</dd>

@@ -2,10 +2,12 @@ import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, scrollCard, signIn } from './helpers';
 
-/** The browser («Buscar tarjetas») with a search; `card` opens that row in «Ver en grande». */
+/** The table of the cards page («Modo avanzado») with a search; `row` opens that row in «Ver en grande». */
 async function browse(page: Page, query: string, row: RegExp) {
   await signIn(page);
-  await page.goto(`/anki/browse?q=${encodeURIComponent(query)}`);
+  await page.goto(
+    `/semesters/1/courses/anatomia-1/anki/certamen-1/cards?view=table&q=${encodeURIComponent(query)}`,
+  );
   const grid = page.getByRole('grid', { name: 'Tarjetas' });
   await grid.getByRole('row', { name: row }).first().click();
   await page.getByRole('button', { name: /Ver en grande/ }).click();

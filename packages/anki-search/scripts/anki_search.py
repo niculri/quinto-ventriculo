@@ -3,6 +3,8 @@
 
     python3 packages/anki-search/scripts/anki_search.py \
         packages/anki-search/test/golden/search.json
+    python3 packages/anki-search/scripts/anki_search.py --ignore-accents \
+        packages/anki-search/test/golden/search-ignore-accents.json
 
 The collection has the stock note types (basic, basic and reversed, cloze) and one of our own with three
 fields; decks with accents and emoji like the real ones («() Medicina UCH::1° Semestre::🦴 Anatomía I::…»,
@@ -14,6 +16,9 @@ reschedule, ease 0). Everything is relative to the moment it runs (TZ America/Sa
 the timing goes in the JSON. For each search: the cards Anki finds (guid and ord) or its error. Searches
 marked «unsupported» are valid in Anki but refused by the package (the test expects a SearchError there).
 The sidebar terms (`build_search_string`) for every deck, tag and note type go in the JSON too.
+
+With `--ignore-accents`, Anki's «Ignore accents in search» preference (`ignoreAccentsInSearch`) is on, and the
+searches are the same plus ACCENT_SEARCHES: the golden file of `ignoreAccents: true` in @qv/anki-search.
 """
 
 import json
@@ -218,6 +223,18 @@ SEARCHES = [
     ("preset:Default", U), ("has-cd:x", U), ("resched:1", U), "nid:x", "dupe:1",
 ]
 
+# Only with --ignore-accents: what the preference could change (loose text, fields, words, regexes, names).
+ACCENT_SEARCHES = [
+    "vertebra", "VERTEBRA", "vertebras", "VERTEBRA lumbar", '"vertebra lumbar"', "fovea", "Fovea costal",
+    "apofisis", "bifida", "nandu", "NANDU", "nino", "Nino", "angstrom", "Angstrom", "parentesis",
+    "region", "arbol*cerebelo", "v_rtebra", "v*rtebra", "-vertebra", "arbol or fovea", "árbol -arbol",
+    "cafe", "CAFE", "café", "fin", "ﬁn", "ß", "anverso:arbol*", "anverso:ARBOL*", "anverso:Arbol*",
+    '"anverso:arbol bronquial"', "reverso:vertebra*", "reverso:*vertebra*", "*:arbol*", "*:*vertebra*",
+    "frase:frase dato", "código:t-a1*", "codigo:t-a1*", "w:vertebra", "w:cafe", "w:bifida", "w:café",
+    "sc:region", "sc:cervicales", "re:vertebra", "re:v.rtebra", "nc:vertebra", "anverso:nc:arbol*",
+    "deck:*vertebras", "deck:*Vertebras", "tag:anatomia", "tag:nandu", "note:basico", "card:pregunta",
+]
+
 
 def add_custom_notetype(col):
     mm = col.models
@@ -232,7 +249,7 @@ def add_custom_notetype(col):
     return mm.by_name("Medicina (código) · Básica")
 
 
-def main(out_path):
+def main(out_path, ignore_accents=False):
     folder = tempfile.mkdtemp()
     path = os.path.join(folder, "search.anki2")
     col = Collection(path)
@@ -245,6 +262,10 @@ def main(out_path):
     prefs.scheduling.learn_ahead_secs = 1200
     col.set_preferences(prefs)
     col.set_config("fsrs", True)
+    if ignore_accents:
+        from anki.collection import Config
+
+        col.set_config_bool(Config.Bool.IGNORE_ACCENTS_IN_SEARCH, True)
 
     models = {m["name"]: m for m in col.models.all()}
     note_types = {
@@ -338,7 +359,7 @@ def main(out_path):
                   for rid, cid, ease in col.db.all("select id, cid, ease from revlog order by id")]
 
     results = []
-    for entry in SEARCHES:
+    for entry in SEARCHES + (ACCENT_SEARCHES if ignore_accents else []):
         query, flag = (entry if isinstance(entry, tuple) else (entry, None))
         record = {"query": query}
         if flag:
@@ -370,6 +391,7 @@ def main(out_path):
         "generatedAt": now,
         "timing": {"now": now, "today": timing.days_elapsed, "nextDayAt": timing.next_day_at},
         "learnAheadSecs": col.get_preferences().scheduling.learn_ahead_secs,
+        "ignoreAccents": ignore_accents,
         "decks": out_decks,
         "noteTypes": out_types,
         "cards": out_cards,
@@ -392,4 +414,5 @@ def main(out_path):
 if __name__ == "__main__":
     import anki.buildinfo  # noqa: F401
 
-    main(sys.argv[1] if len(sys.argv) > 1 else "search.json")
+    args = [a for a in sys.argv[1:] if a != "--ignore-accents"]
+    main(args[0] if args else "search.json", ignore_accents="--ignore-accents" in sys.argv[1:])

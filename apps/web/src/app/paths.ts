@@ -44,6 +44,23 @@ export interface DeckRef {
   segments: string[];
 }
 
+/** The query of the cards page (features/cards): every part is optional, and an empty one is left out. */
+export interface CardsQuery {
+  /** The week or lecture: its slugs below the page's deck, with «/». */
+  unit?: string | null;
+  q?: string | null;
+  state?: string | null;
+  /** Origin tags, with commas. */
+  origin?: string | null;
+  /** `text` or `image`. */
+  kind?: string | null;
+  /** A day of the heatmap, «2026-11-03». */
+  day?: string | null;
+  /** The card open in the viewer: «<ord>:<guid>». */
+  card?: string | null;
+  view?: string | null;
+}
+
 /** The anchor of an assessment's section on its course's page: «biologia-celular/certamen-2» → «certamen-2». */
 export const assessmentAnchor = (assessmentId: string) =>
   assessmentId.split('/').pop() ?? assessmentId;
@@ -112,7 +129,25 @@ export const paths = {
   /** The final review of an assessment: what was already seen, without changing any date. */
   deckReview: (ref: DeckRef) =>
     [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'review'].join('/'),
-  /** The browser, with a search (Anki's syntax) and the selected card. */
+  /**
+   * The cards of a course or an assessment (step 3.3): the list by lecture and topic, its filters in the query
+   * (`unit`, `q`, `state`, `origin`, `kind`, `day`, `card`) and, in «Modo avanzado», `view=table` for Anki's table.
+   */
+  cards: (ref: DeckRef, query?: CardsQuery) =>
+    withQuery(
+      [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'cards'].join('/'),
+      query as Record<string, string | null | undefined>,
+    ),
+  /** «Practicar estas»: a round with those cards (the same query), without changing any date. */
+  cardsPractice: (ref: DeckRef, query?: CardsQuery) =>
+    withQuery(
+      [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'cards', 'practice'].join('/'),
+      query as Record<string, string | null | undefined>,
+    ),
+  /**
+   * Before step 3.3, the browser of every course (`/anki/browse?q=…&note=…&ord=…`): it redirects to the cards of the
+   * course or assessment of its search or card.
+   */
   browse: (query?: { q?: string | null; note?: string | null; ord?: number | null }) =>
     withQuery('/anki/browse', {
       q: query?.q,

@@ -11,6 +11,7 @@ import type {
   AnkiTreeDeck,
   BrowseData,
   CardDetail,
+  CardIndex,
   Catalog,
   DeckDetail,
   Note,
@@ -383,6 +384,52 @@ export const BROWSE: BrowseData = {
   ],
 };
 
+/** The browser's index of «Certamen 1» (step 3.3): the same notes, as the importer writes them. */
+export const CARD_INDEX: CardIndex = {
+  version: 1,
+  assessmentId: 'anatomia-1/certamen-1',
+  noteTypes: CATALOG.anki.noteTypes,
+  notes: [
+    {
+      ...BROWSE.notes[0]!,
+      kind: 'basic',
+      topic: 'Columna cervical',
+      front: '¿Cuántas vértebras cervicales hay?',
+      back: '7',
+      thumb: null,
+      labels: 0,
+      origin: ['profe'],
+    },
+    {
+      ...BROWSE.notes[1]!,
+      kind: 'cloze',
+      topic: 'Columna cervical',
+      front: 'La columna tiene {{c1::7}} vértebras {{c2::cervicales}}',
+      back: '',
+      thumb: null,
+      labels: 0,
+      origin: [],
+    },
+    {
+      ...BROWSE.notes[2]!,
+      kind: 'occlusion',
+      topic: 'Vértebra de prueba',
+      front: 'Vértebra de prueba',
+      back: '',
+      thumb: 'cards/thumb/0123456789abcdef0123456789abcdef.webp',
+      labels: 1,
+      origin: [],
+    },
+  ],
+};
+export const CARD_INDEX_HASH = 'abcdefabcdefabcdefabcdefabcdef12';
+CATALOG.semesters[0]!.courses[0]!.assessments[0]!.cardIndex = {
+  hash: CARD_INDEX_HASH,
+  noteCount: 3,
+  cardCount: 4,
+  bytes: 900,
+};
+
 const CSS = `.card { --fondo: #ffffff; background-color: var(--fondo); }
 .card.nightMode { --fondo: #1c1f24; }
 #image-occlusion-canvas { --active-shape-color: #ff7b72; --inactive-shape-color: #ffe08a; }
@@ -611,6 +658,16 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
       throw new ApiRequestError(404, 'not_found', 'Ese mazo no existe.');
     },
     ankiNotes: async () => BROWSE,
+    // Step 3.3: the index of «Certamen 1»; a test that needs another one passes its own.
+    cardIndex: async (assessmentId, hash) => {
+      if (assessmentId === CARD_INDEX.assessmentId && hash === CARD_INDEX_HASH) return CARD_INDEX;
+      throw new ApiRequestError(404, 'not_found', 'Las tarjetas de este certamen cambiaron.');
+    },
+    thumbSignature: async () => ({
+      prefix: 'cards/thumb/',
+      expires: 4_102_444_800,
+      query: 'e=4102444800&p=cards%2Fthumb%2F&s=prueba',
+    }),
     cardChanges: async (since) => ({ changes: [], next: since, latest: since, more: false }),
     quizzes: async () => ({ quizzes: [] }),
     quiz: async (id) => {

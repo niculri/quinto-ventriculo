@@ -35,6 +35,7 @@ export function memoryRepository(bundle: ContentBundle): ContentRepository {
         summaries,
         decks.tree(),
         bundle.quizzes.map(quizSummary),
+        bundle.ankiBrowseIndexes ?? [],
       );
     },
 

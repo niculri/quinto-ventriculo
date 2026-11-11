@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Assessment, Course, NoteSummary, Semester } from './content';
 import { AnkiTreeDeck, AuthorPreset, NoteTypeSummary } from './flashcards';
+import { CardIndexRef } from './browse-index';
 import { QuizSummary } from './quizzes';
 
 /** API contracts (`/api/*`). The web validates every response with these schemas. */
@@ -13,6 +14,11 @@ export const AssessmentWithNotes = Assessment.extend({
   notes: z.array(NoteSummary),
   quizzes: z.array(QuizSummary).default([]),
   cardCount: z.number().int().nonnegative().default(0),
+  /**
+   * The current file of the card browser's index (step 3.3): `cardIndexUrl(id, hash)`. Absent: the assessment has no
+   * cards, or it was not imported again since that step (or its deck was taken off the site).
+   */
+  cardIndex: CardIndexRef.optional(),
 });
 export const CourseWithAssessments = Course.extend({ assessments: z.array(AssessmentWithNotes) });
 export const SemesterWithCourses = Semester.extend({ courses: z.array(CourseWithAssessments) });

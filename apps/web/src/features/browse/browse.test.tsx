@@ -8,6 +8,9 @@ import { combineSearch } from './Sidebar';
 
 afterEach(() => localStorage.clear());
 
+/** The «Tabla» of the cards page (Modo avanzado: the tests' study is in it). */
+const TABLE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards?view=table';
+
 const grid = () => screen.findByRole('grid', { name: /Tarjetas|Notas/ });
 
 /** The rows of the table (without its header), by their first cell. */
@@ -56,9 +59,9 @@ async function reviewed(study: StudyRepository) {
   });
 }
 
-describe('the browser', () => {
+describe('the table of the cards page (Anki’s browser)', () => {
   it('lists every card with the chosen columns, and searches with Anki’s syntax', async () => {
-    renderApp('/anki/browse');
+    renderApp(TABLE);
     expect(await rowNames()).toEqual([
       '¿Cuántas vértebras cervicales hay?',
       'La columna tiene 7 vértebras cervicales',
@@ -95,18 +98,21 @@ describe('the browser', () => {
     ]);
     await searchFor('vértebra -cervicales');
     expect(await rowNames()).toEqual(['Vértebra de prueba']);
+    // Without accents (Anki's «Ignore accents in search», on in the web): «vertebra» finds «Vértebra».
+    await searchFor('VERTEBRA -cervicales');
+    expect(await rowNames()).toEqual(['Vértebra de prueba']);
     await searchFor('note:*oclusión* or Frente:¿cuántas*');
     expect(await rowNames()).toEqual(['¿Cuántas vértebras cervicales hay?', 'Vértebra de prueba']);
   });
 
   it('a search it does not understand says why', async () => {
-    renderApp('/anki/browse?q=(is:new');
+    renderApp(`${TABLE}&q=${encodeURIComponent('(is:new')}`);
     expect(await screen.findByText('No se entiende la búsqueda')).toBeInTheDocument();
     expect(screen.getByRole('alert').textContent).toMatch(/paréntesis/);
   });
 
   it('the sidebar builds the search: a click replaces it, with Ctrl it adds, with Alt it negates', async () => {
-    const { router } = renderApp('/anki/browse');
+    const { router } = renderApp(TABLE);
     const side = await screen.findByRole('navigation', { name: 'Barra lateral del explorador' });
     await userEvent.click(within(side).getByRole('button', { name: 'Extras' }));
     expect(new URLSearchParams(router.state.location.search).get('q')).toBe(
@@ -121,7 +127,7 @@ describe('the browser', () => {
   });
 
   it('notes mode: one row per note', async () => {
-    renderApp('/anki/browse');
+    renderApp(TABLE);
     await grid();
     await userEvent.click(screen.getByRole('button', { name: 'Notas' }));
     expect(await rowNames()).toEqual([
@@ -133,7 +139,7 @@ describe('the browser', () => {
   });
 
   it('sorts by a column and chooses the columns', async () => {
-    renderApp('/anki/browse');
+    renderApp(TABLE);
     const g = await grid();
     await userEvent.click(within(g).getByRole('button', { name: 'Código' }));
     await userEvent.click(within(g).getByRole('button', { name: 'Código' }));
@@ -146,7 +152,7 @@ describe('the browser', () => {
 
   it('selects with a click, Ctrl/⌘ and Mayús, and the preview shows the current card', async () => {
     const user = userEvent.setup();
-    const { router } = renderApp('/anki/browse');
+    const { router } = renderApp(TABLE);
     const g = await grid();
     const rows = () => within(g).getAllByRole('row').slice(1);
     await user.click(rows()[0]!);
@@ -178,7 +184,7 @@ describe('the browser', () => {
 
   it('suspends and flags the selection, Ctrl+Z undoes it, and the search sees it', async () => {
     const study = fullAnkiStudy();
-    renderApp('/anki/browse', { study });
+    renderApp(TABLE, { study });
     const g = await grid();
     await userEvent.click(within(g).getAllByRole('row')[1]!);
     await userEvent.click(screen.getByRole('button', { name: 'Suspender' }));
@@ -215,7 +221,7 @@ describe('the browser', () => {
 
   it('buries and unburies (only until tomorrow)', async () => {
     const study = fullAnkiStudy();
-    renderApp('/anki/browse', { study });
+    renderApp(TABLE, { study });
     const g = await grid();
     await userEvent.click(within(g).getAllByRole('row')[4]!);
     await userEvent.click(screen.getByRole('button', { name: 'Enterrar' }));
@@ -232,7 +238,7 @@ describe('the browser', () => {
   it('«Olvidar» sends a card back to new (resetting its counts if asked), and undo brings it back', async () => {
     const study = fullAnkiStudy();
     await reviewed(study);
-    renderApp('/anki/browse?q=is:review', { study });
+    renderApp(`${TABLE}&q=is:review`, { study });
     expect(await rowNames()).toEqual(['¿Cuántas vértebras cervicales hay?']);
     await userEvent.click(within(await grid()).getAllByRole('row')[1]!);
     // Its information: the numbers and the history.
@@ -265,7 +271,7 @@ describe('the browser', () => {
   it('rated: and introduced: read the history', async () => {
     const study = fullAnkiStudy();
     await reviewed(study);
-    renderApp('/anki/browse?q=rated:1', { study });
+    renderApp(`${TABLE}&q=rated:1`, { study });
     // The history arrives after the grid.
     await waitFor(async () =>
       expect(await rowNames()).toEqual(['¿Cuántas vértebras cervicales hay?']),

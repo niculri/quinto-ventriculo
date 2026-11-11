@@ -1,5 +1,4 @@
 import { Navigate, useParams, useSearchParams } from 'react-router';
-import { searchTerm } from '@qv/anki-search';
 import { paths } from '../../app/paths';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
@@ -8,8 +7,11 @@ import { Canonical } from '../catalog/Redirects';
 import { FinalReviewPage } from '../study/FinalReviewPage';
 import { StudyPage } from '../study/StudyPage';
 import { DeckPage } from './DeckPage';
+import { CardsPage } from '../cards/CardsPage';
+import { PracticePage } from '../cards/PracticePage';
+import { scopeNodeOf, unitOf } from '../cards/scope';
 import { resolveCourseDeck, useAnkiTree } from './tree';
-import type { CourseDeckNode } from './tree';
+import type { CourseDeckNode, DeckScreen } from './tree';
 
 /**
  * The Anki URLs of a course: `/semesters/:n/courses/:courseId/anki/<decks…>`, with `/study` at the end to
@@ -38,20 +40,21 @@ export function AnkiRoute() {
     case 'missing':
       return <NotFoundPage />;
     case 'moved':
-      return (
-        <Canonical
-          path={
-            resolved.screen === 'study'
-              ? paths.deckStudy(resolved.node.ref)
-              : resolved.screen === 'review'
-                ? paths.deckReview(resolved.node.ref)
-                : paths.deck(resolved.node.ref)
-          }
-        />
-      );
+      return <Canonical path={screenPath(resolved.node, resolved.screen, search)} />;
     case 'legacy':
       return <Navigate to={legacyTarget(resolved.node, resolved.what, search)} replace />;
     case 'deck':
+      if (resolved.screen === 'cards' || resolved.screen === 'practice') {
+        // The cards are of a course or an assessment: a week or a lecture is a filter of its assessment's.
+        if (resolved.node.depth > 3) {
+          return <Navigate to={screenPath(resolved.node, resolved.screen, search)} replace />;
+        }
+        return resolved.screen === 'cards' ? (
+          <CardsPage key={resolved.node.id} node={resolved.node} />
+        ) : (
+          <PracticePage key={resolved.node.id} node={resolved.node} />
+        );
+      }
       if (resolved.screen === 'review') {
         // A final review is of an assessment.
         return resolved.node.depth === 3 ? (
@@ -65,6 +68,27 @@ export function AnkiRoute() {
       ) : (
         <DeckPage key={resolved.node.id} node={resolved.node} />
       );
+  }
+}
+
+/** A screen of a deck's URL; the cards of a deck below an assessment are its assessment's, with that unit. */
+function screenPath(node: CourseDeckNode, screen: DeckScreen, search: URLSearchParams): string {
+  switch (screen) {
+    case 'study':
+      return paths.deckStudy(node.ref);
+    case 'review':
+      return paths.deckReview(node.ref);
+    case 'page':
+      return paths.deck(node.ref);
+    case 'cards':
+    case 'practice': {
+      const scope = node.depth > 3 ? (scopeNodeOf(node) ?? node) : node;
+      const query = Object.fromEntries(search);
+      if (scope !== node) query['unit'] = unitOf(scope, node) ?? '';
+      return screen === 'cards'
+        ? paths.cards(scope.ref, query)
+        : paths.cardsPractice(scope.ref, query);
+    }
   }
 }
 
@@ -82,12 +106,11 @@ function legacyTarget(
   const note = search.get('note');
   const text = search.get('q');
   if (note || text) {
-    const deck = searchTerm('deck', node.name);
-    return paths.browse({
-      q: text ? `${deck} ${JSON.stringify(text)}` : deck,
-      note,
-      ord: note ? Number(search.get('ord') ?? '0') : null,
-    });
+    // Its cards, with that card open or that text searched.
+    const params = new URLSearchParams();
+    if (text) params.set('q', text);
+    if (note) params.set('card', `${Number(search.get('ord') ?? '0')}:${note}`);
+    return screenPath(node, 'cards', params);
   }
   return paths.deck(node.ref);
 }

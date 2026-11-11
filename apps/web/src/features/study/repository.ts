@@ -310,6 +310,11 @@ export interface StudyRepository {
   cardLog(card: { noteGuid: string; ord: number }): Promise<CardLogEntry[]>;
   /** The answers since a moment, with their card and button (`rated:`). */
   ratedSince(since: Date): Promise<RatedAnswer[]>;
+  /**
+   * The answers from `from` up to (not including) `to`, with their deck: a past day of the heatmap («Ver esas
+   * tarjetas», step 3.3), by the range of `reviewed_at` (its index).
+   */
+  ratedBetween(from: Date, to: Date): Promise<(RatedAnswer & { deckId: string })[]>;
   /** The cards whose first answer was at or after a moment (`introduced:`), with that moment. */
   firstAnswersSince(since: Date): Promise<{ noteGuid: string; ord: number; at: string }[]>;
   /** The answers since a moment (the start of the day). */
@@ -459,6 +464,8 @@ export function homeCountsFromJson(data: unknown): HomeCounts {
 }
 
 const PAGE = 1000;
+/** At most this many decks in one card_states_of_decks() (the database's cap). */
+export const CARDS_OF_DECKS_MAX = 5000;
 /** As the database's median_answer_ms(). */
 const MIN_ANSWERS_FOR_MEDIAN = 20;
 
@@ -512,19 +519,30 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
     );
 
   return {
+    // Step 3.3 (ANK-7): the decks of an assessment or a course in one call (card_states_of_decks()), only the
+    // student's rows of them. A users' database from before that migration does not have it: then a page at a time,
+    // as before.
     async cards(deckIds) {
+      if (!deckIds.length) return [];
+      const paged = async (ids: string[]) =>
+        all<CardRow>('leer tu avance en el mazo', (from, to) =>
+          client
+            .from('card_states')
+            .select('*')
+            .in('deck_id', ids)
+            .order('note_guid')
+            .order('ord')
+            .range(from, to),
+        );
       const parts = await Promise.all(
-        chunks(deckIds).map((ids) =>
-          all<CardRow>('leer tu avance en el mazo', (from, to) =>
-            client
-              .from('card_states')
-              .select('*')
-              .in('deck_id', ids)
-              .order('note_guid')
-              .order('ord')
-              .range(from, to),
-          ),
-        ),
+        chunks(deckIds, CARDS_OF_DECKS_MAX).map(async (ids) => {
+          const { data, error } = await client.rpc('card_states_of_decks', { p_deck_ids: ids });
+          if (!error) return (data ?? []) as CardRow[];
+          if (error.code === 'PGRST202') {
+            return (await Promise.all(chunks(ids).map(paged))).flat();
+          }
+          return fail('leer tu avance en el mazo', error);
+        }),
       );
       return parts.flat().map(fromRow);
     },
@@ -588,6 +606,31 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
       return rows.map((r) => ({
         noteGuid: r.note_guid,
         ord: r.ord,
+        rating: r.rating,
+        reviewedAt: new Date(r.reviewed_at).toISOString(),
+      }));
+    },
+    async ratedBetween(from, to) {
+      const rows = await all<{
+        note_guid: string;
+        ord: number;
+        deck_id: string;
+        rating: 1 | 2 | 3 | 4;
+        reviewed_at: string;
+      }>('leer tus repasos de ese día', (start, end) =>
+        client
+          .from('review_log')
+          .select('note_guid, ord, deck_id, rating, reviewed_at')
+          .not('rating', 'is', null)
+          .gte('reviewed_at', from.toISOString())
+          .lt('reviewed_at', to.toISOString())
+          .order('id')
+          .range(start, end),
+      );
+      return rows.map((r) => ({
+        noteGuid: r.note_guid,
+        ord: r.ord,
+        deckId: r.deck_id,
         rating: r.rating,
         reviewedAt: new Date(r.reviewed_at).toISOString(),
       }));
@@ -1154,6 +1197,20 @@ export function localStudyRepository(
           reviewedAt: l.reviewedAt,
         }));
     },
+    async ratedBetween(from, to) {
+      return read()
+        .log.filter((l) => {
+          const at = Date.parse(l.reviewedAt);
+          return l.rating !== null && at >= from.getTime() && at < to.getTime();
+        })
+        .map((l) => ({
+          noteGuid: l.noteGuid,
+          ord: l.ord,
+          deckId: l.deckId,
+          rating: l.rating as 1 | 2 | 3 | 4,
+          reviewedAt: l.reviewedAt,
+        }));
+    },
     async firstAnswersSince(since) {
       const first = new Map<string, LogRow>();
       for (const l of read().log) {
@@ -1294,7 +1351,8 @@ export function localStudyRepository(
     },
     async heatmap(deckIds) {
       const d = read();
-      const prefs = d.preferences ?? defaultPreferences();
+      // A copy saved before a preference existed takes its default (as `preferences()`).
+      const prefs = { ...defaultPreferences(), ...d.preferences };
       const only = deckIds === null ? null : new Set(deckIds);
       const nowSecs = Date.now() / 1000;
       const today = dayOf(nowSecs, prefs.timeZone, prefs.dayStartsAt);
@@ -1344,7 +1402,8 @@ export function localStudyRepository(
         throw new PracticeRefusedError('No se pudo guardar tu repaso: too_large');
       }
       const d = read();
-      const prefs = d.preferences ?? defaultPreferences();
+      // A copy saved before a preference existed takes its default (as `preferences()`).
+      const prefs = { ...defaultPreferences(), ...d.preferences };
       const day = isoOfDay(dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt));
       const practice = [...(d.practice ?? [])];
       // As the database's record_practice(): up to PRACTICE_DAY_MAX a day, in the order of the batch.

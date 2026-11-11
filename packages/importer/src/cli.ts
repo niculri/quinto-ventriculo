@@ -188,6 +188,13 @@ async function main() {
       `Imágenes: ${report.mediaUploaded} subidas, ${report.mediaExisting} ya estaban` +
         (remote ? ' (solo se revisan las de lo que cambió)' : '') +
         `; convertidas ${cache.misses}, de la caché ${cache.hits}.`,
+      ...(decksIncluded
+        ? [
+            `Índices del explorador: ${report.indexesWritten} escritos, ${report.indexesUnchanged} iguales` +
+              (report.indexesRemoved ? `, ${report.indexesRemoved} quitados` : '') +
+              `; miniaturas: ${report.thumbsUploaded} subidas, ${report.thumbsExisting} ya estaban.`,
+          ]
+        : []),
       ...(unpublished.length
         ? [
             `Fuera del sitio (content/unpublished.json), no se publica: ${unpublished

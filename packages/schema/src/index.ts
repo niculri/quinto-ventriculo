@@ -4,6 +4,7 @@ export * from './domain';
 export * from './bundle';
 export * from './callouts';
 export * from './flashcards';
+export * from './browse-index';
 export * from './quizzes';
 export * from './taxonomy';
 export * from './release';

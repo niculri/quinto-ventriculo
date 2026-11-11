@@ -68,6 +68,21 @@ async function inMemory(original: Uint8Array, prefix: Prefix): Promise<Processed
   };
 }
 
+/** Width of the card browser's thumbnails (px): about 120 px in the list, on a screen of density 2. */
+export const THUMB_WIDTH = 240;
+const THUMB_QUALITY = 72;
+
+/**
+ * The thumbnail of a card image for the browser's list (`cards/thumb/<hash>.webp`, step 3.3): its WebP, 240 px wide
+ * (never enlarged). It is made from the image already processed, so the same image always gives the same thumbnail.
+ */
+export async function makeThumbnail(webp: Buffer): Promise<Buffer> {
+  return sharp(webp)
+    .resize({ width: THUMB_WIDTH, withoutEnlargement: true })
+    .webp({ quality: THUMB_QUALITY, effort: EFFORT })
+    .toBuffer();
+}
+
 interface CacheEntry {
   key: string;
   width: number;

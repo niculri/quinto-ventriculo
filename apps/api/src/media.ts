@@ -19,6 +19,12 @@ export interface MediaStore {
 const KEY_RE = /^[a-z0-9]+(?:\/[a-z0-9._-]+)+$/;
 const HOUR = 3600;
 
+/**
+ * The prefixes a single signature may open (step 3.3): the card browser's thumbnails, hundreds in a list, signed once
+ * instead of one by one. A prefix signature never opens another key (a whole image, a note's figure).
+ */
+export const SIGNED_PREFIXES: readonly string[] = ['cards/thumb/'];
+
 export function isValidKey(key: string): boolean {
   return KEY_RE.test(key) && !key.includes('..');
 }
@@ -55,6 +61,41 @@ export class MediaSigner {
     const bytes = fromBase64url(signature);
     if (!bytes) return false;
     return crypto.subtle.verify('HMAC', await this.key, bytes, this.message(key, expires));
+  }
+
+  /** The signature of every key under `prefix` (one of SIGNED_PREFIXES) until `expires`. */
+  async signPrefix(prefix: string, expires: number): Promise<string> {
+    if (!SIGNED_PREFIXES.includes(prefix)) throw new Error(`Prefijo sin firma: ${prefix}`);
+    const signature = await crypto.subtle.sign(
+      'HMAC',
+      await this.key,
+      this.prefixMessage(prefix, expires),
+    );
+    return base64url(new Uint8Array(signature));
+  }
+
+  /** Whether `key` is under `prefix` (one of SIGNED_PREFIXES) and the prefix's signature is valid until now. */
+  async isValidPrefix(
+    key: string,
+    prefix: string,
+    expires: number,
+    signature: string,
+    nowSec: number,
+  ): Promise<boolean> {
+    if (!SIGNED_PREFIXES.includes(prefix) || !key.startsWith(prefix) || !isValidKey(key)) {
+      return false;
+    }
+    if (!Number.isInteger(expires) || expires < nowSec) return false;
+    const bytes = fromBase64url(signature);
+    if (!bytes) return false;
+    return crypto.subtle.verify('HMAC', await this.key, bytes, this.prefixMessage(prefix, expires));
+  }
+
+  /** `e=…&p=…&s=…`: with it, `/api/media/<key>` of any key under `prefix`, with the same duration as a URL. */
+  async prefixQuery(prefix: string, nowSec: number): Promise<{ expires: number; query: string }> {
+    const expires = expiry(nowSec);
+    const s = await this.signPrefix(prefix, expires);
+    return { expires, query: `e=${expires}&p=${encodeURIComponent(prefix)}&s=${s}` };
   }
 
   async url(key: string, nowSec: number): Promise<string> {
@@ -95,6 +136,11 @@ export class MediaSigner {
 
   private message(key: string, expires: number) {
     return new TextEncoder().encode(`${key}\n${expires}`);
+  }
+
+  /** Never the message of a key: a key has no «:» (KEY_RE). */
+  private prefixMessage(prefix: string, expires: number) {
+    return new TextEncoder().encode(`prefix:${prefix}\n${expires}`);
   }
 }
 

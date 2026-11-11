@@ -70,7 +70,7 @@ export function reviewPools(
 }
 
 /** Two cards of a note in a row give each other away: the second one waits for the next of another note. */
-function apartSiblings<T extends { ref: CardRef }>(cards: T[]): T[] {
+export function apartSiblings<T extends { ref: CardRef }>(cards: T[]): T[] {
   const out: T[] = [];
   const waiting: T[] = [];
   const next = (from: T | undefined) => {

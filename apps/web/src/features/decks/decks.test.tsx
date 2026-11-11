@@ -1,8 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
-import { searchTerm } from '@qv/anki-search';
-import { paths } from '../../app/paths';
 import { DECK_PATH, renderApp } from '../../test/render';
 import { BASE_CSS, cardShadowRoot, sanitizeCardInBrowser } from './CardFrame';
 import {
@@ -17,9 +15,10 @@ import type { ShapeProperties } from './occlusion';
 
 afterEach(() => document.documentElement.classList.remove('dark'));
 
-/** The browser with a card open in the viewer («Ver en grande»). */
+/** The cards of «Certamen 1» with a card open in the viewer (step 3.3). */
+const CARDS = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards';
 const viewing = (note: string, ord: number, extra = '') =>
-  `/anki/browse?${extra}note=${encodeURIComponent(note)}&ord=${ord}&view=1`;
+  `${CARDS}?${extra}card=${encodeURIComponent(`${ord}:${note}`)}`;
 
 /** The card's shadow root inside the viewer. */
 async function cardRoot(
@@ -54,10 +53,10 @@ describe('catalog', () => {
       'href',
       '/semesters/1/courses/anatomia-1/anki/study',
     );
-    // Its cards in the browser.
-    expect(screen.getByRole('link', { name: /Ver tarjetas de este mazo/ })).toHaveAttribute(
+    // Its cards.
+    expect(screen.getByRole('link', { name: /Ver las tarjetas/ })).toHaveAttribute(
       'href',
-      paths.browse({ q: searchTerm('deck', '() Medicina UCH::1° Semestre::🦴 Anatomía I') }),
+      '/semesters/1/courses/anatomia-1/anki/cards',
     );
     // No way to the decks of every course: not in the top bar either.
     const bar = screen.getByRole('banner');
@@ -65,13 +64,11 @@ describe('catalog', () => {
   });
 });
 
-describe('card viewer (the browser’s «Ver en grande»)', () => {
+describe('card viewer (a row of the cards page)', () => {
   it('shows the front in a Shadow DOM with the note type CSS, then the back', async () => {
-    const { router } = renderApp('/anki/browse');
-    const grid = await screen.findByRole('grid', { name: 'Tarjetas' });
-    await userEvent.click(within(grid).getByRole('row', { name: /¿Cuántas vértebras/ }));
-    expect(router.state.location.search).toBe(`?note=${encodeURIComponent('s@/AqX%n?#')}&ord=0`);
-    await userEvent.click(await screen.findByRole('button', { name: /Ver en grande/ }));
+    const { router } = renderApp(CARDS);
+    await userEvent.click(await screen.findByRole('button', { name: /^¿Cuántas vértebras/ }));
+    expect(router.state.location.search).toBe(`?card=${encodeURIComponent('0:s@/AqX%n?#')}`);
     const dialog = await screen.findByRole('dialog', { name: 'T-PR-01-001.2' });
     expect(within(dialog).getByText('Básica · 1 de 4')).toBeInTheDocument();
 
@@ -156,11 +153,18 @@ describe('card viewer (the browser’s «Ver en grande»)', () => {
     expect(root.querySelector('div.cloze')!.getAttribute('data-shape')).toBe('rect');
   });
 
-  it('closing the viewer goes back to the browser, with its search and the card selected', async () => {
+  it('closing the viewer goes back to the list, with its search', async () => {
     const { router } = renderApp(viewing('cloze-1', 0, 'q=columna&'));
     await cardRoot();
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
-    await waitFor(() => expect(router.state.location.search).toBe('?q=columna&note=cloze-1&ord=0'));
+    await waitFor(() => expect(router.state.location.search).toBe('?q=columna'));
+  });
+
+  it('the browser’s old link of a card goes to that card, open, on its assessment’s page', async () => {
+    const { router } = renderApp('/anki/browse?q=%22T-PR-01-002%22&note=cloze-1&ord=0');
+    await waitFor(() => expect(router.state.location.pathname).toBe(CARDS));
+    expect(new URLSearchParams(router.state.location.search).get('card')).toBe('0:cloze-1');
+    expect(await screen.findByRole('dialog', { name: /T-PR-01-002/ })).toBeInTheDocument();
   });
 });
 

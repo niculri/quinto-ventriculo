@@ -18,24 +18,16 @@ import {
   Undo2,
   X,
 } from 'lucide-react';
-import { SearchError, compileSearch, parseSearch, searchNeeds, searchTerm } from '@qv/anki-search';
+import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
 import type { SearchContext } from '@qv/anki-search';
 import { paths } from '../../app/paths';
 import { useServices } from '../../app/services';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry, Notice } from '../../ui/Notice';
+import { Notice } from '../../ui/Notice';
 import { Switch } from '../../ui/Switch';
-import { button, card as cardStyle, widePage } from '../../ui/styles';
-import { deckCrumbs, hasPage, useAnkiTree } from '../anki/tree';
+import { button, card as cardStyle } from '../../ui/styles';
+import { hasPage } from '../anki/tree';
 import { FLAGS } from '../study/flags';
-import {
-  studyKeys,
-  useDeckSettings,
-  useNow,
-  usePreferences,
-  useUserPresets,
-} from '../study/queries';
+import { studyKeys, useNow } from '../study/queries';
 import type {
   CardRef,
   DeckSetting,
@@ -63,6 +55,8 @@ import { BrowseSidebar, combineSearch } from './Sidebar';
 import { QuickFilters } from './QuickFilters';
 import type { Combine } from './Sidebar';
 import { keys } from '../../ui/keys';
+import { Rail } from '../../ui/rail';
+import type { DeckNode } from '../anki/tree';
 
 const ROW = 34;
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */
@@ -109,89 +103,13 @@ function useViewPrefs() {
 }
 
 /**
- * Anki's browser («Explorar»): every card (or note), searched with Anki's syntax, in a table whose columns
- * the user chooses, with the selected card's preview and its information, and the actions of Anki's menu
- * on the selection (suspend, bury, flag, forget), each one undone with Ctrl+Z. The cards come light (no
- * HTML: only the preview asks for it), so tens of thousands of cards go fast.
+ * Anki's browser («Explorar»), the «Tabla» of the cards page in «Modo avanzado» (step 3.3): the cards (or notes) of
+ * the page's course or assessment, searched with Anki's syntax, in a table whose columns the user chooses, with the
+ * selected card's preview and its information, and the actions of Anki's menu on the selection (suspend, bury,
+ * flag, forget), each one undone with Ctrl+Z. The cards come light (the index: no HTML, only the preview asks for
+ * it), so tens of thousands of cards go fast. Anki's sidebar goes in the right column.
  */
-export function BrowsePage() {
-  const { api, study } = useServices();
-  const { catalog, tree } = useAnkiTree();
-  const [params] = useSearchParams();
-  const notes = useQuery({
-    queryKey: ['anki-notes'],
-    queryFn: ({ signal }) => api.ankiNotes(signal),
-    staleTime: 5 * 60_000,
-  });
-  const rows = useQuery({
-    queryKey: studyKeys.allCards,
-    queryFn: () => study.allCards(),
-    staleTime: 30_000,
-  });
-  const preferences = usePreferences();
-  const presets = useUserPresets();
-  const settings = useDeckSettings();
-
-  useEffect(() => {
-    document.title = 'Explorar · El Quinto Ventrículo';
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, []);
-
-  const parts = [catalog, notes, rows, preferences, presets, settings];
-  const failed = parts.find((p) => p.isError);
-  let body;
-  if (failed) {
-    body = (
-      <ErrorWithRetry
-        error={failed.error}
-        onRetry={() => parts.forEach((p) => p.isError && void p.refetch())}
-      />
-    );
-  } else if (
-    !catalog.data ||
-    !tree ||
-    !notes.data ||
-    !rows.data ||
-    !preferences.prefs ||
-    !presets.data ||
-    !settings.data
-  ) {
-    body = <Loading text="Cargando las tarjetas…" />;
-  } else {
-    body = (
-      <Browser
-        sources={{
-          notes: notes.data.notes,
-          noteTypes: catalog.data.anki.noteTypes,
-          authorPresets: catalog.data.anki.presets,
-          tree,
-          rows: rows.data,
-          prefs: preferences.prefs,
-          presets: presets.data,
-          settings: settings.data,
-        }}
-      />
-    );
-  }
-  // Opened from a deck (its search is that deck): the breadcrumbs go through it, as the rest of the site.
-  const q = params.get('q') ?? '';
-  const from = tree?.nodes.find((n) => hasPage(n) && searchTerm('deck', n.name) === q);
-  const crumbs =
-    from && hasPage(from)
-      ? deckCrumbs(from, { label: 'Buscar tarjetas' })
-      : [{ label: 'Inicio', to: paths.home }, { label: 'Buscar tarjetas' }];
-  return (
-    <div className={widePage}>
-      <Breadcrumbs items={crumbs} />
-      <h1 className="font-serif text-2xl font-semibold tracking-tight">Buscar tarjetas</h1>
-      {body}
-    </div>
-  );
-}
-
-interface Sources {
+export interface TableSources {
   notes: BrowseNote[];
   noteTypes: NoteTypeSummary[];
   authorPresets: AuthorPreset[];
@@ -200,10 +118,12 @@ interface Sources {
   prefs: StudyPreferences;
   presets: UserPreset[];
   settings: DeckSetting[];
+  /** The decks of the page (the course's or the assessment's): the sidebar's tree starts at it. */
+  roots: DeckNode[];
 }
 
-function Browser({ sources }: { sources: Sources }) {
-  const { notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings } = sources;
+export function CardTable({ sources }: { sources: TableSources }) {
+  const { notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings, roots } = sources;
   const data = useMemo(() => {
     const choices = presetChoices(authorPresets, presets);
     const decay = new Map(
@@ -298,6 +218,8 @@ function Browser({ sources }: { sources: Sources }) {
       })),
       timing,
       learnAheadSecs: data.prefs.learnAheadMinutes * 60,
+      // «vertebra» finds «vértebra» (Anki's «Ignore accents in search», on here).
+      ignoreAccents: true,
       answers: (rated.data ?? []).map((a) => ({
         noteGuid: a.noteGuid,
         ord: a.ord,
@@ -524,7 +446,7 @@ function Browser({ sources }: { sources: Sources }) {
 
   const sidebar = (
     <BrowseSidebar
-      courses={data.tree.nodes.filter((n) => n.depth === 2 && hasPage(n))}
+      courses={roots}
       noteTypes={data.noteTypes}
       tags={[...new Set(data.notes.flatMap((n) => n.tags))].sort((a, b) =>
         a.localeCompare(b, 'es'),
@@ -537,20 +459,19 @@ function Browser({ sources }: { sources: Sources }) {
   const noun = view.mode === 'notes' ? 'notas' : 'tarjetas';
 
   return (
-    <div className="mt-4 grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)_24rem]">
-      <aside
-        className={`${cardStyle} hidden max-h-[calc(100dvh-10rem)] overflow-y-auto p-3 lg:block`}
-      >
-        {sidebar}
-      </aside>
-
+    <div className="mt-4 min-w-0">
+      <Rail>
+        <aside aria-label="Barra lateral" className="text-sm">
+          {sidebar}
+        </aside>
+      </Rail>
       <div className="min-w-0">
         <form onSubmit={onSubmit} role="search" className="flex gap-2">
           <button
             type="button"
             onClick={() => setFilters(true)}
-            className={`${button.base} ${button.secondary} px-3 lg:hidden`}
-            aria-label="Filtros"
+            className={`${button.base} ${button.secondary} px-3 xl:hidden`}
+            aria-label="Barra lateral"
           >
             <Filter className="size-4" aria-hidden="true" />
           </button>
@@ -695,7 +616,6 @@ function Browser({ sources }: { sources: Sources }) {
             <Link
               to={paths.deck(focus.deck.ref)}
               className={`${button.base} ${button.secondary} px-3 py-1.5`}
-              title="Ir al mazo de la tarjeta"
             >
               <Layers className="size-4" aria-hidden="true" />
               <span className="hidden sm:inline">Ir al mazo</span>
@@ -741,15 +661,12 @@ function Browser({ sources }: { sources: Sources }) {
         />
       </div>
 
-      <aside
-        aria-label="Vista previa"
-        className={`${cardStyle} min-w-0 p-4 lg:max-h-[calc(100dvh-10rem)] lg:overflow-y-auto`}
-      >
+      <aside aria-label="Vista previa" className={`${cardStyle} mt-4 min-w-0 p-4`}>
         {current ? (
           <CardPreview
             onEnlarge={() => {
               const next = new URLSearchParams(params);
-              next.set('view', '1');
+              next.set('open', '1');
               setParams(next);
             }}
             key={current.key}
@@ -768,9 +685,9 @@ function Browser({ sources }: { sources: Sources }) {
       <Dialog.Root open={filters} onOpenChange={setFilters}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-          <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-sm overflow-y-auto bg-surface p-4 shadow-soft">
+          <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[85vw] max-w-sm overflow-y-auto bg-surface p-4 shadow-soft">
             <div className="mb-3 flex items-center justify-between">
-              <Dialog.Title className="font-semibold">Filtros</Dialog.Title>
+              <Dialog.Title className="font-semibold">Barra lateral</Dialog.Title>
               <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label="Cerrar">
                 <X className="size-4" aria-hidden="true" />
               </Dialog.Close>
@@ -783,7 +700,7 @@ function Browser({ sources }: { sources: Sources }) {
         </Dialog.Portal>
       </Dialog.Root>
 
-      {params.get('view') && viewIndex >= 0 ? (
+      {params.get('open') && viewIndex >= 0 ? (
         <CardViewer
           cards={viewList}
           index={viewIndex}
@@ -796,7 +713,7 @@ function Browser({ sources }: { sources: Sources }) {
           }}
           onClose={() => {
             const next = new URLSearchParams(params);
-            next.delete('view');
+            next.delete('open');
             setParams(next, { replace: true });
           }}
         />
@@ -842,8 +759,8 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      title={shortcut ? `${label} (${keys(shortcut)})` : label}
       aria-label={label}
+      aria-keyshortcuts={shortcut ? keys(shortcut) : undefined}
       className={`${button.base} ${button.secondary} px-3 py-1.5`}
     >
       {icon}
@@ -1059,7 +976,6 @@ function CardGrid({
                       key={d.key}
                       role="gridcell"
                       className={`truncate px-2 ${d.numeric ? 'text-right tabular-nums' : ''} ${d.key === 'code' ? 'font-mono text-xs' : ''}`}
-                      title={d.key === 'deck' ? c.deck?.name : undefined}
                     >
                       {cellText(c, d.key, timing)}
                     </div>

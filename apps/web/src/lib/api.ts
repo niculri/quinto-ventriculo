@@ -3,6 +3,7 @@ import {
   ApiError,
   BrowseData,
   CardChanges,
+  CardIndex,
   CardDetail,
   Catalog,
   DeckDetail,
@@ -22,10 +23,12 @@ import {
   RevertResult,
   SearchResponse,
   SiteSettings,
+  ThumbSignature,
   UnpublishedLog,
   UsageOpenAck,
   UsageReport,
 } from '@qv/schema';
+import { cardIndexUrl } from '@qv/schema';
 import type { PublishRequest, ReleaseItemKind, ReleaseMarkId, UsageOpenRequest } from '@qv/schema';
 
 export class ApiRequestError extends Error {
@@ -109,6 +112,14 @@ export function createApiClient(
       request(`/api/decks/${encodeURIComponent(id)}`, DeckDetail, signal),
     /** Every published note, light, for the browser. */
     ankiNotes: (signal?: AbortSignal) => request('/api/anki/notes', BrowseData, signal),
+    /**
+     * The card browser's index of an assessment (step 3.3): the file its `cardIndex.hash` in the catalog names. It does
+     * not change while that hash is the same.
+     */
+    cardIndex: (assessmentId: string, hash: string, signal?: AbortSignal) =>
+      request(cardIndexUrl(assessmentId, hash), CardIndex, signal),
+    /** One signature for every thumbnail of the browser: `/api/media/<thumb>?<query>`. */
+    thumbSignature: (signal?: AbortSignal) => request('/api/anki/thumbs', ThumbSignature, signal),
     /** The cards that moved to another deck or were taken out after the change `since` (a page). */
     cardChanges: (since: number, signal?: AbortSignal) =>
       request(`/api/anki/card-changes?since=${since}`, CardChanges, signal),

@@ -28,10 +28,12 @@ test('a round: right and wrong, «Saltar», continuing after reloading, «Volver
   await page.goto('/semesters/2/courses/biologia-celular');
   await page.getByRole('link', { name: /Preguntas de práctica/ }).click();
   await expect(page).toHaveURL(new RegExp(`${TEST_URL}/pautas$`));
-  // The name on the site, without the standalone page's kicker, heading or footer.
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Preguntas de práctica' }),
-  ).toBeVisible();
+  // The assessment's only test is its «Tests» (heading and last crumb), without the standalone page's kicker, heading
+  // or footer.
+  await expect(page.getByRole('heading', { level: 1, name: 'Tests' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Ruta' })).toContainText(
+    /Certamen \d+\s*Tests/,
+  );
   await expect(page.getByText('Certamen de prueba')).toHaveCount(0);
   await expect(page.getByRole('tab', { name: /Pautas de prueba/ })).toHaveAttribute(
     'aria-selected',

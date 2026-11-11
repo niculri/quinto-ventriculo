@@ -65,9 +65,10 @@ describe('a practice test', () => {
   it('without a tab in the URL, opens the first one (or the last one used)', async () => {
     const { router } = renderApp(BASE);
     await waitFor(() => expect(router.state.location.pathname).toBe(`${BASE}/pautas`));
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
-      'Practica para el Certamen 2',
-    );
+    // The assessment's only test is its «Tests»: so says the heading and the last crumb (step 3.3, the owner).
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Tests');
+    const crumbs = screen.getByRole('navigation', { name: /ruta|migas|breadcrumb/i });
+    expect(within(crumbs).getAllByRole('listitem').at(-1)).toHaveTextContent('Tests');
   });
 
   it('the cover: tabs, groups, mode, notice and the list of the second tab', async () => {

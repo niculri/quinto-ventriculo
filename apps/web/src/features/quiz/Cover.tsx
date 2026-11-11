@@ -30,6 +30,7 @@ export function Cover({
   onDiscard,
   onTab,
   focusTab = false,
+  heading = null,
 }: {
   quiz: QuizDetail;
   section: QuizSectionSummary;
@@ -42,6 +43,8 @@ export function Cover({
   onTab: (sectionId: string) => void;
   /** Arriving from another tab: the focus on this one (the arrows go on). */
   focusTab?: boolean;
+  /** A heading of the page instead of the test's own (an assessment's only test is its «Tests»). */
+  heading?: string | null;
 }) {
   const sections = quiz.sections;
   const active = sections.findIndex((s) => s.id === section.id);
@@ -76,7 +79,11 @@ export function Cover({
     <section className="wrap wide portada" aria-labelledby="quiz-title">
       {quiz.kicker ? <Html as="p" className="kicker" html={quiz.kicker} /> : null}
       {/* The standalone page's heading, if the manifest kept it; if not, the test's name. */}
-      {quiz.heading ? (
+      {heading ? (
+        <h1 id="quiz-title" className={TITLE}>
+          {heading}
+        </h1>
+      ) : quiz.heading ? (
         <Html as="h1" id="quiz-title" html={quiz.heading} className={TITLE} />
       ) : (
         <h1 id="quiz-title" className={TITLE}>

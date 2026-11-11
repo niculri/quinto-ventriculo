@@ -144,6 +144,9 @@ export function QuizPage() {
   if (!active) return <NotFoundPage />;
   if (!detail.data) return <Loading />;
   const assessment = course.assessments.find((a) => a.id === data.assessmentId);
+  // The assessment's only test: «Tests» of the assessment goes straight to it, so it is called that, in the breadcrumbs
+  // and its heading, as the list of tests of an assessment with several.
+  const onlyTest = !!assessment && assessment.quizzes.length === 1;
 
   return (
     <div className="quiz pb-4" style={themeStyle(data)}>
@@ -159,6 +162,7 @@ export function QuizPage() {
         fromTab={(location.state as QuizState | null)?.fromTab === true}
         inRound={(location.state as QuizState | null)?.inRound === true}
         topics={arrival && (sectionId ?? null) === arrival.section ? arrival.topics : null}
+        heading={onlyTest ? 'Tests' : null}
         crumbs={
           <div className="wrap wide qz-crumbs">
             <Breadcrumbs
@@ -175,7 +179,7 @@ export function QuizPage() {
                         : []),
                     ]
                   : []),
-                { label: data.title },
+                { label: onlyTest ? 'Tests' : data.title },
               ]}
             />
           </div>
@@ -204,6 +208,7 @@ function QuizScreen({
   fromTab,
   inRound,
   topics,
+  heading,
   crumbs,
 }: {
   quiz: QuizDetail;
@@ -218,6 +223,8 @@ function QuizScreen({
   inRound: boolean;
   /** Groups to choose on the cover (arriving from an article's «Ponte a prueba»). */
   topics?: readonly string[] | null;
+  /** The cover's heading instead of the test's own («Tests», for an assessment's only test). */
+  heading?: string | null;
   crumbs: React.ReactNode;
 }) {
   const navigate = useNavigate();
@@ -449,6 +456,7 @@ function QuizScreen({
             onDiscard={actions.discard}
             onTab={tab}
             focusTab={fromTab}
+            heading={heading ?? null}
           />
           {quiz.footer ? <Html as="p" className="wrap wide qz-foot" html={quiz.footer} /> : null}
         </>

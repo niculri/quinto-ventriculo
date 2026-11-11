@@ -68,6 +68,7 @@ let refusal: string | null = null;
 /** The database's detail of the next refusal (what it names). */
 let refusalDetail: string | null = null;
 const releases: ReleaseRepository = {
+  browseIndexesJson: async () => JSON.stringify([{ assessmentId: 'a/b', op: 'added' }]),
   summaryJson: async () =>
     JSON.stringify({
       fingerprint: FP,
@@ -335,6 +336,8 @@ describe('the release panel', () => {
     const o = ReleaseOverview.parse(await r.json());
     expect(o.supportedSchemaVersion).toBe(CONTENT_SCHEMA_VERSION);
     expect(o.summary.fingerprint).toBe(FP);
+    // Step 3.3: the card browser's indexes the draft changes, which the summary does not describe.
+    expect(o.browseIndexes).toEqual([{ assessmentId: 'a/b', op: 'added' }]);
   });
 
   it('a student gets «no existe» in every endpoint', async () => {

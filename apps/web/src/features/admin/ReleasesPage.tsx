@@ -21,6 +21,7 @@ import { Reserved } from '../../ui/Reserved';
 import { Switch } from '../../ui/Switch';
 import { button, card } from '../../ui/styles';
 import { usePreview } from '../preview/preview';
+import { useCatalog } from '../catalog/queries';
 import { useUser } from '../session/context';
 import { AdminSectionTitle } from './AdminLayout';
 import {
@@ -327,6 +328,7 @@ const classTone = (c: ReleaseClass | null) =>
 
 function SiteChanges({ overview }: { overview: ReleaseOverview }) {
   const s = overview.summary;
+  const indexLines = useIndexLines(overview);
   // Revisión de cero (1.8): an assessment goes with its course («Química general y orgánica · Certamen 1»): with the
   // full catalog, seven «Certamen 1» came in at once, all alike (and with the same key).
   const courseOf = new Map(s.assessments.map((a) => [a.id, a.courseName ?? a.courseId]));
@@ -362,6 +364,7 @@ function SiteChanges({ overview }: { overview: ReleaseOverview }) {
               ? `El mazo «${lastName(d.name)}» pasa de la configuración «${d.presetBefore ?? 'ninguna'}» a «${d.presetAfter ?? 'ninguna'}».`
               : `El mazo «${lastName(d.name)}» cambia de lugar.`,
     ),
+    ...indexLines,
   ];
   if (!lines.length) return null;
   return (
@@ -374,6 +377,28 @@ function SiteChanges({ overview }: { overview: ReleaseOverview }) {
 }
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/**
+ * The card browser's indexes the draft changes (step 3.3), a line each, with the course and assessment names of the
+ * catalog (the id while it loads or if the assessment is not in it).
+ */
+function useIndexLines(overview: ReleaseOverview): string[] {
+  const catalog = useCatalog();
+  const names = new Map<string, string>();
+  for (const sem of catalog.data?.semesters ?? []) {
+    for (const course of sem.courses) {
+      for (const a of course.assessments) names.set(a.id, `${course.name} · ${a.name}`);
+    }
+  }
+  return overview.browseIndexes.map((x) => {
+    const name = names.get(x.assessmentId) ?? x.assessmentId;
+    return x.op === 'added'
+      ? `Las tarjetas de «${name}» se pueden explorar.`
+      : x.op === 'removed'
+        ? `Las tarjetas de «${name}» dejan de poder explorarse.`
+        : `El explorador de tarjetas de «${name}» se actualiza.`;
+  });
+}
 
 function Counts({ title, lines }: { title: string; lines: [number, string, string][] }) {
   const shown = lines.filter(([n]) => n > 0);
@@ -820,7 +845,7 @@ function ConfirmDialog({
 }
 
 /** What a publication brings, by assessment, in a line each (the popup of «Publicar»). */
-function releaseLines(s: ReleaseOverview['summary']): string[] {
+function releaseLines(s: ReleaseOverview['summary'], indexLines: string[]): string[] {
   const parts = (list: [number, string, string][]) =>
     list.filter(([n]) => n > 0).map(([n, one, many]) => plural(n, one, many));
   const lines = s.assessments
@@ -857,12 +882,13 @@ function releaseLines(s: ReleaseOverview['summary']): string[] {
     lines.push(
       `Además, ${plural(site, 'cambio', 'cambios')} del catálogo o de los mazos de arriba.`,
     );
-  return lines;
+  return [...lines, ...indexLines];
 }
 
 /** «Publicar» under the review list: enabled only when the list is ready, with its confirmation popup. */
 function PublishBar({ review, overview }: { review: ReviewList; overview: ReleaseOverview }) {
   const [open, setOpen] = useState(false);
+  const indexLines = useIndexLines(overview);
   const publish = usePublishRelease();
   const warnings = review.checks.filter((c) => c.severity === 'warn' && c.items.length).length;
   const close = (o: boolean) => {
@@ -905,7 +931,7 @@ function PublishBar({ review, overview }: { review: ReviewList; overview: Releas
       >
         <p className="font-medium text-ink">{releaseTitle(overview.summary)}</p>
         <ul className="list-disc space-y-1 pl-5">
-          {releaseLines(overview.summary).map((l) => (
+          {releaseLines(overview.summary, indexLines).map((l) => (
             <li key={l}>{l}</li>
           ))}
         </ul>

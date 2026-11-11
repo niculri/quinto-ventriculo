@@ -95,6 +95,8 @@ export interface ReviewList {
 
 export interface ReviewInput {
   summary: ReleaseSummary;
+  /** The card browser's indexes the draft changes (step 3.3): with some, the draft is not empty. */
+  browseIndexes?: readonly unknown[];
   /** The content version the deployed Worker understands. */
   supportedSchemaVersion: number;
   /** The new images that the image store does not have; null while they are being looked for. */
@@ -397,7 +399,7 @@ export function buildReview(input: ReviewInput): ReviewList {
   const items = new Map<CheckRule, CheckItem[]>(CHECK_RULES.map((r) => [r.rule, []]));
   const add = (rule: CheckRule, item: CheckItem) => items.get(rule)!.push(item);
   const findings = (rule: string) => s.findings.filter((f) => f.rule === rule);
-  const empty = isEmptyRelease(s);
+  const empty = isEmptyRelease(s) && !input.browseIndexes?.length;
 
   // What the database saw.
   for (const f of findings('key_out_of_range')) {

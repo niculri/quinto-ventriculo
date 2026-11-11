@@ -368,6 +368,7 @@ export function supabaseReleaseRepository(url: string, serviceKey: string): Rele
   const rawRpc = rawRpcOf(url, serviceKey);
   return {
     summaryJson: () => rawRpc('release_summary', {}),
+    browseIndexesJson: () => rawRpc('release_browse_index_changes', {}),
     itemsJson: (assessment, kind, after) =>
       rawRpc('release_items', { assessment, kind, after_key: after, max_rows: 200 }),
     textsJson: (after) => rawRpc('release_texts', { after_key: after, max_rows: 500 }),

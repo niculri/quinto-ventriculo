@@ -63,6 +63,8 @@ export interface ContentRepository {
 export interface ReleaseRepository {
   /** `release_summary()`: a `ReleaseSummary` as JSON. */
   summaryJson(): Promise<JsonBody>;
+  /** `release_browse_index_changes()` (step 3.3): the card browser's indexes the draft changes, as JSON. */
+  browseIndexesJson(): Promise<JsonBody>;
   /** `release_items()`: a page of one kind of change of one assessment, as JSON. */
   itemsJson(
     assessment: string,

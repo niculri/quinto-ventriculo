@@ -36,6 +36,7 @@ export async function folderReleaseRepository(folder: string): Promise<ReleaseRe
     {},
   );
   const texts = await read<{ key: string }[]>('texts.json', []);
+  const browseIndexes = await read<unknown[]>('browse-indexes.json', []);
   const media = await read<string[]>('media.json', []);
   const draftFingerprint = String(summary.fingerprint);
   /** The fingerprint of a draft equal to what is published, after publishing it. */
@@ -64,6 +65,9 @@ export async function folderReleaseRepository(folder: string): Promise<ReleaseRe
   return {
     async summaryJson() {
       return JSON.stringify({ ...(published ? empty : summary), marks });
+    },
+    async browseIndexesJson() {
+      return JSON.stringify(published ? [] : browseIndexes);
     },
     async itemsJson(assessment, kind, after) {
       const list = published ? [] : (items[`${assessment}|${kind}`] ?? []);

@@ -382,6 +382,48 @@ describe('the card browser index (step 3.3)', () => {
     expect(await catalogRows()).toHaveLength(2);
   });
 
+  it('the panel sees a draft whose only change is the indexes (20261118000000_release_browse_indexes.sql)', async () => {
+    const changes = async () =>
+      (await service<{ r: unknown }>('select public.release_browse_index_changes() as r'))[0]!.r;
+    // As in production on the day of the migration: the content published before the indexes existed.
+    await save(published, withOcclusion());
+    await q('delete from public.anki_browse_indexes');
+    await q('select public.reset_draft()');
+    expect(await changes()).toEqual([]);
+    // The import writes only the indexes: the summary says nothing, the new function does.
+    const report = await save(draft, withOcclusion());
+    expect(report).toMatchObject({ indexesWritten: 2 });
+    const summary = (
+      await service<{ r: Record<string, unknown[]> }>('select public.release_summary() as r')
+    )[0]!.r;
+    expect(summary.assessments).toEqual([]);
+    expect(await changes()).toEqual([
+      { assessmentId: AN, op: 'added' },
+      { assessmentId: BC, op: 'added' },
+    ]);
+    await publish();
+    expect(await changes()).toEqual([]);
+    // A new index of one assessment, and one that leaves.
+    await q(
+      `update draft.anki_browse_indexes set note_count = note_count + 1 where assessment_id = $1`,
+      [BC],
+    );
+    await q(`delete from draft.anki_browse_indexes where assessment_id = $1`, [AN]);
+    expect(await changes()).toEqual([
+      { assessmentId: AN, op: 'removed' },
+      { assessmentId: BC, op: 'changed' },
+    ]);
+    expect(await q('select * from public.draft_drift()')).toEqual([]);
+    for (const role of ['anon', 'authenticated']) {
+      await expect(
+        db.transaction(async (tx) => {
+          await tx.exec(`set local role ${role}`);
+          return tx.query('select public.release_browse_index_changes()');
+        }),
+      ).rejects.toThrow(/permission denied/);
+    }
+  });
+
   it('an importer against a content database from before this step writes no index and does not fail', async () => {
     db = await createDatabase('content', [], '20261117000000_card_browser_index.sql');
     const report = await save(published, withOcclusion());

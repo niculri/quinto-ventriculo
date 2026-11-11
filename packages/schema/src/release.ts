@@ -136,6 +136,13 @@ export type ReleaseSummary = z.infer<typeof ReleaseSummary>;
 export const ReleaseOverview = z.object({
   supportedSchemaVersion: z.number().int(),
   summary: ReleaseSummary,
+  /**
+   * The card browser's indexes the draft changes (step 3.3, `release_browse_index_changes()`), which the summary does
+   * not describe: a draft whose only change is the indexes is not empty. Defaults to empty: a Worker from before.
+   */
+  browseIndexes: z
+    .array(z.object({ assessmentId: z.string(), op: z.enum(['added', 'removed', 'changed']) }))
+    .default([]),
 });
 export type ReleaseOverview = z.infer<typeof ReleaseOverview>;
 

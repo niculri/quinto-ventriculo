@@ -31,7 +31,11 @@ const SUMMARY = ReleaseSummary.parse(
     readFileSync(join(import.meta.dirname, '../../../e2e/content/release/summary.json'), 'utf8'),
   ),
 );
-const OVERVIEW: ReleaseOverview = { supportedSchemaVersion: 1, summary: SUMMARY };
+const OVERVIEW: ReleaseOverview = {
+  supportedSchemaVersion: 1,
+  summary: SUMMARY,
+  browseIndexes: [],
+};
 
 const adminApi = (changes: Parameters<typeof fakeApi>[0] = {}) =>
   fakeApi({
@@ -101,10 +105,44 @@ describe('the release panel', () => {
             decks: [],
             findings: [],
           },
+          browseIndexes: [],
         }),
       }),
     });
     expect(await screen.findByText(/El borrador es igual a lo publicado/)).toBeInTheDocument();
+  });
+
+  // Step 3.3: the summary does not describe the card browser's indexes; a draft with only them is not empty.
+  it('a draft whose only change is the card browser’s indexes can be reviewed and published', async () => {
+    renderApp('/admin/releases', {
+      admin: localAdminRepository({ admin: true }),
+      api: adminApi({
+        releaseOverview: async () => ({
+          supportedSchemaVersion: 1,
+          summary: {
+            ...SUMMARY,
+            assessments: [],
+            catalog: [],
+            noteTypes: [],
+            presets: [],
+            decks: [],
+            findings: [],
+          },
+          browseIndexes: [
+            { assessmentId: 'anatomia-1/certamen-1', op: 'added' },
+            { assessmentId: 'otro/certamen-9', op: 'changed' },
+          ],
+        }),
+      }),
+    });
+    expect(
+      await screen.findByText(/Las tarjetas de «.*Certamen 1» se pueden explorar\./),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('El explorador de tarjetas de «otro/certamen-9» se actualiza.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/El borrador es igual a lo publicado/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Publicar' })).toBeInTheDocument();
   });
 });
 
@@ -121,6 +159,7 @@ describe('publishing and undoing', () => {
         { mark: 'phone', checkedBy: 'ana@ug.uchile.cl', checkedAt: '2026-11-07T12:00:00Z' },
       ],
     },
+    browseIndexes: [],
   };
   const record = (id: number, status: 'published' | 'reverted' = 'published') => ({
     id,

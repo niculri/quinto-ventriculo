@@ -120,6 +120,7 @@ export function useReleaseReview(overview: ReleaseOverview | undefined): {
       overview
         ? buildReview({
             summary: overview.summary,
+            browseIndexes: overview.browseIndexes,
             supportedSchemaVersion: overview.supportedSchemaVersion,
             missingImages: missing.data ?? null,
             phrases: phrases.data ?? null,

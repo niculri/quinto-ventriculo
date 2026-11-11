@@ -710,10 +710,14 @@ export function createApp(deps: Dependencies) {
   // The summary and the content version this Worker understands (a draft of a newer one cannot be published). The
   // summary goes as the database wrote it.
   app.get('/admin/release', requireSession, requireAdmin, async (c) => {
-    const summary = await deps.releases!.summaryJson();
+    const [summary, indexes] = await Promise.all([
+      deps.releases!.summaryJson(),
+      deps.releases!.browseIndexesJson(),
+    ]);
     const text = typeof summary === 'string' ? summary : await new Response(summary).text();
+    const indexText = typeof indexes === 'string' ? indexes : await new Response(indexes).text();
     return c.body(
-      `{"supportedSchemaVersion":${CONTENT_SCHEMA_VERSION},"summary":${text}}`,
+      `{"supportedSchemaVersion":${CONTENT_SCHEMA_VERSION},"summary":${text},"browseIndexes":${indexText}}`,
       200,
       JSON_TYPE,
     );

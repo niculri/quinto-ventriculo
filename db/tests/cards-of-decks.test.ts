@@ -42,7 +42,8 @@ beforeAll(async () => {
     [BETO.sub, MINE[0]],
   );
   await db.query('analyze public.card_states');
-});
+  // Seeding 20,000 rows takes ~4 s here and more than the default 10 s on a CI runner.
+}, 60_000);
 
 describe('card_states_of_decks (step 3.3)', () => {
   it('the rows of those decks only, in one value, as the table has them (without user_id), by note and card', async () => {

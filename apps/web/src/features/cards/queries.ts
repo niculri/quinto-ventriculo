@@ -277,10 +277,26 @@ export interface DayCards {
   /** Answers of that day of the scope's cards (review_log). */
   answers: number;
   /**
+   * The scope's cards with an «Otra vez» that day (empty for a day to come): with a day already answered, «Falladas»
+   * are these, not those of the last FAILED_DAYS days (step 3.4, «Ver las que fallaste» of «Listo por hoy»).
+   */
+  failed: Set<string>;
+  /**
    * Practice that day in the scope's decks (the final review, «Practicar estas»): its cell counts it too, but it is
    * kept by deck, not by card, so the list cannot show it (Revisión de cero, 3.3).
    */
   practice: number;
+}
+
+/**
+ * What «Falladas» finds: with a day of the heatmap already answered, the cards failed that day; otherwise those of the
+ * last FAILED_DAYS days (undefined while they load).
+ */
+export function failedOf(
+  day: DayCards | null,
+  recent: Set<string> | undefined,
+): Set<string> | undefined {
+  return day?.kind === 'answered' ? day.failed : recent;
 }
 
 /**
@@ -331,6 +347,7 @@ export function useDayCards(
           kind: 'answered',
           keys: new Set(mine.map((a) => cardKey(a))),
           answers: mine.length,
+          failed: new Set(mine.filter((a) => a.rating === 1).map((a) => cardKey(a))),
           practice,
         };
       }
@@ -349,7 +366,7 @@ export function useDayCards(
         keys.add(key);
       }
     }
-    return { day, kind: 'due', keys, answers: 0, practice: 0 };
+    return { day, kind: 'due', keys, answers: 0, failed: new Set<string>(), practice: 0 };
   }, [day, data, today, answered.data, heat.data, scope]);
   const error = answered.error ?? heat.error;
   return {

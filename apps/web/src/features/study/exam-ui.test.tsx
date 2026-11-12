@@ -559,6 +559,8 @@ describe('the final review', () => {
         ).toBeInTheDocument(),
       );
     }
+    // The summary of «Listo por hoy» is not in the final review (step 3.4).
+    expect(screen.queryByRole('region', { name: 'Resumen de hoy' })).toBeNull();
     await userEvent.click(await screen.findByRole('button', { name: 'Otro repaso' }));
     expect(await screen.findByRole('button', { name: /^Solo lo marcado/ })).toHaveTextContent(
       '2 tarjetas',

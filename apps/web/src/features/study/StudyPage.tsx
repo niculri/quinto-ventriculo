@@ -33,6 +33,7 @@ import type { CardKey, StudyPreferences } from './repository';
 import { ApiRequestError } from '../../lib/api';
 import { NotFoundPage } from '../../ui/NotFoundPage';
 import { CountNumbers, DayLoad } from './DeckCounts';
+import { DaySummary } from './DaySummary';
 import { useCardMaterial } from './material';
 import { studyKeys, useSavePreferences, useStudyData } from './queries';
 import { catchUpText } from './pace';
@@ -123,9 +124,10 @@ function Reviewer({
         for (const e of entries) void client.prefetchQuery(cardQuery(api, e.noteGuid, e.ord));
       }),
   );
-  useSyncExternalStore(session.subscribe, session.getVersion);
+  const version = useSyncExternalStore(session.subscribe, session.getVersion);
 
   const rootName = deckTitle(node);
+  const [scopeDecks] = useState(() => new Set(descendants(node).map((n) => n.id)));
   const deckPath = paths.deck(node.ref);
   const { shown, revealed, toast, failure } = session;
   const full = initial.prefs.fullAnki;
@@ -228,6 +230,18 @@ function Reviewer({
   }, []);
 
   const counts = session.counts();
+  // «Listo por hoy» (step 3.4): today's summary, with its place only if today has answers in what is studied. Not before
+  // the session looked for its first card (version 0: nothing is shown yet, and its reading would be wasted), and
+  // decided once when the screen opens: crossing the rollover hour with it open empties the session's answers of the
+  // day, and the block must not go away then (Revisión de cero, 3.4).
+  const done = !shown && version > 0;
+  const [doneWithSummary, setDoneWithSummary] = useState<boolean | null>(null);
+  if (!done && doneWithSummary !== null) setDoneWithSummary(null);
+  const withSummary = done && (doneWithSummary ?? session.answeredToday(scopeDecks));
+  if (done && doneWithSummary === null) setDoneWithSummary(withSummary);
+  const summary = withSummary ? (
+    <DaySummary node={node} prefs={initial.prefs} saved={() => session.saved()} />
+  ) : null;
   const currentFlag = shown ? (session.row(shown.entry)?.flag ?? 0) : 0;
   const flagInfo = FLAGS.find((f) => f.flag === currentFlag);
 
@@ -427,14 +441,19 @@ function Reviewer({
             ) : null}
           </div>
         </>
+      ) : !done ? (
+        // Before the session looks for its first card: neither the end screen nor its summary, which would be gone
+        // in the next frame (Revisión de cero, 3.4).
+        <div className="flex-1" />
       ) : full ? (
-        <Congrats info={session.congrats()} deckPath={deckPath} />
+        <Congrats info={session.congrats()} deckPath={deckPath} summary={summary} />
       ) : (
         <DoneToday
           info={session.congrats()}
           node={node}
           deckPath={deckPath}
           hasSeen={(id) => session.hasSeen(id)}
+          summary={summary}
         />
       )}
 
@@ -736,11 +755,13 @@ function DoneToday({
   node,
   deckPath,
   hasSeen,
+  summary,
 }: {
   info: CongratsInfo;
   node: CourseDeckNode;
   deckPath: string;
   hasSeen: (assessmentId: string) => boolean;
+  summary: ReactNode;
 }) {
   // Where the switches are: the course's page, or the deck's own page (the assessment's, or its lecture's).
   const choosePath = node.depth <= 2 ? paths.course(node.ref.course) : deckPath;
@@ -802,6 +823,7 @@ function DoneToday({
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
       <h1 className="mt-4 font-serif text-2xl font-semibold">Listo por hoy</h1>
+      {summary}
       <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
         {info.learnMessage ? <p>{info.learnMessage}</p> : null}
         {info.exam?.roseTo ? (
@@ -863,13 +885,22 @@ function DoneToday({
 }
 
 /** «¡Felicitaciones! Has finalizado este mazo por ahora.» and when the next cards come (congrats.rs). */
-function Congrats({ info, deckPath }: { info: CongratsInfo; deckPath: string }) {
+function Congrats({
+  info,
+  deckPath,
+  summary,
+}: {
+  info: CongratsInfo;
+  deckPath: string;
+  summary: ReactNode;
+}) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
       <h1 className="mt-4 font-serif text-2xl font-semibold">
         ¡Felicitaciones! Has finalizado este mazo por ahora.
       </h1>
+      {summary}
       <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
         {info.learnMessage ? <p>{info.learnMessage}</p> : null}
         {info.reviewLimitReached ? (

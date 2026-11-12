@@ -120,7 +120,10 @@ export interface Filters {
   text: ReadonlySet<string> | null;
   /** The cards of a day of the heatmap (null: no day). */
   day: ReadonlySet<string> | null;
-  /** The cards with an «Otra vez» in the last FAILED_DAYS days. */
+  /**
+   * What «Falladas» finds: the cards with an «Otra vez» in the last FAILED_DAYS days or, with a day of the heatmap
+   * already answered, that day (`failedOf()`).
+   */
   failed: ReadonlySet<string>;
   state: StateFilter;
   origins: readonly CardOrigin[];

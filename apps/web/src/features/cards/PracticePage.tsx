@@ -24,7 +24,7 @@ import {
   practiceCards,
   searchQuery,
 } from './model';
-import { useCardsData, useDayCards, useFailed, useTextMatch } from './queries';
+import { failedOf, useCardsData, useDayCards, useFailed, useTextMatch } from './queries';
 import { cardsScope, unitDeckIds, unitNode } from './scope';
 
 /**
@@ -49,14 +49,15 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
   const day = useDayCards(scope, data, params.get('day'));
   const state = parseState(params.get('state'));
   const queue = useMemo(() => {
-    if (!data || !scope || !failed.data || text.waiting || day.waiting) return null;
+    const failedCards = failedOf(day.value, failed.data);
+    if (!data || !scope || !failedCards || text.waiting || day.waiting) return null;
     const unit = unitNode(scope.node, params.get('unit') ?? '');
     const { matched } = applyFilters(data.notes, {
       ...NO_FILTERS,
       unitDecks: unitDeckIds(unit),
       text: text.keys,
       day: day.value?.keys ?? null,
-      failed: failed.data,
+      failed: failedCards,
       state,
       origins: parseOrigins(params.get('origin')),
       kind: parseKind(params.get('kind')),

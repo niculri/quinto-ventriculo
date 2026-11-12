@@ -53,7 +53,7 @@ const withCards = (n: DeckNode) => n.cardCount > 0 && !isExtras(n);
  * «Semana o clase»: everything, then each child of the scope (a week, a lecture; in a course, an assessment) and the
  * children of those that have their own (the lectures of a week). The value is the slugs below the scope, with «/».
  */
-export function unitOptions(scope: DeckNode): SelectOption<string>[] {
+export function unitOptions(scope: DeckNode, current = ''): SelectOption<string>[] {
   const out: SelectOption<string>[] = [
     { value: '', label: scope.depth === 2 ? 'Todo el ramo' : 'Todo el certamen' },
   ];
@@ -64,6 +64,19 @@ export function unitOptions(scope: DeckNode): SelectOption<string>[] {
     for (const g of inner) {
       out.push({ value: `${child.slug}/${g.slug}`, label: `${child.label} › ${g.label}` });
     }
+  }
+  // A unit the URL names that the list does not offer (the only deck of a week, an «Extras»: a deck's «Tarjetas», or
+  // «Ver las que fallaste» of «Listo por hoy»): shown as chosen, with its path, after its week (Revisión de cero, 3.4).
+  const node = current && !out.some((o) => o.value === current) ? unitNode(scope, current) : null;
+  if (node) {
+    let at = out.length;
+    for (let i = out.length - 1; i > 0; i--) {
+      if (current.startsWith(`${out[i]!.value}/`)) {
+        at = i + 1;
+        break;
+      }
+    }
+    out.splice(at, 0, { value: current, label: lectureTitle(scope, node) });
   }
   return out;
 }

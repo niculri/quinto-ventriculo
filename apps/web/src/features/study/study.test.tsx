@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, expect, it } from 'vitest';
 import { DECK_PATH, renderApp, fullAnkiStudy } from '../../test/render';
 import { cardShadowRoot } from '../decks/CardFrame';
+import { DEFAULT_PARAMETERS, defaultConfig } from '@qv/srs';
 import type { StudyRepository } from './repository';
 
 /** The text of the card's side being shown. */
@@ -386,35 +387,66 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     expect(await study.preferences()).toMatchObject({ dayStartsAt: 5, applyAllParentLimits: true });
   });
 
-  it('the FSRS parameters shown are the chosen preset’s (and are not copied into another)', async () => {
+  it('the FSRS parameters are read-only: the preset’s own, or the defaults in grey', async () => {
     const study = fullAnkiStudy();
+    const custom = Array.from({ length: 21 }, (_, i) => (i + 1) / 10);
+    await study.savePreset({
+      name: 'Default',
+      replaces: 'Default',
+      config: { ...defaultConfig(), fsrsParams: custom, historicalRetention: 0.8 },
+    });
     renderApp('/settings/deck-options?preset=Default', { study });
-    const params = await screen.findByLabelText('Parámetros FSRS');
-    const custom = Array.from({ length: 21 }, (_, i) => (i + 1) / 10).join(', ');
-    fireEvent.change(params, { target: { value: custom } });
-    fireEvent.blur(params);
+    const group = await screen.findByRole('group', { name: 'Parámetros FSRS' });
+    expect(within(group).getByLabelText('Parámetros de esta configuración')).toHaveTextContent(
+      custom.join(', '),
+    );
+    // Nothing to write in, nothing to restore, nothing to optimize; «Retención histórica» is gone.
+    expect(within(group).queryByRole('textbox')).toBeNull();
+    expect(within(group).queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Optimizar' })).toBeNull();
+    expect(screen.queryByText('Retención histórica')).toBeNull();
+    expect(within(group).getByText(/no deja cambiarlos/)).toBeInTheDocument();
+    // A preset without its own: FSRS-6's defaults, in grey.
     await chooseIn(screen.getByRole('button', { name: /^Configuración:/ }), 'Extras (del autor)');
-    expect(params).toHaveValue('');
-    fireEvent.blur(params);
-    await chooseIn(screen.getByRole('button', { name: /^Configuración:/ }), 'Default (del autor)');
-    expect(params).toHaveValue(custom);
-    // «Restablecer los valores predeterminados de Anki» empties it too.
+    const defaults = within(group).getByLabelText('Parámetros predeterminados');
+    expect(defaults).toHaveTextContent(DEFAULT_PARAMETERS.join(', '));
+    expect(defaults).toHaveClass('text-muted');
+  });
+
+  it('a preset with «Retención histórica» or its own parameters keeps them on saving; resetting clears them', async () => {
+    const study = fullAnkiStudy();
+    const custom = Array.from({ length: 21 }, (_, i) => (i + 1) / 10);
+    await study.savePreset({
+      name: 'Default',
+      replaces: 'Default',
+      config: { ...defaultConfig(), fsrsParams: custom, historicalRetention: 0.8 },
+    });
+    renderApp('/settings/deck-options?preset=Default', { study });
+    const perDay = await screen.findByLabelText('Tarjetas nuevas/día');
+    await userEvent.clear(perDay);
+    await userEvent.type(perDay, '35{Enter}');
+    await userEvent.click(screen.getAllByRole('button', { name: 'Guardar' })[0]!);
+    await screen.findByText('Guardado');
+    expect((await study.presets())[0]!.config).toMatchObject({
+      newPerDay: 35,
+      fsrsParams: custom,
+      historicalRetention: 0.8,
+    });
+    // «Restablecer los valores predeterminados de Anki» resets everything, as in Anki: FSRS-6's defaults again.
     await userEvent.click(screen.getByRole('button', { name: 'Acciones de la configuración' }));
     await userEvent.click(
       await screen.findByRole('menuitem', {
         name: 'Restablecer los valores predeterminados de Anki',
       }),
     );
-    expect(params).toHaveValue('');
-    fireEvent.blur(params);
+    expect(perDay).toHaveValue(20);
     await userEvent.click(screen.getAllByRole('button', { name: 'Guardar' })[0]!);
     await screen.findByText('Guardado');
-    expect(await study.presets()).toEqual([
-      expect.objectContaining({
-        replaces: 'Default',
-        config: expect.objectContaining({ fsrsParams: [] }),
-      }),
-    ]);
+    expect((await study.presets())[0]!.config).toMatchObject({
+      newPerDay: 20,
+      fsrsParams: defaultConfig().fsrsParams,
+      historicalRetention: defaultConfig().historicalRetention,
+    });
   });
 
   it('values out of range go to the nearest valid one; steps are written as in Anki', async () => {

@@ -21,7 +21,7 @@ import {
 import { syntheticIndex, syntheticRows } from './demo';
 import { lectureOf } from './scope';
 import { cardKey } from '../study/scheduler';
-import { dayOf } from '@qv/srs';
+import { dayOf, dayStartsAt } from '@qv/srs';
 import { isoOfDay } from '../stats/heatmap';
 import { defaultPreferences } from '../study/repository';
 
@@ -329,6 +329,111 @@ describe('the cards page', () => {
     });
     expect(await screen.findByText('Las tarjetas cambiaron')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Recargar' })).toBeInTheDocument();
+  });
+
+  it('«Falladas» with a day already answered are that day’s, in the list and in «Practicar estas»; without a day, those of the last days (Revisión de cero, 3.4)', async () => {
+    const study = localStudyRepository(null, { welcomeSeen: true });
+    const prefs = { ...defaultPreferences(), ...(await study.preferences()) };
+    const today = dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt);
+    const at = (day: number) =>
+      new Date((dayStartsAt(day, prefs.timeZone, prefs.dayStartsAt) + 3600) * 1000).toISOString();
+    // Made up: the basic note failed yesterday and «Bien» today; the cloze failed today.
+    const log = [
+      {
+        noteGuid: 's@/AqX%n?#',
+        ord: 0,
+        deckId: '20',
+        rating: 1 as const,
+        reviewedAt: at(today - 1),
+      },
+      { noteGuid: 's@/AqX%n?#', ord: 0, deckId: '20', rating: 3 as const, reviewedAt: at(today) },
+      { noteGuid: 'cloze-1', ord: 0, deckId: '20', rating: 1 as const, reviewedAt: at(today) },
+    ];
+    const answered: StudyRepository = {
+      ...study,
+      async ratedSince(since) {
+        return log
+          .filter((a) => Date.parse(a.reviewedAt) >= since.getTime())
+          .map(({ deckId: _, ...a }) => a);
+      },
+      async ratedBetween(from, to) {
+        return log.filter(
+          (a) =>
+            Date.parse(a.reviewedAt) >= from.getTime() && Date.parse(a.reviewedAt) < to.getTime(),
+        );
+      },
+    };
+    const failedRadio = async (name: RegExp) => {
+      await userEvent.click(screen.getByRole('button', { name: 'Filtros' }));
+      const panel = await screen.findByRole('dialog', { name: 'Filtros' });
+      const radio = within(panel).getByRole('radio', { name });
+      await userEvent.keyboard('{Escape}');
+      return radio;
+    };
+
+    // Today: the two were answered, only the cloze failed («hace poco» would bring the basic one too).
+    const first = renderApp(`${PAGE}?day=${isoOfDay(today)}&state=failed`, { study: answered });
+    expect(await screen.findByText('1 nota · 1 tarjeta')).toBeInTheDocument();
+    expect(await rowNamed(/^La columna tiene/)).toBeInTheDocument();
+    expect(await failedRadio(/^Falladas ese día/)).toBeChecked();
+    first.unmount();
+
+    // Yesterday: the basic one.
+    const second = renderApp(`${PAGE}?day=${isoOfDay(today - 1)}&state=failed`, {
+      study: answered,
+    });
+    expect(await screen.findByText('1 nota · 1 tarjeta')).toBeInTheDocument();
+    expect(await rowNamed(/Cuántas vértebras cervicales hay/)).toBeInTheDocument();
+    second.unmount();
+
+    // Without a day: as before, those of the last days.
+    const third = renderApp(`${PAGE}?state=failed`, { study: answered });
+    expect(await screen.findByText('2 notas · 2 tarjetas')).toBeInTheDocument();
+    expect(await failedRadio(/^Falladas hace poco/)).toBeChecked();
+    third.unmount();
+
+    // «Practicar estas» of today's: only the cloze.
+    renderApp(`${PAGE}/practice?day=${isoOfDay(today)}&state=failed`, { study: answered });
+    expect(await screen.findByText('Quedan 1')).toBeInTheDocument();
+  });
+
+  it('«Falladas hace poco» waits for the answers: never an empty list first (Revisión de cero, 3.4)', async () => {
+    const study = localStudyRepository(null, { welcomeSeen: true });
+    let answer: (v: Awaited<ReturnType<StudyRepository['ratedSince']>>) => void = () => {};
+    const slow: StudyRepository = {
+      ...study,
+      ratedSince: () => new Promise((resolve) => (answer = resolve)),
+    };
+    renderApp(`${PAGE}?state=failed`, { study: slow });
+    // The index is there (the filters count it) while the answers are not.
+    await userEvent.click(await screen.findByRole('button', { name: 'Filtros' }));
+    const panel = await screen.findByRole('dialog', { name: 'Filtros' });
+    await waitFor(() =>
+      expect(within(panel).getAllByRole('radio', { name: /^Todas\s*3$/ })).toHaveLength(1),
+    );
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByText('Ninguna tarjeta coincide con estos filtros.')).toBeNull();
+    expect(screen.queryByText(/^0 notas/)).toBeNull();
+    answer([
+      {
+        noteGuid: 'cloze-1',
+        ord: 0,
+        rating: 1,
+        reviewedAt: new Date(Date.now() - 3_600_000).toISOString(),
+      },
+    ]);
+    expect(await screen.findByText('1 nota · 1 tarjeta')).toBeInTheDocument();
+  });
+
+  it('a unit the list does not offer (the only deck of a week) is shown as chosen (Revisión de cero, 3.4)', async () => {
+    renderApp(`${PAGE}?unit=s1-semana-de-prueba/mazo-de-prueba`, {
+      study: localStudyRepository(null),
+    });
+    expect(
+      await screen.findByRole('button', {
+        name: 'Semana o clase: S1 - Semana de prueba › Mazo de prueba',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('«Modo avanzado» adds «Lista / Tabla»; the old browser goes to its course’s cards', async () => {

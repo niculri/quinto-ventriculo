@@ -655,6 +655,14 @@ export class StudySession {
     };
   }
 
+  /**
+   * Whether today has answers in these decks (step 3.4): «Listo por hoy» keeps the place of its summary only then. The
+   * figures of the summary are read from review_log, not from here.
+   */
+  answeredToday(deckIds: ReadonlySet<string>): boolean {
+    return this.data.answers.some((a) => deckIds.has(a.deckId));
+  }
+
   /** Cards already seen in an assessment: its final review has something to show. */
   hasSeen(assessmentId: string): boolean {
     const root = this.data.decks.find((d) => d.id === assessmentId);

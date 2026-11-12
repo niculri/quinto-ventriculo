@@ -41,7 +41,14 @@ import {
   searchQuery,
 } from './model';
 import type { Filters, KindFilter, Matched, StateFilter } from './model';
-import { useCardsData, useDayCards, useFailed, useTextMatch, useThumbQuery } from './queries';
+import {
+  failedOf,
+  useCardsData,
+  useDayCards,
+  useFailed,
+  useTextMatch,
+  useThumbQuery,
+} from './queries';
 import type { CardsData, DayCards } from './queries';
 import { cardsScope, lectureTitle, unitDeckIds, unitNode, unitOptions } from './scope';
 import type { CardsScope } from './scope';
@@ -184,7 +191,7 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
       unitDecks: unitDeckIds(unitDeck),
       text: text.keys,
       day: day.value?.keys ?? null,
-      failed: failed.data ?? new Set(),
+      failed: failedOf(day.value, failed.data) ?? new Set(),
       state,
       origins,
       kind,
@@ -246,6 +253,7 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
       state={state}
       origins={origins}
       kind={kind}
+      failedThatDay={day.value?.kind === 'answered'}
       hideAnswers={hideAnswers}
       onHideAnswers={setHideAnswers}
       onState={(s: StateFilter) => set({ state: s === 'all' ? null : s })}
@@ -286,7 +294,11 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
   } else if (table && data) {
     body = <Table scope={scope} tree={tree} data={data} unitDecks={filters.unitDecks} />;
   } else {
-    const shown = text.waiting || day.waiting ? null : result;
+    // «Falladas» waits for the answers that say which: an empty list first, then the cards, would move (Revisión de
+    // cero, 3.4).
+    const failedWaiting =
+      state === 'failed' && !failedOf(day.value, failed.data) && !failed.isError;
+    const shown = text.waiting || day.waiting || failedWaiting ? null : result;
     const waiting = shown === null;
     body = (
       <>
@@ -427,7 +439,7 @@ function Controls({
   onFilters: () => void;
   showSearch: boolean;
 }) {
-  const options = useMemo(() => unitOptions(scope.node), [scope.node]);
+  const options = useMemo(() => unitOptions(scope.node, unit), [scope.node, unit]);
   const [text, setText] = useState(query);
   const [shown, setShown] = useState(query);
   if (shown !== query) {

@@ -126,6 +126,19 @@ describe('the table of the cards page (Anki’s browser)', () => {
     expect(combineSearch('', 'tag:x', 'and', false)).toBe('tag:x');
   });
 
+  it('the sidebar has no «Agregadas hoy» (nobody adds cards), and `added:` typed still works', async () => {
+    renderApp(TABLE);
+    const side = await screen.findByRole('navigation', { name: 'Barra lateral del explorador' });
+    expect(within(side).getByRole('button', { name: 'Estudiadas hoy' })).toBeInTheDocument();
+    expect(within(side).queryByRole('button', { name: 'Agregadas hoy' })).toBeNull();
+    // Anki's syntax: the test notes were not added today.
+    await searchFor('added:1');
+    await waitFor(() => expect(screen.getByText('0 tarjetas')).toBeInTheDocument());
+    await searchFor('-added:1');
+    await waitFor(() => expect(screen.getByText('4 tarjetas')).toBeInTheDocument());
+    expect(screen.queryByText('No se entiende la búsqueda')).toBeNull();
+  });
+
   it('notes mode: one row per note', async () => {
     renderApp(TABLE);
     await grid();

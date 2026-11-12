@@ -16,6 +16,7 @@ export function CardFilters({
   state,
   origins,
   kind,
+  failedThatDay = false,
   hideAnswers,
   onState,
   onOrigin,
@@ -27,6 +28,8 @@ export function CardFilters({
   state: StateFilter;
   origins: readonly CardOrigin[];
   kind: KindFilter;
+  /** A day of the heatmap already answered: «Falladas» are those of that day. */
+  failedThatDay?: boolean;
   hideAnswers: boolean;
   onState: (s: StateFilter) => void;
   onOrigin: (o: CardOrigin, on: boolean) => void;
@@ -62,7 +65,7 @@ export function CardFilters({
                 disabled={disabled}
                 onChange={() => onState(s.value)}
               >
-                {s.label}
+                {s.value === 'failed' && failedThatDay ? 'Falladas ese día' : s.label}
                 {count(n)}
               </Choice>
             );

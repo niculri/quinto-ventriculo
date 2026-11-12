@@ -54,7 +54,6 @@ export function BrowseSidebar({
   return (
     <nav aria-label="Barra lateral del explorador" className="space-y-1 text-sm">
       <Group icon={<Clock className="size-4" aria-hidden="true" />} title="Hoy">
-        {item('Agregadas hoy', 'added:1')}
         {item('Estudiadas hoy', 'rated:1')}
         {item('Olvidadas hoy', 'rated:1:1')}
         {item(full ? 'Para hoy' : 'A repasar hoy', 'is:due')}

@@ -366,7 +366,7 @@ function OptionsForm({
             value={prefs.fullAnki}
             fallback={prefs.fullAnki}
             onChange={(v) => changePrefs({ ...prefs, fullAnki: v })}
-            help="Las páginas de los mazos no cambian: agrega más opciones, como las banderas y una configuración para cada mazo."
+            help="Las páginas de los mazos no cambian: agrega opciones, como una configuración para cada mazo, las banderas y la tabla de tarjetas con la búsqueda de Anki."
           />
         </section>
         <Section title="General">
@@ -655,15 +655,7 @@ function OptionsForm({
           onChange={(v) => set({ desiredRetention: v })}
           help="La probabilidad de recordar una tarjeta cuando le toca el repaso. Más alta: más repasos."
         />
-        <ParamsRow value={config.fsrsParams} onChange={(v) => set({ fsrsParams: v })} />
-        <div className="flex flex-wrap items-center gap-3 py-3">
-          <button type="button" disabled className={`${button.base} ${button.secondary}`}>
-            Optimizar
-          </button>
-          <span className="text-xs text-muted">
-            Optimizar los parámetros con tu historial todavía no está disponible.
-          </span>
-        </div>
+        <ParamsRow value={config.fsrsParams} />
       </Section>
 
       <Section title="Enterrar">
@@ -710,14 +702,6 @@ function OptionsForm({
         {config.maximumReviewInterval < 180 ? (
           <Warning>Un intervalo máximo de menos de 6 meses no es recomendable.</Warning>
         ) : null}
-        <NumberRow
-          label="Retención histórica"
-          value={config.historicalRetention}
-          range={CONFIG_RANGES.historicalRetention}
-          fallback={DEFAULT_CONFIG.historicalRetention}
-          step={0.01}
-          onChange={(v) => set({ historicalRetention: v })}
-        />
       </Section>
     </div>
   );
@@ -995,61 +979,31 @@ function StepsRow({
   );
 }
 
-function ParamsRow({ value, onChange }: { value: number[]; onChange: (v: number[]) => void }) {
+/**
+ * The FSRS parameters, read-only (step 3.4, ANK-14): Anki's manual asks not to edit them by hand nor to copy someone
+ * else's. The preset's own, or FSRS-6's defaults in grey when it has none; a preset that has its own keeps them.
+ */
+function ParamsRow({ value }: { value: readonly number[] }) {
   const id = useId();
-  const [text, setText] = useState(value.join(', '));
-  const [problem, setProblem] = useState<string | null>(null);
-  // Another preset chosen, or the defaults restored: the box shows the new value (and its blur does not
-  // write the old one into the new preset).
-  const [shown, setShown] = useState(value.join(','));
-  if (shown !== value.join(',')) {
-    setShown(value.join(','));
-    setText(value.join(', '));
-    setProblem(null);
-  }
-  const commit = () => {
-    const parts = text
-      .split(/[\s,]+/)
-      .filter(Boolean)
-      .map(Number);
-    if (parts.some((n) => !Number.isFinite(n)) || ![0, 17, 19, 21].includes(parts.length)) {
-      setProblem(
-        'Tienen que ser 21 números (o 19 o 17 de versiones anteriores), o nada para usar los predeterminados.',
-      );
-      return;
-    }
-    setProblem(null);
-    if (parts.join(',') !== value.join(',')) onChange(parts);
-  };
+  const own = value.length > 0;
   return (
-    <div className="py-3">
-      <div className="flex items-center gap-2">
-        <label htmlFor={id} className="flex-1 text-sm font-medium">
-          Parámetros FSRS
-        </label>
-        <Revert
-          value={value}
-          fallback={[] as number[]}
-          onChange={(v) => {
-            setText('');
-            setProblem(null);
-            onChange(v);
-          }}
-        />
-      </div>
-      <textarea
-        id={id}
-        rows={3}
-        value={text}
-        placeholder={DEFAULT_PARAMETERS.join(', ')}
-        onChange={(e) => setText(e.target.value)}
-        onBlur={commit}
-        className="mt-2 w-full rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs"
-      />
-      <p className="mt-1 text-xs text-muted">
-        Vacío: los parámetros predeterminados de FSRS-6 (los que se ven en gris).
+    <div className="py-3" role="group" aria-labelledby={id}>
+      <p id={id} className="text-sm font-medium">
+        Parámetros FSRS
       </p>
-      {problem ? <Warning>{problem}</Warning> : null}
+      <p
+        aria-label={own ? 'Parámetros de esta configuración' : 'Parámetros predeterminados'}
+        className={`mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2 font-mono text-xs break-words ${own ? 'text-ink' : 'text-muted'}`}
+      >
+        {(own ? value : DEFAULT_PARAMETERS).join(', ')}
+      </p>
+      <p className="mt-1 text-xs text-muted">
+        {own
+          ? 'Los de esta configuración.'
+          : 'Los predeterminados de FSRS-6, que usa esta configuración.'}{' '}
+        El sitio los muestra, pero no deja cambiarlos: el manual de Anki pide no editarlos a mano ni
+        copiarlos de otra persona, porque salen del historial de cada uno.
+      </p>
     </div>
   );
 }

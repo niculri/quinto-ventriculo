@@ -77,6 +77,9 @@ const PLACEHOLDER_RE = /(?:<p>)?\u{E000}(\d+)\u{E001}(?:<\/p>)?/gu;
 /** `::: der` / `::: izq` of the source Markdown → side of the floating figure. */
 const SIDES = { der: 'right', izq: 'left' } as const;
 
+/** Characters the site's font (Inter) does not have, by the one it has that means the same. */
+const SUBSTITUTES: [RegExp, string][] = [[/✕/gu, '×']];
+
 const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
 
 interface Context {
@@ -98,7 +101,8 @@ export function convertNote(
   resolve: ImageResolver,
   options: ConvertOptions = {},
 ): ConversionResult {
-  const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+  const text = SUBSTITUTES.reduce((t, [from, to]) => t.replace(from, to), markdown);
+  const lines = text.replace(/\r\n?/g, '\n').split('\n');
   let title: string | null = null;
   let createdOn: string | null = null;
 

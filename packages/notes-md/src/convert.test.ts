@@ -24,6 +24,11 @@ describe('convertNote', () => {
     expect(r.html).toContain('<h4 id="detalle">');
   });
 
+  it('writes × for ✕, which the site’s font does not have, and keeps the superscripts as written', () => {
+    const r = convert('Sin ✕ ni ✕: Ca²⁺, CO₂, IP<sub>3</sub> y 4<sup>3</sup>.');
+    expect(r.html).toBe('<p>Sin × ni ×: Ca²⁺, CO₂, IP<sub>3</sub> y 4<sup>3</sup>.</p>\n');
+  });
+
   it('converts a figure with width and caption, without src', () => {
     const r = convert('![El **codón** de inicio (diap. 4)](imagenes/d04.png){62%}');
     expect(r.html).toContain('<figure class="figure" style="width:62%">');

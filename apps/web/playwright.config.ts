@@ -13,6 +13,7 @@ const IPHONE_SPECS = [
   'home.spec.ts',
   'phone.spec.ts',
   'quiz.spec.ts',
+  'reading.spec.ts',
   'screen-reader.spec.ts',
   'study.spec.ts',
   'viewer.spec.ts',

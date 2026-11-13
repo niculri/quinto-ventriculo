@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import type { OpenImage } from './ImageViewer';
 import { sectionAt } from './reporting';
 import { useScrollableTables } from './useScrollableTables';
+import { prepareArticle } from './articleHtml';
 
 /**
  * The note HTML. It already comes sanitized from the importer; it is sanitized again here just in case
@@ -17,21 +18,6 @@ export function sanitizeInBrowser(html: string): string {
   });
 }
 
-/** Every figure opens the viewer, also from the keyboard: it is a button named by its image. */
-export function zoomableFigures(html: string): string {
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  for (const img of template.content.querySelectorAll('figure img')) {
-    img.setAttribute('role', 'button');
-    img.setAttribute('tabindex', '0');
-    img.setAttribute(
-      'aria-label',
-      `Ampliar la imagen${img.getAttribute('alt') ? `: ${img.getAttribute('alt')}` : ''}`,
-    );
-  }
-  return template.innerHTML;
-}
-
 interface Props {
   html: string;
   onOpenImage: (image: OpenImage) => void;
@@ -39,7 +25,7 @@ interface Props {
 }
 
 export function NoteContent({ html, onOpenImage, ref }: Props) {
-  const clean = useMemo(() => zoomableFigures(sanitizeInBrowser(html)), [html]);
+  const clean = useMemo(() => prepareArticle(sanitizeInBrowser(html)), [html]);
   const own = useRef<HTMLDivElement>(null);
   useScrollableTables(own, clean);
   useImperativeHandle(ref, () => own.current!, []);

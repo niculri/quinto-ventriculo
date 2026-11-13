@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" font-family="Helvetica, Arial, sans-serif">
+  <rect width="720" height="380" fill="#ffffff"/>
+  <text x="24" y="40" font-size="18" fill="#334155">Líquido extracelular</text>
+  <text x="24" y="356" font-size="18" fill="#334155">Citoplasma</text>
+  <rect x="0" y="150" width="720" height="80" fill="#f4e7c8"/>
+  <g fill="#e2c88f">
+    <circle cx="30" cy="158" r="8"/><circle cx="60" cy="158" r="8"/><circle cx="90" cy="158" r="8"/><circle cx="120" cy="158" r="8"/><circle cx="150" cy="158" r="8"/><circle cx="180" cy="158" r="8"/><circle cx="210" cy="158" r="8"/>
+    <circle cx="30" cy="222" r="8"/><circle cx="60" cy="222" r="8"/><circle cx="90" cy="222" r="8"/><circle cx="120" cy="222" r="8"/><circle cx="150" cy="222" r="8"/><circle cx="180" cy="222" r="8"/><circle cx="210" cy="222" r="8"/>
+    <circle cx="510" cy="158" r="8"/><circle cx="540" cy="158" r="8"/><circle cx="570" cy="158" r="8"/><circle cx="600" cy="158" r="8"/><circle cx="630" cy="158" r="8"/><circle cx="660" cy="158" r="8"/><circle cx="690" cy="158" r="8"/>
+    <circle cx="510" cy="222" r="8"/><circle cx="540" cy="222" r="8"/><circle cx="570" cy="222" r="8"/><circle cx="600" cy="222" r="8"/><circle cx="630" cy="222" r="8"/><circle cx="660" cy="222" r="8"/><circle cx="690" cy="222" r="8"/>
+  </g>
+  <path d="M290 120 h140 a20 20 0 0 1 20 20 v100 a20 20 0 0 1 -20 20 h-140 a20 20 0 0 1 -20 -20 v-100 a20 20 0 0 1 20 -20z" fill="#0f766e"/>
+  <text x="360" y="186" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">Bomba</text>
+  <text x="360" y="208" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">Na⁺/K⁺</text>
+  <path d="M320 112 V52" stroke="#c2410c" stroke-width="5" fill="none"/>
+  <path d="M308 62 l12 -18 l12 18z" fill="#c2410c"/>
+  <text x="300" y="34" font-size="18" fill="#c2410c" text-anchor="end" font-weight="700">3 Na⁺ salen</text>
+  <path d="M400 54 V108" stroke="#1d4ed8" stroke-width="5" fill="none"/>
+  <path d="M388 98 l12 18 l12 -18z" fill="#1d4ed8"/>
+  <text x="420" y="64" font-size="18" fill="#1d4ed8" font-weight="700">2 K⁺ entran</text>
+  <path d="M250 312 C300 312 320 290 330 268" stroke="#475569" stroke-width="3" fill="none"/>
+  <text x="120" y="318" font-size="18" fill="#475569">ATP → ADP + Pᵢ</text>
+  <text x="470" y="300" font-size="15" fill="#475569">membrana plasmática ≈ 5 nm</text>
+</svg>

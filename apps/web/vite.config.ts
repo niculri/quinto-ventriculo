@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
 import { creatorPhoto } from './build/creator-photo';
+import { preloadFont } from './build/preload-font';
 import { thirdPartyLicenses } from './build/licenses';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -125,6 +126,7 @@ export default defineConfig(({ command, mode }) => {
       securityHeaders(env.VITE_USERS_SUPABASE_URL ?? ''),
       thirdPartyLicenses(),
       creatorPhoto(),
+      preloadFont(),
     ],
     define: { 'import.meta.env.VITE_DEMO': JSON.stringify(demo ? '1' : '') },
     server: {

@@ -122,6 +122,10 @@ export const routes: RouteObject[] = [
           { path: 'semesters/:number/anki/*', Component: SemesterAnkiRedirect },
           { path: 'search', lazy: page(() => import('./pages/search')) },
           { path: 'help', lazy: page(() => import('./pages/help')) },
+          // Development only: never in the build.
+          ...(import.meta.env.DEV
+            ? [{ path: 'dev/reading', lazy: page(() => import('./pages/dev-reading')) }]
+            : []),
           { path: '*', Component: NotFoundPage },
         ],
       },

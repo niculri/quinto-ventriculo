@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter';
+@import './fonts/fonts.css';
 @import '@fontsource-variable/source-serif-4';
 @import '@fontsource-variable/source-serif-4/wght-italic.css';
 
@@ -72,7 +72,7 @@
   --color-state-learn: var(--state-learn);
   --color-state-review: var(--state-review);
   --shadow-soft: var(--shadow);
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
 }
 
@@ -132,13 +132,29 @@ mark {
 
 /* ---------------------------------------------------------------- note */
 
+/*
+ * How an article reads: Inter 17px (16 on the phone), line-height 1.7, the text as wide as the page (53rem), figures
+ * on the right with the text around them. It holds its floats and is the container their rules measure.
+ */
 .note-body {
   --c: #1a64d6;
-  font-family: var(--font-serif);
-  font-size: 1.075rem;
+  display: flow-root;
+  container-type: inline-size;
+  --read-ink: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
   line-height: 1.7;
-  color: var(--ink);
+  color: var(--read-ink);
   overflow-wrap: break-word;
+}
+/* Long text on a dark background glares less a step under the site's near-white (13:1). */
+.dark .note-body {
+  --read-ink: #d3dddf;
+}
+@media (max-width: 639.98px) {
+  .note-body {
+    font-size: 1rem;
+  }
 }
 
 .note-body h2,
@@ -147,14 +163,15 @@ mark {
   font-family: var(--font-sans);
   color: var(--ink);
   letter-spacing: -0.01em;
+  text-wrap: balance;
   /* On top of the page's scroll-padding-top (5rem, the site's bar). */
   scroll-margin-top: 0.75rem;
 }
 .note-body h2 {
-  font-size: 1.5rem;
+  font-size: 1.5em;
   font-weight: 650;
   line-height: 1.25;
-  margin: 3rem 0 1rem;
+  margin: 1.8em 0 0.6em;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
 }
@@ -164,16 +181,16 @@ mark {
   padding-top: 0;
 }
 .note-body h3 {
-  font-size: 1.2rem;
+  font-size: 1.2em;
   font-weight: 620;
-  margin: 2rem 0 0.6rem;
+  margin: 1.5em 0 0.45em;
 }
 /* «####» (no number, no TOC entry): a small heading with a short bar, inside a «###». */
 .note-body h4 {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  font-size: 1.02rem;
+  font-size: 1em;
   font-weight: 650;
   margin: 1.6rem 0 0.4rem;
   color: var(--ink);
@@ -188,7 +205,8 @@ mark {
   transform: translateY(-0.25em);
 }
 .note-body p {
-  margin: 0.75rem 0;
+  margin: 0 0 1em;
+  text-wrap: pretty;
 }
 .note-body strong {
   font-weight: 650;
@@ -208,7 +226,7 @@ mark {
   list-style: decimal;
 }
 .note-body li {
-  margin: 0.3rem 0;
+  margin: 0.35em 0;
   padding-left: 0.2rem;
 }
 .note-body li::marker {
@@ -224,91 +242,157 @@ mark {
   border-top: 1px solid var(--border);
   margin: 2rem 0;
 }
+/*
+ * <sup> and <sub> (IP<sub>3</sub>, K<sub>d</sub>, 4<sup>3</sup>) with Inter's own superscript and subscript glyphs,
+ * the same as Ca²⁺ or CO₂ (notes/articleHtml.ts marks the ones Inter has: a–z, 0–9, + − = ( ) [ ]). The rest are
+ * shrunk and moved to the same place. Neither changes the line's height. Without `calt`: next to a digit, Inter's
+ * contextual alternates swap + − ( ) [ ] for glyphs that `sups`/`subs` do not cover (Ca<sup>2+</sup> would keep a
+ * full-size +).
+ */
 .note-body sup,
 .note-body sub {
-  font-size: 0.72em;
+  position: static;
+  font-size: 0.58em;
   line-height: 0;
 }
+.note-body sup {
+  vertical-align: 0.73em;
+}
+.note-body sub {
+  vertical-align: -0.28em;
+}
+.note-body :is(sup, sub).own-glyphs {
+  font-size: 1em;
+  vertical-align: baseline;
+}
+.note-body sup.own-glyphs {
+  font-feature-settings:
+    'sups' 1,
+    'calt' 0;
+}
+.note-body sub.own-glyphs {
+  font-feature-settings:
+    'subs' 1,
+    'calt' 0;
+}
 
-/* Tables */
-.note-body table {
-  display: block;
+/* Tables: as wide as the column, sideways scroll in their wrapper when they do not fit (notes/articleHtml.ts). */
+.note-body .table-scroll {
   max-width: 100%;
   overflow-x: auto;
+  margin: 1.6em 0;
+}
+.note-body table {
+  width: 100%;
   border-collapse: collapse;
-  margin: 1.25rem 0;
   font-family: var(--font-sans);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
   line-height: 1.5;
 }
 .note-body th,
 .note-body td {
-  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 0.5rem 0.75rem;
   vertical-align: top;
   text-align: left;
 }
 .note-body th {
-  background: var(--surface-2);
+  border-bottom: 2px solid var(--border-strong);
   font-weight: 620;
 }
+.note-body tbody tr:nth-child(even) {
+  background: color-mix(in oklab, var(--surface-2) 55%, transparent);
+}
 
-/* Figures */
+/*
+ * Figures (notes/figures.ts): a thumbnail on the right with the text around it, like Wikipedia's, or wide across the
+ * column (a large plate, a panorama, a row), centered and below every float. Where the column is too narrow for text
+ * beside a thumbnail (under 45rem: the phone and narrow windows), nothing floats and every figure goes centered. The
+ * <img> keeps its width and height attributes, so its height is known before it loads in every browser.
+ */
 .note-body .figure {
-  margin: 1.5rem auto;
-  max-width: 100%;
-  width: 92%;
+  width: min(100%, var(--fig, 100%));
+  margin: 1.8em auto;
 }
 .note-body .figure img {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 34rem;
-  object-fit: contain;
   border-radius: 8px;
   background: #fff;
   cursor: zoom-in;
 }
-.note-body .figure-plate img {
-  max-height: none;
-}
+/* A white edge around the images (drawn outside the box, so that their height does not change when they load). */
 .dark .note-body .figure img {
-  padding: 6px;
+  box-shadow: 0 0 0 6px #fff;
+  filter: brightness(0.92);
 }
 .note-body figcaption {
   font-family: var(--font-sans);
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   line-height: 1.5;
   color: var(--muted);
-  margin-top: 0.5rem;
-  text-align: center;
+  margin-top: 0.6rem;
+  text-align: left;
 }
+.dark .note-body figcaption {
+  margin-top: 0.85rem;
+}
+/* A thumbnail in a soft frame, its caption inside it and as wide as the image. */
+.note-body .figure.is-thumb {
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.note-body .is-thumb img {
+  border-radius: 6px;
+}
+.dark .note-body .is-thumb img {
+  box-shadow: 0 0 0 4px #fff;
+}
+.note-body .is-thumb figcaption {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin-top: 0.45rem;
+  padding: 0 0.2rem 0.1rem;
+}
+.dark .note-body .is-thumb figcaption {
+  margin-top: 0.6rem;
+}
+@container (min-width: 45rem) {
+  .note-body .figure.is-thumb {
+    float: right;
+    clear: right;
+    width: min(50%, var(--fig, 100%));
+    margin: 0.35em 0 1.1em 1.6em;
+  }
+  .note-body .callout .figure.is-thumb {
+    width: min(40%, var(--fig, 100%));
+  }
+}
+.note-body :is(h2, hr, .table-scroll, .figure-row, .is-wide, .note-summary) {
+  clear: both;
+}
+/* A row of figures at the same height (their widths in proportion); on the phone, one under the other. */
 .note-body .figure-row {
   display: flex;
-  gap: 1rem;
+  justify-content: center;
   align-items: flex-start;
-  margin: 1.5rem 0;
+  gap: 1rem;
+  margin: 1.8em auto;
 }
 .note-body .figure-row .figure {
-  flex: 1 1 0;
+  flex: 0 1 var(--fig, 100%);
+  min-width: 0;
   margin: 0;
-  width: auto;
 }
 .note-body .side {
-  display: flow-root;
   margin: 1rem 0;
 }
-.note-body .figure-float {
-  margin: 0.35rem 0 1rem;
-}
-.note-body .side-right > .figure-float,
-.note-body .callout > .figure-float {
-  float: right;
-  margin-left: 1.5rem;
-}
-.note-body .side-left > .figure-float {
-  float: left;
-  margin-right: 1.5rem;
+.note-body .callout > .is-wide {
+  margin: 0.6em auto 1em;
 }
 .note-body .missing-image {
   color: var(--muted);
@@ -318,13 +402,13 @@ mark {
 /* Callouts */
 .note-body .callout {
   display: flow-root;
-  margin: 1.4rem 0;
+  margin: 1.5em 0;
   padding: 0.85rem 1.1rem;
   border-left: 3px solid var(--c);
   border-radius: 0 10px 10px 0;
   background: color-mix(in oklab, var(--c) 7%, var(--surface));
-  font-size: 0.99rem;
-  line-height: 1.65;
+  font-size: 0.94em;
+  line-height: 1.6;
 }
 .dark .note-body .callout {
   background: color-mix(in oklab, var(--c) 13%, var(--surface));
@@ -595,10 +679,7 @@ mark {
   }
 }
 
-@media (max-width: 640px) {
-  .note-body {
-    font-size: 1.02rem;
-  }
+@media (max-width: 639.98px) {
   .note-body .callout-datos > ul {
     padding-left: 2.1rem;
     padding-right: 0.9rem;
@@ -606,18 +687,13 @@ mark {
   .note-body .note-summary {
     padding: 1.1rem 1rem 0.9rem;
   }
-  .note-body .side-right > .figure-float,
-  .note-body .side-left > .figure-float,
-  .note-body .callout > .figure-float {
-    float: none;
-    width: 100% !important;
-    margin: 0.5rem 0 1rem;
-  }
   .note-body .figure-row {
     flex-direction: column;
+    align-items: center;
   }
-  .note-body .figure {
-    width: 100% !important;
+  .note-body .figure-row .figure {
+    flex: none;
+    width: min(100%, var(--fig, 100%));
   }
 }
 

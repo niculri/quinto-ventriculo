@@ -36,6 +36,8 @@ import type { ReportCategory } from '@qv/schema';
 import { useCountOpen } from '../usage/count';
 import { rememberNote } from '../home/lastNote';
 import { useTip } from '../tips/useTip';
+import { useReadingFonts } from '../../lib/readingFonts';
+import { noteCrumbs } from './noteCrumbs';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
@@ -43,13 +45,15 @@ export function NotePage() {
   // «Uso» (step 2.9): this page is what opens a note.
   useCountOpen('note', note.data ? slug : null);
   const catalog = useCatalog();
+  // The loading state lasts until the data and the article's fonts are in: it is never drawn with another font.
+  const fonts = useReadingFonts();
+  const location = catalog.data ? locateNote(catalog.data, 'slug', slug) : null;
 
   if (note.isError) {
     if (note.error instanceof ApiRequestError && note.error.status === 404) return <NotFoundPage />;
     return <ErrorWithRetry error={note.error} onRetry={() => void note.refetch()} />;
   }
-  if (!note.data) return <NoteSkeleton />;
-  const location = catalog.data ? locateNote(catalog.data, 'slug', slug) : null;
+  if (!note.data || !fonts) return <NoteSkeleton location={location} />;
   // The semester or the course of the URL are not the note's: to its canonical URL (#anchor kept).
   if (
     location &&
@@ -60,7 +64,15 @@ export function NotePage() {
   return <NoteView key={note.data.id} note={note.data} location={location} />;
 }
 
-function NoteView({ note, location }: { note: Note; location: NoteLocation | null }) {
+export function NoteView({
+  note,
+  location,
+  remember = true,
+}: {
+  note: Note;
+  location: NoteLocation | null;
+  remember?: boolean;
+}) {
   const content = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<OpenImage | null>(null);
@@ -99,7 +111,9 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
   );
 
   // «Seguir» on the home page (step 3.2): the last note opened on this device.
-  useEffect(() => rememberNote(note.slug), [note.slug]);
+  useEffect(() => {
+    if (remember) rememberNote(note.slug);
+  }, [note.slug, remember]);
   // A tip once (step 3.2): having read to the end, the search.
   const tip = useTip('tip-search', progress >= 0.95);
 
@@ -154,26 +168,7 @@ function NoteView({ note, location }: { note: Note; location: NoteLocation | nul
   return (
     <div className={page}>
       {/* The breadcrumbs as on every page: from «Inicio», above the article and its TOC. */}
-      <Breadcrumbs
-        items={[
-          { label: 'Inicio', to: paths.home },
-          ...(location
-            ? [
-                { label: location.semester.name, to: paths.semester(location.semester.number) },
-                { label: location.course.name, to: paths.course(location.course) },
-                {
-                  label: location.assessment.name,
-                  to: paths.assessment(location.course, location.assessment.id),
-                },
-                {
-                  label: 'Apuntes',
-                  to: paths.assessmentNotes(location.course, location.assessment.id),
-                },
-              ]
-            : []),
-          { label: note.title },
-        ]}
-      />
+      <Breadcrumbs items={noteCrumbs(location, note.title)} />
       <article className="w-full min-w-0">
         <NoteHeader note={note} />
 
@@ -396,16 +391,36 @@ function Neighbors({ location }: { location: NoteLocation }) {
   );
 }
 
-function NoteSkeleton() {
+/**
+ * In the page's frame, with the header and the text where the article will put them. The breadcrumbs are the
+ * article's own once the catalog is in: on a phone they wrap, and a one-line stand-in would move the title.
+ */
+function NoteSkeleton({ location }: { location: NoteLocation | null }) {
   return (
-    <div className="mx-auto max-w-[46rem] px-4 py-10" role="status" aria-label="Cargando el apunte">
-      <Skeleton className="h-4 w-48" />
-      <Skeleton className="mt-6 h-12 w-3/4" />
-      <Skeleton className="mt-4 h-5 w-1/2" />
-      <div className="mt-12 space-y-3">
-        {Array.from({ length: 10 }, (_, i) => (
-          <Skeleton key={i} className={`h-4 ${i % 3 === 2 ? 'w-2/3' : 'w-full'}`} />
-        ))}
+    <div className={page}>
+      {location ? (
+        <Breadcrumbs items={noteCrumbs(location, location.note.title)} />
+      ) : (
+        <div className="mb-4 flex h-5 items-center">
+          <Skeleton className="h-3.5 w-80 max-w-full" />
+        </div>
+      )}
+      <div role="status" aria-label="Cargando el apunte">
+        <div className="mb-10 border-b border-border pb-8">
+          <div className="flex h-[2.625rem] items-center sm:h-[3.25rem]">
+            <Skeleton className="h-9 w-3/4 sm:h-11" />
+          </div>
+          <div className="mt-4 flex h-[1.5625rem] items-center">
+            <Skeleton className="h-5 w-1/2" />
+          </div>
+          <Skeleton className="mt-4 h-5 w-64 max-w-full" />
+          <Skeleton className="mt-4 h-5 w-36" />
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 10 }, (_, i) => (
+            <Skeleton key={i} className={`h-4 ${i % 3 === 2 ? 'w-2/3' : 'w-full'}`} />
+          ))}
+        </div>
       </div>
     </div>
   );

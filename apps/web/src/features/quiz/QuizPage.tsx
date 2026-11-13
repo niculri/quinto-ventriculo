@@ -27,6 +27,7 @@ import { ReportDialog } from '../reports/ReportDialog';
 import { plainText } from '../reports/labels';
 import type { ReportTarget } from '../reports/repository';
 import { useFocusMode } from '../../ui/focus';
+import { useReadingFonts } from '../../lib/readingFonts';
 import './quiz.css';
 import { useCountOpen } from '../usage/count';
 
@@ -121,6 +122,8 @@ export function QuizPage() {
   const active: QuizSectionSummary | null =
     sections.length === 1 ? sections[0]! : (sections.find((s) => s.id === sectionId) ?? null);
   const detail = useQuizSection(quiz.data?.id ?? null, active?.id ?? null);
+  // As an article, it is never drawn with another font (its questions use Inter's italic).
+  const fonts = useReadingFonts();
 
   // A refetch that fails (the section's, to renew its photos) leaves what was there: the round goes on.
   for (const q of [catalog, quiz, saved, detail]) {
@@ -142,7 +145,7 @@ export function QuizPage() {
     return <Canonical path={paths.quiz(course, data, lastUsed(data, saved.data))} />;
   }
   if (!active) return <NotFoundPage />;
-  if (!detail.data) return <Loading />;
+  if (!detail.data || !fonts) return <Loading />;
   const assessment = course.assessments.find((a) => a.id === data.assessmentId);
   // The assessment's only test: «Tests» of the assessment goes straight to it, so it is called that, in the breadcrumbs
   // and its heading, as the list of tests of an assessment with several.

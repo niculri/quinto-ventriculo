@@ -113,7 +113,7 @@ describe('«Reportar error» in an article', () => {
       location: { path: NOTE_PATH, title: 'Traducción' },
     });
 
-    await user.click(screen.getByRole('img', { name: 'Ribosoma' }));
+    await user.click(screen.getByRole('button', { name: 'Ampliar la imagen: Ribosoma' }));
     await user.click(await screen.findByRole('button', { name: 'Reportar esta imagen' }));
     dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
     expect(within(dialog).getByText('Imagen: El ribosoma')).toBeInTheDocument();

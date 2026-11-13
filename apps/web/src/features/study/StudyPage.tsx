@@ -7,7 +7,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen,
   Flag,
-  ListChecks,
   MessageSquareWarning,
   EyeOff,
   MoreHorizontal,
@@ -23,7 +22,7 @@ import { useServices } from '../../app/services';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry, Notice } from '../../ui/Notice';
 import { BackButton } from '../../ui/BackButton';
-import { answerBar, button } from '../../ui/styles';
+import { answerBar, button, studyScreen, tapArea } from '../../ui/styles';
 import { CardFrame, useDarkMode } from '../decks/CardFrame';
 import { cardQuery, useCard, useDeck } from '../decks/queries';
 import { deckTitle } from '../anki/DeckPage';
@@ -35,6 +34,9 @@ import { NotFoundPage } from '../../ui/NotFoundPage';
 import { CountNumbers, DayLoad } from './DeckCounts';
 import { DaySummary } from './DaySummary';
 import { useCardMaterial } from './material';
+import { MaterialRow } from './MaterialRow';
+import { StudyFallback } from './StudyFallback';
+import { MenuRoot } from '../../ui/MenuRoot';
 import { studyKeys, useSavePreferences, useStudyData } from './queries';
 import { catchUpText } from './pace';
 import { cardKey } from './scheduler';
@@ -60,9 +62,19 @@ export function StudyPage({ node }: { node: CourseDeckNode }) {
     if (deck.error instanceof ApiRequestError && [400, 404].includes(deck.error.status)) {
       return <NotFoundPage />;
     }
-    return <ErrorWithRetry error={deck.error} onRetry={() => void deck.refetch()} />;
+    return (
+      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+        <ErrorWithRetry error={deck.error} onRetry={() => void deck.refetch()} />
+      </StudyFallback>
+    );
   }
-  if (!deck.data) return <Loading text="Preparando el mazo…" />;
+  if (!deck.data) {
+    return (
+      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+        <Loading text="Preparando el mazo…" />
+      </StudyFallback>
+    );
+  }
   return <StudyLoader node={node} deck={deck.data} rootId={node.id} />;
 }
 
@@ -79,8 +91,17 @@ function StudyLoader({
   // The session starts from what the database said when it was opened; afterwards it keeps its own state.
   const [initial, setInitial] = useState<StudyData | null>(null);
   if (!initial && study.data) setInitial(study.data);
-  if (study.error && !initial) return <ErrorWithRetry error={study.error} onRetry={study.retry} />;
-  if (!initial) return <Loading text="Preparando tus tarjetas…" />;
+  if (!initial) {
+    return (
+      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+        {study.error ? (
+          <ErrorWithRetry error={study.error} onRetry={study.retry} />
+        ) : (
+          <Loading text="Preparando tus tarjetas…" />
+        )}
+      </StudyFallback>
+    );
+  }
   return <Reviewer node={node} rootId={rootId} initial={initial} />;
 }
 
@@ -242,11 +263,15 @@ function Reviewer({
   const summary = withSummary ? (
     <DaySummary node={node} prefs={initial.prefs} saved={() => session.saved()} />
   ) : null;
+  // Each card shown counts once (an undone one again): what the screen reader hears changes with every card.
+  const shownKey = shown ? cardKey(shown.entry) : '';
+  const [turn, setTurn] = useState({ key: '', n: 0 });
+  if (shownKey && shownKey !== turn.key) setTurn({ key: shownKey, n: turn.n + 1 });
   const currentFlag = shown ? (session.row(shown.entry)?.flag ?? 0) : 0;
   const flagInfo = FLAGS.find((f) => f.flag === currentFlag);
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-4rem-1px)] max-w-5xl flex-col px-2 pt-2 sm:px-4 sm:pt-3">
+    <div className={studyScreen}>
       <div className={`${answerBar} pb-2`}>
         <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
         <div className="flex min-w-0 justify-center" aria-label="Tarjetas que quedan" role="group">
@@ -270,12 +295,14 @@ function Reviewer({
             <Flag
               className="size-5"
               style={{ color: flagInfo.color, fill: flagInfo.color }}
+              role="img"
               aria-label={`Marcador ${flagInfo.label.toLowerCase()}`}
             />
           ) : currentFlag && !full ? (
             <Flag
               className="size-5 flex-none text-brand"
               style={{ fill: 'currentColor' }}
+              role="img"
               aria-label="Marcada para revisar"
             />
           ) : full ? null : (
@@ -404,40 +431,27 @@ function Reviewer({
                 </button>
               </div>
             )}
-            {/* Always its room, on every card of the session: the card and the buttons do not move. */}
             {!full ? (
-              <div className="mt-2 flex h-5 justify-center gap-4 text-xs text-muted">
-                {revealed && material ? (
-                  <>
-                    <MaterialLink href={material.notePath}>
-                      <BookOpen className="size-3.5" aria-hidden="true" /> Ver apunte
-                    </MaterialLink>
-                    {tip.shown ? (
-                      // In the line's own room: it moves nothing, and closed it does not come back. Closed, its room
-                      // stays until the visit ends, so that «Ver apunte» and «Preguntas» do not move (review of 3.2).
-                      <span
-                        aria-hidden={tip.show ? undefined : true}
-                        className={`flex min-w-0 items-center gap-1 whitespace-nowrap text-ink ${tip.show ? '' : 'invisible'}`}
-                      >
-                        <span className="truncate">lleva al apunte del que sale esta tarjeta</span>
-                        <button
-                          type="button"
-                          onClick={tip.close}
-                          aria-label="Cerrar el consejo"
-                          className="flex-none rounded p-0.5 text-muted hover:bg-surface-2 hover:text-ink"
-                        >
-                          <X className="size-3.5" aria-hidden="true" />
-                        </button>
-                      </span>
-                    ) : null}
-                    {material.quizPath ? (
-                      <MaterialLink href={material.quizPath}>
-                        <ListChecks className="size-3.5" aria-hidden="true" /> Preguntas
-                      </MaterialLink>
-                    ) : null}
-                  </>
+              <MaterialRow material={material} revealed={revealed}>
+                {tip.shown ? (
+                  // In the line's own room: it moves nothing, and closed it does not come back. Closed, its room
+                  // stays until the visit ends, so that «Ver apunte» and «Preguntas» do not move (review of 3.2).
+                  <span
+                    aria-hidden={tip.show ? undefined : true}
+                    className={`flex min-w-0 items-center gap-1 text-xs whitespace-nowrap text-ink ${tip.show ? '' : 'invisible'}`}
+                  >
+                    <span className="truncate">lleva al apunte del que sale esta tarjeta</span>
+                    <button
+                      type="button"
+                      onClick={tip.close}
+                      aria-label="Cerrar el consejo"
+                      className={`flex-none rounded p-0.5 text-muted hover:bg-surface-2 hover:text-ink ${tapArea}`}
+                    >
+                      <X className="size-3.5" aria-hidden="true" />
+                    </button>
+                  </span>
                 ) : null}
-              </div>
+              </MaterialRow>
             ) : null}
           </div>
         </>
@@ -457,6 +471,12 @@ function Reviewer({
         />
       )}
 
+      {/* What changed, for a screen reader: the card's side takes the focus too (CardFrame's focusOnShow). */}
+      <p role="status" className="sr-only">
+        {shown
+          ? `${revealed ? 'Respuesta de la tarjeta' : 'Tarjeta'} ${turn.n} de esta sesión`
+          : ''}
+      </p>
       <div
         aria-live="polite"
         className="pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-4"
@@ -480,24 +500,6 @@ function Reviewer({
         />
       ) : null}
     </div>
-  );
-}
-
-/**
- * «Ver apunte» and «Preguntas» open another tab, to keep the session. Focus does not stay on the link: back here,
- * Enter has to answer, not open it again.
- */
-export function MaterialLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      onClick={(e) => e.currentTarget.blur()}
-      className="inline-flex items-center gap-1 hover:text-ink hover:underline"
-    >
-      {children}
-    </a>
   );
 }
 
@@ -558,6 +560,7 @@ export function StudyCard({
       night={night}
       occlusion={card.data.kind === 'occlusion'}
       label={revealed ? 'Reverso de la tarjeta' : 'Frente de la tarjeta'}
+      focusOnShow
     />
   );
 }
@@ -588,7 +591,7 @@ function MoreMenu({
     <kbd className="ml-auto pl-4 font-sans text-xs text-muted">{keys(k)}</kbd>
   );
   return (
-    <Menu.Root>
+    <MenuRoot closeOnly>
       <Menu.Trigger className={`${button.base} ${button.ghost}`} aria-label="Más">
         <MoreHorizontal className="size-5" aria-hidden="true" />
         <span className="hidden sm:inline">Más</span>
@@ -655,7 +658,7 @@ function MoreMenu({
           </Menu.Item>
         </Menu.Content>
       </Menu.Portal>
-    </Menu.Root>
+    </MenuRoot>
   );
 }
 
@@ -679,7 +682,7 @@ function SimpleMenu({
     <kbd className="ml-auto pl-4 font-sans text-xs text-muted">{keys(k)}</kbd>
   );
   return (
-    <Menu.Root>
+    <MenuRoot closeOnly>
       <Menu.Trigger className={`${button.base} ${button.ghost}`} aria-label="Más">
         <MoreHorizontal className="size-5" aria-hidden="true" />
         <span className="hidden sm:inline">Más</span>
@@ -709,7 +712,7 @@ function SimpleMenu({
           </Menu.Item>
         </Menu.Content>
       </Menu.Portal>
-    </Menu.Root>
+    </MenuRoot>
   );
 }
 

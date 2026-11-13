@@ -95,6 +95,10 @@
   outline-offset: 2px;
   border-radius: 4px;
 }
+/* The question's text takes the focus only so that a screen reader reads it: it is not something to press. */
+.quiz .quizq [tabindex='-1']:focus-visible {
+  outline: none;
+}
 
 /* the test's bar, under the app's (sticky): «Volver», counter, live score, «Reiniciar», «Terminar», progress */
 .quiz .qz-bar {
@@ -103,6 +107,12 @@
   z-index: 30;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
+}
+/* On a phone, answering hides the app's bar (ui/AppShell.tsx): this one goes to the top. */
+@media (max-width: 639.98px) {
+  .quiz .qz-bar {
+    top: 0;
+  }
 }
 .quiz .hrow {
   display: flex;

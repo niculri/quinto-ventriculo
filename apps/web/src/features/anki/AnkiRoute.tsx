@@ -1,4 +1,5 @@
-import { Navigate, useParams, useSearchParams } from 'react-router';
+import { Navigate, useLocation, useParams, useSearchParams } from 'react-router';
+import type { ReactNode } from 'react';
 import { paths } from '../../app/paths';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
@@ -6,6 +7,8 @@ import { NotFoundPage } from '../../ui/NotFoundPage';
 import { Canonical } from '../catalog/Redirects';
 import { FinalReviewPage } from '../study/FinalReviewPage';
 import { StudyPage } from '../study/StudyPage';
+import { StudyFallback } from '../study/StudyFallback';
+import { answerScreenBack } from '../../ui/answerScreen';
 import { DeckPage } from './DeckPage';
 import { CardsPage } from '../cards/CardsPage';
 import { PracticePage } from '../cards/PracticePage';
@@ -23,10 +26,22 @@ export function AnkiRoute() {
   const params = useParams();
   const [search] = useSearchParams();
   const { catalog, tree } = useAnkiTree();
+  const location = useLocation();
+  // Studying without the catalog yet: its deck has no name, but «Volver» is needed (no site bar on a phone).
+  const frame = (body: ReactNode) => {
+    const back = answerScreenBack(location.pathname, location.search);
+    return back ? (
+      <StudyFallback back={back.to} label={back.label}>
+        {body}
+      </StudyFallback>
+    ) : (
+      body
+    );
+  };
   if (catalog.isError) {
-    return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
+    return frame(<ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />);
   }
-  if (!tree) return <Loading />;
+  if (!tree) return frame(<Loading />);
   const splat = (params['*'] ?? '').split('/').filter(Boolean);
   const resolved = resolveCourseDeck(
     tree,

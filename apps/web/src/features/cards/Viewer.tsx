@@ -12,7 +12,8 @@ import { useCardMaterial } from '../study/material';
 import { studyKeys } from '../study/queries';
 import { timingFor } from '../study/scheduler';
 import type { StudyPreferences } from '../study/repository';
-import { MaterialLink, ReportEntry } from '../study/StudyPage';
+import { ReportEntry } from '../study/StudyPage';
+import { MaterialLink } from '../study/MaterialRow';
 
 /** «Marcar para revisar» is one flag, as when studying. */
 const REVIEW_FLAG = 1;

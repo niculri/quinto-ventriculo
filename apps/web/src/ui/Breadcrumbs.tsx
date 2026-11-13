@@ -14,7 +14,12 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
           <li key={`${c.label}-${i}`} className="flex items-center gap-1">
             {i > 0 ? <ChevronRight className="size-3.5 opacity-60" aria-hidden="true" /> : null}
             {c.to ? (
-              <Link to={c.to} className="rounded hover:text-ink">
+              // 24 px for a finger, only 2 px up and down: wrapped lines are 4 px apart, and a taller area would take
+              // the taps meant for the line above.
+              <Link
+                to={c.to}
+                className="relative rounded after:absolute after:-inset-x-1 after:-inset-y-0.5 hover:text-ink"
+              >
                 {c.label}
               </Link>
             ) : (

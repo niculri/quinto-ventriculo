@@ -384,7 +384,7 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
           <Dialog.Root open={panel} onOpenChange={setPanel}>
             <Dialog.Portal>
               <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 xl:hidden" />
-              <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[min(22rem,88vw)] overflow-y-auto border-l border-border bg-surface p-4 shadow-soft xl:hidden">
+              <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[min(22rem,88vw)] overflow-y-auto border-l border-border bg-surface p-4 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-soft xl:hidden">
                 <div className="mb-4 flex items-center justify-between">
                   <Dialog.Title className="font-semibold">Filtros</Dialog.Title>
                   <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label="Cerrar">

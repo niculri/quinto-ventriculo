@@ -468,7 +468,7 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
 
   it('«Opciones» of the user menu opens its page, with its sections on the side', async () => {
     const { router } = renderApp('/home');
-    await userEvent.click(await screen.findByRole('button', { name: 'Tu cuenta' }));
+    await userEvent.click(await screen.findByRole('button', { name: /tu cuenta$/i }));
     await userEvent.click(await screen.findByRole('menuitem', { name: /Opciones/ }));
     // No submenu: the page, on its first section.
     expect(screen.queryByRole('menuitem', { name: /Anki/ })).toBeNull();

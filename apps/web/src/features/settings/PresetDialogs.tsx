@@ -179,7 +179,7 @@ export function PresetNameField({
           onKeyDown={(e) => {
             if (e.key === 'Escape' && editing) cancel();
           }}
-          className={`min-w-0 flex-1 rounded-lg border px-3 py-2 outline-none ${
+          className={`min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm outline-none ${
             editing
               ? 'border-border bg-surface focus:border-brand'
               : 'border-transparent bg-surface-2 text-muted'

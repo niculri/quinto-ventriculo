@@ -352,7 +352,14 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
           <span key={i}>{p.text}</span>
         ) : hide ? (
           <span key={i} className="rounded bg-brand-soft px-1 text-brand">
-            [{p.hole.hint ?? '…'}]
+            [
+            {p.hole.hint ?? (
+              <>
+                <span aria-hidden="true">…</span>
+                <Said>hueco</Said>
+              </>
+            )}
+            ]
           </span>
         ) : (
           <span key={i} className="rounded bg-brand-soft px-0.5 font-medium text-brand">
@@ -364,31 +371,9 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
   );
 }
 
-/** What a screen reader says of a row (and the text a cloze shows), without the answers when they are hidden. */
-function rowLabel(m: Matched, hide: boolean): string {
-  const n = m.note.note;
-  const parts: string[] = [];
-  switch (n.kind) {
-    case 'basic':
-      parts.push(n.front);
-      if (!hide && n.back) parts.push(`Respuesta: ${n.back}`);
-      break;
-    case 'cloze':
-      parts.push(
-        clozeParts(n.front)
-          .map((p) => (p.hole && hide ? `[${p.hole.hint ?? 'hueco'}]` : p.text))
-          .join(''),
-      );
-      break;
-    case 'occlusion':
-      parts.push(n.front || n.topic || 'Imagen', labelsText(n.labels));
-      break;
-    case 'photo':
-      parts.push(hide || !n.back ? 'Foto' : `Foto: ${n.back}`);
-      break;
-  }
-  parts.push(statusText(m.cards));
-  return parts.join(' — ');
+/** Text only a screen reader reads: the rows are named by what they show, and this joins its parts. */
+function Said({ children }: { children: ReactNode }) {
+  return <span className="sr-only">{children}</span>;
 }
 
 const labelsText = (n: number) => `${n} ${n === 1 ? 'rótulo' : 'rótulos'}`;
@@ -417,7 +402,16 @@ function NoteRow({
     body = (
       <span className={`grid min-w-0 flex-1 gap-x-4 ${wide ? 'grid-cols-2' : 'grid-rows-2'}`}>
         <span className="line-clamp-2 text-sm">{n.front}</span>
-        <span className="line-clamp-2 text-sm text-muted">{hideAnswers ? <Hidden /> : n.back}</span>
+        <span className="line-clamp-2 text-sm text-muted">
+          {hideAnswers || !n.back ? (
+            <Hidden />
+          ) : (
+            <>
+              <Said> — </Said>
+              {n.back}
+            </>
+          )}
+        </span>
       </span>
     );
   } else if (n.kind === 'cloze') {
@@ -431,23 +425,33 @@ function NoteRow({
       <>
         <Thumb thumb={n.thumb} thumbs={thumbs} blur={hideAnswers && n.kind === 'occlusion'} />
         <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 text-sm">{n.front || n.topic || 'Imagen'}</span>
+          <span className="line-clamp-2 text-sm">
+            {n.kind === 'photo' ? <Said>Foto: </Said> : null}
+            {n.front || n.topic || 'Imagen'}
+          </span>
           <span className="mt-0.5 block text-xs text-muted">
-            {n.kind === 'occlusion' ? labelsText(n.labels) : hideAnswers ? <Hidden /> : n.back}
+            {n.kind === 'occlusion' ? (
+              <>
+                <Said> — </Said>
+                {labelsText(n.labels)}
+              </>
+            ) : hideAnswers || !n.back ? (
+              <Hidden />
+            ) : (
+              <>
+                <Said> — </Said>
+                {n.back}
+              </>
+            )}
           </span>
         </span>
       </>
     );
   }
   return (
-    <button
-      type="button"
-      data-position={position}
-      aria-label={rowLabel(m, hideAnswers)}
-      onClick={() => onOpen(m)}
-      className={ROW_BUTTON}
-    >
+    <button type="button" data-position={position} onClick={() => onOpen(m)} className={ROW_BUTTON}>
       {body}
+      <Said> — {statusText(m.cards)}</Said>
       <Dots m={m} />
     </button>
   );
@@ -511,7 +515,6 @@ function PhotoCell({
     <button
       type="button"
       data-position={position}
-      aria-label={rowLabel(m, hideAnswers)}
       onClick={() => onOpen(m)}
       className="flex h-full w-full flex-col rounded-lg p-1.5 text-left outline-none hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand"
     >
@@ -521,7 +524,18 @@ function PhotoCell({
           <Dots m={m} />
         </span>
       </span>
-      <span className="mt-1 block h-5 truncate text-xs">{hideAnswers ? <Hidden /> : n.back}</span>
+      <span className="mt-1 block h-5 truncate text-xs">
+        <Said>Foto</Said>
+        {hideAnswers || !n.back ? (
+          <Hidden />
+        ) : (
+          <>
+            <Said>: </Said>
+            {n.back}
+          </>
+        )}
+        <Said> — {statusText(m.cards)}</Said>
+      </span>
     </button>
   );
 }

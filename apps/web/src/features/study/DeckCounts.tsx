@@ -6,6 +6,7 @@ import { buildQueue, configsFor, deckIds, queueCards, studiedToday } from './sch
 import type { StudyData } from './scheduler';
 import { masteryByDeck } from './mastery';
 import { breakdownText, loadText, totalCards } from './simple';
+import { tapArea } from '../../ui/styles';
 
 /**
  * Each deck of the studied deck's tree with what is left today, as Anki's deck list counts it: the same
@@ -156,7 +157,7 @@ function LoadWithBreakdown({
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className={`cursor-pointer rounded tabular-nums underline decoration-border-strong decoration-dotted underline-offset-4 hover:decoration-current ${className}`}
+        className={`${tapArea} cursor-pointer rounded tabular-nums underline decoration-border-strong decoration-dotted underline-offset-4 hover:decoration-current ${className}`}
       >
         {text}
       </button>

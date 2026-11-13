@@ -1,10 +1,12 @@
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { paths } from '../app/paths';
 import { CircleHelp, LogOut, Settings, ShieldCheck } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useIsAdmin } from '../features/admin/queries';
 import { useSession, useUser } from '../features/session/context';
 import { ThemePicker } from './ThemePicker';
+import { MenuRoot } from './MenuRoot';
+import { isAnswerScreen } from './answerScreen';
 
 export function initials(name: string | null, email: string): string {
   const base = name?.trim() || email.split('@')[0] || '?';
@@ -32,9 +34,12 @@ export function Avatar({
       className="size-8 rounded-full object-cover"
     />
   ) : (
-    <span className="flex size-8 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white dark:text-[#0a1316]">
-      {initials(name, email)}
-    </span>
+    // The initials drawn by CSS: they are a picture of the person, and the name already says who it is.
+    <span
+      aria-hidden="true"
+      data-initials={initials(name, email)}
+      className="flex size-8 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white before:content-[attr(data-initials)] dark:text-[#0a1316]"
+    />
   );
 }
 
@@ -42,14 +47,15 @@ export function UserMenu() {
   const user = useUser();
   const { signOut } = useSession();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const isAdmin = useIsAdmin();
   const item =
     'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-2';
 
   return (
-    <Menu.Root>
+    <MenuRoot closeOnly={isAnswerScreen(pathname)}>
       <Menu.Trigger
-        aria-label="Tu cuenta"
+        aria-label={user.name ? `${user.name}, tu cuenta` : 'Tu cuenta'}
         className="flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5"
       >
         {/* The name to the left of the photo; on the phone only the photo fits. */}
@@ -93,6 +99,6 @@ export function UserMenu() {
           </Menu.Item>
         </Menu.Content>
       </Menu.Portal>
-    </Menu.Root>
+    </MenuRoot>
   );
 }

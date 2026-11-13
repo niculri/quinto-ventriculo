@@ -89,24 +89,24 @@ export function Logo({
           />
         ) : null}
       </span>
-      <span className={compact ? 'hidden sm:block' : ''}>
+      <span className={compact ? 'max-sm:sr-only' : ''}>
         <span className="block font-serif text-[1.05rem] leading-none font-semibold tracking-tight text-ink">
           El Quinto Ventrículo
         </span>
         {tagline ? (
-          <span className="mt-1 hidden lg:grid">
+          // Drawn by CSS: the link already says where it goes, and the motto is not read on every page.
+          <span className="mt-1 hidden lg:grid" aria-hidden="true">
             <span
-              aria-hidden={preview || undefined}
-              className={`col-start-1 row-start-1 font-serif text-[0.78rem] leading-none text-muted italic ${
+              data-text="El ventrículo que no aparece en el Netter."
+              className={`col-start-1 row-start-1 font-serif text-[0.78rem] leading-none text-muted italic before:content-[attr(data-text)] ${
                 preview ? 'invisible' : ''
               }`}
-            >
-              El ventrículo que no aparece en el Netter.
-            </span>
+            />
             {preview ? (
-              <span className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-accent">
-                Vista previa del borrador
-              </span>
+              <span
+                data-text="Vista previa del borrador"
+                className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-accent before:content-[attr(data-text)]"
+              />
             ) : null}
           </span>
         ) : null}

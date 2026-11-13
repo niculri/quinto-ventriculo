@@ -2,6 +2,22 @@ import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 import { ACCEPTED_ACCOUNT, PORT } from './e2e/accepted';
 
+/**
+ * WebKit (Safari on the iPhone) runs only what a student does most on a phone, plus axe: running every spec a third time
+ * would double the CI's time. The CI runs it in a job of its own, beside Chromium's.
+ */
+const IPHONE_SPECS = [
+  'a11y.spec.ts',
+  'article.spec.ts',
+  'cards.spec.ts',
+  'home.spec.ts',
+  'phone.spec.ts',
+  'quiz.spec.ts',
+  'screen-reader.spec.ts',
+  'study.spec.ts',
+  'viewer.spec.ts',
+];
+
 /** End-to-end tests in demo mode, with the test content of e2e/content (not the real one). */
 export default defineConfig({
   testDir: 'e2e',
@@ -38,6 +54,7 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'phone', use: { ...devices['Pixel 7'] } },
+    { name: 'iphone', use: { ...devices['iPhone 15'] }, testMatch: IPHONE_SPECS },
   ],
   webServer: {
     command: `npx vite --mode demo --port ${PORT} --strictPort`,

@@ -12,6 +12,7 @@ import { UserMenu } from './UserMenu';
 import { SiteFooter } from './SiteFooter';
 import { keys } from './keys';
 import { usePreview } from '../features/preview/preview';
+import { isAnswerScreen } from './answerScreen';
 
 /**
  * Shell of the signed-in app: top bar (logo, search, account), the site's menu on the left (a drawer on the
@@ -25,11 +26,9 @@ export function AppShell() {
   const preview = usePreview();
   // The study screen fills the window under the top bar, as Anki's reviewer: no footer to scroll to.
   const { pathname } = useLocation();
-  const studying =
-    pathname.endsWith('/study') ||
-    pathname.endsWith('/review') ||
-    pathname.endsWith('/cards/practice');
-  // Studying a deck is as answering a test: nothing but the card (no menu, no right column, no footer).
+  const studying = isAnswerScreen(pathname);
+  // Studying a deck is as answering a test: nothing but the card (no menu, no right column, no footer, and on a phone
+  // no top bar: «Volver» is on the screen, at the same place in both).
   const hideNav = focus || studying;
 
   useEffect(() => {
@@ -53,7 +52,9 @@ export function AppShell() {
       >
         Saltar al contenido
       </a>
-      <header className="sticky top-0 z-40 border-b border-border bg-chrome/85 backdrop-blur-md">
+      <header
+        className={`sticky top-0 z-40 border-b border-border bg-chrome/85 backdrop-blur-md ${hideNav ? 'max-sm:hidden' : ''}`}
+      >
         {/* The preview of the draft: a line over the bar and its mark in the logo, both on top of what is there (nothing
             moves when it comes or goes). */}
         {preview.active ? (
@@ -128,7 +129,7 @@ export function AppShell() {
       <Dialog.Root open={menuOpen && !hideNav} onOpenChange={setMenuOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px] lg:hidden" />
-          <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] overflow-y-auto border-r border-border bg-bg px-3 py-4 shadow-soft lg:hidden">
+          <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] overflow-y-auto border-r border-border bg-bg py-4 pr-3 pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] shadow-soft lg:hidden">
             <div className="mb-3 flex items-center justify-between px-2.5">
               <Dialog.Title className="text-sm font-semibold">Menú</Dialog.Title>
               <Dialog.Close

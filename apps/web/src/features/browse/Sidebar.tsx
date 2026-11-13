@@ -169,7 +169,7 @@ function DeckItems({
             onClick={() => setOpen(!open)}
             aria-expanded={open}
             aria-label={`${open ? 'Plegar' : 'Desplegar'} ${node.label}`}
-            className="flex size-5 flex-none items-center justify-center rounded text-muted hover:text-ink"
+            className="-my-0.5 -ml-1 flex size-6 flex-none items-center justify-center rounded pl-1 text-muted hover:text-ink"
           >
             <ChevronRight
               className={`size-3.5 transition-transform ${open ? 'rotate-90' : ''}`}

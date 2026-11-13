@@ -567,13 +567,13 @@ export function CardTable({ sources }: { sources: TableSources }) {
             />
           )}
           {full ? (
-            <Menu.Root>
+            <Menu.Root modal={false}>
               <Menu.Trigger
                 disabled={busy || !count}
                 className={`${button.base} ${button.secondary} px-3 py-1.5`}
               >
                 <Flag className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Marcar</span>
+                <span className="max-sm:sr-only">Marcar</span>
               </Menu.Trigger>
               <Menu.Portal>
                 <Menu.Content
@@ -618,7 +618,7 @@ export function CardTable({ sources }: { sources: TableSources }) {
               className={`${button.base} ${button.secondary} px-3 py-1.5`}
             >
               <Layers className="size-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Ir al mazo</span>
+              <span className="max-sm:sr-only">Ir al mazo</span>
             </Link>
           ) : null}
           <ActionButton
@@ -764,7 +764,7 @@ function ActionButton({
       className={`${button.base} ${button.secondary} px-3 py-1.5`}
     >
       {icon}
-      <span className="hidden sm:inline">{label}</span>
+      <span className="max-sm:sr-only">{label}</span>
     </button>
   );
 }
@@ -777,10 +777,10 @@ function ColumnsMenu({
   setView: (p: Partial<ViewPrefs>) => void;
 }) {
   return (
-    <Menu.Root>
+    <Menu.Root modal={false}>
       <Menu.Trigger className={`${button.base} ${button.secondary} px-3 py-1.5`}>
         <Columns3 className="size-4" aria-hidden="true" />
-        <span className="hidden sm:inline">Columnas</span>
+        <span className="max-sm:sr-only">Columnas</span>
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Content

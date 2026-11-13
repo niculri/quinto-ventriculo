@@ -258,7 +258,7 @@ function Feature({
           <Icon className="size-5" />
         </span>
         {soon ? (
-          <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
+          <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-[#9a4a12] dark:text-accent">
             Pronto
           </span>
         ) : (

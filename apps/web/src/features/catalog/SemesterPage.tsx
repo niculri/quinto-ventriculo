@@ -53,7 +53,7 @@ export function SemesterPage() {
                     />
                   </Link>
                 ) : (
-                  <div className={`${card} p-5 opacity-60 shadow-none`}>{body}</div>
+                  <div className={`${card} p-5 text-muted shadow-none`}>{body}</div>
                 )}
               </li>
             );

@@ -18,7 +18,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     const menu = await screen.findByRole('navigation', { name: 'Menú del sitio' });
     await waitFor(() => expect(within(menu).getByText('Datos de usuario')).toBeInTheDocument());
     expect(within(menu).queryByText(/Administración|Publicaciones/)).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Tu cuenta' }));
+    await userEvent.click(screen.getByRole('button', { name: /tu cuenta$/i }));
     expect(await screen.findByRole('menuitem', { name: /Opciones/ })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: /Administración/ })).toBeNull();
     unmount();
@@ -47,7 +47,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
 
   it('an administrator gets to it from the account menu: /admin opens «Publicaciones»', async () => {
     const { router } = renderApp('/home', { admin: admin() });
-    await userEvent.click(await screen.findByRole('button', { name: 'Tu cuenta' }));
+    await userEvent.click(await screen.findByRole('button', { name: /tu cuenta$/i }));
     await userEvent.click(await screen.findByRole('menuitem', { name: /Administración/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe('/admin/releases'));
     expect(

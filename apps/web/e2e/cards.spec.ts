@@ -120,11 +120,11 @@ test('the list, a filter, the viewer with its actions and «Practicar estas»', 
   await panel.getByRole('switch', { name: 'Ocultar respuestas' }).check();
   await closeFilters(page, isMobile);
   await expect(
-    page.getByRole('button', { name: /^¿Cuántas vértebras cervicales hay\? — 2/ }),
+    page.getByRole('button', { name: /^¿Cuántas vértebras cervicales hay\?\s*—\s*2/ }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole('button', { name: /^¿Cuántas vértebras cervicales hay\? — 2/ }),
+    page.getByRole('button', { name: /^¿Cuántas vértebras cervicales hay\?\s*—\s*2/ }),
   ).toBeVisible();
 });
 
@@ -295,7 +295,9 @@ for (const theme of ['light', 'dark'] as const) {
 test('8,000 notes: how long a filter takes, on the computer and on a slow phone', async ({
   page,
   isMobile,
+  browserName,
 }, info) => {
+  test.skip(browserName !== 'chromium', 'the slow phone is CPU throttling, only in Chromium (CDP)');
   await page.addInitScript(() => localStorage.setItem('qv-demo-cards', '8000'));
   await signIn(page);
   if (isMobile) {

@@ -362,6 +362,7 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
 
   const toggle = () => {
     hidden = !hidden;
+    canvas.dataset.onlyText = hidden ? '1' : '';
     draw();
   };
   const button = root.querySelector<HTMLButtonElement>('#toggle');
@@ -377,7 +378,12 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
   // Like Anki: once the image has loaded, and again whenever the size changes.
   if (image.complete) requestAnimationFrame(draw);
   image.addEventListener('load', draw);
-  const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => draw());
+  // In the next frame: drawing fixes the container's aspect ratio, which would resize it inside the observer's own
+  // callback (the zoom's popup hiding the page's scrollbar did it: «ResizeObserver loop»).
+  const observer =
+    typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(() => requestAnimationFrame(draw));
   observer?.observe(container);
 
   return () => {
@@ -387,4 +393,24 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
     button?.removeEventListener('click', toggle);
     observer?.disconnect();
   };
+}
+
+/**
+ * The occlusion as it is on screen (its masks, or only its texts after «toggle»), drawn over the image at the image's
+ * own size: what the zoom shows, so that zooming never uncovers an answer. Null before the image has loaded.
+ */
+export function occlusionSnapshot(root: ShadowRoot | HTMLElement): string | null {
+  const shown = root.querySelector<HTMLCanvasElement>('#image-occlusion-canvas');
+  const image = root.querySelector<HTMLImageElement>('#image-occlusion-container img');
+  if (!shown || !image?.naturalWidth || !image.naturalHeight) return null;
+  const natural = { width: image.naturalWidth, height: image.naturalHeight };
+  const size = canvasPixelSize(natural, natural, 1);
+  const canvas = document.createElement('canvas');
+  canvas.width = size.width;
+  canvas.height = size.height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.drawImage(image, 0, 0, size.width, size.height);
+  drawShapes(ctx, root, canvas, shapeProperties(getComputedStyle(shown)), !!shown.dataset.onlyText);
+  return canvas.toDataURL('image/png');
 }

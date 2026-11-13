@@ -276,7 +276,10 @@ describe('access', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Hola, Ana' })).toBeInTheDocument();
     const bar = screen.getByRole('banner');
     expect(within(bar).getByText('El Quinto Ventrículo')).toBeInTheDocument();
-    expect(within(bar).getByText('El ventrículo que no aparece en el Netter.')).toBeInTheDocument();
+    // The motto is drawn by CSS: the home link is not read with it on every page.
+    expect(
+      bar.querySelector('[data-text="El ventrículo que no aparece en el Netter."]'),
+    ).not.toBeNull();
     expect(screen.getByText('¿Qué toca estudiar hoy?')).toBeInTheDocument();
     expect(screen.getByText(/Creado por Nico Ulriksen · 2026/)).toBeInTheDocument();
   });
@@ -504,7 +507,9 @@ describe('note', () => {
 
   it('opens the figure enlarged on click', async () => {
     renderApp('/notes/11-traduccion');
-    await userEvent.click(await screen.findByRole('img', { name: 'Ribosoma' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Ampliar la imagen: Ribosoma' }),
+    );
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText('El ribosoma')).toBeInTheDocument();
   });

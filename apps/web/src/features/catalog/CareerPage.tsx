@@ -78,8 +78,8 @@ function SemesterCard({ semester, catalog }: { semester: SemesterWithCourses; ca
   const decks = semester.courses.reduce((t, c) => t + countDecks(catalog, c.id), 0);
   if (!semester.courses.length) {
     return (
-      <div className={`${card} border-dashed p-5 opacity-70 shadow-none`}>
-        <p className="font-semibold">{semester.name}</p>
+      <div className={`${card} border-dashed p-5 shadow-none`}>
+        <p className="font-semibold text-muted">{semester.name}</p>
         <p className="mt-1 text-sm text-muted">Pronto.</p>
       </div>
     );

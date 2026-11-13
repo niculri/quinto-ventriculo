@@ -2,14 +2,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  BookOpen,
-  Flag,
-  ListChecks,
-  MessageSquareWarning,
-  MoreHorizontal,
-  PartyPopper,
-} from 'lucide-react';
+import { Flag, MessageSquareWarning, MoreHorizontal, PartyPopper } from 'lucide-react';
 import type { DeckDetail } from '@qv/schema';
 import { paths } from '../../app/paths';
 import { useServices } from '../../app/services';
@@ -17,7 +10,7 @@ import { ApiRequestError } from '../../lib/api';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
 import { NotFoundPage } from '../../ui/NotFoundPage';
-import { answerBar, button, card } from '../../ui/styles';
+import { answerBar, button, card, studyScreen } from '../../ui/styles';
 import { studyBackLabel } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import { BackButton } from '../../ui/BackButton';
@@ -30,7 +23,10 @@ import { studyKeys, useStudyData } from './queries';
 import type { CardKey, CardRef } from './repository';
 import { cardKey } from './scheduler';
 import type { StudyData } from './scheduler';
-import { MaterialLink, RATINGS, ReportEntry, StudyCard } from './StudyPage';
+import { RATINGS, ReportEntry, StudyCard } from './StudyPage';
+import { MaterialRow } from './MaterialRow';
+import { StudyFallback } from './StudyFallback';
+import { MenuRoot } from '../../ui/MenuRoot';
 import { useCountOpen } from '../usage/count';
 import { usePracticeRecorder } from '../stats/practice';
 
@@ -46,9 +42,19 @@ export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
     if (deck.error instanceof ApiRequestError && [400, 404].includes(deck.error.status)) {
       return <NotFoundPage />;
     }
-    return <ErrorWithRetry error={deck.error} onRetry={() => void deck.refetch()} />;
+    return (
+      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+        <ErrorWithRetry error={deck.error} onRetry={() => void deck.refetch()} />
+      </StudyFallback>
+    );
   }
-  if (!deck.data) return <Loading text="Preparando el mazo…" />;
+  if (!deck.data) {
+    return (
+      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+        <Loading text="Preparando el mazo…" />
+      </StudyFallback>
+    );
+  }
   return <FinalReviewLoader node={node} deck={deck.data} />;
 }
 
@@ -67,8 +73,17 @@ function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDet
   const [last, setLast] = useState<StudyData | null>(null);
   if (study.data && study.data !== last) setLast(study.data);
   const data = study.data ?? last;
-  if (study.error && !data) return <ErrorWithRetry error={study.error} onRetry={study.retry} />;
-  if (!data || !fresh) return <Loading text="Preparando tus tarjetas…" />;
+  if (!data || !fresh) {
+    return (
+      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+        {study.error && !data ? (
+          <ErrorWithRetry error={study.error} onRetry={study.retry} />
+        ) : (
+          <Loading text="Preparando tus tarjetas…" />
+        )}
+      </StudyFallback>
+    );
+  }
   return <FinalReview node={node} data={data} />;
 }
 
@@ -103,7 +118,7 @@ function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) 
 
   const left = round ? round.queue.length : null;
   return (
-    <div className="mx-auto flex h-[calc(100dvh-4rem-1px)] max-w-5xl flex-col px-2 pt-2 sm:px-4 sm:pt-3">
+    <div className={studyScreen}>
       <div className={`${answerBar} min-h-11 pb-2`}>
         <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
         <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
@@ -307,20 +322,7 @@ export function ReviewScreen({
             </button>
           </div>
         )}
-        <div className="mt-2 flex h-5 justify-center gap-4 text-xs text-muted">
-          {revealed && material ? (
-            <>
-              <MaterialLink href={material.notePath}>
-                <BookOpen className="size-3.5" aria-hidden="true" /> Ver apunte
-              </MaterialLink>
-              {material.quizPath ? (
-                <MaterialLink href={material.quizPath}>
-                  <ListChecks className="size-3.5" aria-hidden="true" /> Preguntas
-                </MaterialLink>
-              ) : null}
-            </>
-          ) : null}
-        </div>
+        <MaterialRow material={material} revealed={revealed} />
       </div>
     </>
   );
@@ -367,12 +369,13 @@ export function ReviewMenu({
         <Flag
           className="size-5 flex-none text-brand"
           style={{ fill: 'currentColor' }}
+          role="img"
           aria-label="Marcada para revisar"
         />
       ) : (
         <span className="size-5 flex-none" aria-hidden="true" />
       )}
-      <Menu.Root>
+      <MenuRoot closeOnly>
         <Menu.Trigger className={`${button.base} ${button.ghost}`} aria-label="Más">
           <MoreHorizontal className="size-5" aria-hidden="true" />
           <span className="hidden sm:inline">Más</span>
@@ -396,7 +399,7 @@ export function ReviewMenu({
             </Menu.Item>
           </Menu.Content>
         </Menu.Portal>
-      </Menu.Root>
+      </MenuRoot>
       <div
         aria-live="polite"
         className="pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-4"

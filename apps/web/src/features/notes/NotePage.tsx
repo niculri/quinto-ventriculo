@@ -16,7 +16,7 @@ import { ApiRequestError } from '../../lib/api';
 import { ErrorWithRetry } from '../../ui/Notice';
 import { Skeleton } from '../../ui/Loading';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { button, page } from '../../ui/styles';
+import { button, page, tapArea } from '../../ui/styles';
 import { Rail } from '../../ui/rail';
 import { NotFoundPage } from '../../ui/NotFoundPage';
 import { locateNote, useNote, useCatalog } from '../catalog/queries';
@@ -350,7 +350,7 @@ function NoteHeader({ note }: { note: Note }) {
       </div>
       {note.sources.length ? (
         <details className="group mt-4 text-sm">
-          <summary className="cursor-pointer text-muted select-none hover:text-ink">
+          <summary className={`cursor-pointer text-muted select-none hover:text-ink ${tapArea}`}>
             Fuentes del apunte
           </summary>
           <ul className="mt-2 space-y-1.5 border-l-2 border-border pl-4 leading-relaxed text-muted">

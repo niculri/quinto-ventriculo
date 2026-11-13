@@ -13,7 +13,7 @@ import type {
 } from '@qv/schema';
 import { ErrorWithRetry } from '../../ui/Notice';
 import { Loading, Skeleton } from '../../ui/Loading';
-import { button, card, linkCard, page } from '../../ui/styles';
+import { button, card, linkCard, page, tapArea } from '../../ui/styles';
 import { Breadcrumbs } from '../../ui/Breadcrumbs';
 import { NotFoundPage } from '../../ui/NotFoundPage';
 import { plural } from './AssessmentSections';
@@ -293,7 +293,7 @@ function ChooseUnits({
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1.5 rounded text-sm font-medium text-muted hover:text-ink"
+        className={`inline-flex items-center gap-1.5 rounded text-sm font-medium text-muted hover:text-ink ${tapArea}`}
       >
         <ChevronRight
           className={`size-4 transition-transform ${open ? 'rotate-90' : ''}`}

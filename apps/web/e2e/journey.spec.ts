@@ -37,7 +37,7 @@ test('sign in and navigate to a note, with no reading progress on home', async (
 
   await expect(page.getByRole('heading', { level: 1, name: 'Traducción' })).toBeVisible();
   await expect(page.getByText('Entra en la prueba.')).toBeVisible();
-  const figure = page.getByRole('img', { name: 'Ribosoma' });
+  const figure = page.getByRole('button', { name: 'Ampliar la imagen: Ribosoma' });
   await expect(figure).toBeVisible();
   await expect
     .poll(() => figure.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth))
@@ -67,7 +67,7 @@ test('a link with a tricky destination neither leaves the site nor breaks the si
 test('the enlarged image opens and closes', async ({ page }) => {
   await signIn(page);
   await page.goto('/notes/11-traduccion');
-  await page.getByRole('img', { name: 'Ribosoma' }).click();
+  await page.getByRole('button', { name: 'Ampliar la imagen: Ribosoma' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByText('Un ribosoma')).toBeVisible();
   await page.keyboard.press('Escape');

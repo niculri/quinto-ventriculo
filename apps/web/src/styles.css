@@ -87,6 +87,27 @@ html {
 
 body {
   min-height: 100dvh;
+  /* viewport-fit=cover (index.html) lets the page reach under the notch of an iPhone held sideways. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/*
+ * Unlayered, over the utilities: iOS zooms the page into a field whose text is under 16 px, and never zooms back. The
+ * line keeps the height it had with the small text, so that no field grows and nothing under it moves.
+ */
+@media (max-width: 639.98px), (pointer: coarse) {
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+  :is(input, textarea, select).text-sm {
+    line-height: 1.25rem;
+  }
+  :is(input, textarea, select).text-xs {
+    line-height: 1rem;
+  }
 }
 
 ::selection {
@@ -104,7 +125,7 @@ body {
 
 mark {
   background: var(--highlight);
-  color: inherit;
+  color: var(--ink);
   border-radius: 2px;
   padding: 0 1px;
 }
@@ -344,7 +365,7 @@ mark {
   --c: #2563c9;
 }
 .note-body .callout-profe {
-  --c: #a87300;
+  --c: #8a5d00;
 }
 .note-body .callout-clinica {
   --c: #be185d;

@@ -517,7 +517,7 @@ describe('the preview of the draft', () => {
     expect(
       await screen.findByText('Estás viendo el borrador, no lo publicado.'),
     ).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Tu cuenta' }));
+    await userEvent.click(screen.getByRole('button', { name: /tu cuenta$/i }));
     await userEvent.click(await screen.findByRole('menuitem', { name: /Cerrar sesión/ }));
     expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull();
     await waitFor(() => expect(window.sessionStorage.getItem('qv-preview')).toBeNull());

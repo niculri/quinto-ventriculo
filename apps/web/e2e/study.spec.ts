@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, scrollCard, signIn } from './helpers';
 
 /** A whole study session with the synthetic deck (e2e/content), in the advanced mode. */
@@ -100,7 +100,9 @@ test('study, undo, bury, suspend and finish the deck', async ({ page }) => {
 
 test('a long card scrolls with the wheel and with a finger on the study screen', async ({
   page,
+  browserName,
 }, info) => {
+  test.skip(browserName !== 'chromium', 'a real finger needs CDP; mobile WebKit has no wheel');
   await page.setViewportSize(
     info.project.name === 'phone' ? { width: 412, height: 600 } : { width: 800, height: 520 },
   );
@@ -192,4 +194,74 @@ test('a card taken out of the site in the middle of a session is skipped, and th
   await showAnswer(page);
   await page.keyboard.press('4');
   await expect(front(page).locator('#image-occlusion-canvas')).toBeVisible();
+});
+
+test('with a menu open, the tap that closes it only closes it: the card is not answered', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  await page.goto(`${DECK_URL}/study`);
+  const touch = (target: Locator) => (isMobile ? target.tap() : target.click());
+  await touch(page.getByRole('button', { name: 'Mostrar respuesta' }));
+  const answer = page.getByRole('region', { name: 'Reverso de la tarjeta' });
+  const good = page
+    .getByRole('group', { name: 'Responder' })
+    .getByRole('button', { name: /^Bien/ });
+  const notAnswered = async () => {
+    await page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    );
+    await expect(page.getByRole('menu')).toHaveCount(0);
+    await expect(answer).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toHaveCount(0);
+  };
+
+  await touch(page.getByRole('button', { name: 'Más' }));
+  await expect(page.getByRole('menu')).toBeVisible();
+  await touch(good);
+  await notAnswered();
+  // The account's menu too, where the site's bar is there (not on a phone).
+  if (!isMobile) {
+    await page.getByRole('button', { name: /tu cuenta$/i }).click();
+    await expect(page.getByRole('menu')).toBeVisible();
+    await good.click();
+    await notAnswered();
+  }
+  // With no menu open, the same tap answers.
+  await touch(good);
+  await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
+});
+
+test('a deck that does not load: «Volver» is where studying has it, and goes back to the deck', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto(`${DECK_URL}/study`);
+  await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
+  const back = page.getByRole('link', { name: /^Volver a / });
+  const place = async () => {
+    const b = (await back.boundingBox())!;
+    return [b.x, b.y, b.height].map(Math.round);
+  };
+  const studying = await place();
+  const retry = page.getByRole('button', { name: 'Reintentar' });
+
+  // The deck fails (after the query's retries).
+  await page.route('**/api/decks/**', (route) => route.abort());
+  await page.reload();
+  await expect(retry).toBeVisible({ timeout: 15_000 });
+  expect(await place()).toEqual(studying);
+  await back.click();
+  // To the deck, as from studying: a deck inside a week has its page in its assessment's.
+  await expect(page.getByRole('heading', { level: 1, name: 'Certamen 1' })).toBeVisible();
+
+  // The catalog fails: the deck has no name yet, «Volver» is still there.
+  await page.unroute('**/api/decks/**');
+  await page.route('**/api/catalog', (route) => route.abort());
+  await page.goto(`${DECK_URL}/study`);
+  await expect(retry).toBeVisible({ timeout: 15_000 });
+  expect(await place()).toEqual(studying);
+  await back.click();
+  await expect(page).toHaveURL(new RegExp(`${DECK_URL}$`));
 });

@@ -4,7 +4,7 @@ import { paths } from '../../app/paths';
 import { BackButton } from '../../ui/BackButton';
 import { Loading } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';
-import { answerBar, button } from '../../ui/styles';
+import { answerBar, button, studyScreen } from '../../ui/styles';
 import { useAnkiTree } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import { usePracticeRecorder } from '../stats/practice';
@@ -84,7 +84,7 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
   else if (!first.length) body = <Empty back={back} />;
   else body = <Practice cards={first} back={back} />;
   return (
-    <div className="mx-auto flex h-[calc(100dvh-4rem-1px)] max-w-5xl flex-col px-2 pt-2 sm:px-4 sm:pt-3">
+    <div className={studyScreen}>
       {first && first.length ? (
         body
       ) : (

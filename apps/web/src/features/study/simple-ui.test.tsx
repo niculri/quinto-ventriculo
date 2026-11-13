@@ -250,8 +250,10 @@ describe('the study screen in simple mode', () => {
     // Slow answers: the 3 new cards of the test deck take more than 45 minutes.
     study.medianAnswerMs = async () => 500_000;
     await studying(study);
-    const notice = await screen.findByRole('status', { name: '' });
-    expect(notice).toHaveTextContent(/Hoy son \d+ tarjetas/);
+    const notice = (await screen.findAllByRole('status')).find((s) =>
+      /Hoy son \d+ tarjetas/.test(s.textContent ?? ''),
+    )!;
+    expect(notice).toBeDefined();
     expect(within(notice).getByRole('link', { name: 'Parar por hoy' })).toHaveAttribute(
       'href',
       DECK_PATH,

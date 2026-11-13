@@ -170,7 +170,7 @@ describe('the cards page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: /Columna cervical/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: /Imágenes/ })).toBeInTheDocument();
-    const basic = await rowNamed(/Cuántas vértebras cervicales hay\? — Respuesta: 7/);
+    const basic = await rowNamed(/Cuántas vértebras cervicales hay\?\s*—\s*7\s*—/);
     expect(basic).toHaveTextContent('7');
     // The simple mode: no table and no Anki syntax in the page.
     expect(screen.queryByRole('group', { name: 'Vista' })).toBeNull();
@@ -184,7 +184,9 @@ describe('the cards page', () => {
     // Hiding the answers: the row does not say it any more.
     await userEvent.click(within(panel).getByRole('switch', { name: 'Ocultar respuestas' }));
     await userEvent.keyboard('{Escape}');
-    expect(await rowNamed(/^¿Cuántas vértebras cervicales hay\? — 1 tarjeta/)).toBeInTheDocument();
+    expect(
+      await rowNamed(/^¿Cuántas vértebras cervicales hay\?\s*—\s*1 tarjeta/),
+    ).toBeInTheDocument();
     expect(localStorage.getItem('qv-cards-hide-answers')).toBe('1');
   });
 

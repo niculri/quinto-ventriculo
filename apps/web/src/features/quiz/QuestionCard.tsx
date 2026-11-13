@@ -88,6 +88,7 @@ export function Explanation({
                 className={i === question.correct ? 'xa-ok' : i === chosen ? 'xa-mal' : undefined}
               >
                 <span className="xl">{LETTERS[k]}</span>
+                {i === question.correct ? <span className="sr-only">(la correcta) </span> : null}
                 <Html className="xt" html={perOption[i]!} />
               </li>
             ))}
@@ -145,11 +146,24 @@ export function QuestionCard({
   const order = question.kind === 'choice' ? displayOrder(round, entry.info) : [];
   const last = round.index + 1 === round.queue.length;
   const nextRef = useRef<HTMLButtonElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   // Answered: «Siguiente» takes the focus (Enter goes on), without scrolling the page.
   useEffect(() => {
     if (done) nextRef.current?.focus({ preventScroll: true });
   }, [done, round.index]);
+  // A new question, with the focus lost («Siguiente» is disabled again): a screen reader starts reading it.
+  const queued = round.queue[round.index];
+  useEffect(() => {
+    if (done) return;
+    const active = document.activeElement;
+    const lost = !active || active === document.body || (active as HTMLButtonElement).disabled;
+    if (!lost) return;
+    const start = sectionRef.current?.querySelector<HTMLElement>('.enun, .preg');
+    if (!start) return;
+    start.tabIndex = -1;
+    start.focus({ preventScroll: true });
+  }, [done, round.index, queued]);
 
   const shortcut =
     question.kind === 'choice' ? (
@@ -181,7 +195,7 @@ export function QuestionCard({
   }
 
   return (
-    <section className="wrap quizq" aria-label="Pregunta">
+    <section ref={sectionRef} className="wrap quizq" aria-label="Pregunta">
       <div className="meta">
         {sectionLabel ? (
           <Html className={`tag tsec s${sectionIndex % 2}`} html={sectionLabel} />
@@ -221,6 +235,13 @@ export function QuestionCard({
                     >
                       <span className="lt">{LETTERS[k]}</span>
                       <Html className="otx" html={question.options[i]!} />
+                      {state === 'buena' ? (
+                        <span className="sr-only">
+                          {i === answer?.chosen ? ' · tu respuesta, correcta' : ' · la correcta'}
+                        </span>
+                      ) : state === 'mala' ? (
+                        <span className="sr-only"> · tu respuesta, incorrecta</span>
+                      ) : null}
                     </button>
                   </li>
                 );
@@ -279,21 +300,28 @@ export function QuestionCard({
             ) : null}
           </div>
         ) : null}
-        {verdict ? (
-          <div className="vfila">
-            <div className={`veredicto ${verdict.good ? 'bien' : 'mal'}`} role="status">
-              <span className="vi" aria-hidden="true">
-                {verdict.good ? '✓' : '✗'}
-              </span>
-              <span>{verdict.text}</span>
-            </div>
-            {onReport ? (
-              <button type="button" className="qz-report" onClick={onReport}>
-                <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar error
-              </button>
+        {/* The status is always there, empty until answering: a live region that appears with its text is not always
+            read. Empty, both boxes have no class and measure nothing. */}
+        <div className={verdict ? 'vfila' : undefined}>
+          <div
+            role="status"
+            className={verdict ? `veredicto ${verdict.good ? 'bien' : 'mal'}` : undefined}
+          >
+            {verdict ? (
+              <>
+                <span className="vi" aria-hidden="true">
+                  {verdict.good ? '✓' : '✗'}
+                </span>
+                <span>{verdict.text}</span>
+              </>
             ) : null}
           </div>
-        ) : null}
+          {verdict && onReport ? (
+            <button type="button" className="qz-report" onClick={onReport}>
+              <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar error
+            </button>
+          ) : null}
+        </div>
         {done ? (
           <div>
             <Explanation question={question} order={order} chosen={answer.chosen} />

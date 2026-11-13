@@ -100,8 +100,9 @@ export function AppShell() {
       <FocusContext.Provider value={setFocus}>
         <RailContext.Provider value={rail}>
           {/* Menu | page | right column: the same three columns on every page (only the questions of a test
-              and studying a deck take the whole width). */}
-          <div className="mx-auto flex w-full max-w-[90rem] flex-1">
+              and studying a deck take the whole width). At least a screen tall below the bar, so the footer never
+              shows while a page loads and then jumps away. */}
+          <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[90rem] flex-1">
             {hideNav ? null : (
               <aside className="hidden w-64 flex-none border-r border-border lg:block">
                 <div className="sticky top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto px-3 pt-5 pb-6">

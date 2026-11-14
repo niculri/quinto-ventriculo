@@ -11,8 +11,12 @@ import { failedOf } from '../cards/queries';
 import type { DayCards } from '../cards/queries';
 import { correctPercent, countsByDay, daySummary, heatmapStats, isoOfDay } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
-import { browserTimeZone, defaultPreferences, localStudyRepository } from './api/repository';
-import type { StudyRepository } from './api/repository';
+import {
+  browserTimeZone,
+  defaultPreferences,
+  localStudyRepository,
+} from '../progress/api/repository';
+import type { StudyRepository } from '../progress/api/repository';
 
 const WEEK_ID = '5';
 const ASSESSMENT_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1';

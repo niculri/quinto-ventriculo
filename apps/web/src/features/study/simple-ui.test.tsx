@@ -7,8 +7,8 @@ import { describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { CATALOG, DECK_PATH, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
 import { cardShadowRoot } from '../decks/CardFrame';
-import { localStudyRepository } from './api/repository';
-import type { StudyRepository } from './api/repository';
+import { localStudyRepository } from '../progress/api/repository';
+import type { StudyRepository } from '../progress/api/repository';
 
 function student(over: { welcomeSeen?: boolean; fourButtons?: boolean } = {}): StudyRepository {
   return localStudyRepository(null, { welcomeSeen: true, ...over });

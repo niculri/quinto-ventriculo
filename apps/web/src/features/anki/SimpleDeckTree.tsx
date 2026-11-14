@@ -17,13 +17,13 @@ import {
   UNIT_DEPTH,
 } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
-import { DayLoad } from '../study/DeckCounts';
-import { MasteryMeter } from '../study/MasteryMeter';
-import { usePreferences, useSetActivation } from '../study/queries';
+import { DayLoad } from '../progress/DeckCounts';
+import { MasteryMeter } from '../progress/MasteryMeter';
+import { usePreferences, useSetActivation } from '../progress/queries';
 import { DeckPresetButton } from './DeckPresetDialog';
 import { useCollapsed } from './useCollapsed';
-import { ancestry, descendants } from './tree';
-import type { CourseDeckNode, DeckNode } from './tree';
+import { ancestry, descendants } from '../catalog/model/tree';
+import type { CourseDeckNode, DeckNode } from '../catalog/model/tree';
 
 function assessmentOf(node: DeckNode): DeckNode | null {
   return ancestry(node).find((n) => n.depth === 3) ?? null;

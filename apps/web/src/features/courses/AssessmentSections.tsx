@@ -17,14 +17,14 @@ import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { button, card, page } from '../../shared/ui/styles';
 import { formatDate } from '../../shared/lib/dates';
-import { buildAnkiTree, courseDeck } from '../anki/tree';
-import type { AnkiTree } from '../anki/tree';
+import { buildAnkiTree, courseDeck } from '../catalog/model/tree';
+import type { AnkiTree } from '../catalog/model/tree';
 import { useDeck } from '../decks/queries';
 import { KIND_NAMES } from '../notes/header';
 import { findPracticeDeck, practiceLink } from '../notes/Practice';
-import { useDeckCounts } from '../study/DeckCounts';
+import { useDeckCounts } from '../progress/DeckCounts';
 import { Canonical } from '../../shared/ui/Canonical';
-import { findCourse, noteBlocks, useCatalog } from './queries';
+import { findCourse, noteBlocks, useCatalog } from '../catalog/queries';
 
 export const plural = (n: number, one: string, many: string) =>
   `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;

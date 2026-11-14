@@ -18,17 +18,17 @@ import { button, card, linkCard, page, tapArea } from '../../shared/ui/styles';
 import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { plural } from './AssessmentSections';
-import { countDecks, countNotes, findCourse, useCatalog } from './queries';
+import { countDecks, countNotes, findCourse, useCatalog } from '../catalog/queries';
 import { AnkiArt, NotesArt, TestsArt } from './SectionArt';
 import { useDeck } from '../decks/queries';
-import { buildAnkiTree, courseDeck, descendants, hasPage } from '../anki/tree';
-import type { CourseDeckNode } from '../anki/tree';
+import { buildAnkiTree, courseDeck, descendants, hasPage } from '../catalog/model/tree';
+import type { CourseDeckNode } from '../catalog/model/tree';
 import { activeUnits, assessmentView, UNIT_DEPTH } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
-import { CountNumbers, DayLoad, useDeckCounts } from '../study/DeckCounts';
-import { MasteryMeter } from '../study/MasteryMeter';
+import { CountNumbers, DayLoad, useDeckCounts } from '../progress/DeckCounts';
+import { MasteryMeter } from '../progress/MasteryMeter';
 import { SimpleDeckTree } from '../anki/SimpleDeckTree';
-import { usePreferences, useStudyPlan, useToday } from '../study/queries';
+import { usePreferences, useStudyPlan, useToday } from '../progress/queries';
 import { Heatmap } from '../stats/HeatmapCard';
 
 export function CoursePage() {

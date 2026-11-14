@@ -26,18 +26,19 @@ import type {
   ReviewMix,
 } from '@qv/srs';
 import { paths } from '../../shared/lib/paths';
-import { useStudyRepository } from '../study/api/context';
+import { useStudyRepository } from '../progress/api/context';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { button, card } from '../../shared/ui/styles';
 import { Select } from '../../shared/ui/Select';
 import { Switch } from '../../shared/ui/Switch';
-import { presetParam } from '../anki/presets';
-import { hasPage, useAnkiTree } from '../anki/tree';
-import type { AnkiTree, CourseDeckNode, DeckNode } from '../anki/tree';
-import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../study/queries';
-import { defaultPreferences } from '../study/api/repository';
-import type { DeckSetting, StudyPreferences, UserPreset } from '../study/api/repository';
+import { presetParam } from '../progress/presets';
+import { hasPage } from '../catalog/model/tree';
+import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
+import type { AnkiTree, CourseDeckNode, DeckNode } from '../catalog/model/tree';
+import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../progress/queries';
+import { defaultPreferences } from '../progress/api/repository';
+import type { DeckSetting, StudyPreferences, UserPreset } from '../progress/api/repository';
 import { presetChoices, presetOf, sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
 import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';

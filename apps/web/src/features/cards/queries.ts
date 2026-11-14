@@ -9,19 +9,19 @@ import { dayOfStart, dayStartsAt } from '@qv/srs';
 import type { CardIndex, NoteTypeSummary } from '@qv/schema';
 import { apiPaths } from '@qv/schema/http';
 import { useApi } from '../../shared/hooks/useApi';
-import { useStudyRepository } from '../study/api/context';
+import { useStudyRepository } from '../progress/api/context';
 import { ApiRequestError } from '../../shared/lib/api';
-import type { AnkiTree } from '../anki/tree';
+import type { AnkiTree } from '../catalog/model/tree';
 import { buildBrowseCards, decayFromParams } from '../browse/data';
 import type { BrowseCard } from '../browse/data';
 import { cardKey, dayNumber, presetChoices, presetOf, timingFor } from '@qv/study';
 import { heatmapKeys } from '../stats/queries';
-import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../study/queries';
-import type { StoredCard, StudyPreferences } from '../study/api/repository';
+import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../progress/queries';
+import type { StoredCard, StudyPreferences } from '../progress/api/repository';
 import { FAILED_DAYS, explorerNotes } from './model';
 import type { ExplorerNote } from './model';
-import { lectureOf } from './scope';
-import type { CardsScope } from './scope';
+import { lectureOf } from '../catalog/model/scope';
+import type { CardsScope } from '../catalog/model/scope';
 
 const cardsKeys = {
   index: (assessmentId: string, hash: string) => ['card-index', assessmentId, hash] as const,

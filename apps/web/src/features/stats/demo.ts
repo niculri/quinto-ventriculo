@@ -1,8 +1,8 @@
 // Demo-only heatmap history: a made-up, deterministic past added to what the demo student did in this browser.
 import { dayOf } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
-import type { StudyRepository } from '../study/api/repository';
-import { browserTimeZone } from '../study/api/repository';
+import type { StudyRepository } from '../progress/api/repository';
+import { browserTimeZone } from '../progress/api/repository';
 import type { HeatmapData } from '@qv/study';
 
 // For the e2e tests, `qv-demo-heatmap` in localStorage takes `empty`, `slow` (1.5 s late) and `error`, with commas.

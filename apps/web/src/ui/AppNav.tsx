@@ -21,8 +21,8 @@ import {
   noteBlocks,
   useCatalog,
 } from '../features/catalog/queries';
-import { buildAnkiTree, courseDeck, hasPage } from '../features/anki/tree';
-import type { AnkiTree, CourseDeckNode } from '../features/anki/tree';
+import { buildAnkiTree, courseDeck, hasPage } from '../features/catalog/model/tree';
+import type { AnkiTree, CourseDeckNode } from '../features/catalog/model/tree';
 import { useSettingsGroups } from '../features/settings/useSettingsGroups';
 import { useIsAdmin } from '../features/admin/queries';
 import { ADMIN_SECTIONS } from '../features/admin/sections';

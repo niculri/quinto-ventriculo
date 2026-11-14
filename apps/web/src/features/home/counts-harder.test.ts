@@ -15,8 +15,8 @@ import {
   timingFor,
 } from '@qv/study';
 import type { StudyData, TreeDeck } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from '../study/api/repository';
-import type { AnswerToday, DeckProgress, StoredCard, UserPreset } from '../study/api/repository';
+import { defaultPreferences, localStudyRepository } from '../progress/api/repository';
+import type { AnswerToday, DeckProgress, StoredCard, UserPreset } from '../progress/api/repository';
 
 function random(seed: number) {
   let a = seed >>> 0;

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import type { Catalog, NoteSummary, QuizSummary } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
-import { buildAnkiTree, descendants } from '../anki/tree';
+import { buildAnkiTree, descendants } from '../catalog/model/tree';
 import { useCatalog } from '../catalog/queries';
 import { findPracticeDeck, practiceLink } from '../notes/Practice';
 

@@ -6,15 +6,15 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning, X } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
-import { useStudyRepository } from '../study/api/context';
+import { useStudyRepository } from '../progress/api/context';
 import { button } from '../../shared/ui/styles';
 import { CardInfo } from '../browse/CardPreview';
 import type { BrowseCard } from '../browse/data';
 import { CardViewer } from '../decks/CardViewer';
 import { useCardMaterial } from '../study/material';
-import { studyKeys } from '../study/queries';
+import { studyKeys } from '../progress/queries';
 import { timingFor } from '@qv/study';
-import type { StudyPreferences } from '../study/api/repository';
+import type { StudyPreferences } from '../progress/api/repository';
 import { ReportEntry } from '../study/StudyPage';
 import { MaterialLink } from '../study/MaterialRow';
 

@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import { splitStatements } from '@qv/quiz';
 import type { QuizFigure, QuizTable } from '@qv/schema';
 import { cleanSvg, cleanText } from './html';
-import type { OpenImage } from '../notes/ImageViewer';
+import type { OpenImage } from '../viewer/ImageViewer';
 
 export function Figures({
   figures,

@@ -7,8 +7,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
-import { ImageViewer } from '../notes/ImageViewer';
-import type { OpenImage } from '../notes/ImageViewer';
+import { ImageViewer } from '../viewer/ImageViewer';
+import type { OpenImage } from '../viewer/ImageViewer';
 
 // Anki's reviewer base styles (reviewer.scss, webview.css, image-occlusion/review.scss). What scrolls stays outside
 // the shadow root: Radix's scroll lock only sees an event's host there, and would cancel the scroll.

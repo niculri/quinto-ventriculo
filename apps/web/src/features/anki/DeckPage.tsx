@@ -20,16 +20,14 @@ import {
   LONGEST_CATCH_UP,
 } from '@qv/study';
 import type { AssessmentView, CatchUp, StudyPlan } from '@qv/study';
-import { DayLoad, useDeckCounts } from '../study/DeckCounts';
-import { MasteryMeter } from '../study/MasteryMeter';
-import { useAssessmentView, usePreferences, useStudyPlan } from '../study/queries';
+import { DayLoad, useDeckCounts } from '../progress/DeckCounts';
+import { MasteryMeter } from '../progress/MasteryMeter';
+import { useAssessmentView, usePreferences, useStudyPlan } from '../progress/queries';
 import { AssessmentOptions } from './AssessmentOptions';
 import { SimpleDeckTree, visibleChildren } from './SimpleDeckTree';
-import { ancestry, deckCrumbs } from './tree';
-import type { CourseDeckNode, DeckNode } from './tree';
+import { ancestry, deckCrumbs, deckTitle } from '../catalog/model/tree';
+import type { CourseDeckNode } from '../catalog/model/tree';
 import { useCountOpen } from '../usage/count';
-
-export const deckTitle = (n: DeckNode) => (n.depth === 2 && n.course ? n.course.name : n.label);
 
 export function DeckPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);

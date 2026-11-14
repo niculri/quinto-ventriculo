@@ -138,11 +138,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/anki/tree.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/browse/BrowsePage.tsx": {
     "max-lines": {
       "count": 1
@@ -224,12 +219,17 @@
       "count": 1
     }
   },
-  "apps/web/src/features/catalog/AssessmentSections.tsx": {
+  "apps/web/src/features/catalog/model/tree.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
-  "apps/web/src/features/catalog/CoursePage.tsx": {
+  "apps/web/src/features/courses/AssessmentSections.tsx": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/courses/CoursePage.tsx": {
     "max-lines-per-function": {
       "count": 2
     },
@@ -280,11 +280,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/notes/ImageViewer.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/notes/NotePage.tsx": {
     "max-lines": {
       "count": 1
@@ -304,6 +299,17 @@
   "apps/web/src/features/notes/placeThumbs.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/progress/api/repository/memory.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
     }
   },
   "apps/web/src/features/quiz/Cover.tsx": {
@@ -430,17 +436,6 @@
       "count": 3
     }
   },
-  "apps/web/src/features/study/api/repository/memory.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 3
-    }
-  },
   "apps/web/src/features/study/material.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -451,6 +446,11 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/viewer/ImageViewer.tsx": {
+    "max-lines-per-function": {
       "count": 1
     }
   },

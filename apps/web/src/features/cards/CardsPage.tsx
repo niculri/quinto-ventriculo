@@ -23,12 +23,13 @@ import { Rail } from '../../shared/ui/rail';
 import { Reserved } from '../../shared/ui/Reserved';
 import { Select } from '../../shared/ui/Select';
 import { button, page } from '../../shared/ui/styles';
-import { deckCrumbs, useAnkiTree } from '../anki/tree';
-import type { AnkiTree, CourseDeckNode } from '../anki/tree';
+import { deckCrumbs } from '../catalog/model/tree';
+import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
+import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
 import { CardTable } from '../browse/BrowsePage';
 import { useCatalog } from '../catalog/queries';
 import { dateText } from '@qv/study';
-import { useDeckSettings, useNow, useUserPresets } from '../study/queries';
+import { useDeckSettings, useNow, useUserPresets } from '../progress/queries';
 import { CardList, ListSkeleton, notesText } from './CardList';
 import { CardFilters } from './Filters';
 import {
@@ -53,8 +54,14 @@ import {
   useThumbQuery,
 } from './queries';
 import type { CardsData, DayCards } from './queries';
-import { cardsScope, lectureTitle, unitDeckIds, unitNode, unitOptions } from './scope';
-import type { CardsScope } from './scope';
+import {
+  cardsScope,
+  lectureTitle,
+  unitDeckIds,
+  unitNode,
+  unitOptions,
+} from '../catalog/model/scope';
+import type { CardsScope } from '../catalog/model/scope';
 import { CardsViewer } from './Viewer';
 import type { ExplorerCard, ExplorerNote } from './model';
 

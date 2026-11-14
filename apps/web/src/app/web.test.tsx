@@ -8,7 +8,7 @@ import { groupByNote } from '../features/search/useSearch';
 import { activeLevel2, activeTitle } from '../features/notes/Toc';
 import { headerParts, noteDates, versionedCode } from '../features/notes/header';
 import { findPracticeDeck, practiceLink, topicsSection } from '../features/notes/Practice';
-import { buildAnkiTree } from '../features/anki/tree';
+import { buildAnkiTree } from '../features/catalog/model/tree';
 import { sanitizeInBrowser } from '../features/notes/NoteContent';
 import { DOMAIN_NOTICE, GOOGLE_NOTICE, INVITE_NOTICE } from '../features/session/notices';
 import { safeDestination } from '../features/session/AuthCallbackPage';

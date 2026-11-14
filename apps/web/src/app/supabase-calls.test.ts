@@ -6,7 +6,7 @@ import { supabaseAccountRepository } from '../features/account/api/repository';
 import { supabaseAdminRepository } from '../features/admin/api/repository';
 import { supabaseQuizRepository } from '../features/quiz/api/repository';
 import { supabaseReportsRepository } from '../features/reports/api/repository';
-import { supabaseStudyRepository } from '../features/study/api/repository';
+import { supabaseStudyRepository } from '../features/progress/api/repository';
 
 const URL_ = 'https://users.example.test';
 const KEY = 'publishable-test-key';

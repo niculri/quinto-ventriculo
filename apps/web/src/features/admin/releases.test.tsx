@@ -19,7 +19,7 @@ import {
 } from '../../test/render';
 import type { Services } from '../../app/services';
 import { localQuizRepository } from '../quiz/api/repository';
-import { localStudyRepository } from '../study/api/repository';
+import { localStudyRepository } from '../progress/api/repository';
 import { PreviewSwitch } from '../../app/PreviewSwitch';
 import { previewStudyRepository, usePreview } from '../preview/preview';
 import type { Preview } from '../preview/preview';

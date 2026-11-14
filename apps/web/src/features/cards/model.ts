@@ -3,7 +3,7 @@
 
 import type { CardIndexNote, CardOrigin } from '@qv/schema';
 import { ORIGIN_TAGS } from '@qv/schema';
-import type { CardRef, StoredCard } from '../study/api/repository';
+import type { CardRef, StoredCard } from '../progress/api/repository';
 import { apartSiblings, cardKey, isHard } from '@qv/study';
 
 export type CardStatus = 'new' | 'seen' | 'hard' | 'hidden';

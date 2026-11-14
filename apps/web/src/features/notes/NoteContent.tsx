@@ -3,7 +3,7 @@
 import { useImperativeHandle, useMemo, useRef } from 'react';
 import type { KeyboardEvent, MouseEvent, Ref } from 'react';
 import DOMPurify from 'dompurify';
-import type { OpenImage } from './ImageViewer';
+import type { OpenImage } from '../viewer/ImageViewer';
 import { sectionAt } from './reporting';
 import { useScrollableTables } from './useScrollableTables';
 import { prepareArticle } from './articleHtml';

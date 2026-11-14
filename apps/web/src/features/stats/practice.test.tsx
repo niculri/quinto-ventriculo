@@ -9,8 +9,8 @@ import {
   PRACTICE_DAY_MAX,
   PracticeRefusedError,
   localStudyRepository,
-} from '../study/api/repository';
-import type { PracticeCount, StudyRepository } from '../study/api/repository';
+} from '../progress/api/repository';
+import type { PracticeCount, StudyRepository } from '../progress/api/repository';
 import { practiceBatches, usePracticeRecorder } from './practice';
 
 describe('the batches of practice', () => {

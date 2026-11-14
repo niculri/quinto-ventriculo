@@ -19,7 +19,7 @@ import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { Reserved } from '../../shared/ui/Reserved';
 import { Select } from '../../shared/ui/Select';
 import { card } from '../../shared/ui/styles';
-import { buildAnkiTree, hasPage } from '../anki/tree';
+import { buildAnkiTree, hasPage } from '../catalog/model/tree';
 import { findCourse, locateNote, useCatalog } from '../catalog/queries';
 import { AdminSectionTitle } from './AdminLayout';
 import { useUsageReport } from './queries';

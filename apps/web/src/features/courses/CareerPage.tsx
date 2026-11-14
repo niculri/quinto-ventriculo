@@ -14,7 +14,7 @@ import {
   materialLabel,
   useCatalog,
   yearOfSemester,
-} from './queries';
+} from '../catalog/queries';
 
 const YEARS = ['Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo'];
 

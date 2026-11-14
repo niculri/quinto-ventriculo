@@ -8,14 +8,14 @@ import { BackButton } from '../../shared/ui/BackButton';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { answerBar, button, studyScreen } from '../../shared/ui/styles';
-import { useAnkiTree } from '../anki/tree';
-import type { CourseDeckNode } from '../anki/tree';
+import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
+import type { CourseDeckNode } from '../catalog/model/tree';
 import { usePracticeRecorder } from '../stats/practice';
 import { ReviewMenu, ReviewScreen, RoundDone } from '../study/FinalReviewPage';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
-import { useNow } from '../study/queries';
-import type { CardRef } from '../study/api/repository';
+import { useNow } from '../progress/queries';
+import type { CardRef } from '../progress/api/repository';
 import { queryOf } from './CardsPage';
 import {
   NO_FILTERS,
@@ -28,7 +28,7 @@ import {
   searchQuery,
 } from './model';
 import { failedOf, useCardsData, useDayCards, useFailed, useTextMatch } from './queries';
-import { cardsScope, unitDeckIds, unitNode } from './scope';
+import { cardsScope, unitDeckIds, unitNode } from '../catalog/model/scope';
 
 /** The filters are in the URL, so reloading starts the same round again. */
 export function PracticePage({ node }: { node: CourseDeckNode }) {

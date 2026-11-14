@@ -1,7 +1,7 @@
 // React Query keys and hook for the heatmap data.
 import { useQuery } from '@tanstack/react-query';
-import { useStudyRepository } from '../study/api/context';
-import { studyKeys } from '../study/queries';
+import { useStudyRepository } from '../progress/api/context';
+import { studyKeys } from '../progress/queries';
 
 // Under the study's keys, so that ending a study session reads the heatmap again.
 export const heatmapKeys = {

@@ -15,9 +15,10 @@ import { answerScreenBack } from '../../shared/ui/answerScreen';
 import { DeckPage } from './DeckPage';
 import { CardsPage } from '../cards/CardsPage';
 import { PracticePage } from '../cards/PracticePage';
-import { scopeNodeOf, unitOf } from '../cards/scope';
-import { resolveCourseDeck, useAnkiTree } from './tree';
-import type { CourseDeckNode, DeckScreen } from './tree';
+import { scopeNodeOf, unitOf } from '../catalog/model/scope';
+import { resolveCourseDeck } from '../catalog/model/tree';
+import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
+import type { CourseDeckNode, DeckScreen } from '../catalog/model/tree';
 
 export function AnkiRoute() {
   const params = useParams();

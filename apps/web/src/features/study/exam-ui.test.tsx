@@ -8,9 +8,9 @@ import type { Catalog } from '@qv/schema';
 import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
 import { cardShadowRoot } from '../decks/CardFrame';
 import { countsByDay, dateOfDay, heatmapStats } from '@qv/study';
-import { roughToday } from './queries';
-import { localStudyRepository } from './api/repository';
-import type { CardRef, StudyRepository } from './api/repository';
+import { roughToday } from '../progress/queries';
+import { localStudyRepository } from '../progress/api/repository';
+import type { CardRef, StudyRepository } from '../progress/api/repository';
 
 const WEEK_ID = '5';
 const ASSESSMENT_ID = '4';

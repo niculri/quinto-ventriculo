@@ -1,9 +1,9 @@
 // The preview of the draft for an administrator: whether it is on, how a tab remembers it, what it shares with the
 // site's cache and the study repository it uses (app/PreviewSwitch.tsx switches the site).
 import { createContext, useContext } from 'react';
-import { localStudyRepository } from '../study/api/repository';
-import type { StudyRepository } from '../study/api/repository';
-import { studyKeys } from '../study/queries';
+import { localStudyRepository } from '../progress/api/repository';
+import type { StudyRepository } from '../progress/api/repository';
+import { studyKeys } from '../progress/queries';
 
 /** In sessionStorage: a reload stays in the preview; another tab does not start in it. */
 const KEY = 'qv-preview';

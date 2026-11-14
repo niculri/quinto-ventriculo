@@ -20,9 +20,12 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `prompt` ni `confirm` del navegador.
 
 ## Arquitectura
-- **Capas, en un solo sentido.** En la web: `shared` (`shared/ui`, `shared/lib`, y `ui/` mientras le queden piezas que
-  importan features) → `features/<x>` → `app/` (router, providers, composición de servicios). `shared` no importa
-  features ni `app`; una feature no importa `app`. Dentro de una feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés.
+- **Capas, en un solo sentido.** En la web: `shared` (`shared/ui`, `shared/lib`, `shared/hooks`, y `ui/` mientras le
+  queden piezas que importan features) → features de datos (`catalog`, `progress`) → features de página → `app/`
+  (router, providers, guardas, redirecciones viejas y la composición de servicios). `shared` no importa features ni
+  `app`; una feature no importa `app`; una feature de datos no importa features de página. Cada feature que usa un
+  repositorio declara su puerto y su hook en `features/<x>/api/` (`useStudyRepository()`…); `app/services.tsx` solo
+  los compone y los provee. Dentro de una feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés.
   Una función vive en la capa más baja posible: si no usa React ni red, es dominio y va a `model/` o a un paquete.
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.

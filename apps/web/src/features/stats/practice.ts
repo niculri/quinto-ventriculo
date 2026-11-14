@@ -1,13 +1,13 @@
 // Records the practice answers of the final review for the heatmap, in batches the database takes.
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useStudyRepository } from '../study/api/context';
+import { useStudyRepository } from '../progress/api/context';
 import {
   PRACTICE_BATCH_DECKS,
   PRACTICE_BATCH_MAX,
   PracticeRefusedError,
-} from '../study/api/repository';
-import type { PracticeCount } from '../study/api/repository';
+} from '../progress/api/repository';
+import type { PracticeCount } from '../progress/api/repository';
 import { heatmapKeys } from './queries';
 
 const PRACTICE_BATCH = 10;

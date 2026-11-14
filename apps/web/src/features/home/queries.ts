@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
-import { useStudyRepository } from '../study/api/context';
-import { buildAnkiTree, courseDeck, descendants } from '../anki/tree';
-import type { CourseDeckNode } from '../anki/tree';
+import { useStudyRepository } from '../progress/api/context';
+import { buildAnkiTree, courseDeck, descendants } from '../catalog/model/tree';
+import type { CourseDeckNode } from '../catalog/model/tree';
 import {
   studyKeys,
   useAnswersToday,
@@ -16,8 +16,8 @@ import {
   useStudyPlan,
   useToday,
   useUserPresets,
-} from '../study/queries';
-import type { HomeDeckCounts } from '../study/api/repository';
+} from '../progress/queries';
+import type { HomeDeckCounts } from '../progress/api/repository';
 import { activeUnits, decayByDeck, nextChangeAt, treeDecks } from '@qv/study';
 import type { HomeStudyBase, StudyPlan } from '@qv/study';
 

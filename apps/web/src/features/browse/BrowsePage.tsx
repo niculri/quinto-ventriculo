@@ -24,22 +24,22 @@ import {
 import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
 import type { SearchContext } from '@qv/anki-search';
 import { paths } from '../../shared/lib/paths';
-import { useStudyRepository } from '../study/api/context';
+import { useStudyRepository } from '../progress/api/context';
 import { Notice } from '../../shared/ui/Notice';
 import { Switch } from '../../shared/ui/Switch';
 import { button, card as cardStyle } from '../../shared/ui/styles';
-import { hasPage } from '../anki/tree';
+import { hasPage } from '../catalog/model/tree';
 import { actionLabel, cardKey, FLAGS, presetChoices, presetOf, timingFor } from '@qv/study';
-import { studyKeys, useNow } from '../study/queries';
+import { studyKeys, useNow } from '../progress/queries';
 import type {
   CardRef,
   DeckSetting,
   StoredCard,
   StudyPreferences,
   UserPreset,
-} from '../study/api/repository';
+} from '../progress/api/repository';
 import type { AuthorPreset, BrowseNote, NoteTypeSummary } from '@qv/schema';
-import type { AnkiTree } from '../anki/tree';
+import type { AnkiTree } from '../catalog/model/tree';
 import { CardViewer } from '../decks/CardViewer';
 import { CardPreview } from './CardPreview';
 import {
@@ -57,7 +57,7 @@ import { QuickFilters } from './QuickFilters';
 import type { Combine } from './Sidebar';
 import { keys } from '../../shared/ui/keys';
 import { Rail } from '../../shared/ui/rail';
-import type { DeckNode } from '../anki/tree';
+import type { DeckNode } from '../catalog/model/tree';
 
 const ROW = 34;
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */

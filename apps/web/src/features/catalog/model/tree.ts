@@ -1,13 +1,11 @@
-// The catalog's Anki deck tree with parents, children and URLs, its breadcrumbs, and what a deck URL opens.
+// The catalog's Anki deck tree with parents, children and URLs, its breadcrumbs and titles, and what a deck URL opens.
 
-import { useMemo } from 'react';
 import { deckSlugs } from '@qv/schema';
 import { sortDecksByName } from '@qv/srs';
 import type { AnkiTreeDeck, Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import type { DeckRef } from '../../shared/lib/paths';
-import type { Crumb } from '../../shared/ui/Breadcrumbs';
-import { useCatalog } from '../catalog/queries';
+import { paths } from '../../../shared/lib/paths';
+import type { DeckRef } from '../../../shared/lib/paths';
+import type { Crumb } from '../../../shared/ui/Breadcrumbs';
 
 export interface DeckNode extends AnkiTreeDeck {
   label: string;
@@ -114,12 +112,6 @@ function deckLabelAt(node: DeckNode, depth: number): string | null {
   return ancestry(node).find((n) => n.depth === depth)?.label ?? null;
 }
 
-export function useAnkiTree() {
-  const catalog = useCatalog();
-  const tree = useMemo(() => (catalog.data ? buildAnkiTree(catalog.data) : null), [catalog.data]);
-  return { catalog, tree };
-}
-
 export function descendants(node: DeckNode): DeckNode[] {
   const out = [node];
   for (let i = 0; i < out.length; i++) out.push(...out[i]!.children);
@@ -204,3 +196,5 @@ function inCourse(
   const sub = subdeck ? descendants(deck).find((n) => n.slug === subdeck) : deck;
   return { kind: 'legacy', node: (sub ?? deck) as CourseDeckNode, what };
 }
+
+export const deckTitle = (n: DeckNode) => (n.depth === 2 && n.course ? n.course.name : n.label);

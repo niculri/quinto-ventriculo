@@ -6,17 +6,17 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { Settings, SlidersHorizontal, X } from 'lucide-react';
 import { paths } from '../../shared/lib/paths';
-import { useStudyRepository } from '../study/api/context';
+import { useStudyRepository } from '../progress/api/context';
 import { Skeleton } from '../../shared/ui/Loading';
 import { Notice } from '../../shared/ui/Notice';
 import { Select } from '../../shared/ui/Select';
 import { button } from '../../shared/ui/styles';
 import { useCatalog } from '../catalog/queries';
-import { studyKeys, useDeckSettings, useUserPresets } from '../study/queries';
+import { studyKeys, useDeckSettings, useUserPresets } from '../progress/queries';
 import { presetChoices, presetOf } from '@qv/study';
 import type { PresetRef } from '@qv/study';
-import { presetParam } from './presets';
-import type { DeckNode } from './tree';
+import { presetParam } from '../progress/presets';
+import type { DeckNode } from '../catalog/model/tree';
 
 export function DeckPresetButton({ node }: { node: DeckNode }) {
   const [open, setOpen] = useState(false);

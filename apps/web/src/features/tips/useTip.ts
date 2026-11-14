@@ -1,6 +1,6 @@
 // One-time tips: at most one a visit, shown after the action it is about, once per device, and never again once closed.
 import { useEffect, useState } from 'react';
-import { usePreferences, useSavePreferences } from '../study/queries';
+import { usePreferences, useSavePreferences } from '../progress/queries';
 
 export type TipId = 'tip-material' | 'tip-search';
 

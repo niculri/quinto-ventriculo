@@ -56,6 +56,10 @@ const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];
 const OTHER_FILES = ['**/*.css', '**/*.{yml,yaml}', '**/*.sh', '**/*.jsonc', '.githooks/pre-push'];
 const onCode = (config) => ({ ...config, files: config.files ?? CODE });
 
+// The web's data features: what the page features share (the catalog and its deck tree, the user's progress). They sit
+// under the page features and import none of them.
+const DATA_FEATURES = ['catalog', 'progress'];
+
 const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
 
 export default tseslint.config(
@@ -206,8 +210,8 @@ export default tseslint.config(
   },
   ...domainPackages,
   {
-    // Layers of the web: shared (shared/, and ui/ while it keeps pieces that import features) → features → app, each
-    // importing only from itself and the ones below. A file at the root of src other than the entry point and Vite's
+    // Layers of the web: shared (shared/, and ui/ while it keeps pieces that import features) → data features → page
+    // features → app, each importing only from itself and the ones below. A file at the root of src other than the entry point and Vite's
     // types has no layer.
     files: ['apps/web/src/**/*.{ts,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', 'apps/web/src/test/**'],
@@ -251,6 +255,23 @@ export default tseslint.config(
               from: { element: { types: ['feature', 'feature-part'] } },
               disallow: { to: { element: { type: 'app' } } },
               message: 'A feature does not import app.',
+            },
+            {
+              from: {
+                element: {
+                  types: ['feature', 'feature-part'],
+                  captured: { feature: `{${DATA_FEATURES.join(',')}}` },
+                },
+              },
+              disallow: {
+                to: {
+                  element: {
+                    types: ['feature', 'feature-part'],
+                    captured: { feature: `!(${DATA_FEATURES.join('|')})` },
+                  },
+                },
+              },
+              message: 'A data feature (catalog, progress) does not import a page feature.',
             },
             {
               from: { element: { type: 'feature-part', captured: { part: 'model' } } },

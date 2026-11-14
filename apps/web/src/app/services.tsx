@@ -1,3 +1,5 @@
+// The web's external dependencies (session, API, repositories), for the demo or for Supabase; components ask for
+// them with useServices(), and tests swap them.
 import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -20,21 +22,14 @@ import { DEMO_EMAIL, demoSessionService } from '../features/session/demo';
 import { supabaseSessionService } from '../features/session/service';
 import type { SessionService } from '../features/session/service';
 
-/** The web's external dependencies. Components ask for them with useServices(); tests swap them. */
 export interface Services {
   session: SessionService;
   api: ApiClient;
   study: StudyRepository;
   quiz: QuizRepository;
   admin: AdminRepository;
-  /** Reports of errors in every content (step 2.6): sending, «Mis reportes» and the panel's queue. */
   reports: ReportsRepository;
-  /** Accepting the terms, downloading one's data and deleting the account (step 2.3). */
   account: AccountRepository;
-  /**
-   * The same API asking for the draft (`X-QV-Preview`), for an administrator's preview (features/preview). Absent in
-   * tests that do not need it.
-   */
   previewApi?: ApiClient;
 }
 
@@ -42,7 +37,6 @@ export function createServices(): Services {
   if (import.meta.env.VITE_DEMO) {
     const session = demoSessionService();
     const token = async () => (await session.current())?.token ?? null;
-    // With `qv-demo-cards`, made-up cards on the cards page (features/cards/demo.ts).
     const demo = withDemoCards(
       createApiClient(token),
       withCardSync(localStudyRepository(), createApiClient(token), userOf(session)),
@@ -52,11 +46,10 @@ export function createServices(): Services {
       session,
       api,
       previewApi: createApiClient(token, '', PREVIEW_HEADERS),
-      // The heatmap with a made-up past (features/stats/demo.ts), so that the demo shows something.
       study: withDemoHistory(demo.study, () => api.catalog()),
       quiz: localQuizRepository(),
-      // The demo's user is the owner, to see the whole panel; `qv-demo-role` = `student` makes it a student, and
-      // `admin` an administrator who is not the owner (the e2e tests of what they do not see).
+      // The demo's user is the site owner, to see the whole panel; `qv-demo-role` = `student` makes it a student, and
+      // `admin` an administrator who is not the site owner (for the e2e tests of what they do not see).
       admin: localAdminRepository({
         admin: demoRole() !== 'student',
         owner: demoRole() !== 'admin',
@@ -112,7 +105,6 @@ function demoRole(): string | null {
   }
 }
 
-/** The demo's download: what it keeps of the demo's account in this browser. */
 function demoData() {
   const data: Record<string, unknown> = {};
   for (let i = 0; i < window.localStorage.length; i++) {

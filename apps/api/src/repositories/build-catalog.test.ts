@@ -1,3 +1,4 @@
+// Tests for building the catalog from the content: card counts per assessment and the sorted deck tree.
 import { describe, expect, it } from 'vitest';
 import { buildCatalog } from './build-catalog';
 
@@ -42,7 +43,6 @@ describe('buildCatalog', () => {
       ['Certamen 1', 7],
       ['Certamen 2', 0],
     ]);
-    // The date an author suggests goes through to the web.
     expect(c.semesters[0]!.courses[0]!.assessments[1]!.suggestedDate).toBe('2026-11-05');
     expect(c.anki.decks.map((d) => d.id)).toEqual(['1', '2', '3']);
   });

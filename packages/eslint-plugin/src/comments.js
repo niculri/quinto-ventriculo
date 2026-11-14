@@ -22,8 +22,7 @@ function isShebang(comment, text) {
 }
 
 /**
- * The comments of the file, without the shebang, and the index where its code starts (the length of the text when
- * it is only comments).
+ * Without the shebang; `codeStart` is the length of the text when it is only comments.
  * @param {AnySourceCode} sourceCode
  * @returns {{ comments: Comment[], codeStart: number }}
  */
@@ -60,7 +59,7 @@ export function groupComments(comments) {
 }
 
 /**
- * The lines of a group that have text (a block comment's `*` and its empty first and last lines do not count).
+ * A block comment's `*` and its empty first and last lines do not count.
  * @param {Comment[]} group
  */
 export function textLines(group) {
@@ -68,4 +67,13 @@ export function textLines(group) {
     .flatMap((c) => c.value.split('\n'))
     .map((line) => line.replace(/^\s*\*?/, '').trim())
     .filter(Boolean).length;
+}
+
+/**
+ * The words of a group: runs of two or more letters, without the markers that say nothing (TODO, FIXME, XXX).
+ * @param {Comment[]} group
+ */
+export function wordsIn(group) {
+  const text = group.map((c) => c.value).join(' ');
+  return (text.match(/\p{L}{2,}/gu) ?? []).filter((w) => !/^(?:TODO|FIXME|XXX)$/i.test(w)).length;
 }

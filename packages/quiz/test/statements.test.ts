@@ -1,3 +1,4 @@
+// Tests of splitting the I, II, III statements out of a question's HTML.
 import { describe, expect, it } from 'vitest';
 import { splitStatements } from '../src';
 

@@ -1,28 +1,9 @@
+// Converts a note's Markdown (apunte.md) to the wiki's sanitized HTML, with its table of contents and sections.
 import MarkdownIt from 'markdown-it';
 import type { TocEntry } from '@qv/schema';
 import { calloutLabel } from './callouts';
 import { sanitize } from './sanitize';
 import { escapeAttribute, plainText, slugify } from './text';
-
-/**
- * apunte.md (clase-a-apunte format) → HTML for the wiki.
- *
- * Custom syntax that is honored, on top of Markdown with tables:
- *   ![caption](path){60%}         figure with caption and width; {88%!} = large plate without a height cap
- *   several images on one line    row of figures
- *   ::: der ![…](…){40%} … :::    floating image with the text around it (::: izq on the left)
- *   > [!type] …                   callout (datos, clinica, profe, ojo, error, clave, libro, video…)
- *   > **Pregunta a.** *…*         a question of a seminar's guide (also «**Pregunta de la guía.**»)
- *   *a) …* alone on its line      the same, with `guideQuestions` (seminars that write them so)
- *   ## Resumen                    the closing summary: it and what follows go in `section.note-summary`
- *   *(source)* alone on its line  source line, in gray
- *
- * A figure whose syntax is not recognized (a path with spaces, a width that is not «{60%}», an image in the
- * middle of a paragraph, a raw `<img>`, a `:::` block without its image or without its closing `:::`) or
- * whose image is not found is an error: the importer stops instead of publishing a page with a hole.
- *
- * Images come out without `src`: they carry `data-media="<key>"` and the API adds the signed URL when serving.
- */
 
 export interface ResolvedImage {
   key: string;
@@ -30,7 +11,6 @@ export interface ResolvedImage {
   height?: number;
 }
 
-/** Receives the path as written in the Markdown (relative to the note) and returns the key in the store. */
 export type ImageResolver = (path: string) => ResolvedImage | null;
 
 export interface Section {
@@ -41,10 +21,6 @@ export interface Section {
 }
 
 export interface ConvertOptions {
-  /**
-   * A paragraph that is a whole italic line starting with a question's letter («*a) ¿Qué…?*», «*C. b) …*»)
-   * is a question of the guide (seminars that write them so).
-   */
   guideQuestions?: boolean;
 }
 
@@ -55,7 +31,7 @@ export interface ConversionResult {
   toc: TocEntry[];
   sections: Section[];
   warnings: string[];
-  /** Figures that could not be converted: the note must not be published like this. */
+  /** Figures that could not be converted: the note must not be published. */
   errors: string[];
 }
 
@@ -64,9 +40,7 @@ const HAS_IMG_RE = /!\[[^\]]*\]\([^)\s]+\)/;
 const LONE_IMG_RE = /^!\[([^\]]*)\]\(([^)\s]+)\)(?:\{(\d+%!?)\})?$/;
 const SIDE_RE = /^:::\s*(der|izq)\s+(!\[[^\]]*\]\([^)\s]+\)(?:\{\d+%!?\})?)\s*$/;
 const SOURCE_RE = /^\s*\*\(.*\)\*\s*$/;
-/** `**Pregunta a.**`, `**Pregunta de la guía.**` at the start of a plain quote. */
 const QUESTION_RE = /^\*\*Pregunta\s+([^*]+?)\.?\*\*\s*(.*)$/;
-/** `*a) …*`, `*C. a) …*`: a whole italic line (with `guideQuestions`). */
 const ITALIC_QUESTION_RE = /^\*((?:[A-Z]\.\s*)?[a-z])\)\s+([^*].*[^*])\*$/;
 const SUMMARY_RE = /^##\s+Resumen\s*$/;
 const PAGE_BREAK_RE =
@@ -74,10 +48,9 @@ const PAGE_BREAK_RE =
 // Private-use characters: markdown-it leaves them untouched (it would replace NUL).
 const PLACEHOLDER = (n: number) => `\u{E000}${n}\u{E001}`;
 const PLACEHOLDER_RE = /(?:<p>)?\u{E000}(\d+)\u{E001}(?:<\/p>)?/gu;
-/** `::: der` / `::: izq` of the source Markdown → side of the floating figure. */
 const SIDES = { der: 'right', izq: 'left' } as const;
 
-/** Characters the site's font (Inter) does not have, by the one it has that means the same. */
+/** Characters the site's font (Inter) lacks, by one it has that means the same. */
 const SUBSTITUTES: [RegExp, string][] = [[/✕/gu, '×']];
 
 const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
@@ -89,13 +62,13 @@ interface Context {
   options: ConvertOptions;
 }
 
-/** Paths of every image in the note, without repeats and in order of appearance. */
 export function listImages(markdown: string): string[] {
   const paths = new Set<string>();
   for (const m of markdown.matchAll(IMG_RE)) paths.add(m[2]!);
   return [...paths];
 }
 
+/** Images carry `data-media="<key>"` instead of `src`, because the API signs their URLs. */
 export function convertNote(
   markdown: string,
   resolve: ImageResolver,
@@ -123,7 +96,6 @@ export function convertNote(
   }
 
   const ctx: Context = { resolve, warnings: [], errors: [], options };
-  // «## Resumen» and what follows it (up to another h2, if any) go in their own section.
   const start = body.findIndex((l) => SUMMARY_RE.test(l));
   let raw: string;
   if (start < 0) {
@@ -163,7 +135,6 @@ function convertBlocks(lines: string[], ctx: Context): string {
     if (side) {
       let j = i + 1;
       while (j < lines.length && lines[j]!.trim() !== ':::') j++;
-      // Without its closing «:::» the float would swallow the rest of the note.
       if (j === lines.length) {
         ctx.errors.push(`Bloque «:::» sin su cierre «:::»: «${excerpt(line)}»`);
       }
@@ -197,8 +168,7 @@ function convertBlocks(lines: string[], ctx: Context): string {
       i++;
       continue;
     }
-    // Whatever image syntax is left here was not recognized: markdown-it would print it as text (a path
-    // with spaces) or as an <img> without our signature that the sanitizer drops.
+    // Image syntax left here is unrecognized: markdown-it would print it as text or as an <img> the sanitizer drops.
     if (line.includes('![') || /<img\b/i.test(line)) {
       ctx.errors.push(`Figura que no se reconoce: «${excerpt(line)}»`);
     } else if (/^\s*:::/.test(line)) {
@@ -214,10 +184,7 @@ function convertBlocks(lines: string[], ctx: Context): string {
     .replace(/<p><em>(\([^<]*\))<\/em><\/p>/g, '<p class="source">$1</p>');
 }
 
-/**
- * A `*(…)*` source line stuck to a bullet or a paragraph would end up inside them: it is separated with a
- * blank line so that it is its own paragraph (`p.source`).
- */
+/** A `*(…)*` source line stuck to a bullet or paragraph would end up inside it, so it gets a blank line. */
 function separateSources(lines: string[]): string[] {
   const output: string[] = [];
   for (const line of lines) {
@@ -261,8 +228,7 @@ function figure(
       ? ` width="${resolved.width}" height="${resolved.height}"`
       : '';
   const captionHtml = md.renderInline(caption);
-  // The alt text comes from the already converted caption: it honors escapes and lone asterisks
-  // («* p < 0,05, ** p < 0,01»), which are not italics.
+  // From the converted caption, so escapes and lone asterisks («* p < 0,05») are not read as italics.
   const alt = escapeAttribute(plainText(captionHtml));
   const figcaption = caption.trim() ? `<figcaption>${captionHtml}</figcaption>` : '';
   return (
@@ -292,9 +258,7 @@ function callout(lines: string[], ctx: Context): string {
     type = marker[1]!.toLowerCase();
     inner[0] = marker[2]!;
   }
-  // `[!dato]` is the plain callout written explicitly.
   if (type === 'dato') type = 'note';
-  // A plain quote that starts with «**Pregunta a.**» is a question of the guide.
   let tag = '';
   const question = type === 'note' ? inner[0]!.match(QUESTION_RE) : null;
   if (question) {
@@ -320,7 +284,6 @@ function callout(lines: string[], ctx: Context): string {
   let label = calloutLabel(type);
   let labelHtml = escapeAttribute(label);
   if (type === 'error') {
-    // The title is the bold text it starts with: «**Error en la diapositiva 14:**»
     const title = body.match(/^\s*<p><strong>(.*?)<\/strong>\s*/s);
     if (title) {
       labelHtml = title[1]!.replace(/:\s*$/, '');
@@ -339,7 +302,6 @@ function excerpt(line: string): string {
   return t.length > 140 ? `${t.slice(0, 140)}…` : t;
 }
 
-/** Adds an `id` to h2–h4 (slug of the text, unique in the note) and builds the TOC with h2 and h3. */
 function withAnchors(html: string): { html: string; toc: TocEntry[] } {
   const used = new Map<string, number>();
   const toc: TocEntry[] = [];
@@ -357,7 +319,6 @@ function withAnchors(html: string): { html: string; toc: TocEntry[] } {
   return { html: withIds, toc };
 }
 
-/** Splits the HTML into sections by h2 and h3 (whatever comes before the first title is section 1). */
 function splitSections(html: string, noteTitle: string): Section[] {
   const sections: Section[] = [];
   const re = /<h([23]) id="([^"]+)">(.*?)<\/h\1>/gs;

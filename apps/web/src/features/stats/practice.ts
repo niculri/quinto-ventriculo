@@ -1,3 +1,4 @@
+// Records the practice answers of the final review for the heatmap, in batches the database takes.
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
@@ -9,10 +10,8 @@ import {
 import type { PracticeCount } from '../study/repository';
 import { heatmapKeys } from './queries';
 
-/** How many answers of practice go in a batch: few, so that leaving the page loses almost nothing. */
 const PRACTICE_BATCH = 10;
 
-/** The counts in batches within the database's caps: at most PRACTICE_BATCH_MAX answers and PRACTICE_BATCH_DECKS decks. */
 export function practiceBatches(counts: readonly PracticeCount[]): PracticeCount[][] {
   const out: PracticeCount[][] = [];
   let batch: PracticeCount[] = [];
@@ -35,13 +34,8 @@ export function practiceBatches(counts: readonly PracticeCount[]): PracticeCount
   return out;
 }
 
-/**
- * Practice that does not change dates (the final review) counts in the heatmap and the streak (decision 19): each
- * answer adds one to its deck, and the counts go to the database in batches (every few answers, at the end of a round
- * and when leaving the page), never touching the cards' states nor the log. A batch that fails for the network goes
- * with the next one (up to the size of one batch of the database); one the database refuses is not sent again. Past
- * PRACTICE_DAY_MAX in a day the database counts nothing more without failing, so there is nothing to retry.
- */
+// A batch that fails for the network goes with the next one (up to one database batch); one the database refuses
+// is not sent again.
 export function usePracticeRecorder(batch = PRACTICE_BATCH) {
   const { study } = useServices();
   const client = useQueryClient();

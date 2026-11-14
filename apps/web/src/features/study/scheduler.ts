@@ -1,3 +1,6 @@
+// Converts between the database's rows and @qv/srs, which works in Anki's terms (day numbers, Unix seconds):
+// presets, the deck tree and the study queue of a deck.
+
 import {
   DEFAULT_GLOBAL_SETTINGS,
   StudyQueue,
@@ -34,8 +37,6 @@ import { assessmentPaces, assessmentsWithDeadline } from './pace';
 import { decksGivingNew, simpleConfigs } from './simple';
 import type { StudyPlan } from './simple';
 
-/** Between the database's rows and @qv/srs, which works in Anki's terms (day numbers, Unix seconds). */
-
 export const cardKey = (c: { noteGuid: string; ord: number }) => `${c.noteGuid}\u001f${c.ord}`;
 
 export function timingFor(prefs: StudyPreferences, nowMs = Date.now()): SchedTiming {
@@ -61,7 +62,6 @@ export function globalSettings(prefs: StudyPreferences): GlobalSettings {
 
 const secs = (iso: string) => Math.floor(Date.parse(iso) / 1000);
 
-/** A row → the scheduler's card (null: never answered). */
 export function toRecord(row: StoredCard | undefined, prefs: StudyPreferences): CardRecord | null {
   if (!row || row.phase === 'new' || row.due === null) return null;
   const queue = row.phase === 'review' ? 'review' : row.interday ? 'dayLearn' : ('learn' as const);
@@ -82,7 +82,6 @@ export function toRecord(row: StoredCard | undefined, prefs: StudyPreferences): 
   };
 }
 
-/** The scheduler's card → the columns `record_review` saves. */
 export function toStateFields(
   record: CardRecord,
   prefs: StudyPreferences,
@@ -117,7 +116,6 @@ export const QUEUE_NAMES: Record<CardRecord['queue'], QueueName> = {
   review: 'review',
 };
 
-/** Suspended, or buried until a moment still to come. */
 export function isHidden(row: StoredCard | undefined, nowMs = Date.now()): boolean {
   return !!row && (row.suspended || (!!row.buriedUntil && Date.parse(row.buriedUntil) > nowMs));
 }
@@ -129,10 +127,7 @@ const QUEUE_OF: Record<QueueName, CardRecord['queue']> = {
   review: 'review',
 };
 
-/**
- * Anki's per-deck counters of the day, from today's answers: each one counts in its deck and in the decks
- * above it, so a parent's limits include what was studied in its subdecks.
- */
+// Each answer counts in its deck and in every deck above it, as Anki's per-deck counters of the day.
 export function studiedToday(
   answers: AnswerToday[],
   decks: readonly { id: string; name: string }[],
@@ -143,19 +138,15 @@ export function studiedToday(
   );
 }
 
-// Presets --------------------------------------------------------------------------------------------
-
 export type PresetRef = { kind: 'author'; name: string } | { kind: 'user'; id: string };
 
 export interface PresetChoice {
   ref: PresetRef;
   name: string;
   config: DeckConfig;
-  /** The user's row (their own, or the one that replaces an author's preset). */
   row: UserPreset | null;
 }
 
-/** Every preset the user can choose: the author's (or the user's version of them) and their own. */
 export function presetChoices(
   authorPresets: AuthorPreset[],
   presets: UserPreset[],
@@ -184,7 +175,6 @@ export const sameRef = (a: PresetRef, b: PresetRef) =>
   a.kind === b.kind &&
   (a.kind === 'author' ? a.name === (b as typeof a).name : a.id === (b as typeof a).id);
 
-/** The preset of a deck for the user: their choice, else the author's preset of the package. */
 export function presetOf(
   deckId: string,
   authorName: string | null,
@@ -210,21 +200,15 @@ export function presetOf(
   );
 }
 
-// The deck tree and the queue -------------------------------------------------------------------------
-
 export interface TreeDeck {
   id: string;
-  /** Full name, with «::»: what the queue orders and nests by. */
   name: string;
-  /** Last component, to show. */
   label: string;
   parentId: string | null;
   authorPreset: string | null;
-  /** Cards directly in it (the assessment mode counts what is left). */
   ownCards?: number;
 }
 
-/** The catalog's deck tree as the scheduler needs it (every deck, parents first). */
 export function treeDecks(decks: AnkiTreeDeck[]): TreeDeck[] {
   // A deck's count has its subdecks' in it.
   const below = new Map<string, number>();
@@ -241,12 +225,10 @@ export function treeDecks(decks: AnkiTreeDeck[]): TreeDeck[] {
   }));
 }
 
-/** The ids of a deck and its subdecks (the decks whose cards the API sent with it). */
 export function deckIds(deck: DeckDetail): string[] {
   return [deck.id, ...deck.subdecks.map((s) => s.id)];
 }
 
-/** A deck and the decks below it, by name (as Anki: «A» and «A::…»). */
 export function subtree(decks: TreeDeck[], rootId: string): TreeDeck[] {
   const root = decks.find((d) => d.id === rootId);
   if (!root) return [];
@@ -254,23 +236,16 @@ export function subtree(decks: TreeDeck[], rootId: string): TreeDeck[] {
 }
 
 export interface StudyData {
-  /** The deck that is studied (or whose counts are shown): its cards and its subdecks'. */
   deck: DeckDetail;
-  /** Every deck of the collection (the limits of the parents and what was studied in them). */
   decks: TreeDeck[];
-  /** The author's presets. */
   authorPresets: AuthorPreset[];
   rows: Map<string, StoredCard>;
   answers: AnswerToday[];
   prefs: StudyPreferences;
   presets: UserPreset[];
   settings: DeckSetting[];
-  /** What the student chose for the simple Anki (with «Modo avanzado», it is not used). */
   plan: StudyPlan;
-  /**
-   * The user's decks as they were when this was read (the assessment mode). It is not updated while studying: what
-   * it gives for the day does not change with the answers (`newAtDayStart()`).
-   */
+  // Not updated while studying, so the day's number does not change with the answers (`newAtDayStart()`).
   progress?: DeckProgress[];
 }
 
@@ -291,7 +266,6 @@ export function configsFor(data: StudyData, nowMs = Date.now()): Map<string, Dec
   );
 }
 
-/** The cards of the deck for the queue, in the order they were added (the API lists them so). */
 export function queueCards(data: StudyData, nowMs = Date.now()): QueueCard[] {
   // What is not turned on gives no new cards; what was already seen keeps coming.
   const givingNew = decksGivingNew(data.decks, data.plan);
@@ -309,10 +283,7 @@ export function queueCards(data: StudyData, nowMs = Date.now()): QueueCard[] {
   });
 }
 
-/**
- * The study queue of a deck (the deck itself or one below it), at `nowMs`. Every deck of the collection goes
- * in: the queue uses those below the root, and those above it only with «Límites empiezan desde arriba».
- */
+// Every deck of the collection goes in: those above the root only count with «Límites empiezan desde arriba».
 export function buildQueue(
   data: StudyData,
   rootDeckId: string,
@@ -320,7 +291,6 @@ export function buildQueue(
   configs = configsFor(data, nowMs),
   studied = studiedToday(data.answers, data.decks),
   cards = queueCards(data, nowMs),
-  /** Anki's deck list counts (no burying of siblings) rather than the study queue. */
   deckList = false,
 ): StudyQueue {
   const decks: QueueDeck[] = data.decks.map((d) => ({
@@ -339,18 +309,14 @@ export function buildQueue(
   });
 }
 
-/** The cards of the same note (Anki's siblings). */
 export function siblingsOf(deck: DeckDetail, card: CardRef): CardRef[] {
   return deck.cards
     .filter((c) => c.noteGuid === card.noteGuid && c.ord !== card.ord)
     .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
 }
 
-/**
- * The siblings an answer buries (Anki: bury_siblings, with the preset of the answered card's deck): new
- * ones, reviews and interday learning ones as the preset says, but not those of a queue gathered before the
- * answered card's (an answered review does not bury interday learning).
- */
+// Anki's bury_siblings, with the preset of the answered card's deck: not the siblings of a queue gathered before
+// the answered card's (an answered review does not bury interday learning).
 export function siblingsToBury(
   data: StudyData,
   card: CardRef,

@@ -1,15 +1,12 @@
+// The cards page without React: what each card is for the student, the filters with their counts, the list's
+// groups (by lecture, then by topic) and the cards of «Practicar estas».
+
 import type { CardIndexNote, CardOrigin } from '@qv/schema';
 import { ORIGIN_TAGS } from '@qv/schema';
 import type { CardRef, StoredCard } from '../study/repository';
 import { cardKey } from '../study/scheduler';
 import { apartSiblings, isHard } from '../study/final-review';
 
-/**
- * The cards page (plan step 3.3, ANK-9 to ANK-12), without React: what each card is for the student, the filters with
- * their counts, the groups of the list (by lecture, then by topic) and the cards of «Practicar estas».
- */
-
-/** What a card is for the student: not seen yet, seen, one that costs them (`isHard()`), or under «No mostrar más». */
 export type CardStatus = 'new' | 'seen' | 'hard' | 'hidden';
 
 export type StateFilter = 'all' | 'new' | 'seen' | 'hard' | 'failed' | 'marked' | 'hidden';
@@ -38,7 +35,6 @@ export const KIND_FILTERS: { value: KindFilter; label: string }[] = [
   { value: 'image', label: 'Imagen' },
 ];
 
-/** «Falladas hace poco»: an «Otra vez» in the last days. */
 export const FAILED_DAYS = 7;
 
 export const parseState = (v: string | null): StateFilter =>
@@ -60,26 +56,18 @@ function cardStatus(row: StoredCard | undefined): CardStatus {
 export interface ExplorerCard extends CardRef {
   key: string;
   status: CardStatus;
-  /** With a mark («Marcar para revisar», or any flag of the full mode). */
   marked: boolean;
 }
 
 export interface ExplorerNote {
   note: CardIndexNote;
   assessmentId: string;
-  /** Its lecture's deck (or the week's, the assessment's…): the deck of its first card, without «Extras». */
   lectureId: string;
-  /** An occlusion or a photo: the list shows its thumbnail. */
   image: boolean;
   cards: ExplorerCard[];
-  /** Its place in the scope: the order of the class (by code), assessment by assessment. */
   index: number;
 }
 
-/**
- * The notes of the scope with what each card is for the student. `indexes` in the order of the assessments;
- * `lectureOf` gives the deck a card's deck belongs to in the list («01 - Columna vertebral» for its Extras too).
- */
 export function explorerNotes(
   indexes: readonly { assessmentId: string; notes: readonly CardIndexNote[] }[],
   lectureOf: (deckId: string) => string,
@@ -114,16 +102,9 @@ export function explorerNotes(
 }
 
 export interface Filters {
-  /** The decks of the week or lecture chosen (null: the whole scope). */
   unitDecks: ReadonlySet<string> | null;
-  /** The cards the text finds (null: no text). */
   text: ReadonlySet<string> | null;
-  /** The cards of a day of the heatmap (null: no day). */
   day: ReadonlySet<string> | null;
-  /**
-   * What «Falladas» finds: the cards with an «Otra vez» in the last FAILED_DAYS days or, with a day of the heatmap
-   * already answered, that day (`failedOf()`).
-   */
   failed: ReadonlySet<string>;
   state: StateFilter;
   origins: readonly CardOrigin[];
@@ -164,7 +145,6 @@ const kindMatches = (n: ExplorerNote, kind: KindFilter) =>
 const originMatches = (n: ExplorerNote, origins: readonly CardOrigin[]) =>
   !origins.length || origins.some((o) => n.note.origin.includes(o));
 
-/** A note of the list and its cards that the filters find (at least one). */
 export interface Matched {
   note: ExplorerNote;
   cards: ExplorerCard[];
@@ -179,10 +159,6 @@ export interface Facets {
 const zero = <K extends string>(keys: readonly { value: K }[]) =>
   Object.fromEntries(keys.map((k) => [k.value, 0])) as Record<K, number>;
 
-/**
- * The notes the filters find, and how many each option of the filters would find with the others as they are
- * (notes, as the list counts them): one pass over the cards.
- */
 export function applyFilters(
   notes: readonly ExplorerNote[],
   f: Filters,
@@ -221,12 +197,10 @@ export function applyFilters(
   return { matched, facets };
 }
 
-/** A group of the list: a topic of a lecture, or its images; `title` null: the notes of the lecture without a topic. */
 interface Group {
   key: string;
   lectureId: string;
   title: string | null;
-  /** Mostly photos: a grid of thumbnails. */
   grid: boolean;
   items: Matched[];
 }
@@ -239,14 +213,8 @@ export interface Lecture {
 
 /** The images of a lecture go in one group: their «Encabezado» is a title per figure, not a topic. */
 const IMAGES_TITLE = 'Imágenes';
-/** «Si casi todo es foto»: from this share of photos, the group is a grid. */
 const GRID_SHARE = 0.8;
 
-/**
- * The list's groups, in the order of the class: lectures by their first note, and inside each lecture its topics
- * (and its images, together) by their first note. The text notes group by their «Tema»; the images of a lecture, all
- * in one group.
- */
 export function groupNotes(matched: readonly Matched[]): Lecture[] {
   const lectures = new Map<string, Lecture & { byKey: Map<string, Group> }>();
   for (const m of matched) {
@@ -277,12 +245,10 @@ export function groupNotes(matched: readonly Matched[]): Lecture[] {
   });
 }
 
-/** The sizes of the list (px), by the screen's width. */
 export interface ListMetrics {
   lecture: number;
   topic: number;
   row: number;
-  /** A cell of the grid: its width is the list's divided by `columns`. */
   columns: number;
   cell: number;
 }
@@ -295,7 +261,6 @@ export function listMetrics(width: number, wide: boolean): ListMetrics {
     topic: 36,
     row: wide ? 76 : 100,
     columns,
-    // The thumbnail (4:3) and a line for its name.
     cell: Math.round(cellWidth * 0.75) + 36,
   };
 }
@@ -314,10 +279,7 @@ export type ListItem =
   | { kind: 'row'; key: string; item: Matched; position: number; top: number; height: number }
   | { kind: 'cells'; key: string; items: Matched[]; position: number; top: number; height: number };
 
-/**
- * The rows of the virtual list, each with its place: every height is known before anything is drawn, so nothing
- * moves when the rows come into view. `position` is the note's place among the notes of the list (the keyboard).
- */
+/** Every height is known before anything is drawn, so nothing moves when rows come into view. */
 export function listItems(lectures: readonly Lecture[], m: ListMetrics) {
   const items: ListItem[] = [];
   let top = 0;
@@ -378,7 +340,6 @@ export function listItems(lectures: readonly Lecture[], m: ListMetrics) {
   return { items, total: top };
 }
 
-/** The first item whose bottom is below `y` (binary search: the items are in order). */
 export function itemAt(items: readonly ListItem[], y: number): number {
   let lo = 0;
   let hi = items.length - 1;
@@ -391,7 +352,6 @@ export function itemAt(items: readonly ListItem[], y: number): number {
   return Math.max(0, lo);
 }
 
-/** What the title fixed on top says at `y`: the lecture and the topic of the rows there. */
 export function headingAt(
   items: readonly ListItem[],
   y: number,
@@ -410,12 +370,10 @@ export function headingAt(
   return lectureId === null ? null : { lectureId, topic };
 }
 
-/** «T-BC-C2-10-094», «BC-C2-10-094.3»: a code pasted in the search box. */
 const CODE = /^(?:t-)?([a-z0-9]+(?:-[a-z0-9]+){2,})(?:\.\d+)?$/i;
 
 const bareCode = (code: string) => code.replace(/^t-/i, '').toUpperCase();
 
-/** The note a code pasted in the search box is, if one of the scope has it. */
 export function noteByCode(notes: readonly ExplorerNote[], text: string): ExplorerNote | null {
   const m = CODE.exec(text.trim());
   if (!m) return null;
@@ -423,10 +381,7 @@ export function noteByCode(notes: readonly ExplorerNote[], text: string): Explor
   return notes.find((n) => n.note.code !== null && bareCode(n.note.code) === wanted) ?? null;
 }
 
-/**
- * The search box's text for @qv/anki-search: as it is in «Modo avanzado» (Anki's syntax); in the simple mode, every
- * word as plain text (no `tag:`, `-`, `*`, `_` or quotes with a meaning).
- */
+/** In the simple mode every word is plain text: no `tag:`, `-`, `*`, `_` or quotes with a meaning. */
 export function searchQuery(text: string, syntax: boolean): string {
   const t = text.trim();
   if (syntax || !t) return t;
@@ -436,18 +391,13 @@ export function searchQuery(text: string, syntax: boolean): string {
     .join(' ');
 }
 
-/** Where an inner hole opens and closes, inside an outer one's text. */
 const OPEN = '\u0001';
 const CLOSE = '\u0002';
 
-/** A part of a cloze's text: plain text, or a hole with its answer and hint. */
 export type ClozePart =
   { text: string; hole: null } | { text: string; hole: { hint: string | null } };
 
-/**
- * A cloze's row text (`{{c1::answer::hint}}`, nested or cut at the row's length) in parts: each outer hole is its
- * answer, without the markers of the holes inside it.
- */
+/** Each outer hole of `{{c1::answer::hint}}` (nested, or cut at the row's length) is its answer without inner markers. */
 export function clozeParts(text: string): ClozePart[] {
   const out: ClozePart[] = [];
   let plain = '';
@@ -485,7 +435,6 @@ export function clozeParts(text: string): ClozePart[] {
   return out;
 }
 
-/** A hole's text: its hint after the last «::» outside the holes inside it. */
 function hole(raw: string): ClozePart {
   let depth = 0;
   let cut = -1;
@@ -500,10 +449,6 @@ function hole(raw: string): ClozePart {
     : { text: clean(raw.slice(0, cut)), hole: { hint: clean(raw.slice(cut + 2)) || null } };
 }
 
-/**
- * «Practicar estas»: the cards the list found, in its order, without two of a note in a row. Those under «No mostrar
- * más» only when the filter is «Ocultas».
- */
 export function practiceCards(lectures: readonly Lecture[], state: StateFilter): CardRef[] {
   const cards: { ref: CardRef }[] = [];
   for (const l of lectures) {
@@ -519,6 +464,5 @@ export function practiceCards(lectures: readonly Lecture[], state: StateFilter):
   return apartSiblings(cards).map((c) => c.ref);
 }
 
-/** The matched cards, counted. */
 export const cardCount = (matched: readonly Matched[]) =>
   matched.reduce((t, m) => t + m.cards.length, 0);

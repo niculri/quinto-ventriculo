@@ -1,3 +1,4 @@
+// «Opciones» → «Datos de usuario»: the account as Google gives it, the terms accepted, download, deletion and sign-out.
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -14,11 +15,6 @@ import { saveFile } from '../account/download';
 import { useSession, useUser } from '../session/context';
 import { SettingsLayout } from './SettingsLayout';
 
-/**
- * «Opciones» → «Datos de usuario»: what the site knows of the account (from Google, through the session), read only;
- * the terms and the privacy policy accepted; «Descargar mis datos», «Eliminar mi cuenta» (step 2.3) and «Cerrar
- * sesión». It opens also without accepting the terms (AccountGate), to download or delete.
- */
 export function AccountSettingsPage() {
   const user = useUser();
   const { signOut } = useSession();

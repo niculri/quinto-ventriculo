@@ -1,25 +1,20 @@
+# The CI: types, lint, ratchets, knip, format and Vitest; the end to end tests in Chromium and WebKit; the build.
 name: CI
 
 on:
-  # A push or a pull request that only changes the docs, Claude's notes or the Markdown files at the root does not run
-  # the CI: none goes into the build nor is read by a test. Same list
-  # as CI_IGNORED_PATHS in packages/ops/src/deploy.ts; npm run deploy accepts such a commit when the last one with
-  # code before it has the CI green. The nightly run is not filtered.
+  # The same list as CI_IGNORED_PATHS in packages/ops/src/deploy.ts: none of these goes into the build or a test.
   push:
     branches: [main]
     paths-ignore: ['docs/**', '.claude/**', '*.md']
   pull_request:
     paths-ignore: ['docs/**', '.claude/**', '*.md']
-  # Every night (step 1.9), the whole CI on main without deploying (deploy.yml only takes a run of a push).
-  # 05:30 UTC = 02:30 in Chile in summer (UTC−3) and 01:30 in winter (UTC−4): before 4:00, when the site's day
-  # starts and a test that depends on the hour can fail (exam.spec.ts did). GitHub may start it late, and mails the
-  # owner when it fails. (GitHub turns schedules off after 60 days without activity only in public repositories.)
+  # Before 4:00 in Chile all year (UTC−3 and UTC−4), when the site's day starts and hour-dependent tests could fail.
   schedule:
     - cron: '30 5 * * *'
   workflow_dispatch:
 
 concurrency:
-  # By event: a nightly run must not cancel the run of a push of the same commit (npm run deploy needs it green).
+  # By event: a nightly run must not cancel the push run of the same commit, which npm run deploy needs green.
   group: ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -28,8 +23,7 @@ jobs:
     name: Types, lint, format and tests
     runs-on: ubuntu-latest
     steps:
-      # Without the private repository (content/ and the real material): the checks that need it are skipped and say
-      # why; the pre-push hook of the owner's clone runs them (step 2.4).
+      # Without the private repository, the checks of the real material are skipped (the pre-push hook runs them).
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -38,9 +32,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      # The ratchets compare with the base of the push or the pull request: per rule, the lint suppressions and inline
-      # eslint-disable directives may not grow, nor may the baseline of import cycles. A base that cannot be fetched
-      # fails the step; the nightly run and a run by hand compare with themselves.
+      # Compared with the push's or pull request's base; the nightly run and a run by hand compare with themselves.
       - name: Ratchets (lint suppressions and import cycles)
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -59,7 +51,6 @@ jobs:
   e2e:
     name: End to end (Playwright, ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
-    # Chromium's specs (desktop and phone) in three parts that run at the same time.
     strategy:
       fail-fast: false
       matrix:
@@ -82,8 +73,7 @@ jobs:
           path: apps/web/test-results
           retention-days: 7
 
-  # Safari on the iPhone (step 3.5): a subset of the specs and axe (playwright.config.ts), in a job of its own so that it
-  # runs beside Chromium's and the CI does not take longer.
+  # A job of its own, so that it runs beside Chromium's and the CI does not take longer.
   e2e-iphone:
     name: End to end (iPhone, WebKit)
     runs-on: ubuntu-latest

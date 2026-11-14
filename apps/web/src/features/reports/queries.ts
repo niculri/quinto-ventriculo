@@ -1,8 +1,9 @@
+// React Query hooks to send, list and resolve error reports.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
 import type { NewReport, ResolveInput } from './repository';
 
-/** The keys of the reports (the preview of the draft shares them with the site: features/preview). */
+// The draft preview (features/preview) shares these keys with the site.
 const reportKeys = {
   queue: ['report-queue'] as const,
   mine: ['my-reports'] as const,
@@ -22,13 +23,11 @@ export function useSendReport() {
   });
 }
 
-/** «Mis reportes». */
 export function useMyReports() {
   const { reports } = useServices();
   return useQuery({ queryKey: reportKeys.mine, queryFn: () => reports.mine() });
 }
 
-/** «Administración» → «Reportes»: grouped by content. */
 export function useReportQueue() {
   const { reports } = useServices();
   return useQuery({ queryKey: reportKeys.queue, queryFn: () => reports.queue() });

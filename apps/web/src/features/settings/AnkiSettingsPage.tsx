@@ -2,6 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 // Spanish texts from Anki's translations (BSD-3-Clause and public domain, as Anki's LICENSE says).
+
+// «Opciones» → «Anki general» and «Configuración de mazos», after Anki's deck options screen with FSRS on.
 import { useEffect, useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router';
@@ -43,10 +45,6 @@ import { SettingsLayout } from './SettingsLayout';
 
 type Mode = 'general' | 'decks';
 
-/**
- * «Opciones» → «Anki general»: the preferences that apply to every deck (when the day starts, learn ahead, the
- * limits through the tree). The old links with a preset (`?preset=`, `?deck=`) go to «Configuración de mazos».
- */
 export function AnkiGeneralSettingsPage() {
   const [params] = useSearchParams();
   if (params.has('preset') || params.has('deck')) {
@@ -55,11 +53,6 @@ export function AnkiGeneralSettingsPage() {
   return <AnkiSettingsPage mode="general" />;
 }
 
-/**
- * «Opciones» → «Configuración de mazos»: the presets (Anki's deck options screen), with which decks use each
- * one. `?preset=` opens one (an author's by its name, one of the user's by its id); `?deck=` opens the one a
- * deck uses (the old `…/options` of a deck comes here so).
- */
 export function DeckOptionsSettingsPage() {
   return <AnkiSettingsPage mode="decks" />;
 }
@@ -70,7 +63,6 @@ function AnkiSettingsPage({ mode }: { mode: Mode }) {
   const settings = useDeckSettings();
   const preferences = usePreferences();
   const parts = [catalog, presets, settings, preferences];
-  // Without «Modo avanzado» there are no presets to edit.
   if (mode === 'decks' && preferences.prefs && !preferences.prefs.fullAnki) {
     return <Navigate to={paths.ankiSettings} replace />;
   }
@@ -145,7 +137,6 @@ const MIX: [ReviewMix, string][] = [
   ['beforeReviews', 'Mostrar antes de las tarjetas para revisar'],
 ];
 
-/** The preset of `?preset=` (or of the deck of `?deck=`), else the root deck's, else the first. */
 function initialRef(
   params: URLSearchParams,
   choices: PresetChoice[],
@@ -162,7 +153,7 @@ function initialRef(
   return choices[0]?.ref ?? { kind: 'author', name: 'Default' };
 }
 
-/** Anki's deck options screen (ts/routes/deck-options), with FSRS on, for the user's presets. */
+/** After Anki's ts/routes/deck-options. */
 function OptionsForm({
   mode,
   tree,
@@ -203,7 +194,6 @@ function OptionsForm({
     setPrefs(p);
   };
 
-  // The URL says which preset is open (`?deck=` becomes its `?preset=`).
   const param = presetParam(choice.ref);
   useEffect(() => {
     if (mode !== 'decks') return;
@@ -221,7 +211,7 @@ function OptionsForm({
     };
   }, [mode]);
 
-  // The decks above the courses (the root, the semesters) are not studied on the web: they are not listed.
+  // The decks above the courses (the root, the semesters) are not studied on the web.
   const users = tree.nodes.filter(
     (n): n is CourseDeckNode =>
       hasPage(n) && sameRef(presetOf(n.id, n.preset, choices, settings).ref, choice.ref),
@@ -238,7 +228,6 @@ function OptionsForm({
     }
   };
 
-  /** A new configuration waiting for its name, or the removal waiting for a yes. */
   const [naming, setNaming] = useState<{
     title: string;
     initial: string;
@@ -285,7 +274,6 @@ function OptionsForm({
     });
   };
 
-  /** Saves the changed presets and the preferences («Guardar»). */
   const save = async () => {
     setSaving(true);
     setError(null);
@@ -707,7 +695,6 @@ function OptionsForm({
   );
 }
 
-/** «Mazos que usan esta configuración», as the deck options of Anki say how many use a preset. */
 function DecksUsing({ decks }: { decks: CourseDeckNode[] }) {
   const path = (n: DeckNode) => n.name.split('::').slice(1).join(' › ');
   return (
@@ -732,7 +719,6 @@ function DecksUsing({ decks }: { decks: CourseDeckNode[] }) {
   );
 }
 
-/** «Guardar», always in sight, and whether there is something to save: its place is kept, nothing moves. */
 function SaveControls({
   dirty,
   saved,
@@ -979,10 +965,6 @@ function StepsRow({
   );
 }
 
-/**
- * The FSRS parameters, read-only (step 3.4, ANK-14): Anki's manual asks not to edit them by hand nor to copy someone
- * else's. The preset's own, or FSRS-6's defaults in grey when it has none; a preset that has its own keeps them.
- */
 function ParamsRow({ value }: { value: readonly number[] }) {
   const id = useId();
   const own = value.length > 0;

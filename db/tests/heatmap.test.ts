@@ -1,5 +1,5 @@
-// Plan step 3.1: the heatmap (20261121000000_study_heatmap.sql). study_heatmap() reads the caller's days and what is
-// due from today on; record_practice() adds practice that does not change dates to the caller's day, with caps.
+// The heatmap: study_heatmap() reads the caller's days and what is due from today on; record_practice() adds practice
+// that does not change dates to the caller's day, with caps.
 import type { PGlite } from '@electric-sql/pglite';
 import { dayOf, dayOfStart } from '@qv/srs';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -28,7 +28,6 @@ const practice = (tx: Q, decks: { deckId: string; n: number }[]) =>
     { decks },
   ]);
 
-/** An answer as the web sends it: a review card, answered «Bien», due in `days`. */
 function answer(noteGuid: string, extra: Record<string, unknown> = {}, days = 3) {
   const now = new Date();
   return {
@@ -90,7 +89,6 @@ describe('reading the heatmap', () => {
     const day = await today(db, ANA);
     expect(r.after.days).toEqual([[day, DECK, 1, 0]]);
     expect(r.undone.days).toEqual([]);
-    // The card answered goes back to new: nothing due either.
     expect(r.undone.due).toEqual([]);
   });
 
@@ -110,7 +108,6 @@ describe('reading the heatmap', () => {
           set due = ((public.study_day_of(user_id, now()) + interval * '1 day'::interval) + interval '4 hours')
                     at time zone 'America/Santiago'`,
     );
-    // d4 suspended, d5 buried, d6 taken out of the site, d7 overdue (due two days ago).
     await db.query(`update public.card_states set suspended = true where note_guid = 'd4'`);
     await db.query(
       `update public.card_states set buried_until = now() + interval '1 day' where note_guid = 'd5'`,
@@ -135,7 +132,6 @@ describe('reading the heatmap', () => {
       [await dayIn(10), 1],
     ]);
     expect(one.due).toEqual([[await dayIn(10), 1]]);
-    // The days of only that deck too.
     expect(one.days).toEqual([[await today(db, ANA), OTHER_DECK, 1, 0]]);
     expect(all.days.map((d) => [d[1], d[2]])).toEqual([
       [DECK, 6],
@@ -286,7 +282,6 @@ describe('practice that does not change dates', () => {
         ]),
       ),
     ).rejects.toThrow(/too_large/);
-    // The day's changes, shared with the answers: at the cap, practice is refused and nothing is added.
     await db.query(
       `update public.user_quotas set changes_today = 49999, day = (now() at time zone 'UTC')::date
         where user_id = $1`,
@@ -330,19 +325,15 @@ describe('practice that does not change dates', () => {
         { deckId: OTHER_DECK, n: 7 },
       ]),
     ).toEqual({ day, practice: 10, capped: true });
-    // Full: nothing more counts, and the call does not fail (the final review goes on).
     expect(await send(ANA, [{ deckId: DECK, n: 3 }])).toEqual({ day, practice: 0, capped: true });
     const map = await asUser(db, ANA, (tx) => heatmap(tx));
     expect(map.days).toEqual([
       [day, DECK, 0, 4006],
       [day, OTHER_DECK, 0, 994],
     ]);
-    // Only what was counted goes in the day's changes of step 1.2.
     expect(await changes()).toBe(5000);
-    // The answers that change dates have no such cap.
     await asUser(db, ANA, (tx) => tx.query('select public.record_review($1)', [answer('c1')]));
     expect(await changes()).toBe(5001);
-    // Each student has their own 5,000.
     expect(await send(BETO, [{ deckId: DECK, n: 5 }])).toMatchObject({
       practice: 5,
       capped: false,
@@ -438,7 +429,6 @@ describe('the days of the heatmap', () => {
       return seed / 2 ** 31;
     };
     const now = Math.floor(Date.now() / 1000);
-    // From a day ago to two years ahead, and around Chile's next changes of the hour.
     const moments: number[] = [];
     for (let i = 0; i < 600; i++)
       moments.push(now - 86400 + Math.floor(random() * 2 * 365 * 86400));

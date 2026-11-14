@@ -1,3 +1,4 @@
+// Error and info notices, and the error of a failed load with its «Reintentar» button.
 import { CircleAlert } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { ApiRequestError } from '../lib/api';
@@ -43,7 +44,6 @@ export function ErrorWithRetry({ error, onRetry }: { error: unknown; onRetry: ()
   return (
     <div className="mx-auto max-w-lg py-16">
       <Notice title="No se pudo cargar">
-        {/* A removed student's 403 says where to write: the address as a link. */}
         <p>{withContactLink(errorMessage(error))}</p>
         <button
           type="button"

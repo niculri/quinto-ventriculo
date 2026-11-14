@@ -1,3 +1,4 @@
+// Tests of the .apkg reader and the deck tree, on a synthetic sample package.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { strToU8, unzipSync, zipSync } from 'fflate';
@@ -75,7 +76,6 @@ describe('readApkg', () => {
   });
 
   it('prefers collection.anki21 over the legacy collection.anki2', () => {
-    // A package with a broken anki2 and a valid anki21 is read from the anki21.
     const real = readFileSync(SAMPLE);
     const files = unzipSync(new Uint8Array(real));
     const swapped = zipSync({

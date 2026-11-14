@@ -1,3 +1,5 @@
+// Tests the importer: the bundle, the folder target, decks, the image cache, partial imports, the unpublished list
+// and the browser index.
 import { Assessment } from '@qv/schema';
 import { copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -17,8 +19,6 @@ import { readManifest, readUnpublished, validateReferences } from './manifest';
 import { sameUnpublished } from './unpublished';
 import { privateMaterial } from './private-folder';
 import type { Manifest } from './manifest';
-
-/** The private repository's content/ (step 2.4): its checks run where it is, and are skipped in the public CI. */
 const PRIVATE = privateMaterial();
 const privately = (name: string) =>
   PRIVATE.content ? name : `${name} (se salta: ${PRIVATE.skipReason})`;
@@ -91,7 +91,7 @@ beforeAll(async () => {
     .png()
     .toBuffer();
   await writeFile(join(root, 'clase/imagenes/ribosoma.png'), png);
-  await writeFile(join(root, 'otra/img/misma.png'), png); // the same image under another name
+  await writeFile(join(root, 'otra/img/misma.png'), png);
   await writeFile(
     join(root, 'clase/apunte.md'),
     '# Traducción\n<!-- creado: 2026-09-30 -->\n\n## Ribosomas\n\n![Ribosoma](imagenes/ribosoma.png){50%}\n',
@@ -146,7 +146,6 @@ describe('the catalog', () => {
       '2026-11-05',
     );
     expect(() => Assessment.parse({ ...assessment, suggestedDate: '5 de noviembre' })).toThrow();
-    // It would stop the import later, in the database.
     expect(() => Assessment.parse({ ...assessment, suggestedDate: '2026-02-31' })).toThrow();
   });
 });
@@ -213,9 +212,7 @@ describe('buildBundle', () => {
       practice: { deck: '11 - Traducción' },
     });
     expect(a!.versionHash).toMatch(/^[0-9a-f]{64}$/);
-    // The version is decided when saving, against what is published.
     expect(a!.version).toBeUndefined();
-    // Without a web code there is no version.
     expect(b!.code).toBeUndefined();
     expect(b!.versionHash).toBeUndefined();
   });
@@ -309,16 +306,13 @@ describe('FolderTarget', () => {
       publishedAt: '2026-11-01T10:00:00.000Z',
       versionAt: '2026-11-01T10:00:00.000Z',
     });
-    // Without a web code there is no version.
     expect(b!.version).toBeUndefined();
 
-    // A second import without changes does not raise the version.
     const second = await at('2026-11-02T10:00:00Z');
     expect((await target.save(second.bundle, second.media)).changedNotes).toEqual([]);
     [a] = await read();
     expect(a).toMatchObject({ version: 1, versionAt: '2026-11-01T10:00:00.000Z' });
 
-    // The links change: the note is saved, but the version stays.
     const links: Manifest = structuredClone(manifest);
     links.notes[0]!.notes[0]!.practice = { deck: 'Otro' };
     const third = await at('2026-11-03T10:00:00Z', links);
@@ -330,7 +324,6 @@ describe('FolderTarget', () => {
       updatedAt: '2026-11-03T10:00:00.000Z',
     });
 
-    // What the reader sees changes: version 2, «Creado el» stays.
     const sources: Manifest = structuredClone(links);
     sources.notes[0]!.notes[0]!.sources = ['Clase 11 de 2026'];
     const fourth = await at('2026-11-04T10:00:00Z', sources);
@@ -343,7 +336,7 @@ describe('FolderTarget', () => {
     });
   });
 
-  it('step 1.8: a note that changes assessment and gets a group keeps its id, slug, version and dates', async () => {
+  it('a note that changes assessment and gets a group keeps its id, slug, version and dates', async () => {
     const output = join(root, '.output-moved');
     const target = new FolderTarget(output);
     const at = (iso: string, m: Manifest) =>
@@ -384,7 +377,6 @@ describe('FolderTarget', () => {
   it('a note published before the articles (no version) is version 1 on its first save as one', async () => {
     const output = join(root, '.output-upgrade');
     const old = await build();
-    // The PDF note: another text, so another hash, and no code.
     const pdf = old.bundle.notes.map(({ code: _c, versionHash: _v, ...n }) => ({
       ...n,
       hash: 'pdf',
@@ -420,8 +412,6 @@ describe('FolderTarget', () => {
     });
     await new FolderTarget(output, true).save(only.bundle, only.media);
     expect(await read()).toEqual(['AP-BC-C2-11', 'AP-BC-C2-12']);
-
-    // The manifest no longer has note 11.
     await new FolderTarget(output).save(only.bundle, only.media);
     expect(await read()).toEqual(['AP-BC-C2-12']);
   });
@@ -438,7 +428,7 @@ describe('validateReferences', () => {
     );
   });
 
-  it('step 1.8: the notes of a group go one after the other by position', () => {
+  it('the notes of a group go one after the other by position', () => {
     const ok: Manifest = structuredClone(manifest);
     ok.notes[0]!.notes[0]!.group = 'S5 - SMAS y cavidad nasal';
     expect(() => validateReferences(ok)).not.toThrow();
@@ -495,7 +485,6 @@ describe('decks', () => {
     expect(warnings).toEqual([]);
     expect(bundle.notes).toEqual([]);
     const week = '() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba';
-    // The package brings the deck and its Extras (they keep their Anki ids); the importer adds the parents.
     expect(
       bundle.ankiDecks.map((d) => [d.name, d.preset, d.semester, d.courseId, d.assessmentId]),
     ).toEqual([
@@ -521,7 +510,6 @@ describe('decks', () => {
     });
     expect(byName.get(`${week}::Mazo de prueba`)!.parentId).toBe(byName.get(week)!.id);
     expect(byName.get('() Medicina UCH')!.parentId).toBeNull();
-    // A parent's id comes from its full name: the same in every import, 19 digits.
     expect(byName.get(week)!.id).toBe(containerDeckId(week));
     expect(containerDeckId(week)).toMatch(/^[1-9]\d{18}$/);
     expect(containerDeckId(week)).not.toBe(containerDeckId(`${week} `));
@@ -626,7 +614,6 @@ describe('decks', () => {
     const key = saved.ankiNotes.find((n) => n.guid === 'oclusion-1')!.media[0]!;
     expect((await readFile(join(output, 'media', key))).length).toBeGreaterThan(0);
 
-    // Again, later: nothing changed, the date is kept.
     const again = await buildDecksOnly('2026-11-05T00:00:00Z');
     const r2 = await target.save(again.bundle, again.media, { notes: false, decks: true });
     expect(r2).toMatchObject({ changedCards: [], removedCards: 0, movedCards: 0, retiredCards: 0 });
@@ -634,7 +621,6 @@ describe('decks', () => {
     saved = await read();
     expect(saved.ankiNotes[0]!.updatedAt).toBe('2026-10-31T12:00:00.000Z');
 
-    // A notes-only import keeps the decks.
     const only = await buildBundle({
       manifest: withDecks,
       root,
@@ -665,7 +651,6 @@ describe('decks', () => {
   });
 
   it('warns when two packages bring the same note type with another CSS (the last one stays)', async () => {
-    // A second package: the same note types, other decks and notes, and a changed CSS in one type.
     const read = async (path: string) => {
       const pkg = await readApkgFile(join(root, 'mazos/Mazo de prueba.apkg'));
       if (!path.endsWith('Otro.apkg')) return pkg;
@@ -744,7 +729,6 @@ describe('decks', () => {
     const renamed = structuredClone(withDecks);
     const course = renamed.catalog.courses.find((c) => c.id === 'anatomia-1')!;
     course.name = 'Anatomía humana I';
-    // Without «ankiName», the deck («🦴 Anatomía I») does not say the site's name.
     const run = () =>
       buildBundle({
         manifest: renamed,
@@ -792,7 +776,6 @@ describe('decks', () => {
   });
 
   describe('IMAIOS never goes up', () => {
-    /** The sample package, with IMAIOS in the occlusion's tags and in another note's source. */
     const withImaios = async (renameDeck = false) => {
       const pkg = await readApkgFile(join(root, 'mazos/Mazo de prueba.apkg'));
       const c = pkg.collection;
@@ -855,7 +838,7 @@ describe('decks', () => {
       expect(JSON.stringify(bundle)).not.toMatch(/imaios/i);
     });
 
-    it('the browser index and its thumbnails (step 3.3) leave those notes out too', async () => {
+    it('the browser index and its thumbnails leave those notes out too', async () => {
       const { bundle, media } = await decksWith(true);
       const [packed] = packCardIndexes(bundle);
       expect(packed!.index.notes.map((n) => n.guid)).not.toContain('oclusion-1');
@@ -868,7 +851,6 @@ describe('decks', () => {
           decks: true,
         });
         expect(report).toMatchObject({ thumbsUploaded: packed!.thumbs.size, indexesWritten: 1 });
-        // None of them is made from an image of the notes left out.
         const all = await buildDecksOnly();
         const left = all.bundle.ankiNotes
           .filter((n) => n.guid === 'oclusion-1' || n.guid === 'Or&8~[!Z2<')
@@ -896,7 +878,7 @@ describe('decks', () => {
   });
 });
 
-describe('step 1.4: the image cache, --assessment and the batches', () => {
+describe('the image cache, --assessment and the batches', () => {
   it('converts an image once: the second time (also after reopening) it comes from the cache, the same', async () => {
     const folder = join(root, '.cache-images');
     const png = await readFile(join(root, 'clase/imagenes/ribosoma.png'));
@@ -906,25 +888,20 @@ describe('step 1.4: the image cache, --assessment and the batches', () => {
     expect([cache.misses, cache.hits]).toEqual([2, 0]);
     expect(a.key).toMatch(/^notes\//);
     expect(b.key).toMatch(/^cards\//);
-    // The same key as without the cache, and the same bytes.
     const plain = await processImage(join(root, 'clase/imagenes/ribosoma.png'));
     expect(a.key).toBe(plain.key);
     expect(await a.read()).toEqual(await plain.read());
 
     const again = await ImageCache.open(folder);
-    const c = await again.file(join(root, 'otra/img/misma.png')); // same bytes, other name
+    const c = await again.file(join(root, 'otra/img/misma.png'));
     expect([again.misses, again.hits]).toEqual([0, 1]);
     expect(c).toMatchObject({ key: a.key, width: a.width, height: a.height });
     expect(await c.read()).toEqual(await plain.read());
 
-    // A WebP that went missing from the cache is made again.
     await rm(join(folder, a.key));
     const d = await again.file(join(root, 'clase/imagenes/ribosoma.png'));
     expect(again.misses).toBe(1);
     expect(await d.read()).toEqual(await plain.read());
-
-    // One that no longer matches its key (cut, changed by hand) is never read under that key: it is removed,
-    // and the next import converts it again.
     await writeFile(join(folder, a.key), Buffer.from('not the webp'));
     const damaged = await (
       await ImageCache.open(folder)
@@ -969,7 +946,7 @@ describe('step 1.4: the image cache, --assessment and the batches', () => {
     });
     expect(bc.bundle.notes.map((n) => n.id)).toEqual(['AP-BC-C2-11', 'AP-BC-C2-12']);
     expect(bc.bundle.ankiNotes).toEqual([]);
-    expect(bc.bundle.assessments).toHaveLength(2); // the catalog is always whole
+    expect(bc.bundle.assessments).toHaveLength(2);
     const an = await buildBundle({
       manifest: twoAssessments,
       root,
@@ -992,7 +969,6 @@ describe('step 1.4: the image cache, --assessment and the batches', () => {
       ContentBundle.parse(JSON.parse(await readFile(join(output, 'content.json'), 'utf8')));
     const before = await read();
 
-    // Biología celular C2 without note 11, alone: Anatomía I stays whole.
     const m = structuredClone(twoAssessments);
     m.notes[0]!.notes = m.notes[0]!.notes.filter((n) => n.id !== 'AP-BC-C2-11');
     const bc = await buildBundle({
@@ -1018,7 +994,6 @@ describe('step 1.4: the image cache, --assessment and the batches', () => {
       before.notes.find((n) => n.id === 'AP-A1-S3-01'),
     );
 
-    // Anatomía I C1 alone, without its decks: they go, with their notes; Biología celular stays.
     const n = structuredClone(twoAssessments);
     n.decks = [];
     const an = await buildBundle({
@@ -1037,7 +1012,6 @@ describe('step 1.4: the image cache, --assessment and the batches', () => {
     const last = await read();
     expect(last.ankiNotes).toEqual([]);
     expect(last.notes.map((n) => n.id).sort()).toEqual(['AP-A1-S3-01', 'AP-BC-C2-12']);
-    // The decks above the assessment stay (another assessment of the course could use them).
     expect(last.ankiDecks.every((d) => d.assessmentId === null)).toBe(true);
     expect(last.ankiDecks.length).toBeGreaterThan(0);
   });
@@ -1051,7 +1025,6 @@ describe('step 1.4: the image cache, --assessment and the batches', () => {
       ContentBundle.parse(JSON.parse(await readFile(join(output, 'content.json'), 'utf8')));
     const before = await read();
 
-    // One note changed and an assessment renamed in the catalog, imported without decks or tests.
     const next = structuredClone(all.bundle);
     const note = next.notes.find((n) => n.id === 'AP-BC-C2-12')!;
     note.title = 'Comunicación celular (corregida)';
@@ -1149,7 +1122,7 @@ describe('sharedConflicts (--assessment and what the whole site shares)', () => 
   });
 });
 
-describe('step 1.5: content/unpublished.json', () => {
+describe('content/unpublished.json', () => {
   const off = (kind: 'note' | 'deck' | 'quiz' | 'image', id: string) => ({
     kind,
     id,
@@ -1247,7 +1220,6 @@ describe('step 1.5: content/unpublished.json', () => {
         `la imagen ${key.replace('.', '\\.')} está en content/unpublished\\.json y la usa apunte AP-BC-C2-11, apunte AP-BC-C2-12`,
       ),
     );
-    // Off with the pieces that use it, nothing stops.
     const r = await buildWith(
       withList([off('image', key), off('note', 'AP-BC-C2-11'), off('note', 'AP-BC-C2-12')]),
     );
@@ -1306,7 +1278,7 @@ describe('step 1.5: content/unpublished.json', () => {
 
   it.skipIf(!PRIVATE.content)(
     privately(
-      "step 1.8: the private repository's manifest is valid; the Seminario 8 is in the Certamen 3 with its identity",
+      "the private repository's manifest is valid; the Seminario 8 is in the Certamen 3 with its identity",
     ),
     async () => {
       const m = await readManifest(PRIVATE.content!, { history: null });
@@ -1322,11 +1294,6 @@ describe('step 1.5: content/unpublished.json', () => {
         expect(ids).toContain(id);
       }
       expect(new Set(ids).size).toBe(ids.length);
-      // Revisión de cero (1.8): the 1st semester's assessments as the school's report of 2026 lists them (its annex 1:
-      // Anatomía I and Matemáticas three certámenes, Química and MPyS two; IPM has three «Certamen Unidad …» of
-      // rotating modules, not a «Certamen 1»: the owner (7-11-2026) said they have no order, it changes by student, so
-      // they go by name). Bioestadística: only the summative controls (the formative ones are the same material); no
-      // exams (they repeat the material); no suggested dates (they are of one semester, not valid for other years).
       const of = (course: string) =>
         m.catalog.assessments.filter((a) => a.courseId === course).map((a) => a.name);
       expect(of('anatomia-1')).toEqual(['Certamen 1', 'Certamen 2', 'Certamen 3']);
@@ -1352,7 +1319,6 @@ describe('step 1.5: content/unpublished.json', () => {
         code: 'QV-BC-C2-SEM8',
         slug: 'seminario-8-comunicacion-intercelular',
       });
-      // Its «Ponte a prueba» was the Certamen 2's test, which an article of another assessment cannot name.
       expect(seminar.practice).toBeUndefined();
       expect(seminar.sourceFile).toContain('/Certamen 3/Seminario 8 - Comunicación intercelular/');
     },
@@ -1367,7 +1333,7 @@ describe('step 1.5: content/unpublished.json', () => {
   );
 });
 
-describe('the browser index (step 3.3)', () => {
+describe('the browser index', () => {
   const withDecks: Manifest = {
     ...structuredClone(manifest),
     decks: [
@@ -1397,16 +1363,13 @@ describe('the browser index (step 3.3)', () => {
       cardCount: bundle.ankiNotes.reduce((t, n) => t + n.cards.length, 0),
       bytes: p!.body.length,
     });
-    // The same notes give the same file (and key); another note, another.
     expect(packCardIndexes(bundle)[0]!.record.hash).toBe(p!.record.hash);
     const fewer = { ...bundle, ankiNotes: bundle.ankiNotes.slice(1) };
     expect(packCardIndexes(fewer)[0]!.record.hash).not.toBe(p!.record.hash);
-    // By code, as the class goes (the notes without a code at the end).
     const codes = index.notes.map((n) => n.code);
     const withCode = codes.filter((c) => c !== null);
     expect(withCode).toEqual([...withCode].sort());
     expect(codes.slice(withCode.length).every((c) => c === null)).toBe(true);
-    // The occlusion: its thumbnail (from its image) and its shapes; its coordinates are not in its fields.
     const io = index.notes.find((n) => n.guid === 'oclusion-1')!;
     expect(io.kind).toBe('occlusion');
     expect(io.thumb).toMatch(/^cards\/thumb\/[0-9a-f]{32}\.webp$/);
@@ -1416,7 +1379,6 @@ describe('the browser index (step 3.3)', () => {
     expect(bundle.ankiNotes.find((n) => n.guid === 'oclusion-1')!.media).toContain(
       p!.thumbs.get(io.thumb!),
     );
-    // A basic note and a cloze, without a thumbnail.
     for (const n of index.notes.filter((x) => x.kind !== 'occlusion')) {
       expect(n.thumb).toBeNull();
       expect(n.labels).toBe(0);
@@ -1445,7 +1407,6 @@ describe('the browser index (step 3.3)', () => {
         expect(meta.format).toBe('webp');
         expect(meta.width).toBeLessThanOrEqual(THUMB_WIDTH);
       }
-      // Again: nothing new.
       const again = await new FolderTarget(folder).save(bundle, media, {
         notes: false,
         decks: true,

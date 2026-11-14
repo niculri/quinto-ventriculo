@@ -1,6 +1,5 @@
-// Pins the rules that the in-memory administration repository re-implements from invite_emails(), remove_invites()
-// and admin_set_admin(). Above each test, the db/tests case that checks the same rule in SQL («db: none» when there is
-// none); «differs» marks a behaviour that is not the database's.
+// Tests that the in-memory administration repository follows invite_emails(), remove_invites() and admin_set_admin()
+// («Differs» marks where not).
 import { describe, expect, it } from 'vitest';
 import { localAdminRepository, MAX_EMAILS } from './repository';
 import type { AccessInvite } from './repository';
@@ -26,7 +25,6 @@ const repo = (over: Parameters<typeof localAdminRepository>[0] = {}) =>
   localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl', invites: people(), ...over });
 
 describe('who can use it', () => {
-  // db: admin-access.test.ts › a student gets admin_only, and nothing changes
   it('only an administrator', async () => {
     const student = repo({ admin: false });
     expect(await student.isAdmin()).toBe(false);
@@ -44,8 +42,6 @@ describe('who can use it', () => {
 });
 
 describe('inviting', () => {
-  // db: invite-lists.test.ts › normalizes, rejects another domain and what is repeated, and adds the rest to its list;
-  // › whoever was already there keeps their list and date
   it('normalizes, rejects another domain, what is not an email and what is repeated, and adds the rest', async () => {
     const admin = repo();
     const result = await admin.invite({
@@ -82,7 +78,6 @@ describe('inviting', () => {
     });
   });
 
-  // db: invite-lists.test.ts › needs the list and who loads it, and at most 500 per call
   it(`needs a list of 1 to 60 letters, and at most ${MAX_EMAILS} emails`, async () => {
     const admin = repo();
     await expect(
@@ -97,7 +92,7 @@ describe('inviting', () => {
     );
   });
 
-  // differs — db: invite_emails() refuses a note of more than 200 characters (no db test)
+  // Differs: invite_emails() refuses a note of more than 200 characters.
   it('takes a note of any length', async () => {
     const result = await repo().invite({
       emails: ['x@ug.uchile.cl'],
@@ -109,8 +104,6 @@ describe('inviting', () => {
 });
 
 describe('removing', () => {
-  // db: invite-lists.test.ts › never removes an administrator without "include_admins": true; admin-access.test.ts ›
-  // never removes an administrator, also when asked with include_admins
   it('never removes an administrator; says who was not invited', async () => {
     const admin = repo();
     const result = await admin.removeInvites({
@@ -128,8 +121,6 @@ describe('removing', () => {
     ]);
   });
 
-  // db: invite-lists.test.ts › by list: every one of it, with their sessions; admin-access.test.ts › a list that does
-  // not exist, or both keys, are refused as remove_invites() refuses them
   it('a whole list at once; a list that does not exist is refused', async () => {
     const admin = repo();
     expect((await admin.removeInvites({ list: 'Curso' })).removed).toEqual([
@@ -141,9 +132,7 @@ describe('removing', () => {
 });
 
 describe('naming administrators', () => {
-  // db: admin-owner.test.ts › names an invited person, however the email is written; › removes an administrator: they
-  // stay invited, with their sessions, as a student
-  it('the owner names and removes an invited person; asking again changes nothing', async () => {
+  it('the site owner names and removes an invited person; asking again changes nothing', async () => {
     const owner = repo();
     expect(await owner.setAdmin({ email: ' ANA.perez@ug.uchile.cl', admin: true })).toEqual({
       email: 'ana.perez@ug.uchile.cl',
@@ -160,8 +149,7 @@ describe('naming administrators', () => {
     expect(ana).toMatchObject({ admin: false, list: 'Curso' });
   });
 
-  // db: admin-owner.test.ts › the report says it, and whether it is who is looking
-  it('the report says who the owner is, only to the owner', async () => {
+  it('the report says who the site owner is, only to the site owner', async () => {
     expect(await repo().accessReport()).toMatchObject({
       owner: 'dueno@ug.uchile.cl',
       youAreOwner: true,

@@ -1,3 +1,4 @@
+// A semester's page: its courses, linked when they have material.
 import { ArrowRight } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { paths } from '../../app/paths';

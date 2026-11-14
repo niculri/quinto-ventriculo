@@ -1,20 +1,15 @@
+// Applies `content/unpublished.json` to a bundle: what it lists is left out of every import.
 import type { ContentBundle } from '@qv/schema';
 import { hash } from './hash';
 import type { ProcessedImage } from './images';
 import type { UnpublishedItem } from './manifest';
 
-/** What the list kept out of an import, to say it in the report. */
 export interface Skipped {
   kind: UnpublishedItem['kind'];
   id: string;
-  /** What it left out: «Traducción», «3 mazos, 40 notas (52 tarjetas)», «1 test (12 preguntas)». */
   what: string;
 }
 
-/**
- * Does the list name the same pieces? An import is built with the list it read at the start (minutes, with many
- * images); if `npm run unpublish` added something meanwhile, saving that bundle would publish it again.
- */
 export function sameUnpublished(
   a: readonly UnpublishedItem[],
   b: readonly UnpublishedItem[],
@@ -28,13 +23,8 @@ export function sameUnpublished(
 }
 
 /**
- * Takes out of a bundle what `content/unpublished.json` lists (step 1.5), so that no import publishes it again while it
- * is there, in the dry-run folder or in the cloud: an article, a test, a deck with every deck below it (its cards; a
- * note left without cards goes, and one with cards elsewhere stays with those, with its hash computed again). The
- * images that only the pieces left out used are dropped from `media`.
- *
- * An image of the list that a piece still uses stops the import: it is 404 in R2, and the piece would be published
- * with a hole. It is replaced in the material (another image, another key) or the pieces that use it are taken off too.
+ * A deck goes with every deck below it; a note keeps its cards of other decks. An image of the list that a published
+ * piece still uses stops the import: it is 404 in R2.
  */
 export function withoutUnpublished(
   bundle: ContentBundle,
@@ -64,7 +54,6 @@ export function withoutUnpublished(
     return false;
   });
 
-  // A deck goes with every deck below it.
   let ankiDecks = bundle.ankiDecks;
   let ankiNotes = bundle.ankiNotes;
   for (const id of ids('deck')) {
@@ -91,7 +80,6 @@ export function withoutUnpublished(
         gone++;
         return [];
       }
-      // The note stays with its cards of other decks: what is published of it is another thing (another hash).
       const { hash: _h, updatedAt, ...rest } = n;
       const next = { ...rest, cards: kept };
       return [{ ...next, hash: hash(next), updatedAt }];
@@ -105,7 +93,6 @@ export function withoutUnpublished(
     });
   }
 
-  // What is still published may not use an image of the list.
   const offImages = ids('image');
   const users = new Map<string, string[]>();
   const pieces: [string, readonly string[]][] = [
@@ -129,7 +116,7 @@ export function withoutUnpublished(
     );
   }
 
-  // An image of the list never goes in `media`, even one that no piece names (the dry-run folder writes them all).
+  // Even one that no piece names: the dry-run folder writes every image of `media`.
   if (!skipped.length) {
     return { bundle, media: new Map([...media].filter(([k]) => !offImages.has(k))), skipped };
   }

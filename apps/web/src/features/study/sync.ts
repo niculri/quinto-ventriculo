@@ -1,22 +1,15 @@
+// Brings the user's rows up to the cards the author moved or took out (`reconcile_cards()`), once per visit and
+// before anything of their progress is read by deck.
+
 import type { CardChanges } from '@qv/schema';
 import type { StudyRepository } from './repository';
 
-/**
- * Cards the author moved to another deck or took out (plan step 1.3). The user's rows keep the deck a card was in
- * when it was answered, and they are read by deck; the content knows where each card is now. When the student
- * enters, the content's changes that are new for them go to their rows (`reconcile_cards()`), before anything of
- * their progress is read. Publishing never writes in anybody's progress.
- */
-
-/** Where the changes come from: the API (`GET /api/anki/card-changes`). */
 export interface CardChangeSource {
   cardChanges(since: number): Promise<CardChanges>;
 }
 
-/** At most this many pages a time (2,000 changes each); the rest, the next time. */
 const MAX_PAGES = 50;
 
-/** Brings the user's cards up to the content's changes. Returns how many rows changed. */
 export async function syncCards(source: CardChangeSource, study: StudyRepository): Promise<number> {
   let stored = await study.cardsSyncedTo();
   let changed = 0;
@@ -38,11 +31,7 @@ export async function syncCards(source: CardChangeSource, study: StudyRepository
   return changed;
 }
 
-/**
- * The repository, with the user's cards brought up to the content's changes once per visit (and per user) before
- * the reads that go by deck: the cards of a deck, every card, the progress of each deck and the decks answered.
- * A failure is not remembered: the next read tries again (and shows the error, with «Reintentar»).
- */
+// A failure is not remembered: the next read tries again.
 export function withCardSync(
   study: StudyRepository,
   source: CardChangeSource,

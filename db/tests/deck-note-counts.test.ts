@@ -1,6 +1,5 @@
-// Plan step 3.2 (20261116000000_deck_note_counts.sql): anki_deck_tree() also gives each deck's own notes (a card
-// directly in it) and its exclusive notes (every card directly in it), what the home page needs to count new cards
-// without the deck.
+// anki_deck_tree() also gives each deck's own notes (a card directly in it) and exclusive notes (every card directly
+// in it), which the home page needs to count new cards without the deck.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase } from './pglite';

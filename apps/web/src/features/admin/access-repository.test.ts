@@ -1,12 +1,8 @@
+// Tests the «Acceso» calls to the users database as the web makes them: function names, the `p` argument, the
+// page's names for the answers and the refusals in Spanish.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
 import { AccessError, supabaseAdminRepository } from './repository';
-
-/**
- * Revisión de cero (2.10): «Acceso» against the users' database, as the web calls it — the names of the functions and
- * of their argument (`p`, as in …_admin_access.sql), what the panel makes of their answers (snake_case → the page's
- * names) and of their refusals, in Spanish. The SQL itself is db/tests/admin-access.test.ts.
- */
 
 type Rpc = (fn: string, args?: unknown) => Promise<{ data: unknown; error: unknown }>;
 
@@ -74,13 +70,13 @@ describe('supabaseAdminRepository: «Acceso»', () => {
           lastSignInAt: null,
         },
       ],
-      // Step 2.10 b: a database of before that step does not say who the owner is: nobody is, and no buttons.
+      // A database without the site owner column: nobody is the site owner, and no buttons.
       owner: null,
       youAreOwner: false,
     });
   });
 
-  it('step 2.10 b: the report says who the owner is and whether it is who looks', async () => {
+  it('the report says who the site owner is and whether it is who looks', async () => {
     const { client } = clientWith(async () => ({
       data: {
         open_to_domain: false,
@@ -98,7 +94,7 @@ describe('supabaseAdminRepository: «Acceso»', () => {
     });
   });
 
-  it('step 2.10 b: names or removes an administrator with { p: { email, admin } }, and says each refusal', async () => {
+  it('names or removes an administrator with { p: { email, admin } }, and says each refusal', async () => {
     const { client, spy } = clientWith(async () => ({
       data: { email: 'ana.perez@ug.uchile.cl', admin: true, changed: true },
       error: null,

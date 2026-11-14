@@ -1,12 +1,10 @@
+// E2e tests of the phone, at 375 px (the narrowest iPhone in use): touch targets big enough, fields that do not make
+// iOS zoom, studying on the whole screen and a note's index at hand.
 import { writeFileSync } from 'node:fs';
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
-/**
- * The phone (step 3.5): what a finger touches is big enough, inputs do not make iOS zoom the page, and studying uses
- * the whole screen. At 375 px, the narrowest iPhone in use.
- */
 test.skip(({ isMobile }) => !isMobile, 'phone only');
 test.use({ viewport: { width: 375, height: 667 } });
 
@@ -240,7 +238,6 @@ test('every field has 16 px text, so iOS does not zoom in when it is focused, an
   expect(seen.size).toBeGreaterThanOrEqual(5);
 });
 
-/** The layout shifts from now on, without the ones right after a touch or a key (Chromium only). */
 async function watchShifts(page: Page) {
   await page.addInitScript(() => {
     const w = window as unknown as { shift_: number };
@@ -267,7 +264,6 @@ test('studying takes the whole screen: no top bar, the answers at the bottom, no
   await page.goto(`${DECK_URL}/study`);
   const front = page.getByRole('region', { name: 'Frente de la tarjeta' });
   await expect(front).toBeVisible();
-  // The site's bar is not there: «Volver» is at the top of the screen, and the card takes the bar's 64 px.
   await expect(page.getByRole('banner')).toBeHidden();
   const back = (await page.getByRole('link', { name: /^Volver a/ }).boundingBox())!;
   expect(back.y).toBeLessThan(20);
@@ -283,7 +279,6 @@ test('studying takes the whole screen: no top bar, the answers at the bottom, no
     .click();
   await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
   if (browserName === 'chromium') expect(await shifts(page)).toBe(0);
-  // Back on a page that is not studying, the bar is there again.
   await page.getByRole('link', { name: /^Volver a/ }).click();
   await expect(page.getByRole('banner')).toBeVisible();
 });
@@ -297,7 +292,6 @@ test('a long note: the index is always at hand, takes to the section below its b
   await page.goto(`${BIOCEL}/notes/11-traduccion`);
   await settle(page);
   const bar = page.getByRole('button', { name: 'Índice', exact: true });
-  // Far down the note, the bar is still in sight.
   await page.getByRole('heading', { level: 2, name: 'Resumen' }).scrollIntoViewIfNeeded();
   await expect(bar).toBeInViewport();
   await bar.click();

@@ -1,3 +1,4 @@
+// Redirects from old and non-canonical URLs to the canonical ones.
 import { Navigate, useLocation, useParams } from 'react-router';
 import { paths } from '../../app/paths';
 import { ErrorWithRetry } from '../../ui/Notice';
@@ -6,7 +7,7 @@ import { NotFoundPage } from '../../ui/NotFoundPage';
 import { buildAnkiTree, descendants, hasPage } from '../anki/tree';
 import { findCourse, locateNote, useCatalog } from './queries';
 
-/** Goes to `path` replacing the history entry, keeping the `?query` and the `#anchor` of the current URL. */
+/** Keeps the `?query` (merged under `path`'s own) and the `#anchor` of the current URL. */
 export function Canonical({ path }: { path: string }) {
   const { search, hash } = useLocation();
   const [base, query] = path.split('?');
@@ -18,7 +19,6 @@ export function Canonical({ path }: { path: string }) {
   return <Navigate to={`${base}${text ? `?${text}` : ''}${hash}`} replace />;
 }
 
-/** Old routes (/courses/:courseId, /notes/:slug, /decks/:deckId) → the canonical one, from the catalog. */
 function LegacyRedirect({
   target,
 }: {
@@ -57,7 +57,6 @@ export function LegacyNoteRedirect() {
   );
 }
 
-/** `/decks/:deckId[?subdeck=<slug>]` (v1.1) → the deck's page in the tree (or its subdeck's). */
 export function LegacyDeckRedirect() {
   const { deckId = '' } = useParams();
   const { search } = useLocation();
@@ -74,7 +73,6 @@ export function LegacyDeckRedirect() {
   return <Navigate to={paths.deck(target.ref)} replace />;
 }
 
-/** `/semesters/:n/anki[/study]` (v1.3, a semester's decks): to the semester's page, with its courses. */
 export function SemesterAnkiRedirect() {
   const { number = '' } = useParams();
   return <Navigate to={paths.semester(Number(number))} replace />;

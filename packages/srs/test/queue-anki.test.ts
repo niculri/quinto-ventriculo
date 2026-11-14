@@ -1,7 +1,6 @@
 /**
- * The study queue against real Anki 25.9 (scripts/anki_queue.py): a deck with two subdecks and its three
- * presets, cards in every state, what was studied today, and a whole study session. At every card, the whole
- * queue (in order) and the counts must be Anki's; after every answer, the card must be Anki's.
+ * The study queue against a whole study session in real Anki 25.9 (scripts/anki_queue.py): at every card, the queue
+ * in order and the counts are Anki's, and after every answer the card is Anki's.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

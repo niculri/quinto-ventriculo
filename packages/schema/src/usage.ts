@@ -1,27 +1,20 @@
+// Zod schemas of the admin panel's usage figures: totals over students, never a row per student, from the users'
+// database plus the opens the Worker counts in Workers Analytics Engine (without who or what was searched).
 import { z } from 'zod';
 import { Slug } from './content';
 import { DeckId } from './flashcards';
 
-/**
- * «Uso» in the administration panel (step 2.9): figures that add up students, never a row per student. The users'
- * database counts what it keeps (`admin_usage()`); the Worker adds the opens it counts in Workers Analytics Engine, which
- * keep neither who opened nor what was searched.
- */
-
 /** Below this many students a figure is not shown exact. */
 export const USAGE_MIN_STUDENTS = 5;
 
-/** The value of a figure that is not shown exact: it counts (or comes from) 1 to 4 students, or 1 to 4 opens. */
+/** A figure that counts, or comes from, 1 to 4 students or opens. */
 export const FEW = '<5' as const;
 
 export const UsageCount = z.union([z.number().int().nonnegative(), z.literal(FEW)]);
 export type UsageCount = z.infer<typeof UsageCount>;
 
-/** What happened in a day, a week or a period. */
 export const UsageFigures = z.object({
-  /** Answered a card or a question, or started a round. */
   activeStudents: UsageCount,
-  /** Their account was created then. */
   newStudents: UsageCount,
   ankiAnswers: UsageCount,
   newCards: UsageCount,
@@ -30,7 +23,6 @@ export const UsageFigures = z.object({
 });
 export type UsageFigures = z.infer<typeof UsageFigures>;
 
-/** The opens, by kind of content (and the searches). */
 export const UsageOpenFigures = z.object({
   notes: UsageCount,
   decks: UsageCount,
@@ -39,11 +31,9 @@ export const UsageOpenFigures = z.object({
 });
 export type UsageOpenFigures = z.infer<typeof UsageOpenFigures>;
 
-/** What the Worker counts: a note, a deck (its page or its study), a test opened, or a search. */
 export const USAGE_EVENT_KINDS = ['note', 'deck', 'quiz', 'search'] as const;
 export type UsageEventKind = (typeof USAGE_EVENT_KINDS)[number];
 
-/** The kind of page a search was made from (never what was searched). */
 export const SEARCH_CONTEXTS = [
   'home',
   'course',
@@ -55,10 +45,6 @@ export const SEARCH_CONTEXTS = [
 ] as const;
 export type SearchContext = (typeof SEARCH_CONTEXTS)[number];
 
-/**
- * `POST /api/usage/open`: a note, a deck (its page, its study or its final review) or a test (its cover or a round) was
- * opened, or a search was completed (sent, or a result opened), from that kind of page. Never who, nor what was searched.
- */
 export const UsageOpenRequest = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('note'), id: Slug.max(120) }).strict(),
   z.object({ kind: z.literal('deck'), id: DeckId }).strict(),
@@ -72,7 +58,6 @@ const Day = z.iso.date();
 
 const PeriodTotals = <T extends z.ZodTypeAny>(f: T) => z.object({ today: f, last7: f, last30: f });
 
-/** The figures of a course or an assessment in the last 30 days (5 students or more). */
 const GroupFigures = z.object({
   students: z.number().int().min(USAGE_MIN_STUDENTS),
   ankiAnswers: UsageCount,
@@ -83,9 +68,7 @@ const GroupFigures = z.object({
 
 export const UsageOpens = z.object({
   totals: PeriodTotals(UsageOpenFigures),
-  /** The last 30 days, oldest first. */
   days: z.array(UsageOpenFigures.extend({ day: Day })),
-  /** The most opened in the last 30 days (5 opens or more). */
   top: z.array(
     z.object({
       kind: z.enum(['note', 'deck', 'quiz']),
@@ -93,22 +76,19 @@ export const UsageOpens = z.object({
       opens: z.number().int().min(USAGE_MIN_STUDENTS),
     }),
   ),
-  /** The searches of the last 30 days, by the kind of page they were made from. */
   searches: z.array(z.object({ context: z.enum(SEARCH_CONTEXTS), count: UsageCount })),
 });
 export type UsageOpens = z.infer<typeof UsageOpens>;
 
 export const UsageReport = z.object({
   generatedAt: z.iso.datetime({ offset: true }),
-  /** The site's day: Santiago, from 4:00 to 4:00 (as Anki's day). */
+  /** In Santiago, from 4:00 to 4:00, like Anki's day. */
   today: Day,
   timeZone: z.string(),
   minStudents: z.number().int().positive(),
   totals: PeriodTotals(UsageFigures),
-  /** The last 30 days and the last 12 weeks (from Monday), oldest first. */
   days: z.array(UsageFigures.extend({ day: Day })),
   weeks: z.array(UsageFigures.extend({ week: Day })),
-  /** The last 30 days: the units of Anki (a lecture, a week) and the tests used by 5 students or more. */
   decks: z.array(
     z.object({
       deckId: z.string(),
@@ -128,25 +108,17 @@ export const UsageReport = z.object({
   courses: z.array(GroupFigures.extend({ courseId: z.string() })),
   assessments: z.array(GroupFigures.extend({ assessmentId: z.string(), courseId: z.string() })),
   invited: z.object({ signedIn: UsageCount, never: UsageCount }),
-  /**
-   * `activated`, `notActivated` and `percent` are null when one of the two parts is 1 to 4 students: with `eligible`
-   * exact, the other part would give it by subtraction.
-   */
+  // Null when one part is 1 to 4 students: with `eligible` exact, subtraction would give it away.
   activation: z.object({
     eligible: UsageCount,
     activated: UsageCount.nullable(),
     notActivated: UsageCount.nullable(),
     percent: z.number().int().min(0).max(100).nullable(),
   }),
-  /**
-   * The opens of Workers Analytics Engine: `null` when they are not configured (`opensStatus`) or could not be read.
-   */
   opens: UsageOpens.nullable(),
   opensStatus: z.enum(['ok', 'not_configured', 'unavailable']),
 });
 export type UsageReport = z.infer<typeof UsageReport>;
-
-// ── What the users' database answers (snake_case, as it is written there) ──
 
 const AdminUsageFiguresRow = z.object({
   active_students: UsageCount,
@@ -163,7 +135,6 @@ const AdminUsageGroupRow = z.object({
   rounds_started: UsageCount,
   rounds_finished: UsageCount,
 });
-/** What `admin_usage()` of the users' database answers (the Worker turns it into a `UsageReport`). */
 export const AdminUsageRow = z.object({
   generated_at: z.string(),
   today: z.iso.date(),

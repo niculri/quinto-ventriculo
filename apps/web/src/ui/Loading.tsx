@@ -1,3 +1,4 @@
+// What a page shows while it loads: a spinner with a text, or gray skeleton rectangles shaped like the content.
 import { LoaderCircle } from 'lucide-react';
 
 export function Loading({
@@ -18,7 +19,6 @@ export function Loading({
   );
 }
 
-/** Gray rectangles while loading, shaped like the content. */
 export function Skeleton({ className }: { className: string }) {
   return (
     <div aria-hidden="true" className={`animate-pulse rounded-md bg-surface-2 ${className}`} />

@@ -1,9 +1,6 @@
 /**
- * The queue of a deep deck tree against real Anki 25.9 (scripts/anki_tree.py), as the published decks are:
- * root → semester → course → assessment → week → deck → «Extras», with the parents on «Default». The counts
- * of every deck of Anki's deck list, and whole sessions studied from the assessment and from the root: at
- * every card, the whole queue (in order) and the counts must be Anki's. queue-tree-names.json (--names) does
- * the same with the deck names that a plain string order gets wrong.
+ * The queue of a deep deck tree, shaped like the published decks, against real Anki 25.9 (scripts/anki_tree.py):
+ * the deck list's counts and whole sessions studied from the assessment and from the root.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,7 +15,6 @@ interface Scenario {
   root: string;
   timing: SchedTiming;
   decks: { key: string; id: number; name: string; config: Record<string, unknown> }[];
-  /** Anki's deck list, flat. */
   deckOrder?: string[];
   studied: Record<string, [number, number]>;
   cards: AnkiCard[];
@@ -43,6 +39,7 @@ const golden = (file: string) =>
     scenarios: Scenario[];
   };
 const trace = golden('queue-tree.json');
+// The same, with deck names that a plain string order sorts wrong.
 const names = golden('queue-tree-names.json');
 
 describe('a deck tree against Anki: from the assessment and from the root', () => {
@@ -58,7 +55,6 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
       config: configFromAnki(d.config),
     }));
     const keyOf = new Map(sc.decks.map((d) => [String(d.id), d.key]));
-    /** Anki keeps a counter per deck: what was studied in it and (when answering) in every deck below it. */
     const studiedAt = (answers: { deckId: string; queue: CardRecord['queue'] }[]) => {
       const counted = countStudiedToday(answers, decks);
       return new Map(

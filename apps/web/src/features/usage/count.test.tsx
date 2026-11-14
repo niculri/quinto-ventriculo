@@ -1,15 +1,10 @@
+// Tests of the usage counts: only the page that opens a piece counts it, and a search counts once, when completed.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { UsageOpenRequest } from '@qv/schema';
 import { DECK_PATH, QUIZ, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
 import { forgetLastSearch } from './count';
-
-/**
- * Step 2.9: «Uso» counts a note, a deck or a test only when the page that opens it does (the note's page, a deck's page
- * or its study, a test's cover or a round), never when another page reads the same thing («Hoy en Anki», «Ponte a
- * prueba»); and a search once, when it is completed, never each text typed.
- */
 
 function spyApi() {
   const sent: UsageOpenRequest[] = [];
@@ -33,7 +28,7 @@ const settle = () => new Promise((r) => setTimeout(r, 300));
 
 beforeEach(() => forgetLastSearch());
 
-describe('what is opened (step 2.9)', () => {
+describe('what is opened', () => {
   it('a note counts once, and its «Ponte a prueba» (which reads the test) does not count the test', async () => {
     const { api, sent, read } = spyApi();
     renderApp(ARTICLE, { api });
@@ -56,7 +51,7 @@ describe('what is opened (step 2.9)', () => {
     renderApp(DECK_PATH, { api, study: fullAnkiStudy() });
     await waitFor(() => expect(sent.length).toBeGreaterThan(0));
     await settle();
-    // A deck inside a week goes on to its assessment's page: that one is the deck opened.
+    // A deck inside a week redirects to its assessment's page, which is the deck counted.
     expect(sent).toEqual([{ kind: 'deck', id: '4' }]);
   });
 
@@ -114,7 +109,6 @@ describe('what is opened (step 2.9)', () => {
     const box = await screen.findByRole('combobox', { name: 'Buscar en la página' });
     for (const letter of 'subunid') {
       await userEvent.type(box, letter);
-      // Longer than the palette waits: every text is asked for.
       await new Promise((r) => setTimeout(r, 260));
     }
     expect(await screen.findByText('subunidades')).toBeInTheDocument();
@@ -123,7 +117,6 @@ describe('what is opened (step 2.9)', () => {
     await waitFor(() => expect(router.state.location.pathname).toMatch(/11-traduccion$/));
     const searches = () => sent.filter((s) => s.kind === 'search');
     expect(searches()).toEqual([{ kind: 'search', from: 'home' }]);
-    // The same text, opened again from the palette on the note: the same search.
     await userEvent.keyboard('{Meta>}k{/Meta}');
     await userEvent.type(
       await screen.findByRole('combobox', { name: 'Buscar en la página' }),

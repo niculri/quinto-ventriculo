@@ -1,3 +1,6 @@
+// A deck's page below a course (an assessment, a week, a deck): its options, «Estudiar» with the load, its
+// subdecks and the way to the final review.
+
 import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router';
 import { History, Play, Search } from 'lucide-react';
@@ -22,15 +25,8 @@ import type { CourseDeckNode, DeckNode } from './tree';
 import type { StudyPlan } from '../study/simple';
 import { useCountOpen } from '../usage/count';
 
-/** The text of a deck for the user: a course's deck is the course («Anatomía I»), the others their name. */
 export const deckTitle = (n: DeckNode) => (n.depth === 2 && n.course ? n.course.name : n.label);
 
-/** How «Configuración de mazos» names a preset in its URL: an author's by its name, the user's by its id. */
-
-/**
- * A deck's page below a course: an assessment, a week, a deck, its Extras. (The course's own deck is on the
- * course's page.)
- */
 export function DeckPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
   const plan = useStudyPlan();
@@ -47,16 +43,12 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
 
   // A week or a lecture is chosen on its assessment's page: there is nothing more inside it.
   const assessment = node.depth > 3 ? ancestry(node).find((n) => n.depth === 3) : null;
-  // «Uso» (step 2.9): a deck's page (not one that goes on to its assessment's), its study and its final review are
-  // what open a deck.
   useCountOpen('deck', deck.data && !assessment?.ref ? node.id : null);
   if (assessment?.ref) return <Navigate replace to={paths.deck(assessment.ref)} />;
 
   return (
     <div className={page}>
       <Breadcrumbs items={deckCrumbs(node)} />
-      {/* The title right under the breadcrumbs, as on every page (no kicker above it that would push it down); the
-          deck's cards beside it. */}
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div className="min-w-0">
           <h1 className="font-serif text-3xl font-semibold tracking-tight">{deckTitle(node)}</h1>
@@ -73,8 +65,6 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
         </nav>
       </div>
 
-      {/* An assessment's options first: how many new cards a day and the date are what a student comes to change.
-          The same rows while they load, so that the list below does not jump. */}
       {node.depth === 3 ? <AssessmentOptions node={node} plan={plan.data} view={view} /> : null}
 
       {deck.isError ? (
@@ -88,11 +78,7 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
   );
 }
 
-/**
- * The counts of the deck, «Estudiar» and its subdecks with their counts: the load in minutes and the switches, or
- * with «Modo avanzado», Anki's three numbers and its table. While the preferences load it is already the
- * simple one, the default: a student must not see the table (with its Extras) flash by.
- */
+/** While the preferences load it is already the simple view, so a student never sees Anki's table flash by. */
 function DeckStudyPanel({
   node,
   study,
@@ -100,7 +86,6 @@ function DeckStudyPanel({
 }: {
   node: CourseDeckNode;
   study: ReturnType<typeof useDeckCounts>;
-  /** An assessment's: its final review and its plan to catch up. */
   view: AssessmentView | null;
 }) {
   const { counts, mastery, error, retry } = study;
@@ -123,7 +108,6 @@ function DeckStudyPanel({
             <div
               aria-label="Para hoy"
               role="group"
-              // On the phone the load has its own line: however long it gets, nothing wraps differently.
               className="order-3 flex items-center gap-2 font-medium max-sm:basis-full sm:order-2 sm:min-w-[13.5rem]"
             >
               {!own ? (
@@ -154,10 +138,6 @@ function DeckStudyPanel({
   );
 }
 
-/**
- * The way to the final review, always in its place: it only works once something was seen, and it stands out on the
- * last days before the test (same box, other colors).
- */
 function FinalReviewLink({ node, view }: { node: CourseDeckNode; view: AssessmentView | null }) {
   const className = `${button.base} ${
     view?.reviewDays && view.facts.seen > 0
@@ -185,10 +165,6 @@ function FinalReviewLink({ node, view }: { node: CourseDeckNode; view: Assessmen
   );
 }
 
-/**
- * Below «Estudiar», the simple way: the switch of its week or lecture and what is below. What depends on the data
- * waits with a skeleton in its place, and what could appear late goes under the list.
- */
 function SimpleDetails({
   node,
   counts,
@@ -207,7 +183,6 @@ function SimpleDetails({
   const minutes = own ? estimateMinutes(own, known.medianAnswerMs) : 0;
   return (
     <>
-      {/* A large backlog takes its place: it says what matters more, and nothing moves. */}
       <Reserved longest={LONGEST_CATCH_UP} className="mt-3 text-sm text-muted">
         {catchUp ? (
           <p role="status" className="font-medium text-state-learn">
@@ -228,7 +203,6 @@ function SimpleDetails({
           />
         </div>
       ) : null}
-      {/* Its line is always reserved, so that the options below do not jump when the load grows. */}
       <p
         className={`mt-3 text-sm text-muted ${minutes >= HEAVY_LOAD_MINUTES ? '' : 'invisible'}`}
         aria-hidden={minutes < HEAVY_LOAD_MINUTES}

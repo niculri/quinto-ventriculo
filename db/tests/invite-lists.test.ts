@@ -1,11 +1,10 @@
+// Invite lists, removing someone and the access report in the users database.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { CONTACT_EMAIL } from '@qv/schema';
 import { asUser, createDatabase } from './pglite';
-
-/** Steps 2.1 and 2.2: invite lists, removing someone and the report (…_invite_lists.sql). */
 
 let db: PGlite;
 const OWNER = { sub: '00000000-0000-4000-8000-0000000000b1', email: 'dueno@ug.uchile.cl' };
@@ -14,7 +13,6 @@ const ANA = { sub: '00000000-0000-4000-8000-0000000000b3', email: 'ana.perez@ug.
 const LUIS = { sub: '00000000-0000-4000-8000-0000000000b4', email: 'luis@ug.uchile.cl' };
 const STRAY = { sub: '00000000-0000-4000-8000-0000000000b5', email: 'sin.invitacion@ug.uchile.cl' };
 
-/** A session of Supabase Auth, with a refresh token; the claims of its access token. */
 async function signIn(user: { sub: string; email: string }) {
   const { rows } = await db.query<{ id: string }>(
     `insert into auth.sessions (user_id) values ($1) returning id`,
@@ -48,7 +46,6 @@ const allowed = (claims: { sub: string; email: string }) =>
     const { rows } = await tx.query<{ ok: boolean }>('select public.is_allowed_user() as ok');
     return rows[0]!.ok;
   });
-/** What the Worker asks (access_status()), as a boolean: only 'allowed' lets the content through. */
 const status = (claims: { sub: string; email: string; session_id?: string }) =>
   asUser(db, claims, async (tx) => {
     const { rows } = await tx.query<{ s: string }>('select public.access_status() as s');
@@ -90,7 +87,7 @@ describe('the lists of today and open_to_domain', () => {
     ).rejects.toThrow(/check constraint/);
   });
 
-  it('no migration opens the site to the whole domain (that is step 4)', async () => {
+  it('no migration opens the site to the whole domain', async () => {
     const fresh = await createDatabase('users');
     const { rows } = await fresh.query<{ open: boolean; dflt: string }>(
       `select s.open_to_domain as open,
@@ -225,20 +222,16 @@ describe('remove_invites', () => {
     expect(await allowed(ANA)).toBe(false);
     expect(await hasAccess(ana)).toBe(false);
     expect(await sessions(ANA)).toBe(0);
-    // Somebody else's session is untouched.
     expect(await hasAccess(other)).toBe(true);
     expect(await sessions(LUIS)).toBe(2);
-    // The account and the progress are still there (deleting them is step 2.3).
     const kept = await db.query(
       `select (select count(*)::int from auth.users where id = $1) as account,
               (select progress from public.readings where user_id = $1) as progress`,
       [ANA.sub],
     );
     expect(kept.rows).toEqual([{ account: 1, progress: 0.5 }]);
-    // RLS: the readings are not visible to her any more.
     const seen = await asUser(db, ANA, (tx) => tx.query('select * from public.readings'));
     expect(seen.rows).toEqual([]);
-    // Invited again, everything is back.
     await invite({ emails: [ANA.email], list: 'Curso de prueba 2026', by: 'dueño' });
     const back = await asUser(db, ANA, (tx) => tx.query('select progress from public.readings'));
     expect(back.rows).toEqual([{ progress: 0.5 }]);
@@ -309,7 +302,6 @@ describe('access_status', () => {
     await db.query('delete from auth.sessions where user_id = $1', [LUIS.sub]);
     expect(await status(luis)).toBe('signed_out');
     expect(await status({ ...LUIS })).toBe('signed_out');
-    // Removed: «not invited» comes first, whatever the session.
     const again = await signIn(LUIS);
     await remove({ emails: [LUIS.email] });
     expect(await status(again)).toBe('not_invited');
@@ -327,7 +319,6 @@ describe('access_status', () => {
       [owner.session_id],
     );
     expect(await hasAccess(owner)).toBe(false);
-    // Deleting the account in Authentication → Users takes its sessions with it.
     const friend = await signIn(FRIEND);
     expect(await hasAccess(friend)).toBe(true);
     await db.query('delete from auth.sessions where user_id = $1', [FRIEND.sub]);
@@ -386,8 +377,8 @@ describe('permissions', () => {
   });
 
   it('a signed-in student cannot ask whether someone else is invited', async () => {
-    // is_invited() takes any email: through the API (rpc/is_invited) it told a student whether a classmate is
-    // invited (Revisión de cero, 2.1). The hook keeps it; a student only asks about themselves.
+    // is_invited() takes any email: through the API (rpc/is_invited) it would tell a student whether a classmate is
+    // invited. The hook keeps it; a student only asks about themselves.
     await expect(
       asUser(db, FRIEND, (tx) => tx.query(`select public.is_invited('dueno@ug.uchile.cl')`)),
     ).rejects.toThrow(/permission denied/);
@@ -400,7 +391,7 @@ describe('permissions', () => {
     expect(await allowed(STRAY)).toBe(false);
   });
 
-  it('the service role runs them (step 2.10, through the Worker)', async () => {
+  it('the service role runs them (through the Worker)', async () => {
     const r = await asService(async (tx) => {
       const { rows } = await tx.query<{ r: { open_to_domain: boolean } }>(
         'select public.access_report() as r',

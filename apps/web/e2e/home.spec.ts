@@ -1,13 +1,9 @@
+// E2e tests of the home page: the first steps, «Hoy» counted without downloading any deck, «Seguir», «Tus ramos», the
+// one-time tips, and that nothing moves while it loads.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { ACCEPTED_ACCOUNT, ONLY_ACCEPTED, PORT } from './accepted';
 import { DECK_URL, signIn } from './helpers';
-
-/**
- * Step 3.2: the new home page. Only what is the student's: the first steps, «Hoy» counted without downloading any deck
- * (the same numbers as the study screen), «Seguir», the days of study, «Tus ramos» and a line to the whole degree.
- * Nothing moves while it loads.
- */
 
 const COURSE_URL = '/semesters/1/courses/anatomia-1';
 const WEEK_ID = '1006809718735317183';
@@ -36,7 +32,6 @@ const WEEK_ON = {
 const today = (page: Page) => page.getByRole('region', { name: 'Hoy' });
 const load = (page: Page) => today(page).getByRole('button', { name: /para hoy · ~\d+ min/ });
 
-/** «4 para hoy · ~2 min» and its breakdown (new, learning, to review) on the home page. */
 async function homeLoad(page: Page) {
   const text = (await load(page).textContent())!;
   // The breakdown is hidden until it is opened: read from the page, not from the accessibility tree.
@@ -48,7 +43,6 @@ async function homeLoad(page: Page) {
   return `${text} (${breakdown.join('+')})`;
 }
 
-/** The same on the study screen. */
 async function studyLoad(page: Page) {
   const line = page.getByText(/para hoy · ~\d+ min/).first();
   const text = (await line.evaluate((e) => e.firstChild?.textContent ?? ''))!;
@@ -58,7 +52,6 @@ async function studyLoad(page: Page) {
   return `${text.trim()} (${breakdown.slice(1).join('+')})`;
 }
 
-/** Every request for a deck, from now on. */
 function deckReads(page: Page) {
   const reads: string[] = [];
   page.on('request', (r) => {
@@ -68,7 +61,6 @@ function deckReads(page: Page) {
   return reads;
 }
 
-/** The layout shifts since the page started (all of them: loading counts). */
 async function watchShifts(page: Page) {
   await page.addInitScript(() => {
     const w = window as unknown as { shift_: number };
@@ -94,10 +86,8 @@ test.describe('a student who just arrived', () => {
     await signIn(page);
     const steps = page.getByRole('region', { name: 'Primeros pasos' });
     await expect(steps.getByText('(pendiente)')).toHaveCount(3);
-    // «Hoy» says what is happening and what to do.
     await expect(today(page)).toContainText('Todavía no activas ninguna semana o clase');
 
-    // 1. The semester, in «Tus ramos».
     await steps.getByRole('link', { name: 'Elegir ramos' }).click();
     await page.getByRole('button', { name: /¿En qué semestre estás\?/ }).click();
     await page.getByRole('menuitemradio', { name: '1° Semestre' }).click();
@@ -106,7 +96,6 @@ test.describe('a student who just arrived', () => {
       page.getByRole('region', { name: 'Tus ramos' }).getByRole('link', { name: /Anatomía I/ }),
     ).toBeVisible();
 
-    // 2. A week, on the course's page.
     await steps.getByRole('link', { name: 'Ir a tu ramo' }).click();
     await expect(page).toHaveURL(new RegExp(`${COURSE_URL}$`));
     const week = page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' });
@@ -118,7 +107,6 @@ test.describe('a student who just arrived', () => {
     ).toBeVisible();
     await expect(load(page)).toBeVisible();
 
-    // 3. A card.
     await steps.getByRole('link', { name: 'Estudiar' }).click();
     const welcome = page.getByRole('dialog', { name: 'Cómo se estudia aquí' });
     await welcome.getByRole('button', { name: 'Entendido' }).click();
@@ -126,7 +114,6 @@ test.describe('a student who just arrived', () => {
     await page.getByRole('button', { name: /^Bien/ }).click();
     await expect(page.getByRole('button', { name: 'Mostrar respuesta' })).toBeVisible();
     await page.goto('/home');
-    // Done: the list goes away by itself.
     await expect(load(page)).toBeVisible();
     await expect(page.getByRole('region', { name: 'Primeros pasos' })).toHaveCount(0);
   });
@@ -158,7 +145,7 @@ const samePlaces = (a: Record<string, { x: number; y: number }>, b: typeof a) =>
   }
 };
 
-test.describe('«Tus ramos» (the owner’s decisions of the review)', () => {
+test.describe('«Tus ramos»: adding and taking out courses', () => {
   test.use({ storageState: ONLY_ACCEPTED });
 
   test('a course of another semester is added and taken out, on every visit, and nothing moves', async ({
@@ -187,12 +174,10 @@ test.describe('«Tus ramos» (the owner’s decisions of the review)', () => {
     await expect(biology).toBeVisible();
     samePlaces(await places(), before);
 
-    // Saved: it is there on the next visit too.
     await page.reload();
     await expect(biology).toBeVisible();
     samePlaces(await places(), before);
 
-    // Its ✕ takes it out, and the focus goes to where it can come back from.
     await mine.getByRole('button', { name: 'Quitar Biología celular de tus ramos' }).click();
     await expect(biology).toHaveCount(0);
     await expect(add).toBeFocused();
@@ -207,7 +192,6 @@ test.describe('«Tus ramos» (the owner’s decisions of the review)', () => {
     await page.keyboard.press('Escape');
     expect(await shift(page)).toBeLessThan(0.02);
 
-    // The semester's courses still without material: one line, not cards.
     await semester.click();
     await page.getByRole('menuitemradio', { name: '2° Semestre' }).click();
     await expect(mine.getByText('Próximamente: Física.')).toBeVisible();
@@ -252,12 +236,10 @@ test.describe('«Hoy»', () => {
     await page.waitForTimeout(500);
     expect(reads).toEqual([]);
 
-    // The study screen says the same.
     await today(page).getByRole('link', { name: 'Estudiar' }).click();
     await expect(page.getByRole('button', { name: 'Mostrar respuesta' })).toBeVisible();
     expect(await studyLoad(page)).toBe(home);
 
-    // After some answers (a learning step, a card that comes back), again the same.
     for (const rating of ['Bien', 'Otra vez']) {
       await page.getByRole('button', { name: 'Mostrar respuesta' }).click();
       await page.getByRole('button', { name: new RegExp(`^${rating}`) }).click();
@@ -302,7 +284,6 @@ for (const scheme of ['light', 'dark'] as const) {
 
     test('a student with progress, and the data late', async ({ page }) => {
       await signIn(page);
-      // Some progress: a note opened and an answer.
       await page.goto('/semesters/2/courses/biologia-celular/notes/11-traduccion');
       await expect(page.getByRole('heading', { level: 1, name: 'Traducción' })).toBeVisible();
       await page.goto(`${DECK_URL}/study`);
@@ -320,7 +301,6 @@ for (const scheme of ['light', 'dark'] as const) {
       ).toHaveText(/\d+ respuestas?/, { timeout: 5000 });
       await page.waitForTimeout(500);
       expect(await shift(page)).toBeLessThan(0.02);
-      // A second visit, with the height of the first one kept on the device.
       await page.reload();
       await expect(load(page)).toBeVisible();
       await page.waitForTimeout(1800);
@@ -370,7 +350,6 @@ test.describe('one-time tips', () => {
     const footer = await after.evaluate((e) => e.getBoundingClientRect().top + window.scrollY);
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await expect(tip).toBeVisible();
-    // It came in its own room: nothing moved.
     await page.evaluate(() => window.scrollTo(0, 0));
     expect(await end.boundingBox()).toEqual(before);
     expect(await after.evaluate((e) => e.getBoundingClientRect().top + window.scrollY)).toBe(
@@ -378,7 +357,6 @@ test.describe('one-time tips', () => {
     );
     await page.getByRole('button', { name: 'Cerrar el consejo' }).click();
     await expect(tip).toHaveCount(0);
-    // Closed: not again, not even in another visit.
     await page.evaluate(() => sessionStorage.clear());
     await page.reload();
     await expect(page.getByRole('heading', { level: 1, name: 'Traducción' })).toBeVisible();

@@ -1,3 +1,4 @@
+// The assessment mode in the users database: the date of a test and deck_progress().
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
@@ -8,7 +9,6 @@ const DECK = '2059400110';
 const OTHER = '2059400111';
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
-/** The start of the user's day, in the test: an hour ago. */
 const dayStart = () => new Date(Date.now() - HOUR);
 
 let db: PGlite;
@@ -145,7 +145,6 @@ describe('deck_progress', () => {
       answer('o1', { state: { due: new Date(Date.now() - 3 * DAY).toISOString() } }),
     );
     await record(ANA, answer('b1', { deck: OTHER }));
-    // The other student's do not count.
     await record(BETO, answer('a1'));
     expect(await progress(ANA)).toEqual([
       {

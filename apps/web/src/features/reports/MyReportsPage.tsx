@@ -1,3 +1,4 @@
+// «Mis reportes» settings page: the student's own reports and what happened with each one.
 import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { formatDateTime } from '../../lib/dates';
@@ -17,10 +18,6 @@ import {
 import { useMyReports } from './queries';
 import type { MyReport } from './repository';
 
-/**
- * «Opciones» → «Mis reportes» (step 2.6): what the student reported and what happened with each one: «Recibido»,
- * «Corregido (versión N)» or «Revisado: no es un error», with the reason. Only theirs: never who else reported it.
- */
 export function MyReportsPage() {
   const reports = useMyReports();
   useEffect(() => {

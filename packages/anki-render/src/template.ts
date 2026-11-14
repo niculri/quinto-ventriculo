@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+
+// Lexing, parsing and rendering of a card template: port of Anki's rslib/src/template.rs.
 import { applyFilters } from './filters';
 import type { FilterContext } from './filters';
-
-/** Port of Anki's rslib/src/template.rs: lexing, parsing and rendering of a card template. */
 
 type Token =
   | { kind: 'text'; text: string }
@@ -76,7 +76,7 @@ export type ParsedNode =
   | { kind: 'conditional'; key: string; children: ParsedNode[] }
   | { kind: 'negated'; key: string; children: ParsedNode[] };
 
-/** A template that Anki would reject (the message is Anki's, in English). */
+/** Its message is Anki's, in English. */
 export class TemplateError extends Error {
   override name = 'TemplateError';
 }
@@ -119,7 +119,7 @@ export function parseTemplate(template: string): ParsedNode[] {
   return parseInner(null);
 }
 
-/** True if the text only has whitespace and empty <br>/<div> tags (Anki's `field_is_empty`). */
+/** Anki's `field_is_empty`: only whitespace and empty <br>/<div> tags. */
 export function fieldIsEmpty(text: string): boolean {
   return /^(?:[\t\n\v\f\r ]|<\/?(?:br|div) ?\/?>)*$/i.test(text);
 }
@@ -130,9 +130,8 @@ const isClozeConditional = (key: string) =>
 export interface RenderContext {
   fields: Map<string, string>;
   nonEmpty: Set<string>;
-  /** Template ordinal (card ord). */
   cardOrd: number;
-  /** The rendered question, when rendering the answer. */
+  /** null while rendering the question. */
   frontSide: string | null;
 }
 
@@ -190,7 +189,7 @@ export function renderNodes(nodes: ParsedNode[], context: RenderContext): string
   return out;
 }
 
-/** Does the template render something with these non-empty fields? (Anki's `renders_with_fields`). */
+/** Anki's `renders_with_fields`. */
 export function rendersWithFields(nodes: ParsedNode[], nonEmpty: Set<string>): boolean {
   const isEmpty = (list: ParsedNode[]): boolean => {
     for (const node of list) {

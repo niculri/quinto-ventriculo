@@ -1,3 +1,4 @@
+// Tests of a practice-test round: starting, answering, moving around, repeating and skipping.
 import { describe, expect, it } from 'vitest';
 import {
   LETTERS,
@@ -35,7 +36,7 @@ const Q: QuestionInfo[] = [
   { id: 'a', options: 5, correct: 0 },
   { id: 'b', options: 4, correct: 3 },
   { id: 'c', options: 3, correct: 1, fixedOrder: true },
-  { id: 'd' }, // short answer
+  { id: 'd' },
   { id: 'e', options: 2, correct: 1 },
 ];
 const BY_ID = new Map(Q.map((q) => [q.id, q]));
@@ -45,7 +46,6 @@ const T0 = new Date('2026-11-01T12:00:00Z');
 const start = (shuffle = false, shuffleOptions = false, seed = 1) =>
   startRound(Q, { shuffle, shuffleOptions, random: seededRandom(seed), id: 'r1', now: T0 });
 
-/** Answers the question on screen (choice: correct or not; short: knew it or not) and goes on. */
 function play(round: Round, right: boolean): Round {
   const info = q(currentQuestionId(round));
   const answered = info.options
@@ -115,8 +115,8 @@ describe('starting a round', () => {
     const r = start(false, true, 11);
     expect(r.orders[0]).toHaveLength(5);
     expect([...r.orders[0]!].sort()).toEqual([0, 1, 2, 3, 4]);
-    expect(r.orders[2]).toBeNull(); // «fijas»
-    expect(r.orders[3]).toBeNull(); // short answer
+    expect(r.orders[2]).toBeNull();
+    expect(r.orders[3]).toBeNull();
     expect(displayOrder(r, q('c'), 2)).toEqual([0, 1, 2]);
     expect(displayOrder(r, q('d'), 3)).toEqual([]);
   });
@@ -202,14 +202,13 @@ describe('moving around (Siguiente, Volver)', () => {
 
   it('«Volver» shows the previous one answered; «Siguiente» goes back up to the furthest one', () => {
     let r = start();
-    r = play(r, true); // a
-    r = play(r, false); // b
+    r = play(r, true);
+    r = play(r, false);
     expect(r).toMatchObject({ index: 2, top: 2 });
     expect(canGoBack(r)).toBe(true);
     r = back(r);
     expect(r).toMatchObject({ index: 1, top: 2 });
     expect(isAnswered(r)).toBe(true);
-    // It cannot be answered again.
     expect(answerChoice(r, q('b'), 3)).toBe(r);
     r = back(back(r));
     expect(r.index).toBe(0);
@@ -217,7 +216,6 @@ describe('moving around (Siguiente, Volver)', () => {
     expect(canGoBack(r)).toBe(false);
     r = next(next(r));
     expect(r).toMatchObject({ index: 2, top: 2 });
-    // The one that was next is not answered: «Siguiente» waits.
     expect(next(r)).toBe(r);
   });
 
@@ -336,24 +334,21 @@ describe('result titles', () => {
 describe('«Saltar»', () => {
   it('sends the question on screen to the end, without an answer, with its order of alternatives', () => {
     let r = start(false, true, 3);
-    r = play(r, true); // a
+    r = play(r, true);
     const orderOfB = r.orders[1];
     const s = skip(r);
     expect(s.queue).toEqual(['a', 'c', 'd', 'e', 'b']);
     expect(s.orders).toEqual([r.orders[0], r.orders[2], r.orders[3], r.orders[4], orderOfB]);
     expect(s).toMatchObject({ index: 1, top: 1, id: 'r1' });
     expect(currentQuestionId(s)).toBe('c');
-    // It counts neither as right nor as wrong, and the bar does not move.
     expect(score(s)).toEqual(score(r));
     expect(progress(s)).toBe(progress(r));
-    // The answered one before it keeps its position (the history hangs from it).
     expect(answerAt(s, 0)).toEqual(answerAt(r, 0));
-    // The original is not changed.
     expect(r.queue).toEqual(['a', 'b', 'c', 'd', 'e']);
   });
 
   it('the skipped one comes back after the others, and the round ends with it answered', () => {
-    let r = skip(start()); // a to the end
+    let r = skip(start());
     expect(r.queue).toEqual(['b', 'c', 'd', 'e', 'a']);
     for (let i = 0; i < 4; i++) r = play(r, true);
     expect(currentQuestionId(r)).toBe('a');
@@ -370,7 +365,6 @@ describe('«Saltar»', () => {
     expect(r.index).toBe(4);
     expect(canSkip(r)).toBe(false);
     expect(skip(r)).toBe(r);
-    // Skipping many in a row: each one goes to the end until a single one is left.
     let s = start();
     for (let i = 0; i < 4; i++) s = skip(s);
     expect(s.queue).toEqual(['e', 'a', 'b', 'c', 'd']);

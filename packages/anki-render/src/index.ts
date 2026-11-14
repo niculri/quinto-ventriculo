@@ -1,3 +1,4 @@
+// Public entry of @qv/anki-render: card rendering, cloze, Image Occlusion, template filters and HTML helpers.
 export { renderCard } from './render';
 export { createCardRenderer } from './collection';
 export type { CardLike, CollectionLike } from './collection';

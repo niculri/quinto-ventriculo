@@ -1,3 +1,4 @@
+// Text helpers for the notes' HTML: slugs, plain text and attribute escaping.
 import { decodeHTML } from 'entities';
 
 /** «Núcleo celular: 1.º parte» → «nucleo-celular-1-o-parte». */
@@ -11,7 +12,6 @@ export function slugify(text: string, max = 64): string {
   return base.slice(0, max).replace(/-+$/, '') || 'section';
 }
 
-/** Plain text of an HTML fragment: no tags, entities decoded and whitespace collapsed. */
 export function plainText(html: string): string {
   const withoutTags = html
     .replace(/<(?:br|\/p|\/li|\/h\d|\/tr|\/td|\/th|\/figcaption)\b[^>]*>/gi, ' ')

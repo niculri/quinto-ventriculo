@@ -1,3 +1,6 @@
+// Tests the cards page's table in «Modo avanzado»: Anki's search, the selection, the preview, the card's information
+// and the actions on the selection.
+
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -8,12 +11,10 @@ import { combineSearch } from './Sidebar';
 
 afterEach(() => localStorage.clear());
 
-/** The «Tabla» of the cards page (Modo avanzado: the tests' study is in it). */
 const TABLE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards?view=table';
 
 const grid = () => screen.findByRole('grid', { name: /Tarjetas|Notas/ });
 
-/** The rows of the table (without its header), by their first cell. */
 async function rowNames() {
   const g = await grid();
   return within(g)
@@ -29,7 +30,6 @@ async function searchFor(text: string) {
   await userEvent.click(screen.getByRole('button', { name: 'Buscar' }));
 }
 
-/** A card answered yesterday, as a review (so it has something to forget and a history). */
 async function reviewed(study: StudyRepository) {
   const now = new Date();
   await study.recordReview({
@@ -88,7 +88,6 @@ describe('the table of the cards page (Anki’s browser)', () => {
 
     await searchFor(`${searchTerm('deck', `${DECK.fullName}::Extras`)}`);
     expect(await rowNames()).toEqual(['La columna tiene 7 vértebras cervicales']);
-    // A deck finds its subdecks too, as in Anki.
     await searchFor(searchTerm('deck', DECK.fullName));
     expect(await rowNames()).toHaveLength(4);
     await searchFor('tag:columna card:1');
@@ -98,7 +97,6 @@ describe('the table of the cards page (Anki’s browser)', () => {
     ]);
     await searchFor('vértebra -cervicales');
     expect(await rowNames()).toEqual(['Vértebra de prueba']);
-    // Without accents (Anki's «Ignore accents in search», on in the web): «vertebra» finds «Vértebra».
     await searchFor('VERTEBRA -cervicales');
     expect(await rowNames()).toEqual(['Vértebra de prueba']);
     await searchFor('note:*oclusión* or Frente:¿cuántas*');
@@ -184,7 +182,6 @@ describe('the table of the cards page (Anki’s browser)', () => {
     await user.click(rows()[3]!);
     await user.keyboard('{/Shift}');
     expect(screen.getByText('4 tarjetas · 2 seleccionadas')).toBeInTheDocument();
-    // The preview: the current card, front and back.
     const preview = screen.getByRole('complementary', { name: 'Vista previa' });
     expect(
       await within(preview).findByRole('region', { name: 'Frente de la tarjeta' }),
@@ -218,7 +215,6 @@ describe('the table of the cards page (Anki’s browser)', () => {
     expect(await screen.findByText('Deshecho: Suspender tarjeta')).toBeInTheDocument();
     await waitFor(async () => expect(await study.allCards()).toEqual([]));
 
-    // Ctrl+3: the green flag; again, it takes it off (as Anki).
     await act(async () => {
       fireEvent.keyDown(window, { key: '3', ctrlKey: true });
     });
@@ -254,7 +250,6 @@ describe('the table of the cards page (Anki’s browser)', () => {
     renderApp(`${TABLE}&q=is:review`, { study });
     expect(await rowNames()).toEqual(['¿Cuántas vértebras cervicales hay?']);
     await userEvent.click(within(await grid()).getAllByRole('row')[1]!);
-    // Its information: the numbers and the history.
     const info = await screen.findByRole('region', { name: 'Información de la tarjeta' });
     expect(within(info).getByText('Repasos').nextSibling!.textContent).toBe('3');
     expect(within(info).getByText('Olvidos').nextSibling!.textContent).toBe('1');
@@ -285,7 +280,6 @@ describe('the table of the cards page (Anki’s browser)', () => {
     const study = fullAnkiStudy();
     await reviewed(study);
     renderApp(`${TABLE}&q=rated:1`, { study });
-    // The history arrives after the grid.
     await waitFor(async () =>
       expect(await rowNames()).toEqual(['¿Cuántas vértebras cervicales hay?']),
     );

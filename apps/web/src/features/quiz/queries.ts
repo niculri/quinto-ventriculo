@@ -1,3 +1,4 @@
+// Queries of a practice test: its detail, a section's questions and what the user has saved of it.
 import { useQuery } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
 
@@ -11,18 +12,13 @@ export function useQuizDetail(id: string | null) {
   });
 }
 
-/**
- * The questions of a section. The URLs of its photos last at least one hour, and a round can last longer
- * (a photo is loaded when its question comes up): they are asked for again every 45 minutes, and on coming
- * back to the page after ten minutes.
- */
+// Refetched before the signed photo URLs (at least one hour) expire, since a round can last longer.
 export function useQuizSection(id: string | null, sectionId: string | null) {
   const { api } = useServices();
   return useQuery({
     queryKey: ['quiz-section', id, sectionId],
     queryFn: ({ signal }) => api.quizSection(id!, sectionId!, signal),
     enabled: !!id && !!sectionId,
-    // 10 minutes: a test taken off the site (step 1.5) stops showing soon.
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,
     refetchInterval: 45 * 60_000,
@@ -32,10 +28,7 @@ export function useQuizSection(id: string | null, sectionId: string | null) {
 
 export const savedQuizKey = (quizId: string) => ['quiz-progress', quizId] as const;
 
-/**
- * What the user has saved of a test (each section's round and choices). Read once: the page keeps it up to
- * date as it saves (another tab's changes arrive when the page is opened again).
- */
+// Read once: the page keeps the cache current as it saves.
 export function useSavedQuiz(quizId: string | null) {
   const { quiz } = useServices();
   return useQuery({

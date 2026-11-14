@@ -1,3 +1,4 @@
+// The Anki decks of an importer bundle, answered like the content database's SQL functions.
 import type {
   AnkiCatalog,
   AnkiNoteTypeRecord,
@@ -10,7 +11,6 @@ import type {
 } from '@qv/schema';
 import { ankiPlainText } from '@qv/schema';
 
-/** The Anki decks of an importer bundle, answered like the SQL functions of the content database. */
 export function memoryDecks(bundle: ContentBundle) {
   const decks = new Map(bundle.ankiDecks.map((d) => [d.id, d]));
   const children = new Map<string, string[]>();
@@ -22,7 +22,6 @@ export function memoryDecks(bundle: ContentBundle) {
     note.cards.map((card) => ({ note, card, type: noteTypes.get(note.noteTypeId) })),
   );
 
-  /** The deck and its descendants, parents before children (breadth first). */
   const subtree = (id: string): { id: string; depth: number }[] => {
     const out = [{ id, depth: 0 }];
     for (let i = 0; i < out.length; i++) {
@@ -35,10 +34,6 @@ export function memoryDecks(bundle: ContentBundle) {
     const inside = cards.filter((c) => ids.has(c.card.deckId));
     return { noteCount: new Set(inside.map((c) => c.note.guid)).size, cardCount: inside.length };
   };
-  /**
-   * Notes with a card directly in the deck, those with every card in it and those with every card in it or below it
-   * (`anki_deck_tree()`, step 3.2).
-   */
   const own = (id: string) => {
     const notes = new Set(cards.filter((c) => c.card.deckId === id).map((c) => c.note));
     const below = new Set(subtree(id).map((x) => x.id));
@@ -51,7 +46,6 @@ export function memoryDecks(bundle: ContentBundle) {
   const leaf = (name: string) => name.split('::').at(-1)!;
 
   return {
-    /** The whole tree, the author's presets and the note types (`anki_deck_tree()` and its tables). */
     tree(): AnkiCatalog {
       return {
         decks: bundle.ankiDecks.map((d) => ({
@@ -78,7 +72,6 @@ export function memoryDecks(bundle: ContentBundle) {
       };
     },
 
-    /** Every note for the browser (`anki_browse_notes()`). */
     browse(): BrowseData {
       return {
         notes: [...bundle.ankiNotes]
@@ -171,12 +164,10 @@ function kindOf(type: Pick<AnkiNoteTypeRecord, 'kind' | 'occlusion'> | undefined
   return type?.kind === 'cloze' ? 'cloze' : 'basic';
 }
 
-/** Byte order, like Postgres' «C» collation for these names and codes. */
+/** Byte order, like Postgres' «C» collation. */
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
-/** Codes first (nulls last), like `order by code nulls last`. */
 const compareCodes = (a: string | null, b: string | null) =>
   a === b ? 0 : a === null ? 1 : b === null ? -1 : compare(a, b);
 
-/** A field's HTML as one line of plain text, as `anki_plain_text()` of the content database. */
 const plainText = ankiPlainText;

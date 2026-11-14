@@ -1,11 +1,9 @@
+// E2e tests of what a screen reader gets, from the accessibility tree: names, roles, where the focus goes and what is
+// announced, studying a card and answering a test.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
-/**
- * What a screen reader gets (step 3.5), from the accessibility tree: names, roles, where the focus goes and what is
- * announced, studying a card and answering a test. VoiceOver itself is checked by hand.
- */
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 
 const focused = (page: Page) =>
@@ -43,7 +41,6 @@ test('studying: the side on screen takes the focus, and each change is announced
   await expect(status).toHaveText('Respuesta de la tarjeta 1 de esta sesión');
   await expect.poll(() => focused(page)).toBe('region Reverso de la tarjeta');
 
-  // Each answer says its interval, not only its color.
   const answer = page.getByRole('group', { name: 'Responder' });
   await expect(answer).toMatchAriaSnapshot(`
     - group "Responder":
@@ -56,7 +53,6 @@ test('studying: the side on screen takes the focus, and each change is announced
   await expect(status).toHaveText('Tarjeta 2 de esta sesión');
   await expect.poll(() => focused(page)).toBe('region Frente de la tarjeta');
 
-  // Undo: the card comes back, and it is announced (the polite toast and the status).
   await page.keyboard.press('ControlOrMeta+z');
   await expect(status).toHaveText('Tarjeta 3 de esta sesión');
   await expect(page.locator('[aria-live="polite"]').getByText(/^Deshecho/)).toBeVisible();
@@ -78,7 +74,6 @@ test('a test: the question takes the focus, the verdict is announced and the alt
   await options.first().click();
   await expect(verdict).toHaveText(/^(✓|✗)(Correcta|Incorrecta\. La correcta es la [A-E])$/);
   await expect.poll(() => focused(page)).toMatch(/Siguiente|Ver resultado/);
-  // The right one and the chosen one are told in words, not only in color.
   await expect(
     question.getByRole('button', { name: /la correcta$|tu respuesta, correcta$/ }),
   ).toHaveCount(1);
@@ -88,7 +83,6 @@ test('a test: the question takes the focus, the verdict is announced and the alt
     );
   }
 
-  // «Siguiente»: the next question takes the focus, and the verdict is empty again.
   await page.keyboard.press('Enter');
   await expect(verdict).toHaveText('');
   expect(await page.evaluate(() => !!document.activeElement?.closest('.qcard'))).toBe(true);

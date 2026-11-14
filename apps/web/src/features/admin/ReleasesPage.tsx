@@ -1,3 +1,4 @@
+// «Administración» → «Publicaciones»: the draft's preview, what it changes, its review list, publishing and undoing.
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -35,14 +36,6 @@ import {
   useSetReleaseMark,
 } from './releaseQueries';
 
-/**
- * «Administración» → «Publicaciones» (step 1.7, part 2; its own page since step 2.10), only for administrators (the
- * layout checks it): the preview of the draft, what the draft
- * changes against what is published (by course and assessment, with the before and after of each card, article
- * section and question, how it is classified and whom it reaches) and the review list; and (part 3) «Publicar», with
- * its confirmation, the last publication with «Deshacer la última publicación», and the log. Nothing moves when it
- * loads nor when it publishes: the last publication's card and the bar of «Publicar» keep their height.
- */
 export function ReleasesPage() {
   return (
     <>
@@ -120,7 +113,7 @@ function Release({ overview }: { overview: ReleaseOverview }) {
         </h3>
         <SiteChanges overview={overview} />
         <div className="mt-4 space-y-4">
-          {/* Revisión de cero (1.8): an empty assessment that only comes into the catalog is one line above. */}
+          {/* An empty assessment that only comes into the catalog is one line above. */}
           {s.assessments
             .filter((a) => !onlyInCatalog(s, a))
             .map((a) => (
@@ -131,8 +124,6 @@ function Release({ overview }: { overview: ReleaseOverview }) {
     </>
   );
 }
-
-// ─────────────────────────────────────────────── the review list ───────────────────────────────────────────────
 
 const status = (r: ReviewList) =>
   r.pending
@@ -286,8 +277,6 @@ function ManualMarks({ review, fingerprint }: { review: ReviewList; fingerprint:
   );
 }
 
-// ───────────────────────────────────────────────── what changes ────────────────────────────────────────────────
-
 const CLASS: Record<ReleaseClass, string> = {
   answer: 'Puede cambiar la respuesta',
   no_answer: 'No cambia la respuesta',
@@ -329,8 +318,7 @@ const classTone = (c: ReleaseClass | null) =>
 function SiteChanges({ overview }: { overview: ReleaseOverview }) {
   const s = overview.summary;
   const indexLines = useIndexLines(overview);
-  // Revisión de cero (1.8): an assessment goes with its course («Química general y orgánica · Certamen 1»): with the
-  // full catalog, seven «Certamen 1» came in at once, all alike (and with the same key).
+  // An assessment goes with its course: with the full catalog, many «Certamen 1» come at once, all alike.
   const courseOf = new Map(s.assessments.map((a) => [a.id, a.courseName ?? a.courseId]));
   const lines = [
     ...s.catalog.map((c) => {
@@ -340,7 +328,6 @@ function SiteChanges({ overview }: { overview: ReleaseOverview }) {
       const kind = { semester: 'El semestre', course: 'El ramo', assessment: 'La evaluación' }[
         c.kind
       ];
-      // Revisión de cero (1.8): «La evaluación … es nueva» (it said «es nuevo»).
       const isNew = c.kind === 'assessment' ? 'es nueva' : 'es nuevo';
       return `${kind} «${name}» ${c.op === 'added' ? isNew : c.op === 'removed' ? 'sale' : 'cambia'}.`;
     }),
@@ -352,7 +339,6 @@ function SiteChanges({ overview }: { overview: ReleaseOverview }) {
       (p) =>
         `La configuración «${p.name}» ${p.op === 'added' ? 'es nueva' : p.op === 'removed' ? 'sale' : 'cambia'}.`,
     ),
-    // The decks above the assessments (the root, a semester's, a course's).
     ...s.decks.map((d) =>
       d.op === 'added'
         ? `El mazo «${lastName(d.name)}» es nuevo.`
@@ -378,10 +364,6 @@ function SiteChanges({ overview }: { overview: ReleaseOverview }) {
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-/**
- * The card browser's indexes the draft changes (step 3.3), a line each, with the course and assessment names of the
- * catalog (the id while it loads or if the assessment is not in it).
- */
 function useIndexLines(overview: ReleaseOverview): string[] {
   const catalog = useCatalog();
   const names = new Map<string, string>();
@@ -563,7 +545,6 @@ function Items({
   );
 }
 
-/** A before and an after, word by word: what goes out struck through, what comes in underlined. */
 function Diff({
   before,
   after,
@@ -580,7 +561,6 @@ function Diff({
         ) : p.op === 'del' ? (
           <span key={i}>
             <del className="bg-state-learn/10 text-state-learn">{p.text}</del>
-            {/* What goes out and what comes in, apart. */}
             {parts[i + 1]?.op === 'add' ? ' ' : null}
           </span>
         ) : (
@@ -762,8 +742,6 @@ function QuestionChange({ item: q }: { item: ReleaseQuestionItem }) {
   );
 }
 
-// ───────────────────────────────────────── publishing and undoing (part 3) ─────────────────────────────────────────
-
 const when = (iso: string) =>
   new Intl.DateTimeFormat('es-CL', {
     dateStyle: 'long',
@@ -774,7 +752,6 @@ const when = (iso: string) =>
 const failure = (e: unknown, fallback: string) =>
   e instanceof Error && e.message ? e.message : fallback;
 
-/** The popup of a confirmation (never the browser's): its title, what it does, and its two buttons. */
 function ConfirmDialog({
   open,
   onOpenChange,
@@ -810,7 +787,6 @@ function ConfirmDialog({
           <Dialog.Description asChild>
             <div className="mt-2 space-y-2 text-sm text-muted">{children}</div>
           </Dialog.Description>
-          {/* Its place is there from the start: an error does not move the buttons. */}
           <div className="mt-3 min-h-[2.5rem]">
             {error ? (
               <p role="alert" className="text-sm text-state-learn">
@@ -844,7 +820,6 @@ function ConfirmDialog({
   );
 }
 
-/** What a publication brings, by assessment, in a line each (the popup of «Publicar»). */
 function releaseLines(s: ReleaseOverview['summary'], indexLines: string[]): string[] {
   const parts = (list: [number, string, string][]) =>
     list.filter(([n]) => n > 0).map(([n, one, many]) => plural(n, one, many));
@@ -885,7 +860,6 @@ function releaseLines(s: ReleaseOverview['summary'], indexLines: string[]): stri
   return [...lines, ...indexLines];
 }
 
-/** «Publicar» under the review list: enabled only when the list is ready, with its confirmation popup. */
 function PublishBar({ review, overview }: { review: ReviewList; overview: ReleaseOverview }) {
   const [open, setOpen] = useState(false);
   const indexLines = useIndexLines(overview);
@@ -957,7 +931,6 @@ const releaseLine = (r: ReleaseRecord) =>
     ? `Deshecha el ${when(r.revertedAt)}${r.revertedBy ? ` por ${r.revertedBy}` : ''}.`
     : `Publicada el ${when(r.publishedAt)} por ${r.publishedBy}.`;
 
-/** The last publication, in a card of a fixed height, with «Deshacer la última publicación» and its popup. */
 function LastRelease() {
   const log = useReleaseLog();
   const revert = useRevertRelease();
@@ -1034,7 +1007,6 @@ function LastRelease() {
   );
 }
 
-/** Every publication, newest first. */
 function ReleaseLogSection() {
   const log = useReleaseLog();
   return (

@@ -1,3 +1,4 @@
+// «Administración» → «Fuera del sitio»: the record of what `npm run unpublish` took off the site, only to look at.
 import type { UnpublishedEntry, UnpublishedKind } from '@qv/schema';
 import { formatDateTime } from '../../lib/dates';
 import { Loading } from '../../ui/Loading';
@@ -6,11 +7,6 @@ import { card } from '../../ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
 import { useUnpublishedLog } from './queries';
 
-/**
- * «Administración» → «Fuera del sitio» (step 2.10), only to look at: what `npm run unpublish` took off the site (step
- * 1.5), what it is, when, why and who, and whether it is published again. Taking something off or bringing it back is
- * still the command. What is off now: the latest entry of each piece that is not on the site.
- */
 export function UnpublishedPage() {
   const log = useUnpublishedLog();
   return (
@@ -41,7 +37,6 @@ const KIND: Record<UnpublishedKind, string> = {
 const count = (n: number | undefined, one: string, many: string) =>
   n === undefined ? null : `${n} ${n === 1 ? one : many}`;
 
-/** What went with it, in a line. */
 function removedLine(e: UnpublishedEntry): string {
   const r = e.removed;
   const parts =

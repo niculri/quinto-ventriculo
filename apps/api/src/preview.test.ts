@@ -1,5 +1,4 @@
-// Step 1.7, part 2 (B3 and B4): the preview of the draft and the release panel's endpoints. B3's «Listo cuando»: a
-// student with the header gets what is published; only an administrator gets the draft, never kept by the browser.
+// Tests for the preview of the draft and for the release panel's endpoints, publishing and undoing included.
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
@@ -61,11 +60,9 @@ const bundle = (title: string): ContentBundle => ({
 });
 
 const marks: { mark: string; checked: boolean; by: string }[] = [];
-/** What publish() and revert() were given (step 1.7, part 3), and what the database would answer next. */
 const published: PublishInput[] = [];
 const reverted: { id: number; by: string }[] = [];
 let refusal: string | null = null;
-/** The database's detail of the next refusal (what it names). */
 let refusalDetail: string | null = null;
 const releases: ReleaseRepository = {
   browseIndexesJson: async () => JSON.stringify([{ assessmentId: 'a/b', op: 'added' }]),
@@ -147,7 +144,6 @@ beforeAll(async () => {
     },
     signer: new MediaSigner('secreto-de-prueba-0123456789-0123456789'),
     releases,
-    // The users' database, by its real API: is_admin() with the student's own token.
     admins: supabaseAdminChecker({
       supabaseUrl: SUPABASE,
       publishableKey: 'sb_publishable_x',
@@ -206,7 +202,6 @@ describe('the preview of the draft', () => {
     expect(r.headers.get('Cache-Control')).toBe('private, max-age=60');
     expect(r.headers.get(PREVIEW_HEADER)).toBeNull();
     expect(r.headers.get('Vary')).toBe(`Authorization, ${PREVIEW_HEADER}`);
-    // The header in a cookie, or another value of it: nothing either.
     const cookie = await request('/api/catalog', ADMIN, {
       Cookie: `${PREVIEW_HEADER}=draft; qv-preview=draft`,
     });
@@ -215,7 +210,7 @@ describe('the preview of the draft', () => {
     expect(await titleOf(other)).toBe('Traducción');
   });
 
-  it('Revisión de cero (1.7, parte 2): an expired token, or one of another project, gets nothing of either', async () => {
+  it('an expired token, or one of another project, gets nothing of either', async () => {
     const sign = (o: { issuer?: string; expires?: string | number; key?: JoseKey }) =>
       new SignJWT({ email: ADMIN, role: 'authenticated' })
         .setProtectedHeader({ alg: 'ES256', kid: 'k1' })
@@ -241,7 +236,7 @@ describe('the preview of the draft', () => {
     }
   });
 
-  it('Revisión de cero (1.7, parte 2): whoever stops being an administrator gets what is published within a minute', async () => {
+  it('whoever stops being an administrator gets what is published within a minute', async () => {
     let admin = true;
     let now = 0;
     const a = createApp({
@@ -268,7 +263,6 @@ describe('the preview of the draft', () => {
     expect(await titleOf(r)).toBe('Traducción');
     const panel = await a.request('/api/admin/release', { headers });
     expect(panel.status).toBe(404);
-    // Not kept by the browser either: it would hide the panel a minute after being made an administrator again.
     expect(panel.headers.get('Cache-Control')).toBe('no-store');
   });
 
@@ -318,7 +312,6 @@ describe('the preview of the draft', () => {
     now = 61_000;
     await checker.isAdmin('tok');
     expect(calls).toBe(2);
-    // A failure is «no», and not remembered.
     const failing = supabaseAdminChecker({
       supabaseUrl: SUPABASE,
       publishableKey: 'k',
@@ -336,7 +329,6 @@ describe('the release panel', () => {
     const o = ReleaseOverview.parse(await r.json());
     expect(o.supportedSchemaVersion).toBe(CONTENT_SCHEMA_VERSION);
     expect(o.summary.fingerprint).toBe(FP);
-    // Step 3.3: the card browser's indexes the draft changes, which the summary does not describe.
     expect(o.browseIndexes).toEqual([{ assessmentId: 'a/b', op: 'added' }]);
   });
 
@@ -426,8 +418,6 @@ describe('the release panel', () => {
   });
 });
 
-// Step 1.7, part 3 (B6): publishing and undoing. The database decides (publish_release(), revert_release(): its own
-// test, db/tests/publish.test.ts); the Worker checks who asks, passes what this Worker understands and says why not.
 describe('publishing and undoing', () => {
   const CHECKS = { blocking: 0, pending: 0, ready: true, warnings: [], marks: [] };
   const post = (path: string, email: string, body: unknown) =>
@@ -445,7 +435,6 @@ describe('publishing and undoing', () => {
       fingerprint: FP,
       title: '  Biología celular · Certamen 2 ',
       checks: CHECKS,
-      // Whatever else the browser sends is not passed on (the Worker decides the version, the marks and who).
       schemaVersion: 99,
       by: 'otro@ug.uchile.cl',
       marks: ['announcement'],
@@ -475,7 +464,6 @@ describe('publishing and undoing', () => {
       ['imaios', 422, 'release_imaios'],
       ['empty', 409, 'release_empty'],
       ['drift', 422, 'release_drift'],
-      // Revisión de cero (1.7, parte 3): a key that a piece that leaves and one that comes in share.
       ['unique', 422, 'release_unique'],
       ['something new', 400, 'invalid_release'],
     ] as const) {
@@ -491,7 +479,7 @@ describe('publishing and undoing', () => {
     refusal = null;
   });
 
-  it('Revisión de cero (1.7, parte 3): the refusals that name something say what (the docs said so, and it was dropped)', async () => {
+  it('the refusals that name something say what', async () => {
     const message = async (path: string, body: unknown) =>
       ((await (await post(path, ADMIN, body)).json()) as { message: string }).message;
     const publishBody = { fingerprint: FP, title: 't', checks: CHECKS };
@@ -505,7 +493,6 @@ describe('publishing and undoing', () => {
     expect(await message('/api/admin/release/revert', { id: 7 })).toMatch(
       /Detalle: taken off after it: note AP-BC-C2-10/,
     );
-    // The fixed English sentence of the others is not added.
     refusal = 'fingerprint';
     refusalDetail = 'the draft or what is published changed since the panel showed it';
     expect(await message('/api/admin/release/publish', publishBody)).not.toMatch(/Detalle/);
@@ -536,7 +523,6 @@ describe('publishing and undoing', () => {
     for (const [reason, code] of [
       ['not_last', 'release_not_last'],
       ['reverted', 'release_reverted'],
-      // Revisión de cero (1.7, parte 3): a migration after it.
       ['migrated', 'release_migrated'],
       ['public_changed', 'release_public_changed'],
     ] as const) {

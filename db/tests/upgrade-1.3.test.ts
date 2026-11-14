@@ -1,9 +1,5 @@
-/**
- * Publishing v1.3 on the content database as production has it: the decks of v1.2 imported (only the
- * package's deck and its Extras, no semester, no creation date), the migration, and then the importer's new
- * bundle saved as CloudTarget saves it. The bundle is the e2e content (apps/web/e2e/content), the importer's
- * output for the test package.
- */
+// The deck tree on the content database as production had it: the old decks imported (the package's deck and its
+// Extras, no semester, no creation date), the migration, and the importer's new bundle saved as CloudTarget saves it.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
@@ -28,6 +24,7 @@ interface Bundle {
   }[];
 }
 
+// The e2e content: the importer's output for the test package.
 const bundle = JSON.parse(
   readFileSync(
     join(import.meta.dirname, '..', '..', 'apps', 'web', 'e2e', 'content', 'content.json'),
@@ -37,7 +34,7 @@ const bundle = JSON.parse(
 const DECK = '2059400110';
 const EXTRAS = '2059400111';
 
-/** The same bundle as the v1.2 importer wrote it. */
+/** The same bundle as the importer before the deck tree wrote it. */
 function before(): Bundle {
   return {
     ...bundle,
@@ -59,7 +56,6 @@ const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
     return fn(tx);
   });
 
-/** What CloudTarget does with the catalog and the decks of a bundle. Returns the notes it rewrote. */
 async function save(b: Bundle) {
   let changed = 0;
   await asService(async (tx) => {
@@ -102,7 +98,7 @@ beforeAll(async () => {
   await applyMigration(db, 'content', MIGRATION);
 });
 
-describe('publishing v1.3 on the production content database', () => {
+describe('publishing the deck tree on the production content database', () => {
   it('the migration changes nothing the published Worker reads', async () => {
     expect((await summaries()).rows).toEqual(summariesBefore);
     expect((await cards()).rows).toEqual(cardsBefore);

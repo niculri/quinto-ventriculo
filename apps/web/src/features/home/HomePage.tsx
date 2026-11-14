@@ -1,3 +1,6 @@
+// The home page: first steps, «Hoy», «Seguir», the study heatmap and «Tus ramos». Its sections appear together, in a
+// space as tall as the page was the last time on this device, so nothing moves while it loads.
+
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowRight, BookOpen, Check, ListChecks, Play, X } from 'lucide-react';
@@ -32,17 +35,6 @@ import { addCourse, listText, myCourses, removeCourse } from './myCourses';
 import type { MyCourses as MyCourseLists } from './myCourses';
 import { todayCourses, useCountsTick, useHomeStudy } from './queries';
 
-/**
- * Inicio (plan step 3.2): only what is the student's. From the top: the first steps (until they are done), «Hoy» (one
- * row per course with something on or studied), «Seguir» (a test half done and the last note opened), the days of
- * study, «Tus ramos» (features/home/myCourses.ts) and a line to the whole degree. «Hoy» counts without downloading any
- * deck (features/home/counts.ts).
- *
- * Nothing moves while it loads: the sections appear together, when what decides them has arrived, in a space as tall as
- * the page was the last time on this device; inside them, what comes later (the numbers, the heatmap) has its room.
- */
-
-/** The page's height the last time, on this device. */
 const HEIGHT_KEY = 'qv-home-height';
 const DEFAULT_HEIGHT = 1100;
 const FIRST_STEPS = 'first-steps';
@@ -79,7 +71,6 @@ export function HomePage() {
   );
 }
 
-/** The open rounds of the tests (`quiz_rounds`), read again on each visit: «Seguir» must not change after it shows. */
 function useOpenRounds() {
   const { quiz } = useServices();
   return useQuery({
@@ -96,7 +87,7 @@ function HomeBody({ catalog }: { catalog: Catalog | undefined }) {
   const rounds = useOpenRounds();
   const reserved = useMemo(() => savedHeight(), []);
   const box = useRef<HTMLDivElement>(null);
-  // Once shown, it stays: a later read (the window gets the focus again) changes what is inside, never the whole page.
+  // Once shown it stays: a later refetch changes what is inside, never the whole page.
   const [shown, setShown] = useState(false);
   const ready =
     !!catalog &&
@@ -109,14 +100,13 @@ function HomeBody({ catalog }: { catalog: Catalog | undefined }) {
     try {
       window.localStorage.setItem(HEIGHT_KEY, String(Math.round(box.current.offsetHeight)));
     } catch {
-      // blocked storage: the default height next time
+      // blocked storage
     }
   });
   if (plan.isError)
     return <ErrorWithRetry error={plan.error} onRetry={() => void plan.refetch()} />;
   if (!ready) {
     return (
-      // flow-root: the sections' margins stay inside, so this box does not move when they replace the skeleton.
       <div style={{ minHeight: reserved }} className="flow-root" aria-busy="true">
         <Skeleton className="mt-6 h-40 sm:mt-8" />
         <Skeleton className="mt-6 h-56 sm:mt-8" />
@@ -141,8 +131,7 @@ function Sections({
   plan: StudyPlan;
   rounds: Awaited<ReturnType<ReturnType<typeof useServices>['quiz']['openRounds']>>;
 }) {
-  // What the student chooses here (the semester, the courses added or taken out, «Ocultar») shows at once, while it is
-  // saved: the page does not wait for the database to change (review of 3.2: nothing moves after a moment).
+  // What the student chooses shows at once, while it is saved.
   const save = useSavePreferences();
   const shown = save.isPending && save.variables ? save.variables : saved;
   const tree = useMemo(() => buildAnkiTree(catalog), [catalog]);
@@ -153,11 +142,9 @@ function Sections({
     [catalog, shown, today],
   );
   const anyOn = useMemo(() => activeUnits(tree.nodes, plan).size > 0, [tree, plan]);
-  // Where to choose what to study: the first course of «Tus ramos» with decks.
   const withDecks = mine.cards.filter((c) => courseDeck(tree, c.id));
   const choose = withDecks.length >= 1 ? paths.course(withDecks[0]!) : '#tus-ramos';
   const steps = {
-    // «Elige tus ramos»: the semester, a course added, or a course with something on (it comes by itself).
     course: shown.semester !== null || shown.addedCourses.length > 0 || today.length > 0,
     unit: anyOn,
     card: plan.answeredDecks.length > 0,
@@ -176,7 +163,6 @@ function Sections({
       ) : null}
       <Today catalog={catalog} courses={today} choose={choose} />
       <Follow catalog={catalog} rounds={rounds} />
-      {/* Every deck of the student, also those no longer on the site. */}
       {catalog.anki.decks.length ? (
         <Heatmap
           scope="all"
@@ -199,8 +185,6 @@ function Sections({
   );
 }
 
-// The first steps ---------------------------------------------------------------------------------------------------
-
 function FirstSteps({
   steps,
   onHide,
@@ -212,7 +196,6 @@ function FirstSteps({
   choose: string;
   study: string | null;
 }) {
-  // The step that comes is the only one with its text and its button: the list stays short on the phone.
   const next = !steps.course ? 1 : !steps.unit ? 2 : 3;
   const item = (done: boolean, n: number, title: string, text: string, action: ReactNode) => (
     <li className="flex items-start gap-3 py-2.5">
@@ -289,8 +272,6 @@ function FirstSteps({
   );
 }
 
-// «Hoy» -------------------------------------------------------------------------------------------------------------
-
 function Today({
   catalog,
   courses,
@@ -362,10 +343,7 @@ function Today({
   );
 }
 
-/**
- * The few times the home page cannot know the new cards without the deck (features/home/counts.ts): the row reads its
- * deck, as the course's page does.
- */
+/** A row for when homeCourseCounts() cannot know the new cards: it reads its deck, as the course's page does. */
 function DeckTodayRow({ node, base }: { node: CourseDeckNode; base: HomeStudyBase }) {
   const deck = useDeck(node.id);
   const { counts, mastery, error } = useDeckCounts(deck.data);
@@ -411,7 +389,6 @@ function TodayRow({
       : null;
   return (
     <li className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
-      {/* On the phone, the load in minutes does not leave room beside the name: it goes below, with the button. */}
       <div className="min-w-0 flex-1 max-sm:basis-full">
         <Link
           to={paths.course(node.ref.course)}
@@ -419,7 +396,6 @@ function TodayRow({
         >
           <span aria-hidden="true">{course?.emoji}</span> {course?.name ?? node.label}
         </Link>
-        {/* Its line is always there: a date or the numbers arriving move nothing. */}
         <span className="mt-0.5 flex items-center gap-x-2 gap-y-0.5 text-xs text-muted max-sm:flex-col max-sm:items-start sm:h-4">
           <span className="flex h-4 flex-none items-center">
             {mastery !== null ? (
@@ -443,7 +419,6 @@ function TodayRow({
         <Skeleton className="h-5 w-24" />
       )}
       {!counts && !failed ? (
-        // Not yet «Estudiar»: to somebody with nothing turned on, it would turn into «Elegir qué estudiar».
         <Skeleton className="h-10 w-28 max-sm:ml-auto" />
       ) : counts && left === 0 ? (
         nothingActive ? (
@@ -468,8 +443,6 @@ function TodayRow({
   );
 }
 
-// «Seguir» ----------------------------------------------------------------------------------------------------------
-
 function Follow({
   catalog,
   rounds,
@@ -493,7 +466,6 @@ function Follow({
   }
   const note = lastNote();
   const located = note ? locateNote(catalog, 'slug', note) : null;
-  // At most two: the latest test and the last note, or two tests.
   const items = located ? tests.slice(0, 1) : tests;
   if (located) {
     items.push({
@@ -504,7 +476,6 @@ function Follow({
       to: paths.note(located.course, located.note.slug),
     });
   }
-  // Nothing to follow: no room taken.
   if (!items.length) return null;
   return (
     <section className="mt-6 sm:mt-8" aria-labelledby="follow">
@@ -546,8 +517,6 @@ function findQuiz(catalog: Catalog, quizId: string) {
   return null;
 }
 
-// «Tus ramos» -------------------------------------------------------------------------------------------------------
-
 function MyCourses({
   catalog,
   prefs,
@@ -571,8 +540,7 @@ function MyCourses({
     label: `${c.emoji} ${c.name} · ${semesterName.get(c.semester) ?? ''}`,
   }));
   const nothing = !courses.cards.length && !courses.soon.length;
-  // «Agregar un ramo»: where the focus goes after a course is taken out (its card, with its ✕, is gone). It may still be
-  // disabled when the ✕ is pressed (nothing else to add): the focus goes when it can take it.
+  // After a course is taken out the focus goes to «Agregar un ramo», as soon as it is enabled.
   const addBox = useRef<HTMLDivElement>(null);
   const [refocus, setRefocus] = useState(false);
   useEffect(() => {
@@ -602,7 +570,6 @@ function MyCourses({
           />
         </div>
       </div>
-      {/* Above the list: adding or taking out a course never moves the controls just used. */}
       <div className="mt-3" ref={addBox}>
         <Select
           label="Agregar un ramo de otro semestre"
@@ -631,7 +598,6 @@ function MyCourses({
                 aria-label={`Quitar ${c.name} de tus ramos`}
                 onClick={() => {
                   onChange(removeCourse(prefs, c.id));
-                  // Its card is gone: the focus goes to «Agregar un ramo», where it can come back from.
                   setRefocus(true);
                 }}
                 className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:outline-none"
@@ -643,7 +609,6 @@ function MyCourses({
         </ul>
       ) : null}
       {courses.soon.length ? (
-        // The courses still without material, in one line rather than cards (the owner's decision of the review).
         <p className="mt-3 text-sm text-muted">
           Próximamente: {listText(courses.soon.map((c) => c.name))}.
         </p>
@@ -652,7 +617,6 @@ function MyCourses({
   );
 }
 
-/** A course of «Tus ramos», to its page; its ✕ goes beside it, outside the link. */
 function CourseCard({ catalog, course }: { catalog: Catalog; course: CourseWithAssessments }) {
   const material = materialLabel(countNotes(course), countDecks(catalog, course.id));
   return (

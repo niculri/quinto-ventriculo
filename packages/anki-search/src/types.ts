@@ -2,7 +2,6 @@
 
 export interface SearchDeck {
   id: string;
-  /** Full name with «::». */
   name: string;
 }
 
@@ -10,9 +9,7 @@ export interface SearchNoteType {
   id: string;
   name: string;
   kind: 'normal' | 'cloze';
-  /** Field names, in order. */
   fields: string[];
-  /** Template names, in order (ord = index). */
   templates: string[];
 }
 
@@ -22,13 +19,11 @@ export interface SearchCard {
   deckId: string;
   noteTypeId: string;
   tags: string[];
-  /** Each field as plain text (no HTML), in the note type's order. */
+  /** Plain text, without HTML. */
   fields: string[];
-  /** When the note was created (Anki's note id), Unix ms. */
+  /** Unix ms (Anki's note id). */
   createdMs: number | null;
-  /** Anki's card.type. */
   type: 'new' | 'learn' | 'review' | 'relearn';
-  /** Anki's card.queue (-1 suspended; -2 and -3 buried). */
   queue: 'new' | 'learn' | 'dayLearn' | 'review' | 'suspended' | 'buried';
   /**
    * learn: Unix seconds; dayLearn and review: Anki day number; new: null. A suspended or buried card keeps
@@ -38,15 +33,12 @@ export interface SearchCard {
   interval: number;
   reps: number;
   lapses: number;
-  /** 0–7. */
   flag: number;
-  /** FSRS stability in days. */
   stability: number | null;
-  /** FSRS difficulty, 1–10 as Anki stores it. */
+  /** 1–10, as Anki stores it. */
   difficulty: number | null;
   /** Unix seconds. */
   lastReview: number | null;
-  /** The card's FSRS decay (null = the one Anki uses when the card has none: 0.5). */
   decay: number | null;
 }
 
@@ -62,7 +54,7 @@ export interface SearchTiming {
   now: number;
   /** Anki's day number. */
   today: number;
-  /** Unix seconds when the next Anki day starts. */
+  /** Unix seconds. */
   nextDayAt: number;
 }
 
@@ -71,13 +63,10 @@ export interface SearchContext {
   noteTypes: SearchNoteType[];
   timing: SearchTiming;
   learnAheadSecs: number;
-  /** Answers (rating 1–4), at least those in the window that `rated:` asks for (see `searchNeeds`). */
+  /** At least those in the window that `rated:` asks for (`searchNeeds`). */
   answers?: SearchAnswer[];
-  /** First answer of each card, by `${noteGuid}\u001f${ord}` (for `introduced:`). */
+  /** By `${noteGuid}\u001f${ord}`. */
   firstAnswerMs?: Map<string, number>;
-  /**
-   * Anki's «Ignore accents in search» (`ignoreAccentsInSearch`, off by default): loose text behaves like `nc:`
-   * and `w:` ignores accents on both sides. Fields, `re:`, `sc:`, names and tags do not change, as in Anki.
-   */
+  /** Anki's «Ignore accents in search»: loose text behaves like `nc:` and `w:` ignores accents on both sides. */
   ignoreAccents?: boolean;
 }

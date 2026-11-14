@@ -1,14 +1,11 @@
-// Import cycles and their baseline (.import-cycles.json). Two kinds: between files (dependency-cruiser's no-circular),
-// and between the web's top folders (a feature, app, ui, lib, shared/<x>), found here on the graph of the web with
-// its paths collapsed to those folders, so that splitting a feature into api/, hooks/… changes no key.
+// Import cycles between files and between the web's top folders, and their baseline (.import-cycles.json).
+// Paths are collapsed to those folders, so splitting a feature changes no key.
 
 export const CYCLES_FILE = '.import-cycles.json';
 const WEB = 'apps/web/src/';
 
 export interface Baseline {
-  /** «from → to» of a file dependency inside a cycle. */
   files: string[];
-  /** «from → to» of a dependency between two top folders of the web that are in a cycle. */
   folders: string[];
 }
 
@@ -19,7 +16,6 @@ export interface Cruise {
 
 const key = (from: string, to: string) => `${from} → ${to}`;
 
-/** The web folder a path belongs to: features/<x>, shared/<x>, or the first folder (or file) under src. */
 export function webFolder(path: string): string | null {
   if (!path.startsWith(WEB)) return null;
   const parts = path.slice(WEB.length).split('/');
@@ -27,7 +23,6 @@ export function webFolder(path: string): string | null {
   return WEB + parts.slice(0, depth).join('/');
 }
 
-/** The dependencies between two different web folders that belong to the same strongly connected component. */
 export function folderCycles(modules: Cruise['modules']): string[] {
   const graph = new Map<string, Set<string>>();
   for (const m of modules) {
@@ -68,7 +63,6 @@ export function readBaseline(json: string): Baseline {
 
 export const writeBaseline = (b: Baseline) => `${JSON.stringify(b, null, 2)}\n`;
 
-/** The keys of `a` that are not in `b`, by kind. */
 export function gained(a: Baseline, b: Baseline): Baseline {
   const without = (x: string[], y: string[]) => x.filter((k) => !y.includes(k));
   return { files: without(a.files, b.files), folders: without(a.folders, b.folders) };
@@ -76,7 +70,7 @@ export function gained(a: Baseline, b: Baseline): Baseline {
 
 export const count = (b: Baseline) => b.files.length + b.folders.length;
 
-/** Tarjan's algorithm: the component number of each node. */
+// Tarjan's algorithm: the component number of each node.
 function stronglyConnected(graph: Map<string, Set<string>>): Map<string, number> {
   let next = 0;
   const index = new Map<string, number>();

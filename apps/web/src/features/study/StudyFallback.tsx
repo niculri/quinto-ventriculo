@@ -1,11 +1,10 @@
+// Loading or an error on a study screen: a phone has no site bar there, so «Volver» is on it, where the next screen
+// has it.
+
 import type { ReactNode } from 'react';
 import { BackButton } from '../../ui/BackButton';
 import { answerBar, studyScreen } from '../../ui/styles';
 
-/**
- * Loading or an error where one answers: on a phone that screen has no site bar, so «Volver» is on it, in the place
- * it has on the screen that comes next.
- */
 export function StudyFallback({
   back,
   label,

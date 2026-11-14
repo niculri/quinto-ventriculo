@@ -1,3 +1,5 @@
+// Tests the conversion between rows and the scheduler's cards, presets and the deck tree, the day and the siblings.
+
 import { describe, expect, it } from 'vitest';
 import { defaultConfig, newCard } from '@qv/srs';
 import type { CardRecord } from '@qv/srs';
@@ -110,7 +112,6 @@ describe('presets and the deck tree', () => {
       presetOf('21', 'Extras', replaced, [{ deckId: '21', presetId: 'u2', authorPreset: null }])
         .name,
     ).toBe('Mía');
-    // A preset that no longer exists: back to the deck's own.
     expect(
       presetOf('21', 'Extras', replaced, [{ deckId: '21', presetId: 'zz', authorPreset: null }])
         .name,
@@ -132,7 +133,6 @@ describe('the day and the siblings', () => {
       ),
     ).toEqual(
       new Map([
-        // What was studied in a deck counts in every deck above it too (up to the root).
         ...['1', '2', '3', '4', '5', '20'].map(
           (id) => [id, { newCount: 1, reviewCount: 2 }] as const,
         ),

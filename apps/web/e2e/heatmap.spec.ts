@@ -1,13 +1,8 @@
+// E2e tests of the heatmap of study days, with the demo's made-up past (`qv-demo-heatmap` = `empty`, `slow` or `error`):
+// nothing moves loading it, changing the year or opening a day, and the arrows go through the days.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
-
-/**
- * Step 3.1: the heatmap on the home page and on a course's page, with the demo's made-up past (features/stats/demo.ts;
- * `qv-demo-heatmap` = `empty`, `slow` or `error` for these tests). Nothing moves: loading it, with or without data,
- * changing the year and opening a day; the page never scrolls sideways (on the phone, the grid scrolls inside its box,
- * starting at today); the arrows go through the days.
- */
 
 const COURSE_URL = '/semesters/1/courses/anatomia-1';
 
@@ -18,7 +13,6 @@ async function flags(page: Page, value: string | null) {
   }, value);
 }
 
-/** Counts the layout shifts after `settle()`. */
 async function watchShifts(page: Page) {
   await page.addInitScript(() => {
     const w = window as unknown as { shift_: number; from_: number };
@@ -61,7 +55,6 @@ const fontsLoaded = (page: Page) =>
 const box = (page: Page) => page.getByRole('region', { name: 'Días de estudio' });
 const today = (page: Page) => page.getByRole('gridcell', { name: /\(hoy\)/ });
 
-/** Where the heatmap, its parts and what comes after it are in the page. */
 const places = (page: Page) =>
   page.evaluate(() => {
     const at = (e: Element | null | undefined) => {
@@ -98,7 +91,6 @@ test('the same places with and without data, and while they come', async ({ page
   await fontsLoaded(page);
   expect(await places(page)).toEqual(empty);
 
-  // The data come 1.5 s late: from the first frame with the page, nothing moves.
   await flags(page, 'slow');
   await watchShifts(page);
   await page.reload();
@@ -118,7 +110,7 @@ test('changing the year and opening a day move nothing', async ({ page }) => {
   await expect(today(page)).toBeVisible();
   await expect(box(page).locator('dd').first()).toHaveText(/\d+ respuestas?/);
   await fontsLoaded(page);
-  // Step 3.2: the first steps come above it on the home page; in sight before clicking its days.
+  // The first steps come above it on the home page: in sight before clicking its days.
   await box(page).scrollIntoViewIfNeeded();
   await settle(page);
   const before = await places(page);
@@ -134,7 +126,6 @@ test('changing the year and opening a day move nothing', async ({ page }) => {
   await expect(today(page)).toBeVisible();
   expect(await places(page)).toEqual(before);
 
-  // A day: a box over the page, nothing pushed.
   await today(page).click();
   const day = page.getByRole('dialog');
   await expect(day).toBeVisible();
@@ -161,7 +152,6 @@ test('the arrows go through the days, and Enter opens one', async ({ page }) => 
   await page.keyboard.press('ArrowLeft');
   const week = await name();
   expect(new Set([start, up, week]).size).toBe(3);
-  // Only one stop in the tab order.
   expect(await page.locator('[role="grid"] [tabindex="0"]').count()).toBe(1);
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog')).toBeVisible();

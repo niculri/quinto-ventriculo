@@ -1,20 +1,15 @@
+// E2e tests of where to write, as a mailto link, on the landing page and in the notice of an uninvited account.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { CONTACT_EMAIL } from '@qv/schema';
 
-/** Steps 2.1 and 2.2: where to write, on the landing page and in the notice of an uninvited account. */
-
 const MAILTO = `mailto:${CONTACT_EMAIL}`;
 
 /**
- * The layout shift of the page while it loads (Chrome's CLS, as e2e/exam.spec.ts measures it), in two parts: `shift`,
- * all of it, and `settledShift`, what moves once the web fonts are in.
- * Revisión de cero (2.1): when Inter (Fontsource, `font-display: swap`) arrives after the first paint, which happens
- * when the machine is busy, the hero's paragraph and the notice wrap again: 0.031 on the desktop with the notice, in 4
- * of 5 runs, a few milliseconds after the font (measured), without anything of the contact moving by itself. That is
- * the whole site's (left to the owner), not this step's: what this step has to keep still is measured once the two
- * families are in (`document.fonts.ready` does not wait for a font the page has not asked for yet), and the whole stays
- * under 0.1, Chrome's «good».
+ * The layout shift of the page while it loads, in two parts: `shift`, all of it, and `settledShift`, what moves once
+ * the web fonts are in. When Inter (`font-display: swap`) arrives after the first paint, the text can wrap again: that
+ * is the whole site's, not the contact's, so what has to stay still is measured once the two families are in
+ * (`document.fonts.ready` does not wait for a font the page has not asked for yet), and the whole stays under 0.1.
  */
 async function loadAndMeasureShift(page: Page, url: string) {
   await page.addInitScript(() => {
@@ -56,7 +51,6 @@ async function loadAndMeasureShift(page: Page, url: string) {
   );
 }
 
-/** Nothing moved once the fonts were in, and the whole load stays «good». */
 async function expectStill(page: Page) {
   const { shift, settledShift } = await page.evaluate(() => {
     const w = window as unknown as { shift: number; settledShift: number };
@@ -81,7 +75,6 @@ test('the landing page says where to write, as a mailto link, and nothing moves'
   await page.waitForTimeout(500);
   expect(await first.boundingBox()).toEqual(before);
   await expectStill(page);
-  // The address fits the phone's width: the page does not scroll sideways.
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );

@@ -1,3 +1,4 @@
+// The public /privacy page, under Ley 19.628 and Ley 21.719 (art. 14 ter).
 import { Link } from 'react-router';
 import {
   ACCOUNT_DELETION_DAYS,
@@ -10,11 +11,7 @@ import { paths } from '../../app/paths';
 import { ContactLink } from '../../ui/ContactLink';
 import { LegalPage, Part } from './LegalPage';
 
-/**
- * /privacy (step 2.3; Ley 19.628 and Ley 21.719, art. 14 ter). Every sentence says what the site does: the data are
- * those of the users' database (db/users/supabase/migrations), its functions and the web. If the site changes what it
- * keeps, who sees it or for how long, this text changes and LEGAL_VERSIONS.privacy goes up.
- */
+/** If the site changes what it keeps, who sees it or for how long, this text changes and LEGAL_VERSIONS.privacy goes up. */
 export function PrivacyPage() {
   const { version, date } = LEGAL_VERSIONS.privacy;
   return (

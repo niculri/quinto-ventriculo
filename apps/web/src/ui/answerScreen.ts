@@ -1,4 +1,4 @@
-/** The screens where one answers cards, without the site's bar on a phone: studying, a final review, practicing. */
+// The screens where one answers cards (studying, a final review, practicing), which have no site bar on a phone.
 export function isAnswerScreen(pathname: string): boolean {
   return answerScreenBack(pathname, '') !== null;
 }

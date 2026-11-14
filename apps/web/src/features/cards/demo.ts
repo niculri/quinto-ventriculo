@@ -1,18 +1,13 @@
+// Made-up, deterministic cards for the cards page: the speed tests use them, and the demo mode shows them instead of
+// the real index when `qv-demo-cards` is a number in this browser.
+
 import type { AnkiTreeDeck, CardDetail, CardIndex, CardIndexNote, Catalog } from '@qv/schema';
 import { CARD_INDEX_VERSION } from '@qv/schema';
 import type { ApiClient } from '../../lib/api';
 import type { StoredCard, StudyRepository } from '../study/repository';
 
-/**
- * Made-up cards for the cards page (step 3.3): nothing of anybody, words drawn from a small list. The tests of speed
- * use them (8,000 notes), and the demo mode shows them instead of the real index when `qv-demo-cards` is a number in
- * this browser («800»): every kind of row, topics, origins and a made-up progress (seen, difficult, marked, hidden).
- * Deterministic: the same page on every visit.
- */
-
 const DEMO_PREFIX = 'demo-';
 
-/** A fixed sequence (mulberry32): a «random» that is the same on every visit. */
 function randomOf(seed: number) {
   let s = seed >>> 0;
   return () => {
@@ -70,7 +65,6 @@ const TYPES = [
   },
 ];
 
-/** The decks an assessment's cards go in: its lowest decks with cards and their Extras. */
 function decksOf(decks: readonly AnkiTreeDeck[], assessmentId: string) {
   const mine = decks.filter((d) => d.assessmentId === assessmentId);
   const isExtras = (d: AnkiTreeDeck) => d.name.endsWith('::Extras');
@@ -83,7 +77,6 @@ function decksOf(decks: readonly AnkiTreeDeck[], assessmentId: string) {
   }));
 }
 
-/** `count` made-up notes of an assessment, in its decks: about one in six an image, a few photos in a row. */
 export function syntheticIndex(
   assessmentId: string,
   decks: readonly AnkiTreeDeck[],
@@ -172,7 +165,6 @@ export function syntheticIndex(
   };
 }
 
-/** A made-up progress for some of those cards: seen, a few difficult, marked or hidden. */
 export function syntheticRows(index: CardIndex, nowMs: number, seed = 11): StoredCard[] {
   const random = randomOf(seed);
   const out: StoredCard[] = [];
@@ -206,7 +198,6 @@ export function syntheticRows(index: CardIndex, nowMs: number, seed = 11): Store
   return out;
 }
 
-/** How many made-up notes the demo shows (`qv-demo-cards`), or null: the real index. */
 function demoCardCount(storage: Storage | null = safeStorage()): number | null {
   const n = Number(storage?.getItem('qv-demo-cards') ?? '');
   return Number.isInteger(n) && n > 0 ? Math.min(n, 20_000) : null;
@@ -220,7 +211,6 @@ function safeStorage(): Storage | null {
   }
 }
 
-/** A made-up card's sides: the same frame as any card, with its row's text. */
 function syntheticCard(note: CardIndexNote, ord: number, deckId: string): CardDetail {
   const kind = note.kind === 'basic' || note.kind === 'cloze' ? note.kind : 'basic';
   const answer =
@@ -249,10 +239,6 @@ function syntheticCard(note: CardIndexNote, ord: number, deckId: string): CardDe
   };
 }
 
-/**
- * The demo's API and progress with made-up cards instead of the real index (only with `qv-demo-cards`): every
- * assessment's index, its cards' sides and some progress in them.
- */
 export function withDemoCards(
   api: ApiClient,
   study: StudyRepository,
@@ -283,7 +269,6 @@ export function withDemoCards(
       async catalog(signal, options) {
         const c = await api.catalog(signal, options);
         if (count() === null) return c;
-        // Every assessment with decks has an index (the made-up one).
         return {
           ...c,
           semesters: c.semesters.map((s) => ({

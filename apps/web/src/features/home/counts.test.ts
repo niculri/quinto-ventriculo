@@ -1,3 +1,5 @@
+// Checks the home page's «Hoy» counts against the study screen's on random courses and students.
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { dayStartsAt } from '@qv/srs';
 import type { AnkiTreeDeck, CardSummary } from '@qv/schema';
@@ -28,10 +30,6 @@ const MIN = 60_000;
 const DAY = 86_400_000;
 const COURSE = '3';
 
-/**
- * A course as the published ones: root → semester → course → assessment → weeks → decks with their Extras, notes of
- * one to four cards (some with a card in the Extras), and a student with rows of every kind.
- */
 function scenario(seed: number) {
   const rnd = random(seed);
   const pick = <T>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)]!;
@@ -58,7 +56,6 @@ function scenario(seed: number) {
     const size = 1 + Math.floor(rnd() * 4);
     const where = rnd();
     for (let ord = 0; ord < size; ord++) {
-      // A note all in its deck, all in its Extras, or split between them.
       const deckId = where < 0.6 ? topic : where < 0.8 ? extras : ord % 2 ? extras : topic;
       cards.push({
         noteGuid: `n${String(i).padStart(3, '0')}`,
@@ -103,7 +100,6 @@ function scenario(seed: number) {
     if (rnd() < 0.05) row.buriedUntil = new Date(NOW + 5 * 3600_000).toISOString();
     rows.set(cardKey(c), row);
   }
-  // Each deck's own cards, as treeDecks() leaves them.
   const own = new Map<string, number>();
   for (const c of cards) own.set(c.deckId, (own.get(c.deckId) ?? 0) + 1);
   for (const d of decks) d.ownCards = own.get(d.id) ?? 0;
@@ -153,7 +149,6 @@ function scenario(seed: number) {
           deckId: '4',
           includeExtras: rnd() < 0.4,
           newPerDay: pick([null, 2, 5, 15, 40]),
-          // Some with a date: then the siblings come out too.
           examDate: rnd() < 0.25 ? '2026-11-25' : null,
         },
       ],
@@ -163,7 +158,6 @@ function scenario(seed: number) {
   return { data, cards };
 }
 
-/** The catalog's figures of each deck, as anki_deck_tree() gives them. */
 function catalogOf(data: StudyData, cards: CardSummary[]): AnkiTreeDeck[] {
   return data.decks.map((d) => {
     const mine = cards.filter((c) => c.deckId === d.id);
@@ -227,7 +221,6 @@ describe('«Hoy» without the deck', () => {
         expect([seed, result.counts]).toEqual([seed, real]);
       } else unknown++;
     }
-    // Most of the time it knows; when not, the row reads the deck.
     if (process.env.QV_SEEDS) console.log('exact', exact, 'unknown', unknown);
     expect(exact).toBeGreaterThan(150);
     expect(unknown).toBeGreaterThan(0);
@@ -245,12 +238,11 @@ describe('«Hoy» without the deck', () => {
       exact++;
       expect([seed, result.counts]).toEqual([seed, deckCounts(fresh, NOW).get(COURSE)!]);
     }
-    // These courses are tiny (4 to 74 notes, a fifth with a card in the Extras): with real ones it is always.
     if (process.env.QV_SEEDS) console.log('fresh exact', exact);
     expect(exact).toBeGreaterThan(200);
   });
 
-  it('without the catalog’s notes (a content database before step 3.2) it never guesses', () => {
+  it('without the catalog’s note counts (an older content database) it never guesses', () => {
     for (let seed = 1; seed <= 60; seed++) {
       const { data, cards } = scenario(seed);
       const { deck: _deck, rows: _rows, ...base } = data;

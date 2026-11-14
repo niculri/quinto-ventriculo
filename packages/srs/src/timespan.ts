@@ -3,8 +3,8 @@
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 // Spanish texts from Anki's translations (BSD-3-Clause and public domain, as Anki's LICENSE says).
 /**
- * Intervals as Anki writes them in Spanish (rslib/src/scheduler/timespan.rs with the es-ES translation):
- * «<1 m», «10 m», «1 d», «1,5 me» on the answer buttons; «10 minutos» in sentences.
+ * Intervals as Anki writes them in Spanish (rslib/src/scheduler/timespan.rs, es-ES): «<1 m», «1,5 me» on the answer
+ * buttons; «10 minutos» in sentences.
  */
 import { asSeconds, intervalKind, maybeAsDays } from './states';
 import type { SchedulingStates } from './states';
@@ -54,14 +54,13 @@ const SPAN_NAMES: Record<Unit, [string, string]> = {
   years: ['año', 'años'],
 };
 
-/** A number as Fluent writes it in Spanish (decimal comma). */
 function number(x: number): string {
   return String(x).replace('.', ',');
 }
 
 const roundTo1 = (x: number) => Math.round(x * 10) / 10;
 
-/** The text of an answer button for an interval in seconds (answer_button_time). */
+/** answer_button_time. */
 export function answerButtonTime(seconds: number): string {
   const unit = naturalUnit(seconds);
   const amount = seconds / UNIT_SECS[unit];
@@ -79,7 +78,7 @@ export function answerButtonTimeCollapsible(seconds: number, collapseSecs: numbe
   return seconds < collapseSecs ? `<${text}` : text;
 }
 
-/** The four button texts (describe_next_states). */
+/** describe_next_states. */
 export function describeNextStates(
   states: SchedulingStates,
   secsUntilRollover: number,
@@ -93,7 +92,7 @@ export function describeNextStates(
   return [label(states.again), label(states.hard), label(states.good), label(states.easy)];
 }
 
-/** «10 minutos», «1 hora», «1,5 meses» (time_span, not precise). */
+/** time_span, not precise: «10 minutos», «1,5 meses». */
 export function timeSpan(seconds: number): string {
   const unit = naturalUnit(seconds);
   const amount = seconds / UNIT_SECS[unit];
@@ -102,10 +101,7 @@ export function timeSpan(seconds: number): string {
   return `${number(rounded)} ${rounded === 1 ? one : many}`;
 }
 
-/**
- * The congratulations screen's line about learning cards later today (ts/routes/congrats/lib.ts): empty if
- * the next one is not due today.
- */
+/** The congratulations screen's line about learning cards later today (ts/routes/congrats/lib.ts). */
 export function nextLearnMessage(secsUntilNextLearn: number, learnRemaining: number): string {
   if (secsUntilNextLearn >= 86_400) return '';
   const unit = naturalUnit(secsUntilNextLearn);

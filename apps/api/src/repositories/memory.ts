@@ -1,3 +1,5 @@
+// The content repository in memory, from the importer's bundle, for local development and tests. The search mimics
+// Postgres' (no accents, by prefix, every word).
 import { HIGHLIGHT_END, HIGHLIGHT_START } from '@qv/schema';
 import { quizDetail, quizSummary } from '@qv/schema';
 import type { ContentBundle, Note, SearchResult } from '@qv/schema';
@@ -5,10 +7,6 @@ import type { ContentRepository } from '../repository';
 import { buildCatalog } from './build-catalog';
 import { memoryDecks } from './memory-decks';
 
-/**
- * In-memory repository built from the importer bundle (`.output/content.json`). For local development and
- * tests; the search mimics Postgres' (no accents, by prefix, every word).
- */
 export function memoryRepository(bundle: ContentBundle): ContentRepository {
   const summaries = bundle.notes.map(
     ({
@@ -126,7 +124,6 @@ function escapeRegExp(t: string) {
   return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** ~30 words around the first match, with the matches highlighted. */
 function snippet(text: string, words: string[]): string {
   const tokens = text.split(/\s+/);
   const matches = (t: string) =>

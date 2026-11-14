@@ -1,3 +1,4 @@
+// The frame of «Opciones»: the menu of its sections by group (tabs on top on the phone) and the open section.
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
 import { paths } from '../../app/paths';
@@ -5,10 +6,7 @@ import { Breadcrumbs } from '../../ui/Breadcrumbs';
 import { useSettingsGroups } from './useSettingsGroups';
 import { page } from '../../ui/styles';
 
-/**
- * «Opciones»: the menu of its sections on the left, by group (on top, as tabs, on the phone), and the open
- * one on the right. On wide screens the site's menu (ui/AppNav.tsx) has them, so this one goes away.
- */
+/** On wide screens the site's menu (ui/AppNav.tsx) has the sections, so this one goes away. */
 export function SettingsLayout({ children }: { children: ReactNode }) {
   const groups = useSettingsGroups();
   return (
@@ -20,8 +18,6 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
           aria-label="Secciones de las opciones"
           className="min-w-0 md:w-56 md:flex-none lg:hidden"
         >
-          {/* Each group: its title (a heading, not a link) and its sections. On the phone everything goes in one
-              row that scrolls by itself if it does not fit, never the page. */}
           <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 md:sticky md:top-24 md:mx-0 md:flex-col md:items-stretch md:gap-0 md:overflow-visible md:px-0 md:pb-0">
             {groups.map((group, i) => (
               <div

@@ -1,3 +1,4 @@
+// The client of the site's `/api`: it sends the session token and validates every response with its schema.
 import type { z } from 'zod';
 import {
   ApiError,
@@ -44,13 +45,10 @@ export class ApiRequestError extends Error {
 
 export type GetToken = () => Promise<string | null>;
 
-/** The header that asks the API for the draft (step 1.7): only an administrator gets it. */
+/** The header that asks the API for the draft: only an administrator gets it. */
 export const PREVIEW_HEADERS = { 'X-QV-Preview': 'draft' } as const;
 
-/**
- * `/api` client. Sends the session token and validates every response with its schema. `headers`: the preview's
- * (`PREVIEW_HEADERS`); then nothing is taken from nor left in the browser's cache.
- */
+/** With the preview's `headers`, nothing is taken from nor left in the browser's cache. */
 export function createApiClient(
   getToken: GetToken,
   base = '',
@@ -110,12 +108,7 @@ export function createApiClient(
       request(`/api/notes/${encodeURIComponent(slug)}`, Note, signal),
     deck: (id: string, signal?: AbortSignal) =>
       request(`/api/decks/${encodeURIComponent(id)}`, DeckDetail, signal),
-    /** Every published note, light, for the browser. */
     ankiNotes: (signal?: AbortSignal) => request('/api/anki/notes', BrowseData, signal),
-    /**
-     * The card browser's index of an assessment (step 3.3): the file its `cardIndex.hash` in the catalog names. It does
-     * not change while that hash is the same.
-     */
     cardIndex: (assessmentId: string, hash: string, signal?: AbortSignal) =>
       request(cardIndexUrl(assessmentId, hash), CardIndex, signal),
     /** One signature for every thumbnail of the browser: `/api/media/<thumb>?<query>`. */
@@ -126,36 +119,31 @@ export function createApiClient(
     /** The guid is Anki's: it may have «/», «%», «?»… (it travels encoded). */
     card: (noteGuid: string, ord: number, signal?: AbortSignal) =>
       request(`/api/cards/${encodeURIComponent(noteGuid)}/${ord}`, CardDetail, signal),
-    /** The practice tests of a course or an assessment. */
     quizzes: (filter: { course?: string; assessment?: string } = {}, signal?: AbortSignal) =>
       request(
         `/api/quizzes${Object.keys(filter).length ? `?${new URLSearchParams(filter)}` : ''}`,
         QuizIndex,
         signal,
       ),
-    /** A test, by its id: its sections (tabs) and groups, without the questions. */
     quiz: (id: string, signal?: AbortSignal) =>
       request(`/api/quizzes/${encodeURIComponent(id)}`, QuizDetail, signal),
-    /** The questions of a section, by group, with signed URLs for the photos. */
     quizSection: (id: string, sectionId: string, signal?: AbortSignal) =>
       request(
         `/api/quizzes/${encodeURIComponent(id)}/sections/${encodeURIComponent(sectionId)}`,
         QuizSectionDetail,
         signal,
       ),
-    // ── The site's settings (step 1.8): only for an administrator (anybody else gets 404) ──
     siteSettings: (signal?: AbortSignal) =>
       request('/api/admin/site-settings', SiteSettings, signal),
     setSiteSettings: (body: { hideEmptySemesters: boolean }) =>
       request('/api/admin/site-settings', SiteSettings, undefined, { method: 'PUT', body }),
-    /** What was taken off the site (step 2.10), newest first: only for an administrator (anybody else gets 404). */
     unpublishedLog: (signal?: AbortSignal) =>
       request('/api/admin/unpublished', UnpublishedLog, signal),
-    /** «Uso» (step 2.9): figures of 5 students or more: only for an administrator (anybody else gets 404). */
+    /** Usage figures, only of groups of 5 students or more. */
     usage: (signal?: AbortSignal) => request('/api/admin/usage', UsageReport, signal),
     /**
-     * A note, a deck or a test opened by its page, or a search completed (step 2.9): counted without who. `keepalive`:
-     * it arrives even if the page changes right after (a search that opens a result).
+     * Counts, without who, a note, deck or test opened by its page, or a search completed. `keepalive`: it arrives even
+     * if the page changes right after (a search that opens a result).
      */
     usageOpen: (body: UsageOpenRequest) =>
       request('/api/usage/open', UsageOpenAck, undefined, {
@@ -163,38 +151,32 @@ export function createApiClient(
         body,
         keepalive: true,
       }),
-    // ── Releases (step 1.7): only for an administrator (anybody else gets 404) ──
-    /** What the draft changes, and the content version the site on line understands. */
     releaseOverview: (signal?: AbortSignal) =>
       request('/api/admin/release', ReleaseOverview, signal),
-    /** A page of one kind of change of one assessment. */
     releaseCards: (assessment: string, after: string | null, signal?: AbortSignal) =>
       request(itemsPath(assessment, 'card', after), ReleaseCardPage, signal),
     releaseArticles: (assessment: string, after: string | null, signal?: AbortSignal) =>
       request(itemsPath(assessment, 'article', after), ReleaseArticlePage, signal),
     releaseQuestions: (assessment: string, after: string | null, signal?: AbortSignal) =>
       request(itemsPath(assessment, 'question', after), ReleaseQuestionPage, signal),
-    /** A page of the texts the draft adds or changes. */
     releaseTexts: (after: string | null, signal?: AbortSignal) =>
       request(
         `/api/admin/release/texts${after ? `?${new URLSearchParams({ after })}` : ''}`,
         ReleaseTextPage,
         signal,
       ),
-    /** A page of the new images, and which of them the store does not have. */
     releaseMedia: (after: string | null, signal?: AbortSignal) =>
       request(
         `/api/admin/release/media${after ? `?${new URLSearchParams({ after })}` : ''}`,
         ReleaseMediaPage,
         signal,
       ),
-    /** Checks or unchecks a mark by hand, for the draft with that fingerprint (409 if it changed). */
     setReleaseMark: (fingerprint: string, mark: ReleaseMarkId, checked: boolean) =>
       request('/api/admin/release/marks', ReleaseMarks, undefined, {
         method: 'PUT',
         body: { fingerprint, mark, checked },
       }),
-    /** Publishes the draft the panel showed (step 1.7, part 3): 409 if it changed, 422 if something stops it. */
+    /** Publishes the draft the panel showed: 409 if it changed, 422 if something stops it. */
     publishRelease: (body: PublishRequest) =>
       request('/api/admin/release/publish', PublishResult, undefined, { method: 'POST', body }),
     /** Undoes the last publication (409 if it is not the last one any more, or what is published changed). */
@@ -203,7 +185,6 @@ export function createApiClient(
         method: 'POST',
         body: { id },
       }),
-    /** The publications, newest first. */
     releaseLog: (signal?: AbortSignal) => request('/api/admin/releases', ReleaseLog, signal),
     search: (query: string, limit = 20, signal?: AbortSignal) =>
       request(

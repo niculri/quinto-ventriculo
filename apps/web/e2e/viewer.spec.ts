@@ -1,8 +1,8 @@
+// E2e tests of the image viewer: natural size, pinch, drag, double tap and keys, from a note, a card and a test.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
-/** The image viewer (step 3.5): natural size, pinch, drag and double tap, from a note, a card and a test. */
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 
@@ -10,13 +10,11 @@ const viewer = (page: Page) =>
   page.getByRole('dialog').filter({ has: page.getByTestId('image-stage') });
 const stageImage = (page: Page) => page.getByTestId('image-stage').locator('img');
 
-/** The scale of the image in the viewer (its CSS transform). */
 const scale = (page: Page) =>
   stageImage(page).evaluate((img) =>
     Number(/scale\(([\d.]+)\)/.exec(img.style.transform)?.[1] ?? 0),
   );
 
-/** The image's box on screen, rounded. */
 const imageBox = async (page: Page) => {
   const b = (await stageImage(page).boundingBox())!;
   return [b.x, b.y, b.width, b.height].map(Math.round);
@@ -108,7 +106,6 @@ test('from a note: fitted, pinch, drag, double tap, keys; closing goes back wher
   expect(fitted).toBeLessThanOrEqual(1);
   await expect(dialog.getByRole('button', { name: 'Alejar' })).toBeDisabled();
 
-  // Two fingers apart: bigger. One finger: it moves. Double tap: back to what fits.
   await pinchOut(page);
   await expect.poll(() => scale(page)).toBeGreaterThan(fitted * 1.5);
   const before = await imageBox(page);
@@ -117,7 +114,6 @@ test('from a note: fitted, pinch, drag, double tap, keys; closing goes back wher
   await doubleTap(page);
   await expect.poll(() => scale(page)).toBeCloseTo(fitted, 3);
 
-  // The keyboard and the buttons.
   await page.keyboard.press('+');
   await expect.poll(() => scale(page)).toBeGreaterThan(fitted);
   await page.keyboard.press('0');
@@ -127,7 +123,6 @@ test('from a note: fitted, pinch, drag, double tap, keys; closing goes back wher
   await dialog.getByRole('button', { name: 'Ajustar a la pantalla' }).click();
   await expect.poll(() => scale(page)).toBeCloseTo(fitted, 3);
 
-  // «Alejar» down to what fits: it stops, but keeps the focus, and the keys still work.
   await page.keyboard.press('+');
   const zoomOut = dialog.getByRole('button', { name: 'Alejar' });
   await zoomOut.focus();
@@ -138,7 +133,6 @@ test('from a note: fitted, pinch, drag, double tap, keys; closing goes back wher
   await expect.poll(() => scale(page)).toBeGreaterThan(fitted);
   await page.keyboard.press('0');
 
-  // Focus stays inside; Escape closes and gives the focus back to the figure, without moving the page.
   for (let i = 0; i < 6; i++) await page.keyboard.press('Tab');
   expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
   await page.keyboard.press('Escape');
@@ -146,7 +140,6 @@ test('from a note: fitted, pinch, drag, double tap, keys; closing goes back wher
   await expect(figure).toBeFocused();
   expect(await page.evaluate(() => window.scrollY)).toBe(scrolled);
 
-  // Enter opens it again from the keyboard.
   await page.keyboard.press('Enter');
   await expect(viewer(page)).toBeVisible();
 });
@@ -185,7 +178,6 @@ test('from a card being studied: its image, and closing leaves the card as it wa
   await image.click();
   await expect(viewer(page)).toBeVisible();
   await expect.poll(() => scale(page)).toBeGreaterThan(0);
-  // The keys of the study screen are not the viewer's: 3 does not answer.
   await page.keyboard.press('3');
   await expect(viewer(page)).toBeVisible();
   await viewer(page).getByRole('button', { name: 'Cerrar' }).click();
@@ -224,7 +216,6 @@ test('from an occlusion: the zoom keeps its masks, and the front stays the front
   await expect(viewer(page)).toBeVisible();
   const zoomed = stageImage(page);
   await expect(zoomed).toHaveAttribute('src', /^data:image\/png/);
-  // The active mask (c1) is drawn on the zoomed image as on the card.
   const masked = await zoomed.evaluate(async (img: HTMLImageElement) => {
     await img.decode();
     const c = document.createElement('canvas');

@@ -1,3 +1,4 @@
+// The 404 page.
 import { Link } from 'react-router';
 import { paths } from '../app/paths';
 import { button } from './styles';

@@ -1,3 +1,5 @@
+// Converts a test made with the pauta-a-test skill (test.json and its question files) into the published test,
+// with the same rules and texts as the skill's modelo.py and page.
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, isAbsolute, join, relative, resolve } from 'node:path';
 import sanitizeHtml from 'sanitize-html';
@@ -13,14 +15,6 @@ import type {
 } from '@qv/schema';
 import { drawChart } from './quiz-charts';
 import type { ProcessedImage } from './images';
-
-/**
- * A test made with the `pauta-a-test` skill (a folder with `test.json` and `<carpeta>/*.json`, `figuras/`)
- * → the published test (`ImportedQuiz`). Same rules and same texts as the skill's page: its `modelo.py`
- * (loading, validation, normalization) and the `FIG`, `tablaHTML` and cover of `plantilla/test.html`.
- */
-
-// ───────────────────────────── the skill's format ─────────────────────────────
 
 const LETTERS = 'ABCDEF';
 const QUESTION_FIELDS = new Set([
@@ -67,7 +61,7 @@ const DESCRIPTION_OPEN =
   'bien o mal; en las de respuesta corta ves la respuesta y marcas si la sabías. Al terminar ' +
   'muestra cuántas buenas y cuántas malas.';
 
-/** The skill's themes («tema»): accent, its backgrounds, second accent, text on the accent and chart colors. */
+/** The skill's «tema» values with their palettes. */
 export const QUIZ_THEMES: Record<string, QuizTheme> = {
   azul: {
     light: {
@@ -162,10 +156,7 @@ export const QUIZ_THEMES: Record<string, QuizTheme> = {
 /* eslint-disable @typescript-eslint/no-explicit-any -- the skill's JSON is free-form until it is validated */
 type Json = Record<string, any>;
 
-/**
- * The skill's inline syntax → safe HTML: **bold**, *italics*, ^superscript^, ~subscript~ and line breaks;
- * everything else is shown as it is (`<`, `>`, `&`). The `md()` of modelo.py, with Python's Unicode `\w`.
- */
+/** The skill's inline marks (**, *, ^, ~) to escaped HTML, as modelo.py's `md()` with Python's Unicode `\w`. */
 export function inlineHtml(text: unknown): string {
   const W = '[\\p{L}\\p{N}_]';
   return String(text)
@@ -184,7 +175,6 @@ export function inlineHtml(text: unknown): string {
 
 const textOk = (x: unknown): x is string => typeof x === 'string' && x.trim() !== '';
 
-/** «ok» as a letter («C») or an index from 0 → index from 0. */
 function correctIndex(ok: unknown, n: number): number {
   let i: number;
   if (typeof ok === 'number' && Number.isInteger(ok)) i = ok;
@@ -202,8 +192,6 @@ function correctIndex(ok: unknown, n: number): number {
     throw new Error(`«ok» = ${JSON.stringify(ok)} fuera de rango: hay ${n} alternativas`);
   return i;
 }
-
-// ───────────────────────────── SVG ─────────────────────────────
 
 const SVG_TAGS = [
   'svg',
@@ -263,10 +251,7 @@ const SVG_ATTRIBUTES = [
   'aria-hidden',
   'xmlns',
 ];
-/**
- * A value without anything that loads or runs something (`url()` of another document, `javascript:`). The
- * presentation attributes (`fill`, `stroke`) are read as CSS, where `u\72 l(` is `url(`: no backslashes.
- */
+/** No `url(`, `javascript:` or backslash: presentation attributes are read as CSS, where `u\72 l(` is `url(`. */
 const SAFE_VALUE =
   /^(?![\s\S]*javascript:)(?![\s\S]*url\s*\()(?![\s\S]*expression\s*\()(?![\s\S]*\\)/i;
 
@@ -287,11 +272,7 @@ const SVG_OPTIONS: sanitizeHtml.IOptions = {
   },
 };
 
-/**
- * An inline SVG of the test, sanitized: only drawing tags and attributes (no scripts, events, links,
- * `<foreignObject>`, `<use>`, `<style>`, external references). Returns the warnings if something was
- * dropped (the figure would not look like the original).
- */
+/** Keeps only drawing tags and attributes; `dropped` warns that the figure may not look like the original. */
 export function sanitizeSvg(svg: string): { svg: string; dropped: string[] } {
   const clean = sanitizeHtml(svg.trim(), SVG_OPTIONS);
   const dropped: string[] = [];
@@ -313,8 +294,6 @@ export function sanitizeSvg(svg: string): { svg: string; dropped: string[] } {
   }
   return { svg: clean, dropped };
 }
-
-// ───────────────────────────── loading ─────────────────────────────
 
 interface LoadedGroup {
   data: Json;
@@ -345,7 +324,7 @@ async function jsonFiles(folder: string): Promise<string[]> {
   }
 }
 
-/** test.json and the groups of questions (`cargar()` of modelo.py). */
+/** As modelo.py's `cargar()`. */
 async function load(folder: string): Promise<{ cfg: Json; groups: LoadedGroup[] }> {
   const cfg = (await readJson(join(folder, 'test.json'))) as Json;
   const parts: [string | null, string, string][] =
@@ -376,8 +355,6 @@ async function load(folder: string): Promise<{ cfg: Json; groups: LoadedGroup[] 
   }
   return { cfg, groups };
 }
-
-// ───────────────────────────── validation ─────────────────────────────
 
 function validate(cfg: Json, groups: LoadedGroup[], folder: string): string[] {
   const E: string[] = [];
@@ -508,53 +485,34 @@ function validateFigure(f: any, where: string, folder: string, E: string[]) {
   if (f.tipo === 'svg' && !String(f.svg).trimStart().startsWith('<svg'))
     E.push(`${where}: «svg» debe empezar con <svg`);
   if (f.tipo === 'imagen' && !String(f.src).startsWith('data:')) {
-    // checked again when the image is read; here only that it is inside the folder («../test 2/x.png»
-    // starts with the folder's name too: compared by path, not by prefix)
+    // Compared by path, not by prefix: «../test 2/x.png» also starts with the folder's name.
     const rel = relative(resolve(folder), resolve(folder, String(f.src)));
     if (!rel || rel.startsWith('..') || isAbsolute(rel))
       E.push(`${where}: la imagen ${f.src} está fuera de la carpeta del test`);
   }
 }
 
-// ───────────────────────────── conversion ─────────────────────────────
-
 export type QuizImageProcessor = (data: Uint8Array) => Promise<ProcessedImage>;
 
 export interface QuizEntry {
-  /**
-   * Id of the test, unique on the site (its progress hangs from it). Default: the assessment and the slug
-   * («biologia-celular-certamen-2-preguntas-de-practica»); fix it to rename the slug without losing progress.
-   */
+  /** Everybody's progress hangs from it: set it to rename the slug without losing progress. */
   id?: string | undefined;
-  /** URL segment, unique in its assessment. */
   slug: string;
   position: number;
-  /** Folder of the test, relative to the material folder (--root). */
   folder: string;
-  /** The name on the site, instead of test.json's «titulo» (that one is the standalone page's). */
   title?: string | undefined;
-  /**
-   * The standalone page's «kicker», «encabezado» and «pie»: null leaves them out (they repeat what the
-   * breadcrumbs and the title say), a text replaces them; without it, test.json's.
-   */
   kicker?: string | null | undefined;
   heading?: string | null | undefined;
   footer?: string | null | undefined;
-  /** By section id: the description and the notice on the site (notice null: none). */
   sections?: Record<
     string,
     { description?: string | undefined; notice?: string | null | undefined }
   >;
-  /** By question id: its general explanation on the site, instead of test.json's «exp». */
   questions?: Record<string, { explanation: string }>;
-  /**
-   * Accept questions whose id is their place («01-3»: no `id` and no source tag). Without it they stop the
-   * import: adding or taking out a question before them would move everybody's progress to another question.
-   */
+  /** A positional id moves everybody's progress when a question is added or taken out before it. */
   allowPositionalIds?: boolean | undefined;
 }
 
-/** A test's id when the manifest does not fix one. */
 export function defaultQuizId(assessmentId: string, slug: string): string {
   return `${assessmentId.replace(/\//g, '-')}-${slug}`;
 }
@@ -566,18 +524,13 @@ export interface ConvertedQuiz {
 }
 
 /**
- * A question's id, stable when its text changes: the skill's `id` if it has one; if not, the source tag
- * at the start of its internal note («[D-p02-04 + A-p03-02] …» → «D-p02-04», the page of the source where
- * it comes from; «[N03-12] …» → «N03-12», the new question 12 of class 10); if not, «<group>-<number>», the
- * key the skill's page used for its saved rounds. In a test with tabs every tab can have its group «01»: from
- * the second tab on, `section` goes first («seminario.01-1»), as the skill's page tells them apart (the
- * first tab keeps its ids when a test gets a second one).
+ * The skill's `id`, else the source tag that starts the note («[D-p02-04 + …]»), else «<group>-<n>» as the skill's
+ * page keys its rounds; from the second tab on, prefixed by the section so the first tab keeps its ids.
  */
 export function questionId(q: Json, groupId: string, n: number, section?: string): string {
   return stableQuestionId(q) ?? `${section ? `${section}.` : ''}${groupId}-${n}`;
 }
 
-/** The id that does not depend on the question's place: the skill's `id` or the source tag; else null. */
 export function stableQuestionId(q: Json): string | null {
   if (typeof q.id === 'string') return q.id;
   const tag =
@@ -682,7 +635,6 @@ export async function convertQuiz(
       ...(q.e ? { context: inlineHtml(q.e) } : {}),
       prompt: inlineHtml(q.q),
       figures,
-      // As the page: beside the alternatives only with alternatives.
       figureBeside: !!(q.fig_izq && figures.length && 'o' in q),
       ...(q.tabla ? { table: table(q.tabla as Json) } : {}),
       ...(q.exp ? { explanation: inlineHtml(q.exp) } : {}),
@@ -704,7 +656,6 @@ export async function convertQuiz(
     return { ...base, kind: 'short', answer: inlineHtml(q.r) };
   }
 
-  /** Questions whose id would be their place (`questionId`'s last option), as «file #n». */
   const positional: string[] = [];
   async function convertGroups(list: LoadedGroup[], section?: string): Promise<QuizGroup[]> {
     const out: QuizGroup[] = [];
@@ -753,10 +704,9 @@ export async function convertQuiz(
 
   const sections: ImportedQuiz['sections'] = [];
   for (const [k, { id, s, list }] of sectionsIn.entries()) {
-    // Default ids: the second tab on goes with its id before (see questionId).
     const converted = await convertGroups(list, k > 0 ? id : undefined);
     const all = converted.flatMap((g) => g.questions);
-    // The section's notice, or the test's if the section does not say (an empty one = none).
+    // An empty section notice means none; a missing one falls back to the test's.
     const notice =
       s && 'aviso' in s ? (textOk(s.aviso) ? inlineHtml(s.aviso) : undefined) : generalNotice;
     const listing: QuizListing | undefined = s?.listado
@@ -798,7 +748,6 @@ export async function convertQuiz(
     );
   }
 
-  // What the manifest says of each section, instead of test.json's.
   for (const [id, o] of Object.entries(entry.sections ?? {})) {
     const s = sections.find((x) => x.id === id);
     if (!s) throw new Error(where(`el manifiesto nombra la sección «${id}», que el test no tiene`));
@@ -809,7 +758,6 @@ export async function convertQuiz(
     else if (o.notice) s.notice = inlineHtml(o.notice);
   }
 
-  // Ids unique in the whole test: the progress of each question hangs from (test, question).
   const seen = new Map<string, string>();
   for (const s of sections)
     for (const g of s.groups)
@@ -820,7 +768,6 @@ export async function convertQuiz(
         seen.set(q.id, `${s.id}/${g.id}`);
       }
 
-  // What the manifest says of each question, instead of test.json's.
   for (const [id, o] of Object.entries(entry.questions ?? {})) {
     const q = sections
       .flatMap((s) => s.groups.flatMap((g) => g.questions))
@@ -839,7 +786,6 @@ export async function convertQuiz(
       where(`no existe el tema «${cfg.tema}» (hay: ${Object.keys(QUIZ_THEMES).join(', ')})`),
     );
 
-  // From the manifest (a text, or null: none), or else from test.json.
   const chrome = (value: string | null | undefined, fallback: unknown) =>
     value === null ? '' : inlineHtml(value ?? (textOk(fallback) ? fallback : ''));
   const quiz = {
@@ -858,12 +804,11 @@ export async function convertQuiz(
     sections,
     media: [...media.keys()].sort(),
   };
-  // Validated against the schema now, not when the web reads it.
   ImportedQuiz.omit({ hash: true, updatedAt: true }).parse(quiz);
   return { quiz, media, warnings };
 }
 
-/** A theme given as {"claro": {…}, "oscuro": {…}} with the tokens that change from «azul». */
+/** `{"claro": {…}, "oscuro": {…}}` with only the tokens that differ from «azul». */
 function customTheme(t: Json): QuizTheme {
   return {
     light: { ...QUIZ_THEMES.azul!.light, ...(t?.claro ?? {}) },

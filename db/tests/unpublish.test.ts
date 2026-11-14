@@ -1,6 +1,5 @@
-// Plan step 1.5: take a piece off the site in minutes (20261108000000_unpublish.sql + `npm run unpublish`).
-// The real command and the real importer against the content database with every migration (PGlite), with a fake R2,
-// and the users' database next to it to see that every student's progress stays and comes back.
+// Taking a piece off the site in minutes: the real `npm run unpublish` and importer against the content database, with
+// a fake R2, and the users' database next to it to see that every student's progress stays and comes back.
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -57,7 +56,6 @@ const store: MediaStore & MediaRemover = {
 };
 const target = new CloudTarget({ db: rpc, store });
 
-/** What the command knows of the manifest: the articles (id, web code, slug) and the tests. */
 const manifest = (p: Parts): Pick<Manifest, 'notes' | 'tests'> =>
   ({
     notes: [BC, AN].map((assessmentId) => ({
@@ -99,7 +97,6 @@ const importAll = async (p: Parts) => {
 
 const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
   (await db.query<T>(sql, params)).rows;
-/** Every published row, with its dates: to see that nothing of another piece changed. */
 const snapshot = async () => ({
   notes: await q(
     'select id, hash, version, updated_at, published_at, version_at from notes order by id',
@@ -120,7 +117,6 @@ const withoutRows = (
     Object.entries(s).map(([t, rows]) => [t, rows.filter((r) => !drop(t as keyof Snapshot, r))]),
   );
 
-/** What the API reads, by function (the articles it reads from the table, as PostgREST). */
 const apiReads = async () => ({
   notes: (await q<{ slug: string }>('select slug from notes order by slug')).map((r) => r.slug),
   search: (
@@ -210,7 +206,6 @@ describe('the command (npm run unpublish)', () => {
     expect(reads.notes).toEqual(readsBefore.notes.filter((s) => s !== 'clase-ap-bc-c2-08'));
     expect(readsBefore.search).toContain('AP-BC-C2-08');
     expect(reads.search).not.toContain('AP-BC-C2-08');
-    // Nothing else changed: the other articles, the tests and the decks, row by row with their dates.
     expect(await snapshot()).toEqual(
       withoutRows(
         before,
@@ -262,7 +257,6 @@ describe('the command (npm run unpublish)', () => {
     const latest = (
       await q<{ r: { latest: number } }>(`select public.anki_card_changes_since(0, 10) as r`)
     )[0]!.r.latest;
-    // By its full name: the database says its id.
     const assessmentDeck = decksOf(BC).at(-2)!;
     const out = await run(everything(), { kind: 'deck', id: assessmentDeck.name });
     expect(out.result).toMatchObject({
@@ -309,7 +303,6 @@ describe('the command (npm run unpublish)', () => {
   it('a deck above an assessment (root, semester, course) is refused without --above-assessment, and says which assessments it takes', async () => {
     const before = await snapshot();
     const lines: string[] = [];
-    // The dry run shows it, with the assessments, and does not refuse.
     const dry = await run(everything(), {
       kind: 'deck',
       id: ROOT,
@@ -320,7 +313,6 @@ describe('the command (npm run unpublish)', () => {
     expect(dry.result.removed.assessments).toEqual([AN, BC].sort());
     expect(lines.join('\n')).toMatch(/2 evaluaciones: /);
     expect(lines.join('\n')).toMatch(/--above-assessment/);
-    // Without the option, nothing changes: not the database, not the list.
     for (const deck of [ROOT, decksOf(BC)[1]!.id, decksOf(BC)[2]!.id]) {
       await expect(run(everything(), { kind: 'deck', id: deck })).rejects.toThrow(
         /está sobre las evaluaciones.*--above-assessment/s,
@@ -328,11 +320,9 @@ describe('the command (npm run unpublish)', () => {
     }
     expect(await readUnpublished(listFile)).toEqual([]);
     expect(await snapshot()).toEqual(before);
-    // The course deck of Biología celular takes only its assessment.
     await expect(run(everything(), { kind: 'deck', id: decksOf(BC)[2]!.id })).rejects.toThrow(
       new RegExp(`la evaluación ${BC}`),
     );
-    // With it, it goes.
     const out = await run(everything(), { kind: 'deck', id: ROOT, aboveAssessment: true });
     expect(out.applied).toBe(true);
     expect(out.result.removed).toMatchObject({ assessments: [AN, BC].sort() });
@@ -430,7 +420,6 @@ describe('publishing it again: out of the list, and import', () => {
     ).toEqual([v2]);
     expect((await apiReads()).search).toContain('AP-BC-C2-08');
 
-    // Taken off again and back with another text: the next version, «Creado el» the same.
     await run(p, { kind: 'note', id: 'AP-BC-C2-08' });
     await restore(listFile, manifest(p), 'note', 'AP-BC-C2-08');
     p.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción, otra vez', 1);
@@ -488,7 +477,6 @@ describe('publishing it again: out of the list, and import', () => {
     expect(await q(`select ord, deck_id from anki_cards where note_guid = 'mix'`)).toEqual([
       { ord: 1, deck_id: decksOf(BC).at(-2)!.id },
     ]);
-    // With the deck in the list, the import sends it without that card (another hash), and nothing else.
     const off = await importAll(p);
     expect(off.report.changedCards).toEqual(['mix']);
     expect(await q(`select ord from anki_cards where note_guid = 'mix'`)).toEqual([{ ord: 1 }]);
@@ -516,7 +504,6 @@ describe('publishing it again: out of the list, and import', () => {
     });
     await importAll(p);
     await run(p, { kind: 'deck', id: leafOf(BC) });
-    // Its hash is marked: the note as the manifest has it is not what is published any more.
     expect(await q(`select hash from anki_notes where guid = 'mix'`)).toEqual([
       { hash: 'unpublished' },
     ]);
@@ -575,7 +562,7 @@ describe('an image', () => {
 
     storeCalls.length = 0;
     const out = await run(p, { kind: 'image', id: KEY });
-    // The image, and whether it has a thumbnail of the card browser (step 3.3; this note is not an occlusion: none).
+    // The image, and whether it has a thumbnail of the card browser (this note is not an occlusion: none).
     expect(out.calls).toEqual({ db: 2, store: 3 });
     expect(storeCalls).toEqual([
       `has ${KEY}`,
@@ -583,7 +570,6 @@ describe('an image', () => {
       'has cards/thumb/0123456789abcdef0123456789abcdef.webp',
     ]);
     expect(stored.has(KEY)).toBe(false);
-    // Only its hash is marked (so that it is sent again with its images); the card is still published.
     expect(await snapshot()).toEqual({
       ...before,
       ankiNotes: before.ankiNotes.map((r) =>
@@ -593,7 +579,6 @@ describe('an image', () => {
     await expect(importAll(p)).rejects.toThrow(
       /la imagen cards\/0123456789abcdef0123456789abcdef\.webp está en content\/unpublished\.json y la usa nota de Anki img/,
     );
-    // Back in the list's hands: out of it, the import sends that note again and uploads the image.
     await restore(listFile, manifest(p), 'image', KEY);
     const back = await importAll(p);
     expect(back.report.changedCards).toEqual(['img']);
@@ -642,7 +627,6 @@ describe('every student’s progress', () => {
     rounds: (await users.query('select * from public.quiz_rounds')).rows,
     answers: (await users.query('select * from public.quiz_answers')).rows,
   });
-  /** What the web does on entering: the content's changes since its cursor, to reconcile_cards(). */
   const enter = async () => {
     const [sync] = (
       await asUser(users, ANA, (tx) =>
@@ -726,7 +710,6 @@ describe('every student’s progress', () => {
 
     await run(everything(), { kind: 'deck', id: leafOf(BC) });
     await run(everything(), { kind: 'quiz', id: 'practica-bc' });
-    // The command and the import only talk to the content database.
     expect(await usersSnapshot()).toEqual(before);
 
     await enter();
@@ -739,7 +722,6 @@ describe('every student’s progress', () => {
     await importAll(everything());
     await enter();
     expect(await card()).toEqual(answered);
-    // The test's round and answers never changed, and its questions are there again with the same ids.
     const after = await usersSnapshot();
     expect({ ...after, cards: [] }).toEqual({ ...before, cards: [] });
     const section = (
@@ -781,7 +763,6 @@ describe('the database side', () => {
         tx.query(`select public.unpublish_content('note', 'AP-BC-C2-08', 'x', 'y', true)`),
       ),
     ).rejects.toThrow(/permission denied/);
-    // The record and the kept versions: nobody reads or writes them but the function (and the owner, in the editor).
     for (const role of ['anon', 'authenticated', 'service_role']) {
       const [r] = await q<{ log: boolean; versions: boolean; sequence: boolean }>(
         `select has_table_privilege($1, 'public.unpublish_log', 'select') as log,

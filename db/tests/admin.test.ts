@@ -1,3 +1,4 @@
+// Administrators in the users database: who is one, and that nobody signed in reads or changes the list.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';
@@ -48,5 +49,3 @@ describe('administrators', () => {
     expect(await isAdmin(ADMIN)).toBe(true);
   });
 });
-
-// The reports (step 2.6, which took card_reports away) are tested in reports.test.ts.

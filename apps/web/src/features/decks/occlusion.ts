@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
-/**
- * Image Occlusion as Anki's reviewer draws it (ts/routes/image-occlusion/review.ts, Anki 25.09): reads the
- * hidden `div.cloze[data-shape]` the template renders and paints the masks on the canvas over the image.
- * Works inside the card's Shadow DOM (everything is looked up from `root`, never from `document`).
- */
+
+// Image Occlusion as Anki's reviewer draws it (ts/routes/image-occlusion/review.ts, Anki 25.09): paints the masks of
+// the hidden `div.cloze[data-shape]` over the image, looking everything up from `root` (the card's Shadow DOM).
 
 export const SHAPE_MASK_COLOR = '#ffeba2';
 const TEXT_BACKGROUND_COLOR = '#ffffff';
@@ -42,7 +40,6 @@ interface Size {
 const float = (v: string | undefined) => Number.parseFloat(v ?? '');
 const position = (v: string | undefined) =>
   Number.parseFloat(v === undefined || Number.isNaN(Number(v)) ? '.0000' : v);
-/** Stored angle (10 000 steps per turn) → degrees. */
 const storedToAngle = (v: string | undefined) => {
   const steps = Number(v) % 10000;
   return Number.isNaN(steps) ? 0 : (steps / 10000) * 360;
@@ -111,7 +108,6 @@ function shapesIn(root: ParentNode, selector: string): Shape[] {
   );
 }
 
-/** From fractions of the image to canvas pixels (Anki rounds each value). */
 function toAbsolute(shape: Shape, size: Size): Shape {
   const x = (v: number) => Math.round(v * size.width);
   const y = (v: number) => Math.round(v * size.height);
@@ -141,7 +137,6 @@ export interface ShapeProperties {
   highlightShapeBorder: { width: number; color: string };
 }
 
-/** The colors come from the CSS variables of the note type (`--active-shape-color`, etc.). */
 export function shapeProperties(
   style: Pick<CSSStyleDeclaration, 'getPropertyValue'>,
 ): ShapeProperties {
@@ -262,10 +257,6 @@ function drawShape(
   }
 }
 
-/**
- * Paints the masks: active ones (question), inactive ones with «hide all» (`oi=1`), and on the answer the
- * active one revealed with the highlight border. With `onlyText` (masks toggled off) only text shapes.
- */
 export function drawShapes(
   ctx: Context,
   root: ParentNode,
@@ -307,10 +298,7 @@ export function drawShapes(
   }
 }
 
-/**
- * Canvas size in device pixels: the image fitted to the container, at most 4096 × 4096 pixels
- * (Anki's `optimumPixelSizeForCanvas`).
- */
+/** Anki's `optimumPixelSizeForCanvas`: the image fitted to the container, at most 4096 × 4096 device pixels. */
 export function canvasPixelSize(image: Size, container: Size, pixelRatio: number): Size {
   const scale = Math.min(
     (container.width * pixelRatio) / image.width,
@@ -327,11 +315,7 @@ export function canvasPixelSize(image: Size, container: Size, pixelRatio: number
   return { width: Math.floor(width), height: Math.floor(height) };
 }
 
-/**
- * Sets up the occlusion of a rendered card (Anki's `setupImageOcclusion`): fixes the container's aspect
- * ratio to the image's, sizes the canvas, draws, and wires the «toggle» button and the M key. Returns a
- * cleanup function.
- */
+/** Anki's `setupImageOcclusion`: sizes the canvas, draws, and wires «toggle» and the M key; returns a cleanup. */
 export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
   const container = root.querySelector<HTMLDivElement>('#image-occlusion-container');
   const canvas = root.querySelector<HTMLCanvasElement>('#image-occlusion-canvas');
@@ -375,7 +359,6 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
   };
   window.addEventListener('keydown', onKey);
 
-  // Like Anki: once the image has loaded, and again whenever the size changes.
   if (image.complete) requestAnimationFrame(draw);
   image.addEventListener('load', draw);
   // In the next frame: drawing fixes the container's aspect ratio, which would resize it inside the observer's own
@@ -395,10 +378,6 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
   };
 }
 
-/**
- * The occlusion as it is on screen (its masks, or only its texts after «toggle»), drawn over the image at the image's
- * own size: what the zoom shows, so that zooming never uncovers an answer. Null before the image has loaded.
- */
 export function occlusionSnapshot(root: ShadowRoot | HTMLElement): string | null {
   const shown = root.querySelector<HTMLCanvasElement>('#image-occlusion-canvas');
   const image = root.querySelector<HTMLImageElement>('#image-occlusion-container img');

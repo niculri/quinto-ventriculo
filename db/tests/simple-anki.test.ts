@@ -1,3 +1,5 @@
+// The simple Anki in the users database: what a student chooses, what the web reads of their progress, and the
+// migration on a database with students who already studied.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
@@ -17,7 +19,6 @@ beforeAll(async () => {
   }
 });
 
-/** An answer of a new card, as the web sends it. */
 function answer(noteGuid: string, deckId = DECK, durationMs = 4000) {
   const now = new Date();
   return {
@@ -204,7 +205,6 @@ describe('what the web reads of a student’s progress', () => {
     await asUser(db, carla, (tx) => record(tx, answer('a1')));
     expect(await answered(carla)).toEqual([DECK]);
     expect(await answered(BETO)).toEqual([]);
-    // Undoing the only answer leaves the deck as it was.
     await asUser(db, carla, (tx) => tx.query('select public.undo_last_review()'));
     expect(await answered(carla)).toEqual([]);
   });
@@ -227,7 +227,6 @@ describe('what the web reads of a student’s progress', () => {
     expect(await median(dani)).toBeNull();
     await asUser(db, dani, (tx) => record(tx, answer('m19', DECK, 20_000)));
     expect(await median(dani)).toBe(10_500);
-    // Another student's answers do not count, and nor do they see this one's.
     expect(await median(BETO)).toBeNull();
   });
 });
@@ -238,7 +237,6 @@ describe('applied on a database with students who already studied', () => {
   let old: PGlite;
   let before: Awaited<ReturnType<typeof snapshot>>;
 
-  /** Everything a student had, column by column, as it was before the migration. */
   async function snapshot(target: PGlite) {
     const rows = async (sql: string) => (await target.query(sql)).rows;
     return {
@@ -381,7 +379,6 @@ describe('applied on a database with students who already studied', () => {
         tx.query('update public.deck_activations set user_id = $1', [BETO.sub]),
       ),
     ).rejects.toThrow(/row-level security/);
-    // Deleting the account takes its choices with it.
     await old.query('delete from auth.users where id = $1', [ANA.sub]);
     const left = await old.query('select * from public.deck_activations');
     expect(left.rows).toEqual([]);

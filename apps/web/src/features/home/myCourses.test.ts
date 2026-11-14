@@ -1,13 +1,9 @@
+// Tests «Tus ramos»: the semester ∪ the added ∪ those with something on − those taken out, and «Próximamente».
+
 import { describe, expect, it } from 'vitest';
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { MAX_CHOSEN_COURSES, addCourse, listText, myCourses, removeCourse } from './myCourses';
 
-/**
- * «Tus ramos» (step 3.2, the owner's decisions of the review): the semester ∪ the added ∪ those with something on or
- * studied − those taken out, in the catalog's order; the courses without material go apart («Próximamente»).
- */
-
-/** A course with a note (material) or without anything. */
 function course(id: string, semester: number, material: boolean): CourseWithAssessments {
   return {
     id,
@@ -76,10 +72,8 @@ describe('«Tus ramos»', () => {
     const back = addCourse(removed, 'c3');
     expect(back).toEqual({ semester: 2, addedCourses: ['c3'], removedCourses: [] });
     expect(ids(myCourses(CATALOG, back, new Set()).cards)).toEqual(['a2', 'b2', 'c3']);
-    // A course of the semester taken out and added again: it shows again, last (nothing above it moves).
     const semester = addCourse(removeCourse({ ...none, semester: 2 }, 'a2'), 'a2');
     expect(ids(myCourses(CATALOG, semester, new Set()).cards)).toEqual(['b2', 'a2']);
-    // Added in this order, they stay in this order, after the semester's.
     const two = addCourse(addCourse({ ...none, semester: 2 }, 'c3'), 'a1');
     expect(ids(myCourses(CATALOG, two, new Set()).cards)).toEqual(['a2', 'b2', 'c3', 'a1']);
   });

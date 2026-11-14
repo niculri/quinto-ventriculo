@@ -1,3 +1,5 @@
+// Helpers of the web's tests: a made-up catalog with its note, decks, cards and test, fake services, and renderApp()
+// with the real routes.
 import { localAdminRepository } from '../features/admin/repository';
 import type { AdminRepository } from '../features/admin/repository';
 import { localAccountRepository } from '../features/account/repository';
@@ -164,7 +166,6 @@ export const CATALOG: Catalog = {
   },
 };
 
-/** An article (v1.5): web code and version, header and «Ponte a prueba». */
 export const NOTE: Note = {
   ...CATALOG.semesters[1]!.courses[0]!.assessments[0]!.notes[1]!,
   sources: ['Clase 11, «Traducción», semestre de primavera 2026: diapositivas y grabación.'],
@@ -190,7 +191,6 @@ export const NOTE: Note = {
   ],
 };
 
-/** The test deck where the real ones are: root → semester → course → assessment → week → deck → Extras. */
 const WEEK = '() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba';
 export const DECK_PATH =
   '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba';
@@ -296,7 +296,7 @@ CATALOG.anki.decks = [
   tree('20', DECK.fullName, '5', inAssessment),
   tree('21', `${DECK.fullName}::Extras`, '20', inAssessment, 1, 'Extras'),
 ];
-// The notes of each deck, as anki_deck_tree() gives them (step 3.2).
+// The note counts of each deck, as anki_deck_tree() gives them.
 for (const d of CATALOG.anki.decks) {
   const notes = new Set(DECK.cards.filter((c) => c.deckId === d.id).map((c) => c.noteGuid));
   d.ownNoteCount = notes.size;
@@ -314,7 +314,6 @@ for (const d of CATALOG.anki.decks) {
 }
 CATALOG.anki.presets = DECK.presets;
 
-/** What `/api/decks/:id` gives for every deck of the tree (the same cards, from where it is). */
 function deckDetail(id: string): DeckDetail | null {
   const all = CATALOG.anki.decks;
   const d = all.find((x) => x.id === id);
@@ -383,7 +382,6 @@ const BROWSE: BrowseData = {
   ],
 };
 
-/** The browser's index of «Certamen 1» (step 3.3): the same notes, as the importer writes them. */
 export const CARD_INDEX: CardIndex = {
   version: 1,
   assessmentId: 'anatomia-1/certamen-1',
@@ -481,7 +479,6 @@ const CARDS: Record<string, CardDetail> = {
 const colors = (c: string) =>
   Object.fromEntries(['ac', 'ac-b', 'ac2', 'ac2-b', 'on-ac', 'g1', 'g2', 'g3'].map((k) => [k, c]));
 
-/** A practice test with two tabs: two groups with choices (one with a figure beside), a short one. */
 export const QUIZ: QuizDetail = {
   ...CATALOG.semesters[1]!.courses[0]!.assessments[0]!.quizzes[0]!,
   kicker: 'Certamen 2 · Biología celular',
@@ -657,7 +654,6 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
       throw new ApiRequestError(404, 'not_found', 'Ese mazo no existe.');
     },
     ankiNotes: async () => BROWSE,
-    // Step 3.3: the index of «Certamen 1»; a test that needs another one passes its own.
     cardIndex: async (assessmentId, hash) => {
       if (assessmentId === CARD_INDEX.assessmentId && hash === CARD_INDEX_HASH) return CARD_INDEX;
       throw new ApiRequestError(404, 'not_found', 'Las tarjetas de este certamen cambiaron.');
@@ -698,7 +694,7 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
         },
       ],
     }),
-    // The release panel's (step 1.7): only for an administrator; a student gets «no existe».
+    // Only for an administrator: anybody else gets «no existe». What the pages open is counted for anybody.
     releaseOverview: notAdmin,
     releaseCards: notAdmin,
     releaseArticles: notAdmin,
@@ -709,12 +705,9 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
     publishRelease: notAdmin,
     revertRelease: notAdmin,
     releaseLog: notAdmin,
-    // The site's settings (step 1.8): only for an administrator.
     siteSettings: notAdmin,
     setSiteSettings: notAdmin,
-    // What was taken off the site (step 2.10): only for an administrator.
     unpublishedLog: notAdmin,
-    // «Uso» (step 2.9): only for an administrator; what the pages open is counted for anybody.
     usage: notAdmin,
     usageOpen: async () => ({ ok: true as const }),
     ...changes,
@@ -739,7 +732,6 @@ export function fullAnkiStudy(): StudyRepository {
   return study;
 }
 
-/** An account that already accepted the terms and the privacy policy in force. */
 export function acceptedAccount(email = SESSION_ANA.user.email): AccountRepository {
   return localAccountRepository({
     email,
@@ -754,7 +746,6 @@ export function acceptedAccount(email = SESSION_ANA.user.email): AccountReposito
 }
 
 export function renderApp(
-  /** The URL, or a history entry with its state (a reload keeps the entry's state). */
   route: string | { pathname: string; state: unknown },
   op: {
     session?: Session | null;
@@ -762,11 +753,8 @@ export function renderApp(
     study?: StudyRepository;
     quiz?: QuizRepository;
     admin?: AdminRepository;
-    /** The reports (step 2.6); by default in memory, for an administrator if `admin` is one. */
     reports?: ReportsRepository;
-    /** The account (step 2.3); by default the versions in force are already accepted. */
     account?: AccountRepository;
-    /** The API asking for the draft (the preview, step 1.7). */
     previewApi?: ApiClient;
   } = {},
 ) {
@@ -774,7 +762,6 @@ export function renderApp(
   const services: Services = {
     session,
     api: op.api ?? fakeApi(),
-    // In memory: each test starts with nothing studied.
     study: op.study ?? fullAnkiStudy(),
     quiz: op.quiz ?? localQuizRepository(null),
     admin: op.admin ?? localAdminRepository(),

@@ -1,3 +1,4 @@
+// The search page: every result for the `?q=` text, grouped by note.
 import { Search } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router';
 import { Notice, errorMessage } from '../../ui/Notice';
@@ -17,7 +18,7 @@ export function SearchPage() {
   const text = params.get('q') ?? '';
   const { results, active, isPending, isError, error, query } = useSearch(text, 50);
   const { api } = useServices();
-  // Enter or opening a result completes the search: «Uso» counts it once (step 2.9), never each text while typing.
+  // Counted once, on Enter or on opening a result, never each text while typing.
   const complete = () => countSearch(api, text, 'search');
   const groups = groupByNote(results);
   const catalog = useCatalog().data;

@@ -6,6 +6,7 @@ import { code, otherFiles } from './rule-tester';
 const DISABLE = 'eslint-' + 'disable';
 const missing = [{ messageId: 'missing' }];
 const long = [{ messageId: 'long' }];
+const empty = [{ messageId: 'empty' }];
 
 code.run('qv/file-header', fileHeader, {
   valid: [
@@ -36,6 +37,12 @@ code.run('qv/file-header', fileHeader, {
       code: '// SPDX-License-Identifier: AGPL-3.0-or-later\n// Portions derived from Anki.\nexport const a = 1;',
       errors: missing,
     },
+    { code: '//\nexport const a = 1;', errors: empty },
+    { code: '/** */\nexport const a = 1;', errors: empty },
+    { code: '// TODO\nexport const a = 1;', errors: empty },
+    { code: '// TODO: x\nexport const a = 1;', errors: empty },
+    { code: '// ----------\nexport const a = 1;', errors: empty },
+    { code: '/* ** -- ## */\nexport const a = 1;', errors: empty },
     { code: '// One.\n// Two.\n// Three.\nexport const a = 1;', errors: long },
     { code: '/**\n * One.\n * Two.\n * Three.\n */\nexport const a = 1;', errors: long },
   ],
@@ -53,6 +60,8 @@ otherFiles.run('qv/file-header (other files)', fileHeader, {
   ],
   invalid: [
     { filename: 'a.css', code: '@import "tailwindcss";\n/* Tokens. */', errors: missing },
+    { filename: 'a.css', code: '/* */\n:root {}', errors: empty },
+    { filename: 'ci.yml', code: '# ----\nname: CI\n', errors: empty },
     { filename: 'a.css', code: '/* One.\n Two.\n Three. */\n:root {}', errors: long },
     { filename: 'ci.yml', code: 'name: CI\n# The CI.\n', errors: missing },
     { filename: 'ci.yml', code: "name: Build the web's files # not a header\n", errors: missing },

@@ -1,5 +1,5 @@
-// Plan step 1.2: the users' database closed to writing by hand (20261106010000_close_writes.sql). Cards, log,
-// undo and tests only through the site's functions (security definer), quotas per user and a cap on an answer.
+// The users' database closed to writing by hand: cards, log, undo and tests only through the site's functions
+// (security definer), quotas per user and a cap on an answer.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
@@ -12,7 +12,6 @@ const DECK = '2059400110';
 const call = (fn: string, args: unknown[]) =>
   `select public.${fn}(${args.map((_, i) => `$${i + 1}`).join(', ')}) as r`;
 
-/** An answer as the web sends it (a new card answered «Bien»: to its 10-minute step). */
 function answer(noteGuid: string, extra: Record<string, unknown> = {}) {
   const now = new Date();
   return {
@@ -47,7 +46,6 @@ function answer(noteGuid: string, extra: Record<string, unknown> = {}) {
 
 const ROUND = '11111111-1111-4111-8111-111111111111';
 
-/** A step of a test as the web sends it (useQuizSession): the round, its info and maybe an answer. */
 function quizStep(extra: Record<string, unknown> = {}) {
   return {
     quizId: 'q',
@@ -125,48 +123,33 @@ describe('writes only through the functions', () => {
     );
     expect(r.rows.filter((x) => x.anon)).toEqual([]);
     expect(r.rows.filter((x) => x.signed_in).map((x) => x.proname)).toEqual([
-      // Step 2.3: accepting the terms and the privacy policy, with the person's own session
       'accept_legal',
-      // Step 2.1: the Worker asks the state of the student's own session (step 2.3: with the versions to accept)
       'access_status',
-      // Step 2.10: «Acceso» in the administration panel, only for an administrator with the session open
       'admin_access_report',
-      // Step 1.7, part 2: whom a release reaches, only for an administrator (it checks is_admin() itself)
       'admin_deck_impact',
       'admin_invite_emails',
       'admin_remove_invites',
-      // Step 2.6: the reports of every content, grouped by content, and blocking who writes them
       'admin_reopen_reports',
       'admin_report_queue',
       'admin_resolve_reports',
-      // Step 2.10 b: naming or removing an administrator, only for the owner with the session open
       'admin_set_admin',
       'admin_set_report_block',
-      // Step 2.9: «Uso», figures of 5 students or more, only for an administrator with the session open
       'admin_usage',
       'bury_cards',
-      // Step 2.3: «Descargar mis datos», only theirs
       'export_my_data',
       'forget_cards',
       'is_admin',
-      // Step 2.1: about the caller only. is_invited(), which takes any email, is not for a student any more.
       'is_allowed_user',
-      // Step 2.6: «Mis reportes»
       'my_reports',
-      // Step 1.3: the content's changes, applied to the caller's own cards
       'reconcile_cards',
-      // Step 3.1: practice that does not change dates (the final review), to the caller's day
       'record_practice',
       'record_review',
-      // Step 2.6: reporting, only through it (the limits, the block and the place)
       'report_content',
-      // Step 2.3: «Eliminar mi cuenta», and entering again (it cancels it)
       'request_account_deletion',
       'resume_account',
       'save_quiz_progress',
       'set_flag',
       'set_flags',
-      // Step 3.1: the heatmap, the caller's days and what they have due
       'study_heatmap',
       'suspend_cards',
       'unbury_cards',
@@ -212,9 +195,8 @@ describe('writes only through the functions', () => {
   });
 
   it('undo puts back only the caller’s own card, even from an undo row that says otherwise', async () => {
-    // As the functions now run as their owner (no RLS), what keeps undo to the caller's rows is the function
-    // itself. Before step 1.2 a student could write an undo row by hand (they live 48 hours): one of Ana’s
-    // that claims to have been Beto’s card, written here as the database's owner.
+    // The functions run as their owner (no RLS), so what keeps undo to the caller's rows is the function itself. An
+    // undo row of Ana’s that claims to have been Beto’s card, written here as the database's owner.
     await asUser(db, BETO, (tx) => tx.query(call('record_review', [0]), [answer('b1')]));
     const log = await db.query<{ id: number }>(
       `insert into public.review_log (user_id, action, note_guid, ord, deck_id, phase_before, phase_after)
@@ -249,7 +231,6 @@ describe('writes only through the functions', () => {
     const r = await db.query(
       `select user_id, phase, flag, suspended from public.card_states where note_guid = 'b1' order by user_id`,
     );
-    // It became Ana’s own row; Beto’s card is as he left it.
     expect(r.rows).toEqual([
       { user_id: ANA.sub, phase: 'new', flag: 7, suspended: true },
       { user_id: BETO.sub, phase: 'learning', flag: 0, suspended: false },
@@ -281,7 +262,6 @@ describe('quotas', () => {
       ANA.sub,
     ]);
     expect(r.rows).toEqual([{ note_guid: 'c1' }]);
-    // A card already there can still be answered: ON CONFLICT DO UPDATE adds no row, and the count stays.
     const at = await db.query<{ t: string }>(
       `select updated_at::text as t from public.card_states where user_id = $1 and note_guid = 'c1'`,
       [ANA.sub],
@@ -351,7 +331,6 @@ describe('quotas', () => {
       'assessment_settings',
       'deck_activations',
       'deck_settings',
-      // Step 2.3: at most 100 pairs of versions accepted
       'legal_acceptances',
       'quiz_progress',
       'quiz_rounds',
@@ -384,7 +363,6 @@ describe('quotas', () => {
        select $1, 'x', 's' || i from generate_series(1, 1999) i`,
       [BETO.sub],
     );
-    // The web sends every step with its round's info (insert … on conflict do nothing) and upserts the section.
     await asUser(db, BETO, (tx) => tx.query(call('save_quiz_progress', [0]), [quizStep()]));
     await expect(
       asUser(db, BETO, (tx) =>
@@ -393,7 +371,6 @@ describe('quotas', () => {
         ]),
       ),
     ).rejects.toThrow(/quota_exceeded/);
-    // The options of an assessment, as the web saves them (upsert), at their cap of 1,000.
     await db.query(
       `insert into public.assessment_settings (user_id, deck_id)
        select $1, i::text from generate_series(1, 1000) i`,
@@ -432,7 +409,6 @@ describe('quotas', () => {
         ]),
       ),
     ).rejects.toThrow(/quota_exceeded/);
-    // Discarding the round of a section makes it smaller: always allowed, even over the cap.
     await asUser(db, ANA, (tx) =>
       tx.query(call('save_quiz_progress', [0]), [{ quizId: 'q', sectionId: 's', round: null }]),
     );

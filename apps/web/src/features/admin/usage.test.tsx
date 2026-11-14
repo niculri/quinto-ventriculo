@@ -1,3 +1,4 @@
+// Tests «Uso» in the administration panel: figures of 5 students or more, the most used, activation and invited.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -6,11 +7,6 @@ import type { UsageFigures, UsageReport } from '@qv/schema';
 import { fakeApi, renderApp } from '../../test/render';
 import { searchContext } from '../search/useSearch';
 import { localAdminRepository } from './repository';
-
-/**
- * Step 2.9: «Uso» in the administration panel. Figures of 5 students or more («menos de 5» or «—» if not), the most used
- * with links to the content, by course and assessment, the activation and the invited; a student does not get there.
- */
 
 const admin = () => localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl' });
 
@@ -61,7 +57,7 @@ const REPORT: UsageReport = {
   opensStatus: 'not_configured',
 };
 
-describe('«Uso» (step 2.9)', () => {
+describe('«Uso»', () => {
   it('the totals, «menos de 5» and «—», and that the opens are not configured', async () => {
     renderApp('/admin/usage', { admin: admin(), api: fakeApi({ usage: async () => REPORT }) });
     expect(await screen.findByRole('heading', { level: 2, name: 'Uso' })).toBeInTheDocument();
@@ -81,7 +77,6 @@ describe('«Uso» (step 2.9)', () => {
     expect(
       screen.getByText('Las aperturas y las búsquedas no están configuradas en este sitio.'),
     ).toBeInTheDocument();
-    // Without opens, no table of the most opened, and the chart does not offer them.
     expect(screen.queryByText('Lo más abierto')).toBeNull();
     expect(screen.getByRole('link', { name: /Visitas y páginas en Cloudflare/ })).toHaveAttribute(
       'href',
@@ -154,7 +149,6 @@ describe('«Uso» (step 2.9)', () => {
     ).toHaveLength(12);
     await userEvent.click(screen.getByRole('button', { name: 'Cifra: Alumnos activos' }));
     await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Apuntes abiertos' }));
-    // The opens are by day only.
     expect(
       await screen.findByRole('list', { name: 'Apuntes abiertos, por día' }),
     ).toBeInTheDocument();

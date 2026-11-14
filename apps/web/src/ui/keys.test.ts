@@ -1,3 +1,4 @@
+// Tests of how shortcuts are written on each system.
 import { describe, expect, it } from 'vitest';
 import { formatKeys } from './keys';
 

@@ -1,3 +1,4 @@
+// Tests for the deck slugs and the card code parser.
 import { describe, expect, it } from 'vitest';
 import { deckSlug, deckSlugs, parseCardCode } from './flashcards';
 

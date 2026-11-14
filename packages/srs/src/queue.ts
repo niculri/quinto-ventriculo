@@ -2,9 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * The study queue of a deck and its subdecks, as Anki's v3 scheduler builds and walks it
- * (rslib/src/scheduler/queue/: builder/gathering.rs, burying.rs, sorting.rs, intersperser.rs, learning.rs,
- * main.rs; rslib/src/decks/limits.rs for the daily limits, which add up through the deck tree).
+ * The study queue of a deck and its subdecks, as Anki's v3 scheduler builds and walks it (rslib/src/scheduler/queue/:
+ * builder/gathering.rs, burying.rs, sorting.rs, intersperser.rs, learning.rs, main.rs).
  */
 import type { CardKey, CardRecord, Queue } from './card';
 import type { DeckConfig, ReviewMix } from './config';
@@ -14,23 +13,17 @@ import type { SchedTiming } from './timing';
 
 export interface QueueDeck {
   id: string;
-  /** Full name with «::» (its depth and the alphabetical order of the decks come from it). */
   name: string;
   config: DeckConfig;
 }
 
 export interface QueueCard extends CardKey {
   deckId: string;
-  /** Order of the card among the deck's when it was added (Anki's card id order). */
+  /** Anki's card id order: the order the card was added in. */
   index: number;
-  /** null = never answered (new). */
   record: CardRecord | null;
-  /** Hidden from the queue: suspended or buried (until the next day). */
   hidden: boolean;
-  /**
-   * What Anki's «random» orders hash: the card and note ids and the card's modification time. Without them,
-   * hashes of the guid and ord and the time of the last answer (the comparison with Anki gives Anki's).
-   */
+  /** Anki's card and note ids and mtime, which its «random» orders hash; without them, hashes of guid and ord. */
   ids?: { card: bigint; note: bigint; mtime: bigint };
 }
 
@@ -41,10 +34,7 @@ const idsOf = (c: QueueCard) =>
     mtime: BigInt(c.record?.lastReview ?? 0),
   };
 
-/**
- * A sort key computed once per card within one sort (hashing a guid costs much more than a comparison, and
- * a sort compares each card many times).
- */
+/** A sort key computed once per card: hashing a guid costs much more than a comparison. */
 function cachedKey<T>(key: (c: QueueCard) => T): (c: QueueCard) => T {
   const cache = new Map<QueueCard, T>();
   return (c) => {
@@ -57,17 +47,14 @@ function cachedKey<T>(key: (c: QueueCard) => T): (c: QueueCard) => T {
   };
 }
 
-/** What the user studied today in each deck (Anki's per-deck counters). */
 export interface StudiedToday {
   newCount: number;
   reviewCount: number;
 }
 
 /**
- * Anki's per-deck counters from today's answers (decks/stats.rs `update_deck_stats`): an answer counts in
- * the deck of the card and in every deck above it, so a parent's limits count what was studied in its
- * subdecks. `queue` is the card's queue before the answer: a new card counts as new; a review or an interday
- * learning card, as a review; an intraday learning card, nothing.
+ * decks/stats.rs `update_deck_stats`: an answer counts in its deck and every deck above it, by the card's queue
+ * before answering (an intraday learning card counts nothing).
  */
 export function countStudiedToday(
   answers: Iterable<{ deckId: string; queue: Queue }>,
@@ -95,11 +82,8 @@ export function countStudiedToday(
 }
 
 export interface GlobalSettings {
-  /** Anki's «learn ahead limit», in seconds (20 minutes by default). */
   learnAheadSecs: number;
-  /** «Las tarjetas nuevas ignoran el límite de revisión» (off by default). */
   newCardsIgnoreReviewLimit: boolean;
-  /** «Límites empiezan desde arriba» (off by default): the limits of the decks above also apply. */
   applyAllParentLimits: boolean;
 }
 
@@ -117,11 +101,7 @@ export interface QueueInput {
   studiedToday: ReadonlyMap<string, StudiedToday>;
   timing: SchedTiming;
   settings?: GlobalSettings;
-  /**
-   * The counts of Anki's deck list rather than the study queue: the same limits through the tree, but
-   * without burying siblings while gathering (decks/tree.rs counts the cards; compared with Anki in
-   * test/queue-tree.test.ts).
-   */
+  /** The deck list's counts (decks/tree.rs): the same limits, without burying siblings while gathering. */
   deckList?: boolean;
 }
 
@@ -142,9 +122,8 @@ const keyOf = (c: CardKey) => `${c.noteGuid}\u001f${c.ord}`;
 const levelOf = (name: string) => name.split('::').length;
 
 /**
- * What Anki sorts decks by: its stored name, where «::» is \x1f (decks/name.rs) and so goes before any
- * character of a name, with case folded (the `unicase` collation of the decks table). So a deck is followed
- * by its subdecks, and only then by a deck named the same plus a suffix.
+ * Anki sorts decks by the stored name, with «::» as \x1f (decks/name.rs) and case folded (`unicase`): a deck is
+ * followed by its subdecks before a deck named the same plus a suffix.
  */
 const deckSortKey = (name: string) => name.replaceAll('::', '\x1f').toUpperCase().toLowerCase();
 
@@ -157,15 +136,13 @@ function cmpCodePoints(a: string, b: string): number {
   return a.length - b.length;
 }
 
-/** The decks in the order of Anki's deck list: each one before its subdecks (`order by name`). */
+/** Anki's deck list order (`order by name`). */
 export function sortDecksByName<T extends { name: string }>(decks: readonly T[]): T[] {
   return decks
     .map((deck) => ({ deck, key: deckSortKey(deck.name) }))
     .sort((a, b) => cmpCodePoints(a.key, b.key))
     .map(({ deck }) => deck);
 }
-
-// Limits (decks/limits.rs) -------------------------------------------------------------------------
 
 interface Limits {
   review: number;
@@ -197,11 +174,12 @@ function remainingLimits(
   };
 }
 
+/** The daily limits, which add up through the deck tree (rslib/src/decks/limits.rs). */
 class LimitTree {
   private readonly map = new Map<string, LimitNode>();
   readonly root: LimitNode;
 
-  /** `decks` as sortDecksByName leaves them, the topmost first (Anki: LimitTreeMap::build). */
+  /** `decks` sorted by sortDecksByName, the topmost first (LimitTreeMap::build). */
   constructor(
     decks: QueueDeck[],
     studied: ReadonlyMap<string, StudiedToday>,
@@ -270,15 +248,13 @@ function capDescendants(node: LimitNode, limits: Limits) {
   for (const child of node.children) capDescendants(child, limits);
 }
 
-// Building (builder/) ------------------------------------------------------------------------------
-
 interface BuryMode {
   buryNew: boolean;
   buryReviews: boolean;
   buryInterdayLearning: boolean;
 }
 
-/** Intersperser: spreads the shorter list evenly through the longer one. */
+/** intersperser.rs: spreads one list evenly through the other. */
 export function intersperse<T>(one: T[], two: T[]): T[] {
   const ratio = (one.length + 1) / (two.length + 1);
   const out: T[] = [];
@@ -312,7 +288,6 @@ const cmpBig = (a: bigint, b: bigint) => (a < b ? -1 : a > b ? 1 : 0);
 
 export class StudyQueue {
   private main: QueueEntry[] = [];
-  /** Intraday learning cards, by due time (Unix seconds). */
   private learning: (QueueEntry & { due: number })[] = [];
   private counts_: Counts = { new: 0, learning: 0, review: 0 };
   private cutoff: number;
@@ -325,7 +300,7 @@ export class StudyQueue {
     this.today = timing.today;
   }
 
-  /** Builds the queue of `rootDeckId` with its subdecks (QueueBuilder::new + gather_cards + build). */
+  /** QueueBuilder::new + gather_cards + build. */
   static build(input: QueueInput): StudyQueue {
     const settings = input.settings ?? DEFAULT_GLOBAL_SETTINGS;
     const { timing } = input;
@@ -420,8 +395,7 @@ export class StudyQueue {
 
     // 4. New cards, by the gather priority.
     const fresh = cards.filter((c) => c.record === null || c.record.queue === 'new');
-    // A new card's position (Anki's due of a new card): the cards of a note share their note's, so without
-    // one (never answered) a card takes its note's place in the deck, and siblings are gathered together.
+    // Anki's due of a new card: without one, a card takes its note's place, so siblings are gathered together.
     const position = (c: QueueCard) => c.record?.due ?? noteRank.get(c.noteGuid) ?? c.index;
     const lowest = (a: QueueCard, b: QueueCard) =>
       position(a) - position(b) || a.ord - b.ord || a.index - b.index;
@@ -437,7 +411,7 @@ export class StudyQueue {
       news.push({ ...entry(c, 'new'), template: c.ord, ids: idsOf(c) });
       limits.decrement(c.deckId, 'new');
     };
-    // The siblings left out, in case the limits still have room at the end (`fillNewWithSiblings`).
+    // Not Anki's: buried siblings, for `fillNewWithSiblings` at the end.
     let siblings: QueueCard[] = [];
     const addNew = (c: QueueCard) => {
       if (limits.reached(c.deckId, 'new')) return;
@@ -550,12 +524,10 @@ export class StudyQueue {
     }));
   }
 
-  /** The card to show, or null if there is nothing left for now. */
   next(): QueueEntry | null {
     return this.entries()[0] ?? null;
   }
 
-  /** The next `n` cards (to fetch them ahead). */
   upcoming(n: number): QueueEntry[] {
     return this.entries().slice(0, n);
   }
@@ -567,7 +539,6 @@ export class StudyQueue {
     return { ...this.counts_ };
   }
 
-  /** Moves the learning cutoff to `now` and counts the learning cards that came within the limit. */
   updateCutoff(now: number): void {
     const lastAhead = this.aheadCutoff();
     this.cutoff = Math.max(this.cutoff, now);
@@ -577,7 +548,6 @@ export class StudyQueue {
     ).length;
   }
 
-  /** Takes the answered card off the queue and puts it back if it is still learning today. */
   answered(key: CardKey, card: CardRecord, timing: SchedTiming): QueueUpdate {
     const k = keyOf(key);
     let removed: QueueEntry | null = null;
@@ -604,10 +574,7 @@ export class StudyQueue {
     return { removed, fromLearning, requeued, snapshot };
   }
 
-  /**
-   * If only learning cards are left and the next one is due before this one, this one waits for it
-   * (learning.rs `requeue_learning_entry`: the same card is not shown twice in a row when it can be avoided).
-   */
+  /** learning.rs `requeue_learning_entry`: with only learning left, the card waits not to show twice in a row. */
   private requeueLearning(entry: QueueEntry & { due: number }): QueueEntry & { due: number } {
     const cutoff = this.aheadCutoff();
     if (entry.due <= cutoff && this.main.length === 0) {
@@ -620,7 +587,7 @@ export class StudyQueue {
     return entry;
   }
 
-  /** Undoes `answered` (queue/undo.rs): the card goes back to the top. */
+  /** queue/undo.rs. */
   undo(update: QueueUpdate): void {
     this.cutoff = update.snapshot.cutoff;
     this.counts_.learning = update.snapshot.learningCount;
@@ -645,7 +612,6 @@ export class StudyQueue {
     }
   }
 
-  /** Puts a card first (after an undo when the queue was rebuilt). */
   moveToFront(key: CardKey): boolean {
     const k = keyOf(key);
     const i = this.main.findIndex((e) => keyOf(e) === k);
@@ -663,7 +629,6 @@ export class StudyQueue {
     return false;
   }
 
-  /** Kind of the entry of a card in the queue (to underline its count, as Anki). */
   kindOf(key: CardKey): EntryKind | null {
     const k = keyOf(key);
     return (
@@ -672,16 +637,12 @@ export class StudyQueue {
     );
   }
 
-  /** Seconds until the next learning card of today (for the congratulations screen), or null. */
   nextLearningDue(): number | null {
     return this.learning[0]?.due ?? null;
   }
 }
 
-/**
- * Where Anki inserts a learning card: Rust's `binary_search_by` on the due time, as built into Anki 25.09
- * (`Ok(mid)` at the first equal time it probes, else `Err(left)`); the card goes just before that one.
- */
+/** Rust's `binary_search_by` on the due time, as Anki inserts a learning card: the first equal one it probes. */
 function insertionIndex(list: readonly { due: number }[], due: number): number {
   let size = list.length;
   let left = 0;
@@ -721,8 +682,7 @@ function reviewOrder(
   const note = (c: QueueCard) => noteRank.get(c.noteGuid) ?? c.index;
   const added = (a: QueueCard, b: QueueCard) => note(a) - note(b) || a.ord - b.ord;
   const reverseAdded = (a: QueueCard, b: QueueCard) => note(b) - note(a) || a.ord - b.ord;
-  // Anki's extract_fsrs_relative_retrievability: how far the card is through its interval, in the
-  // FSRS curve (the most forgotten, relative to the desired retention, first when ascending).
+  // Anki's extract_fsrs_relative_retrievability: the most forgotten, relative to the desired retention, first.
   const decay = -fillParameters(config.fsrsParams)[20]!;
   const desired = Math.max(config.desiredRetention, 0.0001);
   const relR = (c: QueueCard) => {

@@ -1,3 +1,5 @@
+// What is left today in each course on the home page, built from the home_counts() figures without loading the decks.
+
 import { fillParameters } from '@qv/srs';
 import type { Counts, DeckConfig, SchedTiming, StudiedToday } from '@qv/srs';
 import type { AnkiTreeDeck, CardSummary, DeckDetail } from '@qv/schema';
@@ -15,40 +17,15 @@ import {
 import type { StudyData, TreeDeck } from '../study/scheduler';
 import { ASSESSMENT_DEPTH, ancestorName, includesExtras, isExtras } from '../study/simple';
 
-/**
- * «Hoy» on the home page without the decks (plan step 3.2, ESC-E1). The study screen builds its queue from the deck's
- * cards and the student's rows; here there are only, deck by deck, the figures of `home_counts()` (what was seen, what
- * is hidden, the cards due today with their notes) and of the catalog (cards, own and exclusive notes). With them the
- * queue is built twice with the same @qv/srs and the same options as the study screen:
- *
- * - learning and reviews are the student's real cards (with their notes, so burying siblings is the same), and so are
- *   their counts;
- * - new cards: the deck's new cards are not known one by one, only how many there are. A new card that comes out is one
- *   a note (its siblings are buried, also by a card of the note due today; in «Modo avanzado», if the preset buries
- *   them), so the count lies between two queues:
- *   «at least», with one card of each note that is all in the deck and untouched (it surely gives one), and «at most»,
- *   with one card of each note that has a card in the deck and is not taken by a card due today. When both give the
- *   same, that is the study screen's number. They differ only when the day's limit is more than what is surely left
- *   (the student has seen almost everything that is on): then the row reads its deck, as before, rather than guess.
- *   With a date for the test (siblings come out too), every new card counts and both are the same.
- * - In «Modo avanzado» the order of the cards due today can change the counts (a review limit reached, or presets that
- *   bury differently): the home page does not have that order, so then the row reads its deck too (dueOrderMatters()).
- */
-
-/** At most this many made-up new cards in a deck: no limit of a day goes past it. */
 const MAX_NEW_PER_DECK = 20_000;
 
 export interface HomeCourseResult {
-  /** What is left today, as the study screen of the course counts it; null when it needs the deck. */
   counts: Counts | null;
-  /** The dominio of the course (0–1), as masteryByDeck(). */
   mastery: number;
 }
 
-/** Everything of StudyData but the deck and the rows, which are what the home page does not have. */
 export type HomeStudyBase = Omit<StudyData, 'deck' | 'rows'>;
 
-/** Each deck's FSRS decay (w20) with the options it is studied with: what `home_counts()` computes the dominio with. */
 export function decayByDeck(base: HomeStudyBase, deckIds: readonly string[], nowMs = Date.now()) {
   const configs = configsFor(asStudyData(base, emptyDeck(deckIds[0] ?? ''), new Map()), nowMs);
   const out: Record<string, number> = {};
@@ -84,7 +61,7 @@ const asStudyData = (
   rows: Map<string, StoredCard>,
 ): StudyData => ({ ...base, deck, rows });
 
-/** A card of `home_counts()` as a row of card_states (only what the queue reads). */
+/** A card of `home_counts()` as a row of card_states: only the fields the queue reads are real. */
 function dueRow(deckId: string, c: HomeCounts['decks'][number]['due'][number]): StoredCard {
   const due = new Date(c.due * 1000).toISOString();
   return {
@@ -110,8 +87,8 @@ function dueRow(deckId: string, c: HomeCounts['decks'][number]['due'][number]): 
 }
 
 /**
- * What is left today in a course (its deck, `rootId`, and everything below it) and its dominio, from the home page's
- * figures. `catalogDecks` are the catalog's (with their own and exclusive notes).
+ * New cards are known only by count, so the queue is built for «at least» and «at most» new cards; when they differ, or
+ * when dueOrderMatters(), `counts` is null and the row has to read its deck.
  */
 export function homeCourseCounts(
   base: HomeStudyBase,
@@ -138,7 +115,6 @@ export function homeCourseCounts(
       })),
   };
 
-  // The real cards that can come out today, with their notes.
   const rows = new Map<string, StoredCard>();
   const dueCards: CardSummary[] = [];
   for (const d of decks) {
@@ -154,13 +130,11 @@ export function homeCourseCounts(
   const timing = timingFor(base.prefs, nowMs);
   const mastery = courseMastery(base, decks, home);
 
-  // Review (3.2): the cards due today that the queue gathers, and what each note's ones bury.
   const due = dueToday(rows, base, timing);
   if (dueOrderMatters(base, decks, rootId, due, configs, studied)) return { counts: null, mastery };
 
-  // How many new cards each deck surely gives («at least») and can give at most («at most»). Decks are gathered in
-  // order («Mazo» before its «Extras»): an untouched note with a card in the deck and the rest below it gives that card.
-  // Otherwise only the notes all in the deck are sure.
+  // Gathered deck by deck, an untouched note with its cards in the deck and below it surely gives one; otherwise only
+  // the notes all in the deck are sure.
   const priority = configs.get(rootId)?.newCardGatherPriority;
   const inOrder = priority === 'deck' || priority === 'deckThenRandomNotes';
   const touchedBelow = (d: TreeDeck) =>
@@ -177,7 +151,6 @@ export function homeCourseCounts(
         : s?.exclusiveNoteCount !== undefined
           ? s.exclusiveNoteCount - (h?.touched ?? 0)
           : 0;
-    // With a date the siblings come out too: every new card counts.
     const low = config.fillNewWithSiblings ? cap : Math.min(cap, Math.max(0, sure));
     return { d, config, cap, low, own: s?.ownNoteCount };
   });
@@ -193,11 +166,7 @@ export function homeCourseCounts(
     );
   const least = count(plan.flatMap((p) => fresh(p.d.id, p.low))).counts();
 
-  // The notes whose new siblings a card due today buries, by the deck of their rows. With no review limit reached (above),
-  // every card due today goes through the queue's burying, so a note's new cards are buried when the preset of the deck
-  // of one of its cards due today buries new siblings (in simple mode, always). Review (3.2): before, every note with a
-  // card gathered counted, also when no preset of its cards buries new siblings («Modo avanzado»); «at most» could then
-  // be below the study screen (the totals still came out right, but only because «at least» was lower still).
+  // A note's new cards are buried when the preset of a deck of one of its cards due today buries new siblings.
   const buriesNew = new Map<string, boolean>();
   for (const { row } of due) {
     const buries = configs.get(row.deckId)?.buryNew ?? false;
@@ -212,7 +181,6 @@ export function homeCourseCounts(
   }
   const highs = plan.map(({ d, config, cap, low, own }) => {
     if (config.fillNewWithSiblings) return low;
-    // A preset that does not bury new siblings («Modo avanzado»): a note can give several.
     if (!config.buryNew || own === undefined) return cap;
     return Math.min(cap, Math.max(0, own - (blocked.get(d.id)?.size ?? 0)));
   });
@@ -223,7 +191,6 @@ export function homeCourseCounts(
   return { counts: least.new === most.new ? least : null, mastery };
 }
 
-/** The rows of the cards due today that the queue gathers: learning steps up to the next day, the rest due today. */
 function dueToday(rows: ReadonlyMap<string, StoredCard>, base: HomeStudyBase, timing: SchedTiming) {
   const out: { row: StoredCard; queue: 'learn' | 'dayLearn' | 'review' }[] = [];
   for (const row of rows.values()) {
@@ -237,13 +204,8 @@ function dueToday(rows: ReadonlyMap<string, StoredCard>, base: HomeStudyBase, ti
 }
 
 /**
- * Review (3.2): whether the order in which the queue gathers the cards due today can change the counts. The home page
- * does not have what the study screen sorts them by (the interval, the last answer, the place of the note in the deck),
- * so then the row reads its deck. It can change them only in «Modo avanzado» (simple mode has no review limit and
- * buries every sibling):
- * - when a review limit can be reached: which cards come out decides which siblings are buried and which limits fill;
- * - when two cards of a note due today, gathered in the same step (learning past a day, or reviews), are in decks whose
- *   presets bury differently: the first one decides whether the other comes out.
+ * The home page cannot sort the cards due today as the study screen does; that order matters when a review limit can
+ * be reached, or when two cards of a note gathered in the same step are in decks whose presets bury differently.
  */
 function dueOrderMatters(
   base: HomeStudyBase,
@@ -258,7 +220,6 @@ function dueOrderMatters(
   const limited = globalSettings(base.prefs).applyAllParentLimits
     ? [...decks, ...base.decks.filter((d) => root.startsWith(`${d.name}::`))]
     : decks;
-  // The cards due today past the learning steps in each deck and the decks above it (what its review limit counts).
   const parentOf = new Map(base.decks.map((d) => [d.id, d.parentId]));
   const inside = new Map<string, number>();
   for (const { row, queue } of due) {
@@ -291,10 +252,6 @@ function summary(noteGuid: string, ord: number, deckId: string): CardSummary {
   return { noteGuid, ord, deckId, code: null, version: null, kind: 'basic', text: '' };
 }
 
-/**
- * As masteryByDeck(): the average retrievability over the course's cards (never seen: 0), without those under «No
- * mostrar más» nor Extras that are not included.
- */
 function courseMastery(
   base: HomeStudyBase,
   decks: readonly TreeDeck[],
@@ -313,10 +270,7 @@ function courseMastery(
   return count === 0 ? 0 : sum / count;
 }
 
-/**
- * When the counts can change next without anything of the student changing: a learning step of today coming within the
- * learn-ahead limit (the day changing is another query). Null: nothing.
- */
+/** When a learning step of today comes within the learn-ahead limit and the counts change by themselves. */
 export function nextChangeAt(
   home: ReadonlyMap<string, HomeDeckCounts>,
   learnAheadMinutes: number,

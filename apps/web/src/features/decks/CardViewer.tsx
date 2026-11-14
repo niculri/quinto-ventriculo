@@ -1,3 +1,5 @@
+// A modal card viewer as in Anki: front, «Mostrar respuesta», back, with arrows through a list and a line of actions.
+
 import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -17,17 +19,11 @@ interface Props {
   index: number;
   onIndexChange: (index: number) => void;
   onClose: () => void;
-  /**
-   * A line of actions under the buttons (the cards page, step 3.3: Marcar, No mostrar más, Reportar error…), always as
-   * high, whatever the card.
-   */
   actions?: ReactNode;
 }
 
-/** The card as in Anki: front, «Mostrar respuesta», back. With arrows to move through the list. */
 export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Props) {
   const current = cards[index]!;
-  // The answer shown belongs to one card: moving to another one starts on its front.
   const key = `${current.noteGuid}/${current.ord}`;
   const [answerOf, setAnswerOf] = useState<string | null>(null);
   const showAnswer = answerOf === key;
@@ -38,7 +34,6 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
   const client = useQueryClient();
   const content = useRef<HTMLDivElement>(null);
 
-  // The next card is fetched ahead.
   useEffect(() => {
     const next = cards[index + 1];
     if (next) void client.prefetchQuery(cardQuery(api, next.noteGuid, next.ord));
@@ -57,11 +52,9 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
       origin instanceof Element &&
       origin.matches('button, a[href], summary, input, select, textarea');
     if (activates && (e.key === ' ' || e.key === 'Enter')) return;
-    // Typing (a report) or in a popup opened from the actions line: its keys are not the viewer's.
     if (
       origin instanceof Element &&
       (origin.closest('input, textarea, select, [contenteditable]') ||
-        // (Inside the card's shadow root `closest` stops at its root: that is the viewer's.)
         (origin.getRootNode() === document &&
           origin.closest('[role="dialog"]') !== content.current))
     ) {
@@ -82,7 +75,6 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
           aria-describedby={undefined}
           ref={content}
           tabIndex={-1}
-          // The global :focus-visible ring would frame the whole viewer.
           style={{ outline: 'none' }}
           // Focus on the viewer itself, not on «Cerrar»: so space shows the answer, as in Anki.
           onOpenAutoFocus={(e) => {

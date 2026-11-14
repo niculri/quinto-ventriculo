@@ -1,3 +1,5 @@
+// Studying in the users database: card states and the review log, each user only their own rows, the order of the
+// migrations, and presets, deck settings and preferences.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';
@@ -18,7 +20,6 @@ beforeAll(async () => {
   }
 });
 
-/** An answer as the web sends it (a new card answered «Bien»: to its 10-minute step). */
 function answer(noteGuid: string, extra: Record<string, unknown> = {}) {
   const now = new Date();
   return {
@@ -216,7 +217,6 @@ describe('each user only their own', () => {
       return [cards.rows.length, log.rows.length, undo.rows[0]!.r];
     });
     expect(r).toEqual([0, 0, null]);
-    // Nor can he change or delete her rows by hand (since plan step 1.2, nobody writes them directly).
     for (const sql of [
       `update public.card_states set reps = 99 where user_id = '${ANA.sub}'`,
       `delete from public.review_log where user_id = '${ANA.sub}'`,
@@ -238,7 +238,6 @@ describe('each user only their own', () => {
           [ANA.sub],
         ),
       ),
-      // Since plan step 1.2 nobody writes card states directly, not even their own.
     ).rejects.toThrow(/permission denied/);
     await expect(
       asUser(db, BETO, (tx) =>
@@ -292,8 +291,6 @@ describe('each user only their own', () => {
 
   it('undo cannot be pointed at someone else’s card: nobody writes log or undo rows by hand', async () => {
     await asUser(db, BETO, (tx) => tx.query(call('record_review', [0]), [answer('b1')]));
-    // Since plan step 1.2 the log and undo rows are written only by the functions, which always write the
-    // caller's own: a row that claims to have been Beto’s card cannot even be written.
     await expect(
       asUser(db, ANA, (tx) =>
         tx.query(
@@ -312,7 +309,6 @@ describe('each user only their own', () => {
         ),
       ),
     ).rejects.toThrow(/permission denied/);
-    // Nor can the helpers be called to log a change in someone else’s name.
     await expect(
       asUser(db, ANA, (tx) =>
         tx.query(`select public.change_card(gen_random_uuid(), 'flag', $1, now(), '{"flag": 7}')`, [

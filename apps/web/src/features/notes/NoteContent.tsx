@@ -1,3 +1,5 @@
+// The body of an article: its HTML sanitized, laid out, and with each image opening the viewer.
+
 import { useImperativeHandle, useMemo, useRef } from 'react';
 import type { KeyboardEvent, MouseEvent, Ref } from 'react';
 import DOMPurify from 'dompurify';
@@ -6,10 +8,7 @@ import { sectionAt } from './reporting';
 import { useScrollableTables } from './useScrollableTables';
 import { prepareArticle } from './articleHtml';
 
-/**
- * The note HTML. It already comes sanitized from the importer; it is sanitized again here just in case
- * (defense in depth: it is the only thing injected as HTML in the whole web).
- */
+/** Defense in depth: the importer already sanitizes it, and it is the only HTML the web injects. */
 export function sanitizeInBrowser(html: string): string {
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },

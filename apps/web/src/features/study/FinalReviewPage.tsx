@@ -1,3 +1,6 @@
+// The final review of an assessment (`…/anki/<assessment>/review`): choosing what to review and its rounds, which
+// count as practice and change no date.
+
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import * as Menu from '@radix-ui/react-dropdown-menu';
@@ -30,13 +33,10 @@ import { MenuRoot } from '../../ui/MenuRoot';
 import { useCountOpen } from '../usage/count';
 import { usePracticeRecorder } from '../stats/practice';
 
-/** «Marcar para revisar» is one flag, as when studying. */
 const REVIEW_FLAG = 1;
 
-/** The final review of an assessment (`…/anki/<assessment>/review`): no menu, as studying. */
 export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
-  // «Uso» (step 2.9): a deck's page, its study and its final review are what open a deck.
   useCountOpen('deck', deck.data ? node.id : null);
   if (deck.isError) {
     if (deck.error instanceof ApiRequestError && [400, 404].includes(deck.error.status)) {
@@ -61,8 +61,7 @@ export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
 function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDetail }) {
   const study = useStudyData(deck);
   const client = useQueryClient();
-  // From «Listo por hoy», what is in memory is from before that session: it is read again before saying anything.
-  // (Its last answers may still be on their way; when they arrive, the lists to choose from follow.)
+  // From «Listo por hoy» what is in memory is from before that session: it is read again before saying anything.
   const [fresh, setFresh] = useState(false);
   useEffect(() => {
     void client
@@ -89,7 +88,6 @@ function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDet
 
 function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) {
   const [round, setRound] = useState<Round | null>(null);
-  // The marks changed here: nothing else changes while reviewing.
   const [marks, setMarks] = useState<ReadonlyMap<string, number>>(new Map());
   // Only to choose: a mark made in a round counts for the next one.
   const choosing = round === null;
@@ -100,7 +98,6 @@ function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) 
   const deckPath = paths.deck(node.ref);
   const client = useQueryClient();
   const marked = useRef(false);
-  // Each answer is practice: it counts in the heatmap and the streak, without changing any date.
   const { add: addPractice, flush: flushPractice } = usePracticeRecorder();
   const finished = !!round && !round.queue[0];
   useEffect(() => {
@@ -164,7 +161,6 @@ function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) 
   );
 }
 
-/** What to review. It says once, here, that no date changes. */
 function ChooseReview({
   node,
   pools,
@@ -220,7 +216,6 @@ function ChooseReview({
   );
 }
 
-/** A card of the round: the same frame and buttons as studying, with their keys. */
 export function ReviewScreen({
   round,
   current,
@@ -230,7 +225,6 @@ export function ReviewScreen({
   round: Round;
   current: CardRef;
   onChange: (next: Round) => void;
-  /** An answer of this round (of the deck of the card): practice. */
   onAnswer: (deckId: string) => void;
 }) {
   const night = useDarkMode();
@@ -239,7 +233,6 @@ export function ReviewScreen({
   const material = useCardMaterial(current.deckId);
   const { revealed } = round;
 
-  // The next cards are fetched ahead, so there is no wait between cards.
   useEffect(() => {
     for (const c of round.queue.slice(1, 4)) {
       void client.prefetchQuery(cardQuery(api, c.noteGuid, c.ord));
@@ -328,10 +321,6 @@ export function ReviewScreen({
   );
 }
 
-/**
- * «Más»: marking a card (the only thing here that saves something) and reporting an error. `markable` false: only
- * reporting («Practicar estas» of the cards page writes nothing of the cards).
- */
 export function ReviewMenu({
   current,
   flag,
@@ -364,7 +353,6 @@ export function ReviewMenu({
   };
   return (
     <>
-      {/* Its place stays: marking does not move the title. */}
       {flag ? (
         <Flag
           className="size-5 flex-none text-brand"

@@ -1,3 +1,5 @@
+// Where an import is written: a dry-run folder, or the cloud (the content database in Supabase and the images in
+// R2), sending only what changed.
 import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import {
@@ -15,7 +17,6 @@ import { makeThumbnail } from './images';
 import type { ProcessedImage } from './images';
 import { withVersion } from './versions';
 
-/** Where the imported content ends up. */
 export interface Target {
   save(
     bundle: ContentBundle,
@@ -24,42 +25,29 @@ export interface Target {
   ): Promise<Report>;
 }
 
-/** What the bundle brings complete. What it does not bring is left as it was. */
+/** What the bundle brings complete; what it does not bring is left as it was. */
 export interface SaveScope {
   notes: boolean;
   decks: boolean;
-  /** Practice tests (optional: a scope from before v1.4 has them). */
   tests?: boolean;
-  /** The notes come incomplete (`--only`): none is removed. */
   partialNotes?: boolean;
-  /**
-   * Only these assessments (`--assessment`): the bundle brings them complete, and nothing of another is touched
-   * (nor removed). Absent: the bundle brings everything.
-   */
   assessments?: string[];
-  /**
-   * `content/unpublished.json` as this import read it (step 1.7): it goes to the database with the catalog
-   * (`content_meta`), so that the review list can stop a release that still has something of it.
-   */
+  /** Saved with the catalog, so the review list can stop a release that still has something of it. */
   unpublished?: readonly { kind: string; id: string }[];
 }
 
 const FULL: SaveScope = { notes: true, decks: true, tests: true };
 
-/** Is an assessment inside the scope? */
 const inScope = (scope: SaveScope, assessmentId: string | null) =>
   !scope.assessments || (assessmentId !== null && scope.assessments.includes(assessmentId));
 
-/** A note type or a preset that this import would change and that another assessment uses. */
 export interface SharedConflict {
   kind: 'noteType' | 'preset';
   id: string;
   name: string;
-  /** The other assessments that use it. */
   usedBy: string[];
 }
 
-/** Same value, whatever the order of the keys. */
 function canonical(value: unknown): string {
   return JSON.stringify(value, (_k, v: unknown) =>
     v && typeof v === 'object' && !Array.isArray(v)
@@ -73,9 +61,8 @@ function canonical(value: unknown): string {
 }
 
 /**
- * Note types and presets are shared by the whole site: importing some assessments (`--assessment`) would replace
- * them for the others too. What the bundle would change and another assessment uses (the folder's version of
- * import_state's `sharedConflicts`).
+ * Note types and presets are shared by the whole site, so an import of some assessments must not change one that
+ * another assessment uses (the folder's version of import_state's `sharedConflicts`).
  */
 export function sharedConflicts(
   before: Pick<ContentBundle, 'ankiNoteTypes' | 'ankiPresets' | 'ankiDecks' | 'ankiNotes'>,
@@ -116,7 +103,6 @@ export function sharedConflicts(
   return out;
 }
 
-/** The import stops before writing anything. */
 function sharedConflictError(conflicts: readonly SharedConflict[]): Error {
   const list = conflicts
     .map(
@@ -132,28 +118,18 @@ function sharedConflictError(conflicts: readonly SharedConflict[]): Error {
 export interface Report {
   changedNotes: string[];
   unchangedNotes: string[];
-  /** Articles that left the manifest (of the imported assessments) and were removed. */
   removedNotes: number;
-  /** Anki notes (by guid) that changed, stayed the same or were removed. */
+  /** Anki note guids. */
   changedCards: string[];
   unchangedCards: string[];
   removedCards: number;
-  /**
-   * Cards (by guid and ord) that went to another deck or came back, and cards taken out (their note or the card
-   * alone): each student's progress follows them when they enter.
-   */
   movedCards: number;
   retiredCards: number;
-  /** Practice tests (by id) that changed, stayed the same or were removed. */
   changedQuizzes: string[];
   unchangedQuizzes: string[];
   removedQuizzes: number;
   mediaUploaded: number;
   mediaExisting: number;
-  /**
-   * The card browser's indexes (step 3.3): written (new or changed), the same as before, taken out (an assessment
-   * without cards); and their thumbnails, made and uploaded or already there.
-   */
   indexesWritten: number;
   indexesUnchanged: number;
   indexesRemoved: number;
@@ -182,10 +158,8 @@ const emptyReport = (): Report => ({
   thumbsExisting: 0,
 });
 
-/** Makes a thumbnail from a card image's WebP (injected in tests). */
 export type ThumbMaker = (webp: Buffer) => Promise<Buffer>;
 
-/** The WebP of a card image, from the bundle's images (or, in the dry run, from the folder). */
 async function sourceOf(
   media: Map<string, ProcessedImage>,
   key: string,
@@ -199,7 +173,6 @@ async function sourceOf(
 
 type CardsOf = readonly { guid: string; cards: readonly { ord: number; deckId: string }[] }[];
 
-/** Between two imports: cards in another deck, and cards that are no longer there. */
 export function cardMoves(before: CardsOf, after: CardsOf): { moved: number; retired: number } {
   const now = new Map(
     after.flatMap((n) => n.cards.map((c) => [`${n.guid}\u001f${c.ord}`, c.deckId])),
@@ -216,15 +189,8 @@ export function cardMoves(before: CardsOf, after: CardsOf): { moved: number; ret
   return { moved, retired };
 }
 
-/**
- * Dry-run mode: `<folder>/content.json` + `<folder>/media/<key>`. Useful to review without accounts and for
- * the API in development. Keeps the `updatedAt` date of the notes that did not change.
- */
+/** Dry run: `<folder>/content.json` and `<folder>/media/<key>`, keeping the dates of the notes that did not change. */
 export class FolderTarget implements Target {
-  /**
-   * @param keepOthers keep the notes of a previous import that do not come in this one (with `--only`).
-   *   Without `--only`, a note that left the manifest also leaves the folder.
-   */
   constructor(
     private readonly folder: string,
     private readonly keepOthers = false,
@@ -256,23 +222,21 @@ export class FolderTarget implements Target {
     const notes = (scope.notes ? bundle.notes : []).map((n) => {
       const before = previous.get(n.id);
       (before && before.hash === n.hash ? report.unchangedNotes : report.changedNotes).push(n.id);
-      // The web version, dates included, as save_note() computes it in the content database.
+      // As save_note() computes the version and its dates in the content database.
       return withVersion(n, before);
     });
-    // The notes that were not imported this time stay: with --only, --only-decks or --only-tests, and those of
-    // another assessment with --assessment. Without them, a note that left the manifest also leaves the folder.
+    // The notes not imported this time stay; otherwise, a note that left the manifest leaves the folder.
     const fresh = new Set(notes.map((n) => n.id));
     const kept = before.notes.filter(
       (n) => !fresh.has(n.id) && (!scope.notes || keepOthers || !inScope(scope, n.assessmentId)),
     );
     report.removedNotes = before.notes.filter((n) => !fresh.has(n.id)).length - kept.length;
 
-    // Anki: the whole set of decks of the scope comes each time (or none, with --only).
     const previousDecks = new Map(before.ankiDecks.map((d) => [d.id, d]));
     const ankiInScope = (n: { cards: readonly { deckId: string }[] }) =>
       n.cards.some((c) => inScope(scope, previousDecks.get(c.deckId)?.assessmentId ?? null));
     const previousCards = new Map(before.ankiNotes.map((n) => [n.guid, n]));
-    // Only these four fields of before: spreading all of it would put back its notes and its catalog.
+    // Only these four fields: spreading all of `before` would put back its notes and catalog.
     let anki: Pick<ContentBundle, 'ankiNoteTypes' | 'ankiPresets' | 'ankiDecks' | 'ankiNotes'> = {
       ankiNoteTypes: before.ankiNoteTypes,
       ankiPresets: before.ankiPresets,
@@ -301,7 +265,7 @@ export class FolderTarget implements Target {
       );
       report.movedCards = moves.moved;
       report.retiredCards = moves.retired;
-      // Decks: those of the scope are the bundle's; inside some assessments, the ones above them stay.
+      // With --assessment, the parent decks above the scope stay.
       const freshDecks = new Set(bundle.ankiDecks.map((d) => d.id));
       const ankiDecks = [
         ...before.ankiDecks.filter(
@@ -331,7 +295,6 @@ export class FolderTarget implements Target {
       };
     }
 
-    // Tests: the whole set of the scope comes each time (or none, with --only or --only-decks).
     const withTests = scope.tests ?? true;
     const previousQuizzes = new Map(before.quizzes.map((q) => [q.id, q]));
     let quizzes = before.quizzes;
@@ -354,7 +317,6 @@ export class FolderTarget implements Target {
       ];
     }
 
-    // Every image the bundle names, written only if it is not in the folder yet (read from the cache then).
     for (const [key, img] of media) {
       const target = join(this.folder, 'media', key);
       if (await exists(target)) {
@@ -365,7 +327,6 @@ export class FolderTarget implements Target {
       await writeFile(target, await img.read());
       report.mediaUploaded++;
     }
-    // The card browser's indexes of every assessment with cards (step 3.3), as the cloud has them.
     const indexes = packCardIndexes(anki);
     const previousIndexes = new Map(
       (before.ankiBrowseIndexes ?? []).map((r) => [r.assessmentId, r.hash]),
@@ -396,7 +357,6 @@ export class FolderTarget implements Target {
   }
 }
 
-/** Writes an index and its thumbnails in the folder, each one only if it is not there yet. */
 async function writeIndexFiles(
   folder: string,
   packed: PackedIndex,
@@ -448,16 +408,11 @@ export interface CloudConfig {
   r2Bucket: string;
 }
 
-/**
- * Where the owner reviews the draft after `--target draft` (the preview and the differences of step 1.7, part 2),
- * on the site of `QV_SITE_URL` (default, the published one).
- */
 export function draftReviewUrl(env: NodeJS.ProcessEnv = {}): string {
   const site = (env.QV_SITE_URL ?? 'https://www.quintoventriculo.cl').replace(/\/+$/, '');
   return `${site}/admin/releases`;
 }
 
-/** Environment variables the «draft» target and `npm run unpublish` need (see docs/configuracion.md). */
 export function cloudConfigFromEnv(env: NodeJS.ProcessEnv): CloudConfig {
   const missing: string[] = [];
   const read = (n: string) => {
@@ -477,7 +432,6 @@ export function cloudConfigFromEnv(env: NodeJS.ProcessEnv): CloudConfig {
   return c;
 }
 
-/** The content database, as the importer calls it: only its functions (supabase-js `rpc`, or a fake in tests). */
 export interface ContentDatabase {
   rpc(
     fn: string,
@@ -485,7 +439,6 @@ export interface ContentDatabase {
   ): PromiseLike<{ data: unknown; error: { message: string } | null }>;
 }
 
-/** Where the images go (R2, or a fake in tests). Its keys are the images' hashes. */
 export interface MediaStore {
   has(key: string): Promise<boolean>;
   put(key: string, body: Buffer, contentType: string): Promise<void>;
@@ -494,38 +447,27 @@ export interface MediaStore {
 export interface CloudOptions {
   db: ContentDatabase;
   store: MediaStore;
-  /** At most this many bytes of JSON per call (default 2 MB). A piece bigger than that goes alone. */
   maxBatchBytes?: number;
-  /** At most this many pieces per call (default 500; the database accepts 1000). */
+  /** The database accepts at most 1000. */
   maxBatchItems?: number;
-  /** Makes the browser's thumbnails (default: `makeThumbnail`, 240 px WebP). */
   thumbnail?: ThumbMaker;
-  /** Requests to the image store at a time for the thumbnails (default 16). */
   storeConcurrency?: number;
 }
 
-/** The hashes of what is published (import_state). */
 interface ImportState {
   notes: Record<string, string>;
   quizzes: Record<string, string>;
   ankiNotes: Record<string, string>;
   latestChange: number;
-  /** The hash of each assessment's browser index (step 3.3; absent in a database from before it). */
+  /** Absent in an older content database. */
   ankiBrowseIndexes?: Record<string, string>;
-  /** With `shared`: what of it would change for other assessments (the import stops). */
   sharedConflicts?: SharedConflict[];
 }
 
-/**
- * The schema of the content database the importer writes: `public` is what the site shows; `draft` is the draft (step
- * 1.7), a mirror of `public` with the same functions, that nobody but an administrator sees.
- */
+/** `draft` mirrors `public` with the same functions, and only an administrator sees it. */
 export type ContentSchema = 'public' | 'draft';
 
-/**
- * The content database with the service key (supabase-js `rpc`), in `schema`. For `draft`, PostgREST has to expose
- * the schema (Supabase: Settings → API → Exposed schemas; see docs/configuracion.md).
- */
+/** For `draft`, PostgREST has to expose the schema (Supabase: Settings → API → Exposed schemas). */
 export function contentDatabase(
   config: Pick<CloudConfig, 'contentUrl' | 'contentServiceKey'>,
   schema: ContentSchema = 'public',
@@ -538,7 +480,6 @@ export function contentDatabase(
   return { rpc: (fn, args) => draft.rpc(fn, args) };
 }
 
-/** The images' bucket in R2: look, upload and (to take one off the site, step 1.5) delete. */
 export function r2Media(config: CloudConfig): MediaStore & {
   delete(key: string): Promise<void>;
   deletePrefix(prefix: string): Promise<number>;
@@ -565,7 +506,7 @@ export function r2Media(config: CloudConfig): MediaStore & {
           Key: key,
           Body: body,
           ContentType: contentType,
-          // The key changes if the image changes: it can be cached forever.
+          // The key is the image's hash, so it can be cached forever.
           CacheControl: 'private, max-age=31536000, immutable',
         }),
       );
@@ -573,7 +514,6 @@ export function r2Media(config: CloudConfig): MediaStore & {
     async delete(key) {
       await s3.send(new DeleteObjectCommand({ Bucket: config.r2Bucket, Key: key }));
     },
-    // The browser's index files of an assessment (step 3.3), a page of at most 1000 at a time.
     async deletePrefix(prefix) {
       let deleted = 0;
       for (let token: string | undefined; ;) {
@@ -584,7 +524,6 @@ export function r2Media(config: CloudConfig): MediaStore & {
             ...(token ? { ContinuationToken: token } : {}),
           }),
         );
-        // One by one (an assessment has a few: one per import that changed it).
         for (const o of page.Contents ?? []) {
           if (!o.Key) continue;
           await s3.send(new DeleteObjectCommand({ Bucket: config.r2Bucket, Key: o.Key }));
@@ -597,7 +536,6 @@ export function r2Media(config: CloudConfig): MediaStore & {
   };
 }
 
-/** Splits `items` in calls of at most `maxBytes` of JSON and `maxItems` pieces, in order. */
 export function batches<T>(items: readonly T[], maxBytes: number, maxItems: number): T[][] {
   const out: T[][] = [];
   let current: T[] = [];
@@ -617,14 +555,12 @@ export function batches<T>(items: readonly T[], maxBytes: number, maxItems: numb
 }
 
 /**
- * Content database in Supabase + images in Cloudflare R2, incremental: it asks once for the hashes of what is
- * published, sends only what changed (many pieces per call) with its images first, and removes only inside the
- * imported assessments. A second import without changes makes 4 calls to the database and none to R2.
+ * Supabase and R2, incremental: one call for the published hashes, then only what changed, images first, removing
+ * only inside the imported assessments.
  */
 export class CloudTarget implements Target {
   constructor(private readonly options: CloudOptions) {}
 
-  /** `schema` = `draft`: the draft (`--target draft`); the images go to R2 as always (their key is their hash). */
   static fromConfig(config: CloudConfig, schema: ContentSchema = 'public'): CloudTarget {
     return new CloudTarget({ db: contentDatabase(config, schema), store: r2Media(config) });
   }
@@ -635,7 +571,7 @@ export class CloudTarget implements Target {
     return r.data as T;
   }
 
-  /** Sends `items` in batches to `fn`; returns the ids the database says changed. */
+  /** Returns the ids the database says changed. */
   private async saveAll(fn: string, items: readonly object[]): Promise<Set<string>> {
     const changed = new Set<string>();
     const { maxBatchBytes = 2_000_000, maxBatchItems = 500 } = this.options;
@@ -655,7 +591,6 @@ export class CloudTarget implements Target {
     const assessments = scope.assessments ?? null;
     const state = await this.call<ImportState>('import_state', {
       assessments,
-      // Inside some assessments, what of the shared catalog would change for the others.
       shared:
         assessments && scope.decks
           ? { noteTypes: bundle.ankiNoteTypes, presets: bundle.ankiPresets }
@@ -663,15 +598,13 @@ export class CloudTarget implements Target {
     });
     if (state.sharedConflicts?.length) throw sharedConflictError(state.sharedConflicts);
 
-    // Only what is not published as it is now.
     const notes = scope.notes ? bundle.notes.filter((n) => state.notes[n.id] !== n.hash) : [];
     const quizzes = withTests ? bundle.quizzes.filter((q) => state.quizzes[q.id] !== q.hash) : [];
     const ankiNotes = scope.decks
       ? bundle.ankiNotes.filter((n) => state.ankiNotes[n.guid] !== n.hash)
       : [];
 
-    // Images first, and only those of what changes: a piece already published with the same hash already has
-    // every image it names in the store (it was saved after them).
+    // Images first: a piece published with the same hash already has its images in the store.
     const keys = new Set([...notes, ...quizzes, ...ankiNotes].flatMap((p) => p.media));
     const missing = [...keys].filter((k) => !media.has(k));
     if (missing.length) {
@@ -689,15 +622,13 @@ export class CloudTarget implements Target {
       report.mediaUploaded++;
     }
 
-    // The catalog file is always complete: whatever is no longer in it goes (with an error if it still has
-    // notes, tests or decks).
+    // The catalog always comes complete: what is no longer in it goes.
     await this.call('sync_catalog', {
       c: {
         semesters: bundle.semesters,
         courses: bundle.courses,
         assessments: bundle.assessments,
-        // What the review list (step 1.7) needs to know of this package: the version of its shape (a Worker that
-        // does not understand it refuses to publish it) and the list of what is off the site it was built with.
+        // A Worker that does not know `schemaVersion` refuses to publish the package.
         meta: {
           schemaVersion: CONTENT_SCHEMA_VERSION,
           unpublished: (scope.unpublished ?? []).map(({ kind, id }) => ({ kind, id })),
@@ -706,7 +637,7 @@ export class CloudTarget implements Target {
     });
 
     if (scope.notes) {
-      // The version and its dates are the database's (save_note() computes them).
+      // save_note() computes the version and its dates.
       const changed = await this.saveAll(
         'save_notes',
         notes.map(
@@ -743,8 +674,7 @@ export class CloudTarget implements Target {
       }
     }
 
-    // Whatever is no longer published goes, only of what this import brings complete and only inside its
-    // assessments.
+    // Removes only from what this import brings complete, and only inside its assessments.
     const keep: Record<string, unknown> = { assessments };
     if (scope.notes && !scope.partialNotes) keep.notes = bundle.notes.map((n) => n.id);
     if (withTests) keep.quizzes = bundle.quizzes.map((q) => q.id);
@@ -766,8 +696,7 @@ export class CloudTarget implements Target {
       report.removedCards = removed.ankiNotes;
     }
 
-    // Which cards went to another deck, came back or left (the content database records it, step 1.3). Only if
-    // a card could have: nothing sent and nothing removed is nothing moved.
+    // The content database records each card that moved or left; with nothing sent or removed, none did.
     if (scope.decks && (ankiNotes.length || report.removedCards)) {
       let moved = 0;
       let retired = 0;
@@ -792,11 +721,7 @@ export class CloudTarget implements Target {
     return report;
   }
 
-  /**
-   * The browser's indexes of the imported assessments (step 3.3): only those whose file changed are uploaded (first its
-   * thumbnails, then the file, then the database's row, so the row never names what the store lacks). An import
-   * without changes asks nothing more than before (the hashes come with import_state).
-   */
+  /** Thumbnails, then the index file, then the row: the row never names what the store lacks. */
   private async saveIndexes(
     bundle: ContentBundle,
     media: Map<string, ProcessedImage>,
@@ -804,7 +729,7 @@ export class CloudTarget implements Target {
     state: ImportState,
     report: Report,
   ) {
-    // A content database from before step 3.3 (its import_state() does not say): no indexes to write there.
+    // An older content database has no browser indexes.
     if (!state.ankiBrowseIndexes) return;
     const known = state.ankiBrowseIndexes;
     const scoped = scope.assessments ?? null;

@@ -1,7 +1,6 @@
 /**
- * The queue built anew before every card, against real Anki 25.9 (scripts/anki_rebuild.py): as the web builds
- * it when the study page opens, after burying or suspending and after an undo. The counters of what was
- * studied today come from the answers so far, added up in each deck and the decks above it, as Anki does.
+ * The queue built anew before every card (as when the study page opens, after burying or an undo) against real
+ * Anki 25.9 (scripts/anki_rebuild.py), with the day's counters added up from the answers so far.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,7 +13,6 @@ import type { AnkiCard } from './anki-cards';
 interface Scenario {
   name: string;
   decks: { key: string; id: number; name: string; config: Record<string, unknown> }[];
-  /** Anki's counters as the scenario set them before studying (each deck on its own). */
   studied: Record<string, [number, number]>;
   cards: AnkiCard[];
   steps: {

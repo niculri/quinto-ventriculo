@@ -1,40 +1,31 @@
+// Administrators and invitations in the users database. The database decides who is an administrator and what each
+// one can read (RLS and `is_admin()`); the web only uses the answer to show the panel.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DeckImpact } from '@qv/schema';
 
-/**
- * Administrators and who is invited, in the USERS database (the reports of errors are in features/reports since step
- * 2.6). The database decides who is an
- * administrator and what each one can read (RLS and `is_admin()`); the web only uses the answer to show the panel.
- */
-
-/** An invitation, as «Acceso» shows it (step 2.10; `access_report()` of step 2.1). */
 export interface AccessInvite {
   email: string;
   list: string;
   note: string | null;
   invitedBy: string | null;
   invitedAt: string;
-  /** In admin_emails: the panel never removes them. */
   admin: boolean;
   hasAccount: boolean;
   lastSignInAt: string | null;
 }
 
 export interface AccessReport {
-  /** The whole domain is in (step 4): removing an invitation does not take away access. Only read here. */
+  /** Only read here: removing an invitation does not take away access. */
   openToDomain: boolean;
   lists: { list: string; invited: number; withAccount: number }[];
-  /** By list, then by email. */
   invited: AccessInvite[];
-  /** Accounts that exist without an invitation (there should be none). */
   accountsWithoutInvite: { email: string; createdAt: string; lastSignInAt: string | null }[];
-  /** The owner of the site (step 2.10 b): never removed as an administrator. Null until the row is marked. */
+  /** Never removed as an administrator; null until the row is marked. */
   owner: string | null;
-  /** Whoever is looking is the owner: only they name and remove administrators. */
   youAreOwner: boolean;
 }
 
-/** What naming or removing an administrator did. `changed` is false when it already was as asked. */
+/** `changed` is false when it already was as asked. */
 export interface SetAdminResult {
   email: string;
   admin: boolean;
@@ -43,14 +34,12 @@ export interface SetAdminResult {
 
 export type InviteRejection = 'domain' | 'invalid' | 'repeated' | 'empty';
 
-/** What inviting did: who came in, who was already there (their list does not change) and what was refused. */
 export interface InviteResult {
   added: string[];
   already: string[];
   rejected: { email: string; reason: InviteRejection }[];
 }
 
-/** What removing did. `keptAdmins`: administrators, never removed from the panel. */
 export interface RemoveResult {
   removed: string[];
   notInvited: string[];
@@ -59,10 +48,8 @@ export interface RemoveResult {
   openToDomain: boolean;
 }
 
-/** At most this many emails per call (invite_emails() and remove_invites()). */
 export const MAX_EMAILS = 500;
 
-/** What the database refuses in «Acceso», said in Spanish. */
 export class AccessError extends Error {
   constructor(message: string) {
     super(message);
@@ -72,20 +59,12 @@ export class AccessError extends Error {
 
 export interface AdminRepository {
   isAdmin(): Promise<boolean>;
-  /**
-   * Whom a release reaches (step 1.7): by deck, how many students saw some of its cards, how many cards in all and how
-   * many turned it on. Only for an administrator; at most 300 decks (`admin_deck_impact()`).
-   */
+  /** Only for an administrator; at most 300 decks. */
   deckImpact(deckIds: readonly string[]): Promise<DeckImpact[]>;
-  /** «Acceso» (step 2.10): the invitations, the lists and the accounts without one. Only for an administrator. */
   accessReport(): Promise<AccessReport>;
-  /** Invites `emails` in `list` (new or existing), with an optional note; who invites is the administrator. */
   invite(input: { emails: string[]; list: string; note: string | null }): Promise<InviteResult>;
-  /** Removes some people or a whole list, never an administrator; their sessions close. */
+  /** Their sessions close; an administrator is never removed. */
   removeInvites(target: { emails: string[] } | { list: string }): Promise<RemoveResult>;
-  /**
-   * Names an invited person administrator, or removes one (step 2.10 b). Only the owner; never the owner.
-   */
   setAdmin(input: { email: string; admin: boolean }): Promise<SetAdminResult>;
 }
 
@@ -103,7 +82,7 @@ interface AccessReportRow {
     last_sign_in_at: string | null;
   }[];
   accounts_without_invite: { email: string; created_at: string; last_sign_in_at: string | null }[];
-  /** Step 2.10 b (…_admin_owner.sql); absent from a database of before that step. */
+  /** Absent from a database without the site owner column. */
   owner?: string | null;
   you_are_owner?: boolean;
 }
@@ -130,12 +109,11 @@ const accessReportOf = (r: AccessReportRow): AccessReport => ({
   youAreOwner: r.you_are_owner === true,
 });
 
-/** The database's refusal (admin_*() of the users' database), in words for the panel. */
 function accessError(error: { code?: string; message: string }): AccessError {
   if (error.code === '28000' || /session_closed/.test(error.message)) {
     return new AccessError('Tu sesión se cerró. Sal y vuelve a entrar.');
   }
-  // Step 2.10 b: before the codes (they share 42501 and P0002 with the refusals of step 2.10).
+  // Before the codes: these refusals share 42501 and P0002 with the others.
   if (/owner_only/.test(error.message)) {
     return new AccessError('Solo el dueño del sitio nombra o quita administradores.');
   }
@@ -150,8 +128,7 @@ function accessError(error: { code?: string; message: string }): AccessError {
   if (/at most 500/.test(error.message)) {
     return new AccessError(`A lo más ${MAX_EMAILS} correos por vez.`);
   }
-  // Revisión de cero (2.10): the messages of each refusal, not any that names the key («expected { "emails": [...],
-  // "list": … }» also does).
+  // By the message of each refusal, not by any that names the key («expected { "emails": [...], "list": … }» also does).
   if (/"list" is required/.test(error.message)) {
     return new AccessError('El nombre de la lista tiene que tener entre 1 y 60 letras.');
   }
@@ -228,7 +205,6 @@ export function supabaseAdminRepository(client: SupabaseClient): AdminRepository
   };
 }
 
-/** An invitation of the demo and the tests (made-up people). */
 const DEMO_INVITES: AccessInvite[] = [
   invite('demo@ug.uchile.cl', 'Equipo', true, true),
   invite('ana.perez@ug.uchile.cl', 'Curso de prueba', false, true),
@@ -247,23 +223,17 @@ function invite(email: string, list: string, admin: boolean, hasAccount: boolean
   };
 }
 
-/**
- * The email as invite_emails() takes it: lowercase, without any space (also the invisible ones a paste brings).
- * The database does the same; this is for the demo and for counting what the form will send.
- */
+// Lowercase and without any space, also the invisible ones a paste brings, as invite_emails() does; for the demo and
+// for counting what the form will send.
 export const normalizeEmail = (raw: string) =>
   raw.replace(/(?:[\s\u00a0\u2007\u202f\u200b\u200c\u2060\ufeff]|\u200d)+/g, '').toLowerCase();
 
-/** The demo and the tests, without a database: the reports and the invitations stay in this browser (or in memory). */
 export function localAdminRepository(
   options: {
     admin?: boolean;
     storage?: Storage | null;
-    /** Who the administrator is (who invites). */
     email?: string;
-    /** They are the owner of the site (step 2.10 b); by default, the administrator is. */
     owner?: boolean;
-    /** The invitations to start with (by default, made-up ones). */
     invites?: AccessInvite[];
     accountsWithoutInvite?: AccessReport['accountsWithoutInvite'];
     openToDomain?: boolean;
@@ -291,7 +261,7 @@ export function localAdminRepository(
   };
   const me = options.email ?? 'demo@ug.uchile.cl';
   const youAreOwner = (options.admin ?? false) && (options.owner ?? true);
-  // Who the owner is: the administrator, if they are; if not, nobody of these invitations (the owner is somebody else).
+  // The site owner is the administrator, if they are; if not, somebody outside these invitations.
   const ownerEmail = youAreOwner ? me : null;
   const sorted = (list: AccessInvite[]) =>
     [...list].sort((a, b) => a.list.localeCompare(b.list) || a.email.localeCompare(b.email));
@@ -386,7 +356,6 @@ export function localAdminRepository(
         removed,
         notInvited: targets.filter((e) => !removed.includes(e)).sort(),
         keptAdmins,
-        // The demo closes one session for each person removed.
         sessionsClosed: removed.length,
         openToDomain: options.openToDomain ?? false,
       };

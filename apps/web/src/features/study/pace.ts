@@ -1,3 +1,6 @@
+// Assessment mode: with a test's date, the new cards a day from the material turned on and the days left.
+// Pure functions; @qv/srs only gets another `newPerDay`.
+
 import { dayOf } from '@qv/srs';
 import type { AssessmentSetting, DeckProgress, StudyPreferences } from './repository';
 import {
@@ -11,58 +14,34 @@ import {
 } from './simple';
 import type { StudyPlan } from './simple';
 
-/**
- * The assessment mode (docs/arquitectura.md, «Modo certamen»): with the date of a test, the new cards a day come out
- * of the material turned on and the days left. Pure functions: @qv/srs only gets another `newPerDay`.
- */
-
-/**
- * The days just before the test that the student can leave for reviewing only: no new cards come out on them. The more
- * days, the more new cards a day until then: leaving a week is the intensive one.
- */
 export const FINAL_REVIEW_OPTIONS = [
   { days: 1, name: 'Fácil' },
   { days: 3, name: 'Medio' },
   { days: 7, name: 'Intensivo' },
 ];
 export const DEFAULT_FINAL_REVIEW_DAYS = 3;
-/** From here on a goal is said to be too much for a day. */
 export const UNREALISTIC_MINUTES = 120;
-/** A backlog from here on deserves a plan: about 12 minutes of reviews. */
 export const LARGE_BACKLOG = 50;
-/** A plan to catch up: this many days, unless it takes more than `CATCH_UP_MAX_A_DAY` a day. */
 const CATCH_UP_DAYS = 5;
 const CATCH_UP_MAX_A_DAY = 100;
 
-/**
- * When a card answered «Bien» every time comes back, counting from its first day: at a retention of 90 %, FSRS's
- * default parameters give intervals of 2, 12, 48 and 169 days (a test compares it with the scheduler).
- */
+// Days after its first one at which a card answered «Bien» every time comes back: FSRS's defaults at 90 % retention
+// (a test checks them against the scheduler).
 export const REVIEW_AT_DAY = [2, 14, 62, 231];
-/**
- * How often a card already seen comes back: when it was first seen is not known here, and until the test most are in
- * their first weeks. Measured by answering the real decks with the real scheduler: from one every 25 days (at the end of
- * a long plan) to one every 7 (in the middle of a short one).
- */
+// Measured with the real decks and scheduler: from one review every 25 days (end of a long plan) to one every 7.
 const SEEN_REVIEWS_PER_DAY = 1 / 14;
 /** About one review in ten fails, and a failed card is answered again the same day (one and a half, with the steps). */
 const ANSWERS_PER_REVIEW = 1.15;
 
 const DAY_MS = 86_400_000;
 
-// Calendar days ----------------------------------------------------------------------------------------
-
-/**
- * The scheduler's day number of a calendar day, «2026-11-05». A day number is the date in the user's zone, counted
- * from 1970, so this needs no zone: the day of the test is the same day for everybody, and before the rollover hour
- * the scheduler's `today` is still yesterday.
- */
+// A day number is the date in the user's zone counted from 1970, so a calendar day needs no zone; before the
+// rollover hour the scheduler's `today` is still yesterday.
 export function dayOfDate(date: string): number {
   const [y, m, d] = date.split('-').map(Number);
   return Date.UTC(y!, m! - 1, d!) / DAY_MS;
 }
 
-/** The calendar day of a day number: what a date field takes. */
 export function dateOfDay(day: number): string {
   return new Date(day * DAY_MS).toISOString().slice(0, 10);
 }
@@ -80,7 +59,6 @@ const LONG_DATE = new Intl.DateTimeFormat('es-CL', {
   timeZone: 'UTC',
 });
 
-/** «12 de noviembre». */
 export const longDate = (date: string) => LONG_DATE.format(new Date(dayOfDate(date) * DAY_MS));
 
 const SHORT_DATE = new Intl.DateTimeFormat('es-CL', {
@@ -89,45 +67,33 @@ const SHORT_DATE = new Intl.DateTimeFormat('es-CL', {
   timeZone: 'UTC',
 });
 
-/** «12 nov». */
 export const shortDate = (date: string) =>
   SHORT_DATE.format(new Date(dayOfDate(date) * DAY_MS))
     .replace(/ de /, ' ')
     .replace(/\.$/, '');
 
-/** «Faltan 12 días», «Falta 1 día», and on the day of the test (0 days left), «Hoy es la prueba». */
 export function daysLeftText(daysLeft: number): string {
   if (daysLeft === 0) return 'Hoy es la prueba';
   return daysLeft === 1 ? 'Falta 1 día' : `Faltan ${daysLeft.toLocaleString('es-CL')} días`;
 }
 
-// What is in an assessment -----------------------------------------------------------------------------
-
 interface CountedDeck {
   id: string;
   name: string;
-  /** Cards directly in it. */
   ownCards?: number;
 }
 
 export interface AssessmentFacts {
-  /** New cards left now in what gives new cards. */
   newLeft: number;
-  /** New cards answered today and yesterday, anywhere in the assessment. */
   newToday: number;
   newYesterday: number;
-  /** Cards already seen, of the whole assessment. */
   seen: number;
   overdue: number;
-  /** Something with cards gives new cards. */
   anyOn: boolean;
-  /** Weeks or lectures turned off that still have new cards. */
   unitsOff: number;
-  /** What those are called here: weeks in Anatomy, lectures elsewhere. */
   unitIsWeek: boolean;
 }
 
-/** Below an assessment's deck (itself included). */
 const inside = (root: CountedDeck, d: CountedDeck) =>
   d.id === root.id || d.name.startsWith(`${root.name}::`);
 
@@ -181,33 +147,15 @@ export function assessmentFacts(
   return facts;
 }
 
-// The pace ---------------------------------------------------------------------------------------------
-
-type PaceKind =
-  /** No date: the student's number. */
-  | 'none'
-  /** The date passed: the student's number. */
-  | 'past'
-  /** Nothing turned on: nothing to compute. */
-  | 'nothing-on'
-  /** The last days before the test: no new cards. */
-  | 'final-review'
-  /** With a date and nothing new left. */
-  | 'finished'
-  | 'computed';
+type PaceKind = 'none' | 'past' | 'nothing-on' | 'final-review' | 'finished' | 'computed';
 
 export interface Pace {
   kind: PaceKind;
-  /** What the scheduler gets. */
   newPerDay: number;
-  /** null: no date. */
   daysLeft: number | null;
 }
 
-/**
- * The new cards left when the day started: what is left now and what was already answered today. Answering a card
- * moves it from one to the other, so the result does not change while one studies; turning a lecture on does.
- */
+// Constant while one studies (answering moves a card from left to answered today); turning a lecture on changes it.
 export const newAtDayStart = (facts: AssessmentFacts) => facts.newLeft + facts.newToday;
 
 function newPerDayFor(cards: number, days: number): number {
@@ -235,11 +183,8 @@ export function computePace(
   return { kind: 'computed', newPerDay: newPerDayFor(cards, days), daysLeft };
 }
 
-/**
- * The pace went up because new cards were left undone: with the same material and date, the pace of yesterday's
- * start (today's cards and yesterday's, with a day more) was lower. Turning on a lecture does not raise it: both
- * sides count it. It needs the date to have been there yesterday.
- */
+// Compared with the pace of yesterday's start on the same material and date, so turning a lecture on does not count
+// as a rise; it needs the date to have been there yesterday.
 export function paceRose(
   pace: Pace,
   setting: Pick<AssessmentSetting, 'finalReviewDays'> | undefined,
@@ -253,14 +198,10 @@ export function paceRose(
   return pace.newPerDay > newPerDayFor(newAtDayStart(facts) + facts.newYesterday, days + 1);
 }
 
-/** How many times a card is reviewed in the `days` after its first day. */
 const reviewsWithin = (days: number) => REVIEW_AT_DAY.filter((d) => d <= days).length;
 
-/**
- * About how many minutes a day the plan takes, rounded to 5: the new cards of the day (two answers each), the average of
- * their reviews until the test and those of the cards already seen. Approximate: it supposes every review goes well at
- * the usual intervals; on the screen it always says «~».
- */
+// Approximate, rounded to 5: the day's new cards (two answers each), their reviews until the test at the usual
+// intervals and those of the cards already seen; the screen says «~».
 export function planMinutes(a: {
   newPerDay: number;
   daysLeft: number;
@@ -279,17 +220,13 @@ export function planMinutes(a: {
   return Math.max(5, Math.round(minutes / 5) * 5);
 }
 
-/** What leaving some days for reviewing would mean. */
 export interface PaceOption {
   finalDays: number;
-  /** null: nothing to compute (no date, it passed, nothing turned on). */
   newPerDay: number | null;
   minutes: number | null;
-  /** The last day with new cards, «2026-11-16»; null: none comes out any more. */
   lastNewDate: string | null;
 }
 
-/** What each choice would mean, to choose. */
 export function paceOptions(
   setting: Pick<AssessmentSetting, 'examDate'> | undefined,
   facts: AssessmentFacts,
@@ -322,7 +259,6 @@ export function paceOptions(
   });
 }
 
-/** The assessments whose number comes from their date: every day has to give all of it, or the date is not met. */
 export function assessmentsWithDeadline(
   decks: readonly CountedDeck[],
   plan: StudyPlan,
@@ -338,7 +274,6 @@ export function assessmentsWithDeadline(
   return out;
 }
 
-/** The pace each assessment with a date gives: `simpleConfigs()` uses it instead of the student's number. */
 export function assessmentPaces(
   decks: readonly CountedDeck[],
   plan: StudyPlan,
@@ -354,25 +289,19 @@ export function assessmentPaces(
   return out;
 }
 
-// Catching up ------------------------------------------------------------------------------------------
-
 export interface CatchUp {
   overdue: number;
   perDay: number;
   days: number;
 }
 
-/**
- * A plan for a large backlog: over 5 days, or more if that is over 100 a day; if the test comes first, over the days
- * left. It is only information: the scheduler keeps giving every card that is due.
- */
+// Only information: the scheduler keeps giving every card that is due.
 export function catchUpPlan(overdue: number, daysLeft: number | null): CatchUp | null {
   // On the day of the test there is no plan to give: it would end after it.
   if (overdue < LARGE_BACKLOG || daysLeft === 0) return null;
   let days = CATCH_UP_DAYS;
   if (overdue / days > CATCH_UP_MAX_A_DAY) days = Math.ceil(overdue / CATCH_UP_MAX_A_DAY);
   if (daysLeft !== null) days = Math.min(days, daysLeft);
-  // In fives: it says «~».
   const perDay = Math.ceil(overdue / days / 5) * 5;
   return { overdue, perDay, days };
 }
@@ -382,12 +311,6 @@ export function catchUpText(plan: CatchUp): string {
   return `Llevas ${n(plan.overdue)} atrasadas. Con ~${n(plan.perDay)} al día, además de lo de hoy, te pones al día en ${plan.days === 1 ? '1 día' : `${plan.days} días`}.`;
 }
 
-// What the student reads --------------------------------------------------------------------------------
-
-/**
- * «Faltan 12 días · vas al día», or «… · 40 atrasadas»; null without a date ahead. `withoutBacklog`: what to say when
- * nothing is late, for whoever is not really on track (reviews are not all there is).
- */
 export function examSummary(
   daysLeft: number | null,
   overdue: number,
@@ -406,17 +329,12 @@ export interface AssessmentView {
   facts: AssessmentFacts;
   pace: Pace;
   options: PaceOption[];
-  /** The pace went up because new cards were left undone. */
   rose: boolean;
-  /** The chosen pace takes more than a day can give. */
   unrealistic: boolean;
-  /** Today is the last day with new cards. */
   lastNewDay: boolean;
-  /** What is going on, always there: it has its place on the page. */
   status: string;
   catchUp: CatchUp | null;
   summary: string | null;
-  /** The days to highlight the final review: the ones the student left for it, up to the test. */
   reviewDays: boolean;
 }
 
@@ -456,7 +374,6 @@ export function assessmentView(a: {
   };
 }
 
-/** The summary when nothing is late: «vas al día» only if it is true of the new cards too. */
 function onTrackText(pace: Pace, facts: AssessmentFacts, rose: boolean): string {
   if (pace.kind === 'nothing-on') return 'nada activado';
   if (pace.kind === 'final-review' && facts.newLeft > 0) return 'repaso final';
@@ -464,10 +381,6 @@ function onTrackText(pace: Pace, facts: AssessmentFacts, rose: boolean): string 
   return 'vas al día';
 }
 
-/**
- * The nearest test ahead among some assessments of a course, for a line that speaks of the whole course: «Certamen 2 ·
- * Faltan 12 días · vas al día».
- */
 export function nearestExamText(
   decks: readonly CountedDeck[],
   plan: StudyPlan,
@@ -549,17 +462,12 @@ function paceStatus(
   }
 }
 
-/** The longest thing `status` says: with a date it keeps the place of whatever it says, at any width. */
 export const LONGEST_STATUS =
   'Faltan 120 días · quedan 12.400 nuevas en lo activado · 12 semanas sin activar no cuentan. Son ~3 h 30 min al día: con menos tiempo no alcanzas a ver todo. Puedes apagar clases o extras, o elegir otra fecha.';
 
-/** The longest thing the plan to catch up says. */
 export const LONGEST_CATCH_UP = catchUpText({ overdue: 1240, perDay: 100, days: 13 });
 
-/**
- * A new day with a study session still open: the cards answered in it are not new any more, and they stop counting
- * as today's. Yesterday's are what was today's.
- */
+// A new day with a session open: its answers stop being new and today's; yesterday's are what was today's.
 export function rollProgress(
   progress: readonly DeckProgress[],
   answers: readonly { deckId: string; queueBefore: string }[],

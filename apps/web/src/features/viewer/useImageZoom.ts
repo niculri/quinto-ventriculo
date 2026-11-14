@@ -1,3 +1,4 @@
+// Pinch, drag, double tap, wheel and keys over the stage of the image viewer.
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent, RefObject } from 'react';
 import {
@@ -25,10 +26,6 @@ interface Gesture {
   downAt: number;
 }
 
-/**
- * Pinch, drag, double tap, wheel and keys over the stage of the viewer. `onTapOutside`: a tap or click that did not
- * move, outside the image (the dark around it closes, as before).
- */
 export function useImageZoom(
   stageRef: RefObject<HTMLElement | null>,
   image: Size | null,
@@ -113,7 +110,7 @@ export function useImageZoom(
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
-      // a pointer the browser no longer has (it went up meanwhile): the gesture goes on without capture
+      // the pointer already went up: the gesture goes on without capture
     }
     const g = gesture.current ?? {
       pointers: new Map<number, Point>(),
@@ -154,7 +151,6 @@ export function useImageZoom(
     const point = g.pointers.get(e.pointerId)!;
     g.pointers.delete(e.pointerId);
     if (g.pointers.size) {
-      // The finger left behind goes on dragging from here.
       g.start = ready?.view ?? g.start;
       g.from = [...g.pointers.values()];
       return;

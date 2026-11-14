@@ -1,9 +1,6 @@
+// Sanitizes a note's HTML with an allow list, since it is stored and injected into the page as it is.
 import sanitizeHtml from 'sanitize-html';
 
-/**
- * Allow list for the notes' HTML. The Markdown is ours, but the HTML is stored in the database and injected
- * into the page: it is sanitized anyway, in case a note brings unexpected raw HTML.
- */
 const OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [
     'p',
@@ -63,8 +60,7 @@ const OPTIONS: sanitizeHtml.IOptions = {
   allowedSchemes: ['https'],
   allowedSchemesAppliedToAttributes: ['href'],
   allowProtocolRelative: false,
-  // Only the classes the converter adds. Any other one could be one of the web's (Tailwind: «fixed
-  // inset-0 z-50») and raw HTML in a note would cover the page with it.
+  // Only the converter's classes: a web class in raw HTML («fixed inset-0 z-50») could cover the page.
   allowedClasses: {
     '*': [
       /^callout(?:-[a-z]+)?$/,

@@ -1,6 +1,5 @@
-// Plan step 2.10: «Fuera del sitio» in the administration panel reads unpublish_log with unpublish_log_entries()
-// (20261115000000_unpublish_log_entries.sql), only as the service role (the Worker, after is_admin()). What is off the
-// site is what is not in the published tables: a piece imported again is «on the site» again.
+// unpublish_log_entries(), what the panel's «Fuera del sitio» reads, only as the service role: what is off the site is
+// what is not in the published tables, so a piece imported again is «on the site» again.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
@@ -66,7 +65,6 @@ describe('unpublish_log_entries()', () => {
       new Date((r.entries[3] as unknown as { doneAt: string }).doneAt).getTime(),
     ).not.toBeNaN();
 
-    // Imported again (taken out of content/unpublished.json): the article and the test are on the site again.
     const { bundle, media } = bundleOf(everything());
     await target.save(bundle, media);
     const again = await entries();

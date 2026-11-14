@@ -1,10 +1,5 @@
-// Plan step 1.7, part 5 (20261113000000_publish_speed.sql): publishing, undoing and the panel, fast enough for
-// Supabase, where PostgREST cuts each call at 8 s. PGlite cannot reproduce Supabase's times (another machine, another
-// disk, 2 MB of work_mem there), so this proves what the speed comes from: how many times each function reads the big
-// tables whole, which grows with all the content of the site and not with what changes (counted with
-// pg_stat_get_xact_numscans, the sequential scans of the current transaction). Before this migration, publishing a
-// small change read public.anki_cards 11 times and draft.anki_cards 9; undoing, 2. Also: the digests that replace the
-// sorted fingerprints, and the last publication made before the migration, which can still be undone.
+// Publishing, undoing and the panel fast enough for Supabase, where PostgREST cuts each call at 8 s; also the digests
+// and the last publication made before the migration, which can still be undone.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
@@ -43,7 +38,6 @@ const service = async <T>(sql: string, params: unknown[] = []) =>
     return (await tx.query<T>(sql, params)).rows;
   });
 
-/** A small change: one article and one Anki note corrected. */
 const small = (): Parts => {
   const p = everything();
   p.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida', 1);
@@ -64,7 +58,6 @@ const publishCall = (fp: string) =>
 const revertCall = (id: number) =>
   `select public.revert_release(jsonb_build_object('id', ${id}, 'by', 'dueño')) as r`;
 
-/** Every table a publication takes, as text, for «byte for byte». */
 async function publicContent() {
   const out: Record<string, string> = {};
   for (const { tbl } of await q<{ tbl: string }>(
@@ -79,7 +72,11 @@ async function publicContent() {
   return out;
 }
 
-/** How many times `sql` reads each big table whole (sequential scans), in its own transaction, as service_role. */
+/**
+ * How many times `sql` reads each big table whole (sequential scans), in its own transaction, as service_role. PGlite
+ * cannot reproduce Supabase's times (another machine, another disk, 2 MB of work_mem there), so the tests count what
+ * the speed comes from: each whole read of a big table grows with all the content of the site, not with what changes.
+ */
 async function scansOf(sql: string) {
   const counts = `select n.nspname || '.' || c.relname as t, pg_stat_get_xact_numscans(c.oid) as n
                     from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -97,7 +94,6 @@ async function scansOf(sql: string) {
   });
 }
 
-/** A site with some volume (2,000 notes, 4,000 cards), its statistics and the draft equal to it. */
 async function withVolume() {
   await save(published, everything());
   await db.exec(`
@@ -125,14 +121,12 @@ describe('how many times publishing and undoing read the big tables whole', () =
     expect(
       (pub.r as { changes: Record<string, { update: number }> }).changes.anki_notes!.update,
     ).toBe(1);
-    // The digest of each schema (one pass) and the insert, update and delete of each table (one pass each). Before
-    // part 5: 11 and 9 (the sorted fingerprints, «is it empty», public before and after, «is the draft public»).
+    // The digest of each schema (one pass) and the insert, update and delete of each table (one pass each).
     for (const t of BIG) {
       expect(pub.scans[`public.${t}`], `public.${t}`).toBeLessThanOrEqual(4);
       expect(pub.scans[`draft.${t}`], `draft.${t}`).toBeLessThanOrEqual(5);
     }
     const rev = await scansOf(revertCall((pub.r as { id: number }).id));
-    // Public checked once against what the publication left; what it puts back, by the rows it touched.
     for (const t of BIG) {
       expect(rev.scans[`public.${t}`], `public.${t}`).toBeLessThanOrEqual(1);
       expect(rev.scans[`draft.${t}`], `draft.${t}`).toBe(0);
@@ -164,7 +158,6 @@ describe('the digests', () => {
     expect(a).toEqual(
       await q<{ d: unknown }>(`select public.release_digests('public') as d`).then((r) => r[0]!.d),
     );
-    // The same rows written again in another order (another physical order, the same multiset).
     await db.exec(`create temporary table t as select * from draft.anki_cards;
              delete from draft.anki_cards where true;
              insert into draft.anki_cards select * from t order by note_guid desc, ord desc;`);
@@ -238,10 +231,6 @@ describe('a publication made before this migration', () => {
   });
 });
 
-// ─────────────────────────────── Revisión de cero (1.7, parte 5) ───────────────────────────────
-
-/** A new version of everything (as in publish.test.ts): an article changed and one new, an Anki note changed, one
- * moved to another deck, one taken out and one new, a question changed and one taken out. */
 const changed = (): Parts => {
   const p = everything();
   const inDeck = (n: ReturnType<typeof ankiNote>, deckId: string) => {
@@ -272,15 +261,13 @@ const trigger = (sql: string) =>
              begin insert into public.quiz_questions select (old).*; return null; end $$;
            ${sql}`);
 
-describe('Revisión de cero (1.7, parte 5)', () => {
+describe('what the row checks of publishing and undoing catch', () => {
   beforeEach(async () => {
     db = await createDatabase('content');
     await save(published, everything());
     await service('select public.reset_draft()');
   });
 
-  // Before, «the draft is what is published» was looked at only in the rows publishing wrote: a row a trigger did not
-  // let in (or out) was not written, so nobody looked at it, and public was left different from the draft.
   it('a row of public that publishing could not write in, or take out, refuses the publication (nothing written)', async () => {
     await save(draft, changed());
     const before = await publicContent();
@@ -296,7 +283,6 @@ describe('Revisión de cero (1.7, parte 5)', () => {
       /after publishing, the draft is not what is published: quiz_questions/,
     );
     await db.exec('drop trigger probe_out on public.quiz_questions');
-    // A row taken out that comes back (it is in release_changes as deleted): the digest after reads it too.
     await trigger(`create trigger probe_back after delete on public.quiz_questions for each row
                      execute function probe.again();`);
     await expect(publishNow()).rejects.toThrow(
@@ -305,12 +291,9 @@ describe('Revisión de cero (1.7, parte 5)', () => {
     await db.exec('drop trigger probe_back on public.quiz_questions');
     expect(await publicContent()).toEqual(before);
     expect(await q('select * from public.releases')).toEqual([]);
-    // Without them, the same draft is published.
     expect((await publishNow()).id).toBe(1);
   });
 
-  // Before, undoing looked at what it put back (the rows updated and deleted by the publication), not at the rows the
-  // publication had added: one that stayed was not seen.
   it('undoing that could not take out a row the publication added is refused (public as the publication left it)', async () => {
     await save(draft, changed());
     const { id } = await publishNow();
@@ -325,9 +308,8 @@ describe('Revisión de cero (1.7, parte 5)', () => {
     await service(revertCall(id));
   });
 
-  // The row checks of publishing and undoing look only at the rows they write: a trigger or a foreign key action of a
-  // published table that writes other rows would leave public different from the draft (or from before) without
-  // anybody seeing it. These are the ones there are; a new one has to be checked against those row checks first.
+  // The row checks of publishing and undoing see only the rows they write, so a trigger or a foreign key action that
+  // writes other rows would go unseen: a new one has to be checked against those row checks first.
   it('the triggers and foreign key actions of the tables a publication writes are the known ones', async () => {
     const triggers = await q<{ t: string }>(
       `select c.relname || '.' || g.tgname || ' ' || p.proname as t
@@ -361,8 +343,7 @@ describe('Revisión de cero (1.7, parte 5)', () => {
   });
 });
 
-describe('Revisión de cero (1.7, parte 5): the migration on a database like production', () => {
-  /** Everything of public a publication or its undoing may touch, with the records, as text. */
+describe('the migration on a database like production', () => {
   async function everythingOf(schema: 'public' | 'draft') {
     const names = (
       await q<{ tbl: string }>('select tbl from public.release_tables() order by ord')
@@ -400,8 +381,8 @@ describe('Revisión de cero (1.7, parte 5): the migration on a database like pro
   const log = async () =>
     (await service<{ r: unknown }>('select public.release_log(50) as r'))[0]!.r;
 
-  // Production on 7-11-2026: release 1 published and undone, the same change published again as release 2 (with its
-  // release_changes), and the draft equal to what is published.
+  // Production before the migration: release 1 published and undone, the same change published again as release 2
+  // (with its release_changes), and the draft equal to what is published.
   it('keeps the records, the panel and the content as they were, and release 2 can be undone byte for byte', async () => {
     db = await createDatabase('content', [], MIGRATION);
     await save(published, everything());
@@ -427,7 +408,6 @@ describe('Revisión de cero (1.7, parte 5): the migration on a database like pro
     expect(await everythingOf('draft')).toEqual(before.draft);
     expect(await summary()).toEqual(before.summary);
     expect(await log()).toEqual(before.log);
-    // Release 1 (undone) is as it was; release 2 got its digests and its fingerprints in the new format.
     const after = await releases();
     expect(after[0]).toEqual(before.releases[0]);
     const { before_fingerprint: _b, public_fingerprint: _p, ...rest2 } = after[1]!;
@@ -454,7 +434,6 @@ describe('Revisión de cero (1.7, parte 5): the migration on a database like pro
       ...was
     } = original;
     expect(back).toEqual(was);
-    // And the next one is published and undone as always.
     const third = await publishNow();
     expect(third.id).toBe(3);
     // (its article goes to version 4: the 2 and the 3 were given by publications that were undone)

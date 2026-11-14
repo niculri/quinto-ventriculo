@@ -1,8 +1,5 @@
-/**
- * Sagittal section of the brain (cerebrum, corpus callosum, brainstem and cerebellum) with the «fifth
- * ventricle» (cavum septi pellucidi) in the accent color, between the corpus callosum and the fornix. Same
- * drawing as public/icon.svg; the background follows the theme.
- */
+// The site's logo: a sagittal section of the brain with the «fifth ventricle» (cavum septi pellucidi) in the accent
+// color, the same drawing as public/icon.svg, and the site's name.
 export function LogoMark({ className = 'size-8' }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
@@ -63,10 +60,8 @@ export function LogoMark({ className = 'size-8' }: { className?: string }) {
 }
 
 /**
- * The icon and the name; with `tagline`, the subtitle under the name (on wide screens). `preview`: the mark of the
- * draft's preview (features/preview), in the same places, so that nothing moves when it comes or goes: «Vista previa
- * del borrador» in the subtitle's cell (the subtitle stays there, invisible, and keeps its width) and a dot on the
- * icon (positioned over it: on the phone there is no subtitle).
+ * `preview` marks the draft's preview without moving anything: its text in the subtitle's cell (the subtitle stays
+ * there, invisible, keeping its width) and a dot over the icon, since the phone has no subtitle.
  */
 export function Logo({
   compact = false,

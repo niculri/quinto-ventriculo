@@ -1,3 +1,6 @@
+// Anki's browser («Explorar»), the cards page's table in «Modo avanzado»: Anki's search, chosen columns, the
+// selected card's preview and information, and undoable actions on the selection.
+
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import type { FormEvent, KeyboardEvent, MouseEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
@@ -75,7 +78,6 @@ const DEFAULT_VIEW: ViewPrefs = {
   sort: { column: 'sortField', descending: false },
 };
 
-/** The columns, the sort and the mode the user chose (per browser). */
 function useViewPrefs() {
   const [view, setView] = useState<ViewPrefs>(() => {
     try {
@@ -102,13 +104,6 @@ function useViewPrefs() {
   return [view, update] as const;
 }
 
-/**
- * Anki's browser («Explorar»), the «Tabla» of the cards page in «Modo avanzado» (step 3.3): the cards (or notes) of
- * the page's course or assessment, searched with Anki's syntax, in a table whose columns the user chooses, with the
- * selected card's preview and its information, and the actions of Anki's menu on the selection (suspend, bury,
- * flag, forget), each one undone with Ctrl+Z. The cards come light (the index: no HTML, only the preview asks for
- * it), so tens of thousands of cards go fast. Anki's sidebar goes in the right column.
- */
 export interface TableSources {
   notes: BrowseNote[];
   noteTypes: NoteTypeSummary[];
@@ -118,7 +113,6 @@ export interface TableSources {
   prefs: StudyPreferences;
   presets: UserPreset[];
   settings: DeckSetting[];
-  /** The decks of the page (the course's or the assessment's): the sidebar's tree starts at it. */
   roots: DeckNode[];
 }
 
@@ -153,7 +147,6 @@ export function CardTable({ sources }: { sources: TableSources }) {
   }
   const full = data.prefs.fullAnki;
   const [savedView, setView] = useViewPrefs();
-  // «Notas» is of the full mode.
   const view: ViewPrefs = full ? savedView : { ...savedView, mode: 'cards' };
   const now = useNow(30_000);
   const timing = timingFor(data.prefs, now);
@@ -178,7 +171,6 @@ export function CardTable({ sources }: { sources: TableSources }) {
     [data, now],
   );
 
-  // The search: parsed with Anki's syntax; a clear message if it cannot be understood.
   const parsed = useMemo(() => {
     try {
       return { node: parseSearch(query), error: null };
@@ -249,7 +241,6 @@ export function CardTable({ sources }: { sources: TableSources }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matched, view.mode, view.sort.column, view.sort.descending]);
 
-  // Selection: the current row (the URL has its card), and the others with Ctrl/⌘ and Mayús.
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [anchor, setAnchor] = useState<string | null>(null);
   const urlCard = params.get('note')
@@ -307,7 +298,6 @@ export function CardTable({ sources }: { sources: TableSources }) {
     search(combineSearch(query, term, how, negate));
   };
 
-  // The selected cards (in «Notas» mode, every card of the selected notes).
   const chosen = (): BrowseCard[] => {
     const rowsChosen = list.filter((c) => effectiveSelection.has(c.key));
     return view.mode === 'notes'
@@ -395,7 +385,6 @@ export function CardTable({ sources }: { sources: TableSources }) {
     return () => clearTimeout(id);
   }, [toast]);
 
-  // Anki's shortcuts of the browser.
   const onKey = useEffectEvent((e: globalThis.KeyboardEvent) => {
     const mod = e.ctrlKey || e.metaKey;
     const origin = (e.composedPath()[0] ?? e.target) as Element | null;
@@ -428,7 +417,6 @@ export function CardTable({ sources }: { sources: TableSources }) {
     return () => window.removeEventListener('keydown', listener);
   }, []);
 
-  // «Ver en grande»: Anki's preview window, with the arrows through the list (its cards, in «Notas» mode).
   const viewCards =
     view.mode === 'notes'
       ? list.flatMap((n) => (n as ReturnType<typeof notesOf>[number]).cards)
@@ -818,7 +806,6 @@ function ColumnsMenu({
   );
 }
 
-/** The table: only the rows in view are drawn (tens of thousands of cards scroll without waiting). */
 function CardGrid({
   list,
   columns,
@@ -858,7 +845,6 @@ function CardGrid({
   const last = Math.min(list.length, Math.ceil((top + height) / ROW) + 10);
   const currentIndex = list.findIndex((c) => c.key === current);
 
-  // The current row stays in view when it moves with the keyboard.
   useEffect(() => {
     const el = scroller.current;
     if (!el || currentIndex < 0) return;
@@ -990,7 +976,6 @@ function CardGrid({
   );
 }
 
-/** Anki's «Olvidar»: back to new, with the option to reset the repetition and lapse counts. */
 function ForgetDialog({
   open,
   count,

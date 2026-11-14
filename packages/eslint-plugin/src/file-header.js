@@ -1,5 +1,5 @@
 // Rule qv/file-header: a file starts with a short comment that says what it does.
-import { commentsOf, groupComments, isDirective, textLines } from './comments.js';
+import { commentsOf, groupComments, isDirective, textLines, wordsIn } from './comments.js';
 
 /** @typedef {import('./comments.js').Comment} Comment */
 
@@ -34,6 +34,8 @@ export const fileHeader = {
       missing:
         'The file has no header: start it with a comment of one or two lines that says what the file does ' +
         '(after the shebang, and after a blank line under an SPDX block).',
+      empty:
+        'The header says nothing: write, in a few words, what the file does (not a separator, a TODO or an empty comment).',
       long: 'The header has {{lines}} lines: at most {{max}}. Say what the file does; the rest goes next to the code it explains, or out.',
     },
   },
@@ -46,6 +48,10 @@ export const fileHeader = {
       const header = headerOf(sourceCode);
       if (!header) {
         context.report({ loc: { line: 1, column: 0 }, messageId: 'missing' });
+        return;
+      }
+      if (wordsIn(header) < 2) {
+        context.report({ loc: { line: 1, column: 0 }, messageId: 'empty' });
         return;
       }
       const lines = textLines(header);

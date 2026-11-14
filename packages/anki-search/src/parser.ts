@@ -2,9 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * Anki's search parser (rslib/src/search/parser.rs, 25.9), ported combinator by combinator so that the same
- * strings parse, fail and nest the same way. Anki keeps a flat list `a AND b OR c` and leaves the precedence
- * to SQL (AND before OR); here it becomes an `or` of `and`s.
+ * Anki's search parser (rslib/src/search/parser.rs, 25.9), ported combinator by combinator so the same strings
+ * parse, fail and nest the same way; Anki's flat `a AND b OR c` list becomes an `or` of `and`s.
  */
 import type { CardStateFilter, CompareOp, PropKind, SearchNode } from './ast';
 import { SearchError, errors } from './errors';
@@ -79,7 +78,6 @@ function skipSpaces(s: string, i: number): number {
   return i;
 }
 
-/** Parse a search into its tree. An empty search (or only spaces) is every card. */
 export function parseSearch(query: string): SearchNode {
   const input = trimUnicode(query.normalize('NFC'));
   if (input === '') return { type: 'all' };
@@ -133,7 +131,7 @@ function text(s: string, i: number): Result<RawNode> {
   return quotedTerm(s, i) ?? partiallyQuotedTerm(s, i) ?? unquotedTerm(s, i);
 }
 
-/** `"…"`: the inside (still escaped) and where it ends. */
+/** The inside stays escaped. */
 function quotedTermStr(s: string, i: number): Result<string> {
   if (s[i] !== '"') return NO;
   const opened = i + 1;
@@ -159,7 +157,6 @@ function partiallyQuotedTerm(s: string, i: number): Result<RawNode> {
   return { rest: val.rest, value: searchNodeWithArgument(s.slice(i, keyEnd), val.value) };
 }
 
-/** Text up to a space or an unescaped `"`, `(` or `)`; `and` and `or` are operators. */
 function unquotedTerm(s: string, i: number): Result<RawNode> {
   const end = escapedRun(s, i, '"() \u3000\\', notSpace);
   if (end === NONE_OF_ERROR) {
@@ -178,7 +175,6 @@ function unquotedTerm(s: string, i: number): Result<RawNode> {
   return { rest: end, value: searchNodeForText(term) };
 }
 
-/** Text with or without a `key:`. */
 function searchNodeForText(t: string): SearchNode {
   const end = escapedRun(t, 0, ':\\', anyChar);
   if (end <= 0) throw errors.missingKey();
@@ -286,7 +282,7 @@ function parseSingleField(key: string, val: string): SearchNode {
   return { type: 'field', field: unescape(key), value: unescape(val), mode: 'normal' };
 }
 
-/** A regular expression is checked while parsing, so that a bad one is a parse error. */
+/** Checked while parsing, so that a bad one is a parse error. */
 function checkedRegex(pattern: string): string {
   rustRegex(`(?i)${pattern}`, pattern);
   return pattern;

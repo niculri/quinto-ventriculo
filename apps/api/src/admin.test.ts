@@ -1,7 +1,4 @@
-// Step 2.10 b: the owner removes an administrator from «Acceso», and the Worker remembers is_admin() a minute per token.
-// What only reads may keep that minute; what writes asks the database again, so the removed administrator's next write
-// is refused at once. The users' database is the real one (every migration, in PGlite) and the fetch plays PostgREST:
-// it runs is_admin() as the token's user.
+// Tests for the administrator check: reads may reuse is_admin() for a minute, but every write asks the database again.
 import type { PGlite } from '@qv/db/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { SiteSettings } from '@qv/schema';
@@ -46,7 +43,6 @@ let down = false;
 let settings: ReturnType<typeof memorySiteSettings>;
 let app: ReturnType<typeof createApp>;
 
-/** PostgREST, as far as `rpc/is_admin` goes: the token's claims, as `authenticated`. */
 const postgrest: typeof fetch = async (input, init) => {
   asked++;
   if (down) throw new TypeError('fetch failed');
@@ -61,7 +57,6 @@ const postgrest: typeof fetch = async (input, init) => {
   return new Response(JSON.stringify(admin), { status: 200 });
 };
 
-/** admin_set_admin() as the owner, with an open session (what «Acceso» does). */
 async function setAdmin(email: string, admin: boolean) {
   const { rows } = await db.query<{ id: string }>(
     `insert into auth.sessions (user_id) values ($1) returning id`,
@@ -114,18 +109,16 @@ beforeEach(async () => {
   await setAdmin(SECOND.email, true);
 });
 
-describe('an administrator removed by the owner', () => {
+describe('an administrator removed by the site owner', () => {
   it('their next write gets 403 at once, though the Worker remembered them as an administrator', async () => {
     expect((await get('second')).status).toBe(200);
     expect((await put('second', true)).status).toBe(200);
     await put('second', false);
 
     await setAdmin(SECOND.email, false);
-    // Within the minute, what only reads may still come from what the Worker remembers (the panel says so)…
     const before = asked;
     expect((await get('second')).status).toBe(200);
     expect(asked).toBe(before);
-    // …but the write asks the database again, and nothing changes.
     const refused = await put('second', true);
     expect(refused.status).toBe(403);
     expect(refused.headers.get('Cache-Control')).toBe('no-store');
@@ -134,7 +127,6 @@ describe('an administrator removed by the owner', () => {
       message: 'Ya no eres administrador. Recarga la página.',
     });
     expect((await settings.get()).hideEmptySemesters).toBe(false);
-    // The fresh answer is remembered: from here on, reading is «no existe» too, without waiting for the minute.
     expect((await get('second')).status).toBe(404);
   });
 
@@ -148,21 +140,18 @@ describe('an administrator removed by the owner', () => {
       updatedBy: OWNER.email,
     });
     expect(asked).toBe(before + 1);
-    // Reading keeps the remembered answer.
     await get('owner');
     expect(asked).toBe(before + 1);
   });
 
   it('a student still gets «no existe» when writing; a failure of the database is not a «yes»', async () => {
     expect((await put('ana', true)).status).toBe(404);
-    // The owner, remembered as an administrator, while the users' database does not answer: 503, nothing changes.
     expect((await get('owner')).status).toBe(200);
     down = true;
     const r = await put('owner', true);
     expect(r.status).toBe(503);
     expect(((await r.json()) as { error: string }).error).toBe('admin_unavailable');
     expect((await settings.get()).hideEmptySemesters).toBe(false);
-    // After the minute, a reading that cannot ask is «no existe», as before.
     clock = 61_000;
     expect((await get('owner')).status).toBe(404);
   });

@@ -1,7 +1,5 @@
+# Publishes the web and the API to Cloudflare after a green CI of a push to main, if the variable DEPLOY is «yes».
 name: Deploy
-
-# Publishes the web and the API to Cloudflare on every push to main, once CI passed.
-# It is enabled by creating the repository variable DEPLOY = yes (see docs/configuracion.md).
 
 on:
   workflow_run:
@@ -16,11 +14,8 @@ concurrency:
 
 jobs:
   deploy:
-    # Only a push to main of this same repository. A pull request from a fork whose branch is called «main»
-    # also triggers CI with head_branch = main, and without these conditions its code would be deployed with
-    # the Cloudflare secrets. The nightly CI (`schedule`) and a CI run by hand (`workflow_dispatch`) also trigger
-    # this workflow when they finish, with head_branch = main: event == 'push' keeps them from deploying (step 1.9;
-    # checked by packages/ops/src/workflows.test.ts).
+    # A fork's pull request from a branch called «main», the nightly CI and a CI run by hand also finish with
+    # head_branch = main: only a push of this same repository may deploy with the Cloudflare secrets.
     if: >-
       vars.DEPLOY == 'yes' && (
         (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (

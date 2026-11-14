@@ -1,3 +1,5 @@
+// Builds the content bundle from the manifest: notes converted from Markdown, decks from .apkg files and practice
+// tests, with their images, minus what is unpublished.
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { convertNote, listImages } from '@qv/notes-md';
@@ -17,25 +19,15 @@ import type { Manifest } from './manifest';
 
 export interface BuildOptions {
   manifest: Manifest;
-  /** Folder the notes' `sourceFile` paths are resolved from. */
   root: string;
   process: ImageProcessor;
-  /** Card images (by default, `processCardImage`). */
   processCardImage?: ImageDataProcessor;
-  /** Only these notes (by code). Empty = all of them. With `only`, no decks are imported. */
+  /** Note codes; with them, no decks or tests are imported. */
   only?: string[];
-  /** Only the decks: no notes. */
   onlyDecks?: boolean;
-  /** Only the practice tests (content/tests/): no notes or decks. */
   onlyTests?: boolean;
-  /**
-   * Only these assessments (catalog ids): their notes, decks and tests, and nothing of the others. Empty or
-   * absent = all of them.
-   */
   assessments?: string[];
-  /** Test photos (by default, `processQuizImage`). */
   processQuizImage?: ImageDataProcessor;
-  /** Reads an .apkg (injected in tests). */
   readApkg?: (path: string) => Promise<AnkiPackage>;
   now?: () => Date;
   onProgress?: (message: string) => void;
@@ -45,15 +37,11 @@ export interface BuildResult {
   bundle: ContentBundle;
   media: Map<string, ProcessedImage>;
   warnings: string[];
-  /** The bundle has every published deck (false with `only`): only then do the targets remove the rest. */
+  /** Only when the bundle has every published deck do the targets remove the rest. */
   decksIncluded: boolean;
-  /** The bundle has the notes (false with `onlyDecks` or `onlyTests`). */
   notesIncluded: boolean;
-  /** The bundle has every published test (false with `only` or `onlyDecks`). */
   testsIncluded: boolean;
-  /** What content/unpublished.json kept out of this import (step 1.5). */
   unpublished: Skipped[];
-  /** The taxonomy of each assessment of the import (step 1.6): checked, or «sin taxonomía». */
   taxonomy: TaxonomyReport[];
 }
 
@@ -73,8 +61,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
     );
   }
   const inScope = (m: { assessmentId: string }) => !scope || scope.has(m.assessmentId);
-  // content/unpublished.json: what is off the site is not published again (step 1.5). The articles and tests are
-  // not even converted; the decks and the images are taken out at the end.
   const off = op.manifest.unpublished ?? [];
   const offIds = (kind: string) => new Set(off.filter((i) => i.kind === kind).map((i) => i.id));
   const offNotes = offIds('note');
@@ -87,8 +73,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
     );
   }
 
-  // A note that cannot be converted whole (an image that is missing or a figure that is not recognized)
-  // stops the import: it would be published with a hole.
   const noteErrors: string[] = [];
   const unreadable = new Set<string>();
   const withNotes = !op.onlyDecks && !op.onlyTests;
@@ -132,7 +116,7 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
       };
       const r = convertNote(markdown, resolver, { guideQuestions: entry.kind === 'seminar' });
       warnings.push(...r.warnings.map((w) => `${entry.id}: ${w}`));
-      // The images that could not be read are already reported above.
+      // An image that could not be read is already reported above.
       const missing = 'Imagen no encontrada: ';
       noteErrors.push(
         ...r.errors
@@ -171,7 +155,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
       notes.push({
         ...content,
         hash: hash(content),
-        // Only an article (a note with a web code) has a version.
         ...(entry.code ? { versionHash: hash(visible) } : {}),
         updatedAt: now,
       });
@@ -204,7 +187,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
     updatedAt: now,
   }));
 
-  // Practice tests (pauta-a-test folders), each one with its photos.
   const withTests = !op.only?.length && !op.onlyDecks;
   const quizzes: ImportedQuiz[] = [];
   for (const group of withTests ? (op.manifest.tests ?? []).filter(inScope) : []) {
@@ -233,7 +215,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
     }
   }
 
-  // «Ponte a prueba» has to name a section and topics the test has (when the test is in this import).
   const practiceErrors: string[] = [];
   for (const n of notes) {
     const p = n.practice;
@@ -264,7 +245,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
 
   const whole = {
     semesters: catalog.semesters,
-    // The Anki name is only for checking the decks: the site's catalog does not keep it.
     courses: catalog.courses.map(({ ankiName: _ankiName, ...course }) => course),
     assessments: catalog.assessments,
     notes,
@@ -279,8 +259,6 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
     media,
     off.filter((i) => i.kind === 'deck' || i.kind === 'image'),
   );
-  // Every published card and question has a unit and a topic, in the assessments that have a taxonomy (step 1.6).
-  // It only reads: the bundle does not change.
   const taxonomy = checkTaxonomies({
     manifest: op.manifest,
     scope,

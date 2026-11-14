@@ -1,15 +1,12 @@
+// Text that changes without moving what is below it: its place is as high as `longest` at any width, both in the same
+// cell of a grid.
 import type { ReactNode } from 'react';
 
-/**
- * Text that changes without moving what is below it: the place is as high as `longest` at any width, whatever it says
- * now. Both go in the same cell of a grid.
- */
 export function Reserved({
   longest,
   className = '',
   children,
 }: {
-  /** The longest thing it can say, with long numbers. */
   longest: string;
   className?: string;
   children: ReactNode;

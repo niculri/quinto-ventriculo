@@ -1,3 +1,4 @@
+// A test section's cover: tabs, the round saved halfway, «Comenzar» with the groups to practice, the mode and the list.
 import { useEffect, useRef, useState } from 'react';
 import { isResumable, resumeLine } from '@qv/quiz';
 import type { Preferences, Round } from '@qv/quiz';
@@ -8,17 +9,10 @@ import { Switch } from '../../ui/Switch';
 import { Html } from './Figures';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-/** As the title of the other pages. */
 const TITLE = 'font-serif text-3xl font-semibold tracking-tight';
-/** A name that may bring HTML, for a screen reader. */
 const plainText = (html: string) =>
   new DOMParser().parseFromString(html, 'text/html').body.textContent ?? '';
 
-/**
- * The cover of a section: the tabs (when the test has several), the description, the round saved halfway («Continuar» /
- * «Descartar»), «Comenzar» with the groups to practice and their switches, as an assessment's page in Anki; below, the mode,
- * discreet, the notice and the list.
- */
 export function Cover({
   quiz,
   section,
@@ -41,9 +35,7 @@ export function Cover({
   onResume: () => void;
   onDiscard: () => void;
   onTab: (sectionId: string) => void;
-  /** Arriving from another tab: the focus on this one (the arrows go on). */
   focusTab?: boolean;
-  /** A heading of the page instead of the test's own (an assessment's only test is its «Tests»). */
   heading?: string | null;
 }) {
   const sections = quiz.sections;
@@ -52,7 +44,7 @@ export function Cover({
     .filter((g) => preferences.groups.includes(g.id))
     .reduce((t, g) => t + g.questionCount, 0);
 
-  // «Descartar» asks once more (4 s), as the skill's page: there is no confirm() in an artifact.
+  // «Descartar» asks once more for 4 s instead of a browser confirm().
   const [armed, setArmed] = useState(false);
   useEffect(() => {
     if (!armed) return;
@@ -78,7 +70,6 @@ export function Cover({
   return (
     <section className="wrap wide portada" aria-labelledby="quiz-title">
       {quiz.kicker ? <Html as="p" className="kicker" html={quiz.kicker} /> : null}
-      {/* The standalone page's heading, if the manifest kept it; if not, the test's name. */}
       {heading ? (
         <h1 id="quiz-title" className={TITLE}>
           {heading}
@@ -209,7 +200,6 @@ export function Cover({
         ) : null}
       </form>
 
-      {/* How the questions come out: it counts, but nobody comes for it. */}
       <div
         role="group"
         aria-label="Modo"

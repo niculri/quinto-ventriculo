@@ -17,9 +17,7 @@ const TESTS_AND_SCRIPTS = [
   'db/tests/**',
 ];
 
-// Where Supabase (`@supabase/*`, also with `import()`) may be imported: the data adapters only (repositories, the
-// session service, service composition, the API's Supabase repository and the importer's targets). Type-only imports
-// are allowed anywhere. Tests may build their own clients.
+// The only files that may import Supabase (type-only imports are allowed anywhere; tests build their own clients).
 const SUPABASE_ADAPTERS = [
   'apps/web/src/features/*/repository.ts',
   'apps/web/src/features/session/service.ts',
@@ -29,7 +27,6 @@ const SUPABASE_ADAPTERS = [
   '**/*.test.{ts,tsx}',
 ];
 
-// Permanent exceptions to the size and complexity rules (their criterion is next to where they are used).
 const PORTED_FROM_ANKI = [
   ...['ast', 'compile', 'errors', 'parser', 'term', 'text'].map(
     (f) => `packages/anki-search/src/${f}.ts`,
@@ -48,12 +45,11 @@ const FIXED_TEXT_PAGES = [
   'apps/web/src/features/help/HelpPage.tsx',
 ];
 
-// The code ESLint lints by default (and TypeScript), and the other files whose comments it reads (qv/comments).
+// OTHER_FILES are linted only for their comments, with the qv/comments language.
 const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];
 const OTHER_FILES = ['**/*.css', '**/*.{yml,yaml}', '**/*.sh', '**/*.jsonc', '.githooks/pre-push'];
 const onCode = (config) => ({ ...config, files: config.files ?? CODE });
 
-// The packages that depend on nothing else of this repository.
 const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
 
 export default tseslint.config(
@@ -84,14 +80,13 @@ export default tseslint.config(
     },
   },
   {
-    // Every file starts with a comment that says what it does, and no comment carries history.
     files: [...CODE, ...OTHER_FILES],
     plugins: { qv },
     rules: { 'qv/file-header': 'error', 'qv/no-history-comments': 'error' },
   },
   { files: OTHER_FILES, language: 'qv/comments' },
   {
-    // Rules that need type information. Configuration files outside every tsconfig are linted without types.
+    // Configuration files outside every tsconfig are linted without type information.
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/vitest.config.ts', 'vitest.config.ts'],
     languageOptions: {
@@ -104,7 +99,6 @@ export default tseslint.config(
     },
   },
   {
-    // Size and complexity of production code.
     files: ['**/*.{ts,tsx,js,mjs}'],
     ignores: TESTS_AND_SCRIPTS,
     plugins: { sonarjs },
@@ -118,11 +112,8 @@ export default tseslint.config(
     },
   },
   {
-    // Permanent exceptions to the size and complexity rules, by one criterion each:
-    // - PORTED_FROM_ANKI: a file ported from Anki (SPDX header with Anki's attribution) in a package that keeps the
-    //   original's shape, so that it can be compared with Anki line by line. Not srs/src/queue.ts, which is to be
-    //   split as Anki splits it, nor the web's files that only take portions of Anki.
-    // - FIXED_TEXT_PAGES: a page that is only fixed text (legal or help), without state, data or effects.
+    // Permanent exceptions: a file ported from Anki that keeps the original's shape, to compare it line by line (not
+    // srs/src/queue.ts, which is split as Anki splits it), and a page that is only fixed text, without state or data.
     files: [...PORTED_FROM_ANKI, ...FIXED_TEXT_PAGES],
     rules: {
       'max-lines': 'off',
@@ -131,7 +122,6 @@ export default tseslint.config(
     },
   },
   {
-    // Data boundary: Supabase is reached only through the adapters (SUPABASE_ADAPTERS).
     files: ['apps/*/src/**/*.{ts,tsx}', 'packages/*/src/**/*.ts', 'db/tests/**/*.ts'],
     ignores: SUPABASE_ADAPTERS,
     rules: {
@@ -161,7 +151,6 @@ export default tseslint.config(
     },
   },
   {
-    // Packages never depend on the apps; leaf packages depend on no other package of this repository.
     files: ['packages/*/src/**/*.ts'],
     rules: {
       'no-restricted-imports': [
@@ -194,10 +183,8 @@ export default tseslint.config(
     },
   },
   {
-    // Layers of the web: shared (ui, lib) → features → app. Each layer imports only from itself and the ones below.
-    // At the root of src only the entry point (main.tsx, which nothing imports) and Vite's types: any other file there
-    // has no layer and is an error.
-    // The future folders (shared/, and api/model/hooks/components/pages inside a feature) are already classified.
+    // Layers of the web: shared (ui, lib) → features → app, each importing only from itself and the ones below. A file
+    // at the root of src other than the entry point and Vite's types has no layer.
     files: ['apps/web/src/**/*.{ts,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', 'apps/web/src/test/**'],
     plugins: { boundaries },
@@ -285,7 +272,7 @@ export default tseslint.config(
     rules: reactHooks.configs.recommended.rules,
   },
   {
-    // The specs take `test` from e2e/test.ts, which pins the page's clock at midday (step 1.9).
+    // The specs take `test` from e2e/test.ts, which pins the page's clock at midday.
     files: ['apps/web/e2e/**/*.spec.ts'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [

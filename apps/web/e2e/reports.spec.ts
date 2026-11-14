@@ -1,16 +1,12 @@
+// E2e tests of reporting an error in an article (selecting text) and in a test's question, resolving it in the panel
+// and what the student sees in «Mis reportes». The demo's user is a student and the administrator at once.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
 
-/**
- * Step 2.6: reporting an error in an article (selecting text: the bar at the bottom, which moves nothing) and in a
- * question of a test (under the verdict, and from the finished round); the panel by content, «Resolver» with a note,
- * and what the student sees in «Mis reportes». The demo's user is a student and the administrator at once.
- */
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 
-/** Starts counting layout shifts (CLS) from now. */
 async function watchShifts(page: Page) {
   await page.evaluate(() => {
     const w = window as unknown as { __shift: number };
@@ -38,7 +34,6 @@ test('an article: select text, the bar at the bottom moves nothing, and the repo
   const title = page.getByRole('heading', { level: 3, name: 'Sitios A, P y E' });
   const before = await title.boundingBox();
   await watchShifts(page);
-  // The Selection API, as a finger or the mouse leaves it: part of the paragraph.
   await paragraph.evaluate((p) => {
     const text = p.firstChild!;
     const range = document.createRange();
@@ -50,7 +45,6 @@ test('an article: select text, the bar at the bottom moves nothing, and the repo
   });
   const bar = page.getByRole('button', { name: 'Reportar lo seleccionado' });
   await expect(bar).toBeVisible();
-  // At the bottom of the screen, not next to the selection; and nothing moved.
   const box = (await bar.boundingBox())!;
   const viewport = page.viewportSize()!;
   expect(box.y + box.height).toBeGreaterThan(viewport.height - 80);
@@ -68,7 +62,6 @@ test('an article: select text, the bar at the bottom moves nothing, and the repo
   await expect(page.getByText('Gracias: tu reporte le llegó al autor.')).toBeVisible();
   await expect(bar).toHaveCount(0);
 
-  // The panel: one row for the article, with the quote, its section and a link that finds it.
   await page.goto('/admin/reports');
   await expect(page.getByText('Falta decir de dónde sale el tRNA')).toBeVisible();
   const row = page
@@ -90,7 +83,6 @@ test('an article: select text, the bar at the bottom moves nothing, and the repo
   await expect(resolve).toHaveCount(0);
   await expect(page.getByText('Falta decir de dónde sale el tRNA')).toHaveCount(0);
 
-  // What the student sees.
   await page.goto('/settings/reports');
   const mine = page.getByRole('listitem').filter({ hasText: 'Falta decir de dónde sale el tRNA' });
   await expect(mine).toContainText('Corregido (versión 3)');
@@ -130,7 +122,6 @@ test('a test: «Reportar error» under the verdict, with «La clave está mal»,
   await dialog.getByRole('button', { name: 'Enviar' }).click();
   await expect(dialog).toHaveCount(0);
 
-  // In the panel: the same question is one row with the two reports, and it says which test and question.
   await page.goto('/admin/reports');
   const row = page.getByRole('listitem').filter({ hasText: '1 la clave debería ser otra' }).first();
   await expect(row).toContainText('Pregunta de test');

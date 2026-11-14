@@ -1,3 +1,4 @@
+// Tests the administration panel: its menus and sections, «Sitio», «Acceso», administrators and «Fuera del sitio».
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -12,7 +13,7 @@ import { cardTarget } from '../reports/targets';
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>
   localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl', ...o });
 
-describe('«Administración» (step 2.10): its own page, apart from «Opciones»', () => {
+describe('«Administración»: its own page, apart from «Opciones»', () => {
   it('a student does not see it in either menu, and none of its URLs exist for them', async () => {
     const { unmount } = renderApp('/settings/account');
     const menu = await screen.findByRole('navigation', { name: 'Menú del sitio' });
@@ -70,7 +71,6 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
         .getAllByRole('link')
         .map((l) => [l.textContent?.trim(), l.getAttribute('href')]),
     ).toEqual(sections);
-    // The site's menu has them too (on wide screens the page's goes away).
     const menu = screen.getByRole('navigation', { name: 'Menú del sitio' });
     for (const [label, href] of sections) {
       expect(within(menu).getByRole('link', { name: label })).toHaveAttribute('href', href);
@@ -91,7 +91,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     await waitFor(() => expect(b.router.state.location.pathname).toBe('/admin/releases'));
   });
 
-  it('«Reportes»: the errors reported, by content (step 2.6)', async () => {
+  it('«Reportes»: the errors reported, by content', async () => {
     const reports = localReportsRepository({ admin: true });
     await reports.send({
       ...cardTarget({
@@ -110,7 +110,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     expect(screen.getByRole('link', { name: 'T-BC-C2-11-086.2' })).toBeInTheDocument();
   });
 
-  it('step 1.8 («Sitio»): the switch hides the semesters without material, and the catalog is asked for again, fresh', async () => {
+  it('«Sitio»: the switch hides the semesters without material, and the catalog is asked for again, fresh', async () => {
     let settings: SiteSettings = { hideEmptySemesters: false, updatedAt: null, updatedBy: null };
     const catalogCalls: { fresh?: boolean }[] = [];
     const api = fakeApi({
@@ -140,7 +140,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     expect(catalogCalls.at(-1)).toEqual({ fresh: true });
   });
 
-  it('step 1.8, Revisión de cero: saved is saved, even if the catalog does not come right after', async () => {
+  it('«Sitio»: saved is saved, even if the catalog does not come right after', async () => {
     let settings: SiteSettings = { hideEmptySemesters: false, updatedAt: null, updatedBy: null };
     const api = fakeApi({
       catalog: async (_signal, options = {}) => {
@@ -168,11 +168,10 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
     expect(screen.queryByText('No se pudo guardar. Inténtalo de nuevo.')).toBeNull();
   });
 
-  it('step 1.8: «La carrera» says that the hidden semesters are coming, in their place', async () => {
+  it('«La carrera» says that the hidden semesters are coming, in their place', async () => {
     renderApp('/courses', {
       api: fakeApi({ catalog: async () => ({ ...CATALOG, hiddenSemesters: 12 }) }),
     });
-    // In the page, and in the menu where the semesters are listed.
     const main = await screen.findByRole('main');
     expect(
       await within(main).findByText('Los próximos semestres vienen pronto.'),
@@ -182,7 +181,7 @@ describe('«Administración» (step 2.10): its own page, apart from «Opciones»
   });
 });
 
-describe('«Acceso» (step 2.10)', () => {
+describe('«Acceso»', () => {
   it('splits what is pasted by lines, commas, semicolons and spaces', () => {
     expect(
       readEmails(' a@ug.uchile.cl,b@ug.uchile.cl\n\n c@ug.uchile.cl ; d@ug.uchile.cl e@x '),
@@ -192,8 +191,7 @@ describe('«Acceso» (step 2.10)', () => {
     });
   });
 
-  it('Revisión de cero (2.10), con el dueño: of «Nombre Apellido <correo>» only the email, never the name', () => {
-    // As Gmail copies them (also «"Apellido, Nombre" <…>», whose comma does not separate), and a mailing list.
+  it('of «Nombre Apellido <correo>» only the email, never the name', () => {
     expect(
       readEmails(
         'Ana Pérez <ana.perez@ug.uchile.cl>, "Soto, Luis" <Luis.Soto@ug.uchile.cl>\n' +
@@ -221,11 +219,10 @@ describe('«Acceso» (step 2.10)', () => {
       emails: ['rosa@ug.uchile.cl'],
       ignored: 2,
     });
-    // An email written without its «@» is not sent either: it is counted, so that it is noticed.
     expect(readEmails('ana.perez.ug.uchile.cl')).toEqual({ emails: [], ignored: 1 });
   });
 
-  it('Revisión de cero (2.10), con el dueño: the names pasted never reach the database', async () => {
+  it('the names pasted never reach the database', async () => {
     const calls: { emails: string[] }[] = [];
     const repo = admin();
     renderApp('/admin/access', {
@@ -280,12 +277,9 @@ describe('«Acceso» (step 2.10)', () => {
     expect(course).toHaveTextContent('2 invitados · 1 con cuenta');
     expect(within(course).getByText('luis.soto@ug.uchile.cl')).toBeInTheDocument();
     expect(within(course).getByText(/todavía sin cuenta/)).toBeInTheDocument();
-    // An administrator has no «Sacar».
     const team = screen.getByRole('article', { name: 'Lista Equipo' });
     expect(within(team).getByText('Administrador')).toBeInTheDocument();
     expect(within(team).queryByRole('button', { name: /^Sacar a / })).toBeNull();
-    // Revisión de cero (2.10), con el dueño: a list of only administrators has no «Sacar la lista» (it would take out
-    // nobody); a list with someone else in it has.
     expect(within(team).queryByRole('button', { name: 'Sacar la lista' })).toBeNull();
     expect(within(course).getByRole('button', { name: 'Sacar la lista' })).toBeInTheDocument();
   });
@@ -317,7 +311,6 @@ describe('«Acceso» (step 2.10)', () => {
       'Nueva.Persona@UG.uchile.cl, ana.perez@ug.uchile.cl{Enter}alguien@gmail.com{Enter}nueva.persona@ug.uchile.cl',
     );
     expect(screen.getByText('4 correos')).toBeInTheDocument();
-    // A new list needs its name.
     expect(invite).toBeDisabled();
     await userEvent.type(screen.getByLabelText('Nombre de la lista nueva'), 'Medicina 2027');
     await userEvent.type(screen.getByLabelText(/Nota/), 'Primera tanda');
@@ -340,7 +333,6 @@ describe('«Acceso» (step 2.10)', () => {
       },
     ]);
     await userEvent.click(within(dialog).getByRole('button', { name: 'Listo' }));
-    // The list is there now, and the form stays on it for the next ones.
     const list = await screen.findByRole('article', { name: 'Lista Medicina 2027' });
     expect(within(list).getByText(/Primera tanda/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Lista: Medicina 2027' })).toBeInTheDocument();
@@ -404,7 +396,6 @@ describe('«Acceso» (step 2.10)', () => {
     renderApp('/admin/access', { admin: repo });
     await userEvent.click(await screen.findByRole('button', { name: 'Sacar la lista' }));
     const dialog = await screen.findByRole('dialog', { name: 'Sacar la lista «Equipo»' });
-    // It counts only who goes (never the administrator).
     expect(dialog).toHaveTextContent('Se borra 1 invitación y se cierran sus sesiones');
     await userEvent.type(within(dialog).getByLabelText(/Para confirmar/), 'Equip');
     expect(within(dialog).getByRole('button', { name: 'Sacar la lista' })).toBeDisabled();
@@ -418,7 +409,7 @@ describe('«Acceso» (step 2.10)', () => {
     expect((await repo.accessReport()).invited.map((i) => i.email)).toEqual(['dueno@ug.uchile.cl']);
   });
 
-  it('Revisión de cero (2.10): a list removed while chosen in the form stays in the Select (it was empty)', async () => {
+  it('a list removed while chosen in the form stays in the Select', async () => {
     renderApp('/admin/access', { admin: admin() });
     await userEvent.click(await screen.findByRole('button', { name: 'Lista: Lista nueva' }));
     await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Curso de prueba' }));
@@ -434,7 +425,6 @@ describe('«Acceso» (step 2.10)', () => {
     await waitFor(() =>
       expect(screen.queryByRole('article', { name: 'Lista Curso de prueba' })).toBeNull(),
     );
-    // What the next invitation would use is what the Select says.
     expect(screen.getByRole('button', { name: 'Lista: Curso de prueba' })).toBeInTheDocument();
   });
 
@@ -463,7 +453,7 @@ describe('«Acceso» (step 2.10)', () => {
   });
 });
 
-describe('«Acceso»: administrators (step 2.10 b)', () => {
+describe('«Acceso»: administrators', () => {
   const people = (): AccessInvite[] => [
     person('dueno@ug.uchile.cl', 'Equipo', true),
     person('segunda.admin@ug.uchile.cl', 'Equipo', true),
@@ -482,7 +472,7 @@ describe('«Acceso»: administrators (step 2.10 b)', () => {
     };
   }
 
-  it('the owner sees «Hacer administrador» and «Quitar administrador»; never on their own row', async () => {
+  it('the site owner sees «Hacer administrador» and «Quitar administrador»; never on their own row', async () => {
     renderApp('/admin/access', { admin: admin({ invites: people() }) });
     const team = await screen.findByRole('article', { name: 'Lista Equipo' });
     expect(within(team).getByText('Dueño')).toBeInTheDocument();
@@ -526,7 +516,6 @@ describe('«Acceso»: administrators (step 2.10 b)', () => {
       name: 'Hacer administrador a ana.perez@ug.uchile.cl',
     });
     expect(dialog).toHaveTextContent('No puede nombrar ni quitar administradores');
-    // Revisión de cero (2.10 b): their web asks is_admin() again only on loading (or ten minutes later).
     expect(dialog).toHaveTextContent('la próxima vez que abra o recargue el sitio');
     const go = within(dialog).getByRole('button', { name: 'Hacer administrador' });
     expect(go).toBeDisabled();
@@ -559,8 +548,6 @@ describe('«Acceso»: administrators (step 2.10 b)', () => {
       name: 'Quitar administrador a segunda.admin@ug.uchile.cl',
     });
     expect(dialog).toHaveTextContent('Sigue invitado, con su cuenta, su avance y sus sesiones.');
-    // Revisión de cero (2.10 b): what writes is cut at once (the Worker asks the database again); what only reads, up to
-    // a minute.
     expect(dialog).toHaveTextContent('Deja de poder cambiar cosas de inmediato');
     expect(dialog).toHaveTextContent('hasta un minuto');
     await userEvent.type(
@@ -617,7 +604,7 @@ describe('«Acceso»: administrators (step 2.10 b)', () => {
   });
 });
 
-describe('«Fuera del sitio» (step 2.10)', () => {
+describe('«Fuera del sitio»', () => {
   const LOG: UnpublishedLog = {
     total: 3,
     entries: [

@@ -1,3 +1,5 @@
+// Tests how the site adapts the author's note types: the footer leaves the front and goes, in the flow, at the end of
+// the back.
 import { describe, expect, it } from 'vitest';
 import { renderCard } from '@qv/anki-render';
 import { SITE_FOOTER, forSite, hasAuthorFooter } from './site-note-types';

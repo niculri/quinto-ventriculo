@@ -1,3 +1,4 @@
+// The public /licenses page: the site's license and source, the projects it comes from, and third-party licenses.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { paths } from '../../app/paths';
@@ -15,12 +16,6 @@ interface ThirdParty {
 
 const link = 'text-brand underline underline-offset-2';
 
-/**
- * /licenses (step 2.4): the license of the site's code (AGPL-3.0-or-later) and where its source is (section 13), the
- * projects part of it comes from (Anki, FSRS) or follows (the rules of Anki's «Review Heatmap» add-on, step 3.1), that
- * the course material is not part of the code, and the licenses of the third-party packages. Public, like /terms and
- * /privacy.
- */
 export function LicensesPage() {
   const [packages, setPackages] = useState<ThirdParty[] | 'loading' | 'error'>('loading');
   useEffect(() => {

@@ -1,3 +1,4 @@
+// Public API of @qv/importer.
 export { buildBundle, hash } from './build';
 export type { BuildOptions, BuildResult } from './build';
 export {

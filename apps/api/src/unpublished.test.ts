@@ -1,6 +1,4 @@
-// Step 2.10: «Fuera del sitio» in the administration panel. Only an administrator reads the record of what was taken
-// off the site (anybody else gets «no existe», never kept by the browser), and whether an image is on the site again is
-// what the image store says.
+// Tests for the administrators' record of what was taken off the site.
 import { describe, expect, it } from 'vitest';
 import { UnpublishedLog } from '@qv/schema';
 import { createApp } from './app';
@@ -102,7 +100,7 @@ describe('GET /api/admin/unpublished', () => {
     expect(body.entries.slice(0, 2).map((e) => e.onSite)).toEqual([false, true]);
   });
 
-  it('Revisión de cero (2.10): a failure of the store leaves that image as «no se pudo saber», not the page without the record', async () => {
+  it('a failure of the store leaves that image as «no se pudo saber», not the page without the record', async () => {
     const { app } = appWith(
       { log: async () => LOG },
       {

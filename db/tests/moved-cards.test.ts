@@ -1,6 +1,5 @@
-// Plan step 1.3 (users): cards the author moves to another deck or takes out (20261106020000_moved_cards.sql).
-// The users' database does not know where a card is today; the web brings the content's changes when the student
-// enters and reconcile_cards() applies them to that student's rows only.
+// Cards the author moves to another deck or takes out: the users' database does not know where a card is today; the
+// web brings the content's changes on entering and reconcile_cards() applies them to that student's rows only.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';
@@ -13,7 +12,6 @@ const NEW = '2059400111';
 const call = (fn: string, args: unknown[]) =>
   `select public.${fn}(${args.map((_, i) => `$${i + 1}`).join(', ')}) as r`;
 
-/** An answer as the web sends it (a new card answered «Bien»: to its 10-minute step). */
 function answer(noteGuid: string, deckId: string, extra: Record<string, unknown> = {}) {
   const now = new Date();
   return {
@@ -81,7 +79,6 @@ const row = (db: PGlite, who: Who, guid: string) =>
       ).rows[0],
   );
 
-/** What the web reads to study a deck: the rows of that deck (`cards()` in study/repository.ts). */
 const rowsOfDeck = (db: PGlite, who: Who, deckId: string) =>
   asUser(db, who, async (tx) =>
     (
@@ -109,7 +106,6 @@ beforeEach(async () => {
   for (const u of [ANA, BETO]) {
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
   }
-  // Ana saw three cards of the old deck; Beto, the same first one.
   for (const g of ['a', 'b', 'c']) {
     await asUser(db, ANA, (tx) => tx.query(call('record_review', [0]), [answer(g, OLD)]));
   }
@@ -117,7 +113,7 @@ beforeEach(async () => {
 });
 
 describe('a card that moved to another deck', () => {
-  it('without reconciling (as before 1.3): the new deck does not have it, and answering it stops the session', async () => {
+  it('without reconciling: the new deck does not have it, and answering it stops the session', async () => {
     expect(await rowsOfDeck(db, ANA, NEW)).toEqual([]);
     // The web saw no row, so it sends the card as new; the row is there: card_changed.
     await expect(
@@ -136,7 +132,6 @@ describe('a card that moved to another deck', () => {
     const after = await row(db, ANA, 'a');
     // Same progress, same stamp (an open session in another tab is not stopped by it).
     expect(after).toEqual({ ...before, deck_id: NEW });
-    // Studying the new deck: the web read the row, so it sends its stamp.
     const second = answer('a', NEW, {
       expectedUpdatedAt: after!.updated_at,
       queueBefore: 'learn',
@@ -165,7 +160,6 @@ describe('a card that moved to another deck', () => {
       ]),
     );
     expect(await row(db, ANA, 'b')).toMatchObject({ deck_id: NEW });
-    // Undoing that answer neither.
     await asUser(db, ANA, (tx) => tx.query(call('undo_last_review', [])));
     expect(await row(db, ANA, 'b')).toMatchObject({ deck_id: NEW, reps: 1 });
   });
@@ -196,7 +190,6 @@ describe('a page that was behind', () => {
     // A tab opened at change 7. Another tab entered after «d» moved to the new deck (change 9).
     await reconcile(db, ANA, 0, 7, []);
     await reconcile(db, ANA, 7, 9, [{ noteGuid: 'd', ord: 0, deckId: NEW }]);
-    // The first tab answers «d», new for Ana, with the deck it knows.
     await answerFrom(7, 'd', OLD);
     expect(await row(db, ANA, 'd')).toMatchObject({ deck_id: OLD });
     expect(await sync()).toEqual({ synced_to: 9, repair_from: 7 });
@@ -216,7 +209,6 @@ describe('a page that was behind', () => {
     await answerFrom(4, 'd', OLD);
     expect(await reconcile(db, ANA, 4, 12, [])).toMatchObject({ applied: true, syncedTo: 12 });
     expect(await sync()).toEqual({ synced_to: 20, repair_from: 12 });
-    // Another page that was behind marks from further back: from the lowest.
     await answerFrom(2, 'e', OLD);
     expect(await sync()).toEqual({ synced_to: 20, repair_from: 2 });
     await reconcile(db, ANA, 2, 25, [{ noteGuid: 'd', ord: 0, deckId: NEW }]);
@@ -230,7 +222,6 @@ describe('a page that was behind', () => {
     await answerFrom(12, 'e', OLD);
     await asUser(db, ANA, (tx) => tx.query(call('record_review', [0]), [answer('f', OLD)]));
     expect(await sync()).toEqual({ synced_to: 9, repair_from: null });
-    // «a» was answered before: its row is not created again (its deck is reconciling's).
     const stamp = (await row(db, ANA, 'a'))!.updated_at;
     await asUser(db, ANA, async (tx) => {
       await tx.query(`select set_config('request.headers', $1, true)`, [
@@ -346,7 +337,7 @@ describe('limits', () => {
     ).rejects.toThrow(/invalid_changes/);
   });
 
-  it('what it changes counts in the changes of the day (1.2), one more for the call', async () => {
+  it('what it changes counts in the changes of the day, one more for the call', async () => {
     const day = async () =>
       (
         await db.query<{ c: number }>(

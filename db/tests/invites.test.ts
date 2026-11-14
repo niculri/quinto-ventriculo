@@ -1,3 +1,4 @@
+// The invite list of the users database: who can sign up and save progress, and who can read the list.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';

@@ -1,28 +1,19 @@
-/**
- * A round of a practice test, as the `pauta-a-test` page plays it: one question at a time, the verdict at
- * once, the score, «Saltar» to leave one for the end of the round, «Siguiente» through the answered ones up to
- * the one that was next (a round saved with the old «Volver» may be behind it), the results, «Repetir todo» and «Repetir solo las malas». The round is a
- * plain JSON value: every change returns a new one (nothing is mutated), so it can be saved as it is and
- * continued after reloading.
- */
+// A practice-test round: one question at a time, verdicts, skip, back, results and repeats. The round is plain
+// JSON and every change returns a new one, so it can be saved as it is and continued after reloading.
 
-/** What the round needs to know of a question. */
 export interface QuestionInfo {
   id: string;
-  /** Number of alternatives; none = a question with a short answer (the user says whether they knew it). */
+  /** None: a short-answer question (the user says whether they knew it). */
   options?: number;
-  /** Index of the correct alternative, from 0, in the original order. */
   correct?: number;
-  /** Its alternatives never shuffle (they name each other: «a y c», «todas las anteriores»). */
+  /** The alternatives name each other («a y c», «todas las anteriores»), so they never shuffle. */
   fixedOrder?: boolean;
 }
 
-/** A number in [0, 1). `Math.random` in the web; a seeded one in tests. */
 export type Random = () => number;
 
 export type Screen = 'cover' | 'question' | 'results';
 
-/** How a round started: from the cover, «Reiniciar», «Repetir todo» or «Repetir solo las malas». */
 export type RoundOrigin = 'cover' | 'restart' | 'repeat_all' | 'repeat_wrong';
 export const ROUND_ORIGINS: readonly RoundOrigin[] = [
   'cover',
@@ -32,40 +23,28 @@ export const ROUND_ORIGINS: readonly RoundOrigin[] = [
 ];
 
 export interface RoundAnswer {
-  /** Position in the queue. */
   position: number;
   questionId: string;
-  /** Original index of the chosen alternative; null in a question with a short answer. */
+  /** Original index of the alternative, not its place on screen. */
   chosen: number | null;
   correct: boolean;
-  /** When it was answered (ISO). */
   at: string;
 }
 
 export interface Round {
   version: 1;
-  /** Id of the round (the history in the database hangs from it). */
   id: string;
   origin: RoundOrigin;
-  /** The questions, in the order they are asked. */
   queue: string[];
-  /** The question on screen. */
   index: number;
-  /** The furthest question reached: «Siguiente» goes through the answered ones up to it. */
+  /** The furthest question reached. */
   top: number;
-  /** The questions were shuffled (restarting shuffles them again). */
   shuffled: boolean;
-  /** «Mezclar también las alternativas». */
   shuffleOptions: boolean;
-  /**
-   * The order in which the alternatives of each position are shown (original indexes), fixed when the round
-   * starts so it does not change when going back, reloading or continuing; null = the original order.
-   */
+  /** Each position's alternatives as shown, fixed at the start so going back or reloading keeps them; null: as is. */
   orders: (number[] | null)[];
   answers: RoundAnswer[];
-  /** What is on screen: the cover (with the round saved, «Continuar»), a question or the results. */
   screen: Screen;
-  /** It reached the results: the cover no longer offers to continue it. */
   finished: boolean;
   startedAt: string;
 }
@@ -74,14 +53,11 @@ export interface StartOptions {
   shuffle: boolean;
   shuffleOptions: boolean;
   random?: Random;
-  /** Id of the round; by default a random UUID. */
   id?: string;
-  /** By default, «cover». */
   origin?: RoundOrigin;
   now?: Date;
 }
 
-/** Fisher–Yates, on a copy. */
 export function shuffled<T>(items: readonly T[], random: Random = Math.random): T[] {
   const a = items.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -91,7 +67,7 @@ export function shuffled<T>(items: readonly T[], random: Random = Math.random): 
   return a;
 }
 
-/** Mulberry32: a small, seeded generator (tests and reproducible orders). */
+/** Mulberry32: a small seeded generator, for tests and reproducible orders. */
 export function seededRandom(seed: number): Random {
   let a = seed >>> 0;
   return () => {
@@ -103,11 +79,9 @@ export function seededRandom(seed: number): Random {
   };
 }
 
-/** A new round id (a random UUID). */
 export function newRoundId(): string {
   const c = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
   if (c?.randomUUID) return c.randomUUID();
-  // An RFC 4122 v4 without crypto (old environments): only the round's id depends on it.
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (ch) => {
     const r = Math.floor(Math.random() * 16);
     return (ch === 'x' ? r : (r & 0x3) | 0x8).toString(16);
@@ -124,7 +98,6 @@ function orderFor(q: QuestionInfo, shuffleOptions: boolean, random: Random): num
   );
 }
 
-/** A new round with these questions (already chosen: the groups of the cover), on its first question. */
 export function startRound(questions: readonly QuestionInfo[], options: StartOptions): Round {
   if (!questions.length) throw new Error('Una ronda necesita al menos una pregunta.');
   const random = options.random ?? Math.random;
@@ -158,10 +131,7 @@ export function isAnswered(round: Round, position = round.index): boolean {
   return answerAt(round, position) !== null;
 }
 
-/**
- * The original indexes of the alternatives in the order they are shown at that position (the letters A, B…
- * on screen are positions in this list).
- */
+/** Original indexes in the order shown: the letters A, B… on screen are positions in this list. */
 export function displayOrder(
   round: Round,
   question: QuestionInfo,
@@ -173,7 +143,6 @@ export function displayOrder(
   return Array.from({ length: n }, (_, i) => i);
 }
 
-/** The letter shown on screen for an original alternative («A»…). */
 export function letterOf(
   round: Round,
   question: QuestionInfo,
@@ -198,10 +167,6 @@ function check(round: Round, question: QuestionInfo) {
   }
 }
 
-/**
- * Answers the question on screen with an alternative (its original index). An answered question is not
- * answered again (also when it was reached with «Volver»): the round stays as it was.
- */
 export function answerChoice(
   round: Round,
   question: QuestionInfo,
@@ -224,7 +189,6 @@ export function answerChoice(
   return { ...round, answers: [...round.answers, answer] };
 }
 
-/** A question with a short answer: after seeing the answer, whether the user knew it. */
 export function selfAssess(
   round: Round,
   question: QuestionInfo,
@@ -245,10 +209,6 @@ export function selfAssess(
   return { ...round, answers: [...round.answers, answer] };
 }
 
-/**
- * «Siguiente»: through the answered ones up to the furthest, then the next new one; after the last one, the
- * results. Only once the question on screen is answered.
- */
 export function next(round: Round): Round {
   if (round.screen !== 'question' || !isAnswered(round)) return round;
   if (round.index < round.top) return { ...round, index: round.index + 1 };
@@ -258,12 +218,7 @@ export function next(round: Round): Round {
   return finish(round);
 }
 
-/**
- * «Saltar»: the question on screen, not answered yet, goes to the end of the round (it comes back after the
- * others), without counting as right or wrong. Only on the furthest question reached, and only if another one
- * is still waiting after it: the last one left cannot be skipped (it would come back at once). The questions
- * before it keep their positions (and their answers, saved by position); the ones after it move up one.
- */
+/** Moves the question on screen to the end; only the ones after it move, so answers keep their positions. */
 export function skip(round: Round): Round {
   if (!canSkip(round)) return round;
   const i = round.index;
@@ -277,12 +232,11 @@ export function canSkip(round: Round): boolean {
     round.index === round.top &&
     round.index + 1 < round.queue.length &&
     !isAnswered(round) &&
-    // Nothing answered after it (a round always answers in order up to `top`; this keeps it so).
+    // A round answers in order up to `top`; this keeps it so.
     round.answers.every((a) => a.position < round.index)
   );
 }
 
-/** «Volver»: the previous question, to read it as it was answered. */
 export function back(round: Round): Round {
   if (round.screen !== 'question' || round.index === 0) return round;
   return { ...round, index: round.index - 1 };
@@ -292,31 +246,24 @@ export function canGoBack(round: Round): boolean {
   return round.screen === 'question' && round.index > 0;
 }
 
-/** «Terminar ahora» or the last «Siguiente»: the results, with what was answered. */
 export function finish(round: Round): Round {
   return { ...round, screen: 'results', finished: true };
 }
 
-/** «Inicio»: back to the cover; the round stays saved and the cover offers to continue it. */
 export function toCover(round: Round): Round {
   return { ...round, screen: 'cover' };
 }
 
-/** «Continuar», from the cover: the question where it was (with its verdict if it was answered). */
 export function resume(round: Round): Round {
   if (round.finished) return { ...round, screen: 'results' };
   return { ...round, screen: 'question' };
 }
 
-/** A round that the cover offers to continue (saved halfway). */
 export function isResumable(round: Round | null): round is Round {
   return !!round && !round.finished && round.queue.length > 0;
 }
 
-/**
- * «Reiniciar»: the same questions from the first one, without their answers (shuffled again if they were
- * shuffled). A new round: the one that is left stays in the history as it was.
- */
+/** A new round with the same questions, so the old one stays in the history as it was. */
 export function restart(
   round: Round,
   questions: ReadonlyMap<string, QuestionInfo>,
@@ -330,7 +277,6 @@ export function restart(
   });
 }
 
-/** «Repetir todo», from the results: the same questions, shuffled or not as the cover says now. */
 export function repeatAll(
   round: Round,
   questions: ReadonlyMap<string, QuestionInfo>,
@@ -343,7 +289,6 @@ export function repeatAll(
   });
 }
 
-/** «Repetir solo las malas»: the wrong ones, in the order they were asked (not shuffled). */
 export function repeatWrong(
   round: Round,
   questions: ReadonlyMap<string, QuestionInfo>,
@@ -367,18 +312,15 @@ function resolve(ids: readonly string[], questions: ReadonlyMap<string, Question
   });
 }
 
-/** The wrong answers, in the order they were asked. */
 export function wrongAnswers(round: Round): RoundAnswer[] {
   return round.answers.filter((a) => !a.correct).sort((a, b) => a.position - b.position);
 }
 
 export interface Score {
-  /** Questions in the round. */
   total: number;
   answered: number;
   correct: number;
   wrong: number;
-  /** Correct over answered, rounded (0 if none answered). */
   percent: number;
 }
 
@@ -394,13 +336,11 @@ export function score(round: Round): Score {
   };
 }
 
-/** The progress bar: up to the furthest question reached (the whole bar on the results). */
 export function progress(round: Round): number {
   if (round.screen === 'results') return 1;
   return round.queue.length ? round.top / round.queue.length : 0;
 }
 
-/** The title of the results, by the percentage of correct answers. */
 export function resultTitle(percent: number): string {
   return percent >= 85
     ? 'Muy bien preparado'
@@ -409,7 +349,6 @@ export function resultTitle(percent: number): string {
       : 'Hay que repasar';
 }
 
-/** «Vas en la pregunta 4 de 20 · 2 buenas y 1 mala»: the cover's line of a round saved halfway. */
 export function resumeLine(round: Round): string {
   const s = score(round);
   const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;

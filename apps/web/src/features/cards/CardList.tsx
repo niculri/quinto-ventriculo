@@ -1,3 +1,6 @@
+// The cards page's virtual list: a fixed-height row per note under its lecture and topic, drawn only in view, so
+// nothing moves while scrolling or filtering; the lecture and topic on top stay fixed under the site's bar.
+
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { Flag, ImageIcon } from 'lucide-react';
@@ -6,19 +9,9 @@ import { clozeParts, headingAt, itemAt, listItems, listMetrics } from './model';
 import type { CardStatus, ExplorerCard, Lecture, ListItem, Matched } from './model';
 import { thumbUrl } from './queries';
 
-/**
- * The list of the cards page (step 3.3, ANK-9): one row per note, of a fixed height for its kind, under its lecture and
- * its topic, in the order of the class. Only the rows in view are drawn, and the page's own scroll moves them: every
- * height is known before drawing, so nothing moves while scrolling, loading thumbnails or changing a filter. The
- * lecture and topic of what is on top stay fixed under the site's bar.
- */
-
-/** The site's top bar (ui/AppShell.tsx, h-16): the fixed title goes right under it. */
 const BAR = 64;
-/** How much is drawn above and below the window. */
 const OVERSCAN = 600;
 
-/** Wide enough for the question and the answer side by side (Tailwind's `sm`). */
 function useWide(): boolean {
   const query = '(min-width: 640px)';
   const [wide, setWide] = useState(() =>
@@ -40,7 +33,6 @@ export interface ListProps {
   hideAnswers: boolean;
   thumbs: string | null;
   onOpen: (item: Matched) => void;
-  /** A note to bring into view (a code pasted in the search box, the card open when reloading). */
   reveal: string | null;
 }
 
@@ -57,7 +49,6 @@ export function CardList({
   const [width, setWidth] = useState(0);
   const [view, setView] = useState({ top: 0, height: 800 });
 
-  // The width and where the window is, before the first paint (the rows are drawn where they go).
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -88,7 +79,6 @@ export function CardList({
   const metrics = useMemo(() => listMetrics(width || 1, wide), [width, wide]);
   const { items, total } = useMemo(() => listItems(lectures, metrics), [lectures, metrics]);
 
-  // A note brought into view: its row right under the fixed title.
   const revealed = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (!reveal || !width || revealed.current === reveal) return;
@@ -103,7 +93,6 @@ export function CardList({
     window.scrollTo({ top: Math.max(0, listTop + it.top - BAR - metrics.lecture - 8) });
   }, [reveal, items, width, metrics.lecture]);
 
-  // The keyboard: ↑ ↓ (and Inicio, Fin, Re Pág, Av Pág) go through the notes; Enter opens one.
   const [focusAt, setFocusAt] = useState<number | null>(null);
   const positions = useMemo(() => {
     const out: { item: ListItem; m: Matched }[] = [];
@@ -151,7 +140,6 @@ export function CardList({
       go(at, e.key === 'Home' ? 0 : positions.length - 1);
     } else if (e.key in step) {
       const it = positions[at]?.item;
-      // Left and right only inside a grid's row.
       if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && it?.kind !== 'cells') return;
       e.preventDefault();
       const columns = it?.kind === 'cells' ? metrics.columns : 1;
@@ -174,7 +162,6 @@ export function CardList({
       className="relative mt-2"
       style={{ height: total }}
     >
-      {/* The lecture and topic of the rows on top: fixed under the site's bar, over the list (it pushes nothing). */}
       <div className="sticky z-10 h-0" style={{ top: BAR }} aria-hidden="true">
         <div
           className={`flex items-center gap-2 border-b border-border bg-bg/95 px-1 backdrop-blur ${pinned ? '' : 'invisible'}`}
@@ -292,7 +279,6 @@ const STATUS_WORDS: Record<CardStatus, [string, string]> = {
   hidden: ['oculta', 'ocultas'],
 };
 
-/** «3 tarjetas: 1 sin ver, 2 vistas»: what the dots say, for a screen reader. */
 function statusText(cards: readonly ExplorerCard[]): string {
   const by = new Map<CardStatus, number>();
   for (const c of cards) by.set(c.status, (by.get(c.status) ?? 0) + 1);
@@ -304,7 +290,6 @@ function statusText(cards: readonly ExplorerCard[]): string {
   return `${cards.length} ${cards.length === 1 ? 'tarjeta' : 'tarjetas'}: ${parts.join(', ')}`;
 }
 
-/** A card's state by its color and by its shape: a ring, a dot, a triangle, a dash. */
 export function StatusDot({ status }: { status: CardStatus }) {
   switch (status) {
     case 'new':
@@ -343,7 +328,6 @@ function Dots({ m }: { m: Matched }) {
   );
 }
 
-/** A cloze's text with its holes in the site's color (or covered, with «Ocultar respuestas»). */
 function ClozeText({ text, hide }: { text: string; hide: boolean }) {
   return (
     <>
@@ -371,7 +355,6 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
   );
 }
 
-/** Text only a screen reader reads: the rows are named by what they show, and this joins its parts. */
 function Said({ children }: { children: ReactNode }) {
   return <span className="sr-only">{children}</span>;
 }
@@ -540,7 +523,6 @@ function PhotoCell({
   );
 }
 
-/** The list while it loads: the same heights as its first rows. */
 export function ListSkeleton() {
   const wide = typeof window === 'undefined' ? true : window.innerWidth >= 640;
   const m = listMetrics(800, wide);

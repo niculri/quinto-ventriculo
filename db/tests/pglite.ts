@@ -1,3 +1,4 @@
+// In-memory test databases (PGlite) with the fake Supabase and the migrations of db/users or db/content.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -68,28 +69,25 @@ export async function createFreshDatabase(
   return db;
 }
 
-/** The test accounts: the site's owner (invited, administrator) and a friend who helps to test (invited). */
 export const OWNER_EMAIL = 'dueno@ug.uchile.cl';
 const FRIEND_EMAIL = 'invitado@ug.uchile.cl';
 
 /**
- * The rows the first migrations inserted in production (the owner and a friend; step 2.4: they are not in the
- * public code), with test emails and at the same point, so that every later migration finds them as in production.
+ * The rows the first migrations inserted in production (the real ones are not in the public code), with test
+ * emails and at the same point, so that every later migration finds them as in production.
  */
 const SEEDS: Record<string, string> = {
   '20261101000100_invites.sql': `insert into public.invited_emails (email, note) values
     ('${OWNER_EMAIL}', 'Autor'), ('${FRIEND_EMAIL}', 'Invitado de prueba');`,
   '20261101000500_admin.sql': `insert into public.admin_emails (email, note) values ('${OWNER_EMAIL}', 'Autor');`,
-  // Step 2.10 b: the owner's row is marked in production after migrating (the line is in the private repository).
+  // In production the site owner's row is marked after this migration, outside the public code.
   '20261116000000_admin_owner.sql': `update public.admin_emails set owner = true where email = '${OWNER_EMAIL}';`,
 };
 
-/** Applies one migration of `db/<name>` (after `createDatabase(…, until)`). */
 export async function applyMigration(db: PGlite, name: 'users' | 'content', file: string) {
   await db.exec(readFileSync(join(HERE, '..', name, 'supabase', 'migrations', file), 'utf8'));
 }
 
-/** Runs `fn` as a signed-in user (authenticated role and their JWT), inside a transaction. */
 export async function asUser<T>(
   db: PGlite,
   claims: { sub: string; email: string } | null,

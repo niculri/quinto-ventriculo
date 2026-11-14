@@ -1,3 +1,5 @@
+// Tests a deck's page, studying it in the full mode (answers, keys, undo, limits) and the Anki options pages.
+
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, expect, it } from 'vitest';
@@ -6,14 +8,12 @@ import { cardShadowRoot } from '../decks/CardFrame';
 import { DEFAULT_PARAMETERS, defaultConfig } from '@qv/srs';
 import type { StudyRepository } from './repository';
 
-/** The text of the card's side being shown. */
 async function cardText(label: RegExp) {
   const region = await screen.findByRole('region', { name: label });
   await waitFor(() => expect(cardShadowRoot(region)?.querySelector('.card')).toBeTruthy());
   return cardShadowRoot(region)!.querySelector('.card')!.textContent ?? '';
 }
 
-/** The three counts at the top (new, learning, to review). */
 function counts() {
   const group = screen.getByRole('group', { name: 'Tarjetas que quedan' });
   return [/Nuevas/, /Aprendiendo/, /A repasar/].map((name) =>
@@ -24,7 +24,6 @@ function counts() {
 async function startStudying(study: StudyRepository = fullAnkiStudy()) {
   const r = renderApp(`${DECK_PATH}/study`, { study });
   await cardText(/Frente de la tarjeta/);
-  // A deck of a week or lecture: «Volver» still says its course and assessment, and goes to its own page.
   expect(screen.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' })).toHaveAttribute(
     'href',
     DECK_PATH,
@@ -32,13 +31,11 @@ async function startStudying(study: StudyRepository = fullAnkiStudy()) {
   return { ...r, study };
 }
 
-/** Chooses in one of the site's dropdowns. */
 async function chooseIn(trigger: HTMLElement, option: string | RegExp) {
   await userEvent.click(trigger);
   await userEvent.click(await screen.findByRole('menuitemradio', { name: option }));
 }
 
-/** What the deck has for today, on its page («Para hoy»). */
 async function pageLoad() {
   const group = await screen.findByRole('group', { name: 'Para hoy' });
   const button = await within(group).findByRole('button');
@@ -59,7 +56,6 @@ describe('deck page', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Certamen 1' }),
     ).toBeInTheDocument();
-    // The breadcrumbs start at the semester and the course, as the rest of the site.
     const trail = screen.getByRole('navigation', { name: 'Ruta' });
     expect(within(trail).getByRole('link', { name: '1° Semestre' })).toHaveAttribute(
       'href',
@@ -73,12 +69,10 @@ describe('deck page', () => {
     await waitFor(async () => expect(await pageLoad()).toBe(3));
     const sub = screen.getByRole('list', { name: 'Submazos' });
     expect(within(sub).getByText('S1 - Semana de prueba')).toBeInTheDocument();
-    // No way to the decks of every course.
     expect(screen.queryByRole('link', { name: /Buscar tarjetas|Opciones de Anki/ })).toBeNull();
 
     assessment.unmount();
 
-    // The course's own deck: its tree, foldable (and remembered).
     const course = renderApp('/semesters/1/courses/anatomia-1/anki');
     const tree = await screen.findByRole('list', { name: 'Submazos' });
     for (const name of ['Certamen 1', 'S1 - Semana de prueba', 'Mazo de prueba']) {
@@ -100,7 +94,6 @@ describe('studying', () => {
     const { study } = await startStudying();
     expect(await cardText(/Frente/)).toContain('¿Cuántas vértebras cervicales hay?');
     expect(counts()).toEqual([3, 0, 0]);
-    // The current card's count is underlined, as in Anki.
     expect(screen.getByTitle('Nuevas')).toHaveClass('underline');
 
     await userEvent.click(screen.getByRole('button', { name: 'Mostrar respuesta' }));
@@ -168,7 +161,6 @@ describe('studying', () => {
       ]),
     );
 
-    // Undo, three times: the flag, the suspension, the bury.
     for (let i = 0; i < 3; i++) fireEvent.keyDown(window, { key: 'z', ctrlKey: true });
     await waitFor(() => expect(counts()).toEqual([3, 0, 0]));
     expect(await cardText(/Frente/)).toContain('¿Cuántas vértebras');
@@ -177,9 +169,7 @@ describe('studying', () => {
 
   it('shortcuts by their character (Spanish keyboards), not the browser’s, not on a held key', async () => {
     await startStudying();
-    // Ctrl+- is the browser’s zoom: nothing here.
     fireEvent.keyDown(window, { key: '-', ctrlKey: true });
-    // A held space repeats: only the first one counts.
     fireEvent.keyDown(window, { key: ' ' });
     fireEvent.keyDown(window, { key: ' ', repeat: true });
     fireEvent.keyDown(window, { key: ' ', repeat: true });
@@ -213,7 +203,6 @@ describe('studying', () => {
         name: '¡Felicitaciones! Has finalizado este mazo por ahora.',
       }),
     ).toBeInTheDocument();
-    // Answering the cloze buried its sibling in Extras (the preset buries new siblings), as Anki says.
     expect(
       screen.getByText('Una o más tarjetas fueron enterradas y se mostrarán mañana.'),
     ).toBeInTheDocument();
@@ -226,7 +215,6 @@ describe('studying', () => {
     const c1 = renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1/study', { study });
     expect(await cardText(/Frente/)).toContain('¿Cuántas vértebras');
     expect(counts()).toEqual([3, 0, 0]);
-    // «Volver» says the course and the assessment (with the full text when it is cut).
     const back = screen.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' });
     expect(back).toHaveAttribute('href', '/semesters/1/courses/anatomia-1/anki/certamen-1');
     expect(back).toHaveAttribute('title', 'Anatomía I · Certamen 1');
@@ -235,7 +223,6 @@ describe('studying', () => {
     await userEvent.keyboard('4');
     await waitFor(() => expect(counts()).toEqual([2, 0, 0]));
     c1.unmount();
-    // The answer counts in every deck above: the course (20 a day, «Default») has 2 left of its 3.
     renderApp('/semesters/1/courses/anatomia-1/anki/study', { study });
     expect(await cardText(/Frente/)).toContain('La columna tiene');
     expect(counts()).toEqual([2, 0, 0]);
@@ -257,7 +244,6 @@ describe('studying', () => {
     await startStudying(study);
     expect(counts()).toEqual([2, 0, 0]);
     expect(await cardText(/Frente/)).toContain('La columna tiene');
-    // Coming back is another study session: the answer of the one before stays, undo has nothing to take back.
     await act(async () => {
       fireEvent.keyDown(window, { key: 'z', ctrlKey: true });
     });
@@ -270,11 +256,9 @@ describe('studying', () => {
 describe('Opciones: Anki general y Configuración de mazos', () => {
   it('changing the author’s preset makes the user’s version of it; the deck uses it', async () => {
     const study = fullAnkiStudy();
-    // The old link of a deck (`/settings/anki?deck=`) goes to «Configuración de mazos».
     const r = renderApp('/settings/anki?deck=20', { study });
     const limit = await screen.findByLabelText('Tarjetas nuevas/día');
     expect(limit).toHaveValue(20);
-    // `?deck=` opens the deck's preset, and the URL says which one.
     await waitFor(() => expect(r.router.state.location.pathname).toBe('/settings/deck-options'));
     await waitFor(() => expect(r.router.state.location.search).toBe('?preset=Default'));
     await userEvent.clear(limit);
@@ -282,8 +266,6 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     expect(
       screen.getByRole('button', { name: 'Configuración: Default (del autor)' }),
     ).toBeInTheDocument();
-    // Which decks use it: the parents too, from the course down (the importer gives them «Default»); the
-    // root and the semester are not studied on the web, so they are not listed.
     const using = screen.getByRole('region', { name: 'Mazos que la usan' });
     expect(within(using).getByText('La usan 4 mazos')).toBeInTheDocument();
     expect(within(using).queryByText(/^1° Semestre$/)).toBeNull();
@@ -315,7 +297,6 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     expect(
       within(dialog).getByRole('link', { name: 'Editar o crear configuraciones' }),
     ).toHaveAttribute('href', '/settings/deck-options?preset=Extras');
-    // Back to its own preset: no row.
     await chooseIn(
       within(dialog).getByRole('button', { name: /^Configuración de este mazo:/ }),
       'Default (del autor)',
@@ -330,13 +311,11 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     renderApp('/settings/deck-options', { study });
     const actions = await screen.findByRole('button', { name: 'Acciones de la configuración' });
 
-    // The author's cannot be renamed.
     expect(screen.getByRole('button', { name: 'Editar el nombre' })).toBeDisabled();
 
     await userEvent.click(actions);
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Agregar configuración' }));
     let dialog = await screen.findByRole('dialog', { name: 'Agregar configuración' });
-    // Without a name, or with one that exists, it says so and stays.
     await userEvent.click(within(dialog).getByRole('button', { name: 'Crear' }));
     expect(within(dialog).getByRole('alert')).toHaveTextContent('Ponle un nombre.');
     const name = within(dialog).getByLabelText('Nombre');
@@ -349,7 +328,6 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
       await screen.findByRole('button', { name: 'Configuración: Para el certamen' }),
     ).toBeInTheDocument();
 
-    // Renaming: the field under it, turned on by its button.
     const field = await screen.findByDisplayValue('Para el certamen');
     expect(field).toHaveAttribute('readonly');
     await userEvent.click(screen.getByRole('button', { name: 'Editar el nombre' }));
@@ -400,13 +378,11 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     expect(within(group).getByLabelText('Parámetros de esta configuración')).toHaveTextContent(
       custom.join(', '),
     );
-    // Nothing to write in, nothing to restore, nothing to optimize; «Retención histórica» is gone.
     expect(within(group).queryByRole('textbox')).toBeNull();
     expect(within(group).queryByRole('button')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Optimizar' })).toBeNull();
     expect(screen.queryByText('Retención histórica')).toBeNull();
     expect(within(group).getByText(/no deja cambiarlos/)).toBeInTheDocument();
-    // A preset without its own: FSRS-6's defaults, in grey.
     await chooseIn(screen.getByRole('button', { name: /^Configuración:/ }), 'Extras (del autor)');
     const defaults = within(group).getByLabelText('Parámetros predeterminados');
     expect(defaults).toHaveTextContent(DEFAULT_PARAMETERS.join(', '));
@@ -432,7 +408,6 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
       fsrsParams: custom,
       historicalRetention: 0.8,
     });
-    // «Restablecer los valores predeterminados de Anki» resets everything, as in Anki: FSRS-6's defaults again.
     await userEvent.click(screen.getByRole('button', { name: 'Acciones de la configuración' }));
     await userEvent.click(
       await screen.findByRole('menuitem', {
@@ -470,19 +445,16 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     const { router } = renderApp('/home');
     await userEvent.click(await screen.findByRole('button', { name: /tu cuenta$/i }));
     await userEvent.click(await screen.findByRole('menuitem', { name: /Opciones/ }));
-    // No submenu: the page, on its first section.
     expect(screen.queryByRole('menuitem', { name: /Anki/ })).toBeNull();
     await waitFor(() => expect(router.state.location.pathname).toBe('/settings/account'));
     const nav = await screen.findByRole('navigation', { name: 'Secciones de las opciones' });
     const links = within(nav).getAllByRole('link');
     expect(links.map((l) => [l.textContent?.trim(), l.getAttribute('href')])).toEqual([
       ['Datos de usuario', '/settings/account'],
-      // Step 2.6
       ['Mis reportes', '/settings/reports'],
       ['General', '/settings/anki'],
       ['Configuración de mazos', '/settings/deck-options'],
     ]);
-    // Grouped under titles that are not links: «Cuenta» and «Anki».
     expect(
       within(nav)
         .getAllByRole('group')
@@ -515,7 +487,6 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     expect(within(account).getByRole('img', { name: 'Sin foto' })).toHaveTextContent('AP');
     expect(within(account).getAllByText('Ana Pérez').length).toBeGreaterThan(0);
     expect(within(account).getAllByText('ana@ug.uchile.cl').length).toBeGreaterThan(0);
-    // Chile time.
     expect(within(account).getByText('31 de octubre de 2026 a las 10:00')).toBeInTheDocument();
     expect(within(account).getByText('1 de noviembre de 2026 a las 09:30')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));

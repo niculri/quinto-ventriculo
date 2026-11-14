@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+
+// Unit tests of the scheduler: timing, steps, leeches, button texts, presets, answering and the queue.
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_CONFIG,
@@ -223,7 +225,6 @@ describe('queue', () => {
       timing,
     });
     expect(q.counts()).toEqual({ new: 2, learning: 0, review: 0 });
-    // Gathered by note (both cards of «a» share its position, as in Anki), then sorted by template.
     expect(q.entries().map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['a0', 'a1']);
     const extrasOnly = StudyQueue.build({
       rootDeckId: '2',
@@ -314,7 +315,6 @@ describe('queue', () => {
       })
         .entries()
         .map((e) => `${e.noteGuid}${e.ord}`);
-    // Anki: «nid asc, ord asc» and «nid desc, ord asc».
     expect(order('added')).toEqual(['a0', 'a1', 'b0', 'b1']);
     expect(order('reverseAdded')).toEqual(['b0', 'b1', 'a0', 'a1']);
   });
@@ -333,7 +333,6 @@ describe('queue', () => {
 });
 
 describe('new cards of the same note, when the day has to give its whole number', () => {
-  // Two notes of three cards and one of a single card.
   const fresh = ['a', 'a', 'a', 'b', 'b', 'b', 'c'].map((noteGuid, index, all) => ({
     noteGuid,
     ord: all.slice(0, index).filter((n) => n === noteGuid).length,

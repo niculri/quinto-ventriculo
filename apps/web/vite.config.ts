@@ -1,3 +1,4 @@
+// Vite configuration of the web: its plugins, the demo and local modes (the API inside Vite) and the security headers.
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
@@ -11,9 +12,8 @@ import { thirdPartyLicenses } from './build/licenses';
 const ROOT = resolve(import.meta.dirname, '../..');
 
 /**
- * Demo mode (`npm run dev:demo`): mounts the API on the same Vite server with the content of `.output/`
- * (importer in dry-run mode) and a fake session. It only exists in development: it never reaches the build.
- * Local mode (`npm run dev:local`): the same, but with the real Supabase session (`supabaseUrl`).
+ * Mounts the API on the Vite server with the content of `.output/` and a fake session (demo mode), or the real
+ * Supabase session with `supabaseUrl` (local mode). Development only: it never reaches the build.
  */
 function demoApi(supabaseUrl?: string): Plugin {
   return {
@@ -46,7 +46,6 @@ function demoApi(supabaseUrl?: string): Plugin {
   };
 }
 
-/** Answers a request of the Vite server with the demo API; a failure goes to Vite's error handler. */
 async function forwardToApi(
   app: { fetch(r: Request): Response | Promise<Response> },
   req: IncomingMessage,
@@ -54,7 +53,6 @@ async function forwardToApi(
 ): Promise<void> {
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
-  // The body too (the release panel's marks are a PUT).
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(chunk as Buffer);
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
@@ -70,12 +68,11 @@ async function forwardToApi(
   res.end(Buffer.from(await r.arrayBuffer()));
 }
 
-/** Cloudflare `_headers` with the web's security policy (CSP and friends). */
 function securityHeaders(supabaseUrl: string): Plugin {
   const csp = [
     "default-src 'self'",
-    // Cloudflare Web Analytics: Cloudflare injects its beacon into the HTML (automatic setup); it reports to
-    // /cdn-cgi/rum on our own domain, and to cloudflareinsights.com when installed by hand.
+    // Cloudflare Web Analytics injects its beacon into the HTML; it reports to /cdn-cgi/rum on the site's own domain,
+    // and to cloudflareinsights.com when installed by hand.
     "script-src 'self' https://static.cloudflareinsights.com",
     // The widths of the note figures go in style attributes.
     "style-src 'self' 'unsafe-inline'",

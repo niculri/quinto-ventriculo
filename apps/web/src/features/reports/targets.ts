@@ -1,6 +1,6 @@
+// Card report targets: building the 'guid:ord' id and splitting it back.
 import type { ReportTarget } from './repository';
 
-/** A card as a report's target: 'guid:ord', its code and version and the deck it was studied in. */
 export function cardTarget(card: {
   noteGuid: string;
   ord: number;
@@ -17,10 +17,7 @@ export function cardTarget(card: {
   };
 }
 
-/**
- * The guid and the ord of a card's report: the ord is what follows the last «:» (a guid can have «:», as Anki's base91
- * alphabet has it). Revisión de cero (2.6): splitting at the first one gave another note.
- */
+// The ord is what follows the last «:»: a guid can contain «:», which is in Anki's base91 alphabet.
 export function splitCardId(targetId: string): { noteGuid: string; ord: number } {
   const at = targetId.lastIndexOf(':');
   return at < 0

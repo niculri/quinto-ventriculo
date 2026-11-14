@@ -1,3 +1,5 @@
+// «Modo avanzado»: a deck's button and dialog to choose which configuration (preset) it uses.
+
 import { useId, useState } from 'react';
 import { Link } from 'react-router';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -16,10 +18,6 @@ import type { PresetRef } from '../study/scheduler';
 import { presetParam } from './presets';
 import type { DeckNode } from './tree';
 
-/**
- * «Modo avanzado»: the button of a deck that opens which configuration it uses. Choosing one saves it; to change one or
- * to make a new one, «Configuración de mazos».
- */
 export function DeckPresetButton({ node }: { node: DeckNode }) {
   const [open, setOpen] = useState(false);
   return (

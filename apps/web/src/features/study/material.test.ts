@@ -1,9 +1,10 @@
+// Tests finding a card's article and test from the deck it is in.
+
 import { describe, expect, it } from 'vitest';
 import type { Catalog, NotePractice } from '@qv/schema';
 import { CATALOG } from '../../test/render';
 import { materialByDeck } from './material';
 
-/** The test catalog with an article of the test deck («Mazo de prueba», its Extras below it). */
 function catalog(practice: NotePractice | undefined): Catalog {
   const copy = structuredClone(CATALOG);
   const assessment = copy.semesters[0]!.courses[0]!.assessments[0]!;
@@ -51,7 +52,6 @@ describe('from a card to its material', () => {
         /^\/semesters\/1\/courses\/anatomia-1\/tests\/certamen-1\/practica\/pautas\?topics=02$/,
       );
     }
-    // The week above it is not that article.
     expect(map.has('5')).toBe(false);
   });
 

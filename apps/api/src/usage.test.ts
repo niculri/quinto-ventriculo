@@ -1,7 +1,4 @@
-// Step 2.9: «Uso» in the administration panel. Opening a note, a deck or a test, and completing a search, writes an anonymous
-// point (never who, their email, IP, country or browser, nor what was searched) that never changes the answer; only an
-// administrator reads the figures; without the Analytics Engine secret the page has the database's figures and says
-// that the opens are not configured.
+// Tests for the anonymous usage points and the administrators' usage figures.
 import { describe, expect, it } from 'vitest';
 import { FEW, UsageReport } from '@qv/schema';
 import type { AdminUsageRow, Catalog, Note, QuizDetail } from '@qv/schema';
@@ -95,7 +92,6 @@ const CATALOG = {
   },
 } as unknown as Catalog;
 
-/** The published content, only what these routes read. */
 const content = (): ContentRepository =>
   ({
     catalog: async () => CATALOG,
@@ -109,7 +105,6 @@ const content = (): ContentRepository =>
     search: async () => [],
   }) as unknown as ContentRepository;
 
-/** What admin_usage() would answer: today 6 students. */
 function row(groups?: UsageGroups): AdminUsageRow {
   const today = siteDay(Date.now());
   const f = (active: number | typeof FEW) => ({
@@ -173,7 +168,6 @@ const get = (app: ReturnType<typeof createApp>, path: string, who: string | null
     },
   });
 
-/** What the pages send when they open (and a completed search). */
 const open = (
   app: ReturnType<typeof createApp>,
   body: unknown,
@@ -274,7 +268,6 @@ describe('the points of Analytics Engine', () => {
       expect((await open(app, body)).status, JSON.stringify(body)).toBe(404);
     }
     expect(events.points).toEqual([]);
-    // The catalog is read once and kept: an open does not read it each time.
     for (const body of OPENS) expect((await open(app, body)).status).toBe(200);
     expect(events.points).toHaveLength(4);
     expect(reads).toBe(1);
@@ -341,7 +334,6 @@ describe('GET /api/admin/usage', () => {
     expect(body.totals.today.activeStudents).toBe(6);
     expect(body.invited).toEqual({ signedIn: 7, never: FEW });
     expect(body.decks).toEqual([{ deckId: '5', students: 6, answers: 120, newCards: FEW }]);
-    // Asked with the administrator's own token, and the groups from the published catalog.
     expect(asked).toHaveLength(1);
     expect(asked[0]!.token).toBe(ADMIN);
     expect(asked[0]!.groups).toEqual({
@@ -400,7 +392,6 @@ describe('GET /api/admin/usage', () => {
     const { app } = appWith({ usageEvents: events, usageOpens: events });
     for (let i = 0; i < 6; i++) await open(app, { kind: 'note', id: 'apunte' });
     for (let i = 0; i < 3; i++) await open(app, { kind: 'deck', id: '5' });
-    // Two days ago (4 students active that day in the made-up figures): hidden.
     events.points.push({
       kind: 'quiz',
       path: '/api/quizzes/test-de-prueba',
@@ -423,7 +414,6 @@ describe('GET /api/admin/usage', () => {
       quizzes: FEW,
       searches: FEW,
     });
-    // Only what was opened 5 times or more.
     expect(body.opens!.top).toEqual([{ kind: 'note', id: 'apunte', opens: 6 }]);
   });
 });

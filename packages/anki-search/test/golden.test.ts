@@ -64,7 +64,6 @@ function load(file: string) {
 
 const keys = (cards: [string, number][]) => cards.map(([g, o]) => `${g}/${o}`).sort();
 
-// The second file is the same collection with Anki's «Ignore accents in search» on (`--ignore-accents`).
 for (const file of ['search.json', 'search-ignore-accents.json']) {
   const { golden, run } = load(file);
   const label = golden.ignoreAccents ? ' (ignoring accents)' : '';

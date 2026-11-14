@@ -1,3 +1,4 @@
+// A course's page, a dashboard: for each assessment, one card per section (notes, tests, Anki) with what it has.
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowRight, ChevronRight, Layers, Search } from 'lucide-react';
@@ -40,15 +41,10 @@ export function CoursePage() {
   const found = findCourse(catalog.data, courseId);
   if (!found) return <NotFoundPage />;
   const { semester, course } = found;
-  // The course is in another semester than the URL says: to its canonical URL.
   if (String(semester.number) !== number) return <Canonical path={paths.course(course)} />;
   return <CourseView catalog={catalog.data} semester={semester} course={course} />;
 }
 
-/**
- * A course's page, the template of every course: a dashboard. Each assessment shows one card per section
- * (notes, tests, Anki), with what it has and a drawing behind; the lists are on each section's page.
- */
 function CourseView({
   catalog,
   semester,
@@ -102,7 +98,6 @@ function CourseView({
       {material ? <p className="mt-2 text-muted">{material}</p> : null}
 
       {decks ? (
-        // Only this course's decks, with a scale of its own.
         <Heatmap
           scope={`course:${course.id}`}
           deckIds={catalog.anki.decks.filter((d) => d.courseId === course.id).map((d) => d.id)}
@@ -163,7 +158,6 @@ function CourseView({
                 ) : null}
                 {a.quizzes.length ? (
                   <SectionCard
-                    // One test: straight to it (its cover, with the topics), as in the menu.
                     to={
                       onlyQuiz ? paths.quiz(course, onlyQuiz) : paths.assessmentTests(course, a.id)
                     }
@@ -232,7 +226,6 @@ function CourseView({
               {plan && node ? (
                 <ChooseUnits node={node} counts={counts} mastery={mastery} plan={plan} />
               ) : null}
-              {/* Its line, so that the page does not jump when it arrives. */}
               {!plan && node && !failed ? <Skeleton className="mt-3 h-5 w-56" /> : null}
             </section>
           );
@@ -259,7 +252,6 @@ function CourseView({
   );
 }
 
-/** The weeks or lectures of an assessment and how many are turned on. */
 function unitsOf(node: CourseDeckNode, plan: StudyPlan) {
   return { total: node.children.length, on: activeUnits(descendants(node), plan).size };
 }
@@ -268,10 +260,6 @@ function emptyLoad(node: CourseDeckNode, plan: StudyPlan) {
   return unitsOf(node, plan).on === 0 ? 'Sin activar' : 'Listo por hoy';
 }
 
-/**
- * «Qué estás estudiando»: the switch of each week or lecture of an assessment, folded. It starts open while
- * nothing is turned on, which is the first thing a new student has to do.
- */
 function ChooseUnits({
   node,
   counts,
@@ -284,7 +272,7 @@ function ChooseUnits({
   plan: StudyPlan;
 }) {
   const { total, on } = unitsOf(node, plan);
-  // Decided once: turning the first one on does not fold the list away from under the finger.
+  // Open while nothing is on, decided once: turning the first one on does not fold the list under the finger.
   const [open, setOpen] = useState(on === 0);
   if (!total) return null;
   return (
@@ -320,7 +308,6 @@ function ChooseUnits({
 const ART =
   'pointer-events-none absolute -right-2 -bottom-3 size-28 text-brand opacity-30 transition-opacity group-hover:opacity-50';
 
-/** A section of an assessment: its name, what it has, and a drawing behind. The whole card is the link. */
 function SectionCard({
   to,
   title,

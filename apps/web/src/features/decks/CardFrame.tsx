@@ -1,23 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+
+// A side of a card as Anki's reviewer shows it: sanitized, in a Shadow DOM with the note type's CSS on Anki's base
+// styles, with occlusions, hint links and tap to zoom.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
 import { ImageViewer } from '../notes/ImageViewer';
 import type { OpenImage } from '../notes/ImageViewer';
 
-/**
- * Anki's own base styles for the reviewer (ts/reviewer/reviewer.scss, webview.css and
- * image-occlusion/review.scss), so the note type's CSS lands on the same ground it has in Anki. Inside the
- * shadow root, `.qv-body` plays Anki's <body>: the card grows to fill it.
- *
- * The frame and the scrolling box are outside, in the page (see CardFrame): what scrolls must be visible to
- * the page. Radix Dialog's scroll lock (react-remove-scroll) decides whether a wheel or touch scroll may
- * happen by walking up from the event's target; from the page, the target of an event inside a shadow root
- * is its host, so a scrolling box inside the shadow root was invisible to it and the lock cancelled the
- * scroll (the wheel did nothing on the cards).
- */
+// Anki's reviewer base styles (reviewer.scss, webview.css, image-occlusion/review.scss). What scrolls stays outside
+// the shadow root: Radix's scroll lock only sees an event's host there, and would cancel the scroll.
 export const BASE_CSS = `
 :host { display: flex; flex-direction: column; flex: 1 0 auto; }
 .qv-body {
@@ -50,7 +44,6 @@ button { margin: 1em 0.5em; }
 #image-occlusion-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 `;
 
-/** Sanitized again in the browser (it already comes sanitized from the importer). */
 export function sanitizeCardInBrowser(html: string): string {
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
@@ -62,22 +55,13 @@ export function sanitizeCardInBrowser(html: string): string {
 interface Props {
   html: string;
   css: string;
-  /** Card ordinal: the card gets the classes `card` and `card<ord + 1>`, as in Anki. */
   ord: number;
   night: boolean;
   occlusion: boolean;
   label: string;
-  /**
-   * Studying: a new side takes the focus when the button that showed it is gone (focus lost on the page), so that a
-   * screen reader reads the card. The keys of the study screen work the same from it.
-   */
   focusOnShow?: boolean;
 }
 
-/**
- * A side of a card as Anki shows it: inside a Shadow DOM with the note type's CSS, in a `.card` (plus
- * `nightMode` in dark mode). Neither its CSS nor the page's step on each other.
- */
 export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow = false }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState<OpenImage | null>(null);
@@ -135,9 +119,8 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
     };
   }, [html, css, ord, night, occlusion, focusOnShow]);
 
-  // `.qv-frame` plays Anki's window: it does not scroll and it is the containing block of the card's
-  // `position: fixed` elements (contain: layout), so the footer with the code stays at the bottom of the
-  // viewer while the card scrolls inside `.qv-scroll`, as at the bottom of Anki's window.
+  // `.qv-frame` plays Anki's window: it does not scroll and contains the card's `position: fixed` footer, while the
+  // card scrolls inside `.qv-scroll`.
   return (
     <div
       role="region"
@@ -154,7 +137,6 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
   );
 }
 
-/** The image under a tap: an occlusion with its masks as they are, or a plain image of the card. */
 function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
   if (target?.closest('#image-occlusion-container')) {
     const src = occlusionSnapshot(root);
@@ -166,12 +148,10 @@ function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
   return { src: img.currentSrc || img.src, alt: img.alt || 'Imagen de la tarjeta', caption: '' };
 }
 
-/** The shadow root of a card (inside a `CardFrame`'s region). */
 export function cardShadowRoot(region: Element): ShadowRoot | null {
   return region.querySelector('.qv-card')?.shadowRoot ?? null;
 }
 
-/** Is the web in dark mode? (the `dark` class on <html>, which ThemePicker changes). */
 export function useDarkMode(): boolean {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
   useEffect(() => {

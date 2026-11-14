@@ -1,3 +1,4 @@
+// Return from Google: waits while Supabase creates the session, then goes on to the saved destination or the notice.
 import { useEffect } from 'react';
 import { paths } from '../../app/paths';
 import { Navigate, useLocation } from 'react-router';
@@ -6,10 +7,7 @@ import { noticeCodeForError } from './notices';
 import { useSession } from './context';
 import { NEXT_KEY } from './service';
 
-/**
- * Internal routes only, never another site (avoids open redirects). No backslashes or control characters:
- * the browser strips the tab and the newline from a URL, and «/\t/other.site» becomes «//other.site».
- */
+// Internal routes only (no open redirects); the browser strips tabs and newlines, so «/\t/x.site» would be «//x.site».
 export function safeDestination(destination: string | null | undefined): string {
   if (
     !destination ||
@@ -23,11 +21,6 @@ export function safeDestination(destination: string | null | undefined): string 
   return destination;
 }
 
-/**
- * Return from Google. Supabase reads the code from the URL and creates the session; here we only wait and
- * move on. If Supabase rejected the account (another domain), the error comes in the URL and the landing page
- * shows the notice.
- */
 export function AuthCallbackPage() {
   const { state } = useSession();
   const { search, hash } = useLocation();
@@ -46,7 +39,6 @@ export function AuthCallbackPage() {
 
   if (error) return <Navigate to={paths.landing({ notice: noticeCodeForError(error) })} replace />;
   if (state.status === 'loading') return <Loading fullScreen text="Entrando…" />;
-  // Without a session, the landing page shows whatever notice the session left (e.g., another domain).
   if (state.status === 'signed-out') return <Navigate to={paths.landing()} replace />;
   let next: string | null = null;
   try {

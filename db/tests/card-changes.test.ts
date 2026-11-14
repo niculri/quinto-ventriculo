@@ -1,5 +1,5 @@
-// Plan step 1.3 (content): the content database remembers which cards moved to another deck or were taken out
-// (20261106000000_card_changes.sql), so that each student's progress can follow them when they enter.
+// The content database remembers which cards moved to another deck or were taken out, so that each student's progress
+// can follow them when they enter.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase, createFreshDatabase } from './pglite';
@@ -147,7 +147,6 @@ describe('what the content remembers', () => {
       { noteGuid: 'n2', ord: 0, deckId: EXTRAS },
       { noteGuid: 'n1', ord: 1, deckId: DECK },
     ]);
-    // From the beginning: the last thing that happened to each card, once.
     expect((await changesSince(0)).changes).toEqual([
       { noteGuid: 'n2', ord: 0, deckId: EXTRAS },
       { noteGuid: 'n1', ord: 1, deckId: DECK },
@@ -163,7 +162,6 @@ describe('what the content remembers', () => {
     expect(second.more).toBe(false);
     expect(second.next).toBe(second.latest);
     expect([...first.changes, ...second.changes]).toEqual((await changesSince(0)).changes);
-    // Past the end: nothing, and the cursor stays.
     expect(await changesSince(second.latest)).toEqual({
       changes: [],
       next: second.latest,
@@ -193,7 +191,6 @@ describe('what the content remembers', () => {
     await service((tx) =>
       tx.query('select public.save_anki_note($1)', [note('n9', 'b', [card(0, EXTRAS)])]),
     );
-    // A student whose cursor is `before` (the old database) still gets the change of the new one.
     const page = (
       await service((tx) =>
         tx.query<{ r: Page }>('select public.anki_card_changes_since($1) as r', [before]),

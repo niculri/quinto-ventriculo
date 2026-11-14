@@ -1,6 +1,5 @@
-// Pins the rules that the in-memory study repository re-implements from the users database's SQL functions. Above each
-// test, the db/tests case that checks the same rule in SQL («db: none» when there is none); «differs» marks a
-// behaviour that is not the database's.
+// Pins the rules the in-memory study repository re-implements from the users database's SQL functions, and the few
+// places where it accepts more than the database does.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CardChangedError,
@@ -72,7 +71,6 @@ afterEach(() => {
 });
 
 describe('answers and «card_changed»', () => {
-  // db: study.test.ts › an answer saves the card and its log row together
   it('an answer saves the card and its log row together', async () => {
     const { updatedAt } = await repo.recordReview(answer(A, null));
     expect(await row(A)).toMatchObject({ phase: 'review', reps: 1, deckId: 'd1', updatedAt });
@@ -82,7 +80,6 @@ describe('answers and «card_changed»', () => {
     expect(await repo.ratedSince(new Date(NOW - HOUR))).toHaveLength(1);
   });
 
-  // db: study.test.ts › a card changed elsewhere since it was shown is not overwritten
   it('a card changed since it was shown is not overwritten', async () => {
     const { updatedAt } = await repo.recordReview(answer(A, null));
     await expect(repo.recordReview(answer(A, null))).rejects.toBeInstanceOf(CardChangedError);
@@ -93,15 +90,12 @@ describe('answers and «card_changed»', () => {
     expect(await actions(A)).toEqual(['answer', 'answer']);
   });
 
-  // differs — db: study.test.ts › validates what it saves (record_review refuses a lastReview more than 24 hours from
-  // now: invalid_time)
   it('takes an answer at any time, and its log keeps that time', async () => {
     const at = iso(NOW - 3 * DAY);
     await repo.recordReview(answer(A, null, { state: reviewed({ lastReview: at }) }));
     expect((await repo.cardLog(A))[0]).toMatchObject({ action: 'answer', reviewedAt: at });
   });
 
-  // db: none (record_review keeps them with «c.suspended or excluded.suspended», untested)
   it('an answer never clears «suspended» nor «leech»', async () => {
     await repo.suspend([A], false);
     await repo.recordReview(answer(A, (await row(A))!.updatedAt));
@@ -111,7 +105,6 @@ describe('answers and «card_changed»', () => {
     expect(await row(B)).toMatchObject({ leech: true });
   });
 
-  // db: study.test.ts › an answer buries the siblings it is told to, and undo unburies them
   it('an answer buries the siblings it is told to, and undo takes back both', async () => {
     const until = iso(NOW + 12 * HOUR);
     await repo.recordReview(answer(A, null, { bury: [A2], buriedUntil: until }));
@@ -121,7 +114,6 @@ describe('answers and «card_changed»', () => {
     expect(await repo.allCards()).toEqual([]);
   });
 
-  // db: none (change_card refuses to bury a suspended card, untested)
   it('a suspended card is not buried, neither by an answer nor by «Enterrar»', async () => {
     const until = iso(NOW + 12 * HOUR);
     await repo.suspend([A2], false);
@@ -131,7 +123,6 @@ describe('answers and «card_changed»', () => {
     expect(await actions(A2)).toEqual(['suspend_card']);
   });
 
-  // db: none (change_card clears buried_until when it changes suspended, untested)
   it('suspending a buried card takes the burial away', async () => {
     await repo.bury([A], new Date(NOW + 12 * HOUR), true);
     expect(await actions(A)).toEqual(['bury_note']);
@@ -141,7 +132,6 @@ describe('answers and «card_changed»', () => {
 });
 
 describe('undo', () => {
-  // db: study.test.ts › undo restores the card (and deletes it if it was new) and the log
   it('restores the card (and deletes it if it was new) and the log', async () => {
     const first = await repo.recordReview(answer(A, null));
     const before = await row(A);
@@ -156,7 +146,6 @@ describe('undo', () => {
     expect(await repo.undo()).toBeNull();
   });
 
-  // db: history.test.ts › «Olvidar» and a flag on several cards are undone whole, and do not count as answers
   it('«Olvidar» and a flag on several cards are undone whole, and do not count as answers', async () => {
     await repo.recordReview(answer(A, null));
     await repo.recordReview(answer(B, null));
@@ -170,7 +159,6 @@ describe('undo', () => {
     expect(await repo.ratedSince(new Date(NOW - HOUR))).toHaveLength(2);
   });
 
-  // db: none (moved-cards.test.ts covers reconciling, not undo after it)
   it('keeps the deck and the «taken out» mark that reconciling left', async () => {
     await repo.recordReview(answer(A, null));
     await repo.recordReview(answer(B, null));
@@ -188,7 +176,6 @@ describe('undo', () => {
     expect(await row(B)).toMatchObject({ suspended: false, deckId: 'd1', retiredAt: iso(NOW) });
   });
 
-  // differs — db: history.test.ts › undo reaches 48 hours back, not more
   it('reaches an action of any age (the database: only the last 48 hours)', async () => {
     await repo.recordReview(answer(A, null));
     vi.setSystemTime(NOW + 72 * HOUR);
@@ -198,7 +185,6 @@ describe('undo', () => {
 });
 
 describe('the browser’s actions', () => {
-  // db: none
   it('unsuspend, unbury and «Olvidar» touch only cards with a row, and only if they change', async () => {
     await repo.suspend([A], false);
     await repo.unbury([A]);
@@ -209,7 +195,6 @@ describe('the browser’s actions', () => {
     expect(await repo.undo()).toMatchObject({ action: 'suspend_card' });
   });
 
-  // db: none
   it('«Olvidar» makes the card new; the repetitions and lapses go only with resetCounts', async () => {
     await repo.recordReview(answer(A, null, { state: reviewed({ lapses: 2 }) }));
     await repo.forget([A], false);
@@ -226,7 +211,6 @@ describe('the browser’s actions', () => {
     expect(await actions(A)).toEqual(['answer', 'forget', 'forget']);
   });
 
-  // db: none
   it('a flag on several cards leaves out the ones that already have it', async () => {
     await repo.setFlag(A, 1);
     await repo.setFlags([A, B], 1);
@@ -236,7 +220,6 @@ describe('the browser’s actions', () => {
 });
 
 describe('cards that moved or left (reconcile_cards)', () => {
-  // db: moved-cards.test.ts › two tabs at once: the one that read before the other wrote does not apply anything old
   it('with another tab ahead, nothing is applied', async () => {
     await repo.recordReview(answer(A, null));
     const result = await repo.reconcileCards({
@@ -248,8 +231,6 @@ describe('cards that moved or left (reconcile_cards)', () => {
     expect(await row(A)).toMatchObject({ deckId: 'd1' });
   });
 
-  // db: moved-cards.test.ts › after entering, the new deck has it: answering it does not stop the session, and keeps its
-  // progress; › a card taken out: its progress stays, hidden and out of the counts; if it comes back, it goes on
   it('a moved row gets its deck and one taken out is marked; only real changes count', async () => {
     await repo.recordReview(answer(A, null));
     await repo.recordReview(answer(B, null));
@@ -278,7 +259,6 @@ describe('cards that moved or left (reconcile_cards)', () => {
     expect(await row(B)).toMatchObject({ deckId: 'd4', retiredAt: null, phase: 'review' });
   });
 
-  // db: moved-cards.test.ts › an answer from a page opened before the move does not take the card back to the old deck
   it('an answer from a page opened before the move keeps the row in its new deck', async () => {
     const { updatedAt } = await repo.recordReview(answer(A, null));
     await repo.reconcileCards({
@@ -290,7 +270,6 @@ describe('cards that moved or left (reconcile_cards)', () => {
     expect(await row(A)).toMatchObject({ deckId: 'd2', reps: 1 });
   });
 
-  // db: moved-cards.test.ts › a card taken out: its progress stays, hidden and out of the counts
   it('a card taken out leaves every count', async () => {
     await repo.recordReview(answer(A, null, { queueBefore: 'review' }));
     await repo.reconcileCards({
@@ -304,7 +283,6 @@ describe('cards that moved or left (reconcile_cards)', () => {
     expect((await repo.heatmap(null)).due).toEqual([]);
   });
 
-  // differs — db: moved-cards.test.ts › at most 2,000 changes a call, and each one has to say its deck (or null)
   it('takes any number of changes in a call (the database: at most 2,000)', async () => {
     const changes = Array.from({ length: 2001 }, (_, i) => ({
       noteGuid: `x${i}`,
@@ -321,7 +299,6 @@ describe('practice that does not change dates (record_practice)', () => {
   const practice = async () =>
     Object.fromEntries((await repo.heatmap(null)).days.map((d) => [d.deckId, d.practice]));
 
-  // db: heatmap.test.ts › adds to the caller’s day, by deck, and touches neither card_states nor review_log
   it('adds to the day by deck, and touches neither the cards nor the log', async () => {
     await repo.recordPractice([
       { deckId: 'd1', n: 3 },
@@ -333,7 +310,6 @@ describe('practice that does not change dates (record_practice)', () => {
     expect(await repo.undo()).toBeNull();
   });
 
-  // db: heatmap.test.ts › caps: 100 decks and 1,000 answers a batch, 50,000 changes a day
   it(`refuses a batch of more than ${PRACTICE_BATCH_DECKS} decks or ${PRACTICE_BATCH_MAX} answers`, async () => {
     const decks = (n: number) => Array.from({ length: n }, (_, i) => ({ deckId: `d${i}`, n: 1 }));
     await expect(repo.recordPractice(decks(PRACTICE_BATCH_DECKS + 1))).rejects.toBeInstanceOf(
@@ -347,8 +323,6 @@ describe('practice that does not change dates (record_practice)', () => {
     expect((await practice()).d1).toBe(PRACTICE_BATCH_MAX);
   });
 
-  // db: heatmap.test.ts › at most 5,000 of practice a day for each student: past it, nothing more counts and nothing is
-  // refused
   it(`counts at most ${PRACTICE_DAY_MAX} a day, in the order of the batch, and refuses nothing past it`, async () => {
     for (let sent = 0; sent < PRACTICE_DAY_MAX - 1; sent += PRACTICE_BATCH_MAX - 1) {
       await repo.recordPractice([
@@ -365,7 +339,6 @@ describe('practice that does not change dates (record_practice)', () => {
 });
 
 describe('presets', () => {
-  // db: study.test.ts › a replacement of an author’s preset, only one per preset
   it('one replacement for each preset of the author', async () => {
     const first = await repo.savePreset({ name: 'Mío', replaces: 'author-1', config: {} });
     await expect(
@@ -375,7 +348,6 @@ describe('presets', () => {
     expect((await repo.presets()).map((p) => p.name)).toEqual(['Mío 2']);
   });
 
-  // db: study.test.ts › a preset of one’s own, a deck that uses it, and back when the preset is deleted
   it('deleting a preset takes it off the decks that used it', async () => {
     const mine = await repo.savePreset({ name: 'Mío', replaces: null, config: { new: 5 } });
     await repo.setDeckPreset('d1', { presetId: mine.id });
@@ -388,8 +360,6 @@ describe('presets', () => {
 });
 
 describe('what the web reads of the progress', () => {
-  // db: assessment-mode.test.ts › counts what was seen, new today and yesterday, only one’s own; › a late card that is
-  // suspended or buried does not count as late; › a new card under «No mostrar más» is counted apart
   it('deck_progress: seen, new under «No mostrar más», late, and new today and yesterday', async () => {
     const dayStart = NOW - 3 * HOUR;
     const D = card('n4');
@@ -412,8 +382,6 @@ describe('what the web reads of the progress', () => {
     ]);
   });
 
-  // db: simple-anki.test.ts › answered_decks: only their own decks with an answer; a buried or flagged card does not
-  // count
   it('answered_decks: a buried or flagged card does not count', async () => {
     await repo.recordReview(answer(A, null));
     await repo.bury([card('n5', 0, 'd2')], new Date(NOW + HOUR), false);
@@ -421,7 +389,6 @@ describe('what the web reads of the progress', () => {
     expect(await repo.answeredDecks()).toEqual(['d1']);
   });
 
-  // db: simple-anki.test.ts › median_answer_ms: null with few answers, then the median of their own last 500
   it('median_answer_ms: null with fewer than 20 answers, then their median', async () => {
     for (let i = 0; i < 19; i++) {
       await repo.recordReview(answer(card(`m${i}`), null, { durationMs: i * 100 }));
@@ -431,7 +398,6 @@ describe('what the web reads of the progress', () => {
     expect(await repo.medianAnswerMs()).toBe(950);
   });
 
-  // db: home.test.ts › each deck with what it has seen, what is hidden and the cards that can come out today
   it('home_counts: seen, hidden, suspended, notes touched and what can come out before the end of the day', async () => {
     const until = new Date(NOW + 9 * HOUR);
     await repo.recordReview(answer(A, null));
@@ -461,7 +427,6 @@ describe('what the web reads of the progress', () => {
     expect(decks[0]!.recall).toBeGreaterThan(1.9);
   });
 
-  // differs — home_counts() gives `truncated: true` and no decks with more than 20,000 cards due (no db test)
   it('home_counts is never truncated, however many cards are due', async () => {
     const due = 20_001;
     const cards = Array.from({ length: due }, (_, i) => ({

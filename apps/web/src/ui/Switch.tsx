@@ -1,4 +1,4 @@
-/** An on/off switch. `label` is its name for screen readers (the text beside it, or the row it is in). */
+// The site's on/off switch; `label` is its name for screen readers (the text beside it, or the row it is in).
 export function Switch({
   id,
   label,

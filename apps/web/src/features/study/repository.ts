@@ -1,13 +1,10 @@
+// The user's study data (card states, review log, presets, preferences) in the RLS-protected users
+// database, and a browser copy with the same rules for the demo and tests.
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { dayOf, dayOfStart, retrievability } from '@qv/srs';
 import { dayNumber, isoOfDay } from '../stats/heatmap';
 import type { HeatmapData } from '../stats/heatmap';
-
-/**
- * Each user's study data, in the USERS database (protected with RLS, like the reading progress): the state
- * of each card, the review log, their presets, the preset of each deck and their preferences. The cards
- * themselves are the author's and come from the API.
- */
 
 type Phase = 'new' | 'learning' | 'review' | 'relearning';
 export type QueueName = 'new' | 'learn' | 'day_learn' | 'review';
@@ -21,7 +18,6 @@ export interface CardRef extends CardKey {
   deckId: string;
 }
 
-/** A row of `card_states`. */
 export interface StoredCard extends CardRef {
   phase: Phase;
   /** Learning: `due` is a day (it passed the rollover). Reviews: always. */
@@ -40,10 +36,6 @@ export interface StoredCard extends CardRef {
   buriedUntil: string | null;
   leech: boolean;
   updatedAt: string;
-  /**
-   * When the author took the card out of the site (ISO; null or missing: it is published). Its progress stays,
-   * out of the counts, and comes back with it.
-   */
   retiredAt?: string | null;
 }
 
@@ -65,24 +57,16 @@ export type CardStateFields = Pick<
 
 export interface StudyPreferences {
   timeZone: string;
-  /** «El siguiente día empieza a las» (0–23). */
   dayStartsAt: number;
-  /** «Límite del estudio por adelantado», in minutes. */
   learnAheadMinutes: number;
   newCardsIgnoreReviewLimit: boolean;
   applyAllParentLimits: boolean;
-  /** «Modo avanzado»: everything as Anki (the buttons, the limits, the presets, the whole material). */
   fullAnki: boolean;
-  /** «Mostrar los 4 botones», also without the full mode. */
   fourButtons: boolean;
-  /** The welcome of the study screen was closed. */
   welcomeSeen: boolean;
-  /** «¿En qué semestre estás?» on the home page (null: not answered yet). */
   semester: number | null;
-  /** Courses added to «Tus ramos» from another semester, and those taken out of it with its ✕ (catalog ids). */
   addedCourses: string[];
   removedCourses: string[];
-  /** What the student closed and does not come back (the first steps, the one-time tips), by a short name. */
   dismissed: string[];
 }
 
@@ -114,7 +98,6 @@ export function browserTimeZone(): string {
 export interface UserPreset {
   id: string;
   name: string;
-  /** The author's preset this one replaces for the user, or null for one of their own. */
   replaces: string | null;
   config: Record<string, unknown>;
   updatedAt: string;
@@ -126,44 +109,31 @@ export interface DeckSetting {
   authorPreset: string | null;
 }
 
-/** A week or a lecture the student turned on or off by hand. */
 export interface DeckActivation {
   deckId: string;
   active: boolean;
 }
 
-/** What the student chose for an assessment (by the id of its deck). */
 export interface AssessmentSetting {
   deckId: string;
   includeExtras: boolean;
-  /** null: the site's default. */
   newPerDay: number | null;
-  /** The date of the test, «2026-11-05» (a calendar day); null or missing: none. */
   examDate?: string | null;
-  /** How many of the days before the test are only for reviewing. Default: 3. */
   finalReviewDays?: number;
-  /** When the date was put (ISO). */
   examDateSetAt?: string | null;
 }
 
-/** What the assessment mode needs to know about a deck of the user (`deck_progress()`). */
 export interface DeckProgress {
   deckId: string;
-  /** Cards answered at least once and not forgotten; the rest of the deck's cards are new. */
   seen: number;
-  /** New cards under «No mostrar más». */
   newSuspended: number;
-  /** Cards whose day to be reviewed passed before today, and that could have come out. */
   overdue: number;
-  /** New cards answered today and the day before. */
   newToday: number;
   newYesterday: number;
 }
 
-/**
- * A card that can come out today, as `home_counts()` gives it: «l» a learning step of today (`due` is its moment),
- * «d» learning past a day and «r» a review (`due` is the start of its day); Unix seconds.
- */
+// As `home_counts()` gives it, in Unix seconds: «l» a learning step of today (`due` is its moment), «d» learning past
+// a day and «r» a review (`due` is the start of its day).
 interface HomeDueCard {
   noteGuid: string;
   ord: number;
@@ -171,29 +141,21 @@ interface HomeDueCard {
   due: number;
 }
 
-/** What the home page needs of a deck of the user to count what is left today without the deck (step 3.2). */
 export interface HomeDeckCounts {
   deckId: string;
-  /** Cards answered and not forgotten. */
   seen: number;
-  /** New cards that cannot come out now: suspended, or buried until later. */
   hiddenNew: number;
-  /** Notes with a row in the deck. */
   touched: number;
-  /** Cards under «No mostrar más». */
   suspended: number;
-  /** The sum of FSRS's retrievability now over the cards seen and not suspended. */
   recall: number;
   due: HomeDueCard[];
 }
 
 export interface HomeCounts {
   decks: HomeDeckCounts[];
-  /** Too many cards due to send: the home page reads the decks instead. */
   truncated: boolean;
 }
 
-/** One of today's answers, for the daily limits. */
 export interface AnswerToday {
   deckId: string;
   queueBefore: QueueName;
@@ -201,19 +163,15 @@ export interface AnswerToday {
 
 export interface ReviewInput {
   card: CardRef;
-  /** The card's `updatedAt` when it was shown (null: it had no row). */
   expectedUpdatedAt: string | null;
   rating: 1 | 2 | 3 | 4;
   queueBefore: QueueName;
   interval: number;
   lastInterval: number;
   durationMs: number;
-  /** FSRS's predicted recall just before the answer (null: a new card). */
   rBefore?: number | null;
-  /** The card's version when it was answered («T-….3» → 3). */
   cardVersion?: number | null;
   state: CardStateFields;
-  /** Siblings the answer buries until `buriedUntil`. */
   bury: CardRef[];
   buriedUntil: string | null;
 }
@@ -229,11 +187,9 @@ export type ActionName =
   | 'unsuspend'
   | 'forget';
 
-/** A row of a card's history (Anki's «Información de la tarjeta»). */
 export interface CardLogEntry {
   action: ActionName;
   reviewedAt: string;
-  /** 1–4 for an answer; null for the other actions. */
   rating: number | null;
   queueBefore: QueueName | null;
   phaseBefore: Phase;
@@ -245,7 +201,6 @@ export interface CardLogEntry {
   durationMs: number | null;
 }
 
-/** An answer, for the browser's `rated:`. */
 export interface RatedAnswer {
   noteGuid: string;
   ord: number;
@@ -258,42 +213,31 @@ interface UndoResult extends CardRef {
   rating: number | null;
 }
 
-/** A card that moved to another deck (`deckId`) or was taken out (`deckId: null`), as the content says. */
 export interface CardChange {
   noteGuid: string;
   ord: number;
   deckId: string | null;
 }
 
-/** What `reconcile_cards()` did: `applied` false = another tab was ahead (its cursor is `syncedTo`). */
 interface ReconcileResult {
   applied: boolean;
   syncedTo: number;
   changed: number;
 }
 
-/** Answers of practice of a deck, since the last batch sent. */
 export interface PracticeCount {
   deckId: string;
   n: number;
 }
 
-/** At most this many answers of practice in a batch, and this many decks (the database's caps). */
 export const PRACTICE_BATCH_MAX = 1000;
 export const PRACTICE_BATCH_DECKS = 100;
-/**
- * At most this many answers of practice count in a student's day; the database counts up to there and takes the rest
- * without counting it nor failing, so the final review goes on.
- */
+/** The database counts practice up to this a day and takes the rest without failing, so the final review goes on. */
 export const PRACTICE_DAY_MAX = 5000;
 
-/**
- * The database refused a batch of practice (the day's cap, a batch too large, a student no longer invited): sending it
- * again would fail the same way, so it is not retried.
- */
+/** The database refused a batch of practice (day's cap, too large, no longer invited): retrying would fail the same. */
 export class PracticeRefusedError extends Error {}
 
-/** «card_changed»: the card was answered elsewhere (another tab or device) since it was shown. */
 export class CardChangedError extends Error {
   constructor() {
     super('Esta tarjeta cambió en otra pestaña o dispositivo.');
@@ -302,22 +246,12 @@ export class CardChangedError extends Error {
 }
 
 export interface StudyRepository {
-  /** The user's rows of these decks' cards. */
   cards(deckIds: string[]): Promise<StoredCard[]>;
-  /** Every row of the user (the browser). */
   allCards(): Promise<StoredCard[]>;
-  /** A card's history, oldest first. */
   cardLog(card: { noteGuid: string; ord: number }): Promise<CardLogEntry[]>;
-  /** The answers since a moment, with their card and button (`rated:`). */
   ratedSince(since: Date): Promise<RatedAnswer[]>;
-  /**
-   * The answers from `from` up to (not including) `to`, with their deck: a past day of the heatmap («Ver esas
-   * tarjetas», step 3.3), by the range of `reviewed_at` (its index).
-   */
   ratedBetween(from: Date, to: Date): Promise<(RatedAnswer & { deckId: string })[]>;
-  /** The cards whose first answer was at or after a moment (`introduced:`), with that moment. */
   firstAnswersSince(since: Date): Promise<{ noteGuid: string; ord: number; at: string }[]>;
-  /** The answers since a moment (the start of the day). */
   answersSince(since: Date): Promise<AnswerToday[]>;
   preferences(): Promise<StudyPreferences | null>;
   savePreferences(p: StudyPreferences): Promise<void>;
@@ -330,7 +264,6 @@ export interface StudyRepository {
   }): Promise<UserPreset>;
   deletePreset(id: string): Promise<void>;
   deckSettings(): Promise<DeckSetting[]>;
-  /** The preset of a deck: one of the user's, one of the author's, or null to go back to its own. */
   setDeckPreset(
     deckId: string,
     choice: { presetId: string } | { authorPreset: string } | null,
@@ -339,54 +272,28 @@ export interface StudyRepository {
   setDeckActivation(deckId: string, active: boolean): Promise<void>;
   assessmentSettings(): Promise<AssessmentSetting[]>;
   saveAssessmentSetting(setting: AssessmentSetting): Promise<void>;
-  /** The decks where the user answered at least one card. */
   answeredDecks(): Promise<string[]>;
-  /** The median time on a card (last 500 answers), or null with too few answers. */
   medianAnswerMs(): Promise<number | null>;
-  /** Each deck with something of the user, as of now; `dayStart` is the start of their day. */
   deckProgress(dayStart: Date): Promise<DeckProgress[]>;
   recordReview(input: ReviewInput): Promise<{ updatedAt: string }>;
   bury(cards: CardRef[], until: Date, note: boolean): Promise<void>;
   suspend(cards: CardRef[], note: boolean): Promise<void>;
   setFlag(card: CardRef, flag: number): Promise<void>;
-  /** The browser's actions on several cards, each one a single action that undo takes back. */
   setFlags(cards: CardRef[], flag: number): Promise<void>;
   unsuspend(cards: CardRef[]): Promise<void>;
   unbury(cards: CardRef[]): Promise<void>;
-  /** «Olvidar»: back to new; with `resetCounts`, without repetitions and lapses. */
   forget(cards: CardRef[], resetCounts: boolean): Promise<void>;
-  /** Undoes the user's last action; null if there is none. */
   undo(): Promise<UndoResult | null>;
-  /**
-   * The heatmap (plan step 3.1): every day with something studied, by deck, and the reviews scheduled from today
-   * on; only those decks with `deckIds`, all of the user's with null.
-   */
   heatmap(deckIds: string[] | null): Promise<HeatmapData>;
-  /**
-   * Practice that does not change dates (the final review), added to today: how many answers of each deck. It
-   * touches neither the cards' states nor the log.
-   */
   recordPractice(counts: PracticeCount[]): Promise<void>;
-  /**
-   * The home page's counts (step 3.2): for each of these decks with something of the user, what it has seen and hidden,
-   * the dominio and the cards that can come out before `until` (the start of the next day). `decay`: each deck's FSRS
-   * decay (w20).
-   */
   homeCounts(deckIds: string[], until: Date, decay: Record<string, number>): Promise<HomeCounts>;
-  /** Up to which change of the content the user's cards follow the decks (0: none yet). */
   cardsSyncedTo(): Promise<number>;
-  /**
-   * Applies the content's changes after `since` (up to `upTo`) to the user's cards: a card that moved gets its new
-   * deck, one taken out is hidden (its progress stays). Only if the user's cursor is still `since`.
-   */
   reconcileCards(input: {
     since: number;
     upTo: number;
     changes: CardChange[];
   }): Promise<ReconcileResult>;
 }
-
-// Supabase -------------------------------------------------------------------------------------------
 
 interface CardRow {
   note_guid: string;
@@ -407,7 +314,6 @@ interface CardRow {
   buried_until: string | null;
   leech: boolean;
   updated_at: string;
-  /** Missing before the migration of step 1.3. */
   retired_at?: string | null;
 }
 
@@ -438,7 +344,6 @@ function fromRow(r: CardRow): StoredCard {
   };
 }
 
-/** `home_counts()`'s answer, as the web uses it. */
 function homeCountsFromJson(data: unknown): HomeCounts {
   const raw = (data ?? {}) as {
     decks?: [string, number, number, number, number, number, [string, number, string, number][]][];
@@ -464,14 +369,11 @@ function homeCountsFromJson(data: unknown): HomeCounts {
 }
 
 const PAGE = 1000;
-/** At most this many decks in one card_states_of_decks() (the database's cap). */
 export const CARDS_OF_DECKS_MAX = 5000;
-/** As the database's median_answer_ms(). */
 const MIN_ANSWERS_FOR_MEDIAN = 20;
 
 export function supabaseStudyRepository(client: SupabaseClient): StudyRepository {
   const fail = (what: string, e: { message: string; details?: string | null }): never => {
-    // The database's caps (plan step 1.2), said as the student would understand them.
     if (/quota_exceeded/.test(e.message)) {
       throw new Error(
         e.details === 'changes'
@@ -483,18 +385,14 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
   };
   const refs = (cards: CardRef[]) =>
     cards.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
-  /**
-   * Up to which content change this page has its cards' decks (null: it has not reconciled). Each write says it
-   * (header x-card-sync): if another tab already applied later changes, a row this write creates may have the old
-   * deck, and the database marks it to be reconciled again (card_rows_from_a_page_behind()).
-   */
+  // Each write sends up to which content change this page has its cards' decks (x-card-sync): if another tab is ahead,
+  // the database marks the rows it creates to be reconciled again.
   let seenTo: number | null = null;
   const write = (fn: string, args: Record<string, unknown>) => {
     const call = client.rpc(fn, args);
     return seenTo === null ? call : call.setHeader('x-card-sync', String(seenTo));
   };
 
-  /** All the rows of a query, a page at a time (PostgREST returns at most 1000). */
   async function all<T>(
     what: string,
     page: (
@@ -512,16 +410,14 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
     }
   }
 
-  /** A long list of decks goes in pieces (the URL of a request has a limit). */
   const chunks = <T>(list: T[], size = 60) =>
     Array.from({ length: Math.ceil(list.length / size) }, (_, i) =>
       list.slice(i * size, i * size + size),
     );
 
   return {
-    // Step 3.3 (ANK-7): the decks of an assessment or a course in one call (card_states_of_decks()), only the
-    // student's rows of them. A users' database from before that migration does not have it: then a page at a time,
-    // as before.
+    // The decks of an assessment or a course in one call (card_states_of_decks()), only the student's rows of them.
+    // A users' database from before that function does not have it: then a page at a time.
     async cards(deckIds) {
       if (!deckIds.length) return [];
       const paged = async (ids: string[]) =>
@@ -679,7 +575,6 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
         fullAnki: r['full_anki'] as boolean,
         fourButtons: r['four_buttons'] as boolean,
         welcomeSeen: r['welcome_seen'] as boolean,
-        // Before the migration of step 3.2 the row does not have them.
         semester: (r['semester'] as number | null | undefined) ?? null,
         addedCourses: (r['added_courses'] as string[] | null | undefined) ?? [],
         removedCourses: (r['removed_courses'] as string[] | null | undefined) ?? [],
@@ -999,8 +894,6 @@ export function supabaseStudyRepository(client: SupabaseClient): StudyRepository
   };
 }
 
-// Browser (demo mode and tests) ------------------------------------------------------------------------
-
 interface LogRow extends CardRef {
   id: number;
   actionId: string;
@@ -1020,11 +913,8 @@ interface LocalData {
   preferences: StudyPreferences | null;
   activations: DeckActivation[];
   assessments: AssessmentSetting[];
-  /** Time on the card of each answer (only the demo's median uses it). */
   durations: number[];
-  /** As `card_sync`: up to which change of the content the cards follow the decks. */
   syncedTo?: number;
-  /** Practice that did not change dates, by day («2026-11-03») and deck (study_days' `practice`). */
   practice?: { day: string; deckId: string; n: number }[];
 }
 
@@ -1039,13 +929,8 @@ const empty = (): LocalData => ({
   durations: [],
 });
 
-/**
- * Demo mode: the study data stays in the browser (`qv-demo-study`), with the same rules as the database's
- * functions (the answer and its log together, «card_changed», burying siblings, undo by action).
- */
 export function localStudyRepository(
   storage: Storage | null = safeLocalStorage(),
-  /** What the user already chose (tests). */
   preferences?: Partial<StudyPreferences>,
 ): StudyRepository {
   const KEY = 'qv-demo-study';
@@ -1101,7 +986,6 @@ export function localStudyRepository(
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random()}`;
 
-  /** The `change_card` of the database: one card changed by an action, with its log row. */
   function change(
     d: LocalData,
     actionId: string,
@@ -1119,7 +1003,6 @@ export function localStudyRepository(
     const after: StoredCard = {
       ...base,
       ...patch,
-      // As the database: the deck of a row that exists is reconciling's (reconcileCards).
       deckId: before?.deckId ?? ref.deckId,
       ...('suspended' in patch && !('buriedUntil' in patch) ? { buriedUntil: null } : {}),
       updatedAt: stamp(),
@@ -1144,7 +1027,6 @@ export function localStudyRepository(
     return true;
   }
 
-  /** The browser's `browse_change_card`: only a card with a row, and only if it changes. */
   function browseChange(
     d: LocalData,
     actionId: string,
@@ -1228,7 +1110,6 @@ export function localStudyRepository(
         .map((l) => ({ deckId: l.deckId, queueBefore: l.queueBefore! }));
     },
     async preferences() {
-      // A copy saved before a preference existed takes its default.
       const saved = read().preferences;
       return saved ? { ...defaultPreferences(saved.timeZone), ...saved } : null;
     },
@@ -1309,7 +1190,6 @@ export function localStudyRepository(
         return p;
       };
       for (const c of d.cards) {
-        // Taken out of the site: out of the counts.
         if (c.retiredAt) continue;
         const p = of(c.deckId);
         if (c.phase === 'new') {
@@ -1351,7 +1231,6 @@ export function localStudyRepository(
     },
     async heatmap(deckIds) {
       const d = read();
-      // A copy saved before a preference existed takes its default (as `preferences()`).
       const prefs = { ...defaultPreferences(), ...d.preferences };
       const only = deckIds === null ? null : new Set(deckIds);
       const nowSecs = Date.now() / 1000;
@@ -1402,11 +1281,9 @@ export function localStudyRepository(
         throw new PracticeRefusedError('No se pudo guardar tu repaso: too_large');
       }
       const d = read();
-      // A copy saved before a preference existed takes its default (as `preferences()`).
       const prefs = { ...defaultPreferences(), ...d.preferences };
       const day = isoOfDay(dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt));
       const practice = [...(d.practice ?? [])];
-      // As the database's record_practice(): up to PRACTICE_DAY_MAX a day, in the order of the batch.
       let room = PRACTICE_DAY_MAX - practice.reduce((t, p) => t + (p.day === day ? p.n : 0), 0);
       for (const c of decks) {
         const n = Math.min(c.n, Math.max(0, room));
@@ -1520,7 +1397,6 @@ export function localStudyRepository(
         if (row.before === null) {
           if (i >= 0) d.cards.splice(i, 1);
         } else if (i >= 0) {
-          // The deck and whether it was taken out stay as reconciling left them.
           const now = d.cards[i]!;
           d.cards[i] = { ...row.before, deckId: now.deckId, retiredAt: now.retiredAt ?? null };
         } else d.cards.push(row.before);
@@ -1536,7 +1412,6 @@ export function localStudyRepository(
       };
     },
     async homeCounts(deckIds, until, decay) {
-      // The same rules as home_counts().
       const wanted = new Set(deckIds);
       const nowMs = Date.now();
       const hidden = (c: StoredCard) =>

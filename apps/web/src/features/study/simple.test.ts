@@ -1,3 +1,5 @@
+// Tests the simple Anki: what is turned on, what the scheduler gets in simple and advanced mode, the load in minutes.
+
 import { describe, expect, it } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema';
 import { deckCounts } from './DeckCounts';
@@ -22,7 +24,6 @@ const ROOT = '1';
 const COURSE = '3';
 const ASSESSMENT = '4';
 const OTHER_ASSESSMENT = '9';
-/** Two lectures with their Extras, a week with a deck inside, and another assessment. */
 const L1 = '51';
 const L1_EXTRAS = '61';
 const L2 = '52';
@@ -50,7 +51,6 @@ function decks(): TreeDeck[] {
   return out;
 }
 
-/** `perDeck` new cards in each deck with cards. */
 function cards(perDeck = 30): CardSummary[] {
   const out: CardSummary[] = [];
   for (const deckId of [L1, L1_EXTRAS, L2, WEEK_DECK, WEEK_EXTRAS, OTHER_L]) {
@@ -174,7 +174,6 @@ describe('what is turned on', () => {
       assessments: [{ deckId: ASSESSMENT, includeExtras: true, newPerDay: null }],
     });
     expect(with_.has(L1_EXTRAS)).toBe(true);
-    // Not those of a lecture turned off, even with the switch on.
     expect(with_.has(WEEK_EXTRAS)).toBe(false);
   });
 });
@@ -225,9 +224,7 @@ describe('what the scheduler gets in simple mode', () => {
     const data = study({ plan });
     expect(counts(data, ASSESSMENT).new).toBe(12);
     expect(counts(data, L1).new).toBe(12);
-    // Each assessment on its own: from the course they add up (the other one with the default).
     expect(counts(data, COURSE).new).toBe(12 + DEFAULT_NEW_PER_DAY);
-    // What was studied today in one lecture counts for the other one.
     const after = study({
       plan,
       answers: Array.from({ length: 10 }, () => ({ deckId: L1, queueBefore: 'new' as const })),
@@ -244,7 +241,6 @@ describe('what the scheduler gets in simple mode', () => {
     const data = study({ plan });
     expect(configsFor(data).get(L1_EXTRAS)!.newPerDay).toBe(40);
     expect(counts(data, L1_EXTRAS).new).toBe(30);
-    // L1 and its Extras together, up to the assessment's number.
     expect(counts(data, ASSESSMENT).new).toBe(40);
   });
 

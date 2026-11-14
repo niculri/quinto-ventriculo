@@ -1,12 +1,11 @@
+// An article's table of contents, for the right column and the phone's panel: every h2, and only the h3 of the one
+// being read.
+
 import { useEffect, useRef } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { TocEntry } from '@qv/schema';
 
-/**
- * The article's table of contents: every h2, and the h3 of the one being read (the rest folded, as Kenhub's),
- * with the section being read marked and a bar with how much has been read, and «Volver al inicio» first of all.
- */
 export function Toc({
   toc,
   active,
@@ -18,7 +17,6 @@ export function Toc({
   active: string | null;
   progress?: number;
   onSelect?: () => void;
-  /** Every h3 visible (the phone's panel, which opens over the text). */
   expandAll?: boolean;
 }) {
   const list = useRef<HTMLOListElement>(null);
@@ -26,13 +24,12 @@ export function Toc({
   const activeH2 = activeLevel2(toc, active);
   const groups = groupByLevel2(toc);
 
-  // The marked entry stays in sight inside the sticky column (without moving the page).
+  // The marked entry stays in sight inside the sticky column, without moving the page.
   useEffect(() => {
     const ol = list.current;
     const scroller = ol?.closest<HTMLElement>('[data-toc-scroll]');
     const item = ol?.querySelector<HTMLElement>('[aria-current="location"]');
     if (!scroller || !item) return;
-    // Where the entry is in the column's visible part.
     const y = item.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
     if (y < 40 || y > scroller.clientHeight - 60) {
       scroller.scrollTop = Math.max(0, scroller.scrollTop + y - scroller.clientHeight / 3);
@@ -133,7 +130,6 @@ function TocLink({
   );
 }
 
-/** Each h2 with the h3 under it (an h3 before any h2 goes on its own). */
 function groupByLevel2(toc: TocEntry[]): { head: TocEntry; children: TocEntry[] }[] {
   const groups: { head: TocEntry; children: TocEntry[] }[] = [];
   for (const e of toc) {
@@ -144,7 +140,6 @@ function groupByLevel2(toc: TocEntry[]): { head: TocEntry; children: TocEntry[] 
   return groups;
 }
 
-/** The h2 that contains the active section (if the active one is an h3). */
 export function activeLevel2(toc: TocEntry[], active: string | null): string | null {
   let h2: string | null = null;
   for (const e of toc) {
@@ -154,7 +149,6 @@ export function activeLevel2(toc: TocEntry[], active: string | null): string | n
   return null;
 }
 
-/** The title of the section being read (for the phone's bar), or null at the top. */
 export function activeTitle(toc: TocEntry[], active: string | null): string | null {
   return toc.find((e) => e.anchor === active)?.title ?? null;
 }

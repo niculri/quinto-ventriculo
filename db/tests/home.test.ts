@@ -1,4 +1,4 @@
-// Plan step 3.2 (20261122000000_home.sql): the home page's counts without the decks, and the two new preferences.
+// The home page's counts without the decks, and its preferences.
 import type { PGlite } from '@electric-sql/pglite';
 import { retrievability } from '@qv/srs';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -73,7 +73,6 @@ beforeAll(async () => {
   for (const u of [ANA, BETO, OUTSIDER]) {
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
   }
-  // A review due, its sibling not yet due, a learning step of today, learning past a day, a review of tomorrow.
   await state(ANA, { note_guid: 'a', ord: 0 });
   await state(ANA, { note_guid: 'a', ord: 1, due: iso(now + 5 * 24 * HOUR) });
   await state(ANA, {
@@ -91,7 +90,6 @@ beforeAll(async () => {
     due: iso(now - 2 * HOUR),
   });
   await state(ANA, { note_guid: 'd', ord: 0, due: iso(now + 30 * HOUR) });
-  // Hidden: suspended, buried until later, a new card suspended, a new card buried, a new card forgotten.
   await state(ANA, { note_guid: 'e', ord: 0, suspended: true });
   await state(ANA, { note_guid: 'f', ord: 0, buried_until: iso(now + 10 * HOUR) });
   await state(ANA, { note_guid: 'g', ord: 0, phase: 'new', interday: false, suspended: true });
@@ -103,9 +101,7 @@ beforeAll(async () => {
     buried_until: iso(now + HOUR),
   });
   await state(ANA, { note_guid: 'h', ord: 0, phase: 'new', interday: false });
-  // Taken out of the site: out of everything.
   await state(ANA, { note_guid: 'i', ord: 0, retired_at: iso(now - HOUR) });
-  // Another deck, and another student.
   await state(ANA, { note_guid: 'j', ord: 0, deck_id: EXTRAS, stability: 2 });
   await state(BETO, { note_guid: 'a', ord: 0 });
 });
@@ -181,7 +177,6 @@ describe('the preferences of the home page', () => {
         tx.query(`update public.study_preferences set dismissed = '{"<script>"}'`),
       ),
     ).rejects.toThrow(/check/);
-    // The owner's decision of the review: the courses added to «Tus ramos» and those taken out, by the catalog's id.
     await asUser(db, ANA, (tx) =>
       tx.query(
         `update public.study_preferences
@@ -214,7 +209,6 @@ describe('the preferences of the home page', () => {
         ).rejects.toThrow(/check/);
       }
     }
-    // Review of 3.2: a null in the list does not slip through.
     await expect(
       asUser(db, ANA, (tx) =>
         tx.query(`update public.study_preferences set dismissed = '{first-steps,NULL}'`),

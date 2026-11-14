@@ -1,5 +1,5 @@
-// Step 1.7, part 3: `--target cloud` no longer exists (the importer writes only in the draft; publishing is the
-// panel's). Whoever runs the old command is told where it went, before anything is built or written.
+// Tests the importer CLI's answers to a removed or unknown target and to a missing content folder, which come before
+// anything is built or written.
 import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -32,7 +32,7 @@ describe('the importer’s targets', () => {
     expect(r.err).toMatch(/Publicaciones/);
   });
 
-  it('without content/ (it lives in the private repository, step 2.4) it says where it looks for it', () => {
+  it('without content/ (it lives in the private repository) it says where it looks for it', () => {
     const r = run('--content', '/nonexistent/content');
     expect(r.code).toBe(1);
     expect(r.err).toMatch(/No encuentro el contenido en \/nonexistent\/content/);

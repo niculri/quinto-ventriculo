@@ -1,3 +1,4 @@
+// Tests of the browser-side sanitizing of a test's texts and SVG figures.
 import { describe, expect, it } from 'vitest';
 import { cleanSvg, cleanText } from './html';
 

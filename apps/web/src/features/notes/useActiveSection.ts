@@ -1,20 +1,16 @@
+// Where the reader is in an article, for the table of contents: the section being read and how much has been read.
+
 import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 
-/**
- * Distance from the top (px) at which a heading counts as «the section being read»: under the site's bar
- * (a heading reached from a link stops at 5.75rem) and, below lg, also under the TOC's bar (at 8.5rem).
- */
+/** Just under the site's bar (5.75rem) and, below lg, the TOC's bar (8.5rem). */
 const readingLine = () => (window.innerWidth < 1024 ? 150 : 120);
 
 export interface ReadingPosition {
-  /** The section being read (the last h2/h3 that went past the reading line). */
   active: string | null;
-  /** How much of the article has gone past the reading line, from 0 to 1. Nothing is saved. */
   progress: number;
 }
 
-/** Where the reader is in the article, for the TOC. Nothing is saved. */
 export function useActiveSection(
   container: RefObject<HTMLElement | null>,
   ready: boolean,
@@ -34,8 +30,7 @@ export function useActiveSection(
         if (h.getBoundingClientRect().top <= READING_LINE) active = h.id;
         else break;
       }
-      // At the bottom of the page the last headings can never reach the line: the last one that is in
-      // sight is the one being read («Ponte a prueba»).
+      // At the bottom the last headings never reach the line: the last one in sight is the one being read.
       const atBottom =
         window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
       if (atBottom) {

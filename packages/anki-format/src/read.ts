@@ -1,3 +1,4 @@
+// Reads a classic .apkg (zip + SQLite collection + media map) into plain objects.
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -15,20 +16,15 @@ import type {
   AnkiTemplate,
 } from './types';
 
-/** An .apkg that this reader cannot open (the message is for the person running the importer). */
 export class ApkgError extends Error {
   override name = 'ApkgError';
 }
 
-/** Reads an .apkg from disk. */
 export async function readApkgFile(path: string): Promise<AnkiPackage> {
   return readApkg(new Uint8Array(await readFile(path)));
 }
 
-/**
- * Reads an .apkg in the classic format: a zip with `collection.anki21` or `collection.anki2` (SQLite, schema
- * 11), `media` (JSON «number → file name») and the media files named `0`, `1`, `2`…
- */
+/** `media` maps the zip entries `0`, `1`, `2`… to the media file names. */
 export function readApkg(data: Uint8Array): AnkiPackage {
   let names: string[];
   try {
@@ -84,7 +80,7 @@ function parseMediaMap(bytes: Uint8Array | undefined): Record<string, string> {
   return map;
 }
 
-/** Names of the entries of a zip, from its central directory (without decompressing anything). */
+/** Reads the zip's central directory, without decompressing anything. */
 function listZipEntries(data: Uint8Array): string[] {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
   // End of central directory record: signature 0x06054b50, searched from the end (there may be a comment).

@@ -1,3 +1,5 @@
+// E2e tests of how an article and a test read: their fonts already in when first drawn, the article's column and
+// figures, and nothing moving while its images or the note arrive late.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
@@ -28,13 +30,6 @@ async function lateItalic(page: Page) {
   });
 }
 
-/**
- * How an article reads (step 3.8), on the made-up article of /dev/reading (development only): Inter 17px (16 on the
- * phone) already loaded when it is first drawn, a column from the edge of the title and the breadcrumbs, its figures
- * as thumbnails on the right with the text beside them (nothing over them, no empty strip at their left) and the
- * wide ones centered, nothing floating on the phone, superscripts that look the same however they are written, and
- * nothing moves while its lazy images arrive late.
- */
 test('an article: Inter in its column, thumbnails on the right, and its late images keep their room', async ({
   page,
   isMobile,
@@ -76,7 +71,6 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   expect(text.family).toMatch(/^"?Inter Variable"?,/);
   expect(text.atFirstDraw).toEqual([true, true, true]);
 
-  // Where every block is before any image arrives.
   const places = () =>
     page.evaluate(() =>
       [...document.querySelectorAll('.note-body > *, .note-body figure')].map((e) => {
@@ -87,7 +81,6 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   const before = await places();
   expect(await page.evaluate(() => [...document.images].some((i) => !i.complete))).toBe(true);
 
-  // Down the whole article, so that every lazy image loads, and wait for them.
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0; y < height; y += 400) {
     await page.evaluate((top) => window.scrollTo(0, top), y);
@@ -172,24 +165,19 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   for (const edge of layout.edges) expect(edge).toBeLessThanOrEqual(1);
   expect(layout.widest).toBeLessThanOrEqual(1);
   expect(layout.sideways).toBeLessThanOrEqual(0);
-  // The wide figures, the row and the tables, centered in the column.
   expect(layout.centered.length).toBeGreaterThanOrEqual(4);
   for (const offset of layout.centered) expect(offset).toBeLessThanOrEqual(1);
   expect(layout.floats.length).toBeGreaterThanOrEqual(4);
   if (isMobile) {
-    // On the phone nothing floats: each figure up to the screen's width, centered.
     expect(layout.floats.every((f) => f === 'none')).toBe(true);
   } else {
     expect(layout.floats.every((f) => f === 'right')).toBe(true);
     for (const edge of layout.rightEdges) expect(edge).toBeLessThanOrEqual(1);
     for (const width of layout.thumbWidths) expect(width).toBeLessThanOrEqual(COLUMN / 2 + 1);
     expect(layout.over).toEqual([]);
-    // No empty strip beside a thumbnail: it goes where there is text beside it.
     for (const strip of layout.strips) expect(strip).toBeLessThanOrEqual(100);
   }
 
-  // Superscripts and subscripts written in HTML look the same as their Unicode characters (the same glyphs, so the
-  // same width), and none makes its line taller.
   const scripts = await page.evaluate(() => {
     const pairs: [string, string][] = [
       ['Ca²⁺', 'Ca<sup class="own-glyphs">2+</sup>'],
@@ -215,10 +203,6 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   expect(Math.abs(scripts.tall)).toBeLessThanOrEqual(0.5);
 });
 
-/**
- * A note's own page (not /dev/reading): it is first drawn with its fonts in, and while it loads the breadcrumbs and
- * the title are already where the article puts them (on a phone the breadcrumbs wrap).
- */
 test('an article page: drawn with its fonts, and its loading state keeps the breadcrumbs and the title in place', async ({
   page,
 }) => {
@@ -254,7 +238,6 @@ test('an article page: drawn with its fonts, and its loading state keeps the bre
   ).toEqual([true, true, true]);
 });
 
-/** A test waits for its fonts as an article does: its questions are never drawn with another font. */
 test('a test: its questions are first drawn with Inter, the italic too', async ({ page }) => {
   await signIn(page);
   await lateItalic(page);

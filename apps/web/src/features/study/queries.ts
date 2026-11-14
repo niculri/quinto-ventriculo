@@ -1,3 +1,6 @@
+// Data hooks for studying: preferences, the simple plan and its changes, deck progress, an assessment's view,
+// today's answers and everything a deck's queue needs.
+
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dayStartsAt, schedTiming } from '@qv/srs';
@@ -82,7 +85,6 @@ export function useDeckSettings() {
   });
 }
 
-/** What the student chose for the simple Anki, with what comes from their progress. */
 export function useStudyPlan() {
   const { study } = useServices();
   return useQuery({
@@ -102,11 +104,8 @@ export function useStudyPlan() {
 
 const PLAN_CHANGE = ['study', 'plan-change'] as const;
 
-/**
- * Changes the plan on the screen at once (the counts follow) and saves it behind; a failure takes it back. With
- * several changes on their way, the plan is read again only after the last one: reading it after the first would
- * bring it without the others, and their switches would jump back for a moment.
- */
+// Shown at once and saved behind; with several changes on their way the plan is read again only after the last one,
+// or the switches of the others would jump back for a moment.
 function usePlanChange<T>(
   save: (value: T) => Promise<void>,
   apply: (p: StudyPlan, v: T) => StudyPlan,
@@ -129,7 +128,6 @@ function usePlanChange<T>(
   });
 }
 
-/** Turns a week or a lecture on or off. */
 export function useSetActivation() {
   const { study } = useServices();
   return usePlanChange<{ deckId: string; active: boolean }>(
@@ -141,7 +139,6 @@ export function useSetActivation() {
   );
 }
 
-/** «Incluir extras» and the new cards a day of an assessment. */
 export function useSaveAssessmentSetting() {
   const { study } = useServices();
   return usePlanChange<AssessmentSetting>(
@@ -153,7 +150,6 @@ export function useSaveAssessmentSetting() {
   );
 }
 
-/** What the assessment mode needs to know of each of the user's decks, as of today. */
 export function useDeckProgress(prefs: StudyPreferences | undefined) {
   const { study } = useServices();
   const today = useToday(prefs);
@@ -166,9 +162,6 @@ export function useDeckProgress(prefs: StudyPreferences | undefined) {
   });
 }
 
-/**
- * An assessment with its date, its pace and what they mean, for this student; null while it loads.
- */
 export function useAssessmentView(assessmentId: string | null): AssessmentView | null {
   const { prefs } = usePreferences();
   const plan = useStudyPlan();
@@ -200,7 +193,6 @@ export function roughToday(): number {
   return schedTiming(Date.now() / 1000, browserTimeZone(), defaultPreferences().dayStartsAt).today;
 }
 
-/** The time, refreshed every `periodMs`. */
 export function useNow(periodMs = 60_000): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -210,13 +202,11 @@ export function useNow(periodMs = 60_000): number {
   return now;
 }
 
-/** The day number now, refreshed every minute (the day starts at the rollover hour). */
 export function useToday(prefs: StudyPreferences | undefined): number | null {
   const now = useNow();
   return prefs ? timingFor(prefs, now).today : null;
 }
 
-/** Today's answers (the daily limits), from the start of the student's day. */
 export function useAnswersToday(prefs: StudyPreferences | undefined) {
   const { study } = useServices();
   const today = useToday(prefs);
@@ -229,10 +219,6 @@ export function useAnswersToday(prefs: StudyPreferences | undefined) {
   });
 }
 
-/**
- * Everything needed to build a deck's queue: its cards' states, today's answers, the preferences, the
- * presets and the deck settings. `data` is undefined while something is missing.
- */
 export function useStudyData(deck: DeckDetail | undefined) {
   const { study } = useServices();
   const preferences = usePreferences();

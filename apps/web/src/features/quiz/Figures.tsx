@@ -1,13 +1,10 @@
+// Rendering of a test's rich content: figures, tables, sanitized HTML and statements «I. …, II. …» as a list.
 import type { CSSProperties } from 'react';
 import { splitStatements } from '@qv/quiz';
 import type { QuizFigure, QuizTable } from '@qv/schema';
 import { cleanSvg, cleanText } from './html';
 import type { OpenImage } from '../notes/ImageViewer';
 
-/**
- * The figures of a question, side by side (one over the other on a phone), each with its caption. Several
- * with the same caption share one, under all of them (a figure of two panels). As the skill's page.
- */
 export function Figures({
   figures,
   onZoom,
@@ -60,7 +57,6 @@ export function Figures({
   );
 }
 
-/** The figure column beside the alternatives: the first figure's «ancho» (up to 58 %), 42 % without it. */
 export function besideStyle(figures: QuizFigure[]): CSSProperties | undefined {
   const w = figures[0]?.displayWidth;
   return w ? ({ '--fw': `min(${w}px, 58%)` } as CSSProperties) : undefined;
@@ -99,7 +95,6 @@ export function Table({ table }: { table: QuizTable }) {
   );
 }
 
-/** HTML of a text of the test (already safe; sanitized again). */
 export function Html({
   html,
   as: Tag = 'span',
@@ -116,11 +111,6 @@ export function Html({
   );
 }
 
-/**
- * A text that may bring statements «I. …», «II. …» one per line: the statements go as a list of their own,
- * each one with its numeral aligned and a hanging indent, between the text before and after them (the
- * owner, 2026-11-01). Without statements, the text as it is.
- */
 export function TextWithStatements({
   html,
   className,

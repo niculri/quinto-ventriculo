@@ -1,3 +1,4 @@
+// The users database: the domain rule, the hook before a user is created and the profiles.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';

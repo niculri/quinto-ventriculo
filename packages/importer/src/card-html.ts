@@ -1,12 +1,6 @@
+// Sanitizes the HTML of a rendered card for the web and points its images at the image store.
 import sanitizeHtml from 'sanitize-html';
 import type { ProcessedImage } from './images';
-
-/**
- * The HTML of a rendered card, sanitized for the web. Unlike the notes', it keeps what the note type's CSS
- * and Image Occlusion need: any class, ids, inline styles, the `data-*` of the occlusion shapes, the canvas
- * and the «toggle» button. It is shown inside a Shadow DOM, so its classes and ids cannot touch the page.
- * Scripts and event handlers go away: the web draws the occlusion itself.
- */
 
 /** A CSS value without anything that loads or runs something (url(), expression(), javascript:). */
 const SAFE_VALUE =
@@ -67,6 +61,7 @@ const STYLE_PROPERTIES = [
   'unicode-bidi',
 ];
 
+/** Unlike the notes', a card keeps what its note type's CSS and Image Occlusion need; scripts and handlers go away. */
 const OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [
     'p',
@@ -161,18 +156,13 @@ const OPTIONS: sanitizeHtml.IOptions = {
 
 export interface SanitizedCard {
   html: string;
-  /** Keys of the images it uses. */
   media: string[];
-  /** Images the card names but the package does not have. */
   missing: string[];
 }
 
 export type ImageResolver = (name: string) => Promise<ProcessedImage | null>;
 
-/**
- * Sanitizes a side of a card and replaces each `<img src="file">` with `data-media="cards/<hash>.webp"`
- * (the API turns it into a signed URL).
- */
+/** Each `<img src="file">` becomes `data-media="cards/<hash>.webp"`, which the API turns into a signed URL. */
 export async function sanitizeCard(
   html: string,
   resolveImage: ImageResolver,

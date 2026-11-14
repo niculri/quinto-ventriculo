@@ -1,7 +1,7 @@
+// Compares the cards rendered here with those rendered by Anki (the golden files of scripts/golden.py).
 import { createCardRenderer } from '../src';
 import type { AnkiPackage } from '@qv/anki-format';
 
-/** A card rendered by Anki (scripts/golden.py). */
 export interface GoldenCard {
   guid: string;
   ord: number;
@@ -10,11 +10,7 @@ export interface GoldenCard {
   answer: string;
 }
 
-/**
- * What is compared: the card without the `<style>` Anki puts before it (it is the note type's CSS, which
- * goes separately). Nothing else is normalized, not even the whitespace: the render is byte for byte
- * Anki's (whitespace matters in «white-space: pre» and inside the «data-cloze» attributes).
- */
+/** Whitespace is kept: it matters in «white-space: pre» and inside the «data-cloze» attributes. */
 function normalize(html: string): string {
   return html.replace(/^<style>[\s\S]*?<\/style>/, '');
 }
@@ -26,7 +22,6 @@ export interface Comparison {
   different: { key: string; side: 'question' | 'answer'; ours: string; anki: string }[];
 }
 
-/** Renders every card of the package and compares it with Anki's. */
 export function compareWithAnki(pkg: AnkiPackage, golden: GoldenCard[]): Comparison {
   const render = createCardRenderer(pkg.collection);
   const notes = new Map(pkg.collection.notes.map((n) => [n.id, n]));

@@ -1,3 +1,5 @@
+// Asks to accept the terms and privacy policy in force before showing the site, and tells when entering cancelled a
+// deletion.
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -19,12 +21,10 @@ import { rememberAccount, rememberedAccount } from './remembered';
 
 const accountKey = (userId: string) => ['account', userId] as const;
 
-/** The versions in force (this bundle's) are the ones accepted last. */
 export const acceptedNow = (state: AccountState | undefined) =>
   state?.accepted?.terms === LEGAL_VERSIONS.terms.version &&
   state.accepted.privacy === LEGAL_VERSIONS.privacy.version;
 
-/** What a page knows of the account (Opciones → Datos de usuario shows the acceptance). */
 export function useAccount() {
   const { account } = useServices();
   const user = useUser();
@@ -47,12 +47,6 @@ export function useAccount() {
   });
 }
 
-/**
- * Step 2.3 (decision 43): on entering, the terms of use and the privacy policy in force have to be accepted, once, and
- * again only when a version changes. Without accepting, the site shows nothing of the material (and the Worker does
- * not serve it: 403 `terms_not_accepted`); only «Datos de usuario» opens, to download the data or delete the account.
- * Entering also cancels a deletion asked for, and the person is told.
- */
 export function AccountGate({ children }: { children: ReactNode }) {
   const { account } = useServices();
   const user = useUser();
@@ -72,7 +66,6 @@ export function AccountGate({ children }: { children: ReactNode }) {
     onSuccess: ({ acceptedAt }) => {
       queryClient.setQueryData<AccountState>(accountKey(user.id), () =>
         rememberAccount(account, user.id, {
-          // The popup said it.
           deletionCancelled: false,
           accepted: {
             terms: LEGAL_VERSIONS.terms.version,
@@ -81,13 +74,12 @@ export function AccountGate({ children }: { children: ReactNode }) {
           },
         }),
       );
-      // What failed for lack of it («Datos de usuario» was open, with the menu) asks again.
+      // Queries that failed for lack of the acceptance run again.
       void queryClient.invalidateQueries({ predicate: (q) => q.queryKey[0] !== 'account' });
     },
   });
 
   const accepted = acceptedNow(state.data);
-  /** «Entendido»: told once (also for the cache of the preview, and on leaving it). */
   const told = () =>
     queryClient.setQueryData<AccountState>(accountKey(user.id), (prev) =>
       prev ? rememberAccount(account, user.id, { ...prev, deletionCancelled: false }) : prev,
@@ -108,7 +100,6 @@ export function AccountGate({ children }: { children: ReactNode }) {
     [queryClient, accepted, refetch],
   );
 
-  // A closed session (signed out on another device, or the account's deletion asked for there): out.
   const closed = state.error instanceof AccountError && state.error.code === 'session_closed';
   useEffect(() => {
     if (closed) void signOut();

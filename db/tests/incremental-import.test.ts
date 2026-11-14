@@ -1,6 +1,5 @@
-// Plan step 1.4: the incremental importer, by assessment (20261107000000_incremental_import.sql + CloudTarget).
-// The real CloudTarget against the content database with every migration, through a fake `rpc` that counts the
-// calls, and a fake image store.
+// The incremental importer, by assessment: the real CloudTarget against the content database with every migration,
+// through a fake `rpc` that counts the calls, and a fake image store.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
@@ -71,7 +70,6 @@ const save = (p: Parts, scope: SaveScope = FULL) => {
   return target.save(bundle, media, scope);
 };
 
-/** Every published row, with its dates: to see that nothing of an assessment was touched. */
 const snapshot = async () => {
   const q = async (sql: string) => (await db.query<Record<string, unknown>>(sql)).rows;
   return {
@@ -105,7 +103,7 @@ beforeEach(async () => {
   storeCalls = 0;
 });
 
-describe('the incremental importer (step 1.4)', () => {
+describe('the incremental importer', () => {
   it('a second import without changes makes ≤ 5 calls to the database and none to R2', async () => {
     const first = await save(everything());
     expect(first.changedNotes).toHaveLength(3);
@@ -170,7 +168,7 @@ describe('the incremental importer (step 1.4)', () => {
       changedQuizzes: ['practica-bc'],
     });
     // Only the images of what changed are looked at (2 of the 7), and they were already there; and the browser's
-    // index of that assessment (step 3.3) is a new file: one look and one upload. The other's is the same.
+    // index of that assessment is a new file: one look and one upload. The other's is the same.
     expect(r).toMatchObject({ mediaUploaded: 0, mediaExisting: 2 });
     expect(r).toMatchObject({ indexesWritten: 1, indexesUnchanged: 1, indexesRemoved: 0 });
     expect(storeCalls).toBe(4);
@@ -216,7 +214,6 @@ describe('the incremental importer (step 1.4)', () => {
     expect(after.notes.map((n) => n.id)).toEqual(['AP-A1-S3-01', 'AP-BC-C2-09']);
     expect(after.quizzes.map((q) => q.id)).toEqual(['practica-bc']);
     expect(after.ankiNotes.map((n) => n.guid)).toEqual(['bc-1', 'bc-2', 'bc-3']);
-    // Its decks go (the Anatomía I ones), and nothing of the other assessment changed.
     expect(after.decks.map((d) => d.id).sort()).toEqual(
       decksOf(BC)
         .map((d) => d.id)
@@ -234,8 +231,6 @@ describe('the incremental importer (step 1.4)', () => {
     await tick();
     calls = [];
 
-    // Anatomía I C1 alone, without its article, its test and its card (as if they left its manifest), and
-    // with nothing of Biología celular in the bundle.
     const p = only(everything(), AN);
     p.notes = [];
     p.quizzes = [];
@@ -245,7 +240,6 @@ describe('the incremental importer (step 1.4)', () => {
     expect(r).toMatchObject({ removedNotes: 1, removedQuizzes: 1, removedCards: 1 });
 
     const after = await snapshot();
-    // Biología celular, row by row, dates included.
     expect(of(after, BC)).toEqual(of(before, BC));
     expect(after.questions.filter((q) => q.quiz_id === 'practica-bc')).toEqual(
       before.questions.filter((q) => q.quiz_id === 'practica-bc'),
@@ -253,14 +247,11 @@ describe('the incremental importer (step 1.4)', () => {
     expect(after.cards.filter((c) => String(c.note_guid).startsWith('bc'))).toEqual(
       before.cards.filter((c) => String(c.note_guid).startsWith('bc')),
     );
-    // Its decks and the ones above both assessments stay; the note type and the preset too.
     expect(after.decks).toEqual(before.decks);
     expect(after.noteTypes).toEqual(before.noteTypes);
     expect(after.presets).toEqual(before.presets);
-    // And Anatomía I C1 is what its bundle says.
     expect(of(after, AN)).toMatchObject({ notes: [], quizzes: [], ankiNotes: [{ guid: 'an-2' }] });
 
-    // The same assessment again, without changes: the same few calls.
     calls = [];
     await save(p, { ...FULL, assessments: [AN] });
     expect(calls.map((c) => c.fn)).toEqual([
@@ -293,7 +284,6 @@ describe('the incremental importer (step 1.4)', () => {
     expect(storeCalls).toBe(0);
     expect({ rows: await snapshot(), shared: await full() }).toEqual(before);
 
-    // Everything together, it changes them (for every assessment, as it should).
     await target.save(
       ContentBundle.parse({
         ...bundleOf(everything()).bundle,
@@ -305,7 +295,6 @@ describe('the incremental importer (step 1.4)', () => {
   });
 
   it('--assessment can change a note type or a preset only it uses', async () => {
-    // Anatomía I C1 without cards: the note type is only Biología celular's (the preset, of the decks above).
     const p = everything();
     p.ankiNotes = p.ankiNotes.filter((n) => !n.guid.startsWith('an'));
     await save(p);
@@ -334,7 +323,6 @@ describe('the incremental importer (step 1.4)', () => {
   });
 
   it('the images reach the store before the pieces that use them are saved', async () => {
-    // Every write, in order: the store's and the database's.
     const log: string[] = [];
     const logged = new CloudTarget({
       db: { rpc: (fn, args) => (log.push(fn), rpcDb.rpc(fn, args)) },
@@ -350,7 +338,6 @@ describe('the incremental importer (step 1.4)', () => {
     expect(lastImage).toBeGreaterThan(0);
     expect(lastImage).toBeLessThan(firstSave);
 
-    // An image that cannot be uploaded: nothing is saved.
     db = await createDatabase('content');
     stored = new Map();
     calls = [];
@@ -377,7 +364,7 @@ describe('the incremental importer (step 1.4)', () => {
   });
 });
 
-describe('the functions of step 1.4', () => {
+describe('the functions of the incremental import', () => {
   const FUNCTIONS = [
     'import_state',
     'sync_catalog',

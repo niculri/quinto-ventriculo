@@ -1,10 +1,6 @@
+// E2e tests of /licenses, which is public, and of the footer's links to it and to the source code (AGPL, section 13).
 import { expect, test } from './test';
 import { signIn } from './helpers';
-
-/**
- * Step 2.4: /licenses is public (like /terms and /privacy) and the site offers its source code (AGPL, section 13): the
- * footer links to both, with and without a session, and the third-party licenses come from node_modules.
- */
 
 const SOURCE = 'https://github.com/niculri/quinto-ventriculo';
 

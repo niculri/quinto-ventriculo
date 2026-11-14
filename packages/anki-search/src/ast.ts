@@ -12,25 +12,20 @@ export type CardStateFilter = 'new' | 'learn' | 'review' | 'due' | 'buried' | 's
 export type PropKind = 'due' | 'ivl' | 'reps' | 'lapses' | 's' | 'd' | 'r';
 
 export type SearchNode =
-  /** The empty search: every card. */
   | { type: 'all' }
   | { type: 'and'; nodes: SearchNode[] }
   | { type: 'or'; nodes: SearchNode[] }
   | { type: 'not'; node: SearchNode }
-  /** Loose text: a substring of the note's fields (`*`, `_` wildcards; ASCII-only case folding). */
   | { type: 'text'; text: string }
-  /** `nc:` loose text ignoring combining marks (accents). */
+  /** `nc:` */
   | { type: 'noCombining'; text: string }
-  /** `sc:` loose text in cloze notes, with the cloze markup removed. */
+  /** `sc:` */
   | { type: 'stripClozes'; text: string }
-  /** `w:` a whole word. */
+  /** `w:` */
   | { type: 'wordBoundary'; text: string }
-  /** `re:` a regular expression (Rust syntax, raw) over the fields joined with \x1f. */
+  /** `re:`, raw Rust syntax. */
   | { type: 'regex'; pattern: string }
-  /**
-   * `field:value`. `mode` normal: the whole field, `value` in text form; regex: `value` is a raw regular
-   * expression; noCombining: `value` is raw (only `\"` unescaped), as Anki keeps it.
-   */
+  /** `value` is in text form in mode normal, raw in regex, and raw with only `\"` unescaped in noCombining. */
   | { type: 'field'; field: string; value: string; mode: 'normal' | 'regex' | 'noCombining' }
   | { type: 'deck'; name: string }
   | { type: 'tag'; tag: string; regex: boolean }
@@ -39,7 +34,7 @@ export type SearchNode =
   | { type: 'cardName'; name: string }
   | { type: 'state'; state: CardStateFilter }
   | { type: 'flag'; flag: number }
-  /** `value` is the number as typed (for s, d and r, already rounded like Anki rounds it). */
+  /** For s, d and r, `value` is already rounded like Anki rounds it. */
   | { type: 'prop'; prop: PropKind; op: CompareOp; value: number }
   | { type: 'rated'; days: number; rating: 1 | 2 | 3 | 4 | null }
   | { type: 'introduced'; days: number }

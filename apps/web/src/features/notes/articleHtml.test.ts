@@ -1,3 +1,5 @@
+// Tests the sizes of an article's figures, where thumbnails go, and the rest of prepareArticle.
+
 import { describe, expect, it } from 'vitest';
 import { prepareArticle } from './articleHtml';
 import {
@@ -101,7 +103,6 @@ describe('prepareArticle', () => {
       'figure',
       'p',
     ]);
-    // Never into the next section: up instead, if it can.
     expect(order(para(80) + fig('') + para(5) + table + '<h3>Otra</h3>' + para(200))).toEqual([
       'figure',
       'p',
@@ -110,7 +111,6 @@ describe('prepareArticle', () => {
       'h3',
       'p',
     ]);
-    // Enough text beside it: it stays.
     expect(order(para(5) + fig('') + para(300) + table + para(300))).toEqual([
       'p',
       'figure',
@@ -139,7 +139,6 @@ describe('prepareArticle', () => {
       'p',
       'div class="table-scroll"',
     ]);
-    // Two short paragraphs above: over both, but never over a heading.
     expect(order('<h3>Título</h3>' + para(10) + para(10) + fig('') + table)).toEqual([
       'h3',
       'figure',

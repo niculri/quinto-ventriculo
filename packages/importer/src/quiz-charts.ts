@@ -1,8 +1,5 @@
-/**
- * The charts of the `pauta-a-test` skill (histogram, box plot, scatter, bars, lines), drawn to SVG when
- * importing, exactly as its page draws them (`FIG` in plantilla/test.html): to scale, with the colors of the
- * page (`var(--g1)`, `var(--ink)`…) so they follow light and dark.
- */
+// Draws the charts of the `pauta-a-test` tests to SVG exactly as its page does (`FIG` in plantilla/test.html), with
+// the page's color variables so they follow light and dark.
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the skill's chart specs are free-form JSON */
 type Spec = Record<string, any>;
@@ -205,7 +202,6 @@ const CHARTS: Record<string, (s: Spec) => string> = {
   },
 };
 
-/** The chart as SVG; throws if its data are not numbers (the page shows «No se pudo dibujar…»). */
 export function drawChart(spec: Spec): string {
   const draw = CHARTS[spec.tipo as string];
   if (!draw) throw new Error(`tipo de gráfico desconocido: ${spec.tipo}`);

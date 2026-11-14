@@ -1,40 +1,26 @@
-// `npm run deploy` (step 1.9): GitHub's free plan cannot protect `main` in a private repository, so what is protected
-// is production. The Worker is only published from a commit that is in origin/main (pushed) and whose CI on GitHub
-// ended in success; then it builds, deploys with the commit in the version's message, and runs the smoke test.
-// This file is the logic, with everything outside (git, gh, files, clock) injected, so that each refusal is tested.
+// `npm run deploy`: publishes the Worker only from a commit in origin/main whose CI passed, then runs the smoke test.
+// Git, gh, files and the clock come injected (DeployEnvironment), so every refusal can be tested.
 import { normalizeBase } from './smoke';
 
-/**
- * The CI workflow, by its file: a name («CI») could be taken by another workflow. deploy.yml waits for it by its
- * name, so the file has to keep `name: CI` (workflows.test.ts checks both).
- */
+// By file, since another workflow could be named «CI»; deploy.yml waits for it by name, so ci.yml keeps `name: CI`.
 export const CI_WORKFLOW_FILE = 'ci.yml';
-/** The events whose CI runs on main count: a push, the nightly run and a run by hand. Never a pull request. */
 const MAIN_EVENTS = new Set(['push', 'schedule', 'workflow_dispatch']);
 /** Wrangler cuts the message of a version at 100 characters. */
 const MESSAGE_MAX = 100;
 const DEFAULT_WAIT_MINUTES = 30;
 const MAX_WAIT_MINUTES = 120;
 const POLL_SECONDS = 20;
-/**
- * Untracked files here never go into the build (the docs and Claude's notes). Anywhere else they could: apps/ and
- * packages/ are the code, and a file at the root (a tsconfig, a PostCSS config) changes how it builds.
- */
+// Untracked files outside these could go into the build (a tsconfig or PostCSS config at the root changes it).
 const OUTSIDE_BUILD = ['docs/', '.claude/'];
 const WEB_ENV_FILE = 'apps/web/.env.local';
-/** Only their names are checked (never printed nor their values read aloud). */
 const WEB_ENV_KEYS = ['VITE_USERS_SUPABASE_URL', 'VITE_USERS_SUPABASE_PUBLISHABLE_KEY'];
-/** The files that Vite reads after .env.local in a production build (they would win). */
+// Vite reads these after .env.local in a production build, so they would win.
 const WEB_ENV_OVERRIDES = ['apps/web/.env.production', 'apps/web/.env.production.local'];
 
 export interface DeployOptions {
-  /** Every check, and it stops right before building and deploying. */
   dryRun: boolean;
-  /** Emergency only: deploys without looking at the CI (loud, and written in the version's message). */
   skipCiCheck: boolean;
-  /** Minutes to wait for a CI that is still running; null = do not wait. */
   waitMinutes: number | null;
-  /** Where the smoke test goes after deploying. */
   smokeUrl: string;
 }
 
@@ -88,7 +74,6 @@ export function parseArgs(argv: readonly string[], defaultSmokeUrl: string): Par
   return { kind: 'options', options };
 }
 
-/** The options of `npm run deploy` as npm config names (`npm_config_dry_run` is `--dry-run`). */
 const NPM_CONFIG_FLAGS: Record<string, string> = {
   npm_config_dry_run: '--dry-run',
   npm_config_skip_ci_check: '--skip-ci-check',
@@ -96,10 +81,8 @@ const NPM_CONFIG_FLAGS: Record<string, string> = {
   npm_config_smoke_url: '--smoke-url',
 };
 
-/**
- * The options that npm kept for itself: `npm run deploy --dry-run` (without the «--») does not pass `--dry-run` to
- * the script, it sets `npm_config_dry_run`, and the script would deploy for real. Those runs are refused.
- */
+// Without the «--», `npm run deploy --dry-run` sets `npm_config_dry_run` instead of passing the flag, and the script
+// would deploy for real: those runs are refused.
 export function flagsTakenByNpm(env: Readonly<Record<string, string | undefined>>): string[] {
   return Object.entries(NPM_CONFIG_FLAGS)
     .filter(([name]) => env[name] !== undefined)
@@ -119,15 +102,10 @@ export interface CommandResult {
   stderr: string;
 }
 
-/** What the deploy needs from outside. The real one is in deploy-cli.ts; the tests pass fakes. */
 export interface DeployEnvironment {
-  /** Runs a command quietly (its output is returned, not shown). */
   capture(command: string, args: readonly string[]): Promise<CommandResult>;
-  /** Runs a command showing its output; returns its exit code. `cwd` is relative to the repository. */
   stream(command: string, args: readonly string[], cwd?: string): Promise<number>;
-  /** The text of a file of the repository, or null if it does not exist. */
   readFile(path: string): Promise<string | null>;
-  /** Whether a variable is set in this process's environment (its value is never asked for). */
   hasVariable(name: string): boolean;
   sleep(ms: number): Promise<void>;
   now(): number;
@@ -135,7 +113,6 @@ export interface DeployEnvironment {
   smoke(url: string): Promise<boolean>;
 }
 
-/** A refusal: why it does not deploy, and what to do. */
 class Refusal extends Error {}
 
 export interface CiRun {
@@ -155,12 +132,8 @@ export type CiVerdict =
   | { kind: 'missing' }
   | { kind: 'failed'; run: CiRun };
 
-/**
- * The CI of a commit: the most recent run on main (push, nightly or by hand) decides. A newer failure counts even if
- * an older run passed (the nightly run found something); a run still going means «not yet». `gh` is asked for that
- * commit on main already; the commit and the branch are checked again here, so that a `gh` that ignored a filter can
- * never let through the run of another commit or of a branch.
- */
+// The most recent run on main decides, so a newer failure beats an older success. Commit and branch are checked again
+// in case `gh` ignored a filter.
 export function ciVerdict(runs: readonly CiRun[], sha: string): CiVerdict {
   const onMain = runs
     .filter((r) => MAIN_EVENTS.has(r.event) && r.headSha === sha && r.headBranch === 'main')
@@ -173,7 +146,6 @@ export function ciVerdict(runs: readonly CiRun[], sha: string): CiVerdict {
     : { kind: 'failed', run: latest };
 }
 
-/** The version's message: the commit, so that `wrangler deployments list` says what is live. */
 export function versionMessage(sha: string, subject: string, skippedCi: boolean): string {
   const text = `${skippedCi ? '[sin CI] ' : ''}${sha.slice(0, 7)} ${subject}`.replace(/\s+/g, ' ');
   return text.length <= MESSAGE_MAX ? text : `${text.slice(0, MESSAGE_MAX - 1)}…`;
@@ -186,23 +158,14 @@ async function git(env: DeployEnvironment, args: readonly string[], what: string
   return raw ? r.stdout : r.stdout.trim();
 }
 
-/**
- * `git status` as this script reads it: NUL-separated (`-z`), so that a path with a space or an accent is not quoted
- * («"apps/web/caf\303\251.ts"» would not start with «apps/»), and every untracked file listed one by one whatever
- * `status.showUntrackedFiles` says (with «no», git hides them all).
- */
+// `-z` keeps paths with spaces or accents unquoted, and `--untracked-files=all` lists every untracked file whatever
+// `status.showUntrackedFiles` says.
 const STATUS_ARGS = ['status', '--porcelain=v1', '-z', '--untracked-files=all'] as const;
-/**
- * The paths whose changes do not run the CI: `paths-ignore` of ci.yml, the same list (workflows.test.ts checks it).
- * None goes into the build nor is read by a test: the docs, Claude's notes and the Markdown files at the root
- * (README.md, CLAUDE.md). Asked by the owner (8-11-2026) to save Actions minutes: about half the commits only close
- * a step in the docs.
- */
+// The same list as `paths-ignore` of ci.yml (workflows.test.ts checks it): nothing there is built or tested.
 export const CI_IGNORED_PATHS = ['docs/**', '.claude/**', '*.md'] as const;
-/** How many docs-only commits after the last one with code npm run deploy looks back over. */
 const MAX_DOCS_COMMITS = 30;
 
-/** The path is in CI_IGNORED_PATHS (in GitHub's patterns, `*` does not cross a «/»: `*.md` is only the root). */
+// In GitHub's patterns `*` does not cross a «/»: `*.md` is only the root.
 export function ciIgnored(path: string): boolean {
   return (
     path.startsWith('docs/') ||
@@ -211,7 +174,6 @@ export function ciIgnored(path: string): boolean {
   );
 }
 
-/** Tracked files with changes, and untracked files that the build could take. Reads `git status` with STATUS_ARGS. */
 export function dirtyFiles(status: string): { changed: string[]; untracked: string[] } {
   const changed: string[] = [];
   const untracked: string[] = [];
@@ -232,7 +194,6 @@ export function dirtyFiles(status: string): { changed: string[]; untracked: stri
   return { changed, untracked };
 }
 
-/** `owner/repo` of a GitHub remote (https or ssh), or null if it is not GitHub. */
 export function githubRepository(remoteUrl: string): string | null {
   const match =
     /^(?:https:\/\/(?:[^@/]+@)?github\.com\/|ssh:\/\/git@github\.com\/|git@github\.com:)([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/.exec(
@@ -251,11 +212,9 @@ const list = (paths: string[]) =>
 interface Commit {
   sha: string;
   subject: string;
-  /** `owner/repo` on GitHub (from origin), where the CI is asked for. */
   repository: string;
 }
 
-/** The working tree has nothing that is not in the commit (tracked changes, or untracked files the build could take). */
 async function checkClean(env: DeployEnvironment, when = ''): Promise<void> {
   const status = await git(env, STATUS_ARGS, 'No pude leer el estado del árbol', true);
   const { changed, untracked } = dirtyFiles(status);
@@ -273,10 +232,8 @@ async function checkClean(env: DeployEnvironment, when = ''): Promise<void> {
   }
 }
 
-/**
- * Right before building and right before deploying: the tree is still clean and HEAD is still the commit whose CI
- * was checked. Waiting for the CI takes minutes, and other sessions work in this same folder.
- */
+// Checked again before building and before deploying: waiting for the CI takes minutes, and other sessions work in
+// this same folder.
 async function checkUnchanged(env: DeployEnvironment, sha: string, when: string) {
   await checkClean(env, `${when}: `);
   const head = await git(env, ['rev-parse', 'HEAD'], 'No pude leer HEAD');
@@ -287,7 +244,6 @@ async function checkUnchanged(env: DeployEnvironment, sha: string, when: string)
   }
 }
 
-/** The working tree is clean and HEAD is origin/main, on GitHub. */
 async function checkGit(env: DeployEnvironment): Promise<Commit> {
   await git(env, ['rev-parse', '--show-toplevel'], 'No estoy dentro del repositorio');
   await checkClean(env);
@@ -320,12 +276,8 @@ async function checkGit(env: DeployEnvironment): Promise<Commit> {
   return { sha: head, subject, repository };
 }
 
-/**
- * The commits whose CI tested the code of HEAD: HEAD and, while each one only changed paths that do not run the CI,
- * the ones before it (first parent), up to the first one that changed code, included. A push of only docs has no CI
- * run; a push of code and docs together has one run, on its last commit, which can be a docs commit. Their code is
- * the same, so a green run on any of them counts. The nearest one with a run decides (npm run deploy).
- */
+// HEAD and the first-parent commits before it up to the last one that changed code: docs-only commits have no CI run
+// of their own, and they all have the same code, so the nearest run among them decides.
 async function testedCommits(env: DeployEnvironment, sha: string): Promise<string[]> {
   const listed = await git(
     env,
@@ -390,7 +342,6 @@ async function ciRuns(env: DeployEnvironment, commit: Commit): Promise<CiRun[]> 
   }
 }
 
-/** The CI of the commit ended in success (waiting for it if asked). */
 async function checkCi(
   env: DeployEnvironment,
   commit: Commit,
@@ -444,7 +395,6 @@ async function checkCi(
   }
 }
 
-/** apps/web/.env.local exists and names the two variables the build needs (their values are not looked at). */
 async function checkWebEnv(env: DeployEnvironment): Promise<void> {
   const text = await env.readFile(WEB_ENV_FILE);
   if (text === null) {
@@ -456,7 +406,6 @@ async function checkWebEnv(env: DeployEnvironment): Promise<void> {
     new RegExp(`^\\s*(?:export\\s+)?${key}\\s*=\\s*\\S`, 'm').test(file);
   const missing = WEB_ENV_KEYS.filter((key) => !defines(text, key));
   if (missing.length) throw new Refusal(`A ${WEB_ENV_FILE} le falta: ${missing.join(', ')}.`);
-  // Vite takes these over .env.local in a production build: the web would be built with other values.
   const fromShell = WEB_ENV_KEYS.filter((key) => env.hasVariable(key));
   if (fromShell.length) {
     throw new Refusal(
@@ -482,7 +431,6 @@ const LOUD = [
   '████████████████████████████████████████████████████████████████',
 ];
 
-/** Returns the exit code of `npm run deploy`. */
 export async function deploy(env: DeployEnvironment, options: DeployOptions): Promise<number> {
   try {
     if (options.skipCiCheck) LOUD.forEach((l) => env.log(l));

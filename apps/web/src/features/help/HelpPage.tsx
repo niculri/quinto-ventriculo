@@ -1,3 +1,4 @@
+// The help page: how to use the site, the boxes of the articles, shortcuts, search tips and progress.
 import { CALLOUT_LABELS } from '@qv/schema';
 import { HowToUse } from './HowToUse';
 import { keys } from '../../ui/keys';

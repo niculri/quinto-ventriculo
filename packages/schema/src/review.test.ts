@@ -1,5 +1,5 @@
-// Step 1.7, part 2 (B5): the review list, one case per rule, and the process and calendar check (CON-9), one case per
-// phrase and 0 in the articles that are on line.
+// Tests for the release review list (one case per rule), the process and calendar phrases, and what a publication
+// keeps of its review.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -100,7 +100,6 @@ describe('the review list', () => {
       }),
     });
     expect(marked.ready).toBe(true);
-    // The announcement's mark only when there are announcements (step C1).
     expect(review({ marks: ['phone', 'answers', 'announcement'] }).manual.at(-1)).toMatchObject({
       mark: 'announcement',
       label: 'Leí el anuncio',
@@ -127,8 +126,6 @@ describe('the review list', () => {
       'process_phrase',
     ]);
   });
-
-  // ─────────────────────────── blocks ───────────────────────────
 
   it('missing_image', () => {
     const r = review({ missingImages: ['cards/abc.webp'] });
@@ -171,7 +168,7 @@ describe('the review list', () => {
     ]);
   });
 
-  it('Revisión de cero (1.7, parte 2): guid_changed from the same code the database paired, once; and the limit', () => {
+  it('guid_changed from the same code the database paired, once; and the candidates limit', () => {
     const r = review({
       summary: summary({
         findings: [
@@ -226,7 +223,7 @@ describe('the review list', () => {
       summary: summary({
         findings: [
           cloze({ 0: m(0.1, 0.1), 1: m(0.5, 0.5) }, { 0: m(0.5, 0.5), 1: m(0.1, 0.1) }, true),
-          // Narrowed to its letters (cenir_mascaras.py): the same place.
+          // Narrowed to its letters: the same place.
           cloze({ 0: m(0.1, 0.1) }, { 0: 'rect:left=0.105:top=0.102:width=.09:height=.045' }, true),
           cloze({ 0: m(0.1, 0.1) }, { 0: m(0.8, 0.8) }, true),
         ],
@@ -272,7 +269,6 @@ describe('the review list', () => {
     expect(
       only(review({ summary: summary({ schemaVersion: null }) }), 'schema_version')[0],
     ).toMatch(/no dice con qué versión/);
-    // Without changes, nothing to publish: no stop.
     expect(
       only(
         review({ summary: summary({ schemaVersion: null, assessments: [] }) }),
@@ -326,8 +322,6 @@ describe('the review list', () => {
     });
     expect(only(r, 'imaios')).toEqual(['T-A2-S4-06I-001 nombra IMAIOS.']);
   });
-
-  // ─────────────────────────── warnings ───────────────────────────
 
   it('process_phrase', () => {
     const r = review({
@@ -406,7 +400,7 @@ describe('the review list', () => {
     ]);
   });
 
-  it('Revisión de cero (1.7, parte 2): a deck above the assessments, alone, is a change and its preset warns', () => {
+  it('a deck above the assessments, alone, is a change and its preset warns', () => {
     const r = review({
       summary: summary({
         assessments: [],
@@ -431,7 +425,7 @@ describe('the review list', () => {
   });
 });
 
-describe('the process and calendar phrases (CON-9)', () => {
+describe('the process and calendar phrases', () => {
   const cases: Record<string, [string, string]> = {
     deduced: [
       'La letra de la tabla se dedujo de la pauta.',
@@ -475,8 +469,7 @@ describe('the process and calendar phrases (CON-9)', () => {
     expect(hit!.snippet).toMatch(/^….{10,}este año.{10,}…$/);
   });
 
-  // The 10 articles on line (Biología celular, Certamen 2) as the importer built them in dry-run mode. Without that
-  // folder (the CI), there is nothing to read.
+  // The published articles as the importer's dry run built them; without that folder (as in the CI), nothing to read.
   const OUTPUT = join(import.meta.dirname, '..', '..', '..', '.output', 'content.json');
   it.skipIf(!existsSync(OUTPUT))('gives 0 in the 10 articles on line', () => {
     const bundle = JSON.parse(readFileSync(OUTPUT, 'utf8')) as {
@@ -529,7 +522,7 @@ describe('the helpers', () => {
 
   it('plain text and the word diff', () => {
     expect(plainText('<b>7</b>&nbsp;y <img src="a.png"> &amp; más')).toBe('7 y [img a.png] & más');
-    // Revisión de cero (1.7, parte 2): as release_text() in SQL (db/tests/release.test.ts has the same cases).
+    // The same cases as release_text() in SQL (db/tests/release.test.ts).
     expect(plainText(`<img src='a.png'> x`)).toBe('[img a.png] x');
     expect(plainText('<IMG class="x" SRC=b.png> x')).toBe('[img b.png] x');
     expect(plainText('<img src="c.png" data-media="cards/c.webp">')).toBe('[img cards/c.webp]');
@@ -546,7 +539,6 @@ describe('the helpers', () => {
   });
 });
 
-// Step 1.7, part 3: what a publication keeps of its review list, and its name.
 describe('what a publication keeps', () => {
   it('the review list in short: blocking, pending, ready, the warnings that warn and the marks', () => {
     const r = review({
@@ -592,7 +584,7 @@ describe('what a publication keeps', () => {
     );
   });
 
-  it('Revisión de cero (1.8): the assessments that only come into the catalog, empty, are not in its name', () => {
+  it('the assessments that only come into the catalog, empty, are not in its name', () => {
     const none = { added: 0, removed: 0, content: 0, format: 0 };
     const empty = (id: string, courseName: string) =>
       assessment({
@@ -621,7 +613,6 @@ describe('what a publication keeps', () => {
     });
     expect(s.assessments.map((a) => onlyInCatalog(s, a))).toEqual([true, true, false, true]);
     expect(releaseTitle(s)).toBe('Biología celular · Certamen 3');
-    // Only the catalog: the site's changes.
     expect(
       releaseTitle({ ...s, assessments: s.assessments.filter((a) => a.name !== 'Certamen 3') }),
     ).toBe('Cambios del sitio');

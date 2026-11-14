@@ -1,3 +1,6 @@
+// Tests the assessment mode on screen: the date and its choices on the assessment's page, studying with a date and
+// the final review.
+
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -42,7 +45,6 @@ const dateField = (box: HTMLElement) => within(box).getByLabelText('Fecha de la 
 const numberField = (box: HTMLElement) =>
   within(box).getByRole('spinbutton', { name: 'Tarjetas nuevas por día' });
 
-/** Answers the first card of the deck, so that there is something seen. */
 async function seenCards(study: StudyRepository) {
   const refs: CardRef[] = DECK.cards
     .filter((c) => c.deckId === '20')
@@ -85,7 +87,6 @@ describe('the date of a test, on the assessment’s page', () => {
     const box = await options();
     await waitFor(() => expect(numberField(box)).toHaveValue(20));
     expect(numberField(box)).toBeEnabled();
-    // What the date means does not appear until there is one.
     expect(within(box).queryByRole('status')).toBeNull();
     expect(within(box).queryByRole('radiogroup')).toBeNull();
     expect(within(box).getByRole('button', { name: 'Sacar la fecha', hidden: true })).toHaveClass(
@@ -104,7 +105,6 @@ describe('the date of a test, on the assessment’s page', () => {
     const box = await options();
     await waitFor(() => expect(numberField(box)).toHaveValue(35));
     fireEvent.change(dateField(box), { target: { value: inDays(4) } });
-    // 3 cards in the deck (and Extras apart), one day to see them with «Normal».
     await waitFor(() => expect(numberField(box)).toBeDisabled());
     expect(numberField(box)).toHaveValue(3);
     expect(box).toHaveTextContent(
@@ -139,7 +139,6 @@ describe('the date of a test, on the assessment’s page', () => {
       within(box)
         .getByRole('radio', { name: name(days) })
         .closest('label')!;
-    // 3 cards: over 7 days, 5 days, 1 day.
     expect(choice('1 día')).toHaveTextContent(
       /1 día · FácilFácilNuevas hasta el .+1 nueva al día~\d+ min al día/,
     );
@@ -230,7 +229,6 @@ describe('the date the author suggests', () => {
     await userEvent.click(use);
     await waitFor(() => expect(dateField(box)).toHaveValue(inDays(9)));
     expect((await study.assessmentSettings())[0]).toMatchObject({ examDate: inDays(9) });
-    // In its place, without taking it away.
     expect(use).toHaveClass('invisible');
   });
 
@@ -322,7 +320,6 @@ describe('the final review', () => {
     return cardShadowRoot(region)!.querySelector('.card')!.textContent ?? '';
   }
 
-  /** Everything saved of the student's progress. */
   async function saved(study: StudyRepository) {
     const rows = await study.allCards();
     const logs = await Promise.all(rows.map((r) => study.cardLog(r)));
@@ -342,7 +339,6 @@ describe('the final review', () => {
     for (const link of screen.getAllByRole('link', { name: 'Volver a Certamen 1' })) {
       expect(link).toHaveAttribute('href', ASSESSMENT_PATH);
     }
-    // The one on top, as studying: the course and the assessment.
     expect(screen.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' })).toHaveAttribute(
       'href',
       ASSESSMENT_PATH,
@@ -385,7 +381,6 @@ describe('the final review', () => {
       await screen.findByText('Este repaso no cambia las fechas de tus tarjetas.'),
     ).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('button', { name: /^Todo lo visto/ }));
-    // It said it once.
     expect(screen.queryByText(/no cambia las fechas/)).toBeNull();
 
     await cardText(/Frente de la tarjeta/);
@@ -398,7 +393,6 @@ describe('the final review', () => {
         .getAllByRole('button')
         .map((b) => b.textContent),
     ).toEqual(['Otra vez', 'Bien']);
-    // «Otra vez» goes back to the end: still 3.
     fireEvent.keyDown(window, { key: '1' });
     await cardText(/Frente de la tarjeta/);
     expect(screen.getByText('Repaso final · quedan 3')).toBeInTheDocument();
@@ -422,14 +416,12 @@ describe('the final review', () => {
 
     expect(writes).toEqual([]);
     expect(await saved(study)).toBe(before);
-    // The 4 answers (one «Otra vez», three «Bien») went as practice, at the end of the round, to today.
     await waitFor(() => expect(practice.reduce((t, c) => t + c.n, 0)).toBe(4));
     const today = (await study.heatmap(null)).days.filter((d) => d.practice > 0);
     expect(today).toEqual([{ day: roughToday(), deckId: '20', answers: 3, practice: 4 }]);
   });
 
   it('a day with only the final review keeps the streak', async () => {
-    // Studied yesterday (the answers dated a day ago), nothing today but the final review.
     const refs: CardRef[] = DECK.cards
       .filter((c) => c.deckId === '20')
       .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
@@ -518,7 +510,6 @@ describe('the final review', () => {
   });
 
   it('the last day with new cards: «Listo por hoy» does not promise more for tomorrow', async () => {
-    // 4 days left, 3 of final review: everything comes out today, the two cards of a note too.
     const study = await withDate(await student(), 4);
     renderApp(`${ASSESSMENT_PATH}/study`, { study });
     const done = () => screen.queryByRole('heading', { name: 'Listo por hoy' });
@@ -548,7 +539,6 @@ describe('the final review', () => {
     await userEvent.click(more);
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Marcar para revisar' }));
     await screen.findByLabelText('Marcada para revisar');
-    // To the end of the round.
     for (let left = 10; left > 0 && !screen.queryByText('Terminaste el repaso'); left--) {
       await userEvent.click(screen.getByRole('button', { name: 'Mostrar respuesta' }));
       await userEvent.click(screen.getByRole('button', { name: 'Bien' }));
@@ -559,7 +549,6 @@ describe('the final review', () => {
         ).toBeInTheDocument(),
       );
     }
-    // The summary of «Listo por hoy» is not in the final review (step 3.4).
     expect(screen.queryByRole('region', { name: 'Resumen de hoy' })).toBeNull();
     await userEvent.click(await screen.findByRole('button', { name: 'Otro repaso' }));
     expect(await screen.findByRole('button', { name: /^Solo lo marcado/ })).toHaveTextContent(
@@ -572,7 +561,6 @@ describe('the final review', () => {
     await seenCards(study);
     const answersSince = study.answersSince.bind(study);
     let calls = 0;
-    // From the second day on, the reading never arrives.
     const waiting: StudyRepository = {
       ...study,
       answersSince: (since) => (++calls > 2 ? new Promise(() => {}) : answersSince(since)),

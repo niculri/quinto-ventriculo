@@ -1,10 +1,8 @@
-/** Room around the text of the highlight, the same on every side (px). */
+// Highlights a section's heading for a moment on arriving at it, with a rounded rectangle that hugs its text (not the
+// heading's whole box, which carries the rule and the space above an h2).
+
 const PAD = 6;
 
-/**
- * Highlights a section's heading for a moment on arriving at it: a rounded rectangle that hugs the text (not the
- * heading's whole box, which carries the rule and the space above an h2).
- */
 export function flashHeading(el: HTMLElement): void {
   el.querySelector(':scope > .flash-mark')?.remove();
   const range = document.createRange();
@@ -26,7 +24,7 @@ export function flashHeading(el: HTMLElement): void {
   el.append(mark);
   // A timer, not «animationend»: with reduced motion there is no animation to end.
   window.setTimeout(() => {
-    if (!mark.isConnected) return; // a newer flash replaced it
+    if (!mark.isConnected) return;
     mark.remove();
     el.classList.remove('flash-host');
   }, 2300);

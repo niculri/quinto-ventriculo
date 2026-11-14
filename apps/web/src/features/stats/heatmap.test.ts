@@ -1,3 +1,4 @@
+// Tests the heatmap's day numbers, figures, levels, year grid and cell values.
 import { describe, expect, it } from 'vitest';
 import {
   COLUMNS,
@@ -24,8 +25,8 @@ describe('days', () => {
     expect(D('1970-01-01')).toBe(0);
     expect(isoOfDay(D('2026-11-03'))).toBe('2026-11-03');
     expect(isoOfDay(D('2028-02-29'))).toBe('2028-02-29');
-    expect(weekdayOf(D('2026-11-09'))).toBe(0); // a Monday
-    expect(weekdayOf(D('2026-11-08'))).toBe(6); // a Sunday
+    expect(weekdayOf(D('2026-11-09'))).toBe(0);
+    expect(weekdayOf(D('2026-11-08'))).toBe(6);
   });
 
   it('count answers and practice, up to today, of the decks asked for', () => {
@@ -33,7 +34,6 @@ describe('days', () => {
       { day: D('2026-11-01'), deckId: 'a', answers: 10, practice: 0 },
       { day: D('2026-11-01'), deckId: 'b', answers: 5, practice: 2 },
       { day: D('2026-11-02'), deckId: 'b', answers: 0, practice: 4 },
-      // A day after today (another device's clock): not counted.
       { day: D('2026-11-04'), deckId: 'a', answers: 3, practice: 0 },
     ];
     const today = D('2026-11-03');
@@ -59,7 +59,6 @@ describe('days', () => {
 
 describe('the four figures', () => {
   it('average per day studied, % of days since the first, longest and current streak', () => {
-    // 1, 2, 3 (a streak of 3), a gap, 6, 7, 8, 9 (4), a gap, 11 (today).
     const map = studied([
       ['2026-11-01', 100],
       ['2026-11-02', 50],
@@ -75,7 +74,7 @@ describe('the four figures', () => {
       activeDays: 8,
       total: 280,
       dailyAverage: 35,
-      studiedPercent: 73, // 8 of 11
+      studiedPercent: 73,
       longestStreak: 4,
       currentStreak: 1,
       scale: 35,
@@ -114,9 +113,8 @@ describe('the four figures', () => {
     expect([0.5, 1.5, 2.5, 12.5, 12.4, 12.6, 13.5].map(roundHalfEven)).toEqual([
       0, 2, 2, 12, 12, 13, 14,
     ]);
-    // 1 day of 8 is 12.5 %: Math.round would say 13.
+    // 12.5 % and 20.5 a day round to the even number, as Python does: Math.round would say 13 and 21.
     expect(heatmapStats(studied([['2026-11-03', 41]]), D('2026-11-10')).studiedPercent).toBe(12);
-    // 21 and 20 answers are 20.5 a day: Math.round would say 21.
     const s = heatmapStats(
       studied([
         ['2026-11-09', 21],
@@ -125,7 +123,6 @@ describe('the four figures', () => {
       D('2026-11-10'),
     );
     expect(s.dailyAverage).toBe(20);
-    // 61 and 62 are 61.5 a day: 62, the even one; and the scale is that 62, not 61.5.
     const t = heatmapStats(
       studied([
         ['2026-11-09', 61],
@@ -150,7 +147,7 @@ describe('the levels of the add-on', () => {
   });
 
   it('what is due exactly on a threshold goes to the shade above it (the add-on’s negative legend)', () => {
-    const scale = 20; // thresholds 2.5, 5, 10, 15, 20, 25, 30, 40, 80
+    const scale = 20;
     expect([1, 2.5, 4, 5, 20, 79, 80].map((v) => levelOf(v, scale, 'due'))).toEqual([
       1, 2, 2, 3, 6, 9, 10,
     ]);
@@ -164,7 +161,7 @@ describe('the levels of the add-on', () => {
   it('with few answers a day the scale is 20', () => {
     const s = heatmapStats(studied([['2026-11-10', 4]]), D('2026-11-10'));
     expect(s.scale).toBe(20);
-    expect(levelOf(4, s.scale)).toBe(2); // above 20 × 0.125 = 2.5, up to 20 × 0.25 = 5
+    expect(levelOf(4, s.scale)).toBe(2);
   });
 });
 
@@ -179,7 +176,6 @@ describe('the grid of a year', () => {
       expect(days.at(-1)).toBe(D(`${year}-12-31`));
       expect(new Set(days).size).toBe(days.length);
       expect(days.length).toBe(year % 4 === 0 ? 366 : 365);
-      // Rows are weekdays.
       for (const [c, column] of g.columns.entries()) {
         for (const [r, day] of column.entries())
           if (day !== null) expect(weekdayOf(day), `${c}`).toBe(r);
@@ -188,14 +184,13 @@ describe('the grid of a year', () => {
   });
 
   it('a leap year starting on a Sunday uses the 54 weeks', () => {
-    // 2040 starts on a Sunday and is a leap year: its 31 December is in the 54th week.
     const g = yearGrid(2040);
     expect(weekdayOf(g.first)).toBe(6);
     expect(g.columns[COLUMNS - 1]!.some((d) => d !== null)).toBe(true);
   });
 
   it('puts each month in the week of its 1st', () => {
-    const g = yearGrid(2026); // 1-1-2026 was a Thursday
+    const g = yearGrid(2026);
     expect(g.months[0]).toEqual({ month: 0, column: 0 });
     expect(g.columns[g.months[10]!.column]).toContain(D('2026-11-01'));
   });

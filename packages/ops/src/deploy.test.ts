@@ -1,3 +1,4 @@
+// Tests for npm run deploy, against a fake git, gh and file system: every refusal and the happy path.
 import { describe, expect, it } from 'vitest';
 import {
   ciVerdict,
@@ -27,26 +28,19 @@ const run = (over: Partial<CiRun> = {}): CiRun => ({
 });
 
 interface World {
-  /** `git status -z`; each call takes the next one (the last one repeats), to change it while the CI is awaited. */
+  // Each call of `git status` and `gh run list` takes the next answer, and the last one repeats.
   status: string[];
   head: string;
-  /** HEAD from the second time it is read (the checks right before building and deploying), if it moved. */
   laterHead?: string;
   origin: string;
   remote: string;
-  /** HEAD is an ancestor of origin/main (behind). */
   behind: boolean;
   fetchFails: boolean;
-  /** Each call to `gh run list` takes the next answer (the last one repeats). */
   ci: (CiRun[] | 'gh-error')[];
-  /** If set, `gh run list --commit <sha>` answers with this (and `ci` is not used). */
   ciBySha?: Record<string, CiRun[]>;
-  /** main from HEAD back (first parent), with the files each commit changed. Default: HEAD changed code. */
   history?: { sha: string; files: string[] }[];
   envFile: string | null;
-  /** Other files of the repository (by path). */
   files?: Record<string, string>;
-  /** Variables set in the shell. */
   shell?: string[];
   buildCode: number;
   wranglerCode: number;
@@ -441,7 +435,6 @@ describe('parseArgs and helpers', () => {
     expect(parseArgs(['--wait=0'], 'x').kind).toBe('error');
     expect(parseArgs(['--force'], 'x').kind).toBe('error');
     expect(parseArgs(['--help'], 'x').kind).toBe('help');
-    // A bad smoke address is caught before deploying, not after.
     expect(parseArgs(['--smoke-url='], 'x').kind).toBe('error');
     expect(parseArgs(['--smoke-url=www.quintoventriculo.cl'], 'x').kind).toBe('error');
   });
@@ -516,7 +509,6 @@ describe('a commit of only docs (they do not run the CI)', () => {
     expect(await deploy(f.env, options({ dryRun: true }))).toBe(0);
     expect(text(f.logs)).toContain('no tiene CI propia');
     expect(text(f.logs)).toContain('aaaaaaa');
-    // It asked GitHub for HEAD, the docs commit and the commit with code, not further back.
     expect(f.ghArgs.map((a) => a[a.indexOf('--commit') + 1])).toEqual([SHA, DOCS1, CODE]);
   });
 

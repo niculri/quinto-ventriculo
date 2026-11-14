@@ -1,3 +1,4 @@
+// «Administración» → «Sitio»: the switch that hides the semesters without published material, at once.
 import { useId } from 'react';
 import { formatDateTime } from '../../lib/dates';
 import { Skeleton } from '../../ui/Loading';
@@ -7,10 +8,6 @@ import { card } from '../../ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
 import { useSetSiteSettings, useSiteSettings } from './queries';
 
-/**
- * «Administración» → «Sitio»: how the site is shown (step 1.8). One switch: the semesters without any published
- * article, deck or test are hidden, and «Inicio» says that they are coming. It changes at once, without publishing.
- */
 export function SitePage() {
   const id = useId();
   const settings = useSiteSettings(true);
@@ -42,7 +39,6 @@ export function SitePage() {
               abren por su enlace. En su lugar, Inicio dice «Los próximos semestres vienen pronto».
             </p>
           </div>
-          {/* The same place while it loads: nothing moves when the value arrives. */}
           <span className="mt-0.5 flex h-6 w-10 flex-none items-center">
             {settings.data || settings.isError ? (
               <Switch

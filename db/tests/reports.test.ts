@@ -1,24 +1,17 @@
+// One model of reports: a student reports a card, a quote of an article or a question only through report_content(),
+// within the limits; the panel groups, resolves and blocks; and the copy of card_reports.
 import type { PGlite } from '@electric-sql/pglite';
 import { REPORT_LIMITS } from '@qv/schema';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, applyMigration, asUser, createDatabase } from './pglite';
 
-/**
- * Step 2.6: one model of reports (…_content_reports.sql). A student reports a card, a quote of an article or a
- * question of a test only through report_content(), within the limits; they read only theirs; the administrator sees
- * them grouped by content, resolves them all at once and blocks; a closed report loses its author after 12 months; and
- * card_reports is copied without losing a row (and what the web of before still writes there, too).
- */
-
 type User = { sub: string; email: string };
 type Claims = User & { session_id?: string };
 
 const MIGRATION = '20261117000000_content_reports.sql';
-/** The second migration (applied in production on 2026-11-08): card_reports goes. */
 const DROP = '20261118000000_drop_card_reports.sql';
 
 let n = 0;
-/** A made-up invited student (or the owner), with an open session. */
 async function person(db: PGlite, email?: string): Promise<Claims> {
   n += 1;
   const sub = `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -219,16 +212,13 @@ describe('reporting', () => {
       await report(db, ana, card(`Error ${i + 1}`, 'g9:0'));
     }
     await expect(report(db, ana, card('Uno más', 'g9:0'))).rejects.toThrow(/report_place_limit/);
-    // Another card, another quote of the same article: other places.
     await report(db, ana, card('En la otra cara', 'g9:1'));
     for (let i = 0; i < REPORT_LIMITS.openPerPlace; i++) {
       await report(db, ana, quote('Primera cita'));
     }
     await expect(report(db, ana, quote('Primera cita'))).rejects.toThrow(/report_place_limit/);
     await report(db, ana, quote('Segunda cita'));
-    // Somebody else can report that same card.
     await report(db, await person(db), card('Yo también', 'g9:0'));
-    // Once resolved, the place is free again.
     await resolve(db, owner, {
       kind: 'card',
       target_id: 'g9:0',
@@ -245,7 +235,6 @@ describe('reporting', () => {
   });
 
   it('a card whose guid has «:» (Anki’s alphabet has it) is reported as any other', async () => {
-    // Revisión de cero (2.6): about one real note in eleven has «:» in its guid, and «^[^:…]» refused them.
     const ana = await person(db);
     await report(db, ana, card('Con dos puntos', 'a:b`{c:2'));
     expect((await mine(db, ana)).map((r) => r.target_id)).toEqual(['a:b`{c:2']);
@@ -254,7 +243,7 @@ describe('reporting', () => {
   });
 
   it('the path is one of the site: nothing a browser would read as another site', async () => {
-    // Revisión de cero (2.6): «/» + backslash or a tab passed, and the panel's link took to «//otro.sitio».
+    // «/» + backslash or a tab would make the panel's link go to «//otro.sitio».
     const ana = await person(db);
     const at = (path: string) => report(db, ana, { ...card(), id: 'p1:0', location: { path } });
     for (const path of [
@@ -282,7 +271,6 @@ describe('reporting', () => {
       [ana.sub],
     );
     expect(r.rows).toEqual([{ exact: 'La misma cita' }]);
-    // Only spaces: the article as a whole, without a quote.
     await report(db, ana, quote('   '));
     const whole = await db.query<{ anchor_key: string; location: Record<string, unknown> }>(
       `select anchor_key, location from public.content_reports
@@ -290,7 +278,6 @@ describe('reporting', () => {
       [ana.sub],
     );
     expect(whole.rows).toHaveLength(1);
-    // The section is still there, so it is a place of its own (not the whole article).
     expect(whole.rows[0]!.anchor_key).toMatch(/^[0-9a-f]{32}$/);
   });
 
@@ -298,7 +285,6 @@ describe('reporting', () => {
     const ana = await person(db);
     for (let i = 1; i <= REPORT_LIMITS.perDay; i++) await report(db, ana, question(`q${i}`));
     await expect(report(db, ana, question('una-mas'))).rejects.toThrow(/report_daily_limit/);
-    // The next day (24 hours later), again.
     await db.query(
       `update public.content_reports set created_at = created_at - interval '25 hours' where user_id = $1`,
       [ana.sub],
@@ -328,7 +314,6 @@ describe('the panel', () => {
         JSON.stringify({ resolution_id: '00000000-0000-4000-8000-000000000001' }),
       ]),
     ).rejects.toThrow(/admin_only/);
-    // The rules of a new report are only for the functions.
     await expect(
       call(db, ana, `select public.check_new_report($1, 'card', 'g:0', '') as r`, [ana.sub]),
     ).rejects.toThrow(/permission denied/);
@@ -344,7 +329,6 @@ describe('the panel', () => {
     expect(q.open).toHaveLength(2);
     expect(group.reporters).toBe(3);
     expect(group.reports).toHaveLength(3);
-    // With more people, first.
     expect(q.open[0]!.target_id).toBe('g1:0');
     expect(q.limits).toEqual({ per_day: 50, open_per_place: 5 });
 
@@ -366,11 +350,9 @@ describe('the panel', () => {
       expect(mineRow!.resolution).toEqual(
         expect.objectContaining({ status: 'fixed', fixed_version: 3, note: 'Corregido el dato.' }),
       );
-      // Nobody sees who else reported it.
       expect((await mine(db, s)).map((x) => x.comment)).toEqual([mineRow!.comment]);
     }
     expect((await mine(db, other))[0]!.resolution).toBeNull();
-    // Nothing open: nothing to resolve.
     await expect(
       resolve(db, owner, { kind: 'card', target_id: 'g1:0', status: 'not_an_error' }),
     ).rejects.toThrow(/nothing_open/);
@@ -409,7 +391,6 @@ describe('the panel', () => {
     const q = await queue(db, owner);
     const g = q.open.find((x) => x.target_id === 'h3:0')!;
     expect(g.reports.map((x) => x.comment)).toEqual(['Segundo', 'Primero']);
-    // Revisión de cero (2.6): it went to the panel, next to the name. Only who, never how often they were right.
     for (const r of q.open.flatMap((x) => x.reports)) {
       if (r.reporter)
         expect(Object.keys(r.reporter).sort()).toEqual(['blocked', 'email', 'id', 'name']);
@@ -431,7 +412,6 @@ describe('the panel', () => {
     expect((await block(true)).changed).toBe(false);
     await expect(report(db, ana, card('Después', 'b2:0'))).rejects.toThrow(/report_blocked/);
     expect((await queue(db, owner)).blocked.map((b) => b.id)).toEqual([ana.sub]);
-    // What they wrote stays.
     expect(await mine(db, ana)).toHaveLength(1);
     await expect(block(true, owner.sub)).rejects.toThrow(/admin_stays/);
     await expect(
@@ -456,7 +436,6 @@ describe('the panel', () => {
     );
     expect(data.tables['report_blocks']).toHaveLength(1);
     expect(data.tables['content_reports']).toHaveLength(1);
-    // As purge_deleted_accounts() does (step 2.3).
     await db.query(`delete from auth.users where id = $1`, [ana.sub]);
     const left = await db.query<{ user_id: string | null; blocks: number }>(
       `select r.user_id, (select count(*)::int from public.report_blocks b where b.user_id = $1) as blocks
@@ -505,9 +484,8 @@ describe('the panel', () => {
 
 describe('the copy of card_reports', () => {
   it('the table of before (card_reports, until the second migration) has the same rules', async () => {
-    // Revisión de cero (2.6): its «insert own» policy is still there, and what came that way skipped the block and the
-    // places.
-    // Built up to the first migration, as the copy's test (the second one is in migrations/ since it was applied).
+    // Its «insert own» policy is still there: what comes that way must not skip the block and the places. Built up to
+    // the first migration, because the second one drops card_reports.
     const db = await createDatabase('users', [], MIGRATION);
     await applyMigration(db, 'users', MIGRATION);
     const owner = await person(db, OWNER_EMAIL);
@@ -521,7 +499,6 @@ describe('the copy of card_reports', () => {
       );
     for (let i = 0; i < REPORT_LIMITS.openPerPlace; i++) await old(ana, `Viejo ${i}`);
     await expect(old(ana, 'Uno más')).rejects.toThrow(/report_place_limit/);
-    // The new way counts them too: the same card is the same place.
     await expect(report(db, ana, card('Por la nueva', 'v1:0'))).rejects.toThrow(
       /report_place_limit/,
     );
@@ -529,7 +506,6 @@ describe('the copy of card_reports', () => {
       JSON.stringify({ user_id: ana.sub, blocked: true }),
     ]);
     await expect(old(ana, 'Bloqueada', 'v2')).rejects.toThrow(/report_blocked/);
-    // Nothing of what was refused was written, in either table.
     const n = await db.query<{ old: number; copies: number }>(
       `select (select count(*)::int from public.card_reports where user_id = $1) as old,
               (select count(*)::int from public.content_reports where user_id = $1) as copies`,
@@ -552,8 +528,6 @@ describe('the copy of card_reports', () => {
           [guid, ord, comment],
         ),
       );
-    // Two open of the same person in the same card (the limit of places did not exist), one resolved, one without
-    // an author (a deleted account) and one without a deck nor a code.
     await insert(ana, 'Primero');
     await insert(ana, 'Segundo');
     const resolved = (await insert(luis, 'Resuelto', 'g2', 1)).rows[0]!.id;
@@ -561,7 +535,6 @@ describe('the copy of card_reports', () => {
       `update public.card_reports set status = 'resolved', resolved_at = '2026-11-05T12:00:00Z' where id = $1`,
       [resolved],
     );
-    // A guid with «:» (Anki's alphabet has it).
     const orphan = (await insert(luis, 'Sin autor', 'g:3')).rows[0]!.id;
     await db.query(`update public.card_reports set user_id = null where id = $1`, [orphan]);
     await asUser(db, ana, (tx) =>
@@ -603,7 +576,6 @@ describe('the copy of card_reports', () => {
       return old.rows.length;
     };
     expect(await compare()).toBe(5);
-    // The query of docs/configuracion.md («Publicar el paso 2.6», point 2), as the owner runs it in production.
     const check = await db.query<{ total: number; missing: number; different: number }>(
       `select count(*)::int as total,
               count(*) filter (where c.id is null)::int as missing,
@@ -625,7 +597,7 @@ describe('the copy of card_reports', () => {
     );
     expect(check.rows).toEqual([{ total: 5, missing: 0, different: 0 }]);
 
-    // The web of before keeps writing card_reports until the new one is deployed: copied as it comes.
+    // The previous web keeps writing card_reports until the new one is deployed: copied as it comes.
     const late = (await insert(luis, 'Después de migrar', 'g5')).rows[0]!.id;
     await db.query(
       `update public.card_reports set status = 'resolved', resolved_at = now() where id = $1`,
@@ -637,10 +609,8 @@ describe('the copy of card_reports', () => {
       [late],
     );
     expect(await compare()).toBe(6);
-    // The copy counts in the limits of the new model as any report.
     expect(await mine(db, ana)).toHaveLength(3);
 
-    // The second migration (after deploying the web): card_reports goes, the reports stay, the download works.
     await applyMigration(db, 'users', DROP);
     const gone = await db.query(`select to_regclass('public.card_reports') as t`);
     expect(gone.rows).toEqual([{ t: null }]);
@@ -654,7 +624,6 @@ describe('the copy of card_reports', () => {
     );
     expect(exported.tables['content_reports']).toHaveLength(3);
     expect(Object.hasOwn(exported.tables, 'card_reports')).toBe(false);
-    // Reporting, «Mis reportes» and the panel go on without it.
     await report(db, ana, card('Después de la segunda', 'z:0'));
     expect(await mine(db, ana)).toHaveLength(4);
     const owner = await person(db, OWNER_EMAIL);

@@ -1,14 +1,5 @@
-// Step 2.4 (the owner's yes, 2026-11-08): the pre-push hook stops a push that carries the owner's data (emails,
-// names, paths). The patterns live in the private repository, never here: `tests/prohibidos.txt` of
-// ../quinto-ventriculo-privado (or QV_PRIVATE_DIR), one regular expression per line, case-insensitive; empty lines
-// and lines that start with «#» are skipped. Without that list (anybody else's clone) nothing is checked.
-//
-// Every commit of the push is read, not only the final tree (a datum added and taken out again would still be public
-// in the history): what each one adds (its diff against its first parent), the paths it touches, its message and its
-// author and committer. Binary files and package-lock.json (integrity hashes) are not read. An email is never
-// printed whole.
-//
-//   node .githooks/forbidden.mjs <remote>     (the refs to push on the standard input, as git gives them to pre-push)
+// `node .githooks/forbidden.mjs <remote>`: stops a push whose commits match a pattern of the private repository's
+// tests/prohibidos.txt (one case-insensitive regular expression per line); without that list, nothing is checked.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -26,7 +17,7 @@ const git = (args, input) =>
     stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
   });
 
-/** «fulano.real@ug.uchile.cl» → «f•••@ug.uchile.cl»: enough to find it, not the datum itself. */
+/** Keeps the first letter and the domain: enough to find the email, not the datum itself. */
 function maskEmails(text) {
   return text.replace(EMAIL, (email) => {
     const at = email.indexOf('@');
@@ -48,18 +39,18 @@ function readPatterns(file) {
     });
 }
 
-/** The commits the push sends: for each ref, what the remote does not have yet. */
+/** Every commit the push sends, not only the final tree: a datum added and taken out stays public in the history. */
 function commitsToPush(remote, refLines) {
   const commits = new Set();
   for (const line of refLines) {
     const [, localSha, , remoteSha] = line.trim().split(/\s+/);
-    if (!localSha || /^0+$/.test(localSha)) continue; // deleting a ref sends nothing
+    if (!localSha || /^0+$/.test(localSha)) continue;
     let list = null;
     if (remoteSha && !/^0+$/.test(remoteSha)) {
       try {
         list = git(['rev-list', `${remoteSha}..${localSha}`]);
       } catch {
-        list = null; // the remote's commit is not here: whatever no remote-tracking ref of this remote has
+        list = null; // the remote's commit is not here: fall back to what no remote-tracking ref has
       }
     }
     list ??= git(['rev-list', localSha, '--not', `--remotes=${remote}`]);
@@ -68,7 +59,7 @@ function commitsToPush(remote, refLines) {
   return [...commits];
 }
 
-/** What a commit adds: [where, text] pairs (its identities and message, its paths and its added lines). */
+/** [where, text] pairs: author and committer, message, paths and added lines (package-lock.json is skipped). */
 function addedBy(commit, emptyTree) {
   const short = commit.slice(0, 7);
   const out = [];

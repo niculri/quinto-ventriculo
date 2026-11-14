@@ -1,22 +1,14 @@
+// Restores a saved round and the cover's choices against the test's questions as they are today, and summarizes
+// a round for the history.
 import { ROUND_ORIGINS, newRoundId } from './round';
 import type { QuestionInfo, Round, RoundAnswer, RoundOrigin, Screen } from './round';
 
-/**
- * Saving and continuing: a round and the cover's choices, as they are stored (the users database, or the
- * browser in demo mode), and read back against the questions of the test as they are today. If the test
- * changed and the round no longer fits (a question of its queue is gone), it is discarded, as the page of
- * `pauta-a-test` does; what still fits is kept (with stable ids, a question whose text changed keeps its
- * answer). A question the author took out leaves the round, and the round goes on with the others.
- */
-
-/** The cover's choices of a section: which groups, and whether to shuffle questions and alternatives. */
 export interface Preferences {
   groups: string[];
   shuffle: boolean;
   shuffleOptions: boolean;
 }
 
-/** The choices saved, or the defaults (every group, nothing shuffled); groups that no longer exist go away. */
 export function restorePreferences(raw: unknown, groupIds: readonly string[]): Preferences {
   const p = isObject(raw) ? raw : {};
   const saved = Array.isArray(p.groups) ? p.groups.filter((g) => typeof g === 'string') : null;
@@ -25,7 +17,6 @@ export function restorePreferences(raw: unknown, groupIds: readonly string[]): P
   return { groups, shuffle: p.shuffle === true, shuffleOptions: p.shuffleOptions === true };
 }
 
-/** The questions of the chosen groups, in the order of the groups. */
 export function selectQuestions<G extends { id: string; questions: readonly unknown[] }>(
   groups: readonly G[],
   chosen: readonly string[],
@@ -36,16 +27,8 @@ export function selectQuestions<G extends { id: string; questions: readonly unkn
 const SCREENS: Screen[] = ['cover', 'question', 'results'];
 
 /**
- * A saved round, checked against today's questions; null if it does not fit any more (or is not a round).
- * Out-of-range positions are clamped, answers that do not fit are dropped and an order of alternatives
- * that no longer fits (the question has another number of alternatives) goes back to the original one.
- *
- * A question of its queue that is no longer in the test leaves the round, with its answer: the others keep
- * theirs, and the round goes on where it was (on the next question, if the one on screen is the one that
- * left). The positions after it move, so a round still being answered gets a new id (`options.id`, or a
- * random one): the history of the old one (its answers, by position) stays as it was, and the new positions
- * do not land on it. A finished round keeps its id (it takes no more answers). Only if none of its questions
- * is left, null.
+ * A saved round checked against today's questions. When a question is gone the later positions move, so an
+ * unfinished round gets a new id: the history, kept by position, must not mix the old positions with the new.
  */
 export function restoreRound(
   raw: unknown,
@@ -59,12 +42,10 @@ export function restoreRound(
   }
   const savedTop = clamp(raw.top, 0, saved.length - 1);
   const savedIndex = clamp(raw.index, 0, savedTop);
-  // The positions that are still in the test, and where each one goes.
   const kept = saved.flatMap((id, i) => (questions.has(id as string) ? [i] : []));
   if (!kept.length) return null;
   const removed = kept.length < saved.length;
   const newPosition = new Map(kept.map((old, i) => [old, i]));
-  /** Where an old position goes: itself, or the next one still there. */
   const moved = (old: number) => kept.filter((k) => k < old).length;
   const queue = kept.map((i) => saved[i] as string);
   const n = queue.length;
@@ -93,7 +74,7 @@ export function restoreRound(
       if (typeof a.chosen !== 'number' || !Number.isInteger(a.chosen)) continue;
       if (a.chosen < 0 || a.chosen >= q.options!) continue;
       chosen = a.chosen;
-      // The verdict is the test's of today: if the author fixed the key, the round says so.
+      // Today's key, in case the author fixed it.
       correct = a.chosen === q.correct;
     } else {
       if (a.chosen !== null || typeof a.correct !== 'boolean') continue;
@@ -113,9 +94,7 @@ export function restoreRound(
   const finished = raw.finished === true;
   let screen: Screen = SCREENS.includes(raw.screen as Screen) ? (raw.screen as Screen) : 'cover';
   if (screen === 'results' && !finished) screen = 'cover';
-  // A finished round takes no more answers (from its results there is no way back to a question), so nothing
-  // new can land on the old positions: it keeps its id. A new one would leave in the history a second round,
-  // marked finished and without answers, the first time the round is saved again («Inicio» from the results).
+  // A finished round keeps its id: a new one would leave a second, empty finished round in the history.
   if (removed && finished && screen === 'question') screen = 'results';
   return {
     version: 1,
@@ -158,7 +137,6 @@ function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-/** What the history keeps of a round (for statistics): when, how many and how it went. */
 export interface RoundSummary {
   id: string;
   startedAt: string;

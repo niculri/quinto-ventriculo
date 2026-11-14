@@ -1,14 +1,11 @@
+// A made-up article with every block the converter makes and the characters the articles use, to preview the
+// layout. Test content, not study material.
+
 import type { Note } from '@qv/schema';
 import gradients from './gradients.svg';
 import ladder from './ladder.svg';
 import membrane from './membrane.svg';
 
-/**
- * A made-up article with every block the converter makes (thumbnails wide and tall, one beside its text, one in a
- * callout, one that goes down below a table, a large plate, a row, tables, callouts) and the characters the articles
- * use (µ ± ≥ ≤ → ↔ ° × ‰ Å, Greek, Ca²⁺, CO₂ and their <sup>/<sub> spelling, «», – —). Test content, not study
- * material.
- */
 const html = `<aside class="callout callout-datos"><p class="callout-label">Datos clave</p><ul>
 <li>La <strong>bicapa lipídica</strong> deja pasar sola a las moléculas chicas y sin carga (O₂, CO₂); los iones necesitan proteínas.</li>
 <li>La <strong>bomba de Na⁺/K⁺</strong> saca 3 Na⁺ y entra 2 K⁺ por cada ATP: es un transporte <strong>activo primario</strong>.</li>

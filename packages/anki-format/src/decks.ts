@@ -1,29 +1,24 @@
+// Deck names and the tree of the decks a package brings.
 import type { AnkiCollection, AnkiDeck } from './types';
 
 export interface DeckNode {
   deck: AnkiDeck;
   /** Nearest ancestor that is in the package (Anki creates the missing ones on import). */
   parentId: string | null;
-  /** Cards directly in this deck (not in its subdecks). */
   cardCount: number;
 }
 
-/** «A::B::C» → «A::B»; a top-level deck has no parent. */
 export function parentDeckName(name: string): string | null {
   const i = name.lastIndexOf('::');
   return i < 0 ? null : name.slice(0, i);
 }
 
-/** «A::B::C» → «C». */
 export function deckLeafName(name: string): string {
   const i = name.lastIndexOf('::');
   return i < 0 ? name : name.slice(i + 2);
 }
 
-/**
- * The decks of the package that matter: those with cards and their ancestors that come in the package
- * (the empty «Default» of every collection is left out). Sorted by name, so parents come first.
- */
+/** Only decks with cards and their ancestors (the empty «Default» is left out), sorted so parents come first. */
 export function deckTree(collection: AnkiCollection): DeckNode[] {
   const byName = new Map(collection.decks.map((d) => [d.name, d]));
   const byId = new Map(collection.decks.map((d) => [d.id, d]));

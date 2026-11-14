@@ -1,3 +1,6 @@
+// The summary of «Listo por hoy»: today's answers and «% bien» from review_log, the streak of «Días de estudio» with
+// the course's under it, and «Ver las que fallaste».
+
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,12 +21,7 @@ import { timingFor } from './scheduler';
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;
 
-/**
- * The summary of «Listo por hoy» (step 3.4, ANK-15): today's answers and «% bien» in what was being studied, from
- * review_log once the session's answers are saved, the streak of «Días de estudio» (`study_heatmap()`, every course,
- * as the home page) with the course's under it (the owner asked for both), and «Ver las que fallaste» if there was one. It has its whole height from the first frame (the
- * figures wait in their places), so nothing moves when they arrive.
- */
+/** It has its whole height from the first frame (the figures wait in their places), so nothing moves when they arrive. */
 export function DaySummary({
   node,
   prefs,
@@ -31,7 +29,6 @@ export function DaySummary({
 }: {
   node: CourseDeckNode;
   prefs: StudyPreferences;
-  /** Resolves once every answer of the session is in the database. */
   saved: () => Promise<unknown>;
 }) {
   const { study } = useServices();
@@ -55,7 +52,6 @@ export function DaySummary({
         }),
       ]);
       const decks = new Set(descendants(node).map((n) => n.id));
-      // The course's decks, as its page counts them: its streak goes under the whole one.
       const course = ancestry(node).find((n) => n.depth === 2) ?? null;
       const courseDecks = course ? new Set(descendants(course).map((n) => n.id)) : null;
       return { today, summary: daySummary(answers, decks, heat, today, courseDecks) };
@@ -73,13 +69,11 @@ export function DaySummary({
     ['Bien', summary ? (percent === null ? '—' : `${percent} %`) : null],
     ['Racha actual', summary ? days(summary.streak) : null],
   ];
-  // Under the whole streak, the course's: its line is there from the first frame (empty while it loads).
   const courseLine =
     summary && summary.courseStreak !== null
       ? `${summary.courseStreak.toLocaleString('es-CL')} en el ramo`
       : '';
 
-  // The failed cards in the cards page of this deck's assessment (or course), only this deck's week or lecture.
   const scope = node.depth > 3 ? (scopeNodeOf(node) ?? node) : node;
   const unit = scope === node ? null : unitOf(scope, node);
   const failedLink =

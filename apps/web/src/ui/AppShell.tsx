@@ -1,3 +1,5 @@
+// The frame of the signed-in app: top bar, the site's menu on the left (a drawer on the phone), the page, the right
+// column and the footer. Answering a test or studying a deck hides the menu and the column.
 import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { paths } from '../app/paths';
@@ -14,17 +16,12 @@ import { keys } from './keys';
 import { usePreview } from '../features/preview/preview';
 import { isAnswerScreen } from './answerScreen';
 
-/**
- * Shell of the signed-in app: top bar (logo, search, account), the site's menu on the left (a drawer on the
- * phone), content and footer. A test's questions and studying a deck hide the menu (`useFocusMode`).
- */
 export function AppShell() {
   const [searching, setSearching] = useState(false);
   const [focus, setFocus] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [rail, setRail] = useState<HTMLElement | null>(null);
   const preview = usePreview();
-  // The study screen fills the window under the top bar, as Anki's reviewer: no footer to scroll to.
   const { pathname } = useLocation();
   const studying = isAnswerScreen(pathname);
   // Studying a deck is as answering a test: nothing but the card (no menu, no right column, no footer, and on a phone
@@ -126,7 +123,6 @@ export function AppShell() {
         </RailContext.Provider>
       </FocusContext.Provider>
 
-      {/* The phone's menu: the same one, as a panel from the left. */}
       <Dialog.Root open={menuOpen && !hideNav} onOpenChange={setMenuOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px] lg:hidden" />
@@ -148,7 +144,6 @@ export function AppShell() {
         </Dialog.Portal>
       </Dialog.Root>
 
-      {/* Hidden too while answering a test's questions (the owner, 2026-11-09); its cover and results keep it. */}
       <SiteFooter hidden={hideNav} />
 
       <SearchPalette open={searching} onOpenChange={setSearching} />

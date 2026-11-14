@@ -2,40 +2,41 @@
 import { commentsOf, groupComments } from './comments.js';
 
 /**
- * Each pattern with the name the message gives it. They are narrow on purpose: a date or a code that is data (a study
- * day, a card's code, «R2») is not history; a date only counts in parentheses, as «(2026-11-01)» or «(someone,
- * 7-11-2026)».
- * @type {[string, RegExp][]}
+ * Narrow on purpose: a date or a code that is data (a study day, a card's code, a license) is not history, so a date
+ * only counts in parentheses, and a step number only next to a word that makes it one. Each entry: its name, the
+ * pattern, and whether it also counts inside «» (the interface is in Spanish, so an English step number there is
+ * still history).
+ * @type {[string, RegExp, boolean?][]}
  */
 const HISTORY = [
-  ['step', /\b(?:plan )?steps? \d+(?:\.\d+)*(?: ?[a-z]\b)?/i],
+  ['step', /(?<!(?:re)?learning )\b(?:plan )?steps? \d+(?:\.\d+)*(?: [a-z](?!\w))?(?!\w|\.\d)/i],
+  ['step', /\bsteps? [1-9]\.\d{1,2}\b/i, true],
+  ['step', /\((?:[^()\n]{0,30}, )?[1-9]\.\d{1,2}(?: ?[a-z])?\)/],
+  ['step', /\b(?:before|since|until|after) (?:step )?[1-9]\.\d{1,2}\b/i],
   ['paso', /\bpasos? \d/i],
-  ['phase', /\b(?:phase|fase) \d/i],
-  ['part', /\bparte? \d+\b/i],
+  ['fase', /\bfases? \d/i],
+  ['part', /\bparte \d+\b|\(part \d+\)|\d,? part \d+\b/i],
   ['revisión', /\brevisión|\brevision de cero\b/i],
-  ['review of a step', /\breview of (?:step )?\d+\.\d+/i],
-  ['the owner', /\bthe owner\b|\bdue[ñn]o\b/i],
+  ['review of a step', /\breview of (?:step )?\d+\.\d+|\bthe [1-9]\.\d{1,2}(?: [a-z])? review\b/i],
+  ['the owner', /\bthe owner\b(?! of\b)|\bdue[ñn]o\b/i],
   [
     'asked for',
-    /\b(?:owner|author)(?:'s)? (?:asked|requested|wanted|decided|decision|choice|words|yes)\b|\b(?:asked|requested) by the (?:owner|author)\b/i,
+    /\b(?:owner|author)(?:'s)? (?:asked|requested|wanted|choice|words|yes)\b|\b(?:asked|requested) by the (?:owner|author|user)\b|\bat the (?:owner|author|user)'s request\b|\bas the user (?:asked|requested|wanted)\b|\bthe user (?:asked|requested|wanted) (?:it|this|that|so|to)\b|\bthe reviewer (?:found|asked|said|noted|caught)\b/i,
   ],
-  ['plan code', /\b(?:ANK|CON|ESC|EXP|GYM|PUB|REN|WIK)-[A-Z]?\d+\b/],
-  ['review code', /(?:^|\()\s*[ABM]\d+(?:\s*(?:,|and|\+)\s*[ABM]\d+)*\s*[:)]/m],
-  ['version', /\bv[01]\.\d+\b/i],
+  ['tracker code', /\b(?!(?:BSD|UTF|SHA|ISO|RFC|CVE|GPL|MIT|UCS)-)[A-Z]{3}-[A-Z]?\d+\b/],
+  ['review code', /\(\s*[BM]\d+(?:\s*(?:,|and|\+)\s*[ABM]\d+)*\s*\)/],
+  ['version', /(?<!UUID )\bv[01]\.[1-9]\d?\b/i],
   ['date', /\((?:[^()\n]{0,40}, )?(?:20\d\d-\d\d-\d\d|\d{1,2}-\d{1,2}-20\d\d)\)/],
-  ['plan', /\bdocs\/plan\b/],
 ];
 
 /** Text between «» is a quote (a button's label, Anki's own words): its words are not the comment's. */
 const QUOTE = /«[^»]*»/g;
 
-/**
- * The names of the history patterns found in a text.
- * @param {string} text
- */
+/** @param {string} text */
 function historyIn(text) {
   const unquoted = text.replace(QUOTE, (q) => ' '.repeat(q.length));
-  return HISTORY.filter(([, pattern]) => pattern.test(unquoted)).map(([name]) => name);
+  const found = HISTORY.filter(([, pattern, quoted]) => pattern.test(quoted ? text : unquoted));
+  return [...new Set(found.map(([name]) => name))];
 }
 
 /** @type {import('eslint').Rule.RuleModule} */

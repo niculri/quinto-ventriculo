@@ -1,3 +1,4 @@
+// Tests /privacy and /terms, the acceptance on entering, downloading the data and deleting the account.
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -6,8 +7,6 @@ import { ApiRequestError } from '../../lib/api';
 import { SESSION_ANA, acceptedAccount, fakeApi, renderApp } from '../../test/render';
 import { localAccountRepository } from './repository';
 import type { AccountRepository } from './repository';
-
-/** Step 2.3: /privacy and /terms, the acceptance on entering, downloading the data and deleting the account. */
 
 const EMAIL = SESSION_ANA.user.email;
 const notAccepted = (initial: Parameters<typeof localAccountRepository>[0] = {}) =>
@@ -37,13 +36,10 @@ describe('/privacy and /terms', () => {
       const h = screen.getByRole('heading', { level: 2, name });
       return h.parentElement as HTMLElement;
     };
-    // The controller and the contact.
     expect(part(/Quién es el responsable/)).toHaveTextContent(DATA_CONTROLLER);
     expect(
       within(part(/Quién es el responsable/)).getByRole('link', { name: CONTACT_EMAIL }),
     ).toHaveAttribute('href', `mailto:${CONTACT_EMAIL}`);
-    // The kinds of data, from the users' database: the account, the sessions, the invitation, the cards, the tests,
-    // the reports and the acceptance.
     const data = part(/Qué datos guardamos/);
     for (const kind of [
       /Tu cuenta/,
@@ -65,7 +61,6 @@ describe('/privacy and /terms', () => {
     expect(where).toHaveTextContent(/Supabase.*São Paulo, Brasil/);
     expect(where).toHaveTextContent(/Cloudflare/);
     expect(where).toHaveTextContent(/salen de Chile/);
-    // Step 2.5: GitHub makes the nightly copy, which is kept encrypted in Cloudflare.
     expect(where).toHaveTextContent(/GitHub:.*copia de seguridad.*cifrada en Cloudflare/);
     expect(part(/Cómo los cuidamos/)).toHaveTextContent(/cifrado/);
     const time = part(/Cuánto tiempo los guardamos/);
@@ -95,7 +90,7 @@ describe('/privacy and /terms', () => {
     expect(
       screen.getByText(`Versión ${LEGAL_VERSIONS.terms.version} · 8 de noviembre de 2026`),
     ).toBeInTheDocument();
-    // In the text (the footer says it too, step 2.7).
+    // In the text, not only in the footer.
     expect(within(screen.getByRole('main')).getByText(/sin relación oficial/)).toBeInTheDocument();
     expect(screen.getByText(/No lo copies ni lo compartas fuera del sitio/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '4. No es consejo médico' })).toBeInTheDocument();
@@ -130,7 +125,6 @@ describe('accepting on entering', () => {
       'href',
       '/privacy',
     );
-    // It is answered, not closed.
     await user.keyboard('{Escape}');
     expect(screen.getByRole('dialog', { name: 'Antes de entrar' })).toBeInTheDocument();
     await user.click(within(dialog).getByRole('button', { name: 'Acepto' }));
@@ -282,7 +276,7 @@ describe('«Datos de usuario»: download and delete', () => {
     expect(notice).toHaveTextContent(/se borrará en 7 días/);
   });
 
-  it('while asking, the popup does not close (Revisión de cero, 2.3)', async () => {
+  it('while asking, the popup does not close', async () => {
     const account = acceptedAccount(EMAIL);
     let answer: (v: { deleteAfter: string }) => void = () => undefined;
     vi.spyOn(account, 'requestDeletion').mockImplementation(

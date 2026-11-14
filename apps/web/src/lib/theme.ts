@@ -1,3 +1,5 @@
+// The light, dark or system theme: saved in localStorage and applied as the `dark` class on <html>, with the same rule
+// as public/theme.js.
 export type Theme = 'system' | 'light' | 'dark';
 
 const KEY = 'qv-theme';
@@ -11,7 +13,6 @@ export function readTheme(): Theme {
   }
 }
 
-/** Saves the preference and applies it (the `dark` class on <html>). Same rule as public/theme.js. */
 export function applyTheme(theme: Theme): void {
   try {
     if (theme === 'system') localStorage.removeItem(KEY);

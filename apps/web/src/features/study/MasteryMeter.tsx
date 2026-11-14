@@ -1,20 +1,17 @@
+// Dominio as a small bar and «62 %», always as wide, with what it means on hover or touch (also inside a link).
+
 import { useEffect, useRef, useState } from 'react';
 import { masteryPercent } from './mastery';
 
 const EXPLAINED =
   'Dominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.';
 
-/**
- * Dominio: a small bar and «62 %», always as wide. With the pointer over it or with a touch, what it means (also
- * inside a link: the touch does not follow it).
- */
 export function MasteryMeter({
   value,
   align = 'right',
   className = '',
 }: {
   value: number;
-  /** The side the explanation hangs from, and whether it opens upwards (at the bottom of a card that clips it). */
   align?: 'left' | 'right' | 'above';
   className?: string;
 }) {

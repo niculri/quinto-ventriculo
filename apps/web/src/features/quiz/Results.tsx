@@ -1,10 +1,10 @@
+// A finished round's results: score, the repeat buttons and the wrong answers with the correct one.
 import { MessageSquareWarning } from 'lucide-react';
 import { resultTitle, score, wrongAnswers } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import { Html, TextWithStatements } from './Figures';
 import type { QuestionEntry } from './useQuizSession';
 
-/** The results: right, wrong and percentage, the bar, the buttons and the wrong ones with the correct one. */
 export function Results({
   round,
   entries,
@@ -16,12 +16,10 @@ export function Results({
 }: {
   round: Round;
   entries: Map<string, QuestionEntry>;
-  /** The tab's name, in a test with several. */
   sectionName: string | null;
   onRepeatAll: () => void;
   onRepeatWrong: () => void;
   onHome: () => void;
-  /** «Reportar error» of a question of the finished round (step 2.6). */
   onReport?: (entry: QuestionEntry) => void;
 }) {
   const s = score(round);

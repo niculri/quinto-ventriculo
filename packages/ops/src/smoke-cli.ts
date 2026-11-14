@@ -1,4 +1,4 @@
-// `npm run smoke [-- url]`: see smoke.ts. Only reads; exits with 1 if something failed, 2 if it could not start.
+// `npm run smoke [-- url]`: runs smoke.ts; exits with 1 if something failed, 2 if it could not start.
 import { DEFAULT_SITE, formatSmoke, runSmoke } from './smoke';
 
 const USAGE = `Uso: npm run smoke [-- url]

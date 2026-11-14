@@ -1,3 +1,4 @@
+// Schemas and readers of the content folder: the catalog, the note, deck and test manifests and the unpublished list.
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
@@ -18,14 +19,10 @@ import { defaultQuizId } from './quizzes';
 import { readTaxonomies } from './taxonomy';
 import type { AssessmentTaxonomy, TaxonomyHistory } from './taxonomy';
 
-/**
- * A course of the catalog. `ankiName`: how its deck is called in Anki, when it is not the site's name
- * («🧬 Biología celular» for «Biología celular y molecular»); only the importer uses it, to check the decks.
- */
+/** `ankiName`: the course's deck name in Anki when it differs from the site's; only the deck check uses it. */
 export const CatalogCourse = Course.extend({ ankiName: z.string().min(1).optional() });
 export type CatalogCourse = z.infer<typeof CatalogCourse>;
 
-/** `content/catalog.json`: semesters, courses and assessments. */
 const CatalogManifest = z.object({
   semesters: z.array(Semester),
   courses: z.array(CatalogCourse),
@@ -34,84 +31,54 @@ const CatalogManifest = z.object({
 type CatalogManifest = z.infer<typeof CatalogManifest>;
 
 export const NoteEntry = z.object({
-  /** The note's identity (the PDF's code, AP-…): search results and links hang from it. Never changes. */
+  /** Search results and links hang from it: it never changes. */
   id: NoteCode,
-  /** The web version's code (QV-…), shown with its version: «QV-BC-C2-08.2». */
   code: WebCode.optional(),
   slug: Slug,
   kind: NoteKind,
   position: z.number().int(),
   title: z.string().min(1),
-  /** A topic line under the title, if the lecture has one («Recepción y transducción de señales»). */
   subtitle: z.string().optional(),
-  /** Number, lecturer, institution, half of the year and year: the line under the title. */
   header: NoteHeader.optional(),
-  /** Where the sources came from, written for students of any year (one item per line). */
   sources: z.array(z.string()).default([]),
-  /** «Ponte a prueba»: the test (and its topics) and the deck of this lecture. */
   practice: NotePractice.optional(),
-  /**
-   * The group it is listed in (a week in Anatomía: «S5 - SMAS y cavidad nasal»). Only for showing: the id, the slug
-   * and the version do not depend on it. The notes of a group go one after the other by `position`.
-   */
   group: NoteGroup.optional(),
-  /** The Markdown (articulo.md or apunte.md), relative to the root folder of the material. */
   sourceFile: z.string().min(1),
 });
 export type NoteEntry = z.infer<typeof NoteEntry>;
 
-/** `content/notes/<assessment>.json`: the published notes of an assessment. */
 const NotesManifest = z.object({
   assessmentId: z.string(),
   notes: z.array(NoteEntry),
 });
 type NotesManifest = z.infer<typeof NotesManifest>;
 
-/** `content/decks/<assessment>.json`: the published Anki decks of an assessment. */
 export const DecksManifest = z.object({
   assessmentId: z.string(),
   decks: z.array(
     z.object({
-      /** .apkg, relative to the root folder of the material. */
       apkg: z.string().min(1).endsWith('.apkg'),
-      /**
-       * Leaves out the notes that name IMAIOS (an image, the source, a tag): they are for the owner's personal use
-       * and never go up to the site. Without it, a package with such notes stops the import.
-       */
+      /** Without it, a package with notes that name IMAIOS stops the import (IMAIOS never goes to the site). */
       excludeImaios: z.boolean().optional(),
     }),
   ),
 });
 export type DecksManifest = z.infer<typeof DecksManifest>;
 
-/**
- * `content/tests/<assessment>.json`: the published practice tests of an assessment, each one a folder made
- * with the `pauta-a-test` skill (test.json + its questions and figures).
- */
 const QuizzesManifest = z.object({
   assessmentId: z.string(),
   tests: z.array(
     z.object({
-      /**
-       * Id of the test, unique on the site (everybody's progress hangs from it). Default: the assessment and
-       * the slug; fix it before renaming the slug.
-       */
+      /** Everybody's progress hangs from it; by default it comes from the slug, so fix it before renaming one. */
       id: Slug.optional(),
-      /** Its URL: …/courses/<course>/tests/<assessment>/<slug>. Unique in its assessment. */
       slug: Slug,
       position: z.number().int(),
-      /** The test's folder, relative to the root folder of the material. */
       folder: z.string().min(1),
-      /** Its name on the site (test.json's «titulo» is the standalone page's). */
       title: z.string().min(1).optional(),
-      /** null: leave out test.json's «kicker», «encabezado» or «pie»; a text: replace it. */
+      /** These three override test.json's: null leaves it out, a text replaces it. */
       kicker: z.string().nullable().optional(),
       heading: z.string().nullable().optional(),
       footer: z.string().nullable().optional(),
-      /**
-       * By section id: its description and notice on the site instead of test.json's («{n}» is the number of
-       * questions; a notice null: none).
-       */
       sections: z
         .record(
           z.string(),
@@ -121,31 +88,21 @@ const QuizzesManifest = z.object({
           }),
         )
         .optional(),
-      /**
-       * By question id: its general explanation on the site instead of test.json's «exp» (for a text that
-       * speaks of how the source came, and not of the subject).
-       */
       questions: z.record(z.string(), z.object({ explanation: z.string().min(1) })).optional(),
-      /**
-       * Accept questions without a stable id (no `id`, no source tag): their id is their place in the group.
-       * Only for a test that will grow only at the end of each group (see convertQuiz).
-       */
+      /** A question's id becomes its place in the group: only for a test that grows only at the end of each group. */
       allowPositionalIds: z.boolean().optional(),
     }),
   ),
 });
 type QuizzesManifest = z.infer<typeof QuizzesManifest>;
 
-/** What can be taken off the site in minutes (step 1.5): an article, a deck with its subdecks, a test or an image. */
 export const UnpublishedKind = z.enum(['note', 'deck', 'quiz', 'image']);
 export type UnpublishedKind = z.infer<typeof UnpublishedKind>;
 
-/** An image's key in R2: `notes/<hash>.webp`, `cards/…` or `tests/…` (its name is its hash). */
 const MediaKey = z
   .string()
   .regex(/^(?:notes|cards|tests)\/[0-9a-f]{16,64}\.webp$/, 'clave de imagen inválida');
 
-/** The id each kind is known by in the list: the note's (AP-…), the test's, the deck's (Anki's) and the image's key. */
 const UNPUBLISHED_ID: Record<UnpublishedKind, z.ZodType<string>> = {
   note: NoteCode,
   deck: DeckId,
@@ -157,11 +114,8 @@ export const UnpublishedItem = z
   .object({
     kind: UnpublishedKind,
     id: z.string().min(1),
-    /** Why it went (a serious error, a lecturer asked): for whoever reads the list later. */
     reason: z.string().trim().min(1).max(500),
-    /** When it went (YYYY-MM-DD). */
     date: z.iso.date(),
-    /** Who took it off. */
     by: z.string().min(1).max(200).optional(),
   })
   .superRefine((item, ctx) => {
@@ -176,10 +130,7 @@ export const UnpublishedItem = z
   });
 export type UnpublishedItem = z.infer<typeof UnpublishedItem>;
 
-/**
- * `content/unpublished.json`: what is off the site. The importer never publishes it again while it is here, even if it
- * is still in the manifest (to publish it again: take it out of the list and import).
- */
+/** What is listed here is never published again, even while it is still in a manifest. */
 export const UnpublishedList = z.object({ items: z.array(UnpublishedItem) });
 export type UnpublishedList = z.infer<typeof UnpublishedList>;
 
@@ -187,28 +138,18 @@ export interface Manifest {
   catalog: CatalogManifest;
   notes: NotesManifest[];
   decks: DecksManifest[];
-  /** Optional in tests written before v1.4. */
   tests?: QuizzesManifest[];
-  /** content/unpublished.json (step 1.5; empty if the file does not exist). */
   unpublished?: UnpublishedItem[];
-  /** content/taxonomy/ and content/topic-map/ (step 1.6): the assessments that have a taxonomy. */
   taxonomies?: AssessmentTaxonomy[];
 }
 
 export interface ReadManifestOptions {
-  /**
-   * The committed versions of the taxonomy files, to check that no topic id is used again (by default, git's history
-   * of the folder; null: no history, only the files of now are checked).
-   */
+  /** By default, git's history of the folder; null: only the files of now are checked. */
   history?: TaxonomyHistory | null;
-  /**
-   * false: content/taxonomy/ and content/topic-map/ are not read (`taxonomies` is empty). For `npm run unpublish`,
-   * which does not use them: a taxonomy being edited must not stop taking a piece off the site in minutes (1.5).
-   */
+  /** false for `npm run unpublish`: a taxonomy being edited must not stop taking a piece off the site. */
   taxonomies?: boolean;
 }
 
-/** Reads `content/unpublished.json` (a file that does not exist = nothing off the site). */
 export async function readUnpublished(file: string): Promise<UnpublishedItem[]> {
   let text: string;
   try {
@@ -251,7 +192,6 @@ export async function readManifest(
   return { catalog, notes, decks, tests, unpublished, taxonomies };
 }
 
-/** Every `*.json` of a folder, validated (a folder that does not exist = none). */
 async function readFolder<T>(folder: string, schema: z.ZodType<T>): Promise<T[]> {
   let files: string[];
   try {
@@ -269,7 +209,6 @@ async function readFolder<T>(folder: string, schema: z.ZodType<T>): Promise<T[]>
   );
 }
 
-/** Checks that everything that is referenced exists and that no id or slug is repeated. */
 export function validateReferences({ catalog, notes, decks, tests = [] }: Manifest): void {
   const errors: string[] = [];
   const semesters = new Set(catalog.semesters.map((s) => s.number));
@@ -337,10 +276,7 @@ export function validateReferences({ catalog, notes, decks, tests = [] }: Manife
   if (errors.length) throw new Error(`Manifiesto con errores:\n- ${errors.join('\n- ')}`);
 }
 
-/**
- * A group of notes (a week) shows as one block in its assessment's list: its notes have to go one after the other by
- * `position`, or the week would show twice. Notes without a group may go anywhere.
- */
+/** A group shows as one block in its assessment's list, so its notes must go one after the other by `position`. */
 function splitGroups(m: NotesManifest): string[] {
   const ordered = [...m.notes].sort((a, b) => a.position - b.position);
   const closed = new Set<string>();

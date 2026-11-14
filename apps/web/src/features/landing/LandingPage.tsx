@@ -1,3 +1,4 @@
+// The only public page: what the site is and how it is used, with no material, and the sign-in with Google.
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -24,10 +25,6 @@ import { SiteFooter } from '../../ui/SiteFooter';
 import { ContactLink, withContactLink } from '../../ui/ContactLink';
 import { safeDestination } from '../session/AuthCallbackPage';
 
-/**
- * The only public page. It shows no material: it says what this is, how it is used and that you have to sign
- * in with the university account.
- */
 export function LandingPage() {
   const { state, signIn } = useSession();
   const [params] = useSearchParams();
@@ -305,10 +302,7 @@ function GoogleLogo() {
   );
 }
 
-/**
- * The logo's sagittal section, large and faint on the right of the landing page: cerebrum, corpus callosum
- * and fornix, brainstem and cerebellum, and the fifth ventricle in the accent color. In the theme's colors.
- */
+/** The logo's sagittal section, large and faint, with the fifth ventricle in the accent color. */
 function Illustration() {
   return (
     <svg
@@ -324,7 +318,6 @@ function Illustration() {
       </defs>
       <circle cx="33" cy="33" r="29" fill="url(#landing-glow)" />
       <g stroke="var(--brand)" strokeLinecap="round" strokeLinejoin="round">
-        {/* Cerebrum, brainstem and cerebellum. */}
         <path
           d="M9 33 C8 21 19 10.5 33 10.5 C47 10.5 56.5 20 56.5 31.5 C56.5 36.5 54.5 39.5 50.5 40.5 C46 41.5 41 39 36 38.5 C31 38 27 39 22 40.5 C14 42 9.5 38.5 9 33 Z"
           fill="var(--brand)"
@@ -346,7 +339,6 @@ function Illustration() {
           strokeOpacity="0.26"
           strokeWidth="0.14"
         />
-        {/* Sulci and the cerebellar folia. */}
         <g fill="none" strokeOpacity="0.2" strokeWidth="0.13">
           <path d="M14.5 33 C13.5 21.5 22.5 16.5 32.5 16.5 C40 16.5 45 18.5 47.5 21" />
           <path d="M44 12 C44.5 16 46 19 47.5 21 C49 24 50.5 26 51 29" />
@@ -359,7 +351,6 @@ function Illustration() {
           <path d="M42.6 47.6 C46 46.8 49.5 47.4 52.8 49" />
           <path d="M43 41.4 C46 40.3 49.5 40.4 52.5 41.3" />
         </g>
-        {/* Corpus callosum and fornix. */}
         <path
           d="M20.5 33 C18.5 26 25 22.5 32 22.5 C39 22.5 44.5 24.5 44.5 30"
           fill="none"
@@ -373,7 +364,6 @@ function Illustration() {
           strokeWidth="1.1"
         />
       </g>
-      {/* The fifth ventricle. */}
       <ellipse cx="30.5" cy="27.4" rx="5.2" ry="2" fill="var(--accent)" fillOpacity="0.7" />
     </svg>
   );

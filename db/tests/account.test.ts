@@ -1,12 +1,9 @@
+// Accepting the terms and the privacy policy, downloading one's data and deleting one's account with 7 days to change
+// one's mind, on the real users' database.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { LEGAL_VERSIONS } from '@qv/schema';
 import { asUser, createDatabase } from './pglite';
-
-/**
- * Step 2.3 (…_privacy_and_account.sql): accepting the terms and the privacy policy, downloading one's data and
- * deleting one's account with 7 days to change one's mind. The users' database is the real one, every migration.
- */
 
 const ANA = { sub: '00000000-0000-4000-8000-0000000000d1', email: 'ana.perez@ug.uchile.cl' };
 const LUIS = { sub: '00000000-0000-4000-8000-0000000000d2', email: 'luis.soto@ug.uchile.cl' };
@@ -18,7 +15,6 @@ const PRIVACY: string = LEGAL_VERSIONS.privacy.version;
 type Claims = { sub: string; email: string; session_id?: string };
 type Q = Pick<PGlite, 'query'>;
 
-/** A session of Supabase Auth, with its refresh token and the browser it was opened from; its token's claims. */
 async function signIn(db: PGlite, user: { sub: string; email: string }): Promise<Claims> {
   const { rows } = await db.query<{ id: string }>(
     `insert into auth.sessions (user_id, user_agent, ip) values ($1, 'Firefox de prueba', '200.1.2.3')
@@ -49,7 +45,6 @@ const accept = (db: PGlite, claims: Claims, terms = TERMS, privacy = PRIVACY) =>
     terms,
     privacy,
   ]);
-/** On entering, as the web does (with the versions of its bundle), or without them. */
 const resume = (db: PGlite, claims: Claims, versions: [string, string] | null = [TERMS, PRIVACY]) =>
   one<{
     accepted: { terms_version: string; privacy_version: string; accepted_at: string } | null;
@@ -96,12 +91,8 @@ const sevenDaysLater = async (db: PGlite, user: { sub: string }) => {
 };
 
 /**
- * Every table of the users' database with data of a person: those that point to auth.users, those with a `user_id`
- * (also without a foreign key) and those with an email (any column whose name has «email»). What they are found by is
- * the schema itself, not a list: a new table with personal data is in here at once.
- * Revisión de cero (2.3): it looked only for foreign keys and columns named exactly `email`, so a `user_id` without a
- * foreign key (a log kept apart, for speed) or a `reporter_email` would have been left out of the download and of the
- * deletion without a test failing.
+ * Every table with data of a person, found by the schema (a key to auth.users, a `user_id` or a column with «email»)
+ * and not by a list: a new table with personal data is in here at once.
  */
 async function personalTables(db: Q) {
   const { rows } = await db.query<{
@@ -128,7 +119,6 @@ async function personalTables(db: Q) {
   return rows.filter((r, i) => rows.findIndex((x) => x.table_name === r.table_name) === i);
 }
 
-/** How many rows of the person each personal table has (by their id or their email). */
 async function rowsOf(db: PGlite, user: { sub: string; email: string }) {
   const counts: Record<string, number> = {};
   for (const t of await personalTables(db)) {
@@ -141,14 +131,12 @@ async function rowsOf(db: PGlite, user: { sub: string; email: string }) {
   return counts;
 }
 
-/** The personal tables the download leaves out (has to be none). */
 async function missingFromExport(db: PGlite, claims: Claims) {
   const data = await exportData(db, claims);
   const tables = new Set((await personalTables(db)).map((t) => t.table_name));
   return [...tables].filter((t) => !Object.hasOwn(data.tables, t));
 }
 
-/** A new card answered «Bien», as the web sends it. */
 function answer(noteGuid: string) {
   const now = new Date();
   return {
@@ -180,7 +168,6 @@ function answer(noteGuid: string) {
   };
 }
 
-/** A step of a test with one answer, as the web sends it. */
 function quizStep(round: string) {
   return {
     quizId: 'q',
@@ -199,13 +186,11 @@ function quizStep(round: string) {
   };
 }
 
-/** A student who used everything: cards, tests, options, a report, an acceptance. */
 async function useEverything(db: PGlite, claims: Claims, round: string) {
   const user = { sub: claims.sub };
   await accept(db, claims);
   await asUser(db, claims, async (tx) => {
     await tx.query('select public.record_review($1)', [answer(`n-${claims.sub.slice(-2)}`)]);
-    // Step 3.1: practice of the final review, in study_days (the download and the deletion must take it too).
     await tx.query('select public.record_practice($1)', [{ decks: [{ deckId: DECK, n: 3 }] }]);
     await tx.query('select public.save_quiz_progress($1)', [quizStep(round)]);
     await tx.query('select public.report_content($1::jsonb)', [
@@ -275,7 +260,6 @@ describe('accepting the terms and the privacy policy', () => {
     expect(await status(db, ana)).toBe('not_accepted');
     const first = await accept(db, ana);
     expect(await status(db, ana)).toBe('allowed');
-    // Accepting the same versions again keeps the date of the first time.
     expect((await accept(db, ana)).accepted_at).toBe(first.accepted_at);
     expect(await resume(db, ana)).toEqual({
       accepted: { terms_version: TERMS, privacy_version: PRIVACY, accepted_at: first.accepted_at },
@@ -297,21 +281,18 @@ describe('accepting the terms and the privacy policy', () => {
   });
 
   it('after a rollback to versions accepted before, entering does not ask again', async () => {
-    // Revisión de cero (2.3): with only the versions accepted last, the web of the Worker rolled back saw «1.1 ≠ 1»
-    // and showed the popup on every page load.
     const ana = await signIn(db, ANA);
     expect(await status(db, ana)).toBe('allowed');
     expect((await resume(db, ana)).accepted).toMatchObject({
       terms_version: TERMS,
       privacy_version: PRIVACY,
     });
-    // Versions never accepted: the ones accepted last (the web says they changed).
     expect((await resume(db, ana, ['7', '7'])).accepted).toMatchObject({
       terms_version: `${TERMS}.1`,
     });
   });
 
-  it('the answers of step 2.1 come first, and a Worker without versions does not look at it', async () => {
+  it('the invitation and session answers come first, and a Worker without versions does not look at the acceptance', async () => {
     const luis = await signIn(db, LUIS);
     expect(await status(db, luis, null)).toBe('allowed');
     await db.query(`select public.remove_invites($1)`, [{ emails: [LUIS.email] }]);
@@ -319,7 +300,6 @@ describe('accepting the terms and the privacy policy', () => {
     await db.query(`select public.invite_emails($1)`, [
       { emails: [LUIS.email], list: 'Curso de prueba 2026', by: 'prueba' },
     ]);
-    // remove_invites() closed the session of that token.
     expect(await status(db, luis)).toBe('signed_out');
     expect(await status(db, await signIn(db, LUIS))).toBe('not_accepted');
   });
@@ -337,7 +317,6 @@ describe('accepting the terms and the privacy policy', () => {
     await expect(
       asUser(db, ana, (tx) => tx.query('select * from public.legal_acceptances')),
     ).rejects.toThrow(/permission denied/);
-    // A token whose session was closed (signed out on another device) cannot accept.
     await expect(accept(db, { ...LUIS, session_id: ana.session_id })).rejects.toThrow(
       /session_closed/,
     );
@@ -394,7 +373,6 @@ describe('downloading my data', () => {
     for (const [table, n] of Object.entries(counts)) {
       expect(data.tables[table], table).toHaveLength(n);
     }
-    // Every table it has rows in, with them: the study, the tests, the options, the report, the acceptance.
     expect(Object.entries(counts).filter(([, n]) => n === 0)).toEqual([
       ['account_deletions', 0],
       ['admin_emails', 0],
@@ -408,7 +386,6 @@ describe('downloading my data', () => {
 
   it('a closed session, anon or nobody cannot download', async () => {
     await expect(exportData(db, { ...ANA })).rejects.toThrow(/session_closed/);
-    // Luis's token with Ana's session: the session is not his.
     await expect(exportData(db, { ...LUIS, session_id: ana.session_id })).rejects.toThrow(
       /session_closed/,
     );
@@ -452,7 +429,6 @@ describe('deleting my account', () => {
 
   it('nobody asks it for another person: the function only knows the caller', async () => {
     const luis = await signIn(db, LUIS);
-    // Luis's token with Ana's email: refused, and Ana's account is untouched.
     await expect(requestDeletion(db, luis, ANA.email)).rejects.toThrow(/email_mismatch/);
     await expect(requestDeletion(db, { ...ANA }, ANA.email)).rejects.toThrow(/session_closed/);
     await expect(
@@ -487,9 +463,7 @@ describe('deleting my account', () => {
       [ANA.sub],
     );
     expect(left.rows[0]!.n).toBe(0);
-    // An old token (still valid up to an hour) does not cancel it: its session is closed.
     await expect(resume(db, ana)).rejects.toThrow(/session_closed/);
-    // Before the 7 days the job does nothing.
     expect(await purge(db)).toEqual({ deleted: 0, cancelled: 0, kept_admins: 0, failed: 0 });
   });
 
@@ -507,7 +481,6 @@ describe('deleting my account', () => {
     await sevenDaysLater(db, ANA);
     expect(await purge(db)).toEqual({ deleted: 0, cancelled: 1, kept_admins: 0, failed: 0 });
     expect(await rowsOf(db, ANA)).toMatchObject({ profiles: 1, invited_emails: 1 });
-    // The next time the web opens, it says so, and the mark goes.
     expect(await resume(db, await signIn(db, ANA))).toMatchObject({ deletion_cancelled: true });
     expect((await db.query('select * from public.account_deletions')).rows).toEqual([]);
   });
@@ -543,7 +516,6 @@ describe('deleting my account', () => {
       { user_id: null, comment: 'La respuesta dice 70S y es 80S.' },
       { user_id: LUIS.sub, comment: 'La respuesta dice 70S y es 80S.' },
     ]);
-    // The administrator still sees the report, without an author.
     const panel = await one<{ open: { reports: { reporter: { email: string } | null }[] }[] }>(
       db,
       await signIn(db, OWNER),
@@ -555,9 +527,7 @@ describe('deleting my account', () => {
         .map((r) => r.reporter?.email ?? null)
         .sort(),
     ).toEqual([LUIS.email, null].sort());
-    // Luis is as he was.
     expect(await rowsOf(db, LUIS)).toEqual(luisBefore);
-    // Without an invitation, the hook does not let the account be created again.
     const hook = await db.query<{ r: { error?: unknown } }>(
       `select public.hook_before_user_created($1) as r`,
       [{ user: { email: ANA.email } }],
@@ -575,7 +545,6 @@ describe('deleting my account', () => {
   });
 
   it('an account that cannot be deleted does not hold back the others, says why and is tried again', async () => {
-    // Revisión de cero (2.3): the run was one transaction, and one account held back every deletion.
     const other = await newDatabase();
     // Something that does not let Ana's auth.users go (as a file of Storage of her own would).
     await other.exec(
@@ -592,7 +561,6 @@ describe('deleting my account', () => {
       )
     ).rows[0]!.r;
     expect(first).toEqual({ deleted: 1, cancelled: 0, kept_admins: 0, failed: 1 });
-    // Luis is gone; Ana is as she was, invitation included, with the error and the date of the attempt.
     const users = await other.query<{ id: string }>(
       `select id from auth.users where id in ($1, $2)`,
       [ANA.sub, LUIS.sub],
@@ -610,7 +578,6 @@ describe('deleting my account', () => {
     expect(row.last_error).toMatch(/^23001: .*blocker_user_id_fkey/);
     expect(row.last_attempt_at).not.toBeNull();
     expect(row.cancelled_at).toBeNull();
-    // The next run tries again; once it can, it deletes her.
     await other.query(`delete from public.blocker where user_id = $1`, [ANA.sub]);
     const second = await (
       await other.query<{ r: Record<string, number> }>(
@@ -654,7 +621,7 @@ describe('deleting my account', () => {
   });
 });
 
-describe('the profile follows what Google sends (Revisión de cero, 2.3)', () => {
+describe('the profile follows what Google sends', () => {
   let db: PGlite;
   beforeAll(async () => {
     db = await newDatabase();
@@ -666,7 +633,6 @@ describe('the profile follows what Google sends (Revisión de cero, 2.3)', () =>
         [ANA.sub],
       )
     ).rows[0]!;
-  /** What Supabase Auth does on a sign-in: it writes again the metadata Google sent. */
   const googleSends = (meta: Record<string, unknown>) =>
     db.query(`update auth.users set raw_user_meta_data = $2 where id = $1`, [ANA.sub, meta]);
 

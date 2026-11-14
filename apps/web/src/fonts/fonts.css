@@ -1,9 +1,5 @@
-/*
- * Inter, the site's only sans: our subset (README.md) has every character the articles use (superscripts and
- * subscripts, arrows, Greek, ± ≥ ≈ ✓ ✗…), so text never falls back to another font in the middle of a word. Letters
- * outside it (ł, ő, Greek with accents) come from @fontsource's files of the same Inter, downloaded only when a page
- * uses one. For a character both cover, the face declared last wins: ours.
- */
+/* The faces of Inter, the site's only sans: its own subset, @fontsource's files for the letters outside it, and a
+   measured Arial fallback. */
 
 @font-face {
   font-family: 'Inter Variable';
@@ -42,6 +38,8 @@
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 
+/* The subset (README.md) has every character the articles use, so text never changes font in the middle of a word.
+   For a character both cover, the face declared last wins: this one. */
 @font-face {
   font-family: 'Inter Variable';
   font-style: normal;

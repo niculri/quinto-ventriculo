@@ -1,3 +1,4 @@
+// Takes a piece off the site (`npm run unpublish`) and puts it back in the list of what can be published.
 import { readFile, writeFile } from 'node:fs/promises';
 import { thumbKeyOf } from '@qv/schema';
 import { defaultQuizId } from './quizzes';
@@ -5,18 +6,13 @@ import type { ContentDatabase } from './targets';
 import { UnpublishedItem, readUnpublished } from './manifest';
 import type { Manifest, UnpublishedKind } from './manifest';
 
-/** The images in R2, as the command needs them. */
 export interface MediaRemover {
   has(key: string): Promise<boolean>;
   delete(key: string): Promise<void>;
-  /**
-   * Deletes every object whose key starts with `prefix` (the browser's index files of an assessment, step 3.3) and says
-   * how many. Without it, they stay in the store (no row names them any more).
-   */
+  /** Without it, the browser's index files of an assessment stay in the store. */
   deletePrefix?(prefix: string): Promise<number>;
 }
 
-/** What unpublish_content() says. */
 export interface UnpublishResult {
   kind: UnpublishedKind;
   id: string;
@@ -43,44 +39,27 @@ export interface UnpublishResult {
 export interface UnpublishOptions {
   db: ContentDatabase;
   store: MediaRemover;
-  /** content/unpublished.json */
   listFile: string;
-  /** The manifest, to find an article by its code or slug and a test by its slug (and to accept what is not published yet). */
   manifest: Pick<Manifest, 'notes' | 'tests'>;
   kind: UnpublishedKind;
-  /** As written: an article by its id (AP-…), its web code (QV-…) or its slug; a test by its id or slug; a deck by its id or full name; an image by its key. */
   id: string;
   reason?: string;
   by: string;
-  /** Only say what it would take off. */
   dryRun?: boolean;
-  /** Accept a deck above an assessment (of a course, a semester or the root), which takes all the assessments below. */
+  /** A deck of a course, a semester or the root takes every assessment below it. */
   aboveAssessment?: boolean;
-  /** Asked after showing what goes (`--yes`: always true). */
   confirm: (summary: string) => Promise<boolean>;
   log?: (line: string) => void;
   now?: () => Date;
 }
 
 export interface UnpublishOutcome {
-  /** What went (or would go, with dryRun). */
   result: UnpublishResult;
-  /** True if it was taken off (false with dryRun, if it was not confirmed or if it was already off). */
   applied: boolean;
-  /** It was already in content/unpublished.json. */
   alreadyListed: boolean;
-  /**
-   * Whether it was also in the draft and left it (step 1.7). When it is published, unpublish_content() takes it out of
-   * the draft in the same transaction (a trigger of unpublish_log): this is the case of a piece that is only in the
-   * draft (never published, or listed before). Null: not asked.
-   */
+  /** Only for a piece that is only in the draft: a published one leaves it through a trigger of unpublish_log. */
   draft: { found: boolean; removed: number } | null;
-  /** Calls to the content database and to R2. */
   calls: { db: number; store: number };
-  /**
-   * The browser's index files deleted (step 3.3): a deck taken off takes its assessments' indexes (the database takes
-   * their rows); an image, its thumbnail.
-   */
   indexFiles?: number;
   ms: number;
 }
@@ -92,7 +71,6 @@ const KIND_NAMES: Record<UnpublishedKind, string> = {
   image: 'la imagen',
 };
 
-/** The id the list keeps, from what the manifest knows (null: the manifest does not have it). */
 export function canonicalId(
   manifest: Pick<Manifest, 'notes' | 'tests'>,
   kind: UnpublishedKind,
@@ -122,7 +100,6 @@ export function canonicalId(
   return null;
 }
 
-/** What the result says, in a few lines. */
 export function describe(r: UnpublishResult, storeHas?: boolean): string {
   const n = r.removed;
   const name = r.title ? ` «${r.title}»` : '';
@@ -164,7 +141,6 @@ export function describe(r: UnpublishResult, storeHas?: boolean): string {
 }
 
 async function writeList(file: string, items: UnpublishedItem[]) {
-  // Kept as the file was (it may not exist yet): only `items` changes.
   let base: Record<string, unknown> = {};
   try {
     base = JSON.parse(await readFile(file, 'utf8')) as Record<string, unknown>;
@@ -175,10 +151,8 @@ async function writeList(file: string, items: UnpublishedItem[]) {
 }
 
 /**
- * Takes a piece off the site (step 1.5): one call to see what goes, the confirmation, the entry in
- * content/unpublished.json (first: so that no import publishes it again, even if what follows fails) and one call that
- * takes it off and records it (unpublish_content). An image is also deleted from R2. With `dryRun`, only the first
- * call (and, for an image, whether R2 has it). Never writes in the users' database.
+ * The list entry is written before taking the piece off, so no import publishes it again even if what follows fails.
+ * Never writes in the users' database.
  */
 export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome> {
   const started = Date.now();
@@ -237,7 +211,6 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
     ms: Date.now() - started,
   });
   let indexFiles = 0;
-  /** The browser's index files of these assessments (step 3.3): no row names them any more. */
   const dropIndexFiles = async (assessments: readonly string[]) => {
     if (!op.store.deletePrefix) return;
     for (const a of assessments) {
@@ -246,7 +219,7 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
       indexFiles += await op.store.deletePrefix(`browse/${a}/`);
     }
   };
-  /** Out of the draft too (a piece that the site does not have, so no record took it out of the draft). */
+  /** For a piece the site does not have, so no record took it out of the draft. */
   const outOfDraft = async (id: string) => {
     if (op.kind === 'deck') {
       // Its assessments' indexes in the draft first: unpublish_draft() takes the decks they are found by.
@@ -327,7 +300,6 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
     calls.store++;
     await op.store.delete(preview.id);
   }
-  // Its thumbnail in the browser's list (step 3.3), if it has one.
   const thumb = op.kind === 'image' ? thumbKeyOf(preview.id) : null;
   if (thumb) {
     calls.store++;
@@ -337,9 +309,8 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
       indexFiles++;
     }
   }
-  // A deck: its assessments' index files (their rows left with it, in public and in the draft).
   if (op.kind === 'deck' && result.found) await dropIndexFiles(result.removed.assessments ?? []);
-  // Published, it left the draft with it (the record's trigger); if not, it may be only in the draft.
+  // A published piece already left the draft through the record's trigger.
   if (!result.found) await outOfDraft(result.id);
   return {
     result,
@@ -352,10 +323,6 @@ export async function unpublish(op: UnpublishOptions): Promise<UnpublishOutcome>
   };
 }
 
-/**
- * Takes a piece out of content/unpublished.json (to publish it again, import afterwards). Null if it was not there.
- * With `dryRun`, only says which entry it would take out (the file is not written).
- */
 export async function restore(
   listFile: string,
   manifest: Pick<Manifest, 'notes' | 'tests'>,
@@ -374,7 +341,6 @@ export async function restore(
   return item;
 }
 
-/** The assessment a note or a test of the manifest is in (to say which import publishes it again). */
 export function assessmentOf(
   manifest: Pick<Manifest, 'notes' | 'tests'>,
   kind: UnpublishedKind,

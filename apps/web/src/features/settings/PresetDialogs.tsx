@@ -1,3 +1,4 @@
+// The dialogs and the field to name, rename and remove a deck options preset.
 import { useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -9,10 +10,9 @@ const frame =
 const field =
   'w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-brand';
 
-/** A name that says what is wrong with it, or null. */
+/** What is wrong with a name, or null. */
 export type NameCheck = (name: string) => string | null;
 
-/** The name of a new configuration. */
 export function PresetNameDialog({
   title,
   initial,
@@ -80,7 +80,6 @@ export function PresetNameDialog({
   );
 }
 
-/** Whether to remove a configuration. */
 export function RemovePresetDialog({
   name,
   users,
@@ -125,10 +124,7 @@ export function RemovePresetDialog({
   );
 }
 
-/**
- * The name of the configuration open, under its dropdown: read only until its button turns on the editing. The author's
- * cannot be renamed. The caller gives it a `key` per configuration: changing to another one starts over.
- */
+/** The caller gives it a `key` per configuration, so that changing to another one starts over. */
 export function PresetNameField({
   name,
   editable,

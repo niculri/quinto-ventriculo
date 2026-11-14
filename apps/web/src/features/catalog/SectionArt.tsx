@@ -1,9 +1,6 @@
+// The decorative drawings behind the cards of a course's page, in the current color for both themes.
 import type { SVGProps } from 'react';
 
-/**
- * The drawings behind the cards of a course's page: line art in the current color, a touch filled, so that
- * they work in the light and the dark theme. Decoration only (the card says what it is).
- */
 function Art({ children, ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -22,7 +19,6 @@ function Art({ children, ...props }: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** An open book with its lines of text and a small double helix on the page. */
 export function NotesArt(props: SVGProps<SVGSVGElement>) {
   return (
     <Art {...props}>
@@ -40,7 +36,6 @@ export function NotesArt(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** A test sheet: questions with their alternatives, one chosen, and a check. */
 export function TestsArt(props: SVGProps<SVGSVGElement>) {
   return (
     <Art {...props}>
@@ -58,7 +53,6 @@ export function TestsArt(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** A stack of flashcards, the top one showing a question. */
 export function AnkiArt(props: SVGProps<SVGSVGElement>) {
   return (
     <Art {...props}>

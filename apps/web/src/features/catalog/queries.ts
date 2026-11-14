@@ -1,3 +1,4 @@
+// The catalog query and the helpers that find notes, courses and decks in it.
 import { useQuery } from '@tanstack/react-query';
 import type {
   AssessmentWithNotes,
@@ -23,7 +24,7 @@ export function useNote(slug: string) {
   return useQuery({
     queryKey: ['note', slug],
     queryFn: ({ signal }) => api.note(slug, signal),
-    // Image URLs last at least one hour; 10 minutes so that a piece taken off the site (step 1.5) stops showing soon.
+    // Image URLs last at least one hour; 10 minutes so that a piece taken off the site stops showing soon.
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,
   });
@@ -38,7 +39,6 @@ export interface NoteLocation {
   next: NoteSummary | null;
 }
 
-/** Where a note is in the catalog, with its neighbors in the same assessment. */
 export function locateNote(c: Catalog, field: 'slug' | 'id', value: string): NoteLocation | null {
   for (const semester of c.semesters) {
     for (const course of semester.courses) {
@@ -72,10 +72,7 @@ export function countNotes(course: CourseWithAssessments): number {
   return course.assessments.reduce((t, a) => t + a.notes.length, 0);
 }
 
-/**
- * How many Anki decks a course has, as one counts them: those with cards of their own whose parent has none
- * («01 - Columna vertebral» with its «Extras» is one deck).
- */
+/** Decks as one counts them: those with cards of their own whose parent has none (a deck and its subdecks are one). */
 export function countDecks(catalog: Catalog, courseId: string, assessmentId?: string): number {
   const decks = catalog.anki.decks;
   const own = new Map(decks.map((d) => [d.id, d.cardCount]));
@@ -91,7 +88,6 @@ export function countDecks(catalog: Catalog, courseId: string, assessmentId?: st
   ).length;
 }
 
-/** «3 apuntes · 1 mazo»; empty if it has neither. */
 export function materialLabel(notes: number, decks: number): string {
   return [
     notes ? `${notes} ${notes === 1 ? 'apunte' : 'apuntes'}` : '',
@@ -101,12 +97,10 @@ export function materialLabel(notes: number, decks: number): string {
     .join(' · ');
 }
 
-/** «1° Semestre» and «2° Semestre» are the 1st year, etc. */
 export function yearOfSemester(number: number): number {
   return Math.ceil(number / 2);
 }
 
-/** Where the semesters the site hides would be (they have no material yet: the administrator's switch, step 1.8). */
 export const MORE_SEMESTERS_SOON = 'Los próximos semestres vienen pronto.';
 
 const KIND_BLOCKS: { kind: NoteKind; title: string }[] = [
@@ -116,11 +110,7 @@ const KIND_BLOCKS: { kind: NoteKind; title: string }[] = [
   { kind: 'summary', title: 'Resúmenes' },
 ];
 
-/**
- * The blocks of an assessment's list of notes, also in the menu: first its groups (weeks), each one with its notes in
- * order, in the order of their first note; then the notes without a group, by kind (lectures, seminars…), as before
- * groups existed.
- */
+/** First the groups (weeks), in the order of their first note; then the notes without a group, by kind. */
 export function noteBlocks(
   notes: readonly NoteSummary[],
 ): { key: string; title: string; notes: NoteSummary[] }[] {

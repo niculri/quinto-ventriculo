@@ -1,3 +1,5 @@
+// Where a card's material is: the article (and its test) of the deck the card is in.
+
 import { useMemo } from 'react';
 import type { Catalog, NoteSummary, QuizSummary } from '@qv/schema';
 import { paths } from '../../app/paths';
@@ -5,7 +7,6 @@ import { buildAnkiTree, descendants } from '../anki/tree';
 import { useCatalog } from '../catalog/queries';
 import { findPracticeDeck, practiceLink } from '../notes/Practice';
 
-/** Where a card's material is: its article and, if it has one, its test in its topics. */
 export interface CardMaterial {
   note: NoteSummary;
   notePath: string;
@@ -13,7 +14,6 @@ export interface CardMaterial {
   quizPath: string | null;
 }
 
-/** Each deck that corresponds to an article (`note.practice.deck`), with what is below it (its Extras). */
 export function materialByDeck(catalog: Catalog): Map<string, CardMaterial> {
   const tree = buildAnkiTree(catalog);
   const out = new Map<string, CardMaterial>();

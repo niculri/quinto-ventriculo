@@ -1,3 +1,4 @@
+// Tests the study heatmap on the home and course pages: figures, day box, keyboard, years, empty and error states.
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
@@ -55,9 +56,7 @@ describe('the heatmap on the home page', () => {
     const box = screen.getByRole('region', { name: 'Días de estudio' });
     await waitFor(() => expect(within(box).getByText('Racha actual')).toBeInTheDocument());
     await waitFor(() => expect(cell(/^10 de noviembre de 2026 \(hoy\)/)).toBeInTheDocument());
-    // Every deck of the student: null.
     expect(calls[0]).toBeNull();
-    // Today without answers: what is due. The days before, what was studied.
     expect(cell(/\(hoy\)/)).toHaveAccessibleName('10 de noviembre de 2026 (hoy): 18 por repasar');
     expect(cell(/^8 de noviembre de 2026/)).toHaveAccessibleName(
       '8 de noviembre de 2026: 32 respuestas',
@@ -68,14 +67,11 @@ describe('the heatmap on the home page', () => {
     expect(cell(/^13 de noviembre de 2026/)).toHaveAccessibleName(
       '13 de noviembre de 2026: 239 por repasar',
     );
-    // 4 days with something (8, 30, 32, 12): 82 ÷ 4 = 20.5, which the add-on (Python's round) makes 20; 4 of the 316
-    // days since 30-12-2025; the 8 and the 9 in a row.
     const figure = (label: string) => within(box).getByText(label).nextElementSibling;
     expect(figure('Promedio diario')).toHaveTextContent('20 respuestas');
     expect(figure('Días estudiados')).toHaveTextContent('1 %');
     expect(figure('Racha más larga')).toHaveTextContent('2 días');
     expect(figure('Racha actual')).toHaveTextContent('2 días');
-    // 54 weeks of 7 days, and the weekdays' column.
     const rows = within(await grid()).getAllByRole('row');
     expect(rows).toHaveLength(7);
     for (const r of rows) expect(r.querySelectorAll('td')).toHaveLength(54);
@@ -92,19 +88,15 @@ describe('the heatmap on the home page', () => {
     const parts = within(box)
       .getAllByRole('listitem')
       .map((li) => li.textContent);
-    // Deck 99 is no longer on the site.
     expect(parts).toEqual(['🦴 Anatomía I25', 'Otros mazos7']);
-    // Only a course on the site has a link; with two courses, no «Ver esas tarjetas» of all of them.
     expect(
       within(box)
         .getAllByRole('link')
         .map((a) => a.getAttribute('href')),
     ).toEqual(['/semesters/1/courses/anatomia-1/anki/cards?day=2026-11-08']);
-    // It floats over the page: outside the section.
     expect(screen.getByRole('region', { name: 'Días de estudio' }).contains(box)).toBe(false);
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).toBeNull();
-    // A day ahead: what is due.
     await userEvent.click(cell(/^13 de noviembre de 2026/));
     expect(await screen.findByRole('dialog')).toHaveTextContent('239 por repasar');
   });

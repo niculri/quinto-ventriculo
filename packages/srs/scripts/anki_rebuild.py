@@ -1,13 +1,8 @@
-"""Like anki_queue.py, but the queue is built again before every card, as the web builds it every time the
-study page opens, after burying or suspending and after an undo: from the cards as they are and from the
-deck counters of what was studied today, which Anki adds up in the deck and in every deck above it.
+"""Like anki_queue.py, but Anki builds the queue again before every card (as the web does) and each step records
+the cards that changed since the one before, as the golden data of test/queue-rebuild.test.ts.
 
     ANKI_TEST_MODE=1 python3 packages/srs/scripts/anki_rebuild.py \
         packages/srs/test/golden/queue-rebuild.json
-
-Each step records the queue and the counts after the rebuild, the time, and the cards that changed since the
-step before (the answer and the siblings it buried), so the test can build its own queue from the same cards
-and from the answers so far (test/queue-rebuild.test.ts).
 """
 
 import json
@@ -126,7 +121,6 @@ def run(sc, index):
         # Selecting another deck and back drops the queue (Op::SetCurrentDeck): the next one is built anew.
         col.decks.select(other)
         col.decks.select(decks["parent"])
-        # Only the cards that changed since the step before (the first step: since `start`).
         changed = [c for c in all_cards() if c != last[c["id"]]]
         last.update({c["id"]: c for c in changed})
         queued = col.sched.get_queued_cards(fetch_limit=1000)

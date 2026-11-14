@@ -1,40 +1,26 @@
+// The final review of an assessment: the cards already seen, as many times as one wants, without touching any
+// date. A round lives only in the page's memory: nothing here knows the repository.
+
 import { retrievability } from '@qv/srs';
 import type { CardRef, StoredCard } from './repository';
 import { cardKey, configsFor, toRecord } from './scheduler';
 import type { StudyData } from './scheduler';
 import { ASSESSMENT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';
 
-/**
- * The final review of an assessment: the cards already seen, as many times as one wants, without touching any date.
- * A round lives only in the page's memory: nothing here knows the repository.
- */
-
-/**
- * FSRS's difficulty goes from 1 to 10. With its default parameters, failing a card once leaves it at 6.4 (the first time
- * it is seen) or 7.4 (a card that was going well); failing it twice takes it above 8.7.
- */
+// FSRS's difficulty goes from 1 to 10; with its defaults one failure leaves a card at 6.4–7.4 and two take it above 8.7.
 const HARD_DIFFICULTY = 8;
 const HARD_LAPSES = 2;
 
-/**
- * «Difícil»: what cost the student more, as FSRS has it: a high difficulty (failed at least twice), forgotten twice
- * after learning it, or a leech.
- */
 export function isHard(row: StoredCard): boolean {
   return row.leech || row.lapses >= HARD_LAPSES || (row.difficulty ?? 0) >= HARD_DIFFICULTY;
 }
 
 export interface ReviewPools {
-  /** Everything already seen, what one is about to forget first. */
   all: CardRef[];
-  /** The marked ones and the difficult ones, in the same order. */
   hard: CardRef[];
 }
 
-/**
- * Cards under «No mostrar más» do not come, nor Extras if the assessment does not include them. Weeks or lectures
- * turned off do: what was seen of them is still material. `marks`: the marks changed since `data` was read.
- */
+// Weeks or lectures turned off still come: what was seen of them is still material.
 export function reviewPools(
   data: StudyData,
   marks: ReadonlyMap<string, number> = new Map(),
@@ -91,9 +77,7 @@ export function apartSiblings<T extends { ref: CardRef }>(cards: T[]): T[] {
 export interface Round {
   queue: CardRef[];
   total: number;
-  /** Cards that got «Bien». */
   done: number;
-  /** Times «Otra vez» was pressed. */
   again: number;
   revealed: boolean;
 }
@@ -108,7 +92,6 @@ export const startRound = (cards: CardRef[]): Round => ({
 
 export const revealCard = (round: Round): Round => ({ ...round, revealed: true });
 
-/** «Otra vez» sends the card to the end of this round; «Bien» takes it out. */
 export function answerRound(round: Round, answer: 'again' | 'good'): Round {
   const [current, ...rest] = round.queue;
   if (!current || !round.revealed) return round;
@@ -117,7 +100,6 @@ export function answerRound(round: Round, answer: 'again' | 'good'): Round {
     : { ...round, queue: rest, done: round.done + 1, revealed: false };
 }
 
-/** The card on screen is no longer on the site (the author took it out): it leaves the round. */
 export const dropCurrent = (round: Round): Round => ({
   ...round,
   queue: round.queue.slice(1),

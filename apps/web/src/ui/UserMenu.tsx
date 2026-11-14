@@ -1,3 +1,4 @@
+// The account menu of the top bar: theme, options, administration, help and signing out.
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { paths } from '../app/paths';
 import { CircleHelp, LogOut, Settings, ShieldCheck } from 'lucide-react';
@@ -58,7 +59,6 @@ export function UserMenu() {
         aria-label={user.name ? `${user.name}, tu cuenta` : 'Tu cuenta'}
         className="flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5"
       >
-        {/* The name to the left of the photo; on the phone only the photo fits. */}
         {user.name ? (
           <span className="hidden max-w-[14rem] truncate sm:block">{user.name}</span>
         ) : null}
@@ -78,11 +78,9 @@ export function UserMenu() {
             <ThemePicker />
           </div>
           <Menu.Separator className="my-1 h-px bg-border" />
-          {/* «Opciones»: its page has the menu of its sections. */}
           <Menu.Item className={item} onSelect={() => navigate(paths.settings)}>
             <Settings className="size-4 text-muted" aria-hidden="true" /> Opciones
           </Menu.Item>
-          {/* Step 2.10: its own page, only for an administrator (the menu opens after the answer is known). */}
           {isAdmin.data === true ? (
             <Menu.Item className={item} onSelect={() => navigate(paths.admin)}>
               <ShieldCheck className="size-4 text-muted" aria-hidden="true" /> Administración

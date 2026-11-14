@@ -1,3 +1,5 @@
+// «Ponte a prueba» at the end of an article: links to the note's practice test (in its topics) and its Anki deck.
+
 import { useMemo } from 'react';
 import { ArrowRight, Layers, ListChecks } from 'lucide-react';
 import { Link } from 'react-router';
@@ -11,15 +13,10 @@ import type { NoteLocation } from '../catalog/queries';
 import { Html } from '../quiz/Figures';
 import { useQuizDetail } from '../quiz/queries';
 
-/** The anchor of «Ponte a prueba» (the TOC's last entry). */
 export const PRACTICE_ANCHOR = 'ponte-a-prueba';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-/**
- * What «Ponte a prueba» links to: the test the note names (or else the first of its assessment), opened in
- * the note's topics, and the note's Anki deck if one with that name is published in the same assessment.
- */
 export function usePractice(note: Note, location: NoteLocation | null) {
   const catalog = useCatalog();
   const practice = note.practice;
@@ -39,10 +36,7 @@ export function usePractice(note: Note, location: NoteLocation | null) {
   return { quiz, deck, section: quiz ? practice?.section : undefined };
 }
 
-/**
- * The link to the test: in the note's tab, with its topics chosen. A test with a single tab has no segment
- * for it in the URL, but its topics can be chosen all the same; in one with several, topics need the tab.
- */
+/** A single-tab test has no tab segment in the URL but takes topics; with several tabs, topics need the tab. */
 export function practiceLink(
   course: CourseRef,
   quiz: Pick<QuizSummary, 'assessmentId' | 'slug' | 'sectionCount'>,
@@ -58,10 +52,6 @@ export function practiceLink(
   );
 }
 
-/**
- * The tab whose topics «Ponte a prueba» opens: the one the note names or, in a test with a single tab, that
- * one (its URL has no segment for it, but its topics can be chosen all the same). Null: no topics.
- */
 export function topicsSection(
   quiz: Pick<QuizSummary, 'sectionCount'>,
   section: string | undefined,
@@ -71,7 +61,6 @@ export function topicsSection(
   return quiz.sectionCount === 1 ? (sections?.[0]?.id ?? null) : null;
 }
 
-/** The deck of that name (the last part of its full name) in the assessment, if it is published. */
 export function findPracticeDeck(
   tree: AnkiTree,
   assessmentId: string,
@@ -84,10 +73,6 @@ export function findPracticeDeck(
   );
 }
 
-/**
- * «Ponte a prueba», at the end of an article (after its «Resumen»): the practice test in this lecture's
- * topics and, if published, its Anki deck.
- */
 export function Practice({ note, location }: { note: Note; location: NoteLocation }) {
   const { quiz, deck, section } = usePractice(note, location);
   const detail = useQuizDetail(quiz?.id ?? null);

@@ -1,5 +1,4 @@
-// The nightly CI (step 1.9) must never publish: deploy.yml only deploys a CI run whose event is a push to main.
-// These are text checks on the workflow files, so that a change to them that breaks it is caught.
+// Text checks on the workflows and the hook: only a CI run of a push to main deploys, and they agree on what runs.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -31,7 +30,6 @@ describe('GitHub workflows', () => {
       m[1]!.split(',').map((p) => p.trim().replace(/^'|'$/g, '')),
     );
     expect(lists).toEqual([[...CI_IGNORED_PATHS], [...CI_IGNORED_PATHS]]);
-    // The nightly run is not filtered.
     expect(ci).not.toMatch(/schedule:[\s\S]*paths/);
     for (const path of ['docs/configuracion.md', '.claude/specs/x.md', 'README.md', 'CLAUDE.md']) {
       expect(ciIgnored(path)).toBe(true);
@@ -53,7 +51,6 @@ describe('GitHub workflows', () => {
   });
 
   it('npm run deploy and deploy.yml look at the same workflow', () => {
-    // npm run deploy asks for it by file; deploy.yml waits for it by name.
     expect(CI_WORKFLOW_FILE).toBe('ci.yml');
     expect(ci).toMatch(/^name: CI$/m);
     expect(deploy).toMatch(/workflows: \[CI\]/);
@@ -65,7 +62,6 @@ describe('GitHub workflows', () => {
     expect(deploy).toContain(
       'github.event.workflow_run.head_repository.full_name == github.repository',
     );
-    // No schedule of its own.
     expect(deploy).not.toMatch(/^\s*schedule:/m);
   });
 

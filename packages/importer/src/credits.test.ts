@@ -1,3 +1,4 @@
+// Tests the check of content/credits.json: a person is named only with a written, dated permission.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -12,7 +13,7 @@ const person = (over: object = {}) => ({
   ...over,
 });
 
-describe('content/credits.json: a name only with a written permission and its date (step 2.7)', () => {
+describe('content/credits.json: a name only with a written permission and its date', () => {
   it('an empty list and a complete row pass', () => {
     expect(checkCredits({ people: [] }, TODAY)).toEqual([]);
     expect(checkCredits({ people: [person()] }, TODAY)).toEqual([]);
@@ -41,7 +42,6 @@ describe('content/credits.json: a name only with a written permission and its da
     expect(checkCredits({ people: [person({ name: '' })] }, TODAY)).toEqual(['fila 1: sin nombre']);
   });
 
-  // The private repository's file: where it is; skipped in the public CI.
   const PRIVATE = privateMaterial();
   it.skipIf(!PRIVATE.content)(
     PRIVATE.content

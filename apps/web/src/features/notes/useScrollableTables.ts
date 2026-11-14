@@ -1,10 +1,9 @@
+// Makes the wrapper of an article's table reachable by keyboard and labeled only while the table scrolls sideways;
+// narrow tables stay out of the Tab order.
+
 import { useEffect } from 'react';
 import type { RefObject } from 'react';
 
-/**
- * A table wider than the column scrolls sideways in its wrapper (`.table-scroll`): the wrapper has to be reachable with
- * the keyboard (Tab, then the arrows) and say what it is. Narrow tables stay out of the Tab order.
- */
 export function useScrollableTables(body: RefObject<HTMLElement | null>, html: string) {
   useEffect(() => {
     const root = body.current;

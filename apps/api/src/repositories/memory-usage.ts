@@ -1,12 +1,9 @@
+// Made-up «Uso» figures and opens for the local demo, over the demo catalog's units, tests and courses.
 import { FEW } from '@qv/schema';
 import type { AdminUsageRow, ContentBundle } from '@qv/schema';
 import { memoryUsageEvents, siteDay } from '../usage';
 import type { UsageEvent, UsageGroups, UsageStatsSource } from '../usage';
 
-/**
- * «Uso» of the local demo (step 2.9): made-up figures, the same every time for the same day, with some of them «<5» as
- * the users' database gives them; the units, tests and courses are the demo catalog's (from the groups the API builds).
- */
 export function demoUsageStats(now: () => number = Date.now): UsageStatsSource {
   return {
     async stats(_token, groups) {
@@ -17,7 +14,7 @@ export function demoUsageStats(now: () => number = Date.now): UsageStatsSource {
 
 const DAY_MS = 86_400_000;
 
-/** A figure that goes up and down with the day, never random (the e2e tests compare the page twice). */
+/** Never random: the e2e tests compare the page twice. */
 const wave = (i: number, base: number, swing: number) =>
   Math.max(0, Math.round(base + swing * Math.sin(i / 2.3) + (i % 3)));
 
@@ -96,10 +93,6 @@ function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
   };
 }
 
-/**
- * The opens of the demo: made-up points of the last days for the demo catalog's notes, decks and tests, and the ones
- * the demo itself counts while it is used.
- */
 export function demoUsageEvents(bundle: ContentBundle, now: () => number = Date.now) {
   const seed: (UsageEvent & { at: number })[] = [];
   const t = now();

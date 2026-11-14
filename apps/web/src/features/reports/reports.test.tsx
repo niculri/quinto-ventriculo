@@ -1,3 +1,4 @@
+// Tests reporting errors from articles, cards and tests, the admin queue, «Mis reportes» and the legal texts.
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -19,7 +20,6 @@ import { cardTarget, splitCardId } from './targets';
 const NOTE_PATH = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const QUIZ_PATH = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica/pautas';
 
-/** A repository in memory that remembers what was sent. */
 function recording(options: Parameters<typeof localReportsRepository>[0] = {}) {
   const inner = localReportsRepository({ admin: true, ...options });
   const sent: NewReport[] = [];
@@ -154,12 +154,10 @@ describe('«Reportar error» in an article', () => {
       sectionTitle: 'Sitios A, P y E',
       quote: { exact: 'Texto.' },
     });
-    // The words around it come from its own paragraph: the heading before is another block.
     expect(sent[0]!.location.quote?.prefix).toBeUndefined();
   });
 
   it('a tap on the bar that takes the selection away (as a phone does) still reports what was selected', async () => {
-    // Revisión de cero (2.6): the bar went away with the selection, before the tap's click arrived.
     const { repo, sent } = recording();
     const user = userEvent.setup();
     renderApp(NOTE_PATH, { reports: repo });
@@ -181,7 +179,6 @@ describe('«Reportar error» in an article', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
     expect(within(dialog).getByLabelText('Texto seleccionado')).toHaveTextContent('Texto.');
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
-    // Without a selection, the bar goes in a moment, and does not come back after the popup.
     await waitFor(() =>
       expect(screen.queryByRole('button', { name: 'Reportar lo seleccionado' })).toBeNull(),
     );
@@ -231,7 +228,6 @@ describe('«Reportar error» in an article', () => {
 
 describe('the links of a report', () => {
   it('a card whose guid has «:» goes to that card', () => {
-    // Revisión de cero (2.6): splitting at the first «:» took to another note.
     const target = cardTarget({
       noteGuid: 'a:b`{c',
       ord: 2,
@@ -266,7 +262,6 @@ describe('«Reportar error» in a test', () => {
     renderApp(QUIZ_PATH, { reports: repo });
     await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
     await screen.findByRole('heading', { level: 2, name: '¿Qué muestra el gel?' });
-    // Before answering, nothing to report there (the verdict is not there yet).
     expect(screen.queryByRole('button', { name: 'Reportar error' })).toBeNull();
     await user.click(
       within(screen.getByRole('list', { name: 'Alternativas' })).getByRole('button', {
@@ -303,7 +298,6 @@ describe('«Reportar error» in a test', () => {
   });
 });
 
-/** A queue with three students in one card and one in a question. */
 function fakeQueue(resolved: ResolveInput[]): ReportsRepository {
   const person = (i: number) => ({
     id: `u${i}`,
@@ -372,13 +366,11 @@ describe('the panel, by content', () => {
     expect(screen.getByText(/Cambió de la versión 1 a la 2|vio la versión 1/)).toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: 'Mostrar quién reportó' }));
     expect(screen.getByText(/Alumno Inventado 1/)).toBeInTheDocument();
-    // The precision only orders the queue: it is not shown, not even with the names (revisión de cero, 2.6).
     expect(screen.queryByText(/%|corregidos de|revisados/)).toBeNull();
 
     await user.click(screen.getByRole('button', { name: 'Resolver' }));
     const dialog = await screen.findByRole('dialog', { name: 'Resolver' });
     const version = within(dialog).getByLabelText('Corregido en la versión');
-    // The newest version reported is 2: the fix goes in the next one.
     expect(version).toHaveValue('3');
     await user.clear(version);
     await user.type(version, '3');
@@ -488,7 +480,6 @@ describe('/privacy says what is true', () => {
       `${REPORT_LIMITS.perDay} al día, y ${REPORT_LIMITS.openPerPlace} sin revisar en un mismo lugar`,
     );
     expect(page).toHaveTextContent(/hasta 12 meses después de que se decide/);
-    // The order of the queue is automatic; taking away the permission to report is not.
     expect(page).toHaveTextContent(/ordenar los reportes que revisa el administrador/);
     expect(page).toHaveTextContent(/el permiso de reportar lo decide una persona/);
     expect(page).toHaveTextContent(/resultaron ser errores no lo ve/);

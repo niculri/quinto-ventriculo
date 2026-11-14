@@ -1,4 +1,4 @@
-// `npm run deploy [-- options]`: see deploy.ts. Runs from anywhere inside the repository.
+// `npm run deploy`: runs deploy.ts with the real git, gh, files and clock.
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -64,7 +64,6 @@ const environment: DeployEnvironment = {
 const takenByNpm = flagsTakenByNpm(process.env);
 const parsed = parseArgs(process.argv.slice(2), DEFAULT_SITE);
 if (takenByNpm.length) {
-  // `npm run deploy --dry-run`: the script never sees --dry-run and would deploy for real.
   console.error(npmFlagsMessage(takenByNpm));
   process.exitCode = 2;
 } else if (parsed.kind === 'help') {

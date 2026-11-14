@@ -1,10 +1,6 @@
+// Fake session of the demo mode: only the demo API that Vite mounts accepts its token; the Worker rejects it.
 import type { Session, SessionService } from './service';
 
-/**
- * Fake session of the demo mode (`npm run dev:demo`). Only the demo API that Vite mounts in development
- * accepts the token; the production Worker rejects it like any invalid token.
- */
-/** The demo account's email (it confirms «Eliminar mi cuenta» in the demo). */
 export const DEMO_EMAIL = 'demo@ug.uchile.cl';
 
 const DEMO_SESSION: Session = {
@@ -37,7 +33,6 @@ export function demoSessionService(): SessionService {
       listeners.add(f);
       return () => listeners.delete(f);
     },
-    // The landing page sees the new session and moves on to the destination by itself.
     async signInWithGoogle() {
       localStorage.setItem(KEY, '1');
       notify();

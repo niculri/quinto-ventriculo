@@ -1,3 +1,6 @@
+// Tests the simple Anki on screen: a new student, the two-button study screen, loading and failing data, quick
+// changes in a row, empty pages, the keyboard and «Opciones».
+
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -7,7 +10,6 @@ import { cardShadowRoot } from '../decks/CardFrame';
 import { localStudyRepository } from './repository';
 import type { StudyRepository } from './repository';
 
-/** A student who just arrived, with the deck's week turned on and the welcome already closed. */
 function student(over: { welcomeSeen?: boolean; fourButtons?: boolean } = {}): StudyRepository {
   return localStudyRepository(null, { welcomeSeen: true, ...over });
 }
@@ -64,12 +66,10 @@ describe('a student who just arrived', () => {
     expect(load).toHaveAttribute('aria-expanded', 'true');
     expect(within(today).getByText('Nuevas')).toBeInTheDocument();
     expect(screen.queryByRole('combobox', { name: 'Opciones de este mazo' })).toBeNull();
-    // Weeks and lectures are chosen with their switches: the site's menu does not go to them.
     const menu = screen.getByRole('navigation', { name: 'Menú del sitio' });
     expect(within(menu).getByRole('link', { name: 'Anki' })).toBeInTheDocument();
     expect(within(menu).queryByRole('link', { name: 'Todo el certamen' })).toBeNull();
     expect(within(menu).queryByRole('link', { name: 'S1 - Semana de prueba' })).toBeNull();
-    // Its Extras is not listed as a deck.
     expect(screen.queryByText('Extras')).toBeNull();
   });
 
@@ -109,7 +109,6 @@ describe('a student who just arrived', () => {
         newPerDay: 35,
       }),
     );
-    // With it on, the Extras is one more deck of the list.
     expect(await screen.findAllByText('Extras')).not.toHaveLength(0);
   });
 
@@ -130,7 +129,6 @@ describe('a student who just arrived', () => {
 
   it('«Quien ya estudió no pierde nada»: what they answered counts as on, until they turn it off', async () => {
     const study = student();
-    // An answer of the deck, before this version existed.
     await study.recordReview({
       card: { noteGuid: 's@/AqX%n?#', ord: 0, deckId: '20' },
       expectedUpdatedAt: null,
@@ -185,7 +183,6 @@ describe('the study screen in simple mode', () => {
         .getAllByRole('button')
         .map((b) => b.getAttribute('aria-label')),
     ).toEqual(['Otra vez (<1 m)', 'Bien (<10 m)']);
-    // The keys of the other two buttons do nothing.
     fireEvent.keyDown(window, { key: '3' });
     fireEvent.keyDown(window, { key: '4' });
     expect(await study.answersSince(new Date(0))).toHaveLength(0);
@@ -212,7 +209,6 @@ describe('the study screen in simple mode', () => {
 
   it('«Saltar por hoy» buries the note, «No mostrar más» suspends the card, and undo is a button', async () => {
     const study = await studying(await withWeekOn());
-    // No Anki's menu here.
     await userEvent.click(screen.getByRole('button', { name: 'Más' }));
     let menu = await screen.findByRole('menu');
     expect(within(menu).queryByRole('menuitem', { name: /Enterrar/ })).toBeNull();
@@ -247,7 +243,6 @@ describe('the study screen in simple mode', () => {
 
   it('with a big load, it warns once and offers to stop', async () => {
     const study = await withWeekOn();
-    // Slow answers: the 3 new cards of the test deck take more than 45 minutes.
     study.medianAnswerMs = async () => 500_000;
     await studying(study);
     const notice = (await screen.findAllByRole('status')).find((s) =>
@@ -282,7 +277,6 @@ describe('the study screen in simple mode', () => {
   });
 });
 
-/** The deck never arrives: what a slow connection shows for a while. */
 const slowDeck = () => fakeApi({ deck: () => new Promise(() => {}) });
 
 describe('while the data arrives, nothing that will have to change', () => {
@@ -292,7 +286,6 @@ describe('while the data arrives, nothing that will have to change', () => {
     expect(within(list).getByText('S1 - Semana de prueba')).toBeInTheDocument();
     expect(screen.queryByRole('table', { name: 'Submazos' })).toBeNull();
     expect(screen.queryByText('Extras')).toBeNull();
-    // The switch is already there: it does not depend on the deck.
     expect(await screen.findByRole('switch', { name: /Activar S1/ })).not.toBeChecked();
   });
 
@@ -343,7 +336,7 @@ describe('while the data arrives, nothing that will have to change', () => {
     expect(within(today).queryByRole('link', { name: 'Elegir qué estudiar' })).toBeNull();
   });
 
-  it('the home page counts without the deck (step 3.2)', async () => {
+  it('the home page counts without the deck', async () => {
     let decks = 0;
     const api = fakeApi({
       deck: () => {
@@ -430,7 +423,6 @@ describe('two changes in a row', () => {
       release();
       await new Promise((resolve) => setTimeout(resolve, 20));
     });
-    // The first one is saved, the second one is still on its way: the plan is not read yet.
     expect(reads).toBe(before);
     expect(extras).toBeChecked();
     await act(async () => {
@@ -486,7 +478,6 @@ describe('a page with nothing to show still says what to do', () => {
     expect(await screen.findByText('Todavía no hay material de este ramo.')).toBeInTheDocument();
     page.unmount();
     renderApp('/semesters/2/courses/fisica/anki', { study: student() });
-    // In the breadcrumbs and in the menu, whichever arrives first.
     expect((await screen.findAllByRole('link', { name: /Inicio/ })).length).toBeGreaterThan(0);
     expect(screen.queryByRole('heading', { name: /Todavía no activas/ })).toBeNull();
   });
@@ -515,7 +506,6 @@ describe('a page with nothing to show still says what to do', () => {
 });
 
 describe('the keyboard in the study screen', () => {
-  /** The test catalog with an article of the test deck. */
   function withMaterial(): Catalog {
     const copy = structuredClone(CATALOG);
     const assessment = copy.semesters[0]!.courses[0]!.assessments[0]!;
@@ -552,7 +542,7 @@ describe('the keyboard in the study screen', () => {
     );
   });
 
-  it('a tip once (step 3.2): after answering, the next answer says what «Ver apunte» is', async () => {
+  it('a tip once: after answering, the next answer says what «Ver apunte» is', async () => {
     window.localStorage.removeItem('qv-tips-shown');
     window.sessionStorage.clear();
     const study = await withWeekOn();
@@ -563,7 +553,6 @@ describe('the keyboard in the study screen', () => {
     await cardText(/Frente de la tarjeta/);
     fireEvent.keyDown(window, { key: ' ' });
     await screen.findByRole('link', { name: 'Ver apunte' });
-    // Not before doing it.
     expect(screen.queryByText('lleva al apunte del que sale esta tarjeta')).toBeNull();
     fireEvent.keyDown(document.body, { key: 'Enter' });
     await cardText(/Frente de la tarjeta/);
@@ -572,7 +561,6 @@ describe('the keyboard in the study screen', () => {
       await screen.findByText('lleva al apunte del que sale esta tarjeta'),
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar el consejo' }));
-    // Closed, it keeps its room (hidden) until the visit ends: «Ver apunte» does not move (review of 3.2).
     expect(screen.queryByRole('button', { name: 'Cerrar el consejo' })).toBeNull();
     expect(
       screen.getByText('lleva al apunte del que sale esta tarjeta').closest('[aria-hidden="true"]'),
@@ -688,7 +676,6 @@ describe('«Opciones» in simple mode', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     const extras = await screen.findByRole('region', { name: 'Avanzado' });
     expect(within(extras).getByLabelText('Límite del estudio por adelantado')).toBeInTheDocument();
-    // The 4 buttons are still a choice of their own.
     expect(screen.getByRole('switch', { name: 'Mostrar los 4 botones' })).toBeEnabled();
     expect(screen.getByRole('switch', { name: 'Mostrar los 4 botones' })).not.toBeChecked();
     expect((await screen.findAllByText('Configuración de mazos')).length).toBeGreaterThan(0);

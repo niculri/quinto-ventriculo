@@ -1,14 +1,11 @@
+// The notice shown when a page crashes, instead of React Router's own; for example, a part of the web that a new
+// version removed, which reloading fixes.
 import { useEffect } from 'react';
 import { paths } from '../app/paths';
 import { useRouteError } from 'react-router';
 import { Notice } from './Notice';
 import { button } from './styles';
 
-/**
- * What is shown if a page crashes (instead of React Router's «Unexpected Application Error»). It happens, for
- * example, if after a new version is published the browser asks for a part of the web that no longer exists:
- * reloading fixes it.
- */
 export function RouteError() {
   const error = useRouteError();
   useEffect(() => {

@@ -1,11 +1,7 @@
+// One-time tips: at most one a visit, shown after the action it is about, once per device, and never again once closed.
 import { useEffect, useState } from 'react';
 import { usePreferences, useSavePreferences } from '../study/queries';
 
-/**
- * One-time tips (plan step 3.2, EXP-C7): at most one a visit, and only after doing what it is about (after answering a
- * card, «Ver apunte»; after reading a note, the search). It is shown once on each device; closed, it does not come back
- * on any (`study_preferences.dismissed`).
- */
 export type TipId = 'tip-material' | 'tip-search';
 
 const SESSION_KEY = 'qv-tip';
@@ -28,13 +24,11 @@ function shownOnThisDevice(): string[] {
   }
 }
 
-/** `done`: the student already did the action the tip follows. */
 export function useTip(id: TipId, done: boolean) {
   const { prefs } = usePreferences();
   const save = useSavePreferences();
   const [show, setShow] = useState(false);
   const [slot, setSlot] = useState(false);
-  // Shown once in this visit: where it was keeps its room after it is closed (review of 3.2).
   const [shown, setShown] = useState(false);
   if (show && !shown) setShown(true);
   const eligible =
@@ -42,10 +36,8 @@ export function useTip(id: TipId, done: boolean) {
     !prefs.dismissed.includes(id) &&
     (storage('session')?.getItem(SESSION_KEY) ?? id) === id &&
     (!shownOnThisDevice().includes(id) || storage('session')?.getItem(SESSION_KEY) === id);
-  // Once it can be shown, its room stays for the visit (closing it moves nothing).
   if (eligible && !slot) setSlot(true);
   if (done && eligible && !show) setShow(true);
-  // Shown: not again in this visit for another tip, nor on this device.
   useEffect(() => {
     if (!show) return;
     try {
@@ -53,13 +45,12 @@ export function useTip(id: TipId, done: boolean) {
       const shown = shownOnThisDevice();
       if (!shown.includes(id)) storage('local')?.setItem(SHOWN_KEY, JSON.stringify([...shown, id]));
     } catch {
-      // blocked storage: it may show again another time
+      // may show again
     }
   }, [id, show]);
   return {
-    /** The tip can come in this visit: where it goes in the page keeps its room from the start. */
+    // Both keep the tip's room in the page for the whole visit, so closing it moves nothing.
     slot,
-    /** It was shown in this visit (closed or not): a tip that comes into a line keeps its room until the visit ends. */
     shown,
     show: show && !!prefs && !prefs.dismissed.includes(id),
     close: () => {

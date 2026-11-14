@@ -1,3 +1,6 @@
+// Checks «Hoy» against the study screen in harder courses: notes split across assessments, relearning, ended burials,
+// the assessment mode and, in «Modo avanzado», presets with small review limits and burying that differs by deck.
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { dayStartsAt } from '@qv/srs';
 import type { AnkiTreeDeck, CardSummary } from '@qv/schema';
@@ -10,15 +13,6 @@ import { cardKey, timingFor } from '../study/scheduler';
 import type { StudyData, TreeDeck } from '../study/scheduler';
 import { EMPTY_PLAN } from '../study/simple';
 import { decayByDeck, homeCourseCounts } from './counts';
-
-/**
- * Review of step 3.2: «Hoy» without the deck against the study screen in harder courses than counts.test.ts: two
- * assessments, notes split across topics, weeks and assessments, cards in the week decks, relearning, learning steps
- * after the learn-ahead limit, burials that already ended, answers of today, the assessment mode with progress, and in
- * «Modo avanzado» the student's presets with small review limits, every gather priority and review order, and burying
- * that differs from deck to deck. Before the review, «Modo avanzado» gave other numbers in about 1 of 400 courses: the
- * order of the cards due today mattered (dueOrderMatters()).
- */
 
 function random(seed: number) {
   let a = seed >>> 0;
@@ -55,7 +49,6 @@ const REVIEW = [
   'retrievabilityAscending',
 ];
 
-/** A harder course: two assessments, notes split across topics, weeks and assessments, cards in the week decks. */
 function scenario(seed: number, mode: 'any' | 'simple' | 'advanced' = 'any') {
   const rnd = random(seed);
   const pick = <T>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)]!;
@@ -149,7 +142,6 @@ function scenario(seed: number, mode: 'any' | 'simple' | 'advanced' = 'any') {
   for (const d of decks) d.ownCards = own.get(d.id) ?? 0;
   const full = mode === 'advanced' ? true : mode === 'simple' ? false : rnd() < 0.5;
   const units = decks.filter((d) => d.name.split('::').length === 5);
-  // User presets of «Modo avanzado», with burying and limits that differ from deck to deck.
   const presets: UserPreset[] = [];
   const settings: { deckId: string; presetId: string | null; authorPreset: string | null }[] = [];
   if (full) {
@@ -320,7 +312,6 @@ describe('«Hoy» without the deck, harder courses', () => {
       }
       if (process.env.QV_SEEDS) console.log(mode, 'exact', exact, 'unknown', unknown);
       expect(wrong).toEqual([]);
-      // Not empty: a good part of them it knows without the deck.
       expect(exact).toBeGreaterThan(seeds / 10);
     }, 120_000);
   }

@@ -1,3 +1,4 @@
+// Setup of the web's Vitest tests in jsdom: matchers, cleanup, timeouts and the browser APIs jsdom lacks.
 import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach } from 'vitest';

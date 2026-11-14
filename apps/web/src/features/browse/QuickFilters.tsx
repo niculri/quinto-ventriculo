@@ -1,6 +1,7 @@
+// One-click filters over the browser's search (a card state, «Marcadas»), written into it in Anki's syntax.
+
 import { Flag } from 'lucide-react';
 
-/** The state of a card, one at a time. */
 const STATES = [
   // Not «Para hoy»: `is:due` has no new cards, and on the deck pages «62 para hoy» counts them.
   { label: 'A repasar hoy', term: 'is:due' },
@@ -20,10 +21,6 @@ const has = (query: string, term: string) => termRegex(term).test(query);
 const without = (query: string, term: string) =>
   query.replace(termRegex(term), ' ').replace(/\s+/g, ' ').trim();
 
-/**
- * One click instead of Anki's syntax: the state and «Marcadas», over whatever the search has (a deck, a text).
- * The syntax is still what the search understands, and what a filter writes in it.
- */
 export function QuickFilters({
   query,
   onSearch,

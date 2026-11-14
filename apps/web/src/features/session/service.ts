@@ -1,3 +1,4 @@
+// The authentication service the web uses, and its Supabase implementation (Google sign-in).
 import type { Session as SupabaseSession, SupabaseClient } from '@supabase/supabase-js';
 import { ALLOWED_DOMAIN } from '@qv/schema';
 
@@ -6,9 +7,7 @@ export interface SessionUser {
   email: string;
   name: string | null;
   avatar: string | null;
-  /** When the account was created (ISO), as Supabase Auth says; null if it does not say. */
   createdAt: string | null;
-  /** The last sign-in with Google (ISO). */
   lastSignInAt: string | null;
 }
 
@@ -17,11 +16,9 @@ export interface Session {
   user: SessionUser;
 }
 
-/** Everything the web needs from authentication. There is a Supabase implementation and a demo one. */
 export interface SessionService {
   current(): Promise<Session | null>;
   subscribe(onChange: (s: Session | null) => void): () => void;
-  /** Goes to Google. On return, the web lands on /auth/callback and from there on `next`. */
   signInWithGoogle(next: string): Promise<void>;
   signOut(): Promise<void>;
 }
@@ -59,7 +56,7 @@ export function supabaseSessionService(client: SupabaseClient): SessionService {
       try {
         sessionStorage.setItem(NEXT_KEY, next);
       } catch {
-        // without sessionStorage it goes back home
+        // goes back home
       }
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',

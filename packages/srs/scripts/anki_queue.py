@@ -1,16 +1,8 @@
-"""Studies a deck tree in real Anki (25.9.x, v3 scheduler, FSRS on) and records the queue, to compare the
-@qv/srs queue with it.
+"""Studies deck trees in real Anki (25.9.x, v3 scheduler, FSRS on) and records the queue at every answer,
+as the golden data of the @qv/srs queue.
 
     ANKI_TEST_MODE=1 python3 packages/srs/scripts/anki_queue.py \
         packages/srs/test/golden/queue.json
-
-For each scenario: a parent deck with two subdecks (one with 0 new cards a day, like «Extras»), notes with
-one, two and three cards (siblings), cards put straight into every state (new, learning today, learning on a
-later day, reviews due and not due, suspended, buried), the counters of what was «studied today» and the three
-presets. Then it studies: shows the next card, records it with the whole queue and the counts (new, learning,
-review), answers it with a fixed pattern and goes on until the deck is finished. Card and note ids and the
-cards' modification times go in the trace: the test gives them to the queue, so Anki's random tie-breaks
-(fnvhash of the card id and its mtime) are the same.
 """
 
 import json
@@ -197,8 +189,8 @@ def run(sc, index):
                 json.dumps({"s": s, "d": d, "lrt": now - since * DAY - 60}, separators=(",", ":")), cid)
 
     col.decks.select(decks["parent"])
+    # Ids and mtimes go in the trace so the test's queue breaks ties like Anki (fnvhash of the card id and mtime).
     cards = [card_dict(col, cid) for cid in col.db.list("select id from cards order by id")]
-    # The days of the collection: the stats of the decks (new and reviews studied today).
     studied = {key: list(sc["studied"].get(key, (0, 0))) for key in decks}
     steps = []
     for n in range(200):

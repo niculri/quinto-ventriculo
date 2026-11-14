@@ -1,3 +1,5 @@
+// Checks that the creator's picture, which only the build takes from the private repository, never enters this
+// repository (nor a copy of it), and that the build shrinks it and gives the page its URL.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -11,14 +13,6 @@ import {
   creatorPhotoAsset,
   creatorPhotoSource,
 } from '../build/creator-photo';
-
-/**
- * Step 2.7: the creator's picture on /about is not this repository's to publish (it is a drawing of a character that
- * belongs to somebody else, and this repository is AGPL). It lives in the private repository and only the build takes
- * it (`build/creator-photo.ts`). These checks fail if it, a copy of it (renamed, shrunk, converted) or anything named
- * like it is ever tracked here, staged, or left in the working tree where `git add` would take it, and if a commit
- * ever carried it.
- */
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 const git = (args: string[], input?: Uint8Array) =>
@@ -88,8 +82,7 @@ describe('the creator’s picture never enters this repository', () => {
     );
   });
 
-  // Where the private repository is (the owner's computer, and its pre-push hook); the public CI does not have the
-  // picture, so it cannot look for it.
+  // Only where the private repository is (and in its pre-push hook): the public CI does not have the picture.
   it('no image tracked, staged or about to be added is the picture, nor a copy of it', async () => {
     const source = creatorPhotoSource();
     if (process.env.QV_REQUIRE_PRIVATE === '1') expect(source).not.toBeNull();
@@ -138,7 +131,6 @@ describe('the creator’s picture never enters this repository', () => {
   });
 
   it('the comparison catches a shrunk, converted copy, and not another picture', async () => {
-    // White, with a black square in a corner; the other picture has it in another corner.
     const corner = await sharp({
       create: { width: 32, height: 32, channels: 4, background: '#000000' },
     })

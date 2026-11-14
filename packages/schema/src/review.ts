@@ -1,3 +1,5 @@
+// The review list of a release draft: what blocks it, what warns and what the author checks by hand, from the
+// database's findings plus the texts and the image store. Pure, no network.
 import type {
   ReleaseAssessment,
   ReleaseChecks,
@@ -6,12 +8,6 @@ import type {
   ReleaseSummary,
   ReleaseText,
 } from './release';
-
-/**
- * The review list before publishing (step 1.7, part 2, B5): what stops a release, what warns and what the author
- * checks by hand. The database sees most of it (`findings` of `release_summary()`); this decides what each finding
- * means, adds what needs the texts or the image store, and puts it in the panel's order. Pure: no network.
- */
 
 export type CheckSeverity = 'block' | 'warn';
 
@@ -33,7 +29,7 @@ export type CheckRule =
   | 'guid_maybe'
   | 'mask_moved';
 
-/** Each rule, in the order of the panel, with its severity and its name. */
+/** In the panel's order. */
 export const CHECK_RULES: readonly { rule: CheckRule; severity: CheckSeverity; title: string }[] = [
   { rule: 'missing_image', severity: 'block', title: 'Imágenes que faltan' },
   { rule: 'guid_changed', severity: 'block', title: 'Tarjetas con el GUID cambiado' },
@@ -57,7 +53,6 @@ export const CHECK_RULES: readonly { rule: CheckRule; severity: CheckSeverity; t
   { rule: 'mask_moved', severity: 'warn', title: 'Máscaras que cambiaron de lugar' },
 ];
 
-/** One thing a rule found. */
 export interface CheckItem {
   key: string;
   assessmentId: string | null;
@@ -68,9 +63,7 @@ export interface Check {
   rule: CheckRule;
   severity: CheckSeverity;
   title: string;
-  /** Empty: the rule passes. */
   items: CheckItem[];
-  /** The check could not run yet (the images or the texts are still being read). */
   pending: boolean;
 }
 
@@ -84,31 +77,22 @@ export interface ManualMark {
 export interface ReviewList {
   checks: Check[];
   manual: ManualMark[];
-  /** How many rules stop the release, and how many of the checks are still running. */
   blocking: number;
   pending: number;
-  /** Nothing stops it, nothing is still running and every mark is checked. */
   ready: boolean;
-  /** The draft changes nothing. */
   empty: boolean;
 }
 
 export interface ReviewInput {
   summary: ReleaseSummary;
-  /** The card browser's indexes the draft changes (step 3.3): with some, the draft is not empty. */
   browseIndexes?: readonly unknown[];
-  /** The content version the deployed Worker understands. */
   supportedSchemaVersion: number;
-  /** The new images that the image store does not have; null while they are being looked for. */
+  /** null while the image store is being checked. */
   missingImages: readonly string[] | null;
-  /** What the process and calendar check found in the new texts; null while they are being read. */
+  /** null while the new texts are being read. */
   phrases: readonly PhraseHit[] | null;
-  /** Today, YYYY-MM-DD (Santiago). */
+  /** In Santiago. */
   today: string;
-  /**
-   * The marks by hand that apply. The announcement's waits for step C1: while there are no announcements, it is not
-   * asked for.
-   */
   marks?: readonly ReleaseMarkId[];
 }
 
@@ -118,13 +102,7 @@ const MARK_LABELS: Record<ReleaseMarkId, string> = {
   announcement: 'Leí el anuncio',
 };
 
-// ─────────────────────────────────────── process and calendar (CON-9) ───────────────────────────────────────
-
-/**
- * Phrases that only make sense for whoever made the material, or only this semester: the site is read by students of
- * other years (docs/plan/areas/contenido-semestres-1-y-2.md, step 9; «Sin frases de proceso»). A warning, not a
- * stop: the author decides. Each one has its case in `review.test.ts`.
- */
+/** Phrases that only make sense to whoever made the material, or only this semester: they warn, never block. */
 export const PROCESS_RULES: readonly { id: string; label: string; pattern: RegExp }[] = [
   {
     id: 'deduced',
@@ -187,11 +165,9 @@ export interface PhraseHit {
   assessmentId: string | null;
   label: string;
   rule: string;
-  /** The phrase with a little around it. */
   snippet: string;
 }
 
-/** The process and calendar phrases of one text. */
 export function findProcessPhrases(
   text: string,
 ): { rule: string; label: string; snippet: string }[] {
@@ -212,7 +188,6 @@ export function findProcessPhrases(
   return out;
 }
 
-/** The process and calendar phrases of the texts the draft adds or changes. */
 export function processPhrases(texts: readonly ReleaseText[]): PhraseHit[] {
   return texts.flatMap((t) =>
     findProcessPhrases(t.text).map((h) => ({
@@ -225,9 +200,7 @@ export function processPhrases(texts: readonly ReleaseText[]): PhraseHit[] {
   );
 }
 
-// ─────────────────────────────────────────── changed GUIDs ───────────────────────────────────────────
-
-/** Sørensen–Dice of the letter pairs: 1 = the same text. */
+/** Sørensen–Dice coefficient of the letter pairs: 1 = the same text. */
 export function similarity(a: string, b: string): number {
   const norm = (s: string) => s.toLowerCase().normalize('NFC').replace(/\s+/g, ' ').trim();
   const x = norm(a);
@@ -249,7 +222,6 @@ export function similarity(a: string, b: string): number {
   return (2 * both) / (x.length - 1 + (y.length - 1));
 }
 
-/** «T-A1-S3-01-047.3» and «A1-S3-01-047» are the same card: its code without the «T-» and the version. */
 export const codeBase = (code: string | null | undefined) =>
   code ? code.replace(/^T-/, '').replace(/\.\d+$/, '') : null;
 
@@ -259,11 +231,7 @@ interface Candidate {
   text: string;
 }
 
-/**
- * In an assessment with notes taken out and notes added (`importar_anki.py` stops on that: it can be a GUID that
- * changed, and the students' progress would stay on the old one), the pairs that are almost the same note: the same
- * code, or 80 % of the same text.
- */
+/** Removed and added notes that are probably one note whose GUID changed, so its progress would stay on the old one. */
 export function changedGuids(removed: readonly Candidate[], added: readonly Candidate[]) {
   const pairs: { removed: Candidate; added: Candidate; why: 'code' | 'text' }[] = [];
   for (const r of removed) {
@@ -280,8 +248,6 @@ export function changedGuids(removed: readonly Candidate[], added: readonly Cand
   return pairs;
 }
 
-// ──────────────────────────────────── clozes and masks renumbered ────────────────────────────────────
-
 interface Box {
   left: number;
   top: number;
@@ -289,7 +255,7 @@ interface Box {
   height: number;
 }
 
-/** The boxes of a mask signature («rect:left=.48:top=.08:width=.06:height=.03;…»; an ellipse, by its box too). */
+/** Boxes of a mask signature («rect:left=.48:top=.08:width=.06:height=.03;…»); an ellipse gives its box. */
 export function maskBoxes(signature: string): Box[] {
   return signature
     .split(';')
@@ -327,7 +293,6 @@ const iou = (a: Box, b: Box) => {
   return union > 0 ? inter / union : 0;
 };
 
-/** How much two masks are the same place: for each box of one, its best overlap in the other, on average. */
 export function maskOverlap(a: string, b: string): number {
   const x = maskBoxes(a);
   const y = maskBoxes(b);
@@ -338,9 +303,8 @@ export function maskOverlap(a: string, b: string): number {
 }
 
 /**
- * The cards of a cloze or occlusion note whose question became another one's (the progress of a card hangs from its
- * number: a hole or a mask inserted in the middle, or the numbers swapped, give a student's progress to another
- * question). `moved`: a mask that is now somewhere else, without being another one's (the author looks).
+ * Ords whose question became another ord's, which would hand a card's progress to another question; `moved`: masks
+ * now somewhere else without being another one's.
  */
 export function renumbered(
   before: Record<string, string>,
@@ -358,7 +322,6 @@ export function renumbered(
     if (same(now, was)) continue;
     const others = (sigs: Record<string, string>, value: string) =>
       Object.entries(sigs).some(([o, s]) => o !== ord && same(value, s));
-    // Its new question was another one's, or its old one is now another card's.
     if (others(before, now) || others(after, was)) out.renumbered.push(Number(ord));
     else if (occlusion) out.moved.push(Number(ord));
   }
@@ -367,12 +330,9 @@ export function renumbered(
   return out;
 }
 
-// ─────────────────────────────────────────────── the list ───────────────────────────────────────────────
-
 const daysBetween = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / 86_400_000);
 
-/** Has the draft any change at all? (Revisión de cero (1.7, parte 2): the decks above the assessments count too.) */
 export function isEmptyRelease(s: ReleaseSummary): boolean {
   return (
     !s.assessments.length &&
@@ -393,7 +353,6 @@ const detail = (f: ReleaseFinding, k: string) => {
   return typeof v === 'string' || typeof v === 'number' ? String(v) : null;
 };
 
-/** The review list of a draft. */
 export function buildReview(input: ReviewInput): ReviewList {
   const { summary: s } = input;
   const items = new Map<CheckRule, CheckItem[]>(CHECK_RULES.map((r) => [r.rule, []]));
@@ -401,7 +360,6 @@ export function buildReview(input: ReviewInput): ReviewList {
   const findings = (rule: string) => s.findings.filter((f) => f.rule === rule);
   const empty = isEmptyRelease(s) && !input.browseIndexes?.length;
 
-  // What the database saw.
   for (const f of findings('key_out_of_range')) {
     add('key_out_of_range', {
       key: f.key,
@@ -462,8 +420,8 @@ export function buildReview(input: ReviewInput): ReviewList {
           : `${f.key} tiene ahora el texto de ${other}: el historial de una quedaría en la otra.`,
     });
   }
-  // Revisión de cero (1.7, parte 2): the pairs with the same code, which the database finds without the limit of 300
-  // candidates (and in any assessment); then the ones of almost the same text among the candidates.
+  // Same-code pairs first (the database finds them in any assessment, without the limit of 300 candidates), then
+  // the ones with almost the same text among the candidates.
   const guidPairs = new Set<string>();
   for (const f of findings('guid_same_code')) {
     if (guidPairs.has(f.key)) continue;
@@ -534,7 +492,6 @@ export function buildReview(input: ReviewInput): ReviewList {
     }
   }
 
-  // What the summary says.
   const changes = !empty;
   if (changes && s.schemaVersion !== input.supportedSchemaVersion) {
     add('schema_version', {
@@ -579,7 +536,6 @@ export function buildReview(input: ReviewInput): ReviewList {
       });
     }
   }
-  // The decks above the assessments (the root, a semester's, a course's).
   for (const d of s.decks) {
     if (d.op === 'changed' && d.presetBefore !== d.presetAfter) {
       add('preset_changed', {
@@ -635,10 +591,7 @@ export function buildReview(input: ReviewInput): ReviewList {
   };
 }
 
-/**
- * What a publication keeps of the review list it was published with (step 1.7, part 3): `publish_release()` refuses
- * it unless `blocking` is 0 and `ready` is true, and it stays in the log.
- */
+/** `publish_release()` refuses these checks unless `blocking` is 0 and `ready` is true. */
 export function reviewChecks(r: ReviewList): ReleaseChecks {
   return {
     blocking: r.blocking,
@@ -651,11 +604,7 @@ export function reviewChecks(r: ReviewList): ReleaseChecks {
   };
 }
 
-/**
- * Revisión de cero (1.8): an assessment that only comes into the catalog (or leaves it) without any material, such as the
- * empty certámenes of the full catalog. «Qué cambia» says it in one line; it gets no card, no line of the popup and no
- * place in the publication's name, where it would hide what does change («… y 27 más»).
- */
+/** Only enters or leaves the catalog, without material: left out of the release's name, where it would hide the rest. */
 export function onlyInCatalog(s: ReleaseSummary, a: ReleaseAssessment): boolean {
   const empty =
     a.articles.added + a.articles.removed + a.articles.content + a.articles.format === 0 &&
@@ -669,10 +618,6 @@ export function onlyInCatalog(s: ReleaseSummary, a: ReleaseAssessment): boolean 
   );
 }
 
-/**
- * The name of a publication, from what it changes: «Biología celular · Certamen 2», «… y Anatomía I · Certamen 1»,
- * «… y 3 más». Without assessments (only the catalog, a deck above them, a note type or a preset), «Cambios del sitio».
- */
 export function releaseTitle(s: ReleaseSummary): string {
   const names = s.assessments
     .filter((a) => !onlyInCatalog(s, a))
@@ -683,15 +628,9 @@ export function releaseTitle(s: ReleaseSummary): string {
   return `${names.slice(0, 2).join(', ')} y ${names.length - 2} más`;
 }
 
-/** «() Medicina UCH::…::01 - Columna vertebral» → «01 - Columna vertebral». */
 export const lastName = (deckName: string) => deckName.split('::').pop() ?? deckName;
 
-// ─────────────────────────────────────────── before and after ───────────────────────────────────────────
-
-/**
- * What a reader sees of an HTML field: the text, each image as «[img name]» (as `release_text()` in SQL: the name with
- * double, single or no quotes, and only what looks like a tag goes; a loose «p<0.05 y q>1» is text).
- */
+/** Like `release_text()` in SQL: only what looks like a tag goes (a loose «p<0.05 y q>1» is text). */
 export function plainText(html: string | null | undefined): string {
   return (html ?? '')
     .replace(
@@ -712,14 +651,9 @@ export function plainText(html: string | null | undefined): string {
 
 export type DiffPart = { op: 'same' | 'del' | 'add'; text: string };
 
-/**
- * A word diff of two texts (the longest common subsequence of their words), to mark what changed between the before
- * and the after. When the part that differs is too long to compare word by word, it goes out and comes in whole.
- */
 export function wordDiff(before: string, after: string): DiffPart[] {
   const a = before.split(/(\s+)/).filter(Boolean);
   const b = after.split(/(\s+)/).filter(Boolean);
-  // Common start and end first: most changes are a few words in the middle.
   let start = 0;
   while (start < a.length && start < b.length && a[start] === b[start]) start++;
   let end = 0;
@@ -734,7 +668,7 @@ export function wordDiff(before: string, after: string): DiffPart[] {
   const n = x.length;
   const m = y.length;
   if (n * m > 4_000_000) {
-    // Too long to compare word by word (a rewritten section): the middle goes out and comes in whole.
+    // Too long for the LCS table: the middle goes out and comes in whole.
     return [
       ...(start ? [{ op: 'same' as const, text: a.slice(0, start).join('') }] : []),
       ...(n ? [{ op: 'del' as const, text: x.join('') }] : []),

@@ -1,3 +1,5 @@
+// Data hooks of «Hoy» on the home page: which courses it lists, what it counts with, and when to count again.
+
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
@@ -22,10 +24,6 @@ import type { StudyPlan } from '../study/simple';
 import { decayByDeck, nextChangeAt } from './counts';
 import type { HomeStudyBase } from './counts';
 
-/**
- * The courses of «Hoy»: those with a week or lecture on, or with something answered (the decks the student answered
- * count as on, as everywhere). In the catalog's order.
- */
 export function todayCourses(catalog: Catalog, plan: StudyPlan): CourseDeckNode[] {
   const tree = buildAnkiTree(catalog);
   const answered = new Set(plan.answeredDecks);
@@ -39,10 +37,6 @@ export function todayCourses(catalog: Catalog, plan: StudyPlan): CourseDeckNode[
     });
 }
 
-/**
- * What «Hoy» needs, without any deck (plan step 3.2): the catalog's tree, the student's options and today's answers,
- * and `home_counts()` for the decks of those courses. `home` is null while something is missing.
- */
 export function useHomeStudy(catalog: Catalog | undefined, courses: readonly CourseDeckNode[]) {
   const { study } = useServices();
   const preferences = usePreferences();
@@ -99,10 +93,7 @@ export function useHomeStudy(catalog: Catalog | undefined, courses: readonly Cou
 
 const EMPTY = { truncated: false, decks: new Map<string, HomeDeckCounts>() };
 
-/**
- * A number that changes when the counts can change by themselves (a learning step coming within the learn-ahead limit;
- * plan step 3.2, E6): the counts are computed again then, not every minute.
- */
+/** Changes when the counts can change by themselves, so they are computed again then and not every minute. */
 export function useCountsTick(
   home: ReadonlyMap<string, HomeDeckCounts> | null,
   learnAheadMinutes: number | undefined,

@@ -1,14 +1,11 @@
+// E2e tests that run axe (WCAG 2.2 A and AA) on every page and popup, in the light and the dark theme. Touch sizes,
+// keyboard and screen reader have their own specs.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL } from './helpers';
 import { ONLY_ACCEPTED } from './accepted';
 import { expectNoViolationsInBothThemes as axe } from './a11y';
 
-/**
- * axe (WCAG 2.2 A and AA) on every page and popup, in the light and the dark theme: a new violation fails the CI. The
- * touch sizes, the keyboard and the screen reader have their own tests (phone.spec.ts, viewer.spec.ts,
- * screen-reader.spec.ts).
- */
 // The phone's layout is checked in WebKit (the iPhone project): the same pages a second time in Chromium would only add
 // minutes to the CI.
 test.skip(
@@ -56,7 +53,6 @@ const SIGNED_IN = [
   '/no-existe',
 ];
 
-/** The page is drawn: its title (or the card) is there and nothing says «Cargando». */
 async function settled(page: Page) {
   await expect(page.locator('h1, [role="region"][aria-label^="Frente"]').first()).toBeVisible();
   await expect(page.getByText(/^(Cargando|Preparando)/)).toHaveCount(0);
@@ -161,7 +157,6 @@ test.describe('popups', () => {
       /Correcta|Incorrecta/,
     );
     await axe(page, 'veredicto');
-    // The photo is the third question.
     const photo = page.getByRole('button', { name: /Ampliar la imagen/ });
     while (!(await photo.isVisible())) {
       await page.getByRole('button', { name: 'Siguiente' }).click();

@@ -1,3 +1,4 @@
+// Helpers of the e2e tests: signing in, the test deck's URL and scrolling a long card.
 import { expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 
@@ -15,7 +16,6 @@ export async function scrollCard(page: Page, region: Locator, how: 'wheel' | 'fi
   const y = box.y + box.height / 2;
   if (how === 'wheel') {
     await page.mouse.move(x, y);
-    // A mouse wheel notch, then the small steps of a trackpad.
     await page.mouse.wheel(0, 120);
     for (let i = 0; i < 5; i++) await page.mouse.wheel(0, 8);
   } else {
@@ -35,11 +35,9 @@ export async function scrollCard(page: Page, region: Locator, how: 'wheel' | 'fi
   await expect.poll(() => scroller.evaluate((e) => e.scrollTop)).toBeGreaterThan(20);
 }
 
-/** The synthetic deck of the test content (packages/anki-format/test/fixtures), where it is in the tree. */
 export const DECK_URL =
   '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba';
 
-/** Signs in (demo session) and waits for the home page. */
 export async function signIn(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Entrar con Google' }).first().click();

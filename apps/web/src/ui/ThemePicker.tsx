@@ -1,3 +1,4 @@
+// The theme picker of the account menu: light, dark or the system's, as three segmented buttons.
 import { useState } from 'react';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { Monitor, Moon, Sun } from 'lucide-react';
@@ -10,10 +11,7 @@ const OPTIONS: { theme: Theme; label: string; Icon: typeof Sun }[] = [
   { theme: 'system', label: 'Como el sistema', Icon: Monitor },
 ];
 
-/**
- * Light, dark or the system's, as three segmented buttons inside the account menu: they are items of the menu, so the
- * arrows reach them too. Choosing one keeps the menu open, to see the change.
- */
+/** The buttons are items of the menu, so the arrows reach them too; choosing one keeps the menu open, to see it. */
 export function ThemePicker() {
   const [theme, setTheme] = useState<Theme>(readTheme);
   return (

@@ -1,3 +1,4 @@
+// The package's entry point: every schema and helper.
 export * from './content';
 export * from './api';
 export * from './domain';

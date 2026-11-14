@@ -2,19 +2,17 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * Text helpers ported from Anki's rslib (text.rs, search/parser.rs, storage/sqlite.rs): Anki's wildcard
- * text («foo*bar», «a_b», «\*»), SQLite LIKE, combining-mark stripping, Unicode case folding, f32 rounding
- * and a translator from Rust regular expressions to JavaScript ones.
+ * Text helpers ported from Anki's rslib (text.rs, search/parser.rs, storage/sqlite.rs): wildcard text, SQLite LIKE,
+ * accents and case folding, Rust number parsing and a translator from Rust regular expressions to JavaScript.
  */
 import { errors } from './errors';
 
-// ---------------------------------------------------------------------------------------------------------
-// The parser's escapes (parser.rs: unescape, invalid_escape_sequence, is_parser_escape, unescape_quotes)
+// parser.rs: unescape, invalid_escape_sequence, is_parser_escape, unescape_quotes
 
 const INVALID_ESCAPE = /(?:^|[^\\])(?:\\\\)*(\\(?:[^\\":*_()-]|$))/u;
 const PARSER_ESCAPE = /(?:^|[^\\])(?:\\\\)*\\[":()-]/u;
 
-/** Unescape the characters with a meaning for the parser (`\" \: \( \) \-`), keeping `\\ \* \_`. */
+/** Unescapes `\" \: \( \) \-` and keeps `\\ \* \_`. */
 export function unescape(txt: string): string {
   const invalid = INVALID_ESCAPE.exec(txt);
   if (invalid) throw errors.unknownEscape(invalid[1]!);
@@ -27,17 +25,14 @@ export function unescapeQuotes(s: string): string {
   return s.includes('"') ? s.replaceAll('\\"', '"') : s;
 }
 
-// ---------------------------------------------------------------------------------------------------------
-// Anki's wildcard text (text.rs: is_glob, to_re, to_custom_re, to_sql, to_text, escape_anki_wildcards)
+// text.rs: is_glob, to_re, to_custom_re, to_sql, to_text, escape_anki_wildcards
 
 const GLOB = /(?:^|[^\\])(?:\\\\)*[*_]/u;
 
-/** Whether the text has an unescaped `*` or `_`. */
 export function isGlob(txt: string): boolean {
   return GLOB.test(txt);
 }
 
-/** Escape a string for a JavaScript regular expression with the `u` flag. */
 function escapeRegex(s: string): string {
   return s.replace(/[\\^$.*+?()[\]{}|/]/g, '\\$&');
 }
@@ -45,10 +40,7 @@ function escapeRegex(s: string): string {
 /** Rust's `.` (any character but \n). */
 const ANY_BUT_NEWLINE = '[^\\n]';
 
-/**
- * Anki text → JavaScript regular expression source (`*` → `wildcard*`, `_` → `wildcard`, the rest
- * literal). Like Anki's `to_custom_re`, a newline is never a token, so it stays a literal newline.
- */
+/** Anki's `to_custom_re`: a newline is never a token, so it stays a literal newline. */
 export function toRe(txt: string, wildcard = ANY_BUT_NEWLINE): string {
   return txt.replace(/\\?[^\n]/gu, (tok) => {
     switch (tok) {
@@ -67,7 +59,7 @@ export function toRe(txt: string, wildcard = ANY_BUT_NEWLINE): string {
   });
 }
 
-/** Anki text → SQL LIKE pattern with `\` as the escape character. */
+/** A LIKE pattern with `\` as the escape character. */
 export function toSql(txt: string): string {
   return txt.replace(/\\[\\*]|[*%]/g, (m) => {
     switch (m) {
@@ -88,13 +80,9 @@ export function toText(txt: string): string {
   return txt.replace(/\\([^\n])/gu, '$1');
 }
 
-/** Escape `\`, `*` and `_` so that the text matches literally. */
 export function escapeAnkiWildcards(txt: string): string {
   return txt.replace(/[\\*_]/g, '\\$&');
 }
-
-// ---------------------------------------------------------------------------------------------------------
-// SQLite LIKE (case-insensitive only for ASCII letters, `%` any run, `_` one character, `\` escapes)
 
 /** Lowercase ASCII letters only, like SQLite's LIKE folds case. */
 export function asciiLower(s: string): string {
@@ -105,10 +93,7 @@ export type TextMatcher = (text: string) => boolean;
 
 const never: TextMatcher = () => false;
 
-/**
- * A LIKE pattern → matcher over text that is already ASCII-lowercased (see `asciiLower`). Compiled once:
- * plain substrings use `includes`, the rest one regular expression.
- */
+/** The text it gets must be already ASCII-lowercased (`asciiLower`). */
 export function likeMatcher(pattern: string): TextMatcher {
   type Piece = { any: true } | { one: true } | { lit: string };
   const pieces: Piece[] = [];
@@ -149,9 +134,6 @@ export function likeMatcher(pattern: string): TextMatcher {
   return (t) => re.test(t);
 }
 
-// ---------------------------------------------------------------------------------------------------------
-// Accents, case folding and clozes
-
 const EXTRA_NO_COMBINING: Record<string, string> = {
   '€': 'E',
   Æ: 'AE',
@@ -183,7 +165,7 @@ const EXTRA_NO_COMBINING: Record<string, string> = {
 };
 const EXTRA_NO_COMBINING_RE = new RegExp(`[${Object.keys(EXTRA_NO_COMBINING).join('')}]`, 'gu');
 
-/** Anki's `without_combining`: NFKD, drop the combining marks and replace a few letters (ß → s…). */
+/** Anki's `without_combining`. */
 export function withoutCombining(s: string): string {
   // eslint-disable-next-line no-control-regex
   if (/^[\x00-\x7f]*$/.test(s)) return s;
@@ -193,14 +175,14 @@ export function withoutCombining(s: string): string {
     .replace(EXTRA_NO_COMBINING_RE, (c) => EXTRA_NO_COMBINING[c]!);
 }
 
-/** Unicode case folding for comparisons (SQLite's `unicase` collation, `unicase::eq`). */
+/** SQLite's `unicase` collation (`unicase::eq`). */
 export function foldCase(s: string): string {
   return s.toUpperCase().toLowerCase();
 }
 
 const CLOZE = /\{\{c\p{Nd}+::([^]*?)(?:::[^]*?)?\}\}/gu;
 
-/** Anki's `strip_clozes`: `{{c1::text::hint}}` → `text`. */
+/** Anki's `strip_clozes`. */
 export function stripClozes(s: string): string {
   return s.includes('{{') ? s.replace(CLOZE, '$1') : s;
 }
@@ -210,14 +192,11 @@ export function trimUnicode(s: string): string {
   return s.replace(/^\p{White_Space}+|\p{White_Space}+$/gu, '');
 }
 
-// ---------------------------------------------------------------------------------------------------------
-// Numbers parsed and printed like Rust
-
 const UNSIGNED = /^\+?[0-9]+$/;
 const SIGNED = /^[+-]?[0-9]+$/;
 const FLOAT = /^[+-]?(?:inf|infinity|nan|(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?)$/i;
 
-/** `str::parse::<uN>()`: an optional `+`, digits, at most `max`. */
+/** `str::parse::<uN>()`. */
 export function parseUnsigned(s: string, max: number): number | null {
   if (!UNSIGNED.test(s)) return null;
   const n = Number(s);
@@ -261,9 +240,6 @@ export function asU32(n: number): number {
   return ((n % 4294967296) + 4294967296) % 4294967296;
 }
 
-// ---------------------------------------------------------------------------------------------------------
-// Rust regular expressions → JavaScript
-
 /** Rust's Unicode `\w`. */
 const WORD = '\\p{Alphabetic}\\p{M}\\p{Nd}\\p{Pc}\\p{Join_Control}';
 const WORD_BOUNDARY = `(?:(?<=[${WORD}])(?![${WORD}])|(?<![${WORD}])(?=[${WORD}]))`;
@@ -301,7 +277,7 @@ function unicodeProperty(name: string): string {
   throw new Error(`propiedad Unicode desconocida: ${name}`);
 }
 
-/** One escape sequence at `i` (which is a backslash). Returns the JavaScript text and its length. */
+/** Returns the JavaScript text and the length it read. */
 function translateEscape(src: string, i: number, inClass: boolean): [string, number] {
   const c = src[i + 1];
   if (c === undefined) throw new Error('barra invertida al final');
@@ -378,7 +354,6 @@ function translateEscape(src: string, i: number, inClass: boolean): [string, num
   }
 }
 
-/** A character class at `i` (which is `[`). */
 function translateClass(src: string, i: number): [string, number] {
   let out = '[';
   let j = i + 1;
@@ -452,10 +427,8 @@ function modifierSpec(from: Flags, to: Flags): string {
 }
 
 /**
- * Translate a Rust regular expression (the `regex` crate, as Anki uses it) into a JavaScript one with the
- * same meaning for the common syntax: Unicode `\w \d \s \b`, `.` without `\n`, inline flags `(?i)`,
- * `(?s)`, `(?m)` (also in the middle, through JavaScript's modifier groups), `(?P<name>…)`, POSIX classes
- * and `\x{…}`. Throws a SearchError if the expression is invalid or uses something not supported.
+ * A Rust `regex` crate expression → a JavaScript one with the same meaning for the common syntax; throws a
+ * SearchError if it is invalid or uses something not supported.
  */
 export function rustRegex(pattern: string, shownAs = pattern): RegExp {
   try {

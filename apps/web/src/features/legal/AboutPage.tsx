@@ -1,3 +1,4 @@
+// The public /about page: what the site is, who makes it, where each piece comes from, how it is reviewed, and thanks.
 import { Link } from 'react-router';
 import { paths } from '../../app/paths';
 import { ContactLink } from '../../ui/ContactLink';
@@ -7,17 +8,9 @@ import { LegalPage, Part } from './LegalPage';
 
 const link = 'text-brand underline underline-offset-2';
 
-/** The creator's picture: 96 px on screen (the file is 192 px, for sharp screens). */
+/** 96 px on screen; the file is 192 px, for sharp screens. */
 const PHOTO_SIZE = 96;
 
-/**
- * /about (step 2.7, EXP-P3): what the site is, who makes it, where each piece comes from and how it is reviewed
- * (decision 33: it says that AI writes it, in one sentence, with how it is reviewed) and the thanks. Public and without
- * material, like /terms and /privacy.
- *
- * The thanks go by group (decision 34): a person is named only with their written permission, kept with its date in
- * the private repository's `content/credits.json`, and there is no list of teachers (it could read as their backing).
- */
 export function AboutPage() {
   return (
     <LegalPage title="Acerca de">
@@ -96,10 +89,7 @@ export function AboutPage() {
   );
 }
 
-/**
- * The creator's picture, or their initials in a circle when this build has none (the CI, the demo, the tests). Both
- * take the same reserved square, so nothing moves when the picture arrives.
- */
+/** Initials when this build has no picture (the CI, the demo, the tests). */
 function CreatorPicture() {
   const photo = creatorPhoto();
   const box = 'size-24 flex-none overflow-hidden rounded-full border border-border';

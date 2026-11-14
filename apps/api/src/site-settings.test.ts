@@ -1,6 +1,4 @@
-// Step 1.8: the administrator's switch that hides the semesters without material. The API takes them out of the
-// catalog for everybody (also in the preview, about the draft), only an administrator reads or changes it, and a
-// failure reading it hides nothing.
+// Tests for the administrators' switch that hides the semesters without material from the catalog.
 import { describe, expect, it } from 'vitest';
 import { Catalog, SiteSettings } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
@@ -13,7 +11,6 @@ import type { SiteSettingsRepository } from './repository';
 const ADMIN = 'dueno@ug.uchile.cl';
 const STUDENT = 'ana@ug.uchile.cl';
 
-/** Three semesters: the 1st with an article, the 2nd with only a course, the 3rd with nothing. */
 const bundle = (withDraftArticle = false): ContentBundle => ({
   semesters: [
     { number: 1, name: '1° Semestre' },
@@ -107,7 +104,6 @@ describe('hiding the semesters without material', () => {
         hidden: 2,
       });
     }
-    // In the preview, «without material» is about the draft: the 2nd has an article there.
     expect(
       await semesters(await get(app, '/api/catalog', ADMIN, { [PREVIEW_HEADER]: 'draft' })),
     ).toEqual({ numbers: [1, 2], hidden: 1 });

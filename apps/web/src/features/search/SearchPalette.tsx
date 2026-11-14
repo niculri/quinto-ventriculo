@@ -1,3 +1,4 @@
+// Quick search (⌘K / Ctrl+K or «/»): results while typing, arrows to move and Enter to open.
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ArrowRight, FileText, LoaderCircle, Search } from 'lucide-react';
@@ -9,7 +10,6 @@ import { useCatalog } from '../catalog/queries';
 import { Snippet } from './Snippet';
 import { resultLink, searchContext, useSearch } from './useSearch';
 
-/** Quick search (⌘K / Ctrl+K or «/»): results while typing, arrows to move and Enter to open. */
 export function SearchPalette({
   open,
   onOpenChange,
@@ -41,7 +41,6 @@ function PaletteContent({ close }: { close: () => void }) {
   const { pathname } = useLocation();
   const { api } = useServices();
   const { results, active, isFetching, query } = useSearch(text, 8);
-  // Opening a result or «Ver todos» (with the mouse or Enter) completes the search: «Uso» counts it once (step 2.9).
   const go = (to: string) => {
     countSearch(api, text, searchContext(pathname));
     close();
@@ -49,7 +48,7 @@ function PaletteContent({ close }: { close: () => void }) {
   };
   const seeAll = paths.search(text);
   const typed = text.trim().length >= 2;
-  // While waiting for the query to settle we do not say «nothing»: it has not been searched yet.
+  // Not «nothing» while the debounced query has not caught up with the text.
   const noResults = active && query === text.trim() && !isFetching && results.length === 0;
 
   return (

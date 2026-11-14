@@ -1,11 +1,9 @@
+// health(), what /api/health/deep asks the users' database with the public key: anybody can call it, it gives
+// only `true` and reads nothing of a student.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';
 
-/**
- * Step 2.5: health() (…_health.sql) is what `/api/health/deep` asks the users' database with the public key. Anybody
- * can call it, it gives only `true`, and it reads nothing of a student.
- */
 let db: PGlite;
 
 beforeAll(async () => {

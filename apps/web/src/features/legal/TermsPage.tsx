@@ -1,10 +1,11 @@
+// The public /terms page, the terms of use that every account accepts.
 import { Link } from 'react-router';
 import { LEGAL_VERSIONS } from '@qv/schema';
 import { paths } from '../../app/paths';
 import { ContactLink } from '../../ui/ContactLink';
 import { LegalPage, Part } from './LegalPage';
 
-/** /terms (step 2.3). Changing what it says means a new LEGAL_VERSIONS.terms: everybody accepts it again. */
+/** Changing what it says means a new LEGAL_VERSIONS.terms: everybody accepts it again. */
 export function TermsPage() {
   const { version, date } = LEGAL_VERSIONS.terms;
   const licenses = (

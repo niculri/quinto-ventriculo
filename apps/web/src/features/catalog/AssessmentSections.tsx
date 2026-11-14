@@ -1,3 +1,4 @@
+// An assessment's «Apuntes» page (its notes, each with its deck and test) and its «Tests» page.
 import { Layers, ListChecks } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import type {
@@ -28,7 +29,6 @@ import { findCourse, noteBlocks, useCatalog } from './queries';
 export const plural = (n: number, one: string, many: string) =>
   `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
 
-/** The course and assessment of the URL, with what a section's page needs around them. */
 function useSection() {
   const { courseId = '', number = '', assessment = '' } = useParams();
   const catalog = useCatalog();
@@ -74,7 +74,6 @@ function SectionFrame({
   );
 }
 
-/** «Apuntes» of an assessment: its lectures and seminars, each with its deck and its test beside it. */
 export function AssessmentNotesPage() {
   const { catalog, found, number, assessment } = useSection();
   if (catalog.isError)
@@ -102,7 +101,6 @@ function NoteLists({
   assessment: AssessmentWithNotes;
   tree: AnkiTree;
 }) {
-  // The course's deck counts every deck below it: one query for the whole page.
   const decks = courseDeck(tree, course.id);
   const deck = useDeck(decks?.id ?? '', decks !== null);
   const { counts } = useDeckCounts(deck.data);
@@ -139,7 +137,6 @@ function NoteLists({
   );
 }
 
-/** Who gave it and when: «Dra. Ana Prueba D. · 2026» (the number goes in the row's first column). */
 function noteLine(note: NoteSummary): string {
   const h = note.header;
   return [
@@ -147,7 +144,6 @@ function noteLine(note: NoteSummary): string {
     h?.lecturer ?? null,
     h ? String(h.year) : null,
     note.subtitle ?? null,
-    // The date only says something when the article changed after being published.
     note.version && note.version > 1 && note.versionAt
       ? `Actualizado el ${formatDate(note.versionAt)}`
       : null,
@@ -156,7 +152,6 @@ function noteLine(note: NoteSummary): string {
     .join(' · ');
 }
 
-/** A lecture: its number, its title (to the article) and, beside it, its deck and its test's topics. */
 function NoteRow({
   course,
   assessment,
@@ -220,7 +215,6 @@ function NoteRow({
   );
 }
 
-/** «Tests» of an assessment: each one, with how many questions it has. */
 export function AssessmentTestsPage() {
   const { catalog, found, number, assessment } = useSection();
   if (catalog.isError)

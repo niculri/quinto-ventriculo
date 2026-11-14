@@ -1,7 +1,7 @@
+// E2e test, through the demo server, of an assessment's card index (compressed, behind the session) and of the one
+// signature its thumbnails share.
 import { expect, test } from './test';
 
-// Step 3.3 (ANK-6, ANK-8), through the demo server as the web asks for it: the catalog names the current index of each
-// assessment, the file comes compressed behind the session, and the thumbnails with one signature for all of them.
 const SESSION = { Authorization: 'Bearer demo-local' };
 
 test('the card browser index and its thumbnails, behind the session', async ({ request }) => {

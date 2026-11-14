@@ -1,33 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
-import { decodeHTMLStrict } from 'entities';
 
-/**
- * HTML helpers with the same behavior as Anki's (rslib/src/text.rs and the `htmlescape` crate it uses), so
- * the rendered cards match Anki's byte for byte.
- */
+// HTML helpers that behave like Anki's rslib/src/text.rs and the `htmlescape` crate, so cards match byte for byte.
+import { decodeHTMLStrict } from 'entities';
 
 // rslib/src/text.rs: HTML
 const HTML =
   /(<!--[\s\S]*?-->)|(<style[\s\S]*?>[\s\S]*?<\/style>)|(<script[\s\S]*?>[\s\S]*?<\/script>)|(<[\s\S]*?>)/gi;
 
-/** Removes the tags (and comments, styles and scripts with their content), keeping the entities. */
 export function stripHtmlPreservingEntities(html: string): string {
   return html.replace(HTML, '');
 }
 
-/** Removes the tags and decodes the entities (Anki's `strip_html`, used by the `text:` filter). */
+/** Anki's `strip_html`. */
 export function stripHtml(html: string): string {
   return decodeEntities(stripHtmlPreservingEntities(html));
 }
 
 const ENTITY = /&(?:#([0-9]+)|#[xX]([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/y;
 
-/**
- * Decodes the entities like `htmlescape::decode_html`: if any «&» does not start a valid entity, the text is
- * returned as is (that is what Anki does when decoding fails). Non-breaking spaces become plain spaces.
- */
+/** `htmlescape::decode_html`: if any «&» does not start a valid entity, the text is returned as is. */
 export function decodeEntities(html: string): string {
   if (!html.includes('&')) return html;
   let out = '';
@@ -45,7 +38,7 @@ export function decodeEntities(html: string): string {
       decoded = String.fromCodePoint(code);
     } else {
       decoded = decodeHTMLStrict(m[0]);
-      if (decoded === m[0]) return html; // unknown name
+      if (decoded === m[0]) return html;
     }
     out += html.slice(last, i) + decoded;
     last = i + m[0].length;
@@ -61,10 +54,7 @@ const MINIMAL: Record<string, string> = {
   '>': '&gt;',
 };
 
-/**
- * `htmlescape::encode_attribute`: the five minimal entities by name, and every other character below 256
- * that is not an ASCII letter or digit as `&#xHH;` (characters from 256 up stay as they are).
- */
+/** `htmlescape::encode_attribute`. */
 export function encodeAttribute(text: string): string {
   let out = '';
   for (const ch of text) {
@@ -83,7 +73,7 @@ export function encodeAttribute(text: string): string {
   return out;
 }
 
-/** `htmlescape::encode_minimal`: only the five minimal entities. */
+/** `htmlescape::encode_minimal`. */
 export function encodeMinimal(text: string): string {
   return text.replace(/["&'<>]/g, (c) => MINIMAL[c]!);
 }
@@ -93,10 +83,7 @@ const SPACERS = /<br\s*\/?>|<div>|\n/gi;
 const TYPE_TAG = /\[\[type:[^\]]+\]\]/g;
 const SOUND_TAG = /\[sound:[^\]]+\]/g;
 
-/**
- * Text on one line, like the columns of Anki's browser (`html_to_text_line`), with the runs of spaces
- * collapsed into one.
- */
+/** Anki's `html_to_text_line`, as in the browser's columns. */
 export function htmlToTextLine(html: string): string {
   return stripHtml(html.replace(SPACERS, ' ').replace(TYPE_TAG, '').replace(SOUND_TAG, ''))
     .replace(/\s+/g, ' ')

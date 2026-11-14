@@ -1,3 +1,4 @@
+// Vitest project of the web: its tests in jsdom.
 import react from '@vitejs/plugin-react';
 import { defineProject } from 'vitest/config';
 

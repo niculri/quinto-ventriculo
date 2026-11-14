@@ -1,3 +1,5 @@
+// A note's page: the article with its header, table of contents, practice links, image viewer and error reports.
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -42,10 +44,9 @@ import { noteCrumbs } from './noteCrumbs';
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
   const note = useNote(slug);
-  // «Uso» (step 2.9): this page is what opens a note.
+  // Only this page counts as opening a note.
   useCountOpen('note', note.data ? slug : null);
   const catalog = useCatalog();
-  // The loading state lasts until the data and the article's fonts are in: it is never drawn with another font.
   const fonts = useReadingFonts();
   const location = catalog.data ? locateNote(catalog.data, 'slug', slug) : null;
 
@@ -54,7 +55,6 @@ export function NotePage() {
     return <ErrorWithRetry error={note.error} onRetry={() => void note.refetch()} />;
   }
   if (!note.data || !fonts) return <NoteSkeleton location={location} />;
-  // The semester or the course of the URL are not the note's: to its canonical URL (#anchor kept).
   if (
     location &&
     (String(location.semester.number) !== number || location.course.id !== courseId)
@@ -76,7 +76,6 @@ export function NoteView({
   const content = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<OpenImage | null>(null);
-  // Step 2.6: «Reportar error» from the end, from a selection (the bar at the bottom) or from an image.
   const [reporting, setReporting] = useState<{
     target: ReportTarget;
     category?: ReportCategory;
@@ -101,7 +100,6 @@ export function NoteView({
   const located = location !== null;
   const practice = usePractice(note, location);
   const hasPractice = !!location && !!(practice.quiz || practice.deck);
-  // «Ponte a prueba» is outside the article's HTML: it goes last in the TOC.
   const toc = useMemo(
     () =>
       hasPractice
@@ -110,11 +108,9 @@ export function NoteView({
     [note.toc, hasPractice],
   );
 
-  // «Seguir» on the home page (step 3.2): the last note opened on this device.
   useEffect(() => {
     if (remember) rememberNote(note.slug);
   }, [note.slug, remember]);
-  // A tip once (step 3.2): having read to the end, the search.
   const tip = useTip('tip-search', progress >= 0.95);
 
   useEffect(() => {
@@ -124,30 +120,27 @@ export function NoteView({
     };
   }, [note.title]);
 
-  // Arriving at a section (from search or a link): go there and highlight it for a moment.
   useEffect(() => {
     if (!hash) return;
     let id = hash.slice(1);
-    // A text fragment («#sección:~:text=…», the panel's link to a quote): the browsers that do not take it out of the
-    // hash leave it here.
+    // Browsers that do not take a text fragment («:~:text=…») out of the hash leave it here.
     const directive = id.indexOf(':~:');
     if (directive >= 0) id = id.slice(0, directive);
     if (!id) return;
     try {
       id = decodeURIComponent(id);
     } catch {
-      // a lone «%» in the link: it is looked up as is instead of breaking the page
+      // a lone «%»: looked up as is
     }
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ block: 'start' });
     flashHeading(el);
-    // Again when the catalog arrives: the breadcrumbs above push the text down.
+    // `located`: again when the catalog arrives, since the breadcrumbs push the text down.
   }, [hash, located]);
 
   const current = activeTitle(toc, active);
 
-  // The phone's TOC closes with Escape or a touch outside it.
   const tocBar = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!tocOpen) return;
@@ -167,13 +160,11 @@ export function NoteView({
 
   return (
     <div className={page}>
-      {/* The breadcrumbs as on every page: from «Inicio», above the article and its TOC. */}
       <Breadcrumbs items={noteCrumbs(location, note.title)} />
       <article className="w-full min-w-0">
         <NoteHeader note={note} />
 
-        {/* Up to the right column (xl): the TOC folds under the site's bar and says where you are. The strip
-            above it covers the gap with the site's bar, so that the text does not show through it. */}
+        {/* The `before:` strip covers the gap with the site's bar, so the text does not show through. */}
         {toc.length ? (
           <div
             ref={tocBar}
@@ -237,14 +228,12 @@ export function NoteView({
         </div>
 
         {tip.slot ? (
-          // Its room from the start, below what was read: showing it or closing it moves nothing.
           <div className="mt-6 h-16" aria-live="polite">
             {tip.show ? (
               <p className="flex h-full items-center gap-3 rounded-lg border border-border bg-surface-2 px-4 text-sm">
                 <Search className="size-4 flex-none text-brand" aria-hidden="true" />
                 <span className="min-w-0 flex-1">
                   ¿Buscas otro tema? El buscador de arriba encuentra cualquier apunte
-                  {/* Only with a keyboard: on a phone there is no «/» to press (review of 3.2). */}
                   <span className="pointer-coarse:hidden">, también con la tecla /</span>.
                 </span>
                 <button
@@ -263,7 +252,6 @@ export function NoteView({
         {location ? <Neighbors location={location} /> : null}
       </article>
 
-      {/* On wide screens, in the site's right column. */}
       <Rail>
         <Toc toc={toc} active={active} progress={progress} />
       </Rail>
@@ -391,10 +379,7 @@ function Neighbors({ location }: { location: NoteLocation }) {
   );
 }
 
-/**
- * In the page's frame, with the header and the text where the article will put them. The breadcrumbs are the
- * article's own once the catalog is in: on a phone they wrap, and a one-line stand-in would move the title.
- */
+/** Real breadcrumbs once the catalog is in: on a phone they wrap, and a one-line stand-in would move the title. */
 function NoteSkeleton({ location }: { location: NoteLocation | null }) {
   return (
     <div className={page}>

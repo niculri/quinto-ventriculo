@@ -1,9 +1,8 @@
+// Practice tests: the questions in the content database and each user's rounds in the users database.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { QuizDetail, QuizSectionDetail } from '@qv/schema';
 import { asUser, createDatabase } from './pglite';
-
-// ───────────────────────────── content database ─────────────────────────────
 
 describe('practice tests in the content database', () => {
   let db: PGlite;
@@ -234,7 +233,6 @@ describe('practice tests in the content database', () => {
         ).rows[0]!.r,
     );
     expect(removed).toBe(0);
-    // Without the list (null, an object): refused, nothing goes.
     for (const keep of [null, '{}']) {
       await expect(
         asService((tx) => tx.query('select public.prune_quizzes($1)', [keep])),
@@ -280,8 +278,6 @@ describe('practice tests in the content database', () => {
     }
   });
 });
-
-// ───────────────────────────── users database ─────────────────────────────
 
 describe('each user’s rounds in the users database', () => {
   let db: PGlite;
@@ -352,7 +348,6 @@ describe('each user’s rounds in the users database', () => {
         answeredAt: '2026-11-01T12:00:05Z',
       },
     });
-    // The same answer again (a retry, another tab): saved once.
     await step(ANA, {
       round: round(R1),
       roundInfo: info(R1),
@@ -390,7 +385,6 @@ describe('each user’s rounds in the users database', () => {
       ANA,
       "select preferences, round ->> 'screen' as screen from public.quiz_progress",
     );
-    // A step without preferences keeps the saved ones.
     expect(progress).toEqual({
       preferences: { groups: ['01'], shuffle: false, shuffleOptions: true },
       screen: 'results',
@@ -426,7 +420,6 @@ describe('each user’s rounds in the users database', () => {
     expect(
       await rows<{ n: number }>(ANA, 'select count(*)::int as n from public.quiz_rounds'),
     ).toEqual([{ n: 3 }]);
-    // Beto deletes everything he can: Ana's stays.
     await asUser(db, BETO, (tx) => tx.query('delete from public.quiz_rounds'));
     await asUser(db, BETO, (tx) => tx.query('delete from public.quiz_progress'));
     expect(
@@ -435,7 +428,6 @@ describe('each user’s rounds in the users database', () => {
     expect(
       await rows<{ n: number }>(ANA, 'select count(*)::int as n from public.quiz_answers'),
     ).toEqual([{ n: 2 }]);
-    // Nor can he write rows in her name.
     await expect(
       asUser(db, BETO, (tx) =>
         tx.query(
@@ -443,7 +435,6 @@ describe('each user’s rounds in the users database', () => {
           [ANA.sub],
         ),
       ),
-      // Since plan step 1.2 the tests are written only through save_quiz_progress().
     ).rejects.toThrow(/permission denied/);
   });
 
@@ -482,7 +473,6 @@ describe('each user’s rounds in the users database', () => {
         answer: { roundId: R1, questionId: 'A-1', position: 2, chosen: 9, correct: true },
       }),
     ).rejects.toThrow(/check constraint/);
-    // An answer of a round that is not in the history.
     await expect(
       step(ANA, {
         round: null,

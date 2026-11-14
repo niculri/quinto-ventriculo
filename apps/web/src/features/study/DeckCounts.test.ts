@@ -1,3 +1,5 @@
+// Tests the deck list's counts over a tree like the published one, with the study queue's limits through it.
+
 import { describe, expect, it } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema';
 import { deckCounts } from './DeckCounts';
@@ -8,10 +10,6 @@ import { buildQueue, cardKey, queueCards } from './scheduler';
 import type { StudyData, TreeDeck } from './scheduler';
 import { EMPTY_PLAN } from './simple';
 
-/**
- * A tree like the published one, with several branches: root → semester → course → assessment → two weeks →
- * decks with their Extras (a note with a card in a deck and another in its Extras).
- */
 function tree(): StudyData {
   const decks: TreeDeck[] = [];
   const add = (id: string, name: string, parentId: string | null, preset = 'Default') =>
@@ -43,7 +41,6 @@ function tree(): StudyData {
         text: '',
       });
     card(0, deckId);
-    // A sibling in the Extras of its deck.
     if (i % 5 === 0 && !deckId.startsWith('7')) card(1, `7${deckId.slice(1)}`);
   }
   const now = Date.parse('2026-10-31T15:00:00Z');
@@ -116,7 +113,6 @@ describe('the counts of the deck list', () => {
       const expected = buildQueue(data, d.id, now, undefined, undefined, all).counts();
       expect([d.name, counts.get(d.id)]).toEqual([d.name, expected]);
     }
-    // The limits through the tree: the root 7 new a day (one studied today); an Extras, none and 4 reviews.
     expect(counts.get('1')!.new).toBe(6);
     expect(counts.get('1')!.review).toBeGreaterThan(10);
     expect(counts.get('711')!.review).toBeLessThanOrEqual(4);

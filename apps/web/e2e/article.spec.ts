@@ -1,10 +1,8 @@
+// E2e tests of a lecture as an article: the header with its year and code, «Datos clave», the TOC that follows the
+// reading, «Ponte a prueba» opening the test in its topics, the site's menu and the frame that does not move.
 import { expect, test } from './test';
 import { signIn } from './helpers';
 
-/**
- * A lecture as an article (v1.5): the header with its year and code, «Datos clave», the TOC that follows the
- * reading, and «Ponte a prueba» at the end, which opens the test in the lecture's topics.
- */
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 
 test('an article: header, key facts, the TOC to «Ponte a prueba» and the test in its topics', async ({
@@ -12,7 +10,6 @@ test('an article: header, key facts, the TOC to «Ponte a prueba» and the test 
   isMobile,
 }) => {
   await signIn(page);
-  // The course's list: its number, who gave it, the year and the date of the article's update.
   await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
   const row = page.getByRole('main').getByRole('link', { name: /Clase 11.*Traducción/ });
   await expect(row).toContainText('Prof. de prueba · 2026');
@@ -30,7 +27,6 @@ test('an article: header, key facts, the TOC to «Ponte a prueba» and the test 
   await expect(header.getByText(/Clase 11 de prueba, semestre de primavera 2026/)).toBeVisible();
   await expect(page.locator('.callout-datos')).toContainText('Datos clave');
   await expect(page.locator('.callout-clinica .callout-label')).toHaveText('Relevancia clínica');
-  // No side scroll on the phone (nor on the computer).
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -38,7 +34,6 @@ test('an article: header, key facts, the TOC to «Ponte a prueba» and the test 
   ).toBeLessThanOrEqual(0);
 
   if (isMobile) {
-    // The TOC folds at the top and says where you are.
     const bar = page.getByRole('button', { name: 'Índice', exact: true });
     await expect(bar).toHaveAttribute('aria-expanded', 'false');
     await bar.click();
@@ -58,7 +53,6 @@ test('an article: header, key facts, the TOC to «Ponte a prueba» and the test 
   const summary = page.locator('.note-summary');
   await expect(summary.getByRole('heading', { level: 2, name: 'Resumen' })).toBeAttached();
 
-  // «Volver al inicio», first in the TOC: back to the title, without the section's #anchor.
   if (isMobile) await page.getByRole('button', { name: 'Índice', exact: true }).click();
   const tocNav = isMobile
     ? page.locator('#toc-panel')
@@ -69,7 +63,6 @@ test('an article: header, key facts, the TOC to «Ponte a prueba» and the test 
   if (isMobile) await expect(page.locator('#toc-panel')).toHaveCount(0);
   await page.getByRole('heading', { level: 2, name: 'Ponte a prueba' }).scrollIntoViewIfNeeded();
 
-  // The test opens on its cover with only this lecture's topics chosen.
   const card = page.getByRole('link', { name: /Preguntas de práctica.*Tema: Núcleo/s });
   await card.click();
   await expect(page).toHaveURL(/\/tests\/certamen-2\/preguntas-de-practica\/pautas$/);
@@ -104,7 +97,6 @@ test('the site menu: the way to the note, the other parts of its assessment, and
   await expect(menu.getByRole('link', { name: 'Inicio' })).toBeVisible();
   await expect(menu.getByRole('link', { name: '2° Semestre' })).toBeVisible();
   await expect(menu.getByRole('link', { name: /Biología celular/ })).toBeVisible();
-  // «Apuntes» open, with this note marked; «Tests» one line.
   await expect(menu.getByRole('button', { name: 'Apuntes' })).toHaveAttribute(
     'aria-expanded',
     'true',
@@ -113,10 +105,8 @@ test('the site menu: the way to the note, the other parts of its assessment, and
     'aria-current',
     'page',
   );
-  // One test in the assessment: «Tests» goes straight to it.
   await menu.getByRole('link', { name: 'Tests' }).click();
   await expect(page).toHaveURL(/\/tests\/certamen-2\/preguntas-de-practica/);
-  // The cover keeps the menu; the questions do not.
   await expect(menu).toBeVisible();
   await page.getByRole('button', { name: 'Comenzar' }).click();
   await expect(page.getByLabel('Pregunta actual')).toBeVisible();

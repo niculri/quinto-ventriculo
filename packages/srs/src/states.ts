@@ -2,9 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * Card states and what each answer button leads to, ported from rslib/src/scheduler/states/ (learning.rs,
- * review.rs, relearning.rs, normal.rs) with FSRS on. The SM-2 branches are left out: the web always schedules
- * with FSRS.
+ * Card states and what each answer leads to, with FSRS on (rslib/src/scheduler/states/); the SM-2 branches are left
+ * out because the web always schedules with FSRS.
  */
 import type { MemoryState, NextStates } from './fsrs';
 import { withReviewFuzz } from './fuzz';
@@ -49,12 +48,9 @@ export interface SchedulingStates {
 }
 
 export interface StateContext {
-  /** In [0, 1): picks the interval inside the fuzz range. Null = no fuzz. */
   fuzzFactor: number | null;
   fsrs: NextStates;
-  /** Anki's global «FSRS short-term with steps» (off by default). */
   shortTermWithSteps: boolean;
-  /** w17 and w18 above 0. */
   allowShortTerm: boolean;
   steps: LearningSteps;
   relearnSteps: LearningSteps;
@@ -62,7 +58,6 @@ export interface StateContext {
   leechThreshold: number;
 }
 
-/** [minimum, maximum] review interval: the maximum is at least 1, the minimum between 1 and the maximum. */
 function minAndMax(ctx: StateContext, minimum: number): [number, number] {
   const maximum = Math.max(ctx.maximumReviewInterval, 1);
   return [Math.min(Math.max(minimum, 1), maximum), maximum];
@@ -81,8 +76,7 @@ function reviewState(scheduledDays: number, memory: MemoryState): ReviewState {
   return { kind: 'review', scheduledDays, elapsedDays: 0, lapses: 0, leeched: false, memory };
 }
 
-// Learning (learning.rs) ---------------------------------------------------------------------------
-
+/** learning.rs */
 function learnNextStates(state: LearnState, ctx: StateContext): SchedulingStates {
   return {
     current: state,
@@ -159,9 +153,7 @@ function learnEasy(ctx: StateContext): ReviewState {
   return reviewState(fuzz(ctx, interval, good + 1, max), ctx.fsrs.easy.memory);
 }
 
-// Review (review.rs) -------------------------------------------------------------------------------
-
-/** Lapses at the threshold, and every half threshold after that (rounding up). */
+/** Lapses at the threshold, and every half threshold after that, rounding up (review.rs). */
 export function leechThresholdMet(lapses: number, threshold: number): boolean {
   if (threshold <= 0) return false;
   const half = Math.max(Math.ceil(threshold / 2), 1);
@@ -173,6 +165,7 @@ function constrainPassing(ctx: StateContext, interval: number, minimum: number):
   return fuzz(ctx, interval, min, max);
 }
 
+/** review.rs */
 function reviewNextStates(state: ReviewState, ctx: StateContext): SchedulingStates {
   // If the interval is larger than last time, the fuzz may not go backwards.
   const greaterThanLast = (interval: number) =>
@@ -249,8 +242,7 @@ function reviewAgain(state: ReviewState, ctx: StateContext): CardState {
   return { kind: 'review', ...review };
 }
 
-// Relearning (relearning.rs) -----------------------------------------------------------------------
-
+/** relearning.rs */
 function relearnNextStates(state: RelearnState, ctx: StateContext): SchedulingStates {
   return {
     current: state,
@@ -376,9 +368,7 @@ function relearnEasy(state: RelearnState, ctx: StateContext): ReviewState {
   };
 }
 
-// Normal (normal.rs) -------------------------------------------------------------------------------
-
-/** The four next states of a card. A new card acts like a failed learning card, but stays «current». */
+/** The four next states of a card (normal.rs). A new card acts like a failed learning card, but stays «current». */
 export function nextStates(state: CardState, ctx: StateContext): SchedulingStates {
   switch (state.kind) {
     case 'new': {
@@ -403,14 +393,12 @@ export function nextStates(state: CardState, ctx: StateContext): SchedulingState
   }
 }
 
-/** Is the card a leech after this answer? */
 export function leeched(state: CardState): boolean {
   if (state.kind === 'review') return state.leeched;
   if (state.kind === 'relearning') return state.review.leeched;
   return false;
 }
 
-/** Interval of the state: seconds (new and learning) or days (review). */
 export type IntervalKind = { secs: number } | { days: number };
 
 export function intervalKind(state: CardState): IntervalKind {
@@ -438,7 +426,6 @@ export function asSeconds(kind: IntervalKind): number {
   return 'secs' in kind ? kind.secs : kind.days * 86_400;
 }
 
-/** The revlog's interval: days (positive) or seconds (negative). */
 export function asRevlogInterval(kind: IntervalKind): number {
   return 'secs' in kind ? (kind.secs === 0 ? 0 : -kind.secs) : kind.days;
 }

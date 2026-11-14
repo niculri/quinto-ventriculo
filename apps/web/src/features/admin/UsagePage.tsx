@@ -1,3 +1,4 @@
+// «Administración» → «Uso»: how much the site is used, in figures of 5 students or more, never who.
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { ExternalLink } from 'lucide-react';
@@ -23,7 +24,7 @@ import { findCourse, locateNote, useCatalog } from '../catalog/queries';
 import { AdminSectionTitle } from './AdminLayout';
 import { useUsageReport } from './queries';
 
-/** Cloudflare Web Analytics of the account (the visits and the pages): the panel opens the account's own. */
+/** The visits and the pages are in Cloudflare Web Analytics; `:account` opens the viewer's own account. */
 const WEB_ANALYTICS_URL = 'https://dash.cloudflare.com/?to=/:account/web-analytics';
 
 const NUMBER = new Intl.NumberFormat('es-CL');
@@ -34,10 +35,8 @@ const SHORT_DAY = new Intl.DateTimeFormat('es-CL', {
 });
 const shortDay = (day: string) => SHORT_DAY.format(new Date(`${day}T12:00:00Z`));
 
-/**
- * A figure. One that counts students and is 1 to 4 says «menos de 5»; any other that is not shown exact (it comes from
- * 1 to 4 students, or 1 to 4 opens, or it would give one of those by subtraction: null) is «—».
- */
+// 1 to 4 students is «menos de 5»; any other figure not shown exact (1 to 4 opens, or one that subtraction would
+// reveal: null) is «—».
 function figure(v: UsageCount | null, students = false): string {
   if (v === null) return '—';
   if (v === FEW) return students ? 'menos de 5' : '—';
@@ -77,11 +76,6 @@ const CONTEXTS: Record<SearchContext, string> = {
   other: 'Otras páginas',
 };
 
-/**
- * «Administración» → «Uso» (step 2.9): how much the site is used, always in figures of 5 students or more (fewer is
- * «menos de 5»), never who. On top today, 7 and 30 days; then by day or week, the most used, by course and assessment,
- * the activation and the invited. The visits and the pages are Cloudflare's (Web Analytics), not here.
- */
 export function UsagePage() {
   const usage = useUsageReport();
   const catalog = useCatalog();
@@ -122,7 +116,6 @@ export function UsagePage() {
   );
 }
 
-/** Today, 7 and 30 days: a row for each figure, the same rows while it loads. */
 function Summary({ report }: { report: UsageReport | null }) {
   const opens = report?.opens ?? null;
   const status = report
@@ -210,7 +203,6 @@ type Period = 'day' | 'week';
 
 const isOpenKey = (m: Metric): m is OpenKey => OPEN_ROWS.some((r) => r.key === m);
 
-/** One figure by day (30) or by week (12), as bars: «menos de 5» is a short gray bar. */
 function Chart({ report }: { report: UsageReport | null }) {
   const [metric, setMetric] = useState<Metric>('activeStudents');
   const [period, setPeriod] = useState<Period>('day');
@@ -260,7 +252,6 @@ function Chart({ report }: { report: UsageReport | null }) {
         </div>
       </div>
       <div className={`${card} mt-3 px-4 pt-4 pb-3 sm:px-5`}>
-        {/* Always this high, with or without the figures. */}
         <ol
           aria-label={`${name}, ${byWeek ? 'por semana' : 'por día'}`}
           className="flex h-40 items-end gap-[2px] sm:gap-1"
@@ -306,10 +297,7 @@ function Chart({ report }: { report: UsageReport | null }) {
   );
 }
 
-/**
- * What there is below the chart while it loads: the same headings, with rows of gray. The first one has the id of the
- * real one, so that the e2e test follows it from the first frame.
- */
+/** The first heading has the real one's id, so the e2e test follows it from the first frame. */
 function DetailsLoading() {
   return (
     <div className="mt-8 min-h-[40rem]">
@@ -336,7 +324,6 @@ interface Named {
   to: string | null;
 }
 
-/** A deck by its id: its name, its course and its page (or its nearest deck with one). */
 function deckNamed(tree: ReturnType<typeof buildAnkiTree>, id: string): Named {
   const node = tree.byId.get(id);
   if (!node) return { name: `Mazo ${id}`, detail: null, to: null };
@@ -599,7 +586,6 @@ function Table({
                   scope="row"
                   className={`min-w-0 py-2.5 pr-2 text-left font-normal max-sm:w-full max-sm:max-w-0 ${r.indent ? 'pl-8 sm:pl-10' : 'pl-4 sm:pl-5'}`}
                 >
-                  {/* Two lines on the phone rather than cut: the table comes whole with its figures. */}
                   <span className="line-clamp-2 break-words">
                     {r.named.to ? (
                       <Link to={r.named.to} className="text-ink hover:text-brand hover:underline">

@@ -1,11 +1,7 @@
+// Saves a test's steps in order and in the background: a move joins the step waiting of the same round (an answer is
+// never dropped), and after two retries it stops and keeps the steps for «Reintentar».
 import type { QuizRepository, QuizStep } from './repository';
 
-/**
- * The steps of a test, saved in order and in the background (the page does not wait for them). A step that
- * only moves around (Siguiente, Saltar, back to the cover) joins the one still waiting, if it is of the same round; an
- * answer is never dropped. If saving fails it retries twice; then it stops (`failed`) and keeps the steps for
- * the next try (the next step or «Reintentar»).
- */
 export class StepSaver {
   private queue: QuizStep[] = [];
   private running = false;
@@ -17,7 +13,6 @@ export class StepSaver {
     private readonly delays: number[] = [500, 2000],
   ) {}
 
-  /** Steps not saved yet (the browser asks before closing). */
   get pending(): number {
     return this.queue.length;
   }
@@ -48,12 +43,10 @@ export class StepSaver {
     void this.run();
   }
 
-  /** Tries again after a failure. */
   retry(): void {
     void this.run();
   }
 
-  /** Resolves when everything was saved (or it stopped on a failure). */
   async flush(): Promise<void> {
     while (this.running) await new Promise((r) => setTimeout(r, 10));
   }
@@ -93,7 +86,6 @@ export class StepSaver {
   }
 }
 
-/** Two steps of the same section and round, the later one without an answer of its own if the first has one. */
 function canJoin(a: QuizStep, b: QuizStep): boolean {
   if (a.quizId !== b.quizId || a.sectionId !== b.sectionId) return false;
   if (a.answer && b.answer) return false;

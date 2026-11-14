@@ -1,36 +1,28 @@
-// The smoke test (step 1.9): a handful of reads, without a session and without writing anything, that tell whether
-// the published site answers. It never asks for material nor sends a key: the same requests anybody on the
-// internet can make. Used by `npm run smoke [url]` and at the end of `npm run deploy`.
+// The smoke test of `npm run smoke` and `npm run deploy`: a few reads, without a session, that tell if the site answers.
 
 export const DEFAULT_SITE = 'https://www.quintoventriculo.cl';
 
-/** A deep route of the web: the Worker has to answer it with the app (single-page application). */
+// A deep route, which the Worker has to answer with the single-page app.
 const APP_ROUTE = '/semesters/1';
-/** The path used to check the redirect from the bare domain (any path: it has to come back the same). */
 const REDIRECT_PROBE = '/semesters/1?smoke=1';
 
 interface SmokeCheck {
-  /** What was checked, in Spanish (it is printed). */
   name: string;
   ok: boolean;
-  /** What answered, or why it failed. */
   detail: string;
 }
 
 export interface SmokeResult {
   ok: boolean;
   checks: SmokeCheck[];
-  /** The Worker version that answered /api/health, when it says it. */
   version: string | null;
 }
 
 export interface SmokeOptions {
   fetch?: typeof fetch;
-  /** Per request. */
   timeoutMs?: number;
 }
 
-/** The site's address, checked and without a trailing slash. Throws with a message in Spanish. */
 export function normalizeBase(url: string): URL {
   let parsed: URL;
   try {
@@ -47,7 +39,6 @@ export function normalizeBase(url: string): URL {
   return parsed;
 }
 
-/** The first script of the built app that the page loads (`/assets/…js`). */
 export function firstAsset(html: string): string | null {
   const match = /["'](\/assets\/[^"'\s>]+\.js)["']/.exec(html);
   return match ? match[1]! : null;
@@ -60,7 +51,7 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
   const checks: SmokeCheck[] = [];
   let version: string | null = null;
 
-  /** One GET, never following a redirect (a redirect where there should not be one is a failure). */
+  // Never follows a redirect: one where there should not be one is a failure.
   const get = async (target: string | URL) => {
     return doFetch(new URL(target, base), {
       redirect: 'manual',
@@ -84,7 +75,6 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
     }
   };
 
-  // 1. The home page: 200, HTML with the app's root.
   let asset: string | null = null;
   await check('La portada responde con la app', async () => {
     const res = await get('/');
@@ -97,7 +87,6 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
     return `200, HTML con la app${asset ? '' : ' (sin scripts de /assets/)'}`;
   });
 
-  // 2. A file of the build, the one the page asks for first.
   await check('Un archivo de assets/ responde', async () => {
     if (!asset) throw new Error('la portada no nombra ningún /assets/…js');
     const res = await get(asset);
@@ -108,7 +97,6 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
     return `200, ${asset}`;
   });
 
-  // 3. A deep route: the Worker answers with the app, not a 404.
   await check('Una ruta de la app responde con la app', async () => {
     const res = await get(APP_ROUTE);
     expectStatus(res, 200);
@@ -118,7 +106,6 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
     return `200, ${APP_ROUTE}`;
   });
 
-  // 4. The API is alive (no session, no data: { ok: true } and, at most, the version).
   await check('La API responde (/api/health)', async () => {
     const res = await get('/api/health');
     expectStatus(res, 200);
@@ -128,7 +115,6 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
     return version ? `200, versión ${version}` : '200 (sin versión)';
   });
 
-  // 5. Nothing is seen without a session: 401, never 200 nor 5xx.
   await check('La API pide sesión (/api/me sin sesión da 401)', async () => {
     const res = await get('/api/me');
     if (res.status === 200) throw new Error('¡respondió 200 sin sesión!');
@@ -137,7 +123,7 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
     return '401';
   });
 
-  // 6. The bare domain goes to www with the same path and query (Cloudflare's Redirect Rule).
+  // The bare domain goes to www with the same path and query (Cloudflare's Redirect Rule).
   if (base.hostname.startsWith('www.')) {
     const bare = new URL(base);
     bare.hostname = base.hostname.slice('www.'.length);
@@ -155,7 +141,6 @@ export async function runSmoke(url: string, options: SmokeOptions = {}): Promise
   return { ok: checks.every((c) => c.ok), checks, version };
 }
 
-/** The result as lines for the terminal. */
 export function formatSmoke(url: string, result: SmokeResult): string[] {
   const lines = [`Prueba de humo de ${normalizeBase(url).origin}:`];
   for (const c of result.checks) lines.push(`  ${c.ok ? '✓' : '✗'} ${c.name}: ${c.detail}`);

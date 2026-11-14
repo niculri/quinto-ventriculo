@@ -1,3 +1,4 @@
+// Tests for hiding the semesters without material from the catalog.
 import { describe, expect, it } from 'vitest';
 import { semesterHasMaterial, withoutEmptySemesters } from './api';
 import type { Catalog } from './api';
@@ -77,7 +78,7 @@ const catalog: Catalog = {
   },
 };
 
-describe('the semesters without material (step 1.8)', () => {
+describe('the semesters without material', () => {
   it('an article, a test or a deck with cards is material; a course or an empty deck is not', () => {
     expect(catalog.semesters.map((s) => semesterHasMaterial(catalog, s))).toEqual([
       true,

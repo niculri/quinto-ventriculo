@@ -1,3 +1,6 @@
+// «Ver apunte» and «Preguntas» under the answer buttons: apart from them and as tall as a finger, so that a touch
+// meant for «Otra vez» or «Bien» never opens the article; their room is always there.
+
 import type { ReactNode } from 'react';
 import { BookOpen, ListChecks } from 'lucide-react';
 import type { CardMaterial } from './material';
@@ -5,10 +8,6 @@ import type { CardMaterial } from './material';
 const ROW_LINK =
   'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 hover:bg-surface-2 hover:text-ink';
 
-/**
- * «Ver apunte» and «Preguntas» under the answer buttons: apart from them and as tall as a finger, so that a touch
- * meant for «Otra vez» or «Bien» never opens the article. Always its room, on every card: nothing moves.
- */
 export function MaterialRow({
   material,
   revealed,
@@ -16,7 +15,6 @@ export function MaterialRow({
 }: {
   material: CardMaterial | null;
   revealed: boolean;
-  /** Between the two links (the tip of step 3.2). */
   children?: ReactNode;
 }) {
   return (
@@ -38,10 +36,7 @@ export function MaterialRow({
   );
 }
 
-/**
- * They open another tab, to keep the session. Focus does not stay on the link: back here, Enter has to answer, not
- * open it again.
- */
+// Focus does not stay on the link: back here, Enter has to answer, not open it again.
 export function MaterialLink({
   href,
   className = 'inline-flex items-center gap-1 hover:text-ink hover:underline',

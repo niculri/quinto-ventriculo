@@ -1,12 +1,9 @@
+// E2e tests of a piece taken off the site (`npm run unpublish`): its link gives the «no existe» page without anything
+// moving, and a test taken off in the middle of a round lets the round go on until a reload.
 import { expect, test } from './test';
 import type { Page, Route } from '@playwright/test';
 import { signIn } from './helpers';
 
-/**
- * Step 1.5: a piece taken off the site (`npm run unpublish`). The API no longer has it (404) and the catalog no longer
- * lists it: its link gives the site's «no existe» page, in the frame, without anything moving; a test taken off in
- * the middle of a round lets the round go on, and a reload gives the same page.
- */
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 const NOT_FOUND = 'Esta página no aparece ni en el Netter';
@@ -42,7 +39,6 @@ async function takeOff(page: Page, piece: { note?: string; quiz?: string }) {
   if (piece.quiz) await page.route('**/api/quizzes/**', gone);
 }
 
-/** The «no existe» page, and that it stays still (nothing jumps in after it appears). */
 async function stillNotFound(page: Page) {
   const title = page.getByRole('heading', { level: 1, name: NOT_FOUND });
   await expect(title).toBeVisible();
@@ -64,7 +60,6 @@ test('an article taken off the site: its link gives the «no existe» page, with
   await takeOff(page, { note: '11-traduccion' });
   await page.goto(ARTICLE);
   await stillNotFound(page);
-  // Nor is it in the list of its assessment.
   await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
   await expect(
     page.getByRole('main').getByRole('link', { name: /Clase 11.*Traducción/ }),

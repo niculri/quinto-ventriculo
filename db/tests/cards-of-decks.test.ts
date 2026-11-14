@@ -1,5 +1,5 @@
-// Plan step 3.3 (ANK-7, 20261123000000_cards_of_decks.sql): a student's progress in the decks of one assessment, in one
-// call, without the rest of their rows; and nobody else's.
+// card_states_of_decks(): a student's progress in the decks of one assessment, in one call, without the rest of their
+// rows; and nobody else's.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';
@@ -7,7 +7,6 @@ import { asUser, createDatabase } from './pglite';
 const ANA = { sub: '00000000-0000-4000-8000-00000000005a', email: 'ana@ug.uchile.cl' };
 const BETO = { sub: '00000000-0000-4000-8000-00000000005b', email: 'beto@ug.uchile.cl' };
 const OUTSIDER = { sub: '00000000-0000-4000-8000-00000000005c', email: 'otro@gmail.com' };
-/** The decks of «the assessment» (three), and 197 decks of other assessments. */
 const MINE = ['3000000001', '3000000002', '3000000003'];
 const OTHERS = Array.from({ length: 197 }, (_, i) => String(4_000_000_000 + i));
 
@@ -25,7 +24,6 @@ beforeAll(async () => {
   for (const u of [ANA, BETO, OUTSIDER]) {
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
   }
-  // Ana: 20,000 rows in all, 300 of them in the assessment's decks (100 notes × 3 decks); Beto: 50 there.
   await db.query(
     `insert into public.card_states (user_id, note_guid, ord, deck_id, phase, interday, due, last_review, interval,
        stability, difficulty, reps)
@@ -45,7 +43,7 @@ beforeAll(async () => {
   // Seeding 20,000 rows takes ~4 s here and more than the default 10 s on a CI runner.
 }, 60_000);
 
-describe('card_states_of_decks (step 3.3)', () => {
+describe('card_states_of_decks', () => {
   it('the rows of those decks only, in one value, as the table has them (without user_id), by note and card', async () => {
     const rows = await read(ANA, MINE);
     expect(rows).toHaveLength(300);
@@ -63,7 +61,6 @@ describe('card_states_of_decks (step 3.3)', () => {
         .map((r) => r.c)
         .sort(),
     );
-    // The same as reading the table with RLS (what the web did before, a page at a time).
     const table = await asUser(db, ANA, async (tx) =>
       tx.query<Row>(
         `select note_guid, ord, deck_id from public.card_states where deck_id = any ($1) order by note_guid, ord`,
@@ -84,8 +81,6 @@ describe('card_states_of_decks (step 3.3)', () => {
 
   it('nobody outside: without a session it cannot be called; a student not invited reads nothing', async () => {
     await expect(read(null, MINE)).rejects.toThrow(/permission denied/);
-    // Revisión de cero (3.3): with rows of their own in those decks (as somebody whose invitation was taken back),
-    // RLS gives nothing: the outside account, and Ana when the site is no longer open to her domain.
     await db.query(
       `insert into public.card_states (user_id, note_guid, ord, deck_id)
        select $1, 'o' || i, 0, $2 from generate_series(1, 5) i`,

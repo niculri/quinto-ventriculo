@@ -1,3 +1,4 @@
+// Tests of the search parser: structure, quotes and escapes, keywords and error messages.
 import { describe, expect, it } from 'vitest';
 import { SearchError, parseSearch } from '../src';
 import type { SearchErrorKind, SearchNode } from '../src';
@@ -57,7 +58,6 @@ describe('structure', () => {
     });
     expect(parseSearch('-"a b"')).toEqual({ type: 'not', node: t('a b') });
     expect(parseSearch('--a')).toEqual({ type: 'not', node: t('-a') });
-    // A lone hyphen is text, like in Anki.
     expect(parseSearch('- a')).toEqual({ type: 'and', nodes: [t('-'), t('a')] });
     expect(parseSearch('-')).toEqual(t('-'));
   });

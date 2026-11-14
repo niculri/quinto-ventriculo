@@ -1,11 +1,5 @@
-/**
- * Compares @qv/anki-render with real Anki on any .apkg (for example, a real deck, whose golden file must
- * stay outside the repository):
- *
- *   PY=python3
- *   $PY packages/anki-render/scripts/golden.py <deck.apkg> /tmp/golden.json
- *   npm run compare -w @qv/anki-render -- <deck.apkg> /tmp/golden.json
- */
+// Compares @qv/anki-render with real Anki's golden file of any .apkg (made by scripts/golden.py; a real deck's
+// stays outside the repository): `npm run compare -w @qv/anki-render -- <deck.apkg> <golden.json>`.
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { readApkgFile } from '@qv/anki-format';

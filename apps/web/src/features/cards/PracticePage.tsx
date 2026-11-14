@@ -1,3 +1,6 @@
+// «Practicar estas»: a round with the cards the list found, on the final review's motor; it changes no date and each
+// answer counts as practice (`record_practice()`).
+
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { paths } from '../../app/paths';
@@ -27,12 +30,7 @@ import {
 import { failedOf, useCardsData, useDayCards, useFailed, useTextMatch } from './queries';
 import { cardsScope, unitDeckIds, unitNode } from './scope';
 
-/**
- * «Practicar estas» (`…/cards/practice?<the list's filters>`; step 3.3, ANK-12): a round with the cards the list found,
- * also those not seen yet, with the final review's motor. It changes no date and writes nothing of the cards: each
- * answer counts as practice for the heatmap and the streak (`record_practice()`). The filters are in the URL, so
- * reloading starts the same round again.
- */
+/** The filters are in the URL, so reloading starts the same round again. */
 export function PracticePage({ node }: { node: CourseDeckNode }) {
   const { catalog, tree } = useAnkiTree();
   const [params] = useSearchParams();
@@ -128,7 +126,6 @@ function Practice({ cards, back }: { cards: CardRef[]; back: string }) {
         <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
           {current ? (
             <>
-              {/* On the phone the sides of the bar leave little room: only what is left. */}
               <span className="sm:hidden">Quedan {round.queue.length.toLocaleString('es-CL')}</span>
               <span className="hidden sm:inline">
                 Practicar · quedan {round.queue.length.toLocaleString('es-CL')}

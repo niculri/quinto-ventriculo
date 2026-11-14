@@ -1,6 +1,5 @@
-// `npm run deps [-- --base <rev>] [--require-base]`: fails on an import cycle that is not in .import-cycles.json, and
-// on a baseline that gained keys with respect to <rev> (origin/main by default). `npm run deps:baseline` (that is,
-// `--write-baseline`) rewrites the baseline from what is found now; the second check keeps it from growing.
+// `npm run deps`: fails on an import cycle not in .import-cycles.json, or on a baseline that gained keys over --base;
+// `--write-baseline` rewrites it.
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

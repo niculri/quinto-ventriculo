@@ -1,3 +1,5 @@
+// The browser's preview of the selected card (front or back) and Anki's «Información de la tarjeta».
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Maximize2, MessageSquareWarning } from 'lucide-react';
@@ -16,7 +18,6 @@ import type { CardLogEntry } from '../study/repository';
 import { cellText, recall, shortDate } from './data';
 import type { BrowseCard } from './data';
 
-/** The selected card as Anki's preview shows it (front or back), and its «Información de la tarjeta». */
 export function CardPreview({
   card,
   timing,
@@ -24,7 +25,6 @@ export function CardPreview({
 }: {
   card: BrowseCard;
   timing: SchedTiming;
-  /** Opens the card in the viewer (as Anki's «Vista previa» window). */
   onEnlarge: () => void;
 }) {
   const [side, setSide] = useState<'front' | 'back'>('front');
@@ -144,10 +144,6 @@ function kindOf(e: CardLogEntry): string {
   }
 }
 
-/**
- * Anki's «Información de la tarjeta»: the numbers of the card and its history of answers. `simple`: without FSRS's
- * numbers nor the note type (the simple mode's «Historial» of the cards page).
- */
 export function CardInfo({
   card,
   timing,

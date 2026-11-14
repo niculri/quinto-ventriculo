@@ -1,3 +1,6 @@
+// Anki's browser sidebar: decks by course, note types, tags, card states, flags and today's; a click changes the
+// search.
+
 import { useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import { ChevronRight, Flag, Layers, ListChecks, NotebookTabs, Tag, Clock } from 'lucide-react';
@@ -6,10 +9,8 @@ import type { NoteTypeSummary } from '@qv/schema';
 import type { DeckNode } from '../anki/tree';
 import { FLAGS } from '../study/flags';
 
-/**
- * How a click on the sidebar changes the search, as in Anki: a click replaces it; with Ctrl (or ⌘) it adds
- * the term («y»), with Mayús it is an alternative («o»), with Alt it negates it.
- */
+// As in Anki, a click replaces the search; with Ctrl/⌘ it adds the term («y»), with Mayús it is an alternative
+// («o»), with Alt it negates it.
 export type Combine = 'replace' | 'and' | 'or';
 
 export function combineSearch(current: string, term: string, how: Combine, negate: boolean) {
@@ -19,7 +20,6 @@ export function combineSearch(current: string, term: string, how: Combine, negat
   return how === 'and' ? `(${base}) ${t}` : `(${base}) OR ${t}`;
 }
 
-/** Anki's browser sidebar: decks, note types, tags, card state, flags and today's. */
 export function BrowseSidebar({
   courses,
   noteTypes,
@@ -27,11 +27,9 @@ export function BrowseSidebar({
   full,
   onSearch,
 }: {
-  /** The courses' decks: the tree starts at each course (Anki on the web goes course by course). */
   courses: DeckNode[];
   noteTypes: NoteTypeSummary[];
   tags: string[];
-  /** «Modo avanzado»: note types, states and every flag (the simple mode has them as filters on top). */
   full: boolean;
   onSearch: (term: string, how: Combine, negate: boolean) => void;
 }) {
@@ -149,7 +147,6 @@ function Group({ icon, title, children }: { icon: ReactNode; title: string; chil
 
 const countNodes = (n: DeckNode): number => 1 + n.children.reduce((t, c) => t + countNodes(c), 0);
 
-/** A course's deck tree, open down to its assessments (all of it while it is small). */
 function DeckItems({
   node,
   click,
@@ -205,7 +202,6 @@ interface TagNode {
   children: Map<string, TagNode>;
 }
 
-/** The tags as a tree by «::» (Anki's hierarchical tags). */
 function TagItems({
   tags,
   click,

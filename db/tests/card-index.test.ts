@@ -1,7 +1,5 @@
-// Plan step 3.3 (ANK-6, ANK-8): the card browser's index, one file per assessment in the image store, and the row of the
-// content database that says which one is current (20261117000000_card_browser_index.sql). The real importer and the
-// real `npm run unpublish` against every migration (PGlite), with a fake R2: the draft and publishing (step 1.7), undoing
-// it, the thumbnails, taking a deck or an image off the site.
+// The card browser's index, one file per assessment in the image store, and the row that says which one is current: the
+// real importer and `npm run unpublish` against every migration, with a fake R2.
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -29,7 +27,6 @@ import { createDatabase } from './pglite';
 let db: PGlite;
 const calls: { fn: string; args: Record<string, unknown> }[] = [];
 const stored = new Map<string, Buffer>();
-/** Every request to the store and to the database, in order. */
 let events: string[] = [];
 const store: MediaStore & MediaRemover = {
   async has(key) {
@@ -100,7 +97,6 @@ const OCCLUSION_TYPE = {
 };
 const IMAGE = 'cards/0123456789abcdef0123456789abcdef.webp';
 const THUMB = 'cards/thumb/0123456789abcdef0123456789abcdef.webp';
-/** An occlusion of BC with a figure (`IMAGE`) and two shapes. */
 const occlusion = () => {
   const base = (({ hash: _h, updatedAt: _u, ...rest }) => rest)(ankiNote('io-1', BC, 'Lámina'));
   return {
@@ -131,7 +127,6 @@ const withOcclusion = (): Parts => {
   p.ankiNotes.push(occlusion() as unknown as Parts['ankiNotes'][number]);
   return p;
 };
-/** The bundle of `p`, with the occlusion's note type when it has it. */
 const bundleWith = (p: Parts) => {
   const { bundle, media } = bundleOf(p);
   const types = p.ankiNotes.some((n) => n.noteTypeId === OCCLUSION_TYPE.id)
@@ -181,7 +176,7 @@ beforeEach(async () => {
 });
 afterEach(() => rm(folder, { recursive: true, force: true }));
 
-describe('the card browser index (step 3.3)', () => {
+describe('the card browser index', () => {
   it('goes to the draft with the import, its file and thumbnails first; publishing and undoing take the row', async () => {
     const report = await save(draft, withOcclusion());
     expect(report).toMatchObject({ indexesWritten: 2, indexesUnchanged: 0, thumbsUploaded: 1 });
@@ -190,7 +185,6 @@ describe('the card browser index (step 3.3)', () => {
       [AN, 1, 1],
       [BC, 4, 5],
     ]);
-    // Public does not have it until it is published.
     expect(await rows('public')).toEqual([]);
     // The thumbnail before the file, and both before the database names them.
     const bcKey = cardIndexKey(BC, inDraft[1]!.hash);
@@ -200,7 +194,6 @@ describe('the card browser index (step 3.3)', () => {
     expect(at(`put ${bcKey}`)).toBeLessThan(at('rpc save_anki_browse_indexes'));
     expect(stored.get(THUMB)!.toString()).toBe(`thumb:${IMAGE}`);
 
-    // What the list needs of the occlusion.
     const index = indexOf(BC, inDraft[1]!.hash);
     expect(index.notes.find((n) => n.guid === 'io-1')).toMatchObject({
       kind: 'occlusion',
@@ -227,7 +220,6 @@ describe('the card browser index (step 3.3)', () => {
     );
     expect(await q('select * from public.draft_pending_changes()')).toEqual([]);
 
-    // A new version of BC, published and undone: the row goes back, and its file is still in the store.
     const p = withOcclusion();
     p.ankiNotes[0] = ankiNote('bc-1', BC, 'uno, corregida');
     await save(draft, p);
@@ -260,13 +252,11 @@ describe('the card browser index (step 3.3)', () => {
     p.ankiNotes[1] = ankiNote('bc-2', BC, 'dos, corregida');
     const r = await save(draft, p);
     expect(r).toMatchObject({ indexesWritten: 1, indexesUnchanged: 1, thumbsUploaded: 0 });
-    // The thumbnail is not asked for again: it is the new file that was not in the store.
     expect(events.filter((e) => e.includes('thumb'))).toEqual([`has ${THUMB}`]);
     const after = await rows('draft');
     expect(after[0]).toEqual(before[0]);
     expect(after[1]!.hash).not.toBe(before[1]!.hash);
 
-    // Anatomía I imported alone, without its notes: its index goes (and BC's stays).
     const none: Parts = { ...only(everything(), AN), ankiNotes: [] };
     const out = await save(draft, none, { ...FULL, assessments: [AN] });
     expect(out).toMatchObject({ indexesWritten: 0, indexesRemoved: 1 });
@@ -390,7 +380,6 @@ describe('the card browser index (step 3.3)', () => {
     await q('delete from public.anki_browse_indexes');
     await q('select public.reset_draft()');
     expect(await changes()).toEqual([]);
-    // The import writes only the indexes: the summary says nothing, the new function does.
     const report = await save(draft, withOcclusion());
     expect(report).toMatchObject({ indexesWritten: 2 });
     const summary = (
@@ -403,7 +392,6 @@ describe('the card browser index (step 3.3)', () => {
     ]);
     await publish();
     expect(await changes()).toEqual([]);
-    // A new index of one assessment, and one that leaves.
     await q(
       `update draft.anki_browse_indexes set note_count = note_count + 1 where assessment_id = $1`,
       [BC],
@@ -424,7 +412,7 @@ describe('the card browser index (step 3.3)', () => {
     }
   });
 
-  it('an importer against a content database from before this step writes no index and does not fail', async () => {
+  it('an importer against a content database without the card browser index writes no index and does not fail', async () => {
     db = await createDatabase('content', [], '20261117000000_card_browser_index.sql');
     const report = await save(published, withOcclusion());
     expect(report).toMatchObject({ changedCards: expect.any(Array), indexesWritten: 0 });

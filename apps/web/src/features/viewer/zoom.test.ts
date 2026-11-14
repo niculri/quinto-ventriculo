@@ -1,3 +1,4 @@
+// The image viewer's geometry: fit, limits, zoom around a point, double tap and pinch.
 import { describe, expect, it } from 'vitest';
 import {
   clampView,
@@ -32,7 +33,6 @@ describe('the image viewer’s geometry', () => {
     const z = zoomAt(v, 1, at, plate, phone);
     expect(z.scale).toBe(1);
     expect((at.x - z.x) / z.scale).toBeCloseTo(imageX);
-    // Beyond the limits it stops at them, and the point still stays.
     const far = zoomAt(z, 50, at, plate, phone);
     expect(far.scale).toBe(2);
     expect((at.x - far.x) / far.scale).toBeCloseTo(imageX);
@@ -53,7 +53,6 @@ describe('the image viewer’s geometry', () => {
     expect(isFitted(v, plate, phone)).toBe(true);
     expect(toggledScale(v, plate, phone)).toBe(1);
     expect(toggledScale({ ...v, scale: 0.6 }, plate, phone)).toBeCloseTo(0.1875);
-    // A small image already at its size: twice.
     const small = { width: 200, height: 100 };
     expect(toggledScale(fitView(small, phone), small, phone)).toBe(2);
   });

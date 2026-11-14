@@ -23,7 +23,6 @@ export interface AnkiCard {
 
 const PHASES = ['new', 'learning', 'review', 'relearning'] as const;
 
-/** Anki's queue number → ours (0 new, 1 learn, 2 review, 3 interday learning). */
 export const QUEUES: Record<number, Queue> = { 0: 'new', 1: 'learn', 2: 'review', 3: 'dayLearn' };
 
 export function fromAnki(c: AnkiCard): CardRecord {

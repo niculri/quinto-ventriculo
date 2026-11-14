@@ -1,3 +1,5 @@
+// Reads and checks the assessments' taxonomies (topic trees and their maps): no topic id is reused in the git
+// history, and every published card and question has a unit and a topic.
 import { execFile, spawn } from 'node:child_process';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -7,66 +9,43 @@ import { TaxonomyFile, TopicMapFile, resolveTopic, topicNumber } from '@qv/schem
 import type { AnkiDeckRecord, ContentBundle, TaxonomyTopic, TaxonomyUnit } from '@qv/schema';
 import type { Manifest, NoteEntry } from './manifest';
 
-/** The taxonomy of an assessment (step 1.6): its tree and its map, read from content/. */
 export interface AssessmentTaxonomy {
   assessmentId: string;
   taxonomy: TaxonomyFile;
   map: TopicMapFile;
-  /**
-   * What the tree was compared with (`readTaxonomies`): «commit», every committed version of its file; «shallow», the
-   * versions a shallow clone has (older ones are missing); «none», nothing (no repository, or the file was never
-   * committed, or none of its versions validates). With «shallow» and «none» the report says the reused ids were not
-   * checked (or not against the whole history).
-   */
   history?: 'commit' | 'shallow' | 'none';
 }
 
-/** What the import says of the taxonomy of each assessment it touches. */
 export interface TaxonomyReport {
   assessmentId: string;
-  /** The tree's version; null: the assessment has no taxonomy (it is imported as before). */
   version: number | null;
   units: number;
-  /** Active topics (not retired nor joined). */
+  /** Active topics only (not retired nor joined). */
   topics: number;
-  /** Cards and questions of this import checked: every one has a unit and a topic. */
   cards: number;
   questions: number;
-  /**
-   * What this import could not check: «mazos», «tests», «secciones», because it does not bring them, or the reused
-   * ids, because there was no commit to compare the tree with (or only part of the history).
-   */
   unchecked: string[];
-  /** They do not stop the import: a topic with more than 25 % of its unit, a section with no item, what is off. */
   notices: string[];
 }
 
-/** The file name of an assessment, as in content/notes/ and content/decks/: «biologia-celular-certamen-2.json». */
 export function assessmentFileName(assessmentId: string): string {
   return `${assessmentId.replace(/\//g, '-')}.json`;
 }
 
 /**
- * What git has of the content folder's files, to check that no topic id is used again: every committed version of a
- * file, not only the last commit's (a bad edit that was already committed, or a whole taxonomy deleted, would pass).
- * Paths are relative to the content folder («taxonomy/biologia-celular-certamen-2.json»).
+ * Every committed version of the content folder's files, not only HEAD's: otherwise an edit or a deletion that was
+ * already committed would pass. Paths are relative to the content folder.
  */
 export interface TaxonomyHistory {
-  /** The clone does not have the whole history (CI's checkout without `fetch-depth: 0`). */
   shallow: boolean;
-  /**
-   * Every committed text of the file (a merge's too), newest first, a side branch before the main one (git's
-   * `--topo-order`); commits that deleted it are skipped; [] if never committed.
-   */
+  /** Newest first, a side branch before the main one; merges included, deletions skipped. */
   versions(relativePath: string): Promise<string[]>;
-  /** The `*.json` files of a folder that some commit had (only their names), even if they are no longer there. */
   committedFiles(relativeDir: string): Promise<string[]>;
 }
 
-/** git's history of the folder's repository; null if the folder is not in one (or there is no git). */
 export async function gitHistory(folder: string): Promise<TaxonomyHistory | null> {
   const run = promisify(execFile);
-  // Pathspecs are literal (a «[» or «*» in a name is not a pattern).
+  // A «[» or «*» in a file name is not a pattern.
   const git = async (...args: string[]) =>
     (
       await run('git', ['--literal-pathspecs', '-C', folder, ...args], {
@@ -77,20 +56,18 @@ export async function gitHistory(folder: string): Promise<TaxonomyHistory | null
   try {
     prefix = (await git('rev-parse', '--show-prefix')).trim();
   } catch {
-    return null; // not a repository, or no git
+    return null;
   }
   const shallow =
     (await git('rev-parse', '--is-shallow-repository').catch(() => 'false')).trim() === 'true';
-  // A repository with no commit yet has no version of anything. Any other failure of git log stops the import: a
-  // silent «no history» would turn the reused-id check off without saying it.
+  // Only a repository without commits means «no history»; any other git failure stops the import, or the reused-id
+  // check would turn off silently.
   const born = await git('rev-parse', '--verify', '--quiet', 'HEAD').then(
     () => true,
     () => false,
   );
-  // One walk of the history per folder, not one per file (each git log walks every commit of the repository): the
-  // commits that added or changed each file of it, newest first. -m: a merge's own version (a conflict solved by
-  // hand) is one more version. --topo-order: on a tie between two branches, the main one (the first parent) is the
-  // older. -z: without it, git quotes a path with accents («"Materia m\303\251dica/…"») and nothing would match.
+  // One git log per folder, not per file. -m: a merge's own text is a version; --topo-order: the first parent is the
+  // older; -z: otherwise git quotes paths with accents and nothing matches.
   const walks = new Map<string, Promise<Map<string, Set<string>>>>();
   const walk = (dir: string) => {
     let done = walks.get(dir);
@@ -148,16 +125,16 @@ export async function gitHistory(folder: string): Promise<TaxonomyHistory | null
   };
 }
 
-/** Many blobs in one process (`git cat-file --batch`): the text of each «<commit>:<path>», null if it is not there. */
+/** Reads many «<commit>:<path>» with one `git cat-file --batch`; null for one that is not there. */
 function gitBatch(folder: string, specs: readonly string[]): Promise<(string | null)[]> {
   return new Promise((resolve, reject) => {
     const child = spawn('git', ['-C', folder, 'cat-file', '--batch'], { stdio: 'pipe' });
     const chunks: Buffer[] = [];
     const errors: Buffer[] = [];
     child.stdout.on('data', (c: Buffer) => chunks.push(c));
-    // Read too, or a full pipe would leave git waiting; and it says why git failed.
+    // Drained too, or a full pipe would block git.
     child.stderr.on('data', (c: Buffer) => errors.push(c));
-    child.stdin.on('error', () => {}); // git ended before reading everything: «close» says why
+    child.stdin.on('error', () => {}); // git may exit before reading everything: «close» reports why
     child.on('error', reject);
     child.on('close', (code) => {
       if (code !== 0) {
@@ -177,7 +154,7 @@ function gitBatch(folder: string, specs: readonly string[]): Promise<(string | n
         const header = /^[0-9a-f]+ (\S+) (\d+)$/.exec(out.subarray(at, end).toString('utf8'));
         at = end + 1;
         if (!header) {
-          texts.push(null); // «<spec> missing»
+          texts.push(null);
           continue;
         }
         const size = Number(header[2]);
@@ -191,11 +168,8 @@ function gitBatch(folder: string, specs: readonly string[]): Promise<(string | n
 }
 
 /**
- * Reads content/taxonomy/ and content/topic-map/. Each tree goes with its map (same assessment, same version, the
- * assessment's file name), and is compared with every committed version of its file: a topic id never leaves nor
- * comes back, and a taxonomy that was committed is never deleted (unless its assessment is no longer in `assessments`,
- * the catalog: a misspelt id or an assessment that left). `history` null: there is no repository, and only the files
- * of now are checked (the report says so).
+ * Reads each tree with its map and compares it with every committed version of its file. A committed taxonomy is never
+ * deleted, unless its assessment left the catalog (`assessments`).
  */
 export async function readTaxonomies(
   folder: string,
@@ -218,8 +192,6 @@ export async function readTaxonomies(
   named('content/taxonomy', trees);
   named('content/topic-map', maps);
   const mapsBy = new Map(maps.map(([, m]) => [m.assessmentId, m]));
-  // Every committed version that validates is a reference (one that does not, from an older format, is skipped).
-  // All files at once: one git process each, in parallel.
   const committedOf = new Map(
     await Promise.all(
       trees.map(
@@ -243,9 +215,7 @@ export async function readTaxonomies(
         `content/topic-map/${file} se hizo para la versión ${map.taxonomyVersion} del árbol, y el árbol va en la ${taxonomy.version}: revisa los ítems de los temas que cambiaron y pon «taxonomyVersion»: ${taxonomy.version}.`,
       );
     }
-    // Compared all together, not one by one: one by one, two versions that disagree (a topic moved to another unit in
-    // a commit, two branches that gave one number) could never both be satisfied, and one mistake gave a message per
-    // version.
+    // All versions together: one by one, two versions that disagree could never both be satisfied.
     const committed = committedOf.get(file) ?? [];
     const problems = new Problems();
     for (const [kind, message] of historyFindings(committed, taxonomy)) problems.add(kind, message);
@@ -262,10 +232,8 @@ export async function readTaxonomies(
       `content/topic-map/${assessmentFileName(id)} no tiene árbol: falta content/taxonomy/${assessmentFileName(id)}.`,
     );
   }
-  // A taxonomy that was committed and is no longer there: its assessment would go back to «without a taxonomy» and
-  // its ids could be given again. Only a file with its right name counts (a misnamed one never was a taxonomy), and
-  // only if its assessment is in the catalog: one that is not could neither stay (the import stops: «no existe la
-  // evaluación») nor leave. If the file comes back, its old versions still count.
+  // A deleted taxonomy would let its ids be given again. A misnamed file never was one, and an assessment out of the
+  // catalog can neither keep nor drop it.
   if (git) {
     const now = new Set(trees.map(([file]) => file));
     for (const file of await git.committedFiles('taxonomy')) {
@@ -286,7 +254,6 @@ export async function readTaxonomies(
   return out;
 }
 
-/** The versions that validate, newest first; the same text twice (a revert, a merge) is read once. */
 function validVersions(texts: readonly string[]): TaxonomyFile[] {
   return [...new Set(texts)].flatMap((text) => {
     const parsed = TaxonomyFile.safeParse(safeJson(text));
@@ -317,7 +284,6 @@ async function readJsonFolder<T>(folder: string, schema: z.ZodType<T>): Promise<
       try {
         data = JSON.parse(await readFile(path, 'utf8'));
       } catch (e) {
-        // These files are edited by hand: the message says which one (JSON.parse alone does not).
         throw new Error(`${path} no es un JSON válido: ${(e as Error).message}`, { cause: e });
       }
       const parsed = schema.safeParse(data);
@@ -327,21 +293,14 @@ async function readJsonFolder<T>(folder: string, schema: z.ZodType<T>): Promise<
   );
 }
 
-/**
- * A topic id is never used again. Against a committed tree: every topic that was there is still there, in the same
- * unit; one that was retired or joined does not come back; a new one takes a new number; `nextTopic` never goes down;
- * `version` never goes down, and goes up when the topics change. (Inside the file, every number below `nextTopic` has
- * to be there: that is checked by the schema.) `readTaxonomies` uses `compareWithHistory`, with every version.
- */
+/** A topic id is never used again: every old topic stays in its unit, a retired one never comes back. */
 export function compareWithPrevious(previous: TaxonomyFile, current: TaxonomyFile): string[] {
   return historyFindings([previous], current).map(([, message]) => message);
 }
 
 /**
- * The same rules against every committed version (newest first), taken together: the highest `nextTopic` and
- * `version` there were, every topic that some version had, in the unit it had first (so a topic moved by a commit is
- * fixed by moving it back), and retired or joined if some version had it so. One mistake gives one message, and a
- * mistake already committed can always be fixed with another commit.
+ * The same rules against every version at once: the highest `nextTopic` and `version`, each topic in the unit it had
+ * first, retired if any version retired it. A mistake already committed is fixed with another commit.
  */
 export function compareWithHistory(
   versions: readonly TaxonomyFile[],
@@ -350,11 +309,9 @@ export function compareWithHistory(
   return historyFindings(versions, current).map(([, message]) => message);
 }
 
-/** What every committed version says together: see `compareWithHistory`. */
 interface HistoryReference {
   nextTopic: number;
   version: number;
-  /** Each id with its newest title, its first unit and, if some version took it out, how («retirado», «juntado con t2»). */
   topics: Map<string, { title: string; unit: string; gone?: string }>;
 }
 
@@ -381,7 +338,6 @@ function referenceOf(versions: readonly TaxonomyFile[]): HistoryReference {
   };
 }
 
-/** The errors against the committed versions, each with its kind (to cut a long list by kind). */
 function historyFindings(
   versions: readonly TaxonomyFile[],
   current: TaxonomyFile,
@@ -428,8 +384,8 @@ function historyFindings(
       ]);
     }
   }
-  // The version is the one the published map will repeat (item_topic_map.taxonomy_version): it never goes down, and
-  // it goes up when the topics change (a new one, a join, a retirement). A new title or section does not count.
+  // The published map repeats `version` (item_topic_map.taxonomy_version): it never goes down and goes up when the
+  // topics change, not their titles.
   if (current.version < ref.version) {
     out.push([
       'version',
@@ -447,7 +403,7 @@ function historyFindings(
   return out;
 }
 
-/** Each topic with its unit and its state, without its title or section (what makes the tree another version). */
+/** What makes the tree another version: each topic's unit and state, not its title or section. */
 function topicShape(t: TaxonomyFile): string {
   return t.units
     .flatMap((u) =>
@@ -459,7 +415,7 @@ function topicShape(t: TaxonomyFile): string {
     .join('\u001e');
 }
 
-/** Titles of a `##` that never have a topic: they repeat what the topics already have. */
+/** `##` titles that never have a topic. */
 const NO_TOPIC = /^(?:resumen|fuentes?|bibliografia|referencias|glosario|ponte a prueba)\b/;
 
 function plainTitle(title: string): string {
@@ -471,7 +427,6 @@ function plainTitle(title: string): string {
     .trim();
 }
 
-/** A list of errors with a cap by kind: thousands of cards without a topic should not make a message of pages. */
 class Problems {
   private readonly counts = new Map<string, number>();
   readonly list: string[] = [];
@@ -481,7 +436,6 @@ class Problems {
     this.counts.set(kind, n);
     if (n <= this.cap) this.list.push(message);
   }
-  /** The messages, with «… and N more» for each kind over the cap. */
   all(): string[] {
     const more = [...this.counts]
       .filter(([, n]) => n > this.cap)
@@ -492,29 +446,21 @@ class Problems {
 
 export interface TaxonomyCheck {
   manifest: Manifest;
-  /** The assessments of this import (null: all of them). */
   scope: Set<string> | null;
-  /** The bundle before content/unpublished.json is applied, and after: what is in the first only is off the site. */
+  /** The bundle before and after content/unpublished.json: what only `before` has is off the site. */
   before: ContentBundle;
   after: ContentBundle;
-  /** What this import brings: the notes (`partialNotes`: only some, with --only), the decks and the tests. */
   notes: boolean;
   partialNotes: boolean;
   decks: boolean;
   tests: boolean;
-  /** Articles and tests of content/unpublished.json (they are not even converted). */
   offNotes: ReadonlySet<string>;
   offQuizzes: ReadonlySet<string>;
 }
 
 /**
- * Checks the taxonomy of every assessment of the import that has one, against what this import publishes (in the
- * dry-run folder and in the cloud alike). It stops the import, with every problem named, if a published card or
- * question has no unit (its deck or its test group is of no unit) or no topic, if the map points to a topic that does
- * not exist, was retired or was joined (and to which), if a topic points to a section its article does not have, or if
- * the map names an item that is not published (one that content/unpublished.json keeps off is only a notice).
- *
- * An assessment without a taxonomy is imported as before; the report says so. Nothing of this changes the bundle.
+ * Stops the import if a published card or question has no unit or topic, or the map points to an inactive topic, a
+ * missing section or an unpublished item. An assessment without a taxonomy skips these checks.
  */
 export function checkTaxonomies(op: TaxonomyCheck): TaxonomyReport[] {
   const { manifest } = op;
@@ -573,7 +519,6 @@ function checkOne(
   const problems = new Problems();
   const notices: string[] = [];
   const unchecked: string[] = [];
-  // Without a commit to compare with, only the file itself was checked: say it, a reused id could have passed.
   if (history === 'none') unchecked.push('ids reutilizados (sin commit con qué comparar)');
   if (history === 'shallow')
     unchecked.push('ids reutilizados contra el historial completo (clon superficial)');
@@ -591,7 +536,6 @@ function checkOne(
     return x ? `${id} «${x.title}»` : id;
   };
 
-  // --- What the map points to has to be an active topic. ---
   const topicProblem = (id: string): string | null => {
     const x = topics.get(id);
     if (!x) return `tema ${id}, que no existe`;
@@ -621,7 +565,6 @@ function checkOne(
     }
   }
 
-  // --- The units: their articles, decks and test groups. ---
   const entries = new Map<string, NoteEntry>(
     op.manifest.notes
       .filter((m) => m.assessmentId === assessmentId)
@@ -657,7 +600,6 @@ function checkOne(
   const noteOfTopic = (u: TaxonomyUnit, x: TaxonomyTopic) =>
     x.note ?? (unitNotes(u).length === 1 ? unitNotes(u)[0] : undefined);
 
-  // --- Sections: every `##` a topic points to is in its article. ---
   const toc = new Map(op.after.notes.map((n) => [n.id, n.toc.filter((e) => e.level === 2)]));
   if (op.notes) {
     for (const u of taxonomy.units) {
@@ -670,7 +612,7 @@ function checkOne(
           continue;
         }
         const sections = toc.get(noteId);
-        if (!sections) continue; // not in this import (--only)
+        if (!sections) continue;
         const anchors = new Set(sections.map((s) => s.anchor));
         for (const x of u.topics) {
           if (x.retired || x.mergedInto || !x.section || noteOfTopic(u, x) !== noteId) continue;
@@ -688,10 +630,9 @@ function checkOne(
       unchecked.push('secciones de los artículos que no están en esta importación');
   } else unchecked.push('secciones');
 
-  // Every item of this import, with its unit and topic, to count them at the end.
   const counted: { unit: string; topic: string }[] = [];
 
-  // --- Cards: the unit is the closest of its decks that is one; the topic, the map's. ---
+  // A card's unit is that of its closest deck that belongs to one; its topic, the map's.
   let cards = 0;
   if (op.decks) {
     const decksOf = (b: ContentBundle) =>
@@ -702,8 +643,8 @@ function checkOne(
     const top = beforeDecks.find((d) => !d.parentId || !byId.has(d.parentId));
     const relative = (d: AnkiDeckRecord) =>
       top && d.name.startsWith(`${top.name}::`) ? d.name.slice(top.name.length + 2) : d.name;
-    // A deck of several units (a gymkana of the whole assessment) gives each card the unit of its topic, one of those.
-    const unitDecks = new Map<string, string[]>(); // deck id → its units
+    // A deck of several units gives each card the unit of its topic, one of those.
+    const unitDecks = new Map<string, string[]>();
     for (const u of taxonomy.units) {
       const refs = u.decks ?? [
         ...new Set(unitNotes(u).flatMap((id) => entries.get(id)?.practice?.deck ?? [])),
@@ -777,7 +718,7 @@ function checkOne(
         if (!entry) continue;
         const id = entry.ords?.[String(card.ord)] ?? entry.topic;
         const topic = resolveTopic(topics, id);
-        if (!topic || topic.id !== id) continue; // already said above
+        if (!topic || topic.id !== id) continue;
         const its = unitOfTopic.get(id)!;
         if (!units.includes(its)) {
           problems.add(
@@ -831,7 +772,7 @@ function checkOne(
     }
   } else unchecked.push('mazos');
 
-  // --- Questions: the unit comes from their group; the topic, from the map. ---
+  // A question's unit comes from its group; its topic, from the map.
   let questions = 0;
   if (op.tests) {
     const quizzes = op.after.quizzes.filter((q) => q.assessmentId === assessmentId);
@@ -909,7 +850,7 @@ function checkOne(
               continue;
             }
             const topic = resolveTopic(topics, entry.topic);
-            if (!topic || topic.id !== entry.topic) continue; // already said above
+            if (!topic || topic.id !== entry.topic) continue;
             const its = unitOfTopic.get(entry.topic)!;
             if (!units.includes(its)) {
               problems.add(
@@ -947,7 +888,7 @@ function checkOne(
     }
   } else unchecked.push('tests');
 
-  // --- Notices, only with everything in the import: a topic with > 25 % of its unit, a section with no item. ---
+  // Notices, only when the import brings everything: a topic with > 25 % of its unit, a section with no item.
   if (op.notes && !op.partialNotes && op.decks && op.tests && !problems.list.length) {
     const byUnit = new Map<string, Map<string, number>>();
     for (const c of counted) {
@@ -996,7 +937,6 @@ function checkOne(
   };
 }
 
-/** «Taxonomía: …» for the report: which assessments have none, and how many items each checked one has. */
 export function taxonomyLines(reports: readonly TaxonomyReport[]): string[] {
   if (!reports.length) return [];
   const none = reports.filter((r) => r.version === null).map((r) => r.assessmentId);

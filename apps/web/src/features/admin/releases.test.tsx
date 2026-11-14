@@ -1,4 +1,4 @@
-// Step 1.7, part 2: the release panel («Opciones» → «Publicaciones») and the preview of the draft, without network.
+// Tests the release panel («Publicaciones»), publishing and undoing, and the preview of the draft, without network.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
@@ -112,7 +112,7 @@ describe('the release panel', () => {
     expect(await screen.findByText(/El borrador es igual a lo publicado/)).toBeInTheDocument();
   });
 
-  // Step 3.3: the summary does not describe the card browser's indexes; a draft with only them is not empty.
+  // The summary does not describe the card browser's indexes; a draft with only them is not empty.
   it('a draft whose only change is the card browser’s indexes can be reviewed and published', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
@@ -146,9 +146,7 @@ describe('the release panel', () => {
   });
 });
 
-// Step 1.7, part 3: «Publicar», its popup, the last publication and «Deshacer la última publicación».
 describe('publishing and undoing', () => {
-  /** The e2e draft without the rule that stops it, with both marks checked: ready to publish. */
   const READY: ReleaseOverview = {
     supportedSchemaVersion: 1,
     summary: {
@@ -221,7 +219,7 @@ describe('publishing and undoing', () => {
     expect(await screen.findByText(/El borrador es igual a lo publicado/)).toBeInTheDocument();
   });
 
-  it('Revisión de cero (1.8): the empty assessments of the catalog are one line each, with their course', async () => {
+  it('the empty assessments of the catalog are one line each, with their course', async () => {
     const [an, bc] = READY.summary.assessments;
     const empty = (id: string, courseName: string) => ({
       ...an!,
@@ -253,7 +251,6 @@ describe('publishing and undoing', () => {
       before: null,
       after: { id, course_id: id.split('/')[0]!, name: 'Certamen 1', position: 1 },
     });
-    // The Seminario 8 moves to a new Certamen 3 (a format change there) and two empty «Certamen 1» come in.
     const c3 = {
       ...empty('biologia-celular/certamen-3', bc!.courseName!),
       name: 'Certamen 3',
@@ -371,7 +368,6 @@ describe('the preview of the draft', () => {
     );
     expect(window.sessionStorage.getItem('qv-preview')).toBe('draft');
     expect(screen.getByText('Estás viendo el borrador, no lo publicado.')).toBeInTheDocument();
-    // Revisión de cero (1.7, parte 2): what stays on the screen (the site's menu) reads the draft at once, too.
     await waitFor(() => expect(draft).toHaveBeenCalled());
     published.mockClear();
     await act(() => router.navigate('/home'));
@@ -385,7 +381,6 @@ describe('the preview of the draft', () => {
       expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull(),
     );
     expect(window.sessionStorage.getItem('qv-preview')).toBeNull();
-    // The published site again, from its own cache (kept apart while the preview lasted).
     draft.mockClear();
     await act(() => router.navigate('/home'));
     expect(await screen.findByRole('heading', { name: /Hola/ })).toBeInTheDocument();
@@ -435,27 +430,23 @@ describe('the preview of the draft', () => {
     await preview.setDeckActivation('21', true);
     expect(writes).not.toHaveBeenCalled();
     expect(await real.deckActivations()).toEqual(activations);
-    // A new preview starts again from nothing of the old one.
     const again = previewStudyRepository(localStudyRepository(null));
     expect(await again.deckActivations()).toEqual([]);
   });
 
-  it('Revisión de cero (1.7, parte 2): a tab left in the preview, where somebody who is not an administrator signs in, leaves it', async () => {
+  it('a tab left in the preview, where somebody who is not an administrator signs in, leaves it', async () => {
     window.sessionStorage.setItem('qv-preview', 'draft');
     const published = vi.fn(async () => CATALOG);
     const draft = vi.fn(async () => CATALOG);
     const study = fullAnkiStudy();
-    // Only the real repository reads the progress (the preview's never asks the real one for it).
     const progress = vi.spyOn(study, 'deckProgress');
     const { router } = renderApp('/home', {
-      // A student (localAdminRepository: not an administrator).
       api: fakeApi({ catalog: published }),
       previewApi: fakeApi({ catalog: draft }),
       study,
     });
     await waitFor(() => expect(window.sessionStorage.getItem('qv-preview')).toBeNull());
     expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull();
-    // From now on, their own site: what is published, and their progress where it always is.
     await waitFor(() => expect(published).toHaveBeenCalled());
     await waitFor(() => expect(progress).toHaveBeenCalled());
     draft.mockClear();
@@ -465,8 +456,7 @@ describe('the preview of the draft', () => {
     expect(draft).not.toHaveBeenCalled();
   });
 
-  it('Revisión de cero (1.7, parte 2): a mark checked in the preview is checked after leaving it', async () => {
-    // One server behind both clients, as in the site.
+  it('a mark checked in the preview is checked after leaving it', async () => {
     let marks: {
       mark: 'phone' | 'answers' | 'announcement';
       checkedBy: string;
@@ -505,7 +495,7 @@ describe('the preview of the draft', () => {
     expect(screen.getByText('Marcada por ana@ug.uchile.cl')).toBeInTheDocument();
   });
 
-  it('Revisión de cero (1.7, parte 2): signing out leaves the preview', async () => {
+  it('signing out leaves the preview', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: adminApi(),
@@ -523,7 +513,7 @@ describe('the preview of the draft', () => {
     await waitFor(() => expect(window.sessionStorage.getItem('qv-preview')).toBeNull());
   });
 
-  it('Revisión de cero (1.7, parte 2): nothing done in the preview reaches the real repositories (study, tests, reports)', async () => {
+  it('nothing done in the preview reaches the real repositories (study, tests, reports)', async () => {
     const calls: string[] = [];
     const spy = <T extends object>(name: string, o: T): T =>
       new Proxy(o, {
@@ -584,7 +574,6 @@ describe('the preview of the draft', () => {
     ];
     for (const f of attempts) await f().catch(() => undefined);
     await waitFor(() => expect(calls).toContain('admin.isAdmin'));
-    // Only the reads that seed the preview, and whether the user is an administrator.
     expect(
       calls.filter(
         (c) =>

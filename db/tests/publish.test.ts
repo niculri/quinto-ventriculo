@@ -1,8 +1,5 @@
-// Plan step 1.7, part 3 (B6): publishing the draft and undoing the last publication (20261111000000_publish.sql).
-// B6's «Listo cuando»: after publishing, public = draft; after undoing, public = the original, byte for byte; 25,000
-// synthetic notes changed are published in less than 30 s; a concurrent read never sees a mix; a student's progress
-// (a card moved, taken out, back; a question taken out) is still right after publishing and after undoing, with
-// reconcile_cards(). Also every refusal, the versions decided when publishing, and rebuild_draft() that stops.
+// Publishing the draft and undoing the last publication: public = draft after publishing and the original after
+// undoing, byte for byte; the refusals, the versions, a student's progress and rebuild_draft() that stops.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
@@ -41,7 +38,6 @@ const service = async <T>(sql: string, params: unknown[] = []) =>
     return (await tx.query<T>(sql, params)).rows;
   });
 
-/** The tables a publication takes, and what is in them in a schema, as text (for «byte for byte»). */
 async function tables() {
   return (await q<{ tbl: string }>('select tbl from public.release_tables() order by ord')).map(
     (r) => r.tbl,
@@ -105,15 +101,12 @@ const revert = async (id: number) =>
   )[0]!.r;
 const pending = () => q('select * from public.draft_pending_changes()');
 
-/** An Anki note of the fixtures with its card in another deck. */
 const inDeck = (n: ReturnType<typeof ankiNote>, deckId: string) => {
   const { hash: _hash, updatedAt, ...rest } = n;
   return { ...withHash({ ...rest, cards: rest.cards.map((c) => ({ ...c, deckId })) }), updatedAt };
 };
 const ASSESSMENT_DECK = (a: string) => decksOf(a).at(-2)!.id;
 
-/** A new version of everything: an article changed and one new, an Anki note changed, one moved to another deck, one
- * taken out and one new, a question changed and one taken out. */
 const changed = (): Parts => {
   const p = everything();
   p.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida', 1);
@@ -146,7 +139,6 @@ describe('publishing the draft', () => {
     expect(await dump('public')).toEqual(await dump('draft'));
     expect(await pending()).toEqual([]);
     expect(await q('select * from public.draft_drift()')).toEqual([]);
-    // The cards that moved or left, recorded by public's triggers for the students (never in the users' database).
     expect(
       await q(`select note_guid, deck_id from public.anki_card_changes order by note_guid`),
     ).toEqual([
@@ -158,7 +150,6 @@ describe('publishing the draft', () => {
     ).toEqual([
       { id: 1, status: 'published', published_by: 'dueno@ug.uchile.cl', reverted_at: null },
     ]);
-    // The marks were for that draft.
     expect(await q('select * from public.release_marks')).toEqual([]);
   });
 
@@ -167,7 +158,6 @@ describe('publishing the draft', () => {
     const twice = changed();
     twice.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida otra vez', 1);
     await save(draft, twice);
-    // In the draft each import gave its own (provisional) version.
     expect(await q(`select version from draft.notes where id = 'AP-BC-C2-08'`)).toEqual([
       { version: 3 },
     ]);
@@ -182,7 +172,6 @@ describe('publishing the draft', () => {
       { id: 'AP-BC-C2-09', version: 1, p: true, v: true },
       { id: 'AP-BC-C2-10', version: 1, p: true, v: true },
     ]);
-    // «Creado el» stays; «Actualizado el» is the publication's.
     const [dates] = await q<{ same: boolean; later: boolean }>(
       `select p.published_at = o.published_at as same, p.version_at > o.version_at as later
          from public.notes p, (select published_at, version_at from public.notes where id = 'AP-BC-C2-09') o
@@ -220,10 +209,8 @@ describe('undoing the last publication', () => {
     const undone = await revert(id);
     expect(undone).toMatchObject({ id: 1 });
     expect(await publicContent()).toEqual(before);
-    // The draft keeps what was undone (to fix it and publish again, or to discard it).
     const { anki_card_changes: _a, ...draftNow } = await dump('draft');
     const { anki_card_changes: _b, ...draftThen } = inDraft;
-    // (but the versions, which publishing decided and gave to the draft too)
     const versionless = (d: Record<string, string>) => ({
       ...d,
       notes: JSON.stringify(
@@ -239,7 +226,6 @@ describe('undoing the last publication', () => {
     });
     expect(versionless(draftNow)).toEqual(versionless(draftThen));
     expect((await pending()).length).toBeGreaterThan(0);
-    // The cards come back to where they were: the record says so for the students.
     expect(
       await q(`select note_guid, deck_id from public.anki_card_changes order by note_guid`),
     ).toEqual([
@@ -285,13 +271,11 @@ describe('undoing the last publication', () => {
     await expect(revert(first.id)).rejects.toThrow(/revert_release: not_last/);
     await revert(second.id);
     await expect(revert(second.id)).rejects.toThrow(/revert_release: reverted/);
-    // The one before stays published: an older one is fixed by publishing another.
     await expect(revert(first.id)).rejects.toThrow(/revert_release: not_last/);
     expect(await q(`select id, status from public.releases order by id`)).toEqual([
       { id: 1, status: 'published' },
       { id: 2, status: 'reverted' },
     ]);
-    // Only the last publication keeps its «before».
     expect(await q('select count(*)::int as n from public.release_changes')).toEqual([{ n: 0 }]);
   });
 
@@ -308,18 +292,16 @@ describe('undoing the last publication', () => {
       .catch((e: { detail?: string }) => e.detail);
     expect(detail).toMatch(/note AP-BC-C2-10/);
     expect(await publicContent()).toEqual(now);
-    // A change by hand, too.
     await q(`update public.semesters set name = 'Otro' where number = 1`);
     await expect(revert(id)).rejects.toThrow(/revert_release: public_changed/);
   });
 
-  it('gives back the version an article taken off had (npm run unpublish, step 1.5)', async () => {
+  it('gives back the version an article taken off had (npm run unpublish)', async () => {
     await service(
       `select public.unpublish_content('note', 'AP-BC-C2-09', 'Revisar', 'dueño', true)`,
     );
     const before = await publicContent();
     expect(JSON.parse(before.unpublished_note_versions!)).toHaveLength(1);
-    // It comes back in the draft (out of content/unpublished.json), the same as it was.
     await save(draft, everything());
     const { id } = (await publish()) as { id: number };
     expect(await q(`select version from public.notes where id = 'AP-BC-C2-09'`)).toEqual([
@@ -499,7 +481,6 @@ describe('a student’s progress', () => {
         `select coalesce(jsonb_agg(to_jsonb(x) order by x.note_guid), '[]')::text as r from public.card_states x`,
       )
       .then((r) => r.rows[0]!.r);
-  /** What the web does when the student comes in: the content's changes since their cursor, to reconcile_cards(). */
   async function comeIn() {
     const since = await asUser(users, ANA, async (tx) =>
       Number(
@@ -550,7 +531,6 @@ describe('a student’s progress', () => {
     await save(draft, changed());
     const rowsBefore = await everyRow();
     const { id } = (await publish()) as { id: number };
-    // Publishing never writes in the users' database.
     expect(await everyRow()).toEqual(rowsBefore);
     expect((await comeIn()).applied).toBe(true);
     expect(await states()).toEqual([
@@ -562,9 +542,7 @@ describe('a student’s progress', () => {
     await revert(id);
     expect(await everyRow()).toEqual(afterPublishing);
     expect((await comeIn()).applied).toBe(true);
-    // Back where it went, with its progress: the card that left is back, the moved one in its deck.
     expect(await states()).toEqual(seen);
-    // And published again: the same as the first time.
     await publish();
     await comeIn();
     expect((await states()).map((s) => [s.note_guid, s.deck_id, s.retired])).toEqual([
@@ -582,7 +560,6 @@ describe('a student’s progress', () => {
     await save(draft, changed());
     const { id } = (await publish()) as { id: number };
     expect(await question()).toEqual([]);
-    // The others keep their id (the round goes on without it, packages/quiz restoreRound).
     expect(
       await q(`select id from public.quiz_questions where quiz_id = 'practica-bc' order by id`),
     ).toEqual([{ id: 'practica-bc-q1' }]);
@@ -597,14 +574,12 @@ describe('the draft is not lost without a word', () => {
     await expect(q('select public.rebuild_draft()')).rejects.toThrow(
       /the draft has changes that are not published \(.*anki_notes.*\)/,
     );
-    // A migration that means to lose them says so first.
     await db.transaction(async (tx) => {
       await tx.exec(`set local qv.discard_draft = 'on'`);
       await tx.query('select public.rebuild_draft()');
     });
     expect(await pending()).toEqual([]);
     expect(await q('select * from public.draft_drift()')).toEqual([]);
-    // And after publishing there is nothing to lose.
     await save(draft, changed());
     await publish();
     await q('select public.rebuild_draft()');
@@ -676,16 +651,14 @@ describe('who reaches publishing', () => {
   });
 });
 
-describe('Revisión de cero (1.7, parte 3)', () => {
+describe('migrations, keys and tables that publishing has to handle', () => {
   it('undoing after a migration that changed the published tables is refused: its «before» would leave the new column empty', async () => {
     await save(draft, changed());
     const { id } = (await publish()) as { id: number };
-    // A migration after publishing: a column, filled for every note, and the draft made again (the end of it).
     await db.exec(`alter table public.anki_notes add column reading text;
       update public.anki_notes set reading = 'lleno';
       select public.rebuild_draft();`);
     const now = await publicContent();
-    // Before, it was undone, and the notes the publication had changed came back with reading = null.
     await expect(revert(id)).rejects.toThrow(/revert_release: migrated/);
     expect(await publicContent()).toEqual(now);
     expect(
@@ -698,11 +671,9 @@ describe('Revisión de cero (1.7, parte 3)', () => {
     await q(
       `update draft.content_meta set value = '[{"kind": "note", "id": "AP-BC-C2-99"}]' where key = 'unpublished'`,
     );
-    // The panel calls it equal to what is published (isEmptyRelease: nothing of the site changes), and so does the base.
     expect(await pending()).toEqual([]);
     await expect(publish()).rejects.toThrow(/publish_release: empty/);
     await q('select public.rebuild_draft()');
-    // With a real change, it is published with the rest.
     await save(draft, changed());
     await q(
       `update draft.content_meta set value = '[{"kind": "note", "id": "AP-BC-C2-99"}]' where key = 'unpublished'`,
@@ -727,14 +698,12 @@ describe('Revisión de cero (1.7, parte 3)', () => {
       () => null,
       (e: { message: string; detail?: string; code?: string }) => e,
     );
-    // Before, a «duplicate key» that the Worker turned into a 500 without a word.
     expect(error?.message).toMatch(/^publish_release: unique$/);
     expect(error?.code).toBe('P0422');
     expect(error?.detail).toMatch(/notes \(notes_slug_key\): Key \(slug\)=\(clase-ap-bc-c2-08\)/);
     expect(await publicContent()).toEqual(before.public);
     expect(await dump('draft')).toEqual(before.draft);
     expect(await q('select * from public.releases')).toEqual([]);
-    // The two steps: first without the one that comes in, then with it.
     await service(`select public.discard_draft_assessment($1)`, [BC]);
     const first = everything();
     first.notes.splice(0, 1);
@@ -749,7 +718,6 @@ describe('Revisión de cero (1.7, parte 3)', () => {
   });
 
   it('a content table whose key is an identity: published with its values, its sequence after them, undone byte for byte', async () => {
-    // Before, «cannot insert a non-DEFAULT value into column "id"», and public's sequence behind its rows.
     await db.exec(`create table public.glossary (id bigint generated always as identity primary key, term text);
       revoke all on public.glossary from anon, authenticated;
       select public.rebuild_draft();
@@ -759,7 +727,6 @@ describe('Revisión de cero (1.7, parte 3)', () => {
     const before = await publicContent();
     const { id } = (await publish()) as { id: number };
     expect(await dump('public')).toEqual(await dump('draft'));
-    // The next import after reset_draft() (which gives the draft public's sequence) does not collide.
     await service('select public.reset_draft()');
     expect(await q(`insert into draft.glossary (term) values ('cuatro') returning id`)).toEqual([
       { id: 4 },
@@ -769,16 +736,14 @@ describe('Revisión de cero (1.7, parte 3)', () => {
     expect(await publicContent()).toEqual(before);
   });
 
-  it('a table the draft copies that publishing cannot take (no primary key) stops its migration, not the owner later', async () => {
+  it('a table the draft copies that publishing cannot take (no primary key) stops its migration, not the site owner later', async () => {
     await db.exec('begin');
     await db.exec(`create table public.glossary (term text);
       revoke all on public.glossary from anon, authenticated;`);
-    // Before, the migration went through and every publication (and undoing) failed afterwards.
     await expect(q('select public.rebuild_draft()')).rejects.toThrow(
       /release_tables: public.glossary has no primary key/,
     );
     await db.exec('rollback');
-    // A column publishing cannot compare (json has no equality), also in a table that was there.
     await db.exec('begin');
     await db.exec(`alter table public.notes add column extra json;`);
     await expect(q('select public.rebuild_draft()')).rejects.toThrow(
@@ -789,22 +754,18 @@ describe('Revisión de cero (1.7, parte 3)', () => {
   });
 
   it('a migration that fills data in public does the same in the draft; otherwise it stops (and qv.discard_draft is not the way)', async () => {
-    // With everything published: only filling public leaves the draft different, and it stops.
     await db.exec('begin');
     await db.exec(`update public.courses set emoji = '🔬' where id = 'biologia-celular'`);
     await expect(q('select public.rebuild_draft()')).rejects.toThrow(/not published \(courses/);
     await db.exec('rollback');
-    // The same in both schemas: it goes through, and the draft is still what is published.
     await db.exec(`update public.courses set emoji = '🔬' where id = 'biologia-celular';
       update draft.courses set emoji = '🔬' where id = 'biologia-celular';
       select public.rebuild_draft();`);
     expect(await pending()).toEqual([]);
-    // And with something unpublished in the draft it still stops (what qv.discard_draft would have lost).
     await save(draft, changed());
     await db.exec('begin');
     await db.exec(`update public.courses set emoji = '🧬' where id = 'biologia-celular';
       update draft.courses set emoji = '🧬' where id = 'biologia-celular';`);
-    // (anki_browse_indexes, step 3.3, is the first table in the list: the browser's index of the draft changed too)
     await expect(q('select public.rebuild_draft()')).rejects.toThrow(
       /not published \(anki_browse_indexes.*anki_cards/,
     );
@@ -852,9 +813,8 @@ describe('Revisión de cero (1.7, parte 3)', () => {
   });
 
   it('what publishing writes: the content tables, and nothing else', async () => {
-    // Publishing deletes from public whatever the draft does not have. A table added here has to be content (the
-    // importer writes it in the draft); a record that something else writes in public (a log, the announcements)
-    // goes in draft_exclusions in its migration, or the next publication empties it.
+    // Publishing deletes from public what the draft lacks: a record written in public by something else (a log) goes in
+    // draft_exclusions in its migration, or the next publication empties it.
     expect(await tables()).toEqual([
       'anki_note_types',
       'anki_notes',
@@ -875,8 +835,8 @@ describe('Revisión de cero (1.7, parte 3)', () => {
 });
 
 describe('a big publication', () => {
-  // B6: 25,000 synthetic notes changed (each with two cards, ~3.5 KB as the real ones), in less than 30 s. PGlite runs
-  // Postgres in WebAssembly, in one process: Supabase Micro will be measured in part 4 (docs/configuracion.md).
+  // Each note has two cards, ~3.5 KB as the real ones. PGlite runs Postgres in WebAssembly in one process, so this is
+  // not Supabase's time.
   it('publishes and undoes 25,000 changed notes in less than 30 s each', async () => {
     const N = 25_000;
     const deck = leafOf(AN);

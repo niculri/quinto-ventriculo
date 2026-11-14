@@ -3,12 +3,8 @@
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 // FSRS formulas and constants from fsrs-rs (BSD-3-Clause) and ts-fsrs (MIT), © Open Spaced Repetition.
 /**
- * The search tree → a predicate over cards, following the SQL that Anki 25.9 writes for each node
- * (rslib/src/search/sqlwriter.rs). Everything that depends on the collection (decks, note types, field
- * positions, answers) is resolved once here; the predicate only reads the card.
- *
- * Nodes return true, false or null: Anki's SQL has NULL where a card has no FSRS memory state
- * (`prop:s`, `prop:d`, `prop:r`), and `-prop:s>5` does not match those cards either.
+ * The search tree → a predicate over cards, following the SQL Anki 25.9 writes for each node
+ * (rslib/src/search/sqlwriter.rs); the collection is resolved once, so the predicate only reads the card.
  */
 import type { CompareOp, SearchNode } from './ast';
 import {
@@ -28,15 +24,13 @@ import {
 import type { TextMatcher } from './text';
 import type { SearchCard, SearchContext, SearchNoteType } from './types';
 
+/** null is SQL's NULL (no FSRS memory state for `prop:s/d/r`): `-prop:s>5` does not match those cards either. */
 type Tri = boolean | null;
 type Pred = (card: SearchCard) => Tri;
 
 const DAY = 86_400;
-/** fsrs-rs FSRS5_DEFAULT_DECAY: what Anki uses for a card without its own decay. */
+/** fsrs-rs FSRS5_DEFAULT_DECAY. */
 const DEFAULT_DECAY = 0.5;
-
-// ---------------------------------------------------------------------------------------------------------
-// Text derived from a card's fields, cached by the fields array (a later search reuses it).
 
 interface Derived {
   joined?: string;
@@ -48,6 +42,7 @@ interface Derived {
   sc?: string;
 }
 
+/** Keyed by the fields array, so a later search reuses it. */
 const derivedCache = new WeakMap<string[], Derived>();
 
 function derived(card: SearchCard): Derived {
@@ -59,7 +54,7 @@ function derived(card: SearchCard): Derived {
   return d;
 }
 
-/** The fields joined with \x1f, like Anki's `notes.flds`. */
+/** Like Anki's `notes.flds`. */
 function joined(card: SearchCard): string {
   const d = derived(card);
   return (d.joined ??= card.fields.join('\x1f'));
@@ -80,7 +75,7 @@ function ncJoined(card: SearchCard): string {
   return (d.nc ??= asciiLower(withoutCombining(joined(card))));
 }
 
-/** The fields joined, without accents but with their case (for a case-insensitive regex). */
+/** Keeps the case, for a case-insensitive regex. */
 function ncPlain(card: SearchCard): string {
   const d = derived(card);
   return (d.ncPlain ??= withoutCombining(joined(card)));
@@ -95,8 +90,6 @@ function scJoined(card: SearchCard): string {
   const d = derived(card);
   return (d.sc ??= asciiLower(stripClozes(joined(card))));
 }
-
-// ---------------------------------------------------------------------------------------------------------
 
 interface Env {
   ctx: SearchContext;
@@ -165,8 +158,7 @@ function compile(node: SearchNode, env: Env): Pred {
       return (card) => cloze.has(card.noteTypeId) && m(scJoined(card));
     }
     case 'wordBoundary': {
-      // With «Ignore accents in search», Anki takes the accents off the word and the fields (`w:vertebra`
-      // finds «vértebra», and `w:vértebra` still does).
+      // With «Ignore accents in search», Anki takes the accents off both the word and the fields.
       if (env.ctx.ignoreAccents) {
         const re = new RegExp(
           `${WORD_BOUNDARY}${toRe(withoutCombining(node.text))}${WORD_BOUNDARY}`,
@@ -244,7 +236,7 @@ function compile(node: SearchNode, env: Env): Pred {
   }
 }
 
-/** Note type, template or field name: a glob (case-insensitive regex) or a Unicode-caseless equality. */
+/** A glob as a case-insensitive regex; otherwise a Unicode-caseless equality. */
 function nameMatcher(search: string): (name: string) => boolean {
   if (isGlob(search)) {
     const re = new RegExp(`^${toRe(search)}$`, 'iu');
@@ -272,7 +264,7 @@ function collectRanges(ords: number[], join: boolean): [number, number][] {
 function compileField(node: Extract<SearchNode, { type: 'field' }>, env: Env): Pred {
   const { field, value, mode } = node;
   if (field === '*' || field === '_*' || field === '*_') {
-    // Every field, as a regular expression (Unicode case folding, unlike LIKE).
+    // Every field: a regex, so the case folding is Unicode's, unlike LIKE's.
     const re =
       mode === 'regex'
         ? rustRegex(`(?i)${value}`, value)
@@ -299,8 +291,7 @@ function compileField(node: Extract<SearchNode, { type: 'field' }>, env: Env): P
       );
     };
   }
-  // LIKE over the whole field. Several consecutive fields matched by a wildcard name are one range, and
-  // the value has to match them joined with \x1f (that is how Anki's SQL pattern behaves).
+  // As in Anki's SQL, consecutive fields matched by a wildcard name are one range, joined with \x1f.
   const join = !isNonEmptyTest(value);
   const ranges = new Map([...byType].map(([id, ords]) => [id, collectRanges(ords, join)]));
   const m: TextMatcher = likeMatcher(
@@ -319,7 +310,7 @@ function compileField(node: Extract<SearchNode, { type: 'field' }>, env: Env): P
   };
 }
 
-/** A deck-name component as Anki normalizes it. */
+/** As Anki normalizes it. */
 function normalizeDeckComponent(comp: string): string {
   const out = comp
     .normalize('NFC')
@@ -470,7 +461,6 @@ function retrievability(card: SearchCard, daysElapsed: number, now: number): num
   return f(Math.pow(f(f(f(days / f(card.stability)) * factor) + 1), f(-decay)));
 }
 
-/** What data a search needs beyond the cards: how many days of answers (`rated:`) and `introduced:`. */
 export function searchNeeds(node: SearchNode): {
   ratedDays: number | null;
   introducedDays: number | null;

@@ -1,3 +1,4 @@
+// The release panel's reads and changes: the draft's overview, its review list, marks, publishing and undoing.
 import { useMemo } from 'react';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { buildReview, processPhrases, releaseTitle, reviewChecks } from '@qv/schema';
@@ -14,10 +15,7 @@ import type {
 import { useServices } from '../../app/services';
 import { ApiRequestError } from '../../lib/api';
 
-/**
- * The release panel's reads (step 1.7, part 2). Every key starts with «release»: the preview of the draft shares them
- * (features/preview), they are about the draft anyway.
- */
+/** Every key starts with «release»: the draft preview shares them. */
 const releaseKeys = {
   overview: ['release', 'overview'] as const,
   log: ['release', 'log'] as const,
@@ -42,7 +40,6 @@ export function useReleaseOverview(enabled: boolean) {
   });
 }
 
-/** Every page of the texts the draft adds or changes, and the process and calendar phrases in them. */
 function useReleasePhrases(fingerprint: string | undefined) {
   const { api } = useServices();
   return useQuery({
@@ -62,7 +59,6 @@ function useReleasePhrases(fingerprint: string | undefined) {
   });
 }
 
-/** Every page of the new images, and which of them the image store does not have. */
 function useMissingImages(fingerprint: string | undefined) {
   const { api } = useServices();
   return useQuery({
@@ -82,7 +78,6 @@ function useMissingImages(fingerprint: string | undefined) {
   });
 }
 
-/** How many students each deck the release touches reaches (the users' database, by deck). */
 export function useReleaseImpact(overview: ReleaseOverview | undefined) {
   const { admin } = useServices();
   const ids = useMemo(
@@ -107,7 +102,6 @@ export function useReleaseImpact(overview: ReleaseOverview | undefined) {
   });
 }
 
-/** The review list of the draft as it is now, with the checks that need the texts and the images. */
 export function useReleaseReview(overview: ReleaseOverview | undefined): {
   review: ReviewList | null;
   errors: unknown[];
@@ -132,10 +126,7 @@ export function useReleaseReview(overview: ReleaseOverview | undefined): {
   return { review, errors: [phrases.error, missing.error].filter(Boolean) };
 }
 
-/**
- * Checks or unchecks a mark by hand (at once on the screen, undone if it fails); if the draft changed meanwhile, the
- * summary is read again.
- */
+/** Shows the change at once and undoes it if saving fails; if the draft changed meanwhile, the summary is read again. */
 export function useSetReleaseMark(fingerprint: string | undefined, by: string) {
   const { api } = useServices();
   const client = useQueryClient();
@@ -170,7 +161,6 @@ export function useSetReleaseMark(fingerprint: string | undefined, by: string) {
 
 type ReleaseItemsPage = ReleaseCardPage | ReleaseArticlePage | ReleaseQuestionPage;
 
-/** The changes of one kind of one assessment, a page at a time («Ver más»). */
 export function useReleaseItems<K extends 'card' | 'article' | 'question'>(
   fingerprint: string,
   assessment: string,
@@ -191,7 +181,6 @@ export function useReleaseItems<K extends 'card' | 'article' | 'question'>(
   });
 }
 
-/** The publications, newest first (step 1.7, part 3). */
 export function useReleaseLog() {
   const { api } = useServices();
   return useQuery({
@@ -201,10 +190,6 @@ export function useReleaseLog() {
   });
 }
 
-/**
- * Publishes the draft the panel shows, with its review list. Then what the panel shows of the draft is read again
- * (the draft is what is published now), and the log.
- */
 export function usePublishRelease() {
   const { api } = useServices();
   const client = useQueryClient();
@@ -223,7 +208,6 @@ export function usePublishRelease() {
   });
 }
 
-/** Undoes the last publication; then the draft's differences (they are back) and the log are read again. */
 export function useRevertRelease() {
   const { api } = useServices();
   const client = useQueryClient();

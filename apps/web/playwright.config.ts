@@ -1,3 +1,4 @@
+// Playwright configuration: the end-to-end tests in demo mode, with the test content of e2e/content.
 import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 import { ACCEPTED_ACCOUNT, PORT } from './e2e/accepted';
@@ -19,7 +20,6 @@ const IPHONE_SPECS = [
   'viewer.spec.ts',
 ];
 
-/** End-to-end tests in demo mode, with the test content of e2e/content (not the real one). */
 export default defineConfig({
   testDir: 'e2e',
   fullyParallel: true,
@@ -32,7 +32,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
     // Most of the tests exercise the advanced mode (the four buttons, the limits and the presets), with the week of
     // the test content turned on; a student who just arrived is e2e/simple.spec.ts. The terms and the privacy policy
-    // in force are already accepted (step 2.3); the popup is e2e/account.spec.ts.
+    // in force are already accepted; the popup is e2e/account.spec.ts.
     storageState: {
       cookies: [],
       origins: [

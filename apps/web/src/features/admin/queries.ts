@@ -1,8 +1,9 @@
+// The administration panel's queries and changes: admin role, site settings, access, usage and the unpublished log.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
 import type { RemoveResult, SetAdminResult } from './repository';
 
-/** Whether the signed-in user is an administrator (the database enforces it; this only shows the panel). */
+/** Only shows or hides the panel: the database enforces who is an administrator. */
 export function useIsAdmin() {
   const { admin } = useServices();
   return useQuery({
@@ -16,7 +17,6 @@ export function useIsAdmin() {
 
 const SITE_SETTINGS = ['site-settings'] as const;
 
-/** How the site is shown (step 1.8): the administrator's switch. */
 export function useSiteSettings(enabled: boolean) {
   const { api } = useServices();
   return useQuery({
@@ -26,10 +26,7 @@ export function useSiteSettings(enabled: boolean) {
   });
 }
 
-/**
- * Changes the settings; then the catalog is asked for again, not taken from the browser's copy, so that the change
- * shows at once on this tab (everybody else's within a minute, or on reloading).
- */
+/** Then the catalog is fetched fresh, not from the browser's copy, so the change shows at once on this tab. */
 export function useSetSiteSettings() {
   const { api } = useServices();
   const client = useQueryClient();
@@ -37,8 +34,7 @@ export function useSetSiteSettings() {
     mutationFn: (body: { hideEmptySemesters: boolean }) => api.setSiteSettings(body),
     onSuccess: async (saved) => {
       client.setQueryData(SITE_SETTINGS, saved);
-      // Revisión de cero (1.8): a catalog that does not come now is not a failure to save (the panel said «No se pudo
-      // guardar» with the switch already changed); this tab sees it when the catalog comes again.
+      // A catalog that does not come now is not a failure to save: this tab sees the change when it comes again.
       await client
         .fetchQuery({
           queryKey: ['catalog'],
@@ -52,10 +48,6 @@ export function useSetSiteSettings() {
 
 const ACCESS = ['access-report'] as const;
 
-/**
- * «Acceso» (step 2.10): who is invited, by list, and the accounts without an invitation. Straight to the users'
- * database, with the administrator's own token (it checks is_admin() and the open session).
- */
 export function useAccessReport() {
   const { admin } = useServices();
   return useQuery({ queryKey: ACCESS, queryFn: () => admin.accessReport() });
@@ -80,7 +72,6 @@ export function useRemoveInvites() {
   });
 }
 
-/** Step 2.10 b: the owner names or removes an administrator. */
 export function useSetAdmin() {
   const { admin } = useServices();
   const client = useQueryClient();
@@ -90,7 +81,6 @@ export function useSetAdmin() {
   });
 }
 
-/** «Uso» (step 2.9): figures of 5 students or more, the same for every administrator (the API keeps them a minute). */
 export function useUsageReport() {
   const { api } = useServices();
   return useQuery({
@@ -100,7 +90,6 @@ export function useUsageReport() {
   });
 }
 
-/** «Fuera del sitio» (step 2.10): the record of what was taken off the site, only to look at. */
 export function useUnpublishedLog() {
   const { api } = useServices();
   return useQuery({

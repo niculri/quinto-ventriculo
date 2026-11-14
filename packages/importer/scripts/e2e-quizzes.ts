@@ -1,10 +1,5 @@
-/**
- * Puts the synthetic practice test (packages/importer/test/fixtures/quiz, in the pauta-a-test skill's format)
- * into the web's end-to-end test content (apps/web/e2e/content), as the importer would: its photo as WebP
- * under media/tests/, its SVG sanitized.
- *
- *   npx tsx packages/importer/scripts/e2e-quizzes.ts
- */
+// Puts the synthetic practice test (test/fixtures/quiz) into the e2e content (apps/web/e2e/content) as the importer
+// would. Run: `npx tsx packages/importer/scripts/e2e-quizzes.ts`.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ContentBundle } from '@qv/schema';

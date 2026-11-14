@@ -1,5 +1,5 @@
-// Plan step 3.3 (ANK-7): the progress of the decks of an assessment in one call (card_states_of_decks()), and a page at a
-// time when the users' database does not have it yet.
+// Tests reading the progress of an assessment's decks in one call (card_states_of_decks()), and a page at a time
+// when the users' database does not have that function.
 import { describe, expect, it } from 'vitest';
 import { CARDS_OF_DECKS_MAX, supabaseStudyRepository } from './repository';
 
@@ -25,7 +25,6 @@ const row = (note_guid: string, deck_id: string) => ({
   retired_at: null,
 });
 
-/** Just what `cards()` calls: the function, and the table a page at a time (only if the function is missing). */
 function fakeClient(rpc: { data: unknown; error: { code: string; message: string } | null }) {
   const calls: string[] = [];
   const client = {
@@ -50,7 +49,7 @@ function fakeClient(rpc: { data: unknown; error: { code: string; message: string
   return { client: client as unknown as Parameters<typeof supabaseStudyRepository>[0], calls };
 }
 
-describe('cards(deckIds) (step 3.3)', () => {
+describe('cards(deckIds)', () => {
   it('one call for the decks of an assessment, its rows as the table’s', async () => {
     const { client, calls } = fakeClient({ data: [row('a', '1'), row('b', '2')], error: null });
     const cards = await supabaseStudyRepository(client).cards(['1', '2', '3']);
@@ -59,7 +58,6 @@ describe('cards(deckIds) (step 3.3)', () => {
       ['a', '1', 'review', 1],
       ['b', '2', 'review', 1],
     ]);
-    // The time of the row as the database wrote it (the answer sends it back).
     expect(cards[0]!.updatedAt).toBe('2026-11-09T12:00:00.123456+00:00');
     expect(cards[0]!.due).toBe('2026-11-12T09:00:00.000Z');
   });

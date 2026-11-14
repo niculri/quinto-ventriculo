@@ -1,3 +1,4 @@
+// The three steps to use the site, shown on the public landing page and on the help page.
 import { keys } from '../../ui/keys';
 const STEPS = [
   {
@@ -14,7 +15,6 @@ const STEPS = [
   },
 ];
 
-/** The three usage steps. Shown on the public landing page and on the help page. */
 export function HowToUse() {
   return (
     <ol className="grid gap-6 md:grid-cols-3">

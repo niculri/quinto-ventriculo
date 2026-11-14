@@ -1,3 +1,4 @@
+// The content database on Supabase, read with the service key (only from the Worker, never in the browser).
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
@@ -31,8 +32,7 @@ import type {
 import { buildCatalog } from './build-catalog';
 import { nonNull } from './stream';
 
-// The header lives in the document: PostgREST takes just that key (`header:document->header`).
-// `group` is a word of SQL: the key goes with another name (PostgREST quotes it, but better not to depend on that).
+// `group` is an SQL keyword, so it is renamed rather than relying on PostgREST quoting it.
 const SUMMARY_COLUMNS =
   'id, slug, course_id, assessment_id, kind, title, subtitle, position, updated_at, code, version, published_at, version_at, header:document->header, practice:document->practice, note_group:document->group';
 const NOTE_COLUMNS =
@@ -53,9 +53,7 @@ interface NoteRow {
   version?: number | null;
   published_at?: string | null;
   version_at?: string | null;
-  /** The summary's column (`document->practice`). */
   practice?: unknown;
-  /** The summary's column (`document->group`). */
   note_group?: unknown;
   document?: {
     sources?: string[];
@@ -101,7 +99,7 @@ interface DeckRow {
   assessment_id: string | null;
   note_count: number;
   card_count: number;
-  /** Step 3.2; missing before its migration. */
+  /** These three are missing before their migration. */
   own_note_count?: number;
   exclusive_note_count?: number;
   closed_note_count?: number;
@@ -147,10 +145,7 @@ function quizSummary(r: QuizRow): QuizSummary {
 
 const TREE_PAGE = 1000;
 
-/**
- * A function of the database called as supabase-js calls it (the same headers), but with the body of the response
- * as it comes, not parsed. In another schema than `public`, PostgREST takes it from `Content-Profile`.
- */
+/** An RPC called as supabase-js calls it, but returning the response body unparsed. */
 function rawRpcOf(url: string, serviceKey: string, schema: 'public' | 'draft' = 'public') {
   return async (fn: string, args: Record<string, unknown>) => {
     const r = await fetch(`${url.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, {
@@ -172,11 +167,7 @@ function rawRpcOf(url: string, serviceKey: string, schema: 'public' | 'draft' = 
   };
 }
 
-/**
- * Content database on Supabase, with the service key (only from the Worker, never in the browser). `schema` =
- * `draft`: the draft (step 1.7), the same reads on its mirror tables, for an administrator's preview; PostgREST has to
- * expose the schema (docs/configuracion.md).
- */
+/** `draft`: the same reads on the draft's mirror tables, for the preview. */
 export function supabaseRepository(
   url: string,
   serviceKey: string,
@@ -193,10 +184,7 @@ export function supabaseRepository(
     return r.data as T;
   };
 
-  /**
-   * Every deck of the tree, a page at a time: PostgREST gives at most 1000 rows of a set (Supabase's «Max
-   * rows»), and the tree of every semester can have more decks than that.
-   */
+  /** Paged: PostgREST gives at most 1000 rows of a set, and the tree can have more decks. */
   const deckTree = async () => {
     const out: DeckRow[] = [];
     for (let from = 0; ; from += TREE_PAGE) {
@@ -261,8 +249,7 @@ export function supabaseRepository(
       );
       const presets = unwrap(p, 'presets') as { name: string; config: Record<string, unknown> }[];
       const quizzes = (unwrap(z, 'quizzes') as QuizRow[]).map(quizSummary);
-      // The card browser's indexes (step 3.3). A database from before that migration does not have the function: the
-      // catalog goes without them (the browser says it has no index) rather than failing the whole site.
+      // A database before that migration lacks the function: the catalog goes without indexes rather than failing.
       let indexes: CardIndexRecord[] = [];
       if (x.error) console.error(`Content database (browse indexes): ${x.error.message}`);
       else indexes = ((x.data ?? []) as unknown[]).map((r) => CardIndexRecord.parse(r));
@@ -288,13 +275,10 @@ export function supabaseRepository(
       return row ? QuizDetail.parse(row) : null;
     },
 
-    // Hundreds of questions with their SVG figures: as it comes (the API only signs its images).
     async quizSectionJson(id, sectionId) {
       return nonNull(await rawRpc('quiz_section', { quiz_id: id, section_id: sectionId }));
     },
 
-    // These two come in the API's shape and go out as they come (the stream of the response): parsing and
-    // writing several MB again would pass the CPU a Worker request has. The web validates them.
     async browseJson() {
       return rawRpc('anki_browse_notes', {});
     },
@@ -357,10 +341,7 @@ export function supabaseRepository(
   };
 }
 
-/**
- * The release panel's reads (step 1.7, part 2): the `release_*` functions of the content database, in `public` (they
- * read the draft themselves), with the service key.
- */
+/** In `public`: the `release_*` functions read the draft themselves. */
 export function supabaseReleaseRepository(url: string, serviceKey: string): ReleaseRepository {
   const db: SupabaseClient = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
@@ -404,10 +385,7 @@ export function supabaseReleaseRepository(url: string, serviceKey: string): Rele
   };
 }
 
-/**
- * A refusal of publish_release() or revert_release() («publish_release: marks», SQLSTATE P0409 or P0422) as its
- * reason; anything else is an error of the database.
- */
+/** «publish_release: marks» with SQLSTATE P0409 or P0422 is a refusal; anything else is a database error. */
 function refusedOr(
   fn: string,
   error: { code?: string; message: string; details?: string | null },
@@ -419,10 +397,7 @@ function refusedOr(
   return { ok: false, reason, detail: error.details ?? null };
 }
 
-/**
- * The site's settings (step 1.8): `site_settings()` and `set_site_settings()` of the content database, in `public`
- * (the draft does not have them), with the service key.
- */
+/** In `public`: the draft does not have the settings. */
 export function supabaseSiteSettingsRepository(
   url: string,
   serviceKey: string,
@@ -455,10 +430,6 @@ export function supabaseSiteSettingsRepository(
   };
 }
 
-/**
- * The record of what was taken off the site (step 2.10): `unpublish_log_entries()` of the content database, in
- * `public`, with the service key. At most 200 entries: parsed here (it is small).
- */
 export function supabaseUnpublishedRepository(
   url: string,
   serviceKey: string,

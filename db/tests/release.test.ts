@@ -1,8 +1,5 @@
-// Plan step 1.7, part 2 (B4 + B5): what the draft changes against what is published (release_summary(),
-// release_items(), release_texts(), release_media()), how each change is classified, what the review list's rules see,
-// the fingerprint and its marks by hand (migration 20261110000000_release_review.sql). The e2e folder's release files
-// (apps/web/e2e/content/release/) come from here: `QV_WRITE_RELEASE_FIXTURES=1 npx vitest run db/tests/release.test.ts`
-// and then `npx prettier --write apps/web/e2e/content/release`.
+// What the draft changes against what is published, how each change is classified, what the review list's rules see,
+// and the fingerprint with its marks; also the release files of the e2e folder.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
@@ -52,8 +49,6 @@ const items = async (assessment: string, kind: string, after: string | null = nu
 const fingerprint = async () =>
   (await service<{ r: string }>('select public.release_fingerprint() as r'))[0]!.r;
 const of = (s: ReleaseSummary, id: string) => s.assessments.find((a) => a.id === id)!;
-
-// ─────────────────────────── notes of the site's note types (Medicina (código)) ───────────────────────────
 
 const BASIC = {
   id: '1736420111',
@@ -166,7 +161,6 @@ const basic = (guid: string, f: Partial<Record<string, string>>, version = 1) =>
     version,
   );
 
-/** Published: these notes, with the fixtures' articles and tests (both assessments). */
 const BASE = () => {
   const p = everything();
   p.ankiNotes = [
@@ -213,7 +207,6 @@ async function publish(p: Parts) {
   await db.query('select public.reset_draft()');
 }
 
-/** Changes a draft note's fields (and its hash and front, as an import would). */
 async function setDraftNote(guid: string, fields: Record<string, string>, front?: string) {
   await q(
     `update draft.anki_notes set fields = fields || $2::jsonb, hash = hash || '+' where guid = $1`,
@@ -251,7 +244,6 @@ describe('what the draft changes', () => {
     await setDraftNote('004', { Reverso: '<b>7</b>', Extra: 'Contando&nbsp;el  atlas.' }); // format
     await setDraftNote('005', { Código: 'T-A1-S3-01-005.2', Actualización: '7-11-2026' }); // no_answer
     await setDraftNote('006', { Imagen: '<img src="otra.png">' }); // the image behind the answer: no_answer
-    // The image of a question that shows it on the front («En la imagen de abajo…»): its front changes too.
     await setDraftNote(
       '002',
       { Imagen: '<img src="otra.png">' },
@@ -291,7 +283,6 @@ describe('what the draft changes', () => {
       CLOZE.id,
     ]);
     await setDraftNote('o01', { Imagen: '<img src="otra-lamina.png">' });
-    // A template that changed: notes with the same fields can ask another thing.
     await q(`update draft.anki_note_types set templates = $1 where id = $2`, [
       JSON.stringify([{ name: 'Directa', qfmt: '{{Reverso}}', afmt: '{{Frente}}' }]),
       BASIC.id,
@@ -306,22 +297,19 @@ describe('what the draft changes', () => {
     ]);
   });
 
-  it('Revisión de cero (1.7, parte 2): an image redrawn with the same name, and a change no field explains', async () => {
+  it('an image redrawn with the same name, and a change no field explains', async () => {
     const card = (guid: string, side: 'front_html' | 'back_html', html: string) =>
       q(`update draft.anki_cards set ${side} = $2 where note_guid = $1`, [guid, html]);
     const touch = (guid: string) =>
       q(`update draft.anki_notes set hash = hash || '+' where guid = $1`, [guid]);
-    // The occlusion's image redrawn (its store key is the hash of the image), its field the same; and a source.
     await q(`update public.anki_cards set front_html = front_html || '<img data-media="cards/vieja.webp">'
               where note_guid in ('o01', '002')`);
     await q(`update draft.anki_cards set front_html = front_html || '<img data-media="cards/nueva.webp">'
               where note_guid = 'o01'`);
     await setDraftNote('o01', { Comentarios: 'Netter 8.ª ed., lám. S-137' });
-    // A basic card that shows its image on the front: redrawn, with only the source changed.
     await q(`update draft.anki_cards set front_html = front_html || '<img data-media="cards/nueva.webp">'
               where note_guid = '002'`);
     await setDraftNote('002', { Fuente: 'Netter 8.ª ed.' });
-    // No field changed, but the back shows another image (or another answer): nothing explains it.
     await card(
       '001',
       'back_html',
@@ -330,7 +318,6 @@ describe('what the draft changes', () => {
     await touch('001');
     await card('003', 'back_html', '<div>¿Cuántas vértebras cervicales hay? 8</div>');
     await touch('003');
-    // Only another deck, or the same text written otherwise: still «format».
     await q(`update draft.anki_cards set deck_id = $1 where note_guid = '004'`, [leafOf(BC)]);
     await touch('004');
     await card('005', 'back_html', `<div><b>${'¿Cuántas vértebras cervicales hay?'}</b></div>`);
@@ -351,11 +338,10 @@ describe('what the draft changes', () => {
       '005': 'format',
       o01: 'answer',
     });
-    // The same in the summary (classified apart from the pages).
     expect(of(await summary(), AN).cards).toMatchObject({ answer: 5, format: 1 });
   });
 
-  it('Revisión de cero (1.7, parte 2): what a reader sees, with images in any quotes and a loose «<»', async () => {
+  it('what a reader sees, with images in any quotes and a loose «<»', async () => {
     const text = async (html: string) =>
       (await q<{ r: string }>('select public.release_text($1) as r', [html]))[0]!.r;
     expect(await text(`<img src='a.png'> x`)).toBe('[img a.png] x');
@@ -363,7 +349,6 @@ describe('what the draft changes', () => {
     expect(await text('<img src="c.png" data-media="cards/c.webp">')).toBe('[img cards/c.webp]');
     expect(await text('p<0.05 y q>1 <b>z</b><!-- nota -->')).toBe('p<0.05 y q>1 z');
     expect(await text('a&nbsp;&lt;b&gt;</p><br/>c')).toBe('a <b> c');
-    // A change inside a loose «<» is a change.
     await setDraftNote('003', { Reverso: 'p<0.01 y q>1' });
     await q(
       `update public.anki_notes set fields = fields || '{"Reverso": "p<0.05 y q>1"}' where guid = '003'`,
@@ -384,7 +369,6 @@ describe('what the draft changes', () => {
        values ('007', 0, $1, '<p>Nueva</p>', '<p>Nueva</p>', 'Nueva')`,
       [leafOf(AN)],
     );
-    // To another deck (the one of the other assessment, for the test).
     await q(`update draft.anki_cards set deck_id = $1 where note_guid = '005'`, [leafOf(BC)]);
     const s = await summary();
     expect(of(s, AN).cards).toMatchObject({ added: 1, removed: 1, moved: 0 });
@@ -457,7 +441,7 @@ describe('what the draft changes', () => {
       ),
     ).toBe('answer');
     expect(await cls(base, { ...base, origin: 'Certamen 2021' })).toBe('no_answer');
-    // Revisión de cero (1.7, parte 2): shuffling «todas las anteriores» can change which one is right.
+    // Shuffling «todas las anteriores» can change which one is right.
     expect(await cls({ ...base, fixedOrder: true }, { ...base, fixedOrder: false })).toBe('answer');
     expect(await cls(base, { ...base, figureBeside: true })).toBe('no_answer');
     expect(await cls(base, { ...base, prompt: '<p>¿Uno?</p>' })).toBe('format');
@@ -476,7 +460,6 @@ describe('what the draft changes', () => {
   it('articles: the sections that changed, and «format» when what the reader sees did not', async () => {
     const p = BASE();
     p.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida', 1);
-    // The same visible text (its version hash), another hash: «Ponte a prueba» moved, for example.
     p.notes[1] = { ...p.notes[1]!, hash: 'otro' };
     const { bundle, media } = bundleOf(p);
     await draft.save(
@@ -537,7 +520,6 @@ describe('what the draft changes', () => {
     await q(`update draft.anki_cards set back_html = back_html || '<img data-media="cards/nueva.webp">'
               where note_guid = '001'`);
     await q(`update draft.anki_notes set hash = hash || '+' where guid = '001'`);
-    // Already in the published version of the same note: not asked again.
     await q(`update public.anki_cards set back_html = back_html || '<img data-media="cards/vieja.webp">'
               where note_guid = '003'`);
     await q(`update draft.anki_cards set back_html = back_html || '<img data-media="cards/vieja.webp">'
@@ -574,7 +556,6 @@ describe('the fingerprint and the marks by hand', () => {
 
   it('changes with the content, not with an import that only moves dates', async () => {
     const a = await fingerprint();
-    // Importing the same again (the import's dates change): the same fingerprint.
     await q(
       `update draft.notes set updated_at = now() + interval '1 day', version = version + 1, version_at = now()`,
     );
@@ -589,9 +570,8 @@ describe('the fingerprint and the marks by hand', () => {
     expect(await fingerprint()).toBe(a);
   });
 
-  it('Revisión de cero (1.7, parte 2): changes when only what is published does (the difference is another)', async () => {
+  it('changes when only what is published does (the difference is another)', async () => {
     const a = await fingerprint();
-    // `--target cloud` or an emergency unpublish wrote in public, not in the draft.
     await q(
       `update public.anki_notes set fields = fields || '{"Reverso": "8"}', hash = hash || '+' where guid = '003'`,
     );
@@ -601,7 +581,7 @@ describe('the fingerprint and the marks by hand', () => {
     expect(await fingerprint()).not.toBe(b);
   });
 
-  it('Revisión de cero (1.7, parte 2): the decks above the assessments are in the summary, and their preset warns', async () => {
+  it('the decks above the assessments are in the summary, and their preset warns', async () => {
     await q(`update draft.anki_decks set preset = null where id = $1`, [ROOT]);
     const s = await summary();
     expect(s.assessments).toEqual([]);
@@ -640,7 +620,6 @@ describe('the fingerprint and the marks by hand', () => {
     ]);
     expect((await summary()).marks.map((m) => m.mark)).toEqual(['phone']);
     await setDraftNote('003', { Reverso: 'Siete' });
-    // The draft changed: the old mark does not count, and the old fingerprint is refused.
     expect((await summary()).marks).toEqual([]);
     await expect(set(fp, 'answers', true)).rejects.toThrow(/the draft changed/);
     const now = await fingerprint();
@@ -673,11 +652,9 @@ describe('what the review list needs from the database', () => {
     const s = await summary();
     expect(s.schemaVersion).toBe(1);
     expect(s.unpublished).toEqual([{ kind: 'note', id: 'AP-BC-C2-09' }]);
-    // The article is still in the draft (an import that did not bring that assessment, for example): it stops.
     expect(await rules('unpublished_in_draft')).toEqual([
       expect.objectContaining({ key: 'AP-BC-C2-09', detail: { kind: 'note', title: 'Clase 2' } }),
     ]);
-    // An older importer (without meta) changes nothing of it.
     await service(`select draft.sync_catalog($1::jsonb)`, [
       JSON.stringify({
         semesters: bundle.semesters,
@@ -686,7 +663,6 @@ describe('what the review list needs from the database', () => {
       }),
     ]);
     expect((await summary()).unpublished).toEqual([{ kind: 'note', id: 'AP-BC-C2-09' }]);
-    // Public is not touched by an import to the draft.
     expect(await q(`select * from public.content_meta order by key`)).toEqual(publicMeta);
     expect(publicMeta.map((m) => [m.key, m.value])).toEqual([
       ['schema_version', 1],
@@ -723,7 +699,6 @@ describe('what the review list needs from the database', () => {
       'practica-bc/practica-bc-q1',
       'practica-bc/practica-bc-q2',
     ]);
-    // The fixtures' articles have no header: every lecture is without its year. With it, none.
     expect((await rules('class_without_year')).map((f) => f.key)).toEqual([
       'AP-A1-S3-01',
       'AP-BC-C2-08',
@@ -736,7 +711,6 @@ describe('what the review list needs from the database', () => {
     expect(await rules('class_without_year')).toEqual([]);
     await setDraftNote('001', { Fuente: 'IMAIOS e-Anatomy' });
     expect((await rules('imaios')).map((f) => f.key)).toEqual(['001']);
-    // Revisión de cero (1.7, parte 2): a question, a test and a deck that name it too.
     await q(`update draft.quiz_questions set document = document || '{"explanation": "Corte de IMAIOS."}'
               where id = 'practica-an-q1'`);
     await q(
@@ -770,14 +744,12 @@ describe('what the review list needs from the database', () => {
   });
 
   it('a question id that moved to another text, or a text that came back with another id', async () => {
-    // q1 now has q2's text (the ids slid by one).
     await q(`update draft.quiz_questions set document = document || '{"prompt": "¿Dos?"}'
               where quiz_id = 'practica-bc' and id = 'practica-bc-q1'`);
     expect((await rules('question_id_shifted')).map((f) => [f.key, f.detail])).toEqual([
       ['practica-bc/practica-bc-q1', { kind: 'shifted', other: 'practica-bc-q2' }],
     ]);
     await db.query('select public.reset_draft()');
-    // q2 removed and its text again as q9.
     await q(`update draft.quiz_questions set id = 'practica-bc-q9', document = document || '{"id": "practica-bc-q9"}'
               where quiz_id = 'practica-bc' and id = 'practica-bc-q2'`);
     expect((await rules('question_id_shifted')).map((f) => [f.key, f.detail])).toEqual([
@@ -786,7 +758,6 @@ describe('what the review list needs from the database', () => {
   });
 
   it('notes removed and added in the same assessment, for the changed GUIDs', async () => {
-    // 003 with a new GUID (the same code), and 006 removed with a new unrelated one.
     await q(`update draft.anki_notes set guid = '003-nuevo' where guid = '003'`).catch(
       () => undefined,
     );
@@ -806,14 +777,12 @@ describe('what the review list needs from the database', () => {
       removedTotal: 1,
       addedTotal: 1,
     });
-    // Revisión de cero (1.7, parte 2): the same code, found by the database without the limit of the candidates.
     expect((await rules('guid_same_code')).map((g) => [g.key, g.assessmentId])).toEqual([
       ['003>003-nuevo', AN],
     ]);
   });
 
-  it('Revisión de cero (1.7, parte 2): the same code beyond the 300 candidates, and how many there were', async () => {
-    // 310 notes out and 310 in (other GUIDs, other texts), and among them 003 with a new GUID and its code.
+  it('the same code beyond the 300 candidates, and how many there were', async () => {
     await q(`insert into public.anki_notes (guid, note_type_id, fields, tags, code, version, hash)
              select 'a' || lpad(i::text, 4, '0'), note_type_id, jsonb_build_object('Frente', 'Vieja ' || i), tags,
                     'T-X-' || i, 1, 'h' || i
@@ -923,7 +892,6 @@ describe('who reaches the review tools', () => {
         `select relname from pg_class where relnamespace = 'draft'::regnamespace and relname = 'release_marks'`,
       ),
     ).toEqual([]);
-    // content_meta is content: the draft has its own.
     expect(
       await q(
         `select relname from pg_class where relnamespace = 'draft'::regnamespace and relname = 'content_meta'`,
@@ -967,8 +935,8 @@ describe('who reaches the review tools', () => {
   });
 });
 
-// ────────────────────────── the e2e folder's release (what the demo serves) ──────────────────────────
-
+// The release the demo serves. To write its files again: `QV_WRITE_RELEASE_FIXTURES=1 npx vitest run
+// db/tests/release.test.ts`, then `npx prettier --write apps/web/e2e/content/release`.
 const E2E = join(import.meta.dirname, '..', '..', 'apps', 'web', 'e2e', 'content');
 
 describe('the e2e folder', () => {
@@ -1021,7 +989,6 @@ describe('the e2e folder', () => {
         JSON.parse(JSON.stringify(value)),
       );
     }
-    // What the e2e draft brings, as the panel shows it.
     const summaryParsed = ReleaseSummary.parse(s);
     expect(of(summaryParsed, AN).cards).toMatchObject({
       added: 1,

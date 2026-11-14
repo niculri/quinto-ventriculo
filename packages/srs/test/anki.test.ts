@@ -2,9 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * The scheduler against real Anki 25.9 (FSRS on): scripts/anki_trace.py answered the same cards in Anki and
- * recorded, for every answer, the card before and after, the four next states and the button texts. Here the
- * same answers go through @qv/srs, carrying its own state (never Anki's) from one answer to the next.
+ * The scheduler against answers recorded in real Anki 25.9 with FSRS (scripts/anki_trace.py): the card before and
+ * after, the four next states and the button texts, with @qv/srs carrying its own state from answer to answer.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -114,7 +113,6 @@ function age(card: CardRecord, secs: number): CardRecord {
   return out;
 }
 
-/** Same card, with the FSRS memory compared within what Anki's f32 can tell apart. */
 function expectSameCard(ours: CardRecord, anki: CardRecord, where: string, dueTolerance = 0) {
   const { stability, difficulty, due, ...rest } = ours;
   const { stability: s, difficulty: d, due: ankiDue, ...ankiRest } = anki;
@@ -144,7 +142,7 @@ function memoryOf(state: CardState) {
   return state.memory;
 }
 
-/** Our state in Anki's shape (without the elapsed times, which Anki computes from other data). */
+/** Without the elapsed times, which Anki computes from other data. */
 function shape(state: CardState): unknown {
   switch (state.kind) {
     case 'new':
@@ -273,7 +271,6 @@ describe('against Anki with its fuzz', () => {
   const trace = load('transitions-fuzz.json');
   it('the trace has fuzz', () => expect(trace.testMode).toBe(false));
 
-  /** The interval Anki chose (with its fuzz) falls inside our fuzz range for that answer. */
   for (const scenario of trace.scenarios) {
     it(scenario.name, () => {
       const config = configFromAnki(scenario.config);
@@ -288,7 +285,6 @@ describe('against Anki with its fuzz', () => {
           const anki = step.states[button];
           expect(anki.kind, `${where}: ${button}`).toBe(ours.kind);
           if (ours.kind !== 'review' || anki.kind !== 'review') continue;
-          // The range of our fuzz with the same bounds: from the lowest to the highest factor.
           const low = schedulingStates(key, card, config, step.timing, { fuzz: true });
           const lo = Math.min(
             ...[0, 0.9999].map((f) => fuzzed(key, card, config, step.timing, button, f)),
@@ -310,7 +306,6 @@ describe('against Anki with its fuzz', () => {
   }
 });
 
-/** Our interval for a button with a given fuzz factor (states.ts with the factor forced). */
 function fuzzed(
   key: { noteGuid: string; ord: number },
   card: CardRecord,

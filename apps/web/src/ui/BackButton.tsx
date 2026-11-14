@@ -1,13 +1,9 @@
+// The «back» button of the screens where one answers (studying a deck, a final review, a test): an arrow and where it
+// goes back to, only the arrow on a phone.
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router';
 import { button } from './styles';
 
-/**
- * The «back» of the screens where one answers (studying a deck, a final review, a test): a ghost button with
- * an arrow and where it goes back to («Biología celular · Certamen 2»), cut with «…» if it does not fit; on a
- * phone, only the arrow. Either a link (`to`) or an action (`onClick`: the test goes back to its cover, which
- * has the same URL).
- */
 export function BackButton({
   label,
   to,
@@ -44,7 +40,6 @@ export function BackButton({
   );
 }
 
-/** «Biología celular · Certamen 2», or only the course when it is not in an assessment. */
 export function backLabel(course: string, assessment: string | null | undefined): string {
   return assessment ? `${course} · ${assessment}` : course;
 }

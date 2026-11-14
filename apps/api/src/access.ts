@@ -1,24 +1,9 @@
+// Whether a session is still invited, asked to the users' database (`access_status()`) with the student's own token.
+// A JWT stays valid up to an hour after a removal, so it is not enough; the Worker never holds a service key.
 import { decodeJwt } from 'jose';
 import { LEGAL_VERSIONS } from '@qv/schema';
 
-/**
- * Whether a session still has access (step 2.1). The JWT says who the student is and that it is @ug.uchile.cl, but
- * not whether they are still invited: a token stays valid up to an hour after removing someone, closing their sessions
- * or deleting their account. The users' database decides it (`access_status()`: invited, or the domain open, and the
- * session of the token still open), asked with the student's own token and the project's public key, as `is_admin()`
- * (admin.ts): the Worker never gets the users' service key.
- *
- * - `allowed` / `denied` / `signed_out`: what the database said, remembered `ttl` seconds per token (default 30). That
- *   is the most a removed student keeps reading after `remove_invites()`. `signed_out`: still invited, but the session
- *   of the token is closed (signed out on another device, which closes them all; the account deleted).
- * - `not_accepted` (step 2.3): invited and with the session open, but without accepting the versions of the terms and
- *   of the privacy policy this Worker was deployed with (`LEGAL_VERSIONS`). **Never remembered**: once the person
- *   accepts, the next request asks again and gets the material at once (not 30 s later, and in every isolate).
- * - `expired`: the database no longer takes the token (it expired in the 30 s of tolerance of the verifier): a 401,
- *   as without a session, so that the web gets a new one.
- * - `unknown`: it could not be asked (network, the database down, a wrong key, an answer it does not know). Never
- *   remembered: the next request asks again.
- */
+/** Only `allowed`, `denied` and `signed_out` are remembered: accepting the terms or a failure counts at once. */
 type Access = 'allowed' | 'denied' | 'signed_out' | 'not_accepted' | 'expired' | 'unknown';
 
 export interface AccessChecker {
@@ -26,23 +11,17 @@ export interface AccessChecker {
 }
 
 export interface AccessCheckerOptions {
-  /** URL of the users Supabase project. */
   supabaseUrl: string;
-  /** Its publishable (anon) key: it only identifies the project; what decides is the student's token. */
   publishableKey: string;
-  /** Seconds an answer is remembered (default 30). */
   ttl?: number;
-  /** The versions a person has to have accepted (default `LEGAL_VERSIONS` of @qv/schema). */
   legal?: { terms: string; privacy: string };
-  /** Injected in tests. */
   fetch?: typeof fetch;
   now?: () => number;
 }
 
-/** Default seconds an answer is remembered: the longest a removed student keeps reading. */
 export const ACCESS_TTL = 30;
 const MAX_REMEMBERED = 500;
-/** What `access_status()` answers → what the Worker does. Anything else is `unknown` (fails closed). */
+/** Any other answer is `unknown`: it fails closed. */
 const ANSWERS: Record<string, 'allowed' | 'denied' | 'signed_out' | 'not_accepted'> = {
   allowed: 'allowed',
   not_invited: 'denied',
@@ -50,9 +29,8 @@ const ANSWERS: Record<string, 'allowed' | 'denied' | 'signed_out' | 'not_accepte
   not_accepted: 'not_accepted',
 };
 /**
- * A 401 of the database means «expired» only for a token that expired or is about to (a minute: the clocks of the
- * Worker and of Supabase are not the same). Any other 401 (a wrong or revoked publishable key) is the Worker's
- * problem, not the student's: `unknown`, a 503 and a line in the log, not «sign in again» for everybody.
+ * A 401 means «expired» only near the token's expiry (the clocks differ); any other 401 is a bad publishable key, so
+ * `unknown` and a 503 rather than «sign in again» for everybody.
  */
 const EXPIRY_MARGIN_MS = 60_000;
 
@@ -126,7 +104,7 @@ export function supabaseAccessChecker(op: AccessCheckerOptions): AccessChecker {
   };
 }
 
-/** A Worker without the users' public key cannot ask: nothing of the material is served (it fails closed). */
+/** For a Worker without the users' publishable key: it fails closed. */
 export const accessUnavailable: AccessChecker = {
   check: async () => {
     console.error('USERS_SUPABASE_PUBLISHABLE_KEY is missing: no session can be checked');

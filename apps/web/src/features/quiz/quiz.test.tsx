@@ -1,3 +1,4 @@
+// Tests of the practice test pages: the cover, rounds, reloads, saving the steps and the demo repository.
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { focusManager } from '@tanstack/react-query';
@@ -10,7 +11,6 @@ import { StepSaver } from './saver';
 
 const BASE = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica';
 
-/** A repository in memory that remembers every step. */
 function recording(storage: Storage | null = null) {
   const inner = localQuizRepository(storage);
   const steps: QuizStep[] = [];
@@ -25,7 +25,6 @@ function recording(storage: Storage | null = null) {
   return { repo, steps };
 }
 
-/** A storage in memory that lives between two renders (a reload). */
 function memoryStorage(): Storage {
   const m = new Map<string, string>();
   return {
@@ -46,7 +45,6 @@ const option = (name: RegExp) =>
 describe('the course page', () => {
   it('lists the tests of each assessment', async () => {
     renderApp('/semesters/2/courses/biologia-celular');
-    // The dashboard's card: one test, straight to it.
     const link = await screen.findByRole('link', { name: /^Tests.*Práctica de Biocel/ });
     expect(link).toHaveAttribute('href', BASE);
     expect(link).toHaveTextContent('Práctica de Biocel · 4 preguntas');
@@ -65,7 +63,6 @@ describe('a practice test', () => {
   it('without a tab in the URL, opens the first one (or the last one used)', async () => {
     const { router } = renderApp(BASE);
     await waitFor(() => expect(router.state.location.pathname).toBe(`${BASE}/pautas`));
-    // The assessment's only test is its «Tests»: so says the heading and the last crumb (step 3.3, the owner).
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Tests');
     const crumbs = screen.getByRole('navigation', { name: /ruta|migas|breadcrumb/i });
     expect(within(crumbs).getAllByRole('listitem').at(-1)).toHaveTextContent('Tests');
@@ -82,7 +79,6 @@ describe('a practice test', () => {
     expect(screen.getByText('3 preguntas en total')).toBeInTheDocument();
     expect(screen.getByText('Aviso de las pautas')).toBeInTheDocument();
     expect(screen.getByLabelText(/Mezclar orden de alternativas/)).toBeInTheDocument();
-    // Choosing only one group.
     await user.click(screen.getByRole('switch', { name: /Núcleo/ }));
     expect(screen.getByText('2 preguntas en total')).toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: /Transcripción/ }));
@@ -92,7 +88,6 @@ describe('a practice test', () => {
     await user.click(within(tabs).getByRole('tab', { name: /Preguntas nuevas/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe(`${BASE}/nuevas`));
     expect(await screen.findByText('Materia que no salía')).toBeInTheDocument();
-    // Without alternatives: no «Mezclar orden de alternativas»; one group: no groups to choose.
     expect(screen.queryByLabelText(/Mezclar orden de alternativas/)).toBeNull();
     expect(screen.queryByRole('group', { name: 'Qué clases practicar' })).toBeNull();
   });
@@ -103,7 +98,6 @@ describe('a practice test', () => {
     renderApp(`${BASE}/pautas`, { quiz: repo });
     await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
 
-    // 1: right, with the figure beside, its caption and the explanations.
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Qué muestra el gel?' }),
     ).toBeInTheDocument();
@@ -119,12 +113,10 @@ describe('a practice test', () => {
     expect(screen.getByRole('status', { name: '' })).toHaveTextContent('Correcta');
     expect(screen.getByText('Por qué cada alternativa')).toBeInTheDocument();
     expect(screen.getByText('Idea clave')).toBeInTheDocument();
-    // What a revision changed in the question is not shown (the owner, 2026-11-01).
     expect(screen.queryByText(/Qué se cambió/)).toBeNull();
     expect(option(/Nada/)).toBeDisabled();
     expect(screen.getByLabelText('1 buenas y 0 malas')).toBeInTheDocument();
 
-    // 2: a table; «Saltar» leaves it for the end, without counting it.
     await user.keyboard('{Enter}');
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
@@ -133,7 +125,6 @@ describe('a practice test', () => {
     expect(screen.getByText(/saltar/, { selector: '.atajo' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Saltar' }));
 
-    // 3: a photo, on the same place of the round; the skipped one is still to come.
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Qué es la lámina?' }),
     ).toBeInTheDocument();
@@ -144,11 +135,9 @@ describe('a practice test', () => {
       '/api/media/tests/x.webp',
     );
     await user.click(option(/Microtúbulos/));
-    // Answered: «Saltar» goes away (its place stays).
     expect(screen.queryByRole('button', { name: 'Saltar' })).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Siguiente' }));
 
-    // The skipped one, last: it cannot be skipped again. Wrong, with the keyboard.
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
     ).toBeInTheDocument();
@@ -167,19 +156,16 @@ describe('a practice test', () => {
     expect(screen.getByText('33%')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Para repasar (2)' })).toBeInTheDocument();
 
-    // «Repetir solo las malas»: the two wrong ones, in the order they were asked.
     await user.click(screen.getByRole('button', { name: 'Repetir solo las malas' }));
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Qué es la lámina?' }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent('1 / 2');
-    // «Saltar» there too.
     await user.click(screen.getByRole('button', { name: 'Saltar' }));
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
     ).toBeInTheDocument();
 
-    // What was saved: the round of the cover with its 3 answers, finished; then the new one.
     await waitFor(() => expect(steps.at(-1)?.roundInfo?.origin).toBe('repeat_wrong'));
     const answers = steps
       .filter((s) => s.answer)
@@ -189,7 +175,6 @@ describe('a practice test', () => {
       ['A-p04-36', false],
       ['D-p02-04', false],
     ]);
-    // The round saved with the skipped one at the end (and its answer at that place).
     const finished = steps.find((s) => s.roundInfo?.finished)!;
     expect((finished.round as { queue: string[] }).queue).toEqual([
       'D-p01-03',
@@ -213,12 +198,10 @@ describe('a practice test', () => {
     });
     first.unmount();
 
-    // Arriving from a link (the menu, the course): the cover, with the round to continue.
     const fromLink = renderApp(`${BASE}/pautas`, { quiz: localQuizRepository(storage) });
     expect(await screen.findByRole('region', { name: 'Ronda a medias' })).toBeInTheDocument();
     fromLink.unmount();
 
-    // Reloading (the history entry remembers the round): the same question.
     const second = renderApp(
       { pathname: `${BASE}/pautas`, state: { inRound: true } },
       { quiz: localQuizRepository(storage) },
@@ -228,7 +211,6 @@ describe('a practice test', () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText('1 buenas y 0 malas')).toBeInTheDocument();
 
-    // «Volver», as studying a deck: the course and the assessment; the cover offers to continue.
     expect(screen.queryByRole('button', { name: /temas/i })).toBeNull();
     const back = screen.getByRole('button', { name: 'Volver a Biología celular · Certamen 2' });
     expect(back).toHaveAttribute('title', 'Biología celular · Certamen 2');
@@ -241,7 +223,6 @@ describe('a practice test', () => {
       await screen.findByRole('heading', { level: 2, name: '¿Dónde se une TBP?' }),
     ).toBeInTheDocument();
 
-    // «Reiniciar»: a dialog first; cancelling keeps everything.
     await user.click(screen.getByRole('button', { name: 'Reiniciar la ronda' }));
     const dialog = screen.getByRole('alertdialog', { name: '¿Reiniciar la ronda?' });
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
@@ -282,7 +263,6 @@ describe('a practice test', () => {
     await screen.findByRole('heading', { level: 2, name: '¿Qué es la lámina?' });
     await user.click(option(/Microtúbulos/));
     await user.click(screen.getByRole('button', { name: 'Siguiente' }));
-    // The skipped one comes back, last.
     expect(
       await screen.findByRole('heading', { level: 2, name: '¿Qué muestra el gel?' }),
     ).toBeInTheDocument();
@@ -321,7 +301,6 @@ describe('a practice test', () => {
     await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
     await user.click(await screen.findByRole('button', { name: /Splicing alternativo/ }));
     expect(calls).toBe(1);
-    // Coming back to the page 31 minutes later.
     const later = Date.now() + 31 * 60_000;
     const now = vi.spyOn(Date, 'now').mockReturnValue(later);
     try {
@@ -389,10 +368,10 @@ describe('saving the steps', () => {
       correct: true,
       answeredAt: '',
     };
-    saver.push(step(1)); // in flight
+    saver.push(step(1));
     saver.push(step(2, { answer }));
-    saver.push(step(3)); // joins the answer
-    saver.push(step(4, { answer: { ...answer, position: 1 } })); // another answer: its own
+    saver.push(step(3));
+    saver.push(step(4, { answer: { ...answer, position: 1 } }));
     expect(saver.pending).toBe(3);
     release();
     await saver.flush();

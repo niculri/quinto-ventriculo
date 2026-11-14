@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+
+// The filters built into the template language: port of Anki's rslib/src/template_filters.rs.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import { clozeFilter, revealClozeTextOnly } from './cloze';
 import { stripHtml } from './html';
 
-/** Port of Anki's rslib/src/template_filters.rs (the filters built into the template language). */
-
 export interface FilterContext {
-  /** Cloze number of the card (template ordinal + 1). */
+  /** Template ordinal + 1. */
   clozeOrd: number;
-  /** Question side? (FrontSide is not known yet). */
   question: boolean;
 }
 
-/** Applies the filters in order. Stops at the first unknown one, as Anki does when rendering for Python. */
 export function applyFilters(
   text: string,
   filters: string[],
@@ -33,7 +31,7 @@ export function applyFilters(
           : filters;
   for (const name of list) {
     const output = applyFilter(name, text, fieldName, context);
-    // An unknown filter would be left to the Python hooks, which (without add-ons) do nothing.
+    // Anki leaves an unknown filter to the Python hooks, which without add-ons do nothing: stop here.
     if (output === null) return text;
     text = output;
   }

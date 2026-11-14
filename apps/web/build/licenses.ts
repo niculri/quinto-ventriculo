@@ -1,17 +1,8 @@
+// Vite plugin that writes, from node_modules, the licenses of the third-party packages in the web and in the Worker
+// (`/third-party-licenses.json` and `.txt`, which /licenses shows).
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
 import type { Plugin } from 'vite';
-
-/**
- * The licenses of the third-party packages that go in the web and in the Worker (step 2.4), generated at build time
- * from node_modules, never by hand. /licenses shows them (`/third-party-licenses.json` and, with every license
- * text, `/third-party-licenses.txt`).
- *
- * - The web: the packages of the modules the bundle really contains (Rollup's module graph).
- * - The Worker: Wrangler bundles it apart, so it is the production dependencies of apps/api, walked through
- *   node_modules (the workspace's own packages, @qv/*, are this repository's code and are walked through).
- * In development (`vite` serve) there is no bundle: the web's list is the walk of apps/web's dependencies.
- */
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 const OWN_SCOPE = '@qv/';
@@ -19,12 +10,9 @@ const OWN_SCOPE = '@qv/';
 export interface ThirdPartyPackage {
   name: string;
   version: string;
-  /** SPDX expression of its package.json («MIT», «(MIT OR Apache-2.0)»), or «UNKNOWN». */
   license: string;
   repository: string | null;
-  /** Where it runs: the web (the browser), the Worker (the server) or both. */
   usedBy: ('web' | 'server')[];
-  /** The text of its LICENSE / LICENCE / COPYING / NOTICE files, if it brings them. */
   text: string;
 }
 
@@ -52,7 +40,6 @@ function findPackage(name: string, from: string): string | null {
   }
 }
 
-/** The package folder that contains a module (its last «node_modules/<name>» or «node_modules/@scope/<name>»). */
 export function packageFolderOf(moduleId: string): string | null {
   const path = moduleId.replace(/^\0/, '').split('?')[0]!;
   const marker = `${sep}node_modules${sep}`;
@@ -119,7 +106,6 @@ function repositoryOf(pkg: PackageJson): string | null {
       : url;
 }
 
-/** The list for /licenses: one entry per name and version, sorted by name. */
 export function describePackages(web: Set<string>, server: Set<string>): ThirdPartyPackage[] {
   const byKey = new Map<string, ThirdPartyPackage>();
   const add = (folder: string, where: 'web' | 'server') => {
@@ -150,16 +136,11 @@ export function describePackages(web: Set<string>, server: Set<string>): ThirdPa
     .sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version));
 }
 
-/**
- * The repository's NOTICE.md: the code adapted from other projects (Anki, fsrs-rs) with the notices their licenses
- * ask to carry, also in the site's files (Revisión de cero, 2.4: fsrs-rs is BSD-3-Clause).
- */
 export function readNotices(): string {
   const file = join(ROOT, 'NOTICE.md');
   return existsSync(file) ? readFileSync(file, 'utf8').trim() : '';
 }
 
-/** The plain text with every license, for `/third-party-licenses.txt`; `notices` (NOTICE.md) goes at the end. */
 export function licensesText(packages: ThirdPartyPackage[], notices = ''): string {
   const head = [
     'El Quinto Ventrículo: licencias de los paquetes de terceros que usan la web y el servidor.',
@@ -203,17 +184,16 @@ function webDirectExtras(): string[] {
     .filter((f): f is string => f !== null);
 }
 
-/** The Worker's packages: the production dependencies of apps/api. */
+/** Wrangler bundles the Worker apart: its packages are the production dependencies of apps/api. */
 export const serverPackages = () => dependencyFolders([join(ROOT, 'apps/api')]);
 
-/** The web's packages without a bundle (development): the production dependencies of apps/web. */
+/** In development there is no bundle: the web's packages are the production dependencies of apps/web. */
 export const webPackagesByDependencies = () =>
   new Set([...dependencyFolders([join(ROOT, 'apps/web')]), ...webDirectExtras()]);
 
 const summary = (packages: ThirdPartyPackage[]) =>
   JSON.stringify(packages.map(({ text: _text, ...p }) => p));
 
-/** The Vite plugin: emits both files in the build and serves them in development. */
 export function thirdPartyLicenses(): Plugin {
   return {
     name: 'qv-third-party-licenses',

@@ -1,6 +1,4 @@
-// Pins the rules that the in-memory account repository re-implements from the account functions of the users
-// database. Above each test, the db/tests case that checks the same rule in SQL («db: none» when there is none);
-// «differs» marks a behaviour that is not the database's.
+// Tests that the in-memory account repository follows the users database's account rules («Differs» marks where not).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
 import { AccountError, localAccountRepository } from './repository';
@@ -19,7 +17,6 @@ afterEach(() => {
 });
 
 describe('accepting the terms', () => {
-  // db: account.test.ts › a new version of either text asks again, once
   it('accepting the same versions again keeps the first date; new ones get a new date', async () => {
     const repo = localAccountRepository({ email: EMAIL });
     const first = await repo.accept(V1);
@@ -30,7 +27,7 @@ describe('accepting the terms', () => {
     expect((await repo.resume(V2)).accepted).toMatchObject({ ...V2, ...second });
   });
 
-  // differs — db: account.test.ts › after a rollback to versions accepted before, entering does not ask again
+  // Differs: after a rollback to versions accepted before, the database does not ask again.
   it('entering gives the versions accepted last, whatever versions the page asks about', async () => {
     const repo = localAccountRepository({ email: EMAIL });
     await repo.accept(V1);
@@ -40,8 +37,7 @@ describe('accepting the terms', () => {
 });
 
 describe('accepting the terms again', () => {
-  // differs — accept_legal() keeps one row per pair of versions (on conflict do nothing): accepting V1 again gives back
-  // the date V1 was first accepted (no db test)
+  // Differs: accept_legal() keeps the first date of each pair of versions, so accepting V1 again gives it back.
   it('V1, then V2, then V1 again: V1 gets a new date', async () => {
     const repo = localAccountRepository({ email: EMAIL });
     await repo.accept(V1);
@@ -53,7 +49,6 @@ describe('accepting the terms again', () => {
 });
 
 describe('deleting the account', () => {
-  // db: account.test.ts › asks for the account’s own email; › marks it, closes every session and says until when
   it(`asks for the account’s own email, in any case, and is deleted after ${ACCOUNT_DELETION_DAYS} days`, async () => {
     const repo = localAccountRepository({ email: EMAIL });
     await expect(repo.requestDeletion('otra@ug.uchile.cl')).rejects.toBeInstanceOf(AccountError);
@@ -62,7 +57,6 @@ describe('deleting the account', () => {
     });
   });
 
-  // db: account.test.ts › signing in again before the 7 days cancels it, and the web is told once
   it('entering again cancels it, and says so once', async () => {
     const repo = localAccountRepository({ email: EMAIL });
     await repo.requestDeletion(EMAIL);

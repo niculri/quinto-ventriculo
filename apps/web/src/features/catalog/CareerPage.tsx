@@ -1,3 +1,4 @@
+// «La carrera»: every semester, grouped by year, with its courses and how much material each has.
 import { ArrowRight, BookOpen } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../app/paths';
@@ -17,10 +18,6 @@ import {
 
 const YEARS = ['Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo'];
 
-/**
- * «La carrera» (step 3.2): every semester and its courses, as the home page showed them before. The home page has only
- * what is the student's, and a line to here.
- */
 export function CareerPage() {
   const catalog = useCatalog();
   return (
@@ -53,7 +50,6 @@ function Semesters({ catalog }: { catalog: Catalog }) {
       <div className="space-y-8">
         {[...byYear].map(([year, semesters]) => (
           <div key={year}>
-            {/* h2: under the page's h1 (in the home page it was under «La carrera», an h2; review of 3.2). */}
             <h2 className="mb-3 font-serif text-xl font-semibold">
               {YEARS[year - 1] ?? `${year}.º`} año
             </h2>
@@ -67,7 +63,6 @@ function Semesters({ catalog }: { catalog: Catalog }) {
           </div>
         ))}
       </div>
-      {/* The semesters without material, when the site hides them: one line in their place. */}
       {catalog.hiddenSemesters ? <p className="mt-8 text-muted">{MORE_SEMESTERS_SOON}</p> : null}
     </section>
   );

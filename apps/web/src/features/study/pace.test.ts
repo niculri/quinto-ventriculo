@@ -1,3 +1,6 @@
+// Tests the assessment mode's pure functions: calendar days, the pace, the minutes of a plan, the choices of
+// final-review days, the summaries, the plan to catch up and a new day with a session open.
+
 import { dayStartsAt, schedTiming } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
 import { defaultPreferences } from './repository';
@@ -38,7 +41,6 @@ const L2 = '52';
 const OTHER = '9';
 const OTHER_L = '91';
 
-/** Two lectures, the first with its Extras, and another assessment. */
 const DECKS = [
   { id: '3', name: 'R::S::C', ownCards: 0 },
   { id: ASSESSMENT, name: 'R::S::C::A', ownCards: 0 },
@@ -88,7 +90,6 @@ const facts = (over: Partial<AssessmentFacts> = {}): AssessmentFacts => ({
 describe('the days left', () => {
   it('a calendar day is the scheduler’s day number, whatever the zone', () => {
     for (const zone of ['America/Santiago', 'Asia/Tokyo', 'UTC']) {
-      // Noon of the 5th, in that zone.
       const noon = dayStartsAt(dayOfDate('2026-11-05'), zone, 12);
       expect(schedTiming(noon, zone, 4).today).toBe(dayOfDate('2026-11-05'));
     }
@@ -179,7 +180,6 @@ describe('the new cards a day', () => {
   });
 
   it('what is left ÷ the days left minus the final review, rounded up', () => {
-    // 12 days, 3 of review: 9 days. 100 / 9 = 11.1.
     expect(computePace({ examDate: inDays(12) }, facts(), TODAY, 15)).toEqual({
       kind: 'computed',
       newPerDay: 12,
@@ -266,7 +266,6 @@ describe('the pace that rose', () => {
   const pace = (f: AssessmentFacts) => computePace(setting, f, TODAY, 15);
 
   it('whoever did yesterday’s number is not told anything', () => {
-    // Yesterday, 11 days left (8 of new cards) and 100 left: 13 a day. They did them.
     const f = facts({ newLeft: 87, newYesterday: 13 });
     expect(paceRose(pace(f), setting, f, TODAY - 5, TODAY)).toBe(false);
   });
@@ -290,7 +289,6 @@ describe('the time it takes', () => {
     const few = planMinutes({ ...base, newPerDay: 10 });
     const many = planMinutes({ ...base, newPerDay: 100 });
     expect(many).toBeGreaterThan(few * 5);
-    // 10 new a day: 20 answers (5 min) and about 12 of reviews.
     expect(few).toBeGreaterThanOrEqual(5);
     expect(few).toBeLessThanOrEqual(15);
     const slow = planMinutes({ ...base, newPerDay: 100, medianAnswerMs: 30_000 });
@@ -357,7 +355,6 @@ describe('the time it takes', () => {
     const options = paceOptions({ examDate: inDays(12) }, facts(), TODAY, null);
     expect(options.map((o) => o.newPerDay)).toEqual([10, 12, 20]);
     expect(options.every((o) => (o.minutes ?? 0) > 0)).toBe(true);
-    // The test is on day 12 and its last days are for reviewing: 1 leaves day 11, 3 leaves 9, 10 and 11, 7 leaves 5 to 11.
     expect(options.map((o) => o.lastNewDate)).toEqual([inDays(10), inDays(8), inDays(4)]);
     expect(paceOptions({ examDate: null }, facts(), TODAY, null).map((o) => o.newPerDay)).toEqual([
       null,
@@ -367,7 +364,6 @@ describe('the time it takes', () => {
     expect(
       paceOptions({ examDate: inDays(-2) }, facts(), TODAY, null).map((o) => o.minutes),
     ).toEqual([null, null, null]);
-    // Already in those days: nothing new comes out, so it has no last day.
     const close = paceOptions({ examDate: inDays(5) }, facts(), TODAY, null);
     expect(close.map((o) => o.lastNewDate)).toEqual([inDays(3), inDays(1), null]);
     expect(close[2]!.newPerDay).toBe(0);
@@ -441,13 +437,11 @@ describe('what the student reads', () => {
     const summary = (p: Partial<StudyPlan>, progress: DeckProgress[] = []) =>
       view(plan(p), progress).summary;
     const since = { examDateSetAt: '2020-01-01T00:00:00Z' };
-    // 160 cards: 12 a day from yesterday, with 13 days of new cards from today.
     expect(
       summary({ ...on2, assessments: [dated(16, since)] }, [
         row(L1, { seen: 12, newYesterday: 12 }),
       ]),
     ).toBe('Faltan 16 días · vas al día');
-    // Nothing late, because nothing was studied: 13 a day now.
     expect(summary({ ...on2, assessments: [dated(16, since)] })).toBe(
       'Faltan 16 días · ahora 13 nuevas al día',
     );
@@ -455,7 +449,6 @@ describe('what the student reads', () => {
       'Faltan 16 días · nada activado',
     );
     expect(summary({ assessments: [dated(2)] })).toBe('Faltan 2 días · repaso final');
-    // Late reviews say more than any of those.
     expect(summary({ assessments: [dated(2)] }, [row(L1, { seen: 5, overdue: 4 })])).toBe(
       'Faltan 2 días · 4 atrasadas',
     );
@@ -469,7 +462,6 @@ describe('what the student reads', () => {
       ],
     };
     const p = plan({ ...on2, assessments: [dated(6, { examDateSetAt: '2020-01-01T00:00:00Z' })] });
-    // 155 cards over 3 days, 52 a day; yesterday's 5 are not what the pace asked for.
     const v = assessmentView({
       decks: DECKS,
       plan: p,
@@ -539,7 +531,6 @@ describe('catching up', () => {
   it('the test comes first: over the days left', () => {
     expect(catchUpPlan(300, 2)).toEqual({ overdue: 300, perDay: 150, days: 2 });
     expect(catchUpText(catchUpPlan(100, 1)!)).toMatch(/en 1 día\.$/);
-    // On the day of the test itself a plan would end after it.
     expect(catchUpPlan(300, 0)).toBeNull();
   });
 
@@ -561,7 +552,6 @@ describe('a new day with a session open', () => {
     ];
     const before = [row(L1, { seen: 10, newToday: 1, newYesterday: 7 })];
     const after = rollProgress(before, answers);
-    // One of the two was answered before the session: it is already in `seen`.
     expect(after.find((p) => p.deckId === L1)).toMatchObject({
       seen: 11,
       newToday: 0,

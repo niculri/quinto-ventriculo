@@ -1,3 +1,4 @@
+// «Reportar error» popup for a card, a note or a quiz question: category, comment and send.
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
@@ -16,20 +17,13 @@ const INTRO: Record<ReportKind, string> = {
   quiz_question: 'Cuéntanos qué está mal en esta pregunta. Le llega al autor para corregirla.',
 };
 
-/**
- * «Reportar error», the same for every content (step 2.6): the categories of that content, one box of text and
- * «Enviar». What the student found goes to the author's panel; they follow it in «Mis reportes». The error, if any,
- * goes in a place reserved for it: nothing in the popup moves.
- */
 export function ReportDialog({
   target,
   category: initial,
   onClose,
   onSent,
 }: {
-  /** What is being reported (null: closed). */
   target: ReportTarget | null;
-  /** The category chosen at first (an image's report: 'image'); by default, the content's first one. */
   category?: ReportCategory;
   onClose: () => void;
   onSent: () => void;
@@ -126,7 +120,7 @@ export function ReportDialog({
             <p className="mt-1 text-xs text-muted">
               Lo lee solo quien corrige el sitio. No escribas datos personales.
             </p>
-            {/* Reserved: the error does not push the buttons. */}
+            {/* Reserved height, so an error does not push the buttons. */}
             <p role="alert" className="mt-2 min-h-10 text-sm text-state-learn">
               {send.isError
                 ? send.error instanceof ReportError

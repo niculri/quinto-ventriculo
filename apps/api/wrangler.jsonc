@@ -1,5 +1,5 @@
-// A single Worker serves the web (static files from apps/web/dist) and the API (/api/*), on the same domain.
-// Secrets (not here): npx wrangler secret put CONTENT_SERVICE_ROLE_KEY | MEDIA_SECRET | CF_ACCOUNT_ID | CF_ANALYTICS_TOKEN
+// One Worker serves the web (apps/web/dist) and the API (/api/*) on the same domain. Secrets go with
+// `wrangler secret put`: CONTENT_SERVICE_ROLE_KEY, MEDIA_SECRET, CF_ACCOUNT_ID, CF_ANALYTICS_TOKEN.
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "quinto-ventriculo",
@@ -12,36 +12,25 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"],
   },
-  // The site's own domain (zone in the same Cloudflare account; Cloudflare creates the DNS record and the certificate).
-  // The site lives on www; a Cloudflare Redirect Rule sends the bare domain to www (it runs before the Worker).
-  // The *.workers.dev URL stays on as well.
+  // A Cloudflare Redirect Rule sends the bare domain to www before it reaches the Worker.
   "routes": [
     { "pattern": "www.quintoventriculo.cl", "custom_domain": true },
     { "pattern": "quintoventriculo.cl", "custom_domain": true },
   ],
   "workers_dev": true,
-  // The id of the version that answers, for /api/health and the smoke test (npm run smoke, step 1.9).
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "r2_buckets": [
     { "binding": "MEDIA", "bucket_name": "quinto-ventriculo-media" },
-    // Step 2.5: the nightly copies of the users' database (encrypted; made by a workflow of the private repository).
-    // The Worker only lists them for /api/health/deep (the newest one, less than 36 hours old). The bucket has to exist
-    // before deploying, with its lifecycle and lock rules.
+    // It has to exist before deploying, with its lifecycle and lock rules.
     { "binding": "BACKUPS", "bucket_name": "quinto-ventriculo-backups" },
   ],
-  // Step 2.9: a note, a deck or a test opened, and a search, counted without who (src/usage.ts). Read back for «Uso»
-  // with the SQL API: secrets CF_ACCOUNT_ID and CF_ANALYTICS_TOKEN (a token with only «Account Analytics: Read»).
   "analytics_engine_datasets": [{ "binding": "USAGE", "dataset": "qv_usage" }],
   "vars": {
-    // Filled in when the Supabase projects are created (docs/configuracion.md).
     "USERS_SUPABASE_URL": "https://nepxecanupunoezfblon.supabase.co",
     "CONTENT_SUPABASE_URL": "https://digqrtjqzdqlgjscnznj.supabase.co",
-    // The users' publishable key (not secret: the web has it too). With it the Worker asks is_admin() with the
-    // student's own token, for the preview and the releases panel (step 1.7). Here, not in Cloudflare's panel:
-    // wrangler deploy replaces the variables of the panel.
+    // Not secret (the web has it too), and here rather than in Cloudflare's panel: a deploy replaces the panel's vars.
     "USERS_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_aoi84HOhmVNxCV6KWt1-JQ_hXe4strw",
   },
-  // Workers Logs, and (step 2.5) Workers Issues: the Worker's failures grouped, in the dashboard (Workers → the Worker →
-  // Issues). Without `issues` here, a deploy would turn it off.
+  // Without `issues` here, a deploy would turn Workers Issues off.
   "observability": { "enabled": true, "issues": { "enabled": true } },
 }

@@ -1,5 +1,5 @@
-// Plan step 1.1: the light history (20261106000000_light_history.sql). The log without the card before and
-// after, undo for 48 hours in review_undo, the student's day in each row and the day's sums in study_days.
+// The light history: the log without the card before and after, undo for 48 hours in review_undo, the student's day
+// in each row and the day's sums in study_days.
 import type { PGlite } from '@electric-sql/pglite';
 import { dayOf } from '@qv/srs';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -13,7 +13,6 @@ const DECK = '2059400110';
 const call = (fn: string, args: unknown[]) =>
   `select public.${fn}(${args.map((_, i) => `$${i + 1}`).join(', ')}) as r`;
 
-/** An answer as the web sends it (a new card answered «Bien»: to its 10-minute step). */
 function answer(noteGuid: string, extra: Record<string, unknown> = {}) {
   const now = new Date();
   return {
@@ -133,7 +132,6 @@ describe('the migration, on a database with history', () => {
       { day: '2026-11-01', answers: 1, new_seen: 1, failed: 0, ms: 4000 },
       { day: '2026-11-03', answers: 1, new_seen: 1, failed: 1, ms: 6000 },
     ]);
-    // The flag is not an answer: three answers in all.
     const total = await db.query<{ n: number }>(
       `select sum(answers)::int as n from public.study_days`,
     );
@@ -199,7 +197,6 @@ describe('the migration, on a database where someone answered with the old funct
     });
     expect(r.before).toEqual([{ answers: 2, new_seen: 1, failed: 1, ms: 8000 }]);
     expect(r.undone).toMatchObject({ rating: 1, noteGuid: 'm1' });
-    // The answered card goes back to its first answer, and the sibling it buried (new) stops existing.
     expect(r.cards).toEqual([{ ord: 0, reps: 1, buried: false }]);
     expect(r.middle).toEqual([{ answers: 1, new_seen: 1, failed: 0, ms: 3000 }]);
     expect(r.after).toEqual([]);
@@ -246,7 +243,6 @@ describe('answers, undo and the day’s sums', () => {
 
   it('undo reaches 48 hours back, not more', async () => {
     await asUser(db, ANA, (tx) => tx.query(call('record_review', [0]), [answer('n3')]));
-    // The undo rows aged 49 hours: undo finds nothing, and the card and the log stay.
     await db.query(`update public.review_undo set created_at = now() - interval '49 hours'`);
     const r = await asUser(db, ANA, async (tx) => {
       const undone = await tx.query<{ r: unknown }>(call('undo_last_review', []));
@@ -281,7 +277,6 @@ describe('answers, undo and the day’s sums', () => {
   it('the undo rows and the sums: each one only their own, anon nothing, nobody truncates', async () => {
     await asUser(db, ANA, (tx) => tx.query(call('record_review', [0]), [answer('n4')]));
     await asUser(db, BETO, (tx) => tx.query(call('record_review', [0]), [answer('b2')]));
-    // Both have rows of both tables (so that seeing only one’s own means something).
     const owners = await db.query<{ n: number }>(
       `select count(distinct user_id)::int as n from (
          select user_id from public.review_undo union all select user_id from public.study_days) t`,
@@ -300,7 +295,6 @@ describe('answers, undo and the day’s sums', () => {
       'truncate public.study_days',
       'truncate public.review_undo',
       'update public.review_undo set state_before = null',
-      // Since plan step 1.2, undo rows are written only through the functions.
       `delete from public.review_undo where user_id = '${ANA.sub}'`,
     ]) {
       await expect(asUser(db, BETO, (tx) => tx.query(sql))).rejects.toThrow(/permission denied/);
@@ -330,7 +324,6 @@ describe('the browser’s actions, with the light log', () => {
         true,
       ]);
       const forgotten = await cards();
-      // A flag on one card with a row and one without (a new card): one action of two rows.
       await tx.query(call('set_flags', [0, 1]), [[ref('f1'), ref('f3')], 3]);
       const flagged = await cards();
       const undoFlag = await tx.query<{ r: { action: string } }>(call('undo_last_review', []));
@@ -444,7 +437,6 @@ describe('the student’s day', () => {
           [ANA.sub, zone, rollover],
         );
       }
-      // 2,000 moments in 2026–2027, thicker around the changes (April and September in Chile).
       const moments: number[] = [];
       const start = Date.UTC(2026, 0, 1) / 1000;
       for (let i = 0; i < 1400; i++) moments.push(start + Math.floor(random() * 2 * 365 * 86400));
@@ -467,11 +459,10 @@ describe('the student’s day', () => {
 });
 
 describe('the weight of an answer', () => {
-  // Was ~1,500 bytes. The plan aimed at 250 assuming the phases and the queue as numeric codes; as text they cost
-  // ~12 bytes more (≈2 GB a year with 5,000 students), not worth changing every function and the web for.
+  // The phases and the queue are text: ~12 bytes more than numeric codes (≈2 GB a year with 5,000 students), not worth
+  // changing every function and the web for.
   it('is at most 270 bytes in the log, with its index (262 measured)', async () => {
     const db = await newDatabase();
-    // 5,000 answers as the site writes them (guid of 10 characters, a deck id of 10 digits).
     await db.query(
       `insert into public.review_log (user_id, action, note_guid, ord, deck_id, reviewed_at, rating, queue_before,
          phase_before, phase_after, interval, last_interval, duration_ms, stability_after, difficulty_after,

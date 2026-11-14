@@ -1,7 +1,7 @@
+// The site's settings in memory, for the demo and the tests: they last as long as the process.
 import type { SiteSettings } from '@qv/schema';
 import type { SiteSettingsRepository } from '../repository';
 
-/** The site's settings in memory (demo mode and tests): they last as long as the process. */
 export function memorySiteSettings(
   start: Partial<SiteSettings> = {},
   now: () => Date = () => new Date(),

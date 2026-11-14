@@ -1,12 +1,9 @@
+// Vite plugin that preloads Inter's text face from index.html, so that it downloads with the page and not after the CSS.
 import type { Plugin } from 'vite';
 
-/** Inter's text face (src/fonts): every page uses it, and an article waits for it before drawing. */
 const FILE = 'inter-roman.woff2';
 
-/**
- * `<link rel="preload">` for the font in index.html, so that it downloads with the page instead of after the CSS. In
- * the build its URL is the hashed asset's; in development, the file's own (what the CSS asks for too).
- */
+/** In the build the font's URL is the hashed asset's; in development, the file's own (what the CSS asks for too). */
 export function preloadFont(): Plugin {
   return {
     name: 'qv-preload-font',

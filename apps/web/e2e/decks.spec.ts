@@ -1,3 +1,5 @@
+// E2e tests of how the card viewer draws each kind of card (basic, cloze, occlusion, dark mode, long cards), the old
+// deck URLs and the cards behind the session.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, scrollCard, signIn } from './helpers';
@@ -47,7 +49,6 @@ test('a basic card: front, answer, and the footer stays inside the viewer', asyn
   expect(pie!.x + pie!.width).toBeLessThanOrEqual(box!.x + box!.width + 1);
   expect(pie!.y + pie!.height).toBeLessThanOrEqual(box!.y + box!.height + 1);
 
-  // The hint opens with a click.
   await front.getByText('Pista').click();
   await expect(front.getByText('Empieza con 7')).toBeVisible();
 
@@ -68,7 +69,6 @@ test('a cloze card: [...] on the front, the answer highlighted on the back', asy
   const back = dialog.getByRole('region', { name: 'Reverso de la tarjeta' });
   await expect(back.locator('.cloze')).toHaveText('12');
   await expect(back.locator('.cloze-inactive').first()).toHaveText('7');
-  // Next card with the arrow.
   await page.keyboard.press('ArrowRight');
   await expect(
     dialog.getByRole('region', { name: 'Frente de la tarjeta' }).locator('.cloze'),

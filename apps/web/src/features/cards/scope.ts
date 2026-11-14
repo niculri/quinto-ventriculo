@@ -1,3 +1,5 @@
+// The cards page's scope (a course or an assessment) and its units, the weeks and lectures it can be narrowed to.
+
 import type { AssessmentWithNotes, Catalog } from '@qv/schema';
 import type { SelectOption } from '../../ui/Select';
 import { descendants, hasPage } from '../anki/tree';
@@ -9,9 +11,7 @@ import type { CourseDeckNode, DeckNode } from '../anki/tree';
  */
 export interface CardsScope {
   node: CourseDeckNode;
-  /** Its assessments that have cards, in the course's order. */
   assessments: AssessmentWithNotes[];
-  /** Every deck of the scope (Extras included): what its progress is read by. */
   deckIds: string[];
 }
 
@@ -29,14 +29,12 @@ export function cardsScope(catalog: Catalog, node: CourseDeckNode): CardsScope {
   return { node, assessments, deckIds: ids };
 }
 
-/** The deck a card's deck goes under in the list: itself, or its parent for an «Extras». */
 export function lectureOf(node: DeckNode | undefined): DeckNode | undefined {
   let n = node;
   while (n && n.label === 'Extras' && n.parent) n = n.parent;
   return n;
 }
 
-/** A lecture's title in the list: its path below the scope («S5 - SMAS… › 01 - Cavidad nasal»). */
 export function lectureTitle(scope: DeckNode, lecture: DeckNode | undefined): string {
   if (!lecture) return 'Otras tarjetas';
   const parts: string[] = [];
@@ -49,10 +47,6 @@ export function lectureTitle(scope: DeckNode, lecture: DeckNode | undefined): st
 const isExtras = (n: DeckNode) => n.label === 'Extras';
 const withCards = (n: DeckNode) => n.cardCount > 0 && !isExtras(n);
 
-/**
- * «Semana o clase»: everything, then each child of the scope (a week, a lecture; in a course, an assessment) and the
- * children of those that have their own (the lectures of a week). The value is the slugs below the scope, with «/».
- */
 export function unitOptions(scope: DeckNode, current = ''): SelectOption<string>[] {
   const out: SelectOption<string>[] = [
     { value: '', label: scope.depth === 2 ? 'Todo el ramo' : 'Todo el certamen' },
@@ -65,8 +59,7 @@ export function unitOptions(scope: DeckNode, current = ''): SelectOption<string>
       out.push({ value: `${child.slug}/${g.slug}`, label: `${child.label} › ${g.label}` });
     }
   }
-  // A unit the URL names that the list does not offer (the only deck of a week, an «Extras»: a deck's «Tarjetas», or
-  // «Ver las que fallaste» of «Listo por hoy»): shown as chosen, with its path, after its week (Revisión de cero, 3.4).
+  // A unit the URL names that the list does not offer (a week's only deck, an «Extras»): shown as chosen, after its week.
   const node = current && !out.some((o) => o.value === current) ? unitNode(scope, current) : null;
   if (node) {
     let at = out.length;
@@ -81,7 +74,6 @@ export function unitOptions(scope: DeckNode, current = ''): SelectOption<string>
   return out;
 }
 
-/** The deck of a unit (its slugs below the scope); null if there is none with those slugs. */
 export function unitNode(scope: DeckNode, unit: string): DeckNode | null {
   if (!unit) return null;
   let n: DeckNode | null = scope;
@@ -92,7 +84,6 @@ export function unitNode(scope: DeckNode, unit: string): DeckNode | null {
   return n;
 }
 
-/** The slugs of a deck below the scope (its unit), or null if it is not below it. */
 export function unitOf(scope: DeckNode, node: DeckNode): string | null {
   const parts: string[] = [];
   for (let n: DeckNode | null = node; n; n = n.parent) {
@@ -102,7 +93,6 @@ export function unitOf(scope: DeckNode, node: DeckNode): string | null {
   return null;
 }
 
-/** The scope of a deck below a course: its assessment's, or the course's for one directly in it. */
 export function scopeNodeOf(node: DeckNode): CourseDeckNode | null {
   for (let n: DeckNode | null = node; n; n = n.parent) {
     if ((n.depth === 3 || n.depth === 2) && hasPage(n)) return n;

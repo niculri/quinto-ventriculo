@@ -1,3 +1,4 @@
+// Tests of which screens are answer screens and where their «Volver» goes.
 import { describe, expect, it } from 'vitest';
 import { answerScreenBack, isAnswerScreen } from './answerScreen';
 
@@ -21,7 +22,6 @@ describe('the screens where one answers', () => {
       to: '/semesters/1/courses/anatomia-1/anki/certamen-1',
       label: 'Anki',
     });
-    // Practicing keeps the filters of the list it came from.
     expect(
       answerScreenBack(
         '/semesters/1/courses/anatomia-1/anki/certamen-1/cards/practice',

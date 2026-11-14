@@ -1,3 +1,4 @@
+// One test question on screen: statement, figures, alternatives or a short answer, the verdict and the explanations.
 import { useEffect, useRef } from 'react';
 import { MessageSquareWarning } from 'lucide-react';
 import { LETTERS, answerAt, canSkip, displayOrder } from '@qv/quiz';
@@ -8,7 +9,6 @@ import type { OpenImage } from '../notes/ImageViewer';
 import { Figures, Html, Table, TextWithStatements, besideStyle } from './Figures';
 import type { QuestionEntry } from './useQuizSession';
 
-/** Statement, question, figure and table (the figure beside the alternatives goes with them). */
 function QuestionBody({
   question,
   onZoom,
@@ -37,7 +37,6 @@ function QuestionBody({
   );
 }
 
-/** The figure to the left of the alternatives («fig_izq»), or the alternatives alone. */
 function WithFigure({
   question,
   onZoom,
@@ -62,10 +61,6 @@ function WithFigure({
   );
 }
 
-/**
- * The explanations under the alternatives: one per alternative («Por qué cada alternativa», with the letter
- * shown on screen), the general one («Idea clave» or «Explicación») and what was changed in the question.
- */
 function Explanation({
   question,
   order,
@@ -105,11 +100,6 @@ function Explanation({
   );
 }
 
-/**
- * The question on screen. The bar «atajos · Saltar · Siguiente» stays in the same place, under the
- * alternatives: what appears on answering (the verdict, the explanation, the answer of a short question)
- * goes after it, so it does not move. An answered question (after reloading) is shown as it was answered.
- */
 export function QuestionCard({
   round,
   entry,
@@ -128,16 +118,13 @@ export function QuestionCard({
   entry: QuestionEntry;
   sectionLabel?: string | undefined;
   sectionIndex: number;
-  /** A short question with its answer shown (before saying whether the user knew it). */
   revealed: boolean;
   onReveal: () => void;
   onAnswer: (original: number) => void;
   onSelfAssess: (knewIt: boolean) => void;
   onNext: () => void;
-  /** «Saltar»: to the end of the round, without an answer. */
   onSkip: () => void;
   onZoom: (image: OpenImage) => void;
-  /** «Reportar error» of this question, once it is answered (step 2.6). */
   onReport?: () => void;
 }) {
   const { question, group, number } = entry;
@@ -148,11 +135,10 @@ export function QuestionCard({
   const nextRef = useRef<HTMLButtonElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Answered: «Siguiente» takes the focus (Enter goes on), without scrolling the page.
   useEffect(() => {
     if (done) nextRef.current?.focus({ preventScroll: true });
   }, [done, round.index]);
-  // A new question, with the focus lost («Siguiente» is disabled again): a screen reader starts reading it.
+  // With the focus lost («Siguiente» disabled again), the new question takes it so a screen reader reads it.
   const queued = round.queue[round.index];
   useEffect(() => {
     if (done) return;
@@ -259,7 +245,7 @@ export function QuestionCard({
         <div className="pie">
           <span className="atajo">Atajos: {shortcut}</span>
           <span className="pacc">
-            {/* Answered, «Saltar» keeps its place (hidden), so «Siguiente» does not move. */}
+            {/* Hidden, not removed, so «Siguiente» does not move. */}
             <button
               type="button"
               className="btn2"
@@ -300,8 +286,7 @@ export function QuestionCard({
             ) : null}
           </div>
         ) : null}
-        {/* The status is always there, empty until answering: a live region that appears with its text is not always
-            read. Empty, both boxes have no class and measure nothing. */}
+        {/* Always rendered: a live region that appears with its text is not always read. */}
         <div className={verdict ? 'vfila' : undefined}>
           <div
             role="status"

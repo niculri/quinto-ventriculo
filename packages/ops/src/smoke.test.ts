@@ -1,3 +1,4 @@
+// Tests for the smoke test, against a fake site.
 import { describe, expect, it } from 'vitest';
 import { firstAsset, formatSmoke, normalizeBase, runSmoke } from './smoke';
 
@@ -7,7 +8,6 @@ const HTML =
 
 type Answer = { status: number; type?: string; body?: string; location?: string };
 
-/** A site that answers like the real one; `change` replaces some answers. */
 function site(change: Record<string, Answer | 'network'> = {}) {
   const asked: string[] = [];
   const answers: Record<string, Answer | 'network'> = {

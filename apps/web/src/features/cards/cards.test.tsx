@@ -1,3 +1,6 @@
+// Tests the cards page: its model (notes, filters, groups, practice) and the page itself with the list, the viewer,
+// a heatmap day and the failed cards.
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -27,7 +30,6 @@ import { defaultPreferences } from '../study/repository';
 
 const PAGE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards';
 
-/** A card's row as the database keeps it, seen (a review) or difficult. */
 function row(noteGuid: string, ord: number, deckId: string, patch: Partial<StoredCard> = {}) {
   return {
     noteGuid,
@@ -86,7 +88,6 @@ describe('the cards page’s model', () => {
       ].map((r) => [cardKey(r), r]),
     );
     const notes = explorerNotes([CARD_INDEX], (id) => lectureOf(tree.byId.get(id))?.id ?? id, rows);
-    // The Extras deck goes under its lecture.
     expect(new Set(notes.map((n) => n.lectureId))).toEqual(new Set(['20']));
     const all = applyFilters(notes, NO_FILTERS);
     expect(all.matched).toHaveLength(3);
@@ -101,7 +102,6 @@ describe('the cards page’s model', () => {
     });
     expect(all.facets.origin).toEqual({ profe: 1, control: 0, clinica: 0, complemento: 0 });
     expect(all.facets.kind).toEqual({ all: 3, text: 2, image: 1 });
-    // «Me cuestan»: only the difficult card of the cloze; the kinds count with it.
     const hard = applyFilters(notes, { ...NO_FILTERS, state: 'hard' });
     expect(hard.matched.map((m) => m.cards.map((c) => c.ord))).toEqual([[0]]);
     expect(hard.facets.kind).toEqual({ all: 1, text: 1, image: 0 });
@@ -112,7 +112,6 @@ describe('the cards page’s model', () => {
         ['Imágenes', 1],
       ],
     ]);
-    // «Practicar estas» leaves out what is under «No mostrar más», unless the filter is «Ocultas».
     expect(practiceCards(lectures, 'all')).toHaveLength(3);
     expect(
       practiceCards(
@@ -131,7 +130,6 @@ describe('the cards page’s model', () => {
     let together = 0;
     for (let i = 1; i < cards.length; i++)
       if (cards[i]!.noteGuid === cards[i - 1]!.noteGuid) together++;
-    // Only the end of the round can be left with cards of one note.
     expect(together).toBeLessThan(12);
   });
 
@@ -172,7 +170,6 @@ describe('the cards page', () => {
     expect(screen.getByRole('heading', { level: 3, name: /Imágenes/ })).toBeInTheDocument();
     const basic = await rowNamed(/Cuántas vértebras cervicales hay\?\s*—\s*7\s*—/);
     expect(basic).toHaveTextContent('7');
-    // The simple mode: no table and no Anki syntax in the page.
     expect(screen.queryByRole('group', { name: 'Vista' })).toBeNull();
     expect(screen.queryByRole('grid')).toBeNull();
     // The rail is not there in the tests' DOM; the panel has the same filters.
@@ -181,7 +178,6 @@ describe('the cards page', () => {
     expect(within(panel).getByRole('radio', { name: /^Sin ver/ })).toBeEnabled();
     expect(within(panel).getByRole('radio', { name: /^Me cuestan/ })).toBeDisabled();
     expect(within(panel).getByRole('switch', { name: 'Salió en un control' })).toBeDisabled();
-    // Hiding the answers: the row does not say it any more.
     await userEvent.click(within(panel).getByRole('switch', { name: 'Ocultar respuestas' }));
     await userEvent.keyboard('{Escape}');
     expect(
@@ -226,7 +222,6 @@ describe('the cards page', () => {
       await screen.findByRole('dialog', { name: 'Historial de la tarjeta' }),
     ).toBeInTheDocument();
 
-    // The study screen draws the same card with the same HTML.
     const studyPage = renderApp(
       '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba/study',
       { study: occlusionFirst() },
@@ -239,7 +234,7 @@ describe('the cards page', () => {
     );
   });
 
-  it('the viewer draws a cloze with the same HTML as studying too (Revisión de cero, 3.3)', async () => {
+  it('the viewer draws a cloze with the same HTML as studying too', async () => {
     renderApp(`${PAGE}?card=${encodeURIComponent('0:cloze-1')}`, { study: fullAnkiStudy() });
     const viewer = await screen.findByRole('dialog', { name: /T-PR-01-002\.1/ });
     const front = await within(viewer).findByRole('region', { name: 'Frente de la tarjeta' });
@@ -279,7 +274,7 @@ describe('the cards page', () => {
     expect(await study.cards(['20', '21'])).toEqual([]);
   });
 
-  it('a day of the heatmap with practice: the page says it too, as its cell counts it (Revisión de cero, 3.3)', async () => {
+  it('a day of the heatmap with practice: the page says it too, as its cell counts it', async () => {
     const study = fullAnkiStudy();
     const prefs = { ...defaultPreferences(), ...(await study.preferences()) };
     const today = dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt);
@@ -289,7 +284,6 @@ describe('the cards page', () => {
         return {
           days: [
             { day: today, deckId: '20', answers: 0, practice: 7 },
-            // Another course's deck: not of this page.
             { day: today, deckId: '999', answers: 0, practice: 5 },
           ],
           due: [],
@@ -305,14 +299,13 @@ describe('the cards page', () => {
     ).toBeInTheDocument();
   });
 
-  it('an assessment not imported again since the index has its notice; a file gone, «Recargar» (Revisión de cero, 3.3)', async () => {
+  it('an assessment not imported again since the index has its notice; a file gone, «Recargar»', async () => {
     const withoutIndex = structuredClone(CATALOG);
     delete withoutIndex.semesters[0]!.courses[0]!.assessments[0]!.cardIndex;
     const first = renderApp(PAGE, { api: fakeApi({ catalog: async () => withoutIndex }) });
     expect(
       await screen.findByText('Todavía no se pueden explorar estas tarjetas'),
     ).toBeInTheDocument();
-    // An assessment without cards has no index, and is not missing one.
     const empty = structuredClone(withoutIndex);
     empty.semesters[0]!.courses[0]!.assessments[0]!.cardCount = 0;
     first.unmount();
@@ -333,13 +326,12 @@ describe('the cards page', () => {
     expect(screen.getByRole('button', { name: 'Recargar' })).toBeInTheDocument();
   });
 
-  it('«Falladas» with a day already answered are that day’s, in the list and in «Practicar estas»; without a day, those of the last days (Revisión de cero, 3.4)', async () => {
+  it('«Falladas» with a day already answered are that day’s, in the list and in «Practicar estas»; without a day, those of the last days', async () => {
     const study = localStudyRepository(null, { welcomeSeen: true });
     const prefs = { ...defaultPreferences(), ...(await study.preferences()) };
     const today = dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt);
     const at = (day: number) =>
       new Date((dayStartsAt(day, prefs.timeZone, prefs.dayStartsAt) + 3600) * 1000).toISOString();
-    // Made up: the basic note failed yesterday and «Bien» today; the cloze failed today.
     const log = [
       {
         noteGuid: 's@/AqX%n?#',
@@ -373,14 +365,12 @@ describe('the cards page', () => {
       return radio;
     };
 
-    // Today: the two were answered, only the cloze failed («hace poco» would bring the basic one too).
     const first = renderApp(`${PAGE}?day=${isoOfDay(today)}&state=failed`, { study: answered });
     expect(await screen.findByText('1 nota · 1 tarjeta')).toBeInTheDocument();
     expect(await rowNamed(/^La columna tiene/)).toBeInTheDocument();
     expect(await failedRadio(/^Falladas ese día/)).toBeChecked();
     first.unmount();
 
-    // Yesterday: the basic one.
     const second = renderApp(`${PAGE}?day=${isoOfDay(today - 1)}&state=failed`, {
       study: answered,
     });
@@ -388,18 +378,16 @@ describe('the cards page', () => {
     expect(await rowNamed(/Cuántas vértebras cervicales hay/)).toBeInTheDocument();
     second.unmount();
 
-    // Without a day: as before, those of the last days.
     const third = renderApp(`${PAGE}?state=failed`, { study: answered });
     expect(await screen.findByText('2 notas · 2 tarjetas')).toBeInTheDocument();
     expect(await failedRadio(/^Falladas hace poco/)).toBeChecked();
     third.unmount();
 
-    // «Practicar estas» of today's: only the cloze.
     renderApp(`${PAGE}/practice?day=${isoOfDay(today)}&state=failed`, { study: answered });
     expect(await screen.findByText('Quedan 1')).toBeInTheDocument();
   });
 
-  it('«Falladas hace poco» waits for the answers: never an empty list first (Revisión de cero, 3.4)', async () => {
+  it('«Falladas hace poco» waits for the answers: never an empty list first', async () => {
     const study = localStudyRepository(null, { welcomeSeen: true });
     let answer: (v: Awaited<ReturnType<StudyRepository['ratedSince']>>) => void = () => {};
     const slow: StudyRepository = {
@@ -407,7 +395,6 @@ describe('the cards page', () => {
       ratedSince: () => new Promise((resolve) => (answer = resolve)),
     };
     renderApp(`${PAGE}?state=failed`, { study: slow });
-    // The index is there (the filters count it) while the answers are not.
     await userEvent.click(await screen.findByRole('button', { name: 'Filtros' }));
     const panel = await screen.findByRole('dialog', { name: 'Filtros' });
     await waitFor(() =>
@@ -427,7 +414,7 @@ describe('the cards page', () => {
     expect(await screen.findByText('1 nota · 1 tarjeta')).toBeInTheDocument();
   });
 
-  it('a unit the list does not offer (the only deck of a week) is shown as chosen (Revisión de cero, 3.4)', async () => {
+  it('a unit the list does not offer (the only deck of a week) is shown as chosen', async () => {
     renderApp(`${PAGE}?unit=s1-semana-de-prueba/mazo-de-prueba`, {
       study: localStudyRepository(null),
     });
@@ -455,7 +442,6 @@ describe('the cards page', () => {
   });
 });
 
-/** Studying the deck with the occlusion as the first new card (the others already seen, due later). */
 function occlusionFirst(): StudyRepository {
   const study = fullAnkiStudy();
   const later = { due: new Date(Date.now() + 20 * 86_400_000).toISOString() };
@@ -472,7 +458,6 @@ function occlusionFirst(): StudyRepository {
   };
 }
 
-/** Studying the deck with one card as the only new one (the others already seen, due later). */
 function firstNew(noteGuid: string, ord: number): StudyRepository {
   const study = fullAnkiStudy();
   const later = { due: new Date(Date.now() + 20 * 86_400_000).toISOString() };

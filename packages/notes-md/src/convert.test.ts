@@ -1,3 +1,4 @@
+// Tests of the Markdown note converter: headings, figures, callouts, guide questions, sanitizing and sections.
 import { describe, expect, it } from 'vitest';
 import { convertNote, listImages } from './convert';
 import type { ImageResolver } from './convert';
@@ -153,15 +154,12 @@ describe('convertNote', () => {
     expect(convert('Texto\n:::\n').errors).toEqual([
       'Bloque «:::» que no se reconoce (le falta su imagen): «:::»',
     ]);
-    // A float without its closing «:::» would swallow the rest of the note.
     expect(convert('::: der ![a](a.png){40%}\nTexto.\n\n## 2. Otra sección').errors).toEqual([
       'Bloque «:::» sin su cierre «:::»: «::: der ![a](a.png){40%}»',
     ]);
-    // Raw HTML images lose their «src» in the sanitizer: an error too.
     expect(convert('<img src="imagenes/a.png" alt="a">').errors).toEqual([
       'Figura que no se reconoce: «<img src="imagenes/a.png" alt="a">»',
     ]);
-    // The usual forms are fine.
     expect(
       convert('![a](a.png){40%}\n\n![b](b.png) ![c](c.png)\n\n::: izq ![d](d.png)\nx\n:::').errors,
     ).toEqual([]);
@@ -195,7 +193,6 @@ describe('convertNote', () => {
       '<p class="callout-label">Pregunta de la guía</p><p><em>¿Qué color toma el núcleo con hematoxilina?</em></p>',
     );
     expect(b.html).not.toContain('callout-tag');
-    // Any other plain quote stays a plain note.
     expect(convert('> **Ojo:** algo.').html).toContain('callout-note');
   });
 
@@ -206,9 +203,7 @@ describe('convertNote', () => {
       '<p class="callout-label">Pregunta de la guía <span class="callout-tag">a)</span></p><p><em>¿Qué indica la notación X100Y?</em></p>',
     );
     expect(r.html).toContain('<span class="callout-tag">C. b)</span>');
-    // Without the option (lectures) it is just italics.
     expect(convert(md).html).toContain('<p><em>a) ¿Qué indica la notación X100Y?</em></p>');
-    // Bold or a sentence in italics is not a question.
     const other = convertNote('**a) Negrita**\n\n*Una frase en cursiva.*', resolver, {
       guideQuestions: true,
     });
@@ -227,7 +222,6 @@ describe('convertNote', () => {
       /<p>Texto.<\/p>\s*<section class="note-summary"><h2 id="resumen">Resumen<\/h2>\s*<ul>[\s\S]*<\/ul>\s*<\/section>$/,
     );
     expect(r.toc.map((t) => t.anchor)).toEqual(['1-uno', 'resumen']);
-    // A section after it (not usual) stays out.
     const after = convert('## Resumen\n\nCierre.\n\n## Anexo\n\nMás.');
     expect(after.html).toMatch(/<\/section>\s*<h2 id="anexo">/);
   });

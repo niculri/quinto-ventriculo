@@ -1,10 +1,10 @@
+// E2e tests of the account: /privacy and /terms without a session, the terms' popup on entering, downloading one's
+// data and deleting the account.
 import { readFile } from 'node:fs/promises';
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { LEGAL_VERSIONS } from '@qv/schema';
 import { signIn } from './helpers';
-
-/** Step 2.3: /privacy and /terms without a session, the popup on entering, downloading the data and deleting. */
 
 const fitsTheWidth = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
@@ -36,7 +36,6 @@ test.describe('without a session', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Términos de uso' })).toBeVisible();
     await expect(page.getByRole('main').getByText(/sin relación oficial/)).toBeVisible();
     expect(await fitsTheWidth(page)).toBe(true);
-    // Nothing of the material, and no request for it.
     const asked: string[] = [];
     page.on('request', (r) => {
       if (new URL(r.url()).pathname.startsWith('/api/')) asked.push(r.url());
@@ -48,7 +47,6 @@ test.describe('without a session', () => {
 });
 
 test.describe('the first time', () => {
-  // A student who never accepted (nothing in this browser).
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test('the popup comes once, nothing of the material is behind it, and «Acepto» lets in', async ({
@@ -65,14 +63,12 @@ test.describe('the first time', () => {
     await expect(dialog).toBeVisible();
     await expect(page.getByRole('heading', { level: 1, name: /^Hola/ })).toHaveCount(0);
     expect(material).toEqual([]);
-    // It is answered, not closed.
     await page.keyboard.press('Escape');
     await expect(dialog).toBeVisible();
     const box = await dialog.boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
 
-    // The texts open in another tab, and the popup stays.
     const [terms] = await Promise.all([
       page.context().waitForEvent('page'),
       dialog.getByRole('link', { name: 'Términos de uso' }).click(),
@@ -84,7 +80,6 @@ test.describe('the first time', () => {
     await dialog.getByRole('button', { name: 'Acepto' }).click();
     await expect(page.getByRole('heading', { level: 1, name: /^Hola/ })).toBeVisible();
     await expect(dialog).toHaveCount(0);
-    // Once: reloading does not ask again.
     await page.reload();
     await expect(page.getByRole('heading', { level: 1, name: /^Hola/ })).toBeVisible();
     await expect(page.getByRole('dialog')).toHaveCount(0);

@@ -1,3 +1,6 @@
+// The cards of a course or an assessment: notes by lecture and topic, filters with their counts, the viewer,
+// «Practicar estas» and, in «Modo avanzado», Anki's table.
+
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -55,7 +58,6 @@ import type { CardsScope } from './scope';
 import { CardsViewer } from './Viewer';
 import type { ExplorerCard, ExplorerNote } from './model';
 
-/** A card of the list as the viewer takes it. */
 const summaryOf = (n: ExplorerNote, c: ExplorerCard): CardSummary => ({
   noteGuid: c.noteGuid,
   ord: c.ord,
@@ -68,7 +70,6 @@ const summaryOf = (n: ExplorerNote, c: ExplorerCard): CardSummary => ({
 
 const cardsText = (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'tarjeta' : 'tarjetas'}`;
 
-/** «Ocultar respuestas» is remembered in this browser. */
 const HIDE_KEY = 'qv-cards-hide-answers';
 
 function useHideAnswers() {
@@ -101,7 +102,6 @@ function parseCardParam(value: string | null): { noteGuid: string; ord: number }
 }
 export const cardParam = (c: { noteGuid: string; ord: number }) => `${c.ord}:${c.noteGuid}`;
 
-/** The filters of the URL. */
 export function queryOf(params: URLSearchParams): CardsQuery {
   const out: CardsQuery = {};
   for (const k of ['unit', 'q', 'state', 'origin', 'kind', 'day'] as const) {
@@ -111,12 +111,6 @@ export function queryOf(params: URLSearchParams): CardsQuery {
   return out;
 }
 
-/**
- * The cards of a course or an assessment (`…/anki/cards`, `…/anki/<certamen>/cards`; plan step 3.3, ANK-9): the
- * notes by lecture and topic, in the order of the class, with their answers in view (or hidden), filters with their
- * counts, «Practicar estas» and, in «Modo avanzado», Anki's table. It reads only the scope's index and the student's
- * progress in its decks.
- */
 export function CardsPage({ node }: { node: CourseDeckNode }) {
   const { catalog, tree } = useAnkiTree();
   const scope = useMemo(
@@ -202,7 +196,6 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
   const lectures = useMemo(() => (result ? groupNotes(result.matched) : []), [result]);
   const practice = useMemo(() => practiceCards(lectures, state), [lectures, state]);
 
-  // A code pasted in the search box: to that card, with nothing filtered.
   useEffect(() => {
     if (!data || !q) return;
     const found = noteByCode(data.notes, q);
@@ -294,8 +287,7 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
   } else if (table && data) {
     body = <Table scope={scope} tree={tree} data={data} unitDecks={filters.unitDecks} />;
   } else {
-    // «Falladas» waits for the answers that say which: an empty list first, then the cards, would move (Revisión de
-    // cero, 3.4).
+    // «Falladas» waits for the answers that say which: an empty list first, then the cards, would move.
     const failedWaiting =
       state === 'failed' && !failedOf(day.value, failed.data) && !failed.isError;
     const shown = text.waiting || day.waiting || failedWaiting ? null : result;
@@ -415,7 +407,6 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
   );
 }
 
-/** The top row: the week or lecture, the search and, in «Modo avanzado», «Lista / Tabla». Always as high. */
 function Controls({
   scope,
   unit,
@@ -446,7 +437,6 @@ function Controls({
     setShown(query);
     setText(query);
   }
-  // The list follows what is typed, a moment after the last key.
   useEffect(() => {
     if (text.trim() === query.trim()) return;
     const id = setTimeout(() => onQuery(text.trim()), 250);
@@ -530,7 +520,6 @@ function Controls({
   );
 }
 
-/** A day of the heatmap: what it was, with its figures (those of its cell), and how to leave it. */
 function DayLine({
   day,
   value,
@@ -552,7 +541,6 @@ function DayLine({
     const date = dateText(day, true);
     const answers = (n: number) =>
       `${n.toLocaleString('es-CL')} ${n === 1 ? 'respuesta' : 'respuestas'}`;
-    // The practice of that day (its cell counts it too) is kept by deck, not by card: the list does not have it.
     const practice = `${answers(value.practice)} de práctica, que no se guardan por tarjeta`;
     if (value.kind === 'due') text = `${date}: ${cards(value.keys.size)} por repasar.`;
     else if (!value.practice) {
@@ -590,7 +578,6 @@ function DayLine({
   );
 }
 
-/** «Tabla» (Modo avanzado): Anki's browser over the page's notes (those of the week or lecture chosen). */
 function Table({
   scope,
   tree,

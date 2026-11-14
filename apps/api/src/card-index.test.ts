@@ -1,5 +1,4 @@
-// Plan step 3.3 (ANK-6, ANK-8): the card browser's index and its thumbnails, as the Worker serves them. The index comes
-// from the image store with the hash the catalog gives; the thumbnails, with one signature for all of them.
+// Tests for the card browser's index and its thumbnails, as the Worker serves them.
 import { createHash } from 'node:crypto';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose';
@@ -78,7 +77,6 @@ const base: ContentBundle = {
   quizzes: [],
 };
 
-/** The index as the importer writes it: its JSON, the hash of it, gzip. */
 function pack(bundle: ContentBundle) {
   const [index] = buildCardIndexes({
     noteTypes: bundle.ankiNoteTypes,
@@ -120,7 +118,6 @@ const media: MediaStore = {
   },
 };
 
-/** Counts every read of the content database: opening the browser must ask nothing of it. */
 function counting(repo: ContentRepository) {
   const reads: string[] = [];
   const wrapped = Object.fromEntries(
@@ -172,7 +169,7 @@ const withSession = async (headers: Record<string, string> = {}) => ({
   ...headers,
 });
 
-describe('the card browser index (step 3.3)', () => {
+describe('the card browser index', () => {
   it('the catalog says which file is the current one of each assessment', async () => {
     const catalog = Catalog.parse(await (await get('/api/catalog', await withSession())).json());
     const assessment = catalog.semesters[0]!.courses[0]!.assessments[0]!;
@@ -197,7 +194,6 @@ describe('the card browser index (step 3.3)', () => {
     expect(bytes).toEqual(Buffer.from(published.body));
     const index = CardIndex.parse(JSON.parse(gunzipSync(bytes).toString()));
     expect(index).toEqual(published.index);
-    // By code, with what the row shows.
     expect(index.notes.map((n) => [n.code, n.kind, n.front, n.back, n.topic, n.origin])).toEqual([
       ['T-PR-01-001', 'basic', '¿Una?', 'Respuesta', 'Tema de prueba', ['profe']],
       ['T-PR-01-002', 'basic', '¿Dos vértebras?', 'Respuesta', 'Tema de prueba', ['profe']],
@@ -222,12 +218,10 @@ describe('the card browser index (step 3.3)', () => {
     expect((await get(`/api/anki/index/${A}/NOPE`, s)).status).toBe(400);
     expect((await get(`/api/anki/index/BIO/certamen-2/${published.hash}`, s)).status).toBe(400);
     expect((await get(`/api/anki/index/${A}/${'f'.repeat(32)}`, s)).status).toBe(404);
-    // A key of another kind never comes out of this route.
     expect((await get(`/api/anki/index/cards/thumb/${'0'.repeat(32)}`, s)).status).toBe(404);
   });
 
   it('somebody signed in but not invited (any more) gets neither the index nor the thumbnails’ signature', async () => {
-    // Revisión de cero (3.3): the same session check as the rest of the material (step 2.1).
     const pair = await generateKeyPair('ES256');
     const jwk = { ...(await exportJWK(pair.publicKey)), kid: 'k1', alg: 'ES256' };
     const outside = createApp({
@@ -271,7 +265,7 @@ describe('the card browser index (step 3.3)', () => {
   });
 });
 
-describe('the thumbnails (step 3.3)', () => {
+describe('the thumbnails', () => {
   const signature = async () =>
     ThumbSignature.parse(await (await get('/api/anki/thumbs', await withSession())).json());
 
@@ -279,7 +273,6 @@ describe('the thumbnails (step 3.3)', () => {
     expect((await get('/api/anki/thumbs')).status).toBe(401);
     const s = await signature();
     expect(s.prefix).toBe('cards/thumb/');
-    // The same expiry as a signed image: the next hour + 1.
     expect(s.expires).toBe((Math.floor(NOW / 3600) + 2) * 3600);
     const r = await get(`/api/media/${THUMB}?${s.query}`);
     expect(r.status).toBe(200);
@@ -307,7 +300,6 @@ describe('the thumbnails (step 3.3)', () => {
     expect((await get(`/api/media/${IMAGE}?${s.query}`)).status).toBe(403);
     const other = s.query.replace('p=cards%2Fthumb%2F', 'p=cards%2F');
     expect((await get(`/api/media/${IMAGE}?${other}`)).status).toBe(403);
-    // Nor does an image's signature open a thumbnail.
     const e = NOW + 3600;
     expect((await get(`/api/media/${THUMB}?e=${e}&s=${await signer.sign(IMAGE, e)}`)).status).toBe(
       403,

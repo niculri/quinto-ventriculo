@@ -1,3 +1,4 @@
+// Spanish labels, links and plain-text forms of reports, shared by the student and admin pages.
 import type { ReportCategory, ReportKind, ResolutionStatus } from '@qv/schema';
 import { paths } from '../../app/paths';
 import type { MyReport, ReportGroup, ReportLocation, Resolution } from './repository';
@@ -24,7 +25,6 @@ export const STATUS_LABELS: Record<ResolutionStatus, string> = {
   wont_fix: 'No se corregirá',
 };
 
-/** What a student reads of their report in «Mis reportes». */
 export function studentStatus(resolution: Resolution | null): string {
   if (!resolution) return 'Recibido';
   switch (resolution.status) {
@@ -39,13 +39,11 @@ export function studentStatus(resolution: Resolution | null): string {
   }
 }
 
-/** «T-BC-C2-11-086.2»: the code with the version seen. */
 export function codeWithVersion(code: string | null, version: number | null): string | null {
   if (!code) return null;
   return version ? `${code}.${version}` : code;
 }
 
-/** Plain text of a bit of HTML (a test's group name, for instance). */
 export function plainText(html: string): string {
   return html
     .replace(/<[^>]*>/g, '')
@@ -59,17 +57,14 @@ export function plainText(html: string): string {
     .trim();
 }
 
-/** A part of a text fragment (`#:~:text=`): «-», «,» and «&» have a meaning there, so they are escaped too. */
+// In a text fragment (`#:~:text=`) «-», «,» and «&» have a meaning, so they are escaped too.
 const fragmentPart = (text: string) =>
   encodeURIComponent(text).replace(/-/g, '%2D').replace(/,/g, '%2C');
 
 const words = (text: string) => text.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
 
-/**
- * The link to a quote of an article: its page, its section and a text fragment (`#sección:~:text=…`) that the browser
- * highlights. A long quote goes as its first and last words (textStart,textEnd); the words around it, when there are,
- * as prefix and suffix, so that the same phrase twice in the article is found where it was.
- */
+// A long quote goes as textStart,textEnd; the words around it go as prefix and suffix, so that a phrase repeated in
+// the article is found where it was.
 export function quoteLink(path: string, location: ReportLocation): string {
   const anchor = location.section ? `#${encodeURIComponent(location.section)}` : '';
   const exact = location.quote?.exact ? words(location.quote.exact) : [];
@@ -92,11 +87,7 @@ export function quoteLink(path: string, location: ReportLocation): string {
   return `${path}${anchor || '#'}:~:text=${parts.join(',')}`;
 }
 
-/**
- * A path of this site that a student wrote in a report, if it is one: a single «/» at the start and no space, control
- * character or backslash (a browser reads «/» + backslash, or «/» + tab + «/», as «//another.site»). The database
- * refuses the others too; this is for the links. Revisión de cero (2.6).
- */
+// A browser reads «/» + backslash, or «/» + tab + «/», as «//another.site»: such paths are not links.
 export function sitePath(path: string | null | undefined): string | null {
   if (!path || !/^\/[^/]/.test(path)) return null;
   for (const ch of path) {
@@ -106,7 +97,6 @@ export function sitePath(path: string | null | undefined): string | null {
   return path;
 }
 
-/** Where a report takes the administrator (or the student): the card in the browser, the article, the test. */
 export function placeLink(
   kind: ReportKind,
   targetId: string,
@@ -122,7 +112,6 @@ export function placeLink(
   return kind === 'note' ? quoteLink(path, location) : path;
 }
 
-/** The place inside the content, in words: «1. La célula», «Imagen: …», «Pregunta 4». */
 export function placeLabel(location: ReportLocation): string | null {
   if (location.figure) return `Imagen: ${location.figure}`;
   if (location.sectionTitle) return location.sectionTitle;
@@ -130,10 +119,6 @@ export function placeLabel(location: ReportLocation): string | null {
   return null;
 }
 
-/**
- * «Copiar para el chat»: one content with its reports as text, as the «Revisar tarjetas Anki» app does, to paste in a
- * chat and fix it: the code with the version, the place, each quote and comment. Without the students' names.
- */
 export function chatText(groups: readonly ReportGroup[]): string {
   const lines = ['Errores reportados en el sitio:'];
   for (const g of groups) {
@@ -152,7 +137,6 @@ export function chatText(groups: readonly ReportGroup[]): string {
   return lines.join('\n');
 }
 
-/** The name of a report in «Mis reportes»: what was reported, by its title and place. */
 export function myReportTitle(r: MyReport): string {
   return r.location.title ?? KIND_LABELS[r.kind];
 }

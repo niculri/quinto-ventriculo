@@ -1,3 +1,4 @@
+// The content database: note search, who reads and writes it, and saving notes and the catalog.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';

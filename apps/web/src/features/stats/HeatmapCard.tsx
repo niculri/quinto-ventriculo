@@ -1,3 +1,4 @@
+// The study heatmap of the home and course pages: a calendar year of days, its four figures and a day's box.
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -29,22 +30,12 @@ import {
 import type { CellValue, HeatmapData, HeatmapStats } from './heatmap';
 import { useHeatmapData } from './queries';
 
-/**
- * The study heatmap (plan step 3.1), on the home page (every deck) and on a course's page (only its decks, with their
- * own scale). A calendar year, a cell a day; ◀ ● ▶ change the year and come back to today; below, the four figures.
- * Nothing moves: the grid always has 54 weeks of 12 px cells, and loading, an empty history and an error keep the same
- * box. On a narrow screen the grid scrolls inside its box, starting at today. A click (or Enter) on a day opens a box
- * that floats over the page with its total and what it was, by course or by assessment.
- */
-
-/** Cell and gap (px): 54 weeks × 14 + the weekdays' 28 = 784, inside the 800 of a card on the page. */
 const CELL = 12;
 const GAP = 2;
 const PITCH = CELL + GAP;
 const LABELS = 26;
 const GRID_WIDTH = GAP + LABELS + GAP + COLUMNS * PITCH;
 
-/** Shades of the site's turquoise for what was studied, of gray for what is due; with the theme's own colors. */
 const STUDIED = [12, 22, 32, 42, 52, 62, 72, 82, 91, 100];
 const DUE = [16, 24, 32, 40, 48, 56, 64, 72, 80, 88];
 function shade(cell: CellValue | null): string {
@@ -58,21 +49,13 @@ function shade(cell: CellValue | null): string {
 
 const WEEKDAY_LABELS = ['Lu', '', 'Mi', '', 'Vi', '', ''];
 
-/** The day's box keeps this far from the day and from the window's edges (px). */
 const MARGIN = 8;
 
 export interface HeatmapProps {
-  /** The query's scope: 'all', or the course's id. */
   scope: string;
-  /** The decks it counts (null: all of the student's). */
   deckIds: string[] | null;
   catalog: Catalog;
-  /** What the box of a day splits its total by. */
   groupBy: 'course' | 'assessment';
-  /**
-   * The course of a course's page: the box of a day takes to its cards («Ver esas tarjetas», step 3.3). On the home
-   * page each course of the day takes to its own.
-   */
   courseId?: string;
   title?: string;
   className?: string;
@@ -147,7 +130,6 @@ export function Heatmap({
           </YearButton>
         </div>
       </div>
-      {/* Another year is another grid: the focus and an open day do not carry over. */}
       <Grid
         key={year}
         year={year}
@@ -192,10 +174,6 @@ function YearButton({
   );
 }
 
-/**
- * What a deck counts under in a day's box: its course (home) or its assessment (a course's page); and the page with the
- * cards of each of those (`placeOf`) and of the whole course of the page (`whole`).
- */
 function useGroups(catalog: Catalog, groupBy: 'course' | 'assessment', courseId?: string) {
   return useMemo(() => {
     const tree = buildAnkiTree(catalog);
@@ -236,9 +214,7 @@ function useGroups(catalog: Catalog, groupBy: 'course' | 'assessment', courseId?
 interface Open {
   day: number;
   rect: DOMRect;
-  /** Opened by a click or Enter: it stays until closed. Else it follows the pointer. */
   pinned: boolean;
-  /** Opened with the keyboard: the focus goes into the box, so that a screen reader reads it all. */
   keyboard?: boolean;
 }
 
@@ -282,7 +258,7 @@ function Grid({
         ? today
         : grid.first;
 
-  // Starts showing today (or the end of a past year, the start of a future one), before it is painted.
+  // Scrolls to today (or the end of a past year, the start of a future one) before it is painted.
   useLayoutEffect(() => {
     const box = scroller.current;
     if (!box) return;
@@ -295,7 +271,7 @@ function Grid({
     } else {
       box.scrollLeft = today !== null && grid.first > today ? 0 : max;
     }
-    // Only when the year or today change: not while the student scrolls.
+    // Not while the student scrolls.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, today, ready]);
 
@@ -374,9 +350,8 @@ function Grid({
                 <tr key={row}>
                   <th
                     scope="row"
-                    // The weekdays stay in view while the grid scrolls (the phone).
                     className="sticky left-0 z-10 bg-surface p-0 text-left text-[0.6875rem] leading-3 font-normal text-muted"
-                    // Its shadows cover the gaps before and after it, where the scrolled cells would show.
+                    // The shadows cover the gaps beside it, where the scrolled cells would show.
                     style={{
                       width: LABELS,
                       height: CELL,
@@ -463,7 +438,6 @@ function Grid({
   );
 }
 
-/** The box of a day: floats over the page (a portal, fixed), so it pushes nothing. */
 function DayBox({
   open,
   today,
@@ -488,7 +462,6 @@ function DayBox({
   const box = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const bodyId = useId();
-  // Above the day if it fits, else below; always inside the window, whatever its height (many courses in a day).
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -498,7 +471,6 @@ function DayBox({
     if (top < MARGIN) top = rect.bottom + MARGIN;
     el.style.top = `${Math.max(MARGIN, Math.min(top, window.innerHeight - height - MARGIN))}px`;
   });
-  // Opened with the keyboard, the focus goes into it (Escape brings it back to the day).
   useEffect(() => {
     if (open.pinned && open.keyboard) box.current?.focus({ preventScroll: true });
   }, [open]);
@@ -547,7 +519,6 @@ function DayBox({
   return createPortal(
     <div
       ref={box}
-      // A box to read and close when it stays; while it follows the pointer, a tooltip.
       role={open.pinned ? 'dialog' : 'tooltip'}
       aria-labelledby={titleId}
       aria-describedby={bodyId}
@@ -555,7 +526,6 @@ function DayBox({
       className={`fixed z-50 rounded-xl border border-border bg-surface p-3 text-sm shadow-soft focus:outline-none ${
         open.pinned ? '' : 'pointer-events-none'
       }`}
-      // Its top, measured once it has its height (the layout effect above, before it is painted).
       style={{ width: WIDTH, left, top: rect.bottom + MARGIN }}
     >
       <div className="flex items-start justify-between gap-2">
@@ -629,7 +599,6 @@ function DayBox({
   );
 }
 
-/** The four figures, in their places from the first frame (2 × 2 on the phone). */
 function Figures({ stats }: { stats: HeatmapStats | null }) {
   const empty = stats !== null && stats.activeDays === 0;
   const days = (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'día' : 'días'}`;

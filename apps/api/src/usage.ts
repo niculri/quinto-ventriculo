@@ -1,3 +1,5 @@
+// The «Uso» figures: the users' database's (`admin_usage()`) and the opens and searches as anonymous Analytics Engine
+// points (the kind, the content path or the kind of page, the moment; never who nor what was searched).
 import {
   AdminUsageRow,
   FEW,
@@ -18,35 +20,22 @@ import type {
   UsageOpens,
 } from '@qv/schema';
 
-/**
- * «Uso» in the administration panel (step 2.9). Two sources:
- *
- * - the users' database, `admin_usage()`, asked with the administrator's own token (the Worker never gets the users'
- *   service key): who answered, studied and started rounds, as figures of 5 students or more;
- * - what the database does not keep (a note, a deck or a test opened, a search), as anonymous points of Workers Analytics
- *   Engine: the kind, the API path of the content (or, for a search, only the kind of page) and the moment. Never who,
- *   their email, their IP, their country, their browser nor what was searched.
- */
-
-/** A point: what was opened (or that there was a search, and from what kind of page). */
 export interface UsageEvent {
   kind: UsageEventKind;
-  /** The API path of the content: `/api/notes/<slug>`, `/api/decks/<id>`, `/api/quizzes/<id>`, `/api/search`. */
   path: string;
   context?: SearchContext;
 }
 
-/** Writes the points. Never awaited and never fails: a point lost is better than an answer changed. */
+/** Never awaited and never fails: a point lost is better than an answer changed. */
 export interface UsageRecorder {
   record(event: UsageEvent): void;
 }
 
-/** What Analytics Engine's binding has (the Worker's `AnalyticsEngineDataset`), without depending on its types. */
 export interface UsageDataset {
   writeDataPoint(point: { indexes?: string[]; blobs?: string[]; doubles?: number[] }): void;
 }
 
-/** The point, as it is written: blob1 the kind, blob2 the path, blob3 the kind of page of a search; one of each. */
+/** blob1 the kind, blob2 the path, blob3 the kind of page of a search. */
 export function usagePoint(event: UsageEvent) {
   return {
     indexes: [event.kind],
@@ -67,9 +56,7 @@ export function analyticsEngineRecorder(dataset: UsageDataset): UsageRecorder {
   };
 }
 
-/** What the reader brings: the opens by hour and kind (31 days), and the most opened and the searches (30 days). */
 export interface OpenCounts {
-  /** `hour`: its start, ISO in UTC. */
   hourly: { hour: string; kind: UsageEventKind; count: number }[];
   items: { kind: 'note' | 'deck' | 'quiz'; path: string; count: number }[];
   searches: { context: string; count: number }[];
@@ -81,16 +68,13 @@ export interface UsageOpensReader {
 
 export interface AnalyticsReaderOptions {
   accountId: string;
-  /** A Cloudflare token with only «Account Analytics: Read». */
   token: string;
   dataset?: string;
   fetch?: typeof fetch;
 }
 
-/** The dataset of wrangler.jsonc. */
 const USAGE_DATASET = 'qv_usage';
 
-/** The rows of a `FORMAT JSON` answer. */
 function aeRows(body: unknown): Record<string, unknown>[] {
   const data = (body as { data?: unknown } | null)?.data;
   if (!Array.isArray(data)) throw new Error('Analytics Engine: una respuesta sin filas');
@@ -103,7 +87,7 @@ const num = (v: unknown) => {
 const isKind = (v: unknown): v is UsageEventKind =>
   typeof v === 'string' && (USAGE_EVENT_KINDS as readonly string[]).includes(v);
 
-/** Analytics Engine's SQL API (with a sampled dataset, each row counts `_sample_interval`). */
+/** Analytics Engine's SQL API: with a sampled dataset, each row counts `_sample_interval`. */
 export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensReader {
   const doFetch = op.fetch ?? fetch;
   const dataset = op.dataset ?? USAGE_DATASET;
@@ -159,10 +143,7 @@ export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensRea
 /** «2026-11-09 13:00:00» (UTC) → ISO. */
 const aeTime = (t: string) => (/^\d{4}-\d{2}-\d{2} /.test(t) ? `${t.replace(' ', 'T')}Z` : t);
 
-/**
- * In memory (the local demo and the tests): it keeps the points it is given, with their moment, and counts them like
- * the SQL API. `seed`: made-up points to start with.
- */
+/** Counts the points like the SQL API, for the local demo and the tests. */
 export function memoryUsageEvents(
   op: { now?: () => number; seed?: (UsageEvent & { at: number })[] } = {},
 ): UsageRecorder & UsageOpensReader & { points: (UsageEvent & { at: number })[] } {
@@ -208,13 +189,7 @@ export function memoryUsageEvents(
 const HOUR_MS = 3_600_000;
 const DAY_MS = 24 * HOUR_MS;
 
-// ── The figures of the users' database ──
-
-/**
- * What deck goes in what Anki unit (the lecture or the week: the deck right below the assessment's), assessment and
- * course, and what test in what assessment and course, from the published catalog: the users' database does not know
- * the content.
- */
+/** Each deck's unit, assessment and course, from the catalog: the users' database does not know the content. */
 export interface UsageGroups {
   decks: Record<string, [string | null, string | null, string | null]>;
   quizzes: Record<string, [string | null, string | null]>;
@@ -250,7 +225,6 @@ export function usageGroups(catalog: Catalog): UsageGroups {
   return { decks, quizzes };
 }
 
-/** Asks the users' database (`admin_usage()`), with the administrator's token. */
 export interface UsageStatsSource {
   stats(token: string, groups: UsageGroups): Promise<unknown>;
 }
@@ -319,7 +293,6 @@ const OPEN_KEY: Record<UsageEventKind, keyof UsageOpenFigures> = {
   search: 'searches',
 };
 
-/** `/api/notes/<slug>` → the slug (the same for decks and tests); null for anything else. */
 function contentId(kind: 'note' | 'deck' | 'quiz', path: string): string | null {
   const prefix = { note: '/api/notes/', deck: '/api/decks/', quiz: '/api/quizzes/' }[kind];
   if (!path.startsWith(prefix)) return null;
@@ -332,9 +305,8 @@ function contentId(kind: 'note' | 'deck' | 'quiz', path: string): string | null 
 }
 
 /**
- * The opens, by the site's days, under the same rule as the database's figures: the opens of a day or of a period show
- * only when 5 students or more were active then (who opened is not known: it keeps a few students from being told
- * apart), and a count of 1 to 4 opens is «<5». The lists only have what was opened 5 times or more.
+ * The opens of a period show only when 5 students or more were active then, so that a few students cannot be told
+ * apart; a count of 1 to 4 is «<5», and the lists only have what was opened 5 times or more.
  */
 export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens {
   const byDay = new Map<string, OpenSums>();
@@ -394,7 +366,6 @@ export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens
   };
 }
 
-/** The page's figures: the database's, in the API's names, and the opens (or why there are none). */
 export function usageReport(
   stats: unknown,
   opens: { status: 'ok'; counts: OpenCounts } | { status: 'not_configured' | 'unavailable' },

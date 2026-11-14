@@ -1,3 +1,4 @@
+// Tests for the API routes over an in-memory repository: session, content, decks, images, tests and errors.
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -300,7 +301,6 @@ describe('session', () => {
   it('/api/health answers without a session', async () => {
     const r = await get('/api/health');
     expect(r.status).toBe(200);
-    // Without the version binding (tests, `wrangler dev`), only { ok: true }.
     expect(await r.json()).toEqual({ ok: true });
   });
 
@@ -431,7 +431,6 @@ describe('decks and cards', () => {
         assessmentId: 'biologia-celular/certamen-2',
         noteCount: 2,
         cardCount: 3,
-        // Step 3.2: the notes with a card in the deck itself, all in it, and all in it or below it.
         ownNoteCount: 1,
         exclusiveNoteCount: 1,
         closedNoteCount: 1,
@@ -505,7 +504,6 @@ describe('decks and cards', () => {
       ['T-PR-01-001', 1, 'occlusion', '20'],
       ['T-PR-01-002', 0, 'basic', '21'],
     ]);
-    // The author's presets as the package brings them, for the scheduler (v1.2).
     expect(d.presets).toEqual([{ name: 'Default', config: { new: { perDay: 20 } } }]);
   });
 
@@ -570,7 +568,6 @@ describe('images', () => {
     const r = await get(await signedUrl());
     expect(r.status).toBe(200);
     expect(r.headers.get('Content-Type')).toBe('image/webp');
-    // At most 10 minutes, even though the signature lasts longer (step 1.5).
     expect(r.headers.get('Cache-Control')).toBe('private, max-age=600, immutable');
     expect(new Uint8Array(await r.arrayBuffer())).toEqual(new Uint8Array([1, 2, 3]));
   });
@@ -655,7 +652,6 @@ describe('practice tests', () => {
     });
     expect(q1!.prompt).toBe('Un texto con "media":"tests/ffffffffffffffffffffffffffffffff.webp"');
     expect(q1!.figures[1]).toEqual({ kind: 'svg', svg: '<svg viewBox="0 0 1 1"></svg>' });
-    // The signed URL opens the image.
     const media = await get(img.kind === 'image' ? img.src! : '');
     expect(media.status).not.toBe(400);
   });

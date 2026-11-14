@@ -1,3 +1,4 @@
+// The Anki tables of the content database: saving the catalog and the notes, and reading the decks.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';

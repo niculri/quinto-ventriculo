@@ -1,8 +1,5 @@
-// Revisión de cero (3.3): 20261117000000_card_browser_index.sql on a content database as production has it, with its
-// last publication still undoable. The migration adds a published table (anki_browse_indexes), which changes
-// release_shape() and public's digests; without its first and last blocks, the publication online could not be undone
-// any more («migrated») although undoing it touches no row of the new table. It still can, and leaves public as it was
-// before it; a publication that could not be undone before the migration still cannot.
+// The card browser index migration on a content database as production has it: the publication online can still be
+// undone and leaves public as it was; one that could not be undone before the migration still cannot.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
@@ -72,7 +69,6 @@ const revert = async (id: number) =>
     ])
   )[0]!.r;
 
-/** A new version: an article and an Anki note changed. */
 const changed = (): Parts => {
   const p = everything();
   p.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida', 1);
@@ -92,7 +88,9 @@ beforeEach(async () => {
   await save(draft, changed());
 });
 
-describe('the publication online, after the card browser migration (Revisión de cero, 3.3)', () => {
+// The migration adds a published table, which changes release_shape() and the digests; its first and last blocks keep
+// this publication undoable, as undoing it touches no row of that table.
+describe('the publication online, after the card browser migration', () => {
   it('can still be undone, and undoing it leaves public as it was before it', async () => {
     const { id } = await publish();
     await applyMigration(db, 'content', MIGRATION);
@@ -116,7 +114,6 @@ describe('the publication online, after the card browser migration (Revisión de
     await revert(id);
     expect(await publicContent(names)).toEqual(before);
     expect(await q('select * from public.anki_browse_indexes')).toEqual([]);
-    // What was undone stays in the draft, with its index, to publish again.
     expect((await q('select assessment_id from draft.anki_browse_indexes')).length).toBeGreaterThan(
       0,
     );

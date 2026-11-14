@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
-import { encodeAttribute, stripHtmlPreservingEntities } from './html';
 
-/** Port of Anki's rslib/src/cloze.rs (cloze deletions and the cloze form of Image Occlusion). */
+// Cloze deletions and the cloze form of Image Occlusion: port of Anki's rslib/src/cloze.rs.
+import { encodeAttribute, stripHtmlPreservingEntities } from './html';
 
 type Token = { kind: 'open'; ordinal: number } | { kind: 'text'; text: string } | { kind: 'close' };
 
@@ -133,7 +133,7 @@ function revealCloze(
   }
 }
 
-/** The text of a cloze field for card `ord` (cloze number), or '' if that number is not in the text. */
+/** '' if cloze number `ord` is not in the text. */
 export function revealClozeText(text: string, ord: number, question: boolean): string {
   const out: string[] = [];
   const state: RevealState = { activeFound: false };
@@ -144,7 +144,7 @@ export function revealClozeText(text: string, ord: number, question: boolean): s
   return state.activeFound ? out.join('') : '';
 }
 
-/** `cloze-only:` filter: just the hidden text (or the hints), separated by commas. */
+/** Anki's `cloze-only:` filter. */
 export function revealClozeTextOnly(text: string, ord: number, question: boolean): string {
   const out: string[] = [];
   const walk = (node: Node) => {
@@ -156,7 +156,7 @@ export function revealClozeTextOnly(text: string, ord: number, question: boolean
   return out.join(', ');
 }
 
-/** The cloze numbers that appear in the text (nested ones included; c0 does not count). */
+/** Nested ones included; c0 does not count. */
 export function clozeNumbers(text: string): Set<number> {
   const set = new Set<number>();
   const walk = (nodes: Node[]) => {
@@ -171,14 +171,13 @@ export function clozeNumbers(text: string): Set<number> {
   return set;
 }
 
-/** Removes the cloze markup and keeps the hidden text: «{{c1::moon::hint}}» → «moon». */
 export function stripClozes(text: string): string {
   return text.replace(/\{\{c\d+::([\s\S]*?)(::[\s\S]*?)?\}\}/g, '$1');
 }
 
 const MATHJAX = /(\\[([])([\s\S]*?)(\\[\])])/gi;
 
-/** `cloze:` filter (Anki's cloze_filter): the reveal plus the HTML stripped inside MathJax. */
+/** Anki's `cloze_filter`. */
 export function clozeFilter(text: string, ord: number, question: boolean): string {
   return revealClozeText(text, ord, question).replace(
     MATHJAX,
@@ -218,7 +217,7 @@ export function parseImageCloze(text: string): OcclusionShape | null {
 
 const zero = (v: string) => v === '' || v === '0';
 
-/** The `data-*` attributes of an occlusion (`get_image_cloze_data`), each one followed by a space. */
+/** Anki's `get_image_cloze_data`. */
 export function imageClozeData(text: string): string {
   const occlusion = parseImageCloze(text);
   if (!occlusion) return '';

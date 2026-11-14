@@ -1,8 +1,9 @@
+// E2e tests of studying in the advanced mode with the synthetic deck of e2e/content: a whole session, the deck's
+// options, reporting an error, a card taken out mid-session and a deck that does not load.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, scrollCard, signIn } from './helpers';
 
-/** A whole study session with the synthetic deck (e2e/content), in the advanced mode. */
 async function openDeck(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Entrar con Google' }).first().click();
@@ -11,7 +12,6 @@ async function openDeck(page: Page) {
   await expect(page.getByRole('heading', { level: 1, name: 'Certamen 1' })).toBeVisible();
 }
 
-/** What the deck has for today, on its page: «4 para hoy» gives 4. */
 const today = async (page: Page) => {
   const text = await page.getByRole('group', { name: 'Para hoy' }).first().innerText();
   return Number(/(\d+) para hoy/.exec(text)?.[1] ?? 0);
@@ -40,7 +40,6 @@ test('study, undo, bury, suspend and finish the deck', async ({ page }) => {
   await expect.poll(() => today(page)).toBeGreaterThan(0);
   await page.goto(`${DECK_URL}/study`);
 
-  // The first card, its answer and the four buttons with Anki's intervals.
   await expect(front(page).locator('.pregunta')).toHaveText('¿Cuántas vértebras cervicales hay?');
   await expect.poll(() => counts(page)).toBe('4+0+0');
   await showAnswer(page);
@@ -51,13 +50,11 @@ test('study, undo, bury, suspend and finish the deck', async ({ page }) => {
   await expect(front(page)).toContainText('Pregunta sin extra ni pista');
   await expect.poll(() => counts(page)).toBe('3+1+0');
 
-  // Undo: back to the same card.
   await page.keyboard.press('ControlOrMeta+z');
   await expect(front(page).locator('.pregunta')).toHaveText('¿Cuántas vértebras cervicales hay?');
   await expect.poll(() => counts(page)).toBe('4+0+0');
   await expect(page.getByText('Deshecho: Responder tarjeta')).toBeVisible();
 
-  // «Fácil»: out of today's queue.
   await showAnswer(page);
   await answer.getByRole('button', { name: /^Fácil/ }).click();
   await expect(front(page)).toContainText('Pregunta sin extra ni pista');
@@ -73,13 +70,11 @@ test('study, undo, bury, suspend and finish the deck', async ({ page }) => {
   // With that card suspended, the next card of its note is no longer buried by it (as in Anki): 2 left.
   await expect.poll(() => counts(page)).toBe('2+0+0');
 
-  // An occlusion, with the keyboard: space shows the answer, 4 is «Fácil».
   await expect(front(page).locator('#image-occlusion-canvas')).toBeVisible();
   await page.keyboard.press('Space');
   await expect(page.getByRole('region', { name: 'Reverso de la tarjeta' })).toBeVisible();
   await page.keyboard.press('4');
 
-  // The second gap of the cloze: «Suspender nota» from «Más».
   await expect(front(page)).toContainText('La columna tiene');
   await expect.poll(() => counts(page)).toBe('1+0+0');
   await page.getByRole('button', { name: 'Más' }).click();
@@ -91,7 +86,6 @@ test('study, undo, bury, suspend and finish the deck', async ({ page }) => {
     page.getByText('Una o más tarjetas fueron enterradas y se mostrarán mañana.'),
   ).toBeVisible();
 
-  // It is kept (in the demo, in the browser): back on the deck page nothing is left today.
   await page.getByRole('link', { name: 'Volver al mazo' }).click();
   await expect.poll(() => today(page)).toBe(0);
   await page.reload();
@@ -148,7 +142,6 @@ test('a student reports an error in a card and the administrator sees it in the 
   await page.goto('/admin/reports');
   await expect(page.getByRole('heading', { level: 2, name: 'Reportes' })).toBeVisible();
   await expect(page.getByText('La respuesta 1 está mal')).toBeVisible();
-  // Step 2.6: one decision for every report of the card, with a note for whoever reported it.
   await page.getByRole('button', { name: 'Resolver' }).click();
   const resolve = page.getByRole('dialog', { name: 'Resolver' });
   await resolve.getByRole('button', { name: 'Resolver el reporte' }).click();
@@ -160,7 +153,6 @@ test('a student reports an error in a card and the administrator sees it in the 
 test('a card taken out of the site in the middle of a session is skipped, and the session goes on', async ({
   page,
 }) => {
-  // The author takes «Pregunta sin extra ni pista» out while the student studies: the API no longer has it (404).
   await page.route('**/api/cards/**', async (route) => {
     const response = await route.fetch();
     const body = await response.text();
@@ -186,7 +178,6 @@ test('a card taken out of the site in the middle of a session is skipped, and th
     .getByRole('button', { name: /^Fácil/ })
     .click();
 
-  // The next card would be the one taken out: it is skipped, without an error or «Reintentar».
   await expect(front(page)).toContainText('La columna tiene');
   await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
   await expect(page.getByText('Se detuvo la sesión')).toHaveCount(0);
@@ -228,7 +219,6 @@ test('with a menu open, the tap that closes it only closes it: the card is not a
     await good.click();
     await notAnswered();
   }
-  // With no menu open, the same tap answers.
   await touch(good);
   await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
 });
@@ -256,7 +246,6 @@ test('a deck that does not load: «Volver» is where studying has it, and goes b
   // To the deck, as from studying: a deck inside a week has its page in its assessment's.
   await expect(page.getByRole('heading', { level: 1, name: 'Certamen 1' })).toBeVisible();
 
-  // The catalog fails: the deck has no name yet, «Volver» is still there.
   await page.unroute('**/api/decks/**');
   await page.route('**/api/catalog', (route) => route.abort());
   await page.goto(`${DECK_URL}/study`);

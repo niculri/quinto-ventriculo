@@ -1,3 +1,5 @@
+// What is left today in each deck of a tree, as Anki's deck list counts it, and the lines that show it.
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Counts, QueueCard } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
@@ -8,21 +10,15 @@ import { masteryByDeck } from './mastery';
 import { breakdownText, loadText, totalCards } from './simple';
 import { tapArea } from '../../ui/styles';
 
-/**
- * Each deck of the studied deck's tree with what is left today, as Anki's deck list counts it: the same
- * limits through the tree as the study queue, but without burying siblings (compared with Anki in
- * packages/srs/test/queue-tree.test.ts). The subdecks add up in their parent. In simple mode, as the study
- * queue: «62 para hoy» has to be what comes out.
- */
+// As Anki's deck list counts (compared in packages/srs/test/queue-tree.test.ts): the queue's limits through the tree
+// without burying siblings; in simple mode, as the queue, so «62 para hoy» is what comes out.
 export function deckCounts(data: StudyData, nowMs = Date.now()): Map<string, Counts> {
   const configs = configsFor(data, nowMs);
   const studied = studiedToday(data.answers, data.decks);
   const cards = queueCards(data, nowMs);
   const ids = deckIds(data.deck);
   const wanted = new Set(ids);
-  // Each deck's own cards, then the cards of its subtree gathered child by child: with hundreds of decks and
-  // tens of thousands of cards, filtering every card for every deck took seconds (a deck's queue only sees
-  // the cards below it, so this is the same queue).
+  // Each subtree's cards gathered child by child: filtering every card for every deck took seconds with many decks.
   const own = new Map<string, QueueCard[]>();
   for (const c of cards) {
     const list = own.get(c.deckId);
@@ -41,7 +37,6 @@ export function deckCounts(data: StudyData, nowMs = Date.now()): Map<string, Cou
     const done = inside.get(id);
     if (done) return done;
     const parts = [own.get(id) ?? [], ...(children.get(id) ?? []).map(gather)];
-    // In the order of the deck's card list, as the queue was always given them.
     const list = parts.length === 1 ? parts[0]! : parts.flat().sort((a, b) => a.index - b.index);
     inside.set(id, list);
     return list;
@@ -55,10 +50,7 @@ export function deckCounts(data: StudyData, nowMs = Date.now()): Map<string, Cou
   return out;
 }
 
-/**
- * When the counts can change by themselves: a learning step of today coming within the learn-ahead limit, or a card
- * buried until a moment that passes. Null: not before the day changes (the study data are read again then).
- */
+// A learning step entering the learn-ahead limit or a burial that ends; null: not before the day changes.
 function nextCountChange(data: StudyData, nowMs = Date.now()): number | null {
   const ahead = data.prefs.learnAheadMinutes * 60_000;
   let next: number | null = null;
@@ -74,7 +66,7 @@ function nextCountChange(data: StudyData, nowMs = Date.now()): number | null {
 
 export function useDeckCounts(deck: DeckDetail | undefined) {
   const study = useStudyData(deck);
-  // Computed when something changed or a card came due (plan step 3.2, E6), not every minute.
+  // Computed when something changed or a card came due, not every minute.
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (!study.data) return;
@@ -94,10 +86,6 @@ export function useDeckCounts(deck: DeckDetail | undefined) {
   return { ...study, counts, mastery };
 }
 
-/**
- * «62 para hoy · ~20 min». With `detail`, it opens the breakdown (with the pointer over it or with a touch);
- * without it (inside a link), the breakdown is its tooltip.
- */
 export function DayLoad({
   counts,
   medianAnswerMs,
@@ -108,7 +96,6 @@ export function DayLoad({
   counts: Counts;
   medianAnswerMs: number | null;
   detail?: boolean;
-  /** What it says with nothing left. */
   empty?: string;
   className?: string;
 }) {
@@ -173,7 +160,6 @@ function LoadWithBreakdown({
   );
 }
 
-/** «20 + 3 + 5» in Anki's colors: new, learning, to review. */
 export function CountNumbers({
   counts,
   current,

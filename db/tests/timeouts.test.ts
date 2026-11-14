@@ -1,10 +1,10 @@
+// The publishing functions keep their own time limit of 55 s.
 import { describe, expect, it } from 'vitest';
 import { createDatabase } from './pglite';
 
 /**
- * The owner's decision (7-11-2026): publishing, undoing, the panel's summary and emptying the draft get 55 s, the
- * rest of the API keeps PostgREST's 8 s (20261113000000_publish_speed.sql). The setting lives in each function: a
- * later `create or replace` without it would take it away without a word, and this test says so.
+ * The rest of the API keeps PostgREST's 8 s. The setting lives in each function: a later `create or replace` without
+ * it would take it away without a word.
  */
 describe('the time limit of the publishing functions', () => {
   it('publish_release, revert_release, release_summary and reset_draft have statement_timeout = 55s', async () => {

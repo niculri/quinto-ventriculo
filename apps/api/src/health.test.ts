@@ -1,3 +1,4 @@
+// Tests for /api/health/deep and the Worker's checks (users, Auth, content, media, backups), with made-up URLs and keys.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from './app';
 import {
@@ -12,7 +13,6 @@ import type { BucketLike, DeepHealthResult, HealthCheck, SharedHealthCache } fro
 import { MediaSigner } from './media';
 import type { ContentRepository } from './repository';
 
-/** Step 2.5: `/api/health/deep`. Made-up URLs and keys; nothing of a real project. */
 const USERS = 'https://users.example.supabase.co';
 const CONTENT = 'https://content.example.supabase.co';
 // Built at run time, so that the secret scanner of the repository does not take it for a key.
@@ -29,7 +29,6 @@ const failing =
 function appWith(checks: Record<string, HealthCheck>, op: Parameters<typeof deepHealth>[1] = {}) {
   return createApp({
     verifier: { verify: async () => null },
-    // The material is not asked for by these routes.
     repository: {} as ContentRepository,
     media: { get: async () => null },
     signer: new MediaSigner('secreto-solo-para-las-pruebas-0123456789'),
@@ -80,7 +79,6 @@ describe('/api/health/deep', () => {
       for (const leak of [SECRET_LOOKING, 'supabase', 'profiles', 'rest/v1', '500', 'Error']) {
         expect(text).not.toContain(leak);
       }
-      // Why it failed goes to the Worker's log.
       expect(logged).toHaveBeenCalled();
       expect(String(logged.mock.calls[0]![0])).toContain(name);
     },
@@ -263,9 +261,7 @@ describe('the checks of the Worker', () => {
     ]);
     // 2026-11-08 07:18 is 28.7 hours before NOW.
     await latestBackupCheck(b, () => NOW)(signal);
-    // It starts three days back, not at the beginning of the bucket.
     expect(asked[0]).toMatchObject({ prefix: 'users/', startAfter: 'users/2026-11-06' });
-    // 40 hours later it is too old (a counts file alone does not count).
     await expect(latestBackupCheck(b, () => NOW + 12 * 3_600_000)(signal)).rejects.toThrow(
       /hours old/,
     );

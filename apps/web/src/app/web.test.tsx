@@ -1,3 +1,4 @@
+// Tests of the whole web app: access, catalog, notes, search, URLs and the small functions behind them.
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -34,7 +35,6 @@ describe('access', () => {
     renderApp('/', { session: null });
     const inside = await screen.findByRole('heading', { level: 2, name: 'Qué hay adentro' });
     const coming = screen.getByRole('heading', { level: 2, name: 'Lo que viene' });
-    // Each heading, its line and its list: the title of each item and its badge.
     const items = (heading: HTMLElement) =>
       within(heading.nextElementSibling!.nextElementSibling as HTMLElement)
         .getAllByRole('listitem')
@@ -42,7 +42,6 @@ describe('access', () => {
           within(li).getByRole('heading', { level: 3 }).textContent,
           within(li).getByText(/^(Disponible|Pronto)$/).textContent,
         ]);
-    // Step 2.3 (EXP-A3): what already exists (the tests, with questions of past exams) is not «Pronto».
     expect(items(inside)).toEqual([
       ['Apuntes tipo wiki, con buscador', 'Disponible'],
       ['Tarjetas de estudio con FSRS', 'Disponible'],
@@ -55,9 +54,7 @@ describe('access', () => {
       ['Resúmenes de certamen', 'Pronto'],
     ]);
     expect(screen.queryByText(/Pronto se lanzará/)).toBeNull();
-    // Reading progress is not kept since v1.2: nothing says so.
     expect(screen.queryByText(/quedaste|a medias/)).toBeNull();
-    // The data: the tests' answers and the reports too, who sees what, and the link to the policy.
     const data = screen.getByText('¿Qué datos míos se guardan?').nextElementSibling as HTMLElement;
     expect(data).toHaveTextContent(/tus respuestas en los tests; los errores que reportas/);
     expect(data).toHaveTextContent(/el administrador ve la lista de invitados y los reportes/);
@@ -70,7 +67,6 @@ describe('access', () => {
       'href',
       '/terms',
     );
-    // Step 2.4: the license of the code and its source (AGPL, section 13).
     expect(within(legal).getByRole('link', { name: 'Licencias' })).toHaveAttribute(
       'href',
       '/licenses',
@@ -109,7 +105,6 @@ describe('access', () => {
       ).toHaveAttribute('href', 'https://github.com/niculri/quinto-ventriculo');
       expect(main).toHaveTextContent(/Ankitects Pty Ltd/);
       expect(main).toHaveTextContent(/fsrs-rs/);
-      // Step 3.1: the heatmap follows the rules of Anki's «Review Heatmap» add-on, without its code.
       expect(main).toHaveTextContent(
         /siguen las reglas del complemento «Review Heatmap» de Anki \(de glutanimate\), sin copiar su código\./,
       );
@@ -121,7 +116,6 @@ describe('access', () => {
         /Anki, FSRS y Review Heatmap no tienen relación con este sitio ni lo respaldan\./,
       );
       expect(main).toHaveTextContent(/El material de estudio no es parte del código/);
-      // The «Appropriate Legal Notices» of AGPL section 5 d: a copyright notice and that there is no warranty.
       expect(main).toHaveTextContent(/© 2026 Nico Ulriksen\. Se entrega sin ninguna garantía/);
       const list = await screen.findByRole('list', { name: 'Paquetes de terceros' });
       expect(
@@ -135,7 +129,7 @@ describe('access', () => {
     }
   });
 
-  it('with a session, the footer: the site (help, about, report a problem) and the legal texts (step 2.7)', async () => {
+  it('with a session, the footer: the site (help, about, report a problem) and the legal texts', async () => {
     renderApp('/home');
     const site = await screen.findByRole('navigation', { name: 'Sobre el sitio' });
     const legal = screen.getByRole('navigation', { name: 'Textos legales' });
@@ -181,24 +175,18 @@ describe('access', () => {
       'Agradecimientos',
     ]);
     expect(main).toHaveTextContent(/Nico Ulriksen\s*Creador y desarrollador/);
-    // The owner's words (2026-11-09), exactly.
     expect(main).toHaveTextContent(
       'Estudiante de primer año de Medicina en la Universidad de Chile. Titulado de ingeniero civil en computación de Beauchef.',
     );
-    // Decision 33: that it is written with AI, in one sentence, with how it is reviewed. The past years' questions are
-    // not written by it: only the new ones and the explanations.
     expect(main).toHaveTextContent(
       /Los apuntes, las tarjetas, las preguntas nuevas y las explicaciones de los tests se redactan con inteligencia artificial \(Claude, de Anthropic\) a partir de esas fuentes, y otro agente de IA revisa cada pieza de cero contra ellas antes de publicarlas\./,
     );
-    // Without the private repository there is no picture: the initials, in the same reserved square.
     const picture = screen.getByTestId('creator-picture');
     expect(picture.tagName).toBe('DIV');
     expect(picture).toHaveTextContent('NU');
     expect(picture).toHaveClass('size-24');
-    // Thanks by group (decision 34), the software through /licenses and how to appear with a name.
     const thanks = screen.getByRole('heading', { level: 2, name: 'Agradecimientos' })
       .parentElement as HTMLElement;
-    // Three groups: the PAD's tutors are not thanked for now (the owner, 2026-11-09).
     expect(
       within(thanks)
         .getAllByRole('listitem')
@@ -217,14 +205,12 @@ describe('access', () => {
       'href',
       `mailto:${CONTACT_EMAIL}`,
     );
-    // No list of teachers: no titles of a teacher's name.
     expect(main).not.toHaveTextContent(/\b(Dra?|Prof|Profa|Klgo|TM)\.\s/);
   });
 
   it('the landing page, /about and the footer speak of the site and its author in the third person', async () => {
-    // The owner (2026-11-09): «Escribe siempre en tercera persona cosas de la página web». Telling the reader what to
-    // do («usa…», «escribe a…») is fine, and so are the questions of the FAQ, in the reader's voice («¿qué hago?»); the
-    // site never says «I», «we», «our», «tell us».
+    // The site never says «I», «we», «our», «tell us». Telling the reader what to do («usa…», «escribe a…») is fine,
+    // and so are the questions of the FAQ, in the reader's voice («¿qué hago?»).
     const FIRST_PERSON =
       /(?<!\p{L})(yo|me|mí|mi|conmigo|nos|nosotros|nosotras|nuestr[oa]s?|hacemos|dinos|escr[ií]benos|cont[aá]ctanos|av[ií]sanos|te contamos)(?!\p{L})/iu;
     for (const url of ['/', '/about']) {
@@ -272,11 +258,9 @@ describe('access', () => {
   it('with a session, the landing page leads home', async () => {
     const { router } = renderApp('/');
     await waitFor(() => expect(router.state.location.pathname).toBe('/home'));
-    // The greeting is the page's title; the site's name and subtitle are in the top bar.
     expect(await screen.findByRole('heading', { level: 1, name: 'Hola, Ana' })).toBeInTheDocument();
     const bar = screen.getByRole('banner');
     expect(within(bar).getByText('El Quinto Ventrículo')).toBeInTheDocument();
-    // The motto is drawn by CSS: the home link is not read with it on every page.
     expect(
       bar.querySelector('[data-text="El ventrículo que no aparece en el Netter."]'),
     ).not.toBeNull();
@@ -295,7 +279,6 @@ describe('access', () => {
 
   it('the Google callback with an uninvited account leads to the invite notice', async () => {
     const { router } = renderApp(
-      // The hook's message (db/users …_invite_lists.sql), which names the contact's domain, not the university's.
       `/auth/callback?error=access_denied&error_description=${encodeURIComponent(
         `El Quinto Ventrículo está en prueba: por ahora solo entran cuentas invitadas. Si deberías tener acceso, escribe a ${CONTACT_EMAIL}.`,
       )}`,
@@ -313,7 +296,6 @@ describe('access', () => {
   });
 
   it('a removed student, still with a session in the browser, sees where to write as a link', async () => {
-    // The Worker's 403 (apps/api, step 2.1) once the invitation is gone.
     const message = `Tu cuenta no tiene acceso a El Quinto Ventrículo. Si deberías tenerlo, escribe a ${CONTACT_EMAIL}.`;
     renderApp('/notes/11-traduccion', {
       api: fakeApi({
@@ -383,7 +365,6 @@ describe('catalog', () => {
       within(screen.getByRole('main')).getByRole('link', { name: /Biología celular/ }),
     );
     expect(await screen.findByRole('heading', { name: 'Certamen 2' })).toBeInTheDocument();
-    // The course's page is a dashboard: the notes are in «Apuntes».
     const main = screen.getByRole('main');
     await userEvent.click(within(main).getByRole('link', { name: /Apuntes/ }));
     expect(await screen.findByRole('heading', { level: 1, name: 'Apuntes' })).toBeInTheDocument();
@@ -422,7 +403,6 @@ describe('note', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Traducción' }),
     ).toBeInTheDocument();
-    // The header: number, lecturer, half of the year and year, institution; the web code with its version.
     const header = container.querySelector('article header')!;
     expect(header.textContent).toContain(
       'Clase 11·Prof. Luis Ejemplo A.·Semestre de primavera 2026·ICBM, Universidad de Chile',
@@ -433,7 +413,6 @@ describe('note', () => {
     expect(screen.queryByText('AP-BC-C2-11')).toBeNull();
     expect(container.querySelector('.note-body [onerror]')).toBeNull();
     const toc = screen.getAllByRole('navigation', { name: 'Índice del artículo' })[0]!;
-    // The h3 of the section being read show; «Ponte a prueba» is the last entry.
     expect(within(toc).getByRole('link', { name: 'Ribosomas' })).toHaveAttribute(
       'href',
       '#ribosomas',
@@ -453,7 +432,6 @@ describe('note', () => {
       '/semesters/2/courses/biologia-celular/tests/certamen-2/practica/pautas?topics=02',
     );
     expect(link).toHaveTextContent('(1 pregunta)');
-    // No deck of this lecture is published in this assessment: no deck card.
     expect(screen.queryByText('Mazo de Anki')).toBeNull();
   });
 
@@ -480,8 +458,6 @@ describe('note', () => {
     expect(row).toHaveTextContent('Traducción');
     expect(row).toHaveTextContent('Clase 11');
     expect(row).toHaveTextContent('Prof. Luis Ejemplo A. · 2026');
-    // Version 1: no date (only an article updated after publishing says when), and never a change the reader
-    // does not see.
     expect(row).not.toHaveTextContent('de noviembre');
   });
 
@@ -572,7 +548,6 @@ describe('urls', () => {
     expect(paths.course(course)).toBe('/semesters/2/courses/biologia-celular');
     expect(paths.note(course, '11-traduccion', 'ribosomas')).toBe(`${CANONICAL}#ribosomas`);
     const anatomia = { id: 'anatomia-1', semester: 1 };
-    // A course's own deck, with every deck below it.
     expect(paths.deck({ course: anatomia, segments: [] })).toBe(
       '/semesters/1/courses/anatomia-1/anki',
     );
@@ -634,7 +609,6 @@ describe('urls', () => {
   });
 
   it('a deck under another course goes to its canonical URL; an old /decks/:id too', async () => {
-    // Without a page of its own, it ends on its assessment's.
     const assessment = '/semesters/1/courses/anatomia-1/anki/certamen-1';
     const wrong = renderApp(
       '/semesters/2/courses/biologia-celular/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba/study?x=1',
@@ -649,10 +623,9 @@ describe('urls', () => {
     await waitFor(() => expect(extras.router.state.location.pathname).toBe(assessment));
   });
 
-  it('the URLs of v1.1–1.2 go to the new ones (page, subdeck, study, options, an open card)', async () => {
+  it('the old deck URLs go to the new ones (page, subdeck, study, options, an open card)', async () => {
     const OLD = '/semesters/1/courses/anatomia-1/anki/mazo-de-prueba';
     const cases: [string, string][] = [
-      // Without a page of its own, a deck inside a week or lecture ends on its assessment's.
       [OLD, '/semesters/1/courses/anatomia-1/anki/certamen-1'],
       [`${OLD}?subdeck=extras`, '/semesters/1/courses/anatomia-1/anki/certamen-1'],
       [`${OLD}/study`, `${DECK_PATH}/study`],
@@ -667,7 +640,6 @@ describe('urls', () => {
       expect(r.router.state.historyAction).toBe('REPLACE');
       r.unmount();
     }
-    // A card that was open in the deck's list: the cards of its assessment, on that deck, with the card open.
     const card = renderApp(`${OLD}?note=cloze-1&ord=1`);
     await waitFor(() =>
       expect(card.router.state.location.pathname).toBe(
@@ -690,7 +662,7 @@ describe('urls', () => {
     );
   });
 
-  it('the pages with the decks of several courses (v1.3) go home or to the semester', async () => {
+  it('the old pages with the decks of several courses go home or to the semester', async () => {
     const cases: [string, string][] = [
       ['/anki', '/home'],
       ['/anki/study', '/home'],
@@ -805,15 +777,12 @@ describe('functions', () => {
     expect(topicsSection({ sectionCount: 2 }, 'nuevas', undefined)).toBe('nuevas');
     expect(topicsSection({ sectionCount: 1 }, undefined, tabs)).toBe('unica');
     expect(topicsSection({ sectionCount: 2 }, undefined, [{ id: 'a' }, { id: 'b' }])).toBeNull();
-    // Before the test's detail arrives there is nothing to name yet.
     expect(topicsSection({ sectionCount: 1 }, undefined, undefined)).toBeNull();
     const course = { id: 'biologia-celular', semester: 2 };
     const quiz = { assessmentId: 'biologia-celular/certamen-2', slug: 'practica', sectionCount: 2 };
     const base = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica';
     expect(practiceLink(course, quiz, 'nuevas', ['04'])).toBe(`${base}/nuevas?topics=04`);
-    // Several tabs: without naming one, the topics would be another tab's.
     expect(practiceLink(course, quiz, undefined, ['04'])).toBe(base);
-    // A single tab: no segment, but its topics.
     expect(practiceLink(course, { ...quiz, sectionCount: 1 }, undefined, ['04', '05'])).toBe(
       `${base}?topics=04%2C05`,
     );
@@ -857,7 +826,7 @@ describe('functions', () => {
   });
 });
 
-describe('step 1.8: the weeks (Revisión de cero)', () => {
+describe('weeks in the list of notes', () => {
   it('a note without a week goes under its kind in the list and in the menu, not under the last week', async () => {
     const catalog = structuredClone(CATALOG);
     const assessment = catalog.semesters[1]!.courses[0]!.assessments[0]!;

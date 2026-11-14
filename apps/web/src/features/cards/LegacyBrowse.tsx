@@ -1,3 +1,6 @@
+// `/anki/browse`, the old browser of every course: to the cards of the course or assessment of its search or of its
+// card; with neither, the home page.
+
 import { Navigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { searchTerm } from '@qv/anki-search';
@@ -10,7 +13,6 @@ import type { AnkiTree, CourseDeckNode } from '../anki/tree';
 import { cardParam } from './CardsPage';
 import { scopeNodeOf, unitOf } from './scope';
 
-/** The deck a search starts with (`"deck:…"`, as a deck's link wrote it) and what follows it. */
 function deckOfSearch(tree: AnkiTree, q: string): { node: CourseDeckNode; rest: string } | null {
   let best: { node: CourseDeckNode; rest: string; length: number } | null = null;
   for (const n of tree.nodes) {
@@ -24,18 +26,12 @@ function deckOfSearch(tree: AnkiTree, q: string): { node: CourseDeckNode; rest: 
   return best && { node: best.node, rest: best.rest };
 }
 
-/** The cards page of a deck: its assessment's (or course's), with the deck as the unit. */
 function cardsOf(node: CourseDeckNode, query: { q?: string; card?: string }) {
   const scope = scopeNodeOf(node) ?? node;
   const unit = scope === node ? null : unitOf(scope, node);
   return paths.cards(scope.ref, { unit, q: query.q || null, card: query.card ?? null });
 }
 
-/**
- * `/anki/browse` (before step 3.3, the browser of every course): to the cards of the course or assessment of its
- * search (a deck's link) or of its card (a report's link, `?note=&ord=`, whose deck the card says). With neither,
- * there is no page of every course: the home page.
- */
 export function LegacyBrowse() {
   const [params] = useSearchParams();
   const { catalog, tree } = useAnkiTree();

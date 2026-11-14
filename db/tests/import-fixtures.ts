@@ -1,5 +1,4 @@
-// The small content of the importer tests (steps 1.4 and 1.5): two assessments, each with articles, a test and a
-// deck, built as buildBundle would (with --assessment, only theirs).
+// The small content of the importer tests: two assessments, each with articles, a test and a deck.
 import type { PGlite } from '@electric-sql/pglite';
 import { hash } from '@qv/importer';
 import type { ContentDatabase, ProcessedImage } from '@qv/importer';
@@ -9,7 +8,6 @@ import { ContentBundle } from '@qv/schema';
 export function serviceRpc(
   getDb: () => PGlite,
   calls: { fn: string; args: Record<string, unknown> }[],
-  /** `draft`: as `contentDatabase(config, 'draft')` (supabase-js `schema('draft').rpc`). */
   schema: 'public' | 'draft' = 'public',
 ): ContentDatabase {
   return {
@@ -33,8 +31,6 @@ export function serviceRpc(
     },
   };
 }
-
-// ───────────────────────────── a small catalog with two assessments ─────────────────────────────
 
 export const BC = 'biologia-celular/certamen-2';
 export const AN = 'anatomia-1/certamen-1';

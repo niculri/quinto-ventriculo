@@ -1,7 +1,5 @@
-/**
- * v1.3 (users): the browser's actions. The migration is applied on a database that already has someone
- * studying (as production: card states and log rows of v1.2), which must stay as they were.
- */
+// The browser's actions in the users database; the migration, applied where someone already studies, keeps their card
+// states and log rows as they were.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
@@ -18,7 +16,6 @@ let db: PGlite;
 const call = (fn: string, n: number) =>
   `select public.${fn}(${Array.from({ length: n }, (_, i) => `$${i + 1}`).join(', ')}) as r`;
 
-/** A review card answered yesterday (as record_review leaves it). */
 function reviewed(noteGuid: string, ord = 0) {
   const now = new Date();
   return {
@@ -66,7 +63,7 @@ const log = (user: typeof ANA) =>
   );
 
 beforeAll(async () => {
-  // As production: v1.2 applied and Ana studying (an answer, a suspended card and a flagged one).
+  // As production before the migration, with Ana studying.
   db = await createDatabase('users', [], MIGRATION);
   await db.query('update public.access_settings set open_to_domain = true');
   for (const u of [ANA, BETO, INTRUDER]) {
@@ -76,7 +73,6 @@ beforeAll(async () => {
     for (const g of ['n1', 'n2', 'n3']) await tx.query(call('record_review', 1), [reviewed(g)]);
     await tx.query(call('suspend_cards', 2), [[ref('n2')], false]);
     await tx.query(call('set_flag', 2), [ref('n3'), 2]);
-    // Her options, as v1.2 saves them: preferences, a preset of hers and the deck using it.
     await tx.query(
       `insert into public.study_preferences (time_zone, day_starts_at) values ('America/Santiago', 5)`,
     );
@@ -121,7 +117,6 @@ describe('the browse migration', () => {
     );
     expect(n.rows[0]!.r).toBe(1);
     expect(await card(ANA, 'n2')).toMatchObject({ suspended: false, phase: 'review' });
-    // A card without a row (new) gets none.
     expect(await card(ANA, 'nueva')).toBeNull();
     expect((await log(ANA)).at(-1)).toBe('unsuspend');
     await asUser(db, ANA, (tx) => tx.query(call('undo_last_review', 0)));
@@ -173,7 +168,6 @@ describe('the browse migration', () => {
     });
     await asUser(db, ANA, (tx) => tx.query(call('forget_cards', 2), [[ref('n3')], true]));
     expect(await card(ANA, 'n3')).toMatchObject({ phase: 'new', reps: 0, lapses: 0, flag: 4 });
-    // Undo brings back the review card, with its memory.
     await asUser(db, ANA, (tx) => tx.query(call('undo_last_review', 0)));
     expect(await card(ANA, 'n3')).toMatchObject({ phase: 'review', reps: 4, stability: 3.17 });
     expect((await log(ANA)).at(-1)).toBe('forget');
@@ -193,7 +187,6 @@ describe('the browse migration', () => {
       tx.query('select * from public.first_answers_since($1)', [future]),
     );
     expect(none.rows).toEqual([]);
-    // Beto sees none of Ana's.
     const beto = await asUser(db, BETO, (tx) =>
       tx.query('select * from public.first_answers_since($1)', [past]),
     );
@@ -207,14 +200,12 @@ describe('the browse migration', () => {
     }
     await asUser(db, BETO, (tx) => tx.query(call('forget_cards', 2), [[ref('n1')], true]));
     expect(await card(ANA, 'n1')).toMatchObject({ phase: 'review', reps: 4 });
-    // A flag from Beto is a row of his own, even with Ana's id in the card.
     const before = await card(ANA, 'n1');
     await asUser(db, BETO, (tx) =>
       tx.query(call('set_flags', 2), [[{ ...ref('n1'), user_id: ANA.sub, userId: ANA.sub }], 6]),
     );
     expect(await card(ANA, 'n1')).toEqual(before);
     expect(await card(BETO, 'n1')).toMatchObject({ phase: 'new', flag: 6 });
-    // Nor can a patch of browse_change_card (callable by hand) write in Ana's row.
     await asUser(db, BETO, (tx) =>
       tx.query(call('browse_change_card', 5), [
         '00000000-0000-4000-8000-000000000002',
@@ -225,7 +216,6 @@ describe('the browse migration', () => {
       ]),
     );
     expect(await card(ANA, 'n1')).toEqual(before);
-    // And Beto's undo takes back only Beto's actions.
     await asUser(db, BETO, (tx) => tx.query(call('undo_last_review', 0)));
     await asUser(db, BETO, (tx) => tx.query(call('undo_last_review', 0)));
     expect(await card(BETO, 'n1')).toBeNull();

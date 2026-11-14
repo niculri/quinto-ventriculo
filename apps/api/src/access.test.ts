@@ -1,5 +1,4 @@
-// Step 2.1: removing someone cuts the content of the Worker, not when their token expires. The users' database is the
-// real one (every migration, in PGlite) and the fetch plays PostgREST: it runs `access_status()` as the token's user.
+// Tests for the access check, with the real users' database in PGlite and a fake PostgREST that runs access_status().
 import { SignJWT, createLocalJWKSet, decodeJwt, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
 import type { PGlite } from '@qv/db/testing';
@@ -60,11 +59,9 @@ let publicKey: JoseKey;
 let clock = Date.now();
 let asked = 0;
 let down = false;
-/** What the fake PostgREST answers instead of the database (a wrong key, an answer it does not know). */
 let instead: Response | null = null;
 let app: ReturnType<typeof createApp>;
 
-/** PostgREST, as far as `rpc/access_status` goes: the token's claims, as `authenticated`, with the body's versions. */
 const postgrest: typeof fetch = async (input, init) => {
   asked++;
   if (down) throw new TypeError('fetch failed');
@@ -113,7 +110,6 @@ beforeAll(async () => {
   await db.query(`select public.invite_emails($1)`, [
     { emails: [ANA.email], list: 'Curso de prueba 2026', by: 'prueba' },
   ]);
-  // Ana accepted the terms and the privacy policy in force (step 2.3).
   await db.query(
     `insert into public.legal_acceptances (user_id, terms_version, privacy_version) values ($1, $2, $3)`,
     [ANA.sub, LEGAL_VERSIONS.terms.version, LEGAL_VERSIONS.privacy.version],
@@ -149,10 +145,8 @@ describe('a removed student, with a token that is still valid', () => {
     );
     expect(removed.rows[0]!.r).toMatchObject({ removed: [ANA.email], sessions_closed: 1 });
 
-    // The answer of a moment ago is remembered at most ACCESS_TTL seconds…
     clock += (ACCESS_TTL - 1) * 1000;
     expect((await get('/notes/11-traduccion', t)).status).toBe(200);
-    // …and after that, the same token (it expires in an hour) reads nothing.
     clock += 2000;
     for (const path of ['/notes/11-traduccion', '/catalog', '/me', '/decks/1', '/quizzes']) {
       const r = await get(path, t);
@@ -171,9 +165,6 @@ describe('a removed student, with a token that is still valid', () => {
     const session = await signIn();
     const t = await token(session);
     expect((await get('/notes/11-traduccion', t)).status).toBe(200);
-    // Signing out on another device (supabase-js closes every session of the account) or deleting the account in
-    // Authentication → Users ends the session: a 401 «sign in again», never the 403 of someone not invited
-    // (Revisión de cero, 2.1).
     await db.query('delete from auth.sessions where id = $1', [session]);
     clock += (ACCESS_TTL + 1) * 1000;
     const r = await get('/notes/11-traduccion', t);
@@ -267,7 +258,6 @@ describe('a removed student, with a token that is still valid', () => {
       .setExpirationTime(Math.floor(clock / 1000) + 3600)
       .sign(privateKey);
     const ana = await token(await signIn());
-    // Ana is invited and asks first; Luis, not invited, right after: each one gets their own answer.
     expect((await get('/catalog', ana)).status).toBe(200);
     expect((await get('/catalog', luis)).status).toBe(403);
     expect((await get('/catalog', ana)).status).toBe(200);
@@ -284,7 +274,7 @@ describe('a removed student, with a token that is still valid', () => {
   });
 });
 
-describe('the terms and the privacy policy (step 2.3)', () => {
+describe('the terms and the privacy policy', () => {
   const EVA = { sub: '00000000-0000-4000-8000-0000000000c3', email: 'eva@ug.uchile.cl' };
   const tokenOf = async (user: { sub: string; email: string }, sessionId: string) =>
     new SignJWT({ email: user.email, role: 'authenticated', session_id: sessionId })
@@ -340,7 +330,6 @@ describe('the terms and the privacy policy (step 2.3)', () => {
         LEGAL_VERSIONS.privacy.version,
       ]),
     );
-    // The same second, no clock moved.
     expect((await get('/notes/11-traduccion', eva)).status).toBe(200);
   });
 
@@ -371,7 +360,6 @@ describe('the terms and the privacy policy (step 2.3)', () => {
     const r = await newer.request('/api/catalog', { headers: { Authorization: `Bearer ${ana}` } });
     expect(r.status).toBe(403);
     expect(((await r.json()) as { error: string }).error).toBe('terms_not_accepted');
-    // The Worker of before still serves it.
     expect((await get('/catalog', ana)).status).toBe(200);
   });
 });

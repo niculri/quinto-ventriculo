@@ -1,20 +1,15 @@
+// E2e tests of the footer of every page (44 px tall links on the phone, hidden while answering) and of /about: public,
+// without material, and still while it loads.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { CONTACT_EMAIL } from '@qv/schema';
 import { DECK_URL, signIn } from './helpers';
 
-/**
- * Step 2.7 (EXP-P1 and EXP-P3): the footer of every page (the site, the legal texts and the source code), at least
- * 44 px tall on the phone and hidden while studying, and /about: public, without material, and still while it loads.
- */
-
 const SOURCE = 'https://github.com/niculri/quinto-ventriculo';
-/** The synthetic practice test (e2e/quiz.spec.ts): «Pautas de prueba» has 3 questions. */
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 const fitsTheWidth = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
 
-/** The footer's links, with where they go. */
 async function footerLinks(page: Page) {
   return page
     .getByRole('contentinfo')
@@ -22,7 +17,6 @@ async function footerLinks(page: Page) {
     .evaluateAll((links) => links.map((a) => [a.textContent, a.getAttribute('href')]));
 }
 
-/** The layout shift once the web fonts are in (as e2e/contact.spec.ts measures it), and all of it. */
 async function loadAndMeasureShift(page: Page, url: string) {
   await page.addInitScript(() => {
     const w = window as unknown as { shift: number; settledShift: number; settledAt: number };
@@ -85,7 +79,6 @@ test.describe('without a session', () => {
     await expect(main).toContainText('Creador y desarrollador');
     await expect(main).toContainText('inteligencia artificial');
     await expect(page.getByRole('heading', { level: 2, name: 'Agradecimientos' })).toBeVisible();
-    // The picture's square is there from the first paint (in the demo, with the initials).
     const box = await page.getByTestId('creator-picture').boundingBox();
     expect([box?.width, box?.height]).toEqual([96, 96]);
     expect(settledShift).toBe(0);
@@ -115,7 +108,6 @@ test.describe('without a session', () => {
       await page.goto('/');
       await page.getByRole('contentinfo').getByRole('link', { name, exact: true }).click();
       await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
-      // The public pages carry the same footer, without help (it is behind the login).
       await expect(
         page.getByRole('contentinfo').getByRole('link', { name: 'Acerca de' }),
       ).toBeVisible();

@@ -3,10 +3,8 @@
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 // FSRS formulas and constants from fsrs-rs (BSD-3-Clause) and ts-fsrs (MIT), © Open Spaced Repetition.
 /**
- * FSRS as Anki calls it (fsrs-rs 5.1, `FSRS::next_states`): the memory state after each of the four answers
- * and the raw interval (in days, not rounded) that gives the desired retention. The formulas are ts-fsrs's
- * FSRS-6 ones; the parameters are filled like fsrs-rs (`check_and_fill_parameters`, without clipping), and the
- * same-day formula («short-term») always applies to a review on the same day, as in fsrs-rs.
+ * FSRS as Anki calls it (fsrs-rs 5.1, `FSRS::next_states`): the memory state after each of the four answers and the
+ * unrounded interval in days that gives the desired retention, with ts-fsrs's FSRS-6 formulas.
  */
 import { FSRS6Algorithm, FSRS6_DEFAULT_WEIGHTS, FSRS6_MODEL_BOUNDS } from 'ts-fsrs/models/fsrs-6';
 
@@ -17,7 +15,6 @@ export interface MemoryState {
 
 export interface ItemState {
   memory: MemoryState;
-  /** Days, not rounded. */
   interval: number;
 }
 
@@ -30,7 +27,7 @@ export interface NextStates {
 
 const FSRS5_DEFAULT_DECAY = 0.5;
 
-/** The 21 parameters fsrs-rs uses for a preset's (empty = the defaults; 17 or 19 = older versions). */
+/** A preset's 0, 17, 19 or 21 parameters → the 21 fsrs-rs uses (`check_and_fill_parameters`, without clipping). */
 export function fillParameters(params: readonly number[]): number[] {
   switch (params.length) {
     case 0:
@@ -54,9 +51,8 @@ export function fillParameters(params: readonly number[]): number[] {
 export const DEFAULT_PARAMETERS: readonly number[] = FSRS6_DEFAULT_WEIGHTS;
 
 /**
- * ts-fsrs 6.0 with fsrs-rs's same-day formula. ts-fsrs keeps the «Hard» answer of a same-day review from
- * lowering the stability (it clamps its factor to ≥ 1 from Hard up); fsrs-rs 5.1, which Anki uses, only does
- * that for Good and Easy (`rating.greater_equal_elem(3)` in model.rs).
+ * ts-fsrs with fsrs-rs's short-term stability: ts-fsrs clamps the factor to ≥ 1 from Hard up, fsrs-rs only for Good
+ * and Easy (`rating.greater_equal_elem(3)` in model.rs).
  */
 class AnkiFsrs extends FSRS6Algorithm {
   private readonly w: readonly number[];
@@ -101,7 +97,6 @@ export function nextInterval(
   return (stability / factor) * (Math.pow(desiredRetention, 1 / decay) - 1);
 }
 
-/** Retrievability after `days` days (the forgetting curve). */
 export function retrievability(params: readonly number[], memory: MemoryState, days: number) {
   const w = fillParameters(params);
   const decay = -w[20]!;

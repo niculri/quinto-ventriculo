@@ -1,3 +1,6 @@
+// The study screen of a deck: Anki's reviewer in simple and full mode, its menus and keyboard shortcuts, and
+// the screens for when nothing is left today.
+
 import { useEffect, useEffectEvent, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
@@ -51,10 +54,8 @@ import { cardTarget } from '../reports/targets';
 import { useCountOpen } from '../usage/count';
 import { useTip } from '../tips/useTip';
 
-/** Studying a deck of the tree: it and everything below it, with the limits of each level (as Anki). */
 export function StudyPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
-  // «Uso» (step 2.9): a deck's page, its study and its final review are what open a deck.
   useCountOpen('deck', deck.data ? node.id : null);
   if (deck.isError) {
     if (deck.error instanceof ApiRequestError && [400, 404].includes(deck.error.status)) {
@@ -103,7 +104,6 @@ function StudyLoader({
   return <Reviewer node={node} rootId={rootId} initial={initial} />;
 }
 
-/** The buttons, as Anki's (with its Spanish texts). */
 export const RATINGS: { rating: Rating; label: string; className: string }[] = [
   { rating: 1, label: 'Otra vez', className: 'text-[#c62828] dark:text-[#ff8a80]' },
   { rating: 2, label: 'Difícil', className: 'text-muted' },
@@ -111,7 +111,6 @@ export const RATINGS: { rating: Rating; label: string; className: string }[] = [
   { rating: 4, label: 'Fácil', className: 'text-state-new' },
 ];
 
-/** Anki's keys to bury and suspend. */
 const HIDE_KEYS: Record<string, HideAction> = {
   '-': 'bury_card',
   '=': 'bury_note',
@@ -119,12 +118,10 @@ const HIDE_KEYS: Record<string, HideAction> = {
   '!': 'suspend_note',
 };
 
-/** The two of simple mode: «Saltar por hoy» (the whole note) and «No mostrar más» (the card). */
 const SIMPLE_HIDE_KEYS: Record<string, HideAction> = { '-': 'bury_note', '@': 'suspend_card' };
 /** «Marcar para revisar» is one flag; a card flagged otherwise in the full mode also counts as marked. */
 const REVIEW_FLAG = 1;
 
-/** The study screen: the card, «Mostrar respuesta» and the four buttons, the counts and Anki's shortcuts. */
 function Reviewer({
   node,
   rootId,
@@ -152,16 +149,13 @@ function Reviewer({
   const full = initial.prefs.fullAnki;
   const fourButtons = initial.prefs.fourButtons;
   const material = useCardMaterial(shown?.entry.deckId);
-  // A tip once (step 3.2): after answering a card, the next answer shown says what «Ver apunte» is.
   const tip = useTip(
     'tip-material',
     !full && revealed && !!material && session.answeredInSession > 0,
   );
-  // How much is left when the session opens: from a certain load on, it warns once and offers to stop.
   const [opening] = useState(() => session.counts());
   const openingMinutes = estimateMinutes(opening, initial.plan.medianAnswerMs);
   const [heavy, setHeavy] = useState(!full && openingMinutes >= HEAVY_LOAD_MINUTES);
-  // «Reportar error»: the card being reported, and the thanks for a moment after sending.
   const [reporting, setReporting] = useState<QueueEntry | null>(null);
   const [sent, setSent] = useState(false);
   useEffect(() => {
@@ -180,7 +174,6 @@ function Reviewer({
 
   useEffect(() => {
     session.showNext();
-    // While there is nothing to show, check again from time to time: a learning card may come due.
     const id = setInterval(() => session.tick(), 15_000);
     return () => {
       clearInterval(id);
@@ -249,10 +242,8 @@ function Reviewer({
   }, []);
 
   const counts = session.counts();
-  // «Listo por hoy» (step 3.4): today's summary, with its place only if today has answers in what is studied. Not before
-  // the session looked for its first card (version 0: nothing is shown yet, and its reading would be wasted), and
-  // decided once when the screen opens: crossing the rollover hour with it open empties the session's answers of the
-  // day, and the block must not go away then (Revisión de cero, 3.4).
+  // The summary keeps its place only if today has answers in what is studied, decided once when the screen opens:
+  // crossing the rollover hour empties the day's answers, and the block must not go away then.
   const done = !shown && version > 0;
   const [doneWithSummary, setDoneWithSummary] = useState<boolean | null>(null);
   if (!done && doneWithSummary !== null) setDoneWithSummary(null);
@@ -433,7 +424,7 @@ function Reviewer({
               <MaterialRow material={material} revealed={revealed}>
                 {tip.shown ? (
                   // In the line's own room: it moves nothing, and closed it does not come back. Closed, its room
-                  // stays until the visit ends, so that «Ver apunte» and «Preguntas» do not move (review of 3.2).
+                  // stays until the visit ends, so that «Ver apunte» and «Preguntas» do not move.
                   <span
                     aria-hidden={tip.show ? undefined : true}
                     className={`flex min-w-0 items-center gap-1 text-xs whitespace-nowrap text-ink ${tip.show ? '' : 'invisible'}`}
@@ -455,7 +446,7 @@ function Reviewer({
         </>
       ) : !done ? (
         // Before the session looks for its first card: neither the end screen nor its summary, which would be gone
-        // in the next frame (Revisión de cero, 3.4).
+        // in the next frame.
         <div className="flex-1" />
       ) : full ? (
         <Congrats info={session.congrats()} deckPath={deckPath} summary={summary} />
@@ -469,7 +460,6 @@ function Reviewer({
         />
       )}
 
-      {/* What changed, for a screen reader: the card's side takes the focus too (CardFrame's focusOnShow). */}
       <p role="status" className="sr-only">
         {shown
           ? `${revealed ? 'Respuesta de la tarjeta' : 'Tarjeta'} ${turn.n} de esta sesión`
@@ -484,7 +474,6 @@ function Reviewer({
         ) : null}
       </div>
 
-      {/* Only with a card to study: with nothing on, the empty screen says what to do (step 3.2). */}
       {!full && !initial.prefs.welcomeSeen && shown ? <Welcome prefs={initial.prefs} /> : null}
 
       {reporting ? (
@@ -501,7 +490,6 @@ function Reviewer({
   );
 }
 
-/** «Reportar error» of the card on screen, with its code. */
 export function ReportEntry({
   entry,
   onClose,
@@ -536,7 +524,6 @@ export function StudyCard({
   entry: CardKey;
   revealed: boolean;
   night: boolean;
-  /** The card is no longer on the site (404): the session skips it instead of showing an error. */
   onMissing?: () => void;
 }) {
   const card = useCard(entry.noteGuid, entry.ord);
@@ -563,7 +550,6 @@ export function StudyCard({
   );
 }
 
-/** «Más»: what the keyboard shortcuts do, for the phone. */
 function MoreMenu({
   disabled,
   onBury,
@@ -660,7 +646,6 @@ function MoreMenu({
   );
 }
 
-/** «Más» of the simple mode: the few things one does with a card. */
 function SimpleMenu({
   disabled,
   marked,
@@ -714,7 +699,6 @@ function SimpleMenu({
   );
 }
 
-/** The first time somebody enters to study, with a card in front: how it works, in two sentences, once. */
 function Welcome({ prefs }: { prefs: StudyPreferences }) {
   const [open, setOpen] = useState(true);
   const save = useSavePreferences();
@@ -750,7 +734,6 @@ function Welcome({ prefs }: { prefs: StudyPreferences }) {
   );
 }
 
-/** Nothing left in simple mode: what to do now, never an empty screen. */
 function DoneToday({
   info,
   node,
@@ -764,7 +747,6 @@ function DoneToday({
   hasSeen: (assessmentId: string) => boolean;
   summary: ReactNode;
 }) {
-  // Where the switches are: the course's page, or the deck's own page (the assessment's, or its lecture's).
   const choosePath = node.depth <= 2 ? paths.course(node.ref.course) : deckPath;
   const assessment = ancestry(node).find((n): n is CourseDeckNode => n.depth === 3 && hasPage(n));
   const tomorrow = info.dueTomorrow ? (
@@ -812,7 +794,6 @@ function DoneToday({
       </div>
     );
   }
-  // The assessment of this deck or, from a course, those that have something to review.
   const reviews = (
     node.depth <= 2
       ? descendants(node).filter((n): n is CourseDeckNode => n.depth === 3 && hasPage(n))
@@ -851,7 +832,6 @@ function DoneToday({
             .
           </p>
         ) : null}
-        {/* Answering a card also keeps the others of its note for another day. */}
         {info.buried && !info.exam?.lastNewDay ? (
           <p>Las tarjetas que saltaste y las de la misma nota que una de hoy salen desde mañana.</p>
         ) : null}
@@ -885,7 +865,7 @@ function DoneToday({
   );
 }
 
-/** «¡Felicitaciones! Has finalizado este mazo por ahora.» and when the next cards come (congrats.rs). */
+/** Anki's congrats.rs: «¡Felicitaciones!…» and when the next cards come. */
 function Congrats({
   info,
   deckPath,

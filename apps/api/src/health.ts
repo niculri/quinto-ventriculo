@@ -1,14 +1,6 @@
-/**
- * `/api/health/deep` (step 2.5): whether what the site needs answers, for an external monitor. Public and without a
- * session, so it says only `ok` or `fail` for each part: never an error, a URL, a key, a table or a row. What failed
- * and why goes to the Worker's log (`console.error`, Workers Logs).
- *
- * A request does not mean a query: the result is remembered `ttl` seconds (60) in the isolate, the requests that
- * arrive while the checks run wait for the same ones, and the Worker can add a cache shared by the isolates of a data
- * center (`shared`, Cloudflare's Cache API). A thousand requests a minute make at most one round of checks per isolate.
- */
+// `/api/health/deep`: whether each part the site needs answers, for an external monitor. Public, so it says only
+// `ok` or `fail` per part, never an error, URL, key or row; what failed and why goes to the Worker's log.
 
-/** A part of the site that is checked: it resolves if it answers and throws (or rejects) if not. */
 export type HealthCheck = (signal: AbortSignal) => Promise<void>;
 
 type CheckStatus = 'ok' | 'fail';
@@ -18,7 +10,6 @@ export interface DeepHealthResult {
   checks: Record<string, CheckStatus>;
 }
 
-/** A cache of the last result shared by isolates (the Worker uses Cloudflare's Cache API). */
 export interface SharedHealthCache {
   get(): Promise<DeepHealthResult | null>;
   put(result: DeepHealthResult, ttlSeconds: number): Promise<void>;
@@ -29,11 +20,8 @@ export interface DeepHealth {
 }
 
 export interface DeepHealthOptions {
-  /** Seconds a result is kept (default 60). */
   ttl?: number;
-  /** Milliseconds each check has before it counts as failed (default 5000). */
   timeoutMs?: number;
-  /** Milliseconds since 1970. Injected in tests. */
   now?: () => number;
   shared?: SharedHealthCache;
 }
@@ -41,6 +29,7 @@ export interface DeepHealthOptions {
 const HEALTH_TTL = 60;
 const TIMEOUT_MS = 5000;
 
+/** A request is not a query: the result is kept `ttl` seconds, and concurrent requests share one round of checks. */
 export function deepHealth(
   checks: Record<string, HealthCheck>,
   op: DeepHealthOptions = {},
@@ -104,12 +93,8 @@ export function deepHealth(
   };
 }
 
-// --- the checks of the production Worker (worker.ts) ---------------------------------------------------------------
-
-/** What `fetch` the checks use (injected in tests). */
 type Fetch = typeof fetch;
 
-/** The users' database: `public.health()` (migration 20261120000000_health.sql), with the public key. */
 export function usersDatabaseCheck(
   supabaseUrl: string,
   publishableKey: string | undefined,
@@ -133,7 +118,6 @@ export function usersDatabaseCheck(
   };
 }
 
-/** Supabase Auth of the users' project (signing in), with the public key. */
 export function authCheck(
   supabaseUrl: string,
   publishableKey: string | undefined,
@@ -150,7 +134,6 @@ export function authCheck(
   };
 }
 
-/** The content database: `site_settings()` (one row), with the service key the Worker already has. */
 export function contentDatabaseCheck(
   supabaseUrl: string,
   serviceKey: string,
@@ -173,7 +156,6 @@ export function contentDatabaseCheck(
   };
 }
 
-/** What of an R2 bucket the checks use (a binding has it; tests give a fake). */
 export interface BucketLike {
   head(key: string): Promise<unknown>;
   list(options: { prefix?: string; startAfter?: string; limit?: number }): Promise<{
@@ -182,7 +164,7 @@ export interface BucketLike {
   }>;
 }
 
-/** The images' bucket answers: a `head` of a key that does not exist (a class B operation, the cheap kind). */
+/** A `head` of a missing key: a class B operation, the cheap kind. */
 export function mediaCheck(bucket: BucketLike): HealthCheck {
   return async () => {
     await bucket.head('health/probe');
@@ -193,11 +175,7 @@ const BACKUP_MAX_AGE_HOURS = 36;
 const BACKUP_PREFIX = 'users/';
 const BACKUP_SUFFIX = '.tar.age';
 
-/**
- * The newest copy of the users' database (ops/backup in the private repository) is less than 36 hours old and not
- * empty. Its keys start with the UTC date (`users/2026-11-09-071702Z.tar.age`), so the listing starts three days back
- * and reads a handful of keys, not the 30 days.
- */
+/** The keys start with the UTC date (`users/2026-11-09-071702Z.tar.age`), so the listing starts three days back. */
 export function latestBackupCheck(
   bucket: BucketLike | undefined,
   now: () => number = Date.now,
@@ -224,7 +202,6 @@ export function latestBackupCheck(
   };
 }
 
-/** The shared cache of the production Worker: Cloudflare's Cache API, under a URL that nothing else uses. */
 export function cloudflareHealthCache(cache: Cache, origin: string): SharedHealthCache {
   const key = new Request(`${origin.replace(/\/+$/, '')}/__qv-health-deep-cache`);
   return {

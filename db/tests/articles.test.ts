@@ -1,7 +1,5 @@
-/**
- * v1.5 on the content database as production has it: a note published as a PDF note (before the
- * migration), the migration, and then the same note saved as an article, as CloudTarget saves it.
- */
+// Article versions on the content database as production has it: a note published as a PDF note, the migration, and
+// then the same note saved as an article, as CloudTarget saves it.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, createDatabase } from './pglite';
@@ -72,12 +70,12 @@ beforeAll(async () => {
     insert into courses values ('biologia-celular', 2, 'Biología celular', '🧬', 1);
     insert into assessments values ('biologia-celular/certamen-2', 'biologia-celular', 'Certamen 2', 2);
   `);
-  // Published with the save_note() of before.
+  // Published with the save_note() from before the migration.
   expect(await save(pdfNote)).toBe(true);
   await applyMigration(db, 'content', MIGRATION);
 });
 
-describe('save_note with versions (v1.5)', () => {
+describe('save_note with versions', () => {
   it('a note published before the articles has no code nor version', async () => {
     expect(await read()).toMatchObject({ code: null, version: null, published_at: null });
   });
@@ -155,7 +153,7 @@ describe('save_note with versions (v1.5)', () => {
   });
 });
 
-describe('the migration on the ten notes production has (v1.5)', () => {
+describe('the migration on the ten notes production has', () => {
   const ids = ['08P', '08', '09', '10', '11', '12', '13', 'SEM5', 'SEM6', 'SEM8'];
   const pdf = (code: string, i: number) => ({
     ...pdfNote,

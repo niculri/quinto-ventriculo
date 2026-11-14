@@ -1,3 +1,4 @@
+// The sections of «Administración», in order, for its own menu and the site's; `/admin` opens the first one.
 import { ChartColumn, EyeOff, Flag, GitCompareArrows, Globe, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../app/paths';
@@ -8,11 +9,6 @@ export interface AdminSection {
   icon: LucideIcon;
 }
 
-/**
- * The sections of «Administración» (step 2.10), in order: its own menu (the page's, and the site's on wide screens).
- * `/admin` opens the first one. A new section is a page, its route (app/routes.tsx) and a line here; a section
- * without anything yet does not go in the menu.
- */
 export const ADMIN_SECTIONS = [
   { label: 'Publicaciones', to: paths.adminReleases, icon: GitCompareArrows },
   { label: 'Reportes', to: paths.adminReports, icon: Flag },

@@ -1,3 +1,4 @@
+// Vitest project of @qv/anki-search.
 import { defineProject } from 'vitest/config';
 
 export default defineProject({ test: { name: 'anki-search' } });

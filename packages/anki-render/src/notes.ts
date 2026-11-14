@@ -1,3 +1,4 @@
+// Note-level helpers: whether a note type is Image Occlusion, and a note's one-line text.
 import { stripClozes } from './cloze';
 import { htmlToTextLine } from './html';
 
@@ -7,7 +8,6 @@ interface NoteTypeLike {
   originalStockKind?: number | null;
 }
 
-/** Anki's Image Occlusion note type (stock kind 6), or a cloze type with its template. */
 export function isImageOcclusion(noteType: NoteTypeLike): boolean {
   if (noteType.originalStockKind === 6) return true;
   return (
@@ -16,10 +16,7 @@ export function isImageOcclusion(noteType: NoteTypeLike): boolean {
   );
 }
 
-/**
- * One line of text for a note's list: its sort field (Anki's browser «Sort Field») without HTML and with the
- * clozes revealed. If that field is an occlusion (only shapes), the first field with text is used.
- */
+/** An occlusion field has only shapes: then the first field with text stands for the note. */
 export function noteSortText(fields: string[], sortField: number): string {
   const text = (value: string) =>
     value.includes('image-occlusion:') ? '' : htmlToTextLine(stripClozes(value));

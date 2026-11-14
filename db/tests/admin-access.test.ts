@@ -1,12 +1,8 @@
+// «Acceso» in the administration panel: an administrator with an open session reads the report, invites and removes;
+// `by` is always their email, and the panel never removes an administrator.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, asUser, createDatabase } from './pglite';
-
-/**
- * Step 2.10: «Acceso» in the administration panel (…_admin_access.sql). An administrator with their session open
- * reads the report, invites and removes with their own token; a student, a closed session or no session cannot; `by`
- * is always the administrator's email, and an administrator is never removed from the panel.
- */
 
 let db: PGlite;
 const OWNER = { sub: '00000000-0000-4000-8000-0000000000c1', email: OWNER_EMAIL };
@@ -49,7 +45,6 @@ beforeAll(async () => {
   for (const u of [OWNER, FRIEND, SECOND, ANA]) {
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
   }
-  // A second administrator (step 2.5), invited in the «Equipo» list.
   await db.query(`insert into public.invited_emails (email, list) values ($1, 'Equipo')`, [
     SECOND.email,
   ]);
@@ -90,7 +85,7 @@ describe('who can call them', () => {
     );
   });
 
-  it('the helper and the functions of step 2.1 stay out of reach of a signed-in person', async () => {
+  it('require_admin_session() and the service-role access functions stay out of reach of a signed-in person', async () => {
     for (const sql of [
       'select public.require_admin_session()',
       'select public.access_report()',
@@ -103,9 +98,8 @@ describe('who can call them', () => {
 });
 
 describe('what an administrator does', () => {
-  it('reads the report of step 2.1', async () => {
+  it('reads the access report, with the accounts without an invitation', async () => {
     const r = await report(owner);
-    // Ana has an account and no invitation yet: the panel shows her on top.
     expect(r).toMatchObject({
       open_to_domain: false,
       accounts_without_invite: [{ email: ANA.email, last_sign_in_at: null }],
@@ -172,18 +166,16 @@ describe('what an administrator does', () => {
       `select email from public.invited_emails where list = 'Equipo' order by email`,
     );
     expect(rows.map((x) => x.email)).toEqual([OWNER.email, SECOND.email].sort());
-    // The administrators keep their sessions; the friend's were closed.
     expect(
       (await db.query('select 1 from auth.sessions where id = $1', [second.session_id])).rows,
     ).toHaveLength(1);
     expect(
       (await db.query('select 1 from auth.sessions where id = $1', [friend.session_id])).rows,
     ).toEqual([]);
-    // The second administrator can use the panel too.
     expect(await report(second)).toMatchObject({ open_to_domain: false });
   });
 
-  it('Revisión de cero (2.10): an administrator never removes themself, however their email is written', async () => {
+  it('an administrator never removes themself, however their email is written', async () => {
     const r = await remove(owner, { emails: [` ${OWNER.email.toUpperCase()} `] });
     expect(r).toMatchObject({ removed: [], not_invited: [], kept_admins: [OWNER.email] });
     expect(
@@ -192,13 +184,10 @@ describe('what an administrator does', () => {
     expect(await report(owner)).toMatchObject({ open_to_domain: false });
   });
 
-  it('Revisión de cero (2.10): an administrator taken out of the invitations (with the SQL) can no longer', async () => {
-    // As the owner in the SQL editor: the only way to remove an administrator.
+  it('an administrator taken out of the invitations (with the SQL) is not one any more', async () => {
     await db.query(
       `select public.remove_invites('{"emails": ["${SECOND.email}"], "include_admins": true}'::jsonb)`,
     );
-    // Their sessions were closed; signing in again, they are not an administrator any more (is_admin() asks for the
-    // invitation).
     await expect(report(second)).rejects.toThrow(/session_closed/);
     const again = await signIn(SECOND);
     await expect(report(again)).rejects.toThrow(/admin_only/);

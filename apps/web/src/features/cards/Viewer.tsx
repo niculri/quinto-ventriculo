@@ -1,3 +1,6 @@
+// The cards page's viewer: a card of the list as it is studied (front, then back; ← → through the list) and a line
+// with what can be done with it.
+
 import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,13 +18,8 @@ import type { StudyPreferences } from '../study/repository';
 import { ReportEntry } from '../study/StudyPage';
 import { MaterialLink } from '../study/MaterialRow';
 
-/** «Marcar para revisar» is one flag, as when studying. */
 const REVIEW_FLAG = 1;
 
-/**
- * A card of the list as it is studied (step 3.3, ANK-11): the viewer with the same render as the study screen (front,
- * Espacio or a tap for the back, ← → through the list) and, under it, a line with what can be done with it.
- */
 export function CardsViewer({
   cards,
   index,
@@ -57,7 +55,6 @@ export function CardsViewer({
   );
 }
 
-/** On the phone the actions are their icons (their names stay for screen readers): the line fits. */
 const Label = ({ children }: { children: string }) => (
   <span className="hidden sm:inline">{children}</span>
 );

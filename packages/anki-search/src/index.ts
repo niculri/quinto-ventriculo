@@ -1,8 +1,5 @@
-/**
- * @qv/anki-search — Anki's search syntax (25.9) over cards in memory: `parseSearch` builds the tree (or
- * throws a SearchError with a message in Spanish), `compileSearch` turns it into a predicate once, and
- * `searchTerm` writes sidebar terms the way Anki does. See README.md for what differs from Anki.
- */
+// Public entry of @qv/anki-search: Anki's search syntax over cards in memory (parse, compile to a predicate, write
+// sidebar terms). README.md lists what differs from Anki.
 export { SearchError } from './errors';
 export type { SearchErrorKind } from './errors';
 export type { CardStateFilter, CompareOp, PropKind, SearchNode } from './ast';

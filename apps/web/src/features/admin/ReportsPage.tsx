@@ -1,3 +1,4 @@
+// «Administración» → «Reportes»: the students' reports grouped by content, with one decision for all its reports.
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -35,12 +36,7 @@ import { AdminSectionTitle } from './AdminLayout';
 
 type Showing = 'open' | 'resolved';
 
-/**
- * «Administración» → «Reportes» (step 2.6): what the students reported in every content, one row per content (three
- * students in one card are one row), with its categories, quotes and comments, a link to the place, a warning when the
- * content changed since it was reported, «Copiar para el chat» and one decision for all its reports. Who reported is
- * hidden until it is asked for; blocking is only from there.
- */
+/** Who reported is hidden until it is asked for; blocking is only from there. */
 export function ReportsPage() {
   const queue = useReportQueue();
   const [showing, setShowing] = useState<Showing>('open');
@@ -136,7 +132,6 @@ export function ReportsPage() {
   );
 }
 
-/** «Copiar para el chat»: the button keeps its width when it says «Copiado». */
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [done, setDone] = useState<'idle' | 'copied' | 'failed'>('idle');
   return (
@@ -193,7 +188,6 @@ function CardVersion({
   return <>{children(detail.data?.version ?? null)}</>;
 }
 
-/** «Cambió de v2 a v3 desde el reporte»: the content is in a newer version than the oldest one reported. */
 function VersionNotice({ group, current }: { group: ReportGroup; current: number | null }) {
   const seen = group.reports.map((r) => r.version).filter((v): v is number => v !== null);
   if (!current || !seen.length) return null;
@@ -457,7 +451,6 @@ const STATUS_CHOICES: Record<ResolutionStatus, string> = {
   wont_fix: 'No se corregirá',
 };
 
-/** One decision for every open report of the content, with the note the students read. */
 function ResolveDialog({
   group: g,
   current,
@@ -470,9 +463,8 @@ function ResolveDialog({
   const resolve = useResolveReports();
   const [status, setStatus] = useState<ResolutionStatus>('fixed');
   const [note, setNote] = useState('');
-  // The version that has the fix: today's if it is newer than what they saw (already published); if not, the next one.
-  // Revisión de cero (2.6): today's same version as the one reported read «Corregido (versión 2)» to whoever saw the
-  // error in version 2.
+  // The version that has the fix: today's if it is newer than what they saw (already published); if not, the next one,
+  // so whoever saw the error never reads «Corregido» with the version they saw.
   const [version, setVersion] = useState(() => {
     const seen = g.version;
     const v = current && (!seen || current > seen) ? current : seen ? seen + 1 : current;
@@ -518,7 +510,6 @@ function ResolveDialog({
           modal
           className="mt-1.5 w-full max-sm:text-base"
         />
-        {/* Always there (disabled when it does not apply): choosing does not move the form. */}
         <label htmlFor="resolve-version" className="mt-4 block text-sm font-medium">
           Corregido en la versión
         </label>

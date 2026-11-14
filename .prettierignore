@@ -1,3 +1,4 @@
+# Files Prettier does not format: build output, generated files and Markdown.
 dist
 .output
 coverage
@@ -6,5 +7,4 @@ test-results
 package-lock.json
 *.md
 packages/srs/test/golden
-# Written by eslint --suppress-all / --prune-suppressions
 eslint-suppressions.json

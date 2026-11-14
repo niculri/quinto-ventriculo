@@ -1,3 +1,4 @@
+// The site's dropdown list, with its own look instead of the one each browser draws.
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronDown } from 'lucide-react';
 
@@ -7,8 +8,8 @@ export interface SelectOption<T extends string> {
 }
 
 /**
- * A dropdown with the site's look, instead of the one each browser draws. `modal`: inside a dialog (its focus stays
- * in it); elsewhere it does not lock the page's scroll, which would move everything.
+ * `modal` is for inside a dialog (the focus stays in it); elsewhere it does not lock the page's scroll, which would
+ * move everything.
  */
 export function Select<T extends string>({
   id,
@@ -22,14 +23,12 @@ export function Select<T extends string>({
   className = '',
 }: {
   id?: string;
-  /** What it chooses: for screen readers, with what is chosen. */
   label: string;
   value: T;
   options: readonly SelectOption<T>[];
   onChange: (value: T) => void;
   disabled?: boolean;
   modal?: boolean;
-  /** What the button says while no option is chosen (`value` is none of them): an action, «Agregar un ramo…». */
   placeholder?: string;
   className?: string;
 }) {

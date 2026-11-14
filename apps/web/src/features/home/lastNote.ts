@@ -1,7 +1,5 @@
-/**
- * The last note opened on this device, for «Seguir» on the home page (plan step 3.2). Only a convenience of the device:
- * the site has no reading progress (the owner decided against it).
- */
+// The last note opened on this device, for «Seguir» on the home page: a convenience of the device, not reading progress.
+
 const KEY = 'qv-last-note';
 
 export function lastNote(): string | null {
@@ -17,6 +15,6 @@ export function rememberNote(slug: string) {
   try {
     window.localStorage.setItem(KEY, slug);
   } catch {
-    // blocked storage: nothing to follow
+    // blocked storage
   }
 }

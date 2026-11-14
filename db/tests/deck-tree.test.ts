@@ -1,8 +1,5 @@
-/**
- * v1.3 (content): the whole deck tree. The migration has to keep the decks already published (and their
- * cards) as they were, and give them their semester; the parents above the assessment have no course or
- * assessment.
- */
+// The whole deck tree in the content database: the migration keeps the published decks and their cards and gives them
+// their semester; the parents above the assessment have no course or assessment.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
@@ -58,7 +55,7 @@ const card = (ord: number, deckId: string) => ({
 });
 
 beforeAll(async () => {
-  // A database as it is in production: v1.1 with the deck «01» and its Extras (and their cards).
+  // A database as production had it before the migration: the deck «01» and its Extras (and their cards).
   db = await createDatabase('content', [], MIGRATION);
   await db.exec(`
     insert into semesters values (1, '1° Semestre');
@@ -262,7 +259,7 @@ describe('the deck tree migration', () => {
     ]);
   });
 
-  it('anki_deck_detail: the DeckDetail of the API, as the v1.2 Worker built it from anki_deck', async () => {
+  it('anki_deck_detail: the DeckDetail of the API, as the Worker before the deck tree built it from anki_deck', async () => {
     const leaf = (name: string) => name.split('::').at(-1)!;
     for (const id of [ROOT, ASSESSMENT, DECK, EXTRAS]) {
       const r = await asService(async (tx) => {
@@ -277,7 +274,7 @@ describe('the deck tree migration', () => {
         const presets = await tx.query('select name, config from anki_presets order by name');
         return { detail: detail.rows[0]!.d, old: old.rows[0]!.d, presets: presets.rows };
       });
-      // The v1.2 Worker parsed it with DeckDetail, which drops the deck's own `parent`.
+      // That Worker parsed it with DeckDetail, which drops the deck's own `parent`.
       const { parent: _parent, ...old } = r.old;
       const subdecks = r.old['subdecks'] as { parent: string | null; name: string }[];
       expect(r.detail).toEqual({

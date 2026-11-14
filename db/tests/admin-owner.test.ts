@@ -1,12 +1,8 @@
+// The site owner names and removes administrators from «Acceso» with admin_set_admin(), with an open session, only
+// among the invited and never themself; the other administrators use the panel but cannot call it.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, applyMigration, asUser, createDatabase } from './pglite';
-
-/**
- * Step 2.10 b: the owner names and removes administrators from «Acceso» (…_admin_owner.sql). Only the owner (the row of
- * admin_emails with `owner`), with the session open; only someone invited; never the owner. The other administrators
- * use the panel, but cannot call admin_set_admin().
- */
 
 let db: PGlite;
 const OWNER = { sub: '00000000-0000-4000-8000-0000000000d1', email: OWNER_EMAIL };
@@ -61,7 +57,6 @@ beforeEach(async () => {
   for (const u of [OWNER, FRIEND, SECOND, ANA]) {
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
   }
-  // A second administrator (step 2.5), invited in «Equipo». Ana has an account and no invitation.
   await db.query(`insert into public.invited_emails (email, list) values ($1, 'Equipo')`, [
     SECOND.email,
   ]);
@@ -73,11 +68,10 @@ beforeEach(async () => {
   second = await signIn(SECOND);
 });
 
-describe('who the owner is', () => {
+describe('who the site owner is', () => {
   it('the report says it, and whether it is who is looking', async () => {
     expect(await report(owner)).toMatchObject({ owner: OWNER.email, you_are_owner: true });
     expect(await report(second)).toMatchObject({ owner: OWNER.email, you_are_owner: false });
-    // What step 2.10 read is still there.
     expect(await report(second)).toMatchObject({ open_to_domain: false });
   });
 
@@ -87,7 +81,7 @@ describe('who the owner is', () => {
     ).rejects.toThrow(/admin_emails_one_owner/);
   });
 
-  it('without a row marked (a deployment that did not mark it yet), nobody is the owner', async () => {
+  it('without a row marked (a deployment that did not mark it yet), nobody is the site owner', async () => {
     await db.query(`update public.admin_emails set owner = false where owner`);
     expect(await report(owner)).toMatchObject({ owner: null, you_are_owner: false });
     await expect(setAdmin(owner, { email: FRIEND.email, admin: true })).rejects.toThrow(
@@ -135,7 +129,7 @@ describe('who can call admin_set_admin()', () => {
     expect((await admins()).map((a) => a.email)).toEqual([OWNER.email, SECOND.email].sort());
   });
 
-  it('the owner with the session closed gets session_closed', async () => {
+  it('the site owner with the session closed gets session_closed', async () => {
     const closed = await signIn(OWNER);
     await db.query('delete from auth.sessions where id = $1', [closed.session_id]);
     await expect(setAdmin(closed, { email: FRIEND.email, admin: true })).rejects.toThrow(
@@ -157,7 +151,7 @@ describe('who can call admin_set_admin()', () => {
   });
 });
 
-describe('what the owner does', () => {
+describe('what the site owner does', () => {
   it('names an invited person, however the email is written: they use the panel, but do not name anybody', async () => {
     expect(
       await setAdmin(owner, { email: ` ${FRIEND.email.toUpperCase()} `, admin: true }),
@@ -176,7 +170,6 @@ describe('what the owner does', () => {
     await expect(setAdmin(friend, { email: SECOND.email, admin: false })).rejects.toThrow(
       /owner_only/,
     );
-    // Again: nothing changes.
     expect(await setAdmin(owner, { email: FRIEND.email, admin: true })).toEqual({
       email: FRIEND.email,
       admin: true,
@@ -198,7 +191,6 @@ describe('what the owner does', () => {
       changed: true,
     });
     expect((await admins()).map((a) => a.email)).toEqual([OWNER.email]);
-    // The database stops at once.
     expect(await isAdmin(second)).toBe(false);
     await expect(report(second)).rejects.toThrow(/admin_only/);
     expect(
@@ -207,13 +199,12 @@ describe('what the owner does', () => {
     expect(
       (await db.query('select 1 from auth.sessions where id = $1', [second.session_id])).rows,
     ).toHaveLength(1);
-    // Someone who is not an administrator: nothing changes.
     expect(await setAdmin(owner, { email: FRIEND.email, admin: false })).toMatchObject({
       changed: false,
     });
   });
 
-  it('nobody removes the owner, not even himself', async () => {
+  it('nobody removes the site owner, not even himself', async () => {
     await expect(
       setAdmin(owner, { email: ` ${OWNER.email.toUpperCase()}`, admin: false }),
     ).rejects.toThrow(/owner_stays/);
@@ -232,16 +223,12 @@ describe('what the owner does', () => {
       removed: [FRIEND.email],
       kept_admins: [],
     });
-    // Without an invitation they cannot be named again until they are invited.
     await expect(setAdmin(owner, { email: FRIEND.email, admin: true })).rejects.toThrow(
       /not_invited/,
     );
   });
 });
 
-// Revisión de cero (2.10 b): the side roads. What the web sends never makes an owner nor says who named; the functions
-// of step 2.10 never take out the owner nor another administrator; an invisible character does not get round
-// owner_stays; and removing someone keeps their account and their progress.
 describe('side roads', () => {
   it('«owner» and «added_by» sent by the web are ignored', async () => {
     expect(
@@ -260,7 +247,7 @@ describe('side roads', () => {
     expect(await report(friend)).toMatchObject({ owner: OWNER.email, you_are_owner: false });
   });
 
-  it('another administrator cannot take out the owner nor an administrator with the functions of step 2.10', async () => {
+  it('another administrator cannot take out the site owner nor an administrator with the panel’s invite and remove', async () => {
     await setAdmin(owner, { email: FRIEND.email, admin: true });
     const before = await admins();
     expect(await remove(second, { list: 'Equipo' })).toMatchObject({
@@ -270,7 +257,6 @@ describe('side roads', () => {
     expect(
       await remove(second, { emails: [OWNER.email, FRIEND.email], include_admins: true }),
     ).toMatchObject({ removed: [], kept_admins: [OWNER.email, FRIEND.email].sort() });
-    // Inviting again whoever is already there changes nothing either.
     await call(second, 'select public.admin_invite_emails($1::jsonb) as r', [
       JSON.stringify({ emails: [OWNER.email], list: 'Otra' }),
     ]);
@@ -320,9 +306,8 @@ describe('side roads', () => {
   });
 });
 
-// Revisión de cero (2.10 b): changing the owner from the SQL editor (the block of docs/configuracion.md, with test
-// emails): to an administrator it works; to somebody who is not one it changes nothing, so the site keeps its owner.
-describe('changing the owner by SQL', () => {
+describe('changing the site owner by SQL', () => {
+  // The block that changes the site owner from the SQL editor, with test emails.
   const change = (email: string) =>
     db.exec(`do $$
 begin
@@ -334,20 +319,20 @@ begin
 end;
 $$;`);
 
-  it('to an administrator: the other one is the owner now', async () => {
+  it('to an administrator: the other one is the site owner now', async () => {
     await change(SECOND.email);
     expect(await report(owner)).toMatchObject({ owner: SECOND.email, you_are_owner: false });
     expect(await report(second)).toMatchObject({ you_are_owner: true });
   });
 
-  it('to somebody who is not an administrator: refused, and the owner stays', async () => {
+  it('to somebody who is not an administrator: refused, and the site owner stays', async () => {
     await expect(change(FRIEND.email)).rejects.toThrow(/no está en admin_emails/);
     expect(await report(owner)).toMatchObject({ owner: OWNER.email, you_are_owner: true });
   });
 });
 
 describe('the migration on a database as production had it', () => {
-  it('keeps the administrators as they were, nobody is the owner until the row is marked', async () => {
+  it('keeps the administrators as they were, nobody is the site owner until the row is marked', async () => {
     db = await createDatabase('users', [], '20261116000000_admin_owner.sql');
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [OWNER.sub, OWNER.email]);
     const me = await signIn(OWNER);
@@ -355,7 +340,7 @@ describe('the migration on a database as production had it', () => {
     await applyMigration(db, 'users', '20261116000000_admin_owner.sql');
     expect(await admins()).toEqual([{ email: OWNER.email, owner: false, added_by: null }]);
     expect(await report(me)).toEqual({ ...before, owner: null, you_are_owner: false });
-    // The line of the private repository.
+    // What production runs after the migration to mark the site owner.
     await db.query(`update public.admin_emails set owner = true where email = $1`, [OWNER.email]);
     expect(await report(me)).toMatchObject({ owner: OWNER.email, you_are_owner: true });
   });

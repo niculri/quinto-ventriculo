@@ -1,7 +1,4 @@
-/**
- * The Supabase repository against a fake PostgREST (a local HTTP server): the big reads (a deck, every note
- * of the browser) go out as the database wrote them, without being parsed, with supabase-js' headers.
- */
+// Tests for the Supabase repository against a fake PostgREST on a local HTTP server.
 import { createServer } from 'node:http';
 import type { IncomingHttpHeaders, Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -24,10 +21,9 @@ const TABLES = [
   'anki_note_types',
   'quizzes',
 ].map((t) => `/rest/v1/${t}`);
-/** A section of a test as Postgres writes jsonb (a space after each colon), with a photo. */
+// As Postgres writes jsonb: a space after each colon.
 const SECTION =
   '{"quizId": "practica", "sectionId": "pautas", "groups": [{"id": "01", "name": "Uno", "questions": [{"id": "A-1", "kind": "short", "prompt": "¿Sí?", "answer": "Sí", "figures": [{"alt": "", "kind": "image", "media": "tests/0123456789abcdef0123456789abcdef.webp", "width": 2, "height": 2}], "figureBeside": false}]}]}';
-/** A tree of 2500 decks: the root and its children. */
 const TREE = Array.from({ length: 2500 }, (_, i) => ({
   id: String(1_000_000_000_000_000_000n + BigInt(i)),
   name: i === 0 ? 'R' : `R::${String(i).padStart(4, '0')}`,
@@ -40,7 +36,6 @@ const TREE = Array.from({ length: 2500 }, (_, i) => ({
   card_count: 0,
 }));
 
-/** An article as the notes table has it (v1.5): code, version and dates in columns, the rest in the document. */
 const ARTICLE_ROW = {
   id: 'AP-BC-C2-08',
   slug: '08-expresion-genica',
@@ -64,7 +59,6 @@ const ARTICLE_ROW = {
   },
 };
 
-/** Step 3.3: whether the content database has `anki_browse_indexes()` (one before its migration does not). */
 let withIndexes = true;
 let server: Server;
 let base = '';
@@ -125,7 +119,6 @@ beforeAll(async () => {
         path === '/rest/v1/rpc/publish_release' ||
         path === '/rest/v1/rpc/revert_release'
       ) {
-        // As PostgREST sends a raised exception: its SQLSTATE, message and detail.
         const { p } = JSON.parse(body) as { p: { title?: string; id?: number } };
         const fn = path.split('/').at(-1)!;
         if (p.title === 'cambió') {
@@ -222,7 +215,6 @@ describe('the big reads of the content database', () => {
       header: { number: '8', lecturer: 'Dra. Ana Prueba D.', term: 'spring', year: 2026 },
       practice: { quizId: 'practica', section: 'nuevas', groups: ['01'] },
     });
-    // The columns of v1.5 (the migration 20261104000000_articles.sql).
     const select = new URL(`http://x${seen.at(-1)!.url}`).searchParams.get('select');
     expect(select?.split(',')).toEqual(
       expect.arrayContaining(['code', 'version', 'published_at', 'version_at', 'document']),
@@ -325,7 +317,6 @@ describe('nonNull', () => {
   });
 });
 
-// Step 1.7, part 3: publish_release() and revert_release(), and how their refusals reach the Worker.
 describe('publishing and undoing through PostgREST', () => {
   const input = {
     fingerprint: 'f'.repeat(32),

@@ -1,3 +1,5 @@
+// Tests the Anki deck tree built from the catalog.
+
 import { describe, expect, it } from 'vitest';
 import type { AnkiTreeDeck, Catalog } from '@qv/schema';
 import { buildAnkiTree } from './tree';

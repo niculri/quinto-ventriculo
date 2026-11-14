@@ -1,3 +1,4 @@
+// «Administración»: the menu of its sections and the open one, only for administrators.
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { NavLink, Outlet } from 'react-router';
@@ -9,12 +10,7 @@ import { page } from '../../ui/styles';
 import { useIsAdmin } from './queries';
 import { ADMIN_SECTIONS } from './sections';
 
-/**
- * «Administración» (step 2.10): its own page, apart from «Opciones», with the menu of its sections on the left (on top,
- * as tabs, on the phone) and the open one on the right. On wide screens the site's menu (ui/AppNav.tsx) has them, so
- * this one goes away. Only for administrators: anybody else gets «no existe» (the database would not give them anything
- * anyway). It stays mounted while the sections change: the breadcrumbs, the title and the menu do not move.
- */
+/** Stays mounted while the sections change, so the breadcrumbs, the title and the menu do not move. */
 export function AdminLayout() {
   const isAdmin = useIsAdmin();
   if (isAdmin.isPending) return <Loading />;
@@ -28,7 +24,6 @@ export function AdminLayout() {
           aria-label="Secciones de la administración"
           className="min-w-0 md:w-56 md:flex-none lg:hidden"
         >
-          {/* On the phone in one row that scrolls by itself if it does not fit, never the page. */}
           <ul className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 md:sticky md:top-24 md:mx-0 md:flex-col md:gap-0.5 md:overflow-visible md:px-0 md:pb-0">
             {ADMIN_SECTIONS.map(({ label, to, icon: Icon }) => (
               <li key={to} className="flex-none">

@@ -1,3 +1,5 @@
+// The browser's rows: each card or note as Anki's search and table see it, with its columns, cell texts and sorting.
+
 import { dayStartsAt, fillParameters, timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
 import type { SearchCard } from '@qv/anki-search';
@@ -6,25 +8,19 @@ import type { StoredCard, StudyPreferences } from '../study/repository';
 import { cardKey, isHidden, toRecord } from '../study/scheduler';
 import type { DeckNode } from '../anki/tree';
 
-/** A row of the browser in «Tarjetas» mode: the card, its note, its deck and the user's state. */
 export interface BrowseCard extends SearchCard {
   key: string;
   note: BrowseNote;
   noteType: NoteTypeSummary | undefined;
   kind: CardKind;
   deck: DeckNode | undefined;
-  /** «Tarjeta»: the template's name («Directa»), and its number in a cloze («Cloze 2»). */
   template: string;
-  /** Where a new card is in the order of the new ones (Anki's «Nueva #12»). */
   position: number;
   row: StoredCard | undefined;
-  /** Unix seconds when it is due (to sort and show); null for a new card. */
   dueAt: number | null;
-  /** A learning step of today (its due is a time, not a day). */
   intraday: boolean;
 }
 
-/** The FSRS decay of a deck's preset (FSRS-6: w20), for `prop:r` and «Recuperabilidad». */
 export type DecayOf = (deckId: string) => number;
 
 function kindOf(t: NoteTypeSummary | undefined): CardKind {
@@ -36,10 +32,6 @@ export function decayFromParams(params: readonly number[]): number {
   return fillParameters(params)[20]!;
 }
 
-/**
- * Every card of every note, as the search sees them (Anki's card: type, queue, due, interval…) and with what
- * the table shows. A card without a row is new.
- */
 export function buildBrowseCards(
   notes: BrowseNote[],
   noteTypes: NoteTypeSummary[],
@@ -108,7 +100,6 @@ export function buildBrowseCards(
   return out;
 }
 
-/** The browser's columns (Anki's «Columnas»), with how they show and sort. */
 export type ColumnKey =
   | 'sortField'
   | 'code'
@@ -156,10 +147,8 @@ const SHORT_DATE = new Intl.DateTimeFormat('es-CL', {
 });
 const TIME = new Intl.DateTimeFormat('es-CL', { hour: '2-digit', minute: '2-digit' });
 
-/** «4 nov 2026». */
 export const shortDate = (ms: number) => SHORT_DATE.format(new Date(ms));
 
-/** The FSRS recall probability now (null without memory), as `prop:r`. */
 export function recall(c: BrowseCard, timing: SchedTiming): number | null {
   if (c.stability === null || c.difficulty === null || c.lastReview === null) return null;
   const days = Math.max(0, timing.now - c.lastReview) / 86_400;
@@ -168,7 +157,6 @@ export function recall(c: BrowseCard, timing: SchedTiming): number | null {
   return Math.pow(1 + (factor * days) / c.stability, -decay);
 }
 
-/** What a cell shows. */
 export function cellText(c: BrowseCard, column: ColumnKey, timing: SchedTiming): string {
   const wrap = (t: string) => (c.queue === 'suspended' || c.queue === 'buried' ? `(${t})` : t);
   switch (column) {
@@ -267,11 +255,7 @@ export function sortCards<T extends BrowseCard>(
   return keyed.map((x) => x.c);
 }
 
-/**
- * «Notas» mode: one row per note, with its first card for what is the card's and, as Anki, the sums and
- * averages of its cards (repetitions and lapses add up; interval, difficulty and stability, the average;
- * due, the earliest).
- */
+/** As Anki's «Notas» mode: repetitions and lapses add up, interval, difficulty and stability average, due is the earliest. */
 export interface BrowseNoteRow extends BrowseCard {
   cards: BrowseCard[];
 }

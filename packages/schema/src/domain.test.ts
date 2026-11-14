@@ -1,3 +1,4 @@
+// Tests for the institutional email check and the readable deck slug.
 import { describe, expect, it } from 'vitest';
 import { isAllowedEmail } from './domain';
 

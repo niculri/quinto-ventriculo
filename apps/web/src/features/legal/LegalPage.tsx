@@ -1,3 +1,4 @@
+// The frame of the public pages /privacy, /terms, /licenses and /about, with or without a session.
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
@@ -6,10 +7,6 @@ import { formatDay } from '../../lib/dates';
 import { Logo } from '../../ui/Logo';
 import { SiteFooter } from '../../ui/SiteFooter';
 
-/**
- * The frame of /privacy, /terms (step 2.3), /licenses (step 2.4) and /about (step 2.7): public, with or without a session, and nothing of the material. The
- * same width as the site's pages (55.5rem). Their version and date are LEGAL_VERSIONS of @qv/schema.
- */
 export function LegalPage({
   title,
   version,
@@ -17,9 +14,7 @@ export function LegalPage({
   children,
 }: {
   title: string;
-  /** The version of a text people accept (/terms, /privacy); /licenses has none. */
   version?: string;
-  /** «2026-11-08». */
   date?: string;
   children: ReactNode;
 }) {
@@ -57,7 +52,6 @@ export function LegalPage({
   );
 }
 
-/** A numbered part of a legal text: its heading (with an anchor) and its paragraphs. */
 export function Part({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section aria-labelledby={id}>

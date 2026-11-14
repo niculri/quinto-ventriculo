@@ -1,6 +1,4 @@
-// Pins the rules that the in-memory tests repository re-implements from save_quiz_progress() and the quiz_rounds table.
-// Above each test, the db/tests case that checks the same rule in SQL («db: none» when there is none); «differs» marks
-// a behaviour that is not the database's.
+// Pins the rules the in-memory tests repository re-implements from save_quiz_progress() and quiz_rounds.
 import { describe, expect, it } from 'vitest';
 import { localQuizRepository, OPEN_ROUNDS } from './repository';
 import type { AnswerInfo, RoundInfo } from './repository';
@@ -26,7 +24,6 @@ const answer = (roundId: string, position: number, answeredAt: string): AnswerIn
 });
 
 describe('saving a section', () => {
-  // db: none
   it('a save without preferences keeps the saved ones; «Descartar» leaves the section without a round', async () => {
     const repo = localQuizRepository(null);
     await repo.save({
@@ -44,7 +41,6 @@ describe('saving a section', () => {
     expect(await repo.load('other')).toEqual({});
   });
 
-  // db: quizzes.test.ts › a round replaced or discarded before finishing is abandoned; a finished one stays finished
   it('a round discarded before finishing leaves «Seguir»; a finished one never comes back to it', async () => {
     const repo = localQuizRepository(null);
     const at = '2026-03-10T10:05:00.000Z';
@@ -71,7 +67,6 @@ describe('saving a section', () => {
 });
 
 describe('«Seguir» on the home page (openRounds)', () => {
-  // db: none
   it(`only active rounds with an answer, at most ${OPEN_ROUNDS}, the latest first`, async () => {
     const repo = localQuizRepository(null);
     for (let i = 0; i < OPEN_ROUNDS + 2; i++) {
@@ -94,8 +89,7 @@ describe('«Seguir» on the home page (openRounds)', () => {
     });
   });
 
-  // differs — save_quiz_progress() sets quiz_rounds.updated_at to the moment of the save (now()), and openRounds()
-  // orders by it; no db test
+  // Differs from the database, which orders by the moment of the save (updated_at = now()).
   it('orders by the moment each answer says it was answered, not by when it was saved', async () => {
     const repo = localQuizRepository(null);
     await repo.save({

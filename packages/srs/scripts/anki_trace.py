@@ -1,14 +1,10 @@
-"""Answers cards in real Anki (25.9.x, FSRS on) and records what happens, to compare @qv/srs with it.
+"""Answers one card per scenario in real Anki (25.9.x, FSRS on) and records every state, as the golden data of
+@qv/srs; with ANKI_TEST_MODE Anki does not fuzz, without it the test checks our fuzz range.
 
     ANKI_TEST_MODE=1 python3 packages/srs/scripts/anki_trace.py \
         packages/srs/test/golden/transitions.json
     python3 packages/srs/scripts/anki_trace.py \
         packages/srs/test/golden/transitions-fuzz.json
-
-With ANKI_TEST_MODE Anki does not fuzz (exact comparison); without it, it fuzzes with its own seed (the test
-checks the interval falls inside our fuzz range). Each scenario is one card in its own deck with its own
-preset; the time between answers is simulated by moving the card into the past (due, last review and revlog),
-which is what Anki sees when that time goes by. The load balancer is turned off (see the README of the package).
 """
 
 import json
@@ -149,7 +145,7 @@ def state_dict(state):
 
 
 def age(col, cid, secs):
-    """Moves the card `secs` seconds into the past: what Anki sees after that time."""
+    """Moves the card `secs` seconds into the past (due, last review and revlog): what Anki sees after that time."""
     if not secs:
         return
     ctype, queue, due, data = col.db.first("select type, queue, due, data from cards where id = ?", cid)

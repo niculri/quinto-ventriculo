@@ -1,3 +1,4 @@
+// Tests for the taxonomy and topic map schemas, their consistency checks and the derived dimensions.
 import { describe, expect, it } from 'vitest';
 import {
   QuestionRef,
@@ -72,7 +73,6 @@ describe('TaxonomyFile', () => {
     const m = messages(TaxonomyFile.safeParse(t));
     expect(m).toContain('La unidad 11 está repetida.');
     expect(m).toContain('El tema t2 está repetido.');
-    // And t3, which the repeat took the place of, is missing.
     expect(m.some((x) => x.startsWith('Falta el tema t3'))).toBe(true);
   });
 
@@ -89,8 +89,7 @@ describe('TaxonomyFile', () => {
   });
 
   it('a «nextTopic» far too high (a typo) gives a few lines, not one per number, and does not hang', () => {
-    // Revisión de cero (1.6): the refinement runs even when «nextTopic» fails its own check, and it gave one message
-    // per missing number (3 000 000 in 1.2 s with nextTopic 3e6; with 1e10 it never ended).
+    // The refinement runs even when «nextTopic» fails its own check.
     const started = Date.now();
     const typo = messages(TaxonomyFile.safeParse(tree({ nextTopic: 10_000_000_000 })));
     expect(Date.now() - started).toBeLessThan(2000);
@@ -238,7 +237,6 @@ describe('derived dimensions', () => {
   });
 
   it('the sub-topic: a block separates words, an inline tag does not; entities are decoded once', () => {
-    // Revisión de cero (1.6): «&amp;lt;» (the text «&lt;») came out as «<», and «A<div>B</div>» as «AB».
     expect(subtopicOf({ Tema: 'Estructura<div>del DNA</div>' })).toBe('Estructura del DNA');
     expect(subtopicOf({ Tema: '<b>Nucle</b>ótidos' })).toBe('Nucleótidos');
     expect(subtopicOf({ Tema: 'El signo &amp;lt; en un texto' })).toBe('El signo &lt; en un texto');

@@ -1,12 +1,4 @@
-/**
- * The people named on /about (step 2.7, EXP-P3). A name appears only with that person's written permission, kept
- * with its date in the private repository's `content/credits.json`; nobody is named otherwise (the thanks go by
- * group), and there is no list of teachers. This checks the file: every person has a name, a group and the date and
- * the way of their permission.
- *
- *   { "people": [{ "name": "…", "group": "material", "permission": { "date": "2026-11-20", "how": "…" } }] }
- */
-
+// Checks `content/credits.json`, the people named on /about.
 export const CREDITS_FILE = 'credits.json';
 
 /** The groups of the thanks on /about. Teachers are not one of them, on purpose. */
@@ -17,16 +9,14 @@ interface CreditedPerson {
   name: string;
   group: CreditGroup;
   permission: {
-    /** When they said yes («2026-11-20»). */
     date: string;
-    /** How: the message or the email where they said it. */
     how: string;
   };
 }
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-/** What is wrong with `content/credits.json` (empty: nothing). `today` is «YYYY-MM-DD». */
+/** A name appears only with that person's written permission, so each one needs its date and how it was given. */
 export function checkCredits(data: unknown, today: string): string[] {
   const problems: string[] = [];
   const people = (data as { people?: unknown } | null)?.people;

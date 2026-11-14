@@ -1,3 +1,4 @@
+// The search query while typing, and helpers to group, link and classify its results.
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
@@ -14,7 +15,6 @@ function useDebounced<T>(value: T, ms: number): T {
   return debounced;
 }
 
-/** Searches while typing: waits for the query to settle and keeps the previous results. */
 export function useSearch(query: string, limit = 20) {
   const { api } = useServices();
   const q = useDebounced(query.trim(), 220);
@@ -37,7 +37,6 @@ export interface ResultGroup {
   sections: SearchResult[];
 }
 
-/** Groups by note, in the order of each one's best result. */
 export function groupByNote(results: SearchResult[]): ResultGroup[] {
   const groups = new Map<string, ResultGroup>();
   for (const r of results) {
@@ -54,10 +53,7 @@ export function groupByNote(results: SearchResult[]): ResultGroup[] {
   return [...groups.values()];
 }
 
-/**
- * Link to a result: the semester and the course come from the catalog. Without it (it has not arrived yet),
- * the old form, which redirects to the canonical URL.
- */
+/** The semester and the course come from the catalog; until it arrives, the old form, which redirects. */
 export function resultLink(
   r: Pick<SearchResult, 'noteId' | 'noteSlug' | 'anchor'>,
   catalog: Catalog | undefined,
@@ -68,7 +64,6 @@ export function resultLink(
     : paths.legacyNote(r.noteSlug, r.anchor);
 }
 
-/** The kind of page of a URL, for the count of searches (step 2.9: features/usage/count.ts). */
 export function searchContext(pathname: string): SearchContext {
   if (pathname === '/home') return 'home';
   if (pathname === '/search') return 'search';

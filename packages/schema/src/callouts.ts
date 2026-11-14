@@ -1,7 +1,4 @@
-/**
- * Note callouts (`> [!type] …`). They are the same as in clase-a-apunte; the web stylesheet colors them
- * with the `callout-<type>` class. `note` is the plain callout, without a type and without a label.
- */
+// The labels of the note callouts (`> [!type] …`); the web colors each with its `callout-<type>` class.
 export const CALLOUT_LABELS: Readonly<Record<string, string>> = {
   note: '',
   datos: 'Datos clave',

@@ -1,3 +1,6 @@
+// Tests the assessment mode: what the scheduler gets with a date, the screen at the end of the day, a simulated
+// student over the days, mastery and the final review.
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   answerCard,
@@ -34,7 +37,6 @@ const L2 = '52';
 const OTHER = '9';
 const OTHER_L = '91';
 
-/** Lecture 1 with 30 notes and 6 in its Extras, lecture 2 with 20, and another assessment. */
 const SIZES: Record<string, number> = { [L1]: 30, [L1_EXTRAS]: 6, [L2]: 20, [OTHER_L]: 10 };
 
 function tree() {
@@ -60,7 +62,6 @@ function tree() {
     deck(OTHER, 'R::S::C::B', COURSE),
     deck(OTHER_L, 'R::S::C::B::L', OTHER),
   ];
-  // As the catalog gives it: a deck's count with its subdecks'.
   for (const d of list) {
     d.cardCount = list
       .filter((x) => x.name === d.name || x.name.startsWith(`${d.name}::`))
@@ -86,7 +87,6 @@ const allCards = () =>
 
 const inDays = (n: number) => dateOfDay(TODAY + n);
 
-/** The rows and today's answers give the same progress the database would. */
 function progressOf(rows: StoredCard[], newToday: Record<string, number> = {}): DeckProgress[] {
   const ids = new Set([...rows.map((r) => r.deckId), ...Object.keys(newToday)]);
   return [...ids].map((deckId) => {
@@ -202,7 +202,6 @@ afterEach(() => {
 });
 
 describe('what the scheduler gets with a date', () => {
-  // 30 cards on, 12 days left, 3 of review: 9 days, 4 a day.
   const plan = { activations: on(L1), assessments: [dated(12)] };
 
   it('the computed number, in every deck of the assessment', () => {
@@ -210,7 +209,6 @@ describe('what the scheduler gets with a date', () => {
     expect(configs.get(ASSESSMENT)!.newPerDay).toBe(4);
     expect(configs.get(L1)!.newPerDay).toBe(4);
     expect(configs.get(L1_EXTRAS)!.newPerDay).toBe(4);
-    // The other assessment keeps its own.
     expect(configs.get(OTHER)!.newPerDay).toBe(20);
   });
 
@@ -241,7 +239,6 @@ describe('what the scheduler gets with a date', () => {
     ['the assessment', ASSESSMENT],
     ['a lecture', L1],
   ])('from %s, «N para hoy» is what comes out, with notes of several cards too', (_, root) => {
-    // Lecture 1 with 6 notes of a card and 3 of eight; lecture 2 on, with notes of a card.
     const many = { activations: on(L1, L2), assessments: [dated(30)] };
     const withNotes = () => {
       const data = study(many, [], {}, root);
@@ -266,12 +263,10 @@ describe('what the scheduler gets with a date', () => {
     }
     expect(session.shown).toBeNull();
     expect(out.size).toBe(said.new);
-    // 50 cards over 27 days: 2 a day, the same wherever one studies from.
     expect(said.new).toBe(2);
   });
 
   it('does not change during the day, and what was studied counts', () => {
-    // Three answered: the page reads them from the database and the number stays.
     const answered = [0, 1, 2].map((i) => ({
       ...review(card(L1, i)),
       phase: 'learning' as const,
@@ -291,20 +286,17 @@ describe('what the scheduler gets with a date', () => {
     session.reveal();
     session.answer(3);
     expect(session.counts().new).toBe(3);
-    // A hidden card rebuilds the queue: the limit is still 4, with one studied.
     session.hide('suspend_card');
     expect(session.counts().new).toBe(3);
   });
 
   it('turning on a lecture recalculates it', () => {
     const more = { ...plan, activations: on(L1, L2) };
-    // 50 / 9.
     expect(configsFor(study(more)).get(L1)!.newPerDay).toBe(6);
   });
 
   it('Extras count only if they are included', () => {
     const extras = { activations: on(L1), assessments: [dated(12, { includeExtras: true })] };
-    // 36 / 9.
     expect(configsFor(study(extras)).get(L1)!.newPerDay).toBe(4);
     expect(deckCounts(study(extras)).get(L1_EXTRAS)).toBeDefined();
     const big = { activations: on(L1), assessments: [dated(4, { includeExtras: true })] };
@@ -353,7 +345,6 @@ describe('what the scheduler gets with a date', () => {
     }
     vi.setSystemTime(NOW + DAY);
     session.showNext();
-    // 26 left over 8 days: 4 again, and the four of yesterday are not new any more.
     const counts = session.counts();
     expect(counts.new).toBe(4);
   });
@@ -398,7 +389,6 @@ describe('the screen at the end of the day', () => {
       ...Array.from({ length: 20 }, (_, i) => late(L2, i)),
     ];
     const session = finish(study(plan, rows, {}, L1), L1);
-    // Only 20 are left, those of the other lecture: not large.
     expect(session.congrats().exam!.catchUp).toBeNull();
 
     const progress = progressOf(rows).map((p) => (p.deckId === L2 ? { ...p, overdue: 300 } : p));
@@ -416,12 +406,10 @@ describe('the screen at the end of the day', () => {
       {},
       L1,
     );
-    // 30 / 9 is 4; yesterday it would have been 30 / 10 = 3.
     expect(finish(data, L1).congrats().exam!.roseTo).toBe(4);
   });
 
   it('the last day with new cards does not promise more for tomorrow', () => {
-    // 4 days left, 3 of final review: today is the last.
     const last = study({ activations: on(L1), assessments: [dated(4)] }, [], {}, L1);
     expect(finish(last, L1).congrats().exam).toMatchObject({ computed: true, lastNewDay: true });
     const before = study({ activations: on(L1), assessments: [dated(5)] }, [], {}, L1);
@@ -467,7 +455,6 @@ describe('a student who answers everything, day after day, with the real schedul
           prefs: PREFS,
         });
         expect(view.rose, `day ${day}`).toBe(false);
-        // The whole number of the day comes out.
         expect(said, `day ${day}`).toBe(view.pace.kind === 'computed' ? view.pace.newPerDay : 0);
         if (view.pace.kind === 'computed') expect(said).toBeGreaterThan(0);
         let shown = 0;
@@ -480,7 +467,6 @@ describe('a student who answers everything, day after day, with the real schedul
         }
         await session.saved();
         expect(shown, `day ${day}`).toBe(said);
-        // From the first day for reviewing on, nothing new is left.
         const seen = (await repository.cards([L1])).filter((r) => r.phase !== 'new').length;
         if (day === 14 - finalReviewDays - 1) expect(seen).toBe(30);
       }
@@ -542,7 +528,6 @@ describe('a student who answers everything, day after day, with the real schedul
   });
 });
 
-/** The scheduler itself, with the author's options: a card answered with these buttons, a day at a time. */
 function answered(ratings: Rating[]) {
   const config = configFromAnki({ new: { perDay: 20, bury: true, delays: [1, 10] }, rev: {} });
   const key = { noteGuid: 'a', ord: 0, deckId: L1 };
@@ -576,11 +561,9 @@ describe('what is said about a card is what the scheduler does', () => {
       const { difficulty, lapses } = answered(ratings).at(-1)!.card;
       return isHard(review(c, { difficulty: difficulty!, lapses }));
     };
-    // Going well, and a card failed once: once on its first day or once after learning it.
     expect(after([3, 3, 3])).toBe(false);
     expect(after([1, 3, 3])).toBe(false);
     expect(after([3, 3, 1, 3])).toBe(false);
-    // Twice.
     expect(after([1, 1, 3, 3])).toBe(true);
     expect(after([3, 3, 1, 3, 1, 3])).toBe(true);
     expect(after([1, 3, 3, 1, 3])).toBe(true);
@@ -598,13 +581,11 @@ describe('dominio', () => {
   });
 
   it('the average over every card, with the ones not seen as 0', () => {
-    // 15 of the 30 cards, just reviewed.
     const rows = Array.from({ length: 15 }, (_, i) =>
       review(card(L1, i), { lastReview: new Date(NOW).toISOString() }),
     );
     const m = masteryByDeck(study(plan, rows));
     expect(m.get(L1)).toBeCloseTo(0.5, 5);
-    // The assessment has lecture 2 as well: 15 of 50. Extras do not count.
     expect(m.get(ASSESSMENT)).toBeCloseTo(0.3, 5);
     expect(masteryPercent(m.get(L1)!)).toBe(50);
   });
@@ -683,7 +664,6 @@ describe('the final review', () => {
       blankRow(card(L1, 2)),
     ];
     const keys = reviewPools(study(plan, rows, {}, ASSESSMENT)).all.map((c) => c.noteGuid);
-    // A lecture turned off still has what was seen of it.
     expect(keys.sort()).toEqual([card(L1, 0).noteGuid, card(L2, 0).noteGuid].sort());
     const inc = study(
       { ...plan, assessments: [{ deckId: ASSESSMENT, includeExtras: true, newPerDay: null }] },
@@ -706,7 +686,6 @@ describe('the final review', () => {
       card(L1, 1).noteGuid,
       card(L1, 2).noteGuid,
     ]);
-    // A mark made during the review counts, also taking one away.
     const marks = new Map([
       [cardKey(card(L1, 0)), 1],
       [cardKey(card(L1, 1)), 0],
@@ -740,7 +719,6 @@ describe('the final review', () => {
     const a = card(L1, 0);
     const b = card(L1, 1);
     let round = startRound([a, b]);
-    // Without showing the answer, nothing happens.
     expect(answerRound(round, 'good')).toBe(round);
     round = answerRound(revealCard(round), 'again');
     expect(round).toMatchObject({ queue: [b, a], again: 1, done: 0, revealed: false });

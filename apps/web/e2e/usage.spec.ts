@@ -1,13 +1,8 @@
+// E2e tests of «Uso» in the administration, with the demo's made-up figures: nothing moves entering it or loading it,
+// also with late figures; a student does not have it; and what the pages count as opened.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
-
-/**
- * Step 2.9: «Uso» in the administration panel, with the demo's made-up figures. Entering it from another section and
- * loading it from nothing move nothing (layout shift 0 once the page is there, and the summary and the chart in one
- * place from their first frame, also when the figures come late); nothing is wider than the screen; a student does not
- * have it in the menu. The demo's user is an administrator; `qv-demo-role` = `student` makes it a student.
- */
 
 /** Counts the layout shifts (CLS) from the start of the page; `settle()` marks from when they must be 0. */
 async function watchShifts(page: Page) {
@@ -50,7 +45,6 @@ const fontsLoaded = (page: Page) =>
     ),
   );
 
-/** Where an element is in the page (not in the screen: a click can scroll it). */
 const placeOf = (page: Page, selector: string) =>
   page.locator(selector).evaluate((e) => {
     const b = e.getBoundingClientRect();
@@ -65,7 +59,6 @@ test('entering «Uso» from another section: the figures come and nothing moves'
   await page.goto('/admin/reports');
   await expect(page.getByRole('heading', { level: 2, name: 'Reportes' })).toBeVisible();
   await fontsLoaded(page);
-  // The figures come a while after the page (as from a far database).
   await page.route('**/api/admin/usage', async (route) => {
     await new Promise((r) => setTimeout(r, 1200));
     await route.continue();
@@ -124,9 +117,8 @@ test('loading «Uso» from nothing: the title, the summary and the chart in one 
     };
     w.places_ = Object.fromEntries(sels.map((s) => [s, []]));
     // From the first frame with the two web fonts in (as e2e/contact.spec.ts): when Inter arrives after the first paint
-    // (Fontsource, `font-display: swap`), the paragraph above the summary wraps again on the phone, and that is the whole
-    // site's, not this page's (revisión de cero 2.9, segunda vuelta: 1 run in 16 moved the summary 20 px that way). The
-    // figures come 800 ms later, so what they move is still measured.
+    // (`font-display: swap`), the paragraph above the summary can wrap again on the phone, and that is the whole site's,
+    // not this page's. The figures come 800 ms later, so what they move is still measured.
     const fontsIn = () =>
       ['Inter Variable', 'Source Serif 4 Variable'].every((family) =>
         [...document.fonts].some(
@@ -166,7 +158,6 @@ test('loading «Uso» from nothing: the title, the summary and the chart in one 
     await page.evaluate(() => (window as unknown as { figuresAtStart_?: boolean }).figuresAtStart_),
   ).toBe(false);
 
-  // Choosing the weeks changes the bars, not the page.
   const before = await placeOf(page, 'ol[aria-label]');
   await page.getByRole('button', { name: 'Periodo: Últimos 30 días' }).click();
   await page.getByRole('menuitemradio', { name: 'Últimas 12 semanas' }).click();
@@ -201,7 +192,6 @@ test('what is opened: the home page and «Ponte a prueba» count nothing, a note
   await page.goto('/home');
   await expect(page.getByRole('heading', { name: /^Hola/ })).toBeVisible();
   await page.waitForTimeout(1200);
-  // «Hoy» counts without the decks (step 3.2), and nothing was counted.
   expect(reads.some((p) => p.startsWith('/api/decks/'))).toBe(false);
   expect(opens).toEqual([]);
 

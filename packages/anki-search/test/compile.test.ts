@@ -1,3 +1,4 @@
+// Tests of search evaluation, sidebar terms, the Rust regex translator and the speed on 50 000 cards.
 import { describe, expect, it } from 'vitest';
 import { SearchError, compileSearch, parseSearch, searchTerm } from '../src';
 import type { SearchCard, SearchContext } from '../src';
@@ -201,7 +202,6 @@ describe('speed', () => {
         }),
       );
     }
-    // The best of three: what the search costs, not what the rest of the machine was doing meanwhile.
     const time = (query: string) => {
       let ms = Infinity;
       let found = 0;
@@ -213,7 +213,7 @@ describe('speed', () => {
       }
       return { ms, found };
     };
-    // The first runs build the per-card text caches (joined, ASCII-lowercased, without accents).
+    // Warm-up: the first runs build the per-card text caches.
     time('cuerpo');
     time('nc:cuerpo');
     const text = time('vértebra');
@@ -222,8 +222,7 @@ describe('speed', () => {
     expect(text.found).toBeGreaterThan(0);
     expect(mixed.found).toBeGreaterThan(0);
     expect(wildcard.found).toBeGreaterThan(0);
-    // Alone, each one takes 5–25 ms. The bound is for something gone really wrong (a search per card takes minutes),
-    // not to measure: with the machine busy, it has taken over 1 s.
+    // Each one takes 5–25 ms; the loose bound only catches something gone really wrong on a busy machine.
     expect(text.ms).toBeLessThan(2000);
     expect(mixed.ms).toBeLessThan(2000);
     expect(wildcard.ms).toBeLessThan(2000);

@@ -1,3 +1,5 @@
+// E2e tests of the simple mode for a student who just arrived: turning a lecture on, studying with two buttons, the
+// assessment's options, what «Modo avanzado» adds and that nothing moves.
 import { expect, test } from './test';
 import { ONLY_ACCEPTED } from './accepted';
 import type { Page } from '@playwright/test';
@@ -14,7 +16,6 @@ test('a new student: enters the course, turns a lecture on and studies with two 
   page,
 }) => {
   await signIn(page);
-  // Nothing turned on yet: the home page says so; with their semester, it takes them to the course.
   const home = page.getByRole('region', { name: 'Hoy' });
   await expect(home).toContainText('Todavía no activas ninguna semana o clase');
   await page.getByRole('button', { name: /¿En qué semestre estás\?/ }).click();
@@ -22,20 +23,17 @@ test('a new student: enters the course, turns a lecture on and studies with two 
   await home.getByRole('link', { name: 'Elegir qué estudiar' }).click();
   await expect(page).toHaveURL(new RegExp(`${COURSE_URL}$`));
 
-  // With nothing on, the list of what can be turned on is already open.
   const week = page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' });
   await expect(week).not.toBeChecked();
   await expect(page.getByText('Sin activar').first()).toBeVisible();
   await week.click();
   await expect(week).toBeChecked();
-  // The list does not fold away from under the finger, and the course's card shows the day's load.
   await expect(page.getByText('Qué estás estudiando · 1 de 1 activada')).toBeVisible();
   const today = page.getByRole('group', { name: 'Hoy en Certamen 1' });
   await expect(today).toContainText(/\d+ para hoy · ~\d+ min/);
 
   await page.goto(`${DECK_URL}/study`);
 
-  // The first time: the welcome, once.
   const welcome = page.getByRole('dialog', { name: 'Cómo se estudia aquí' });
   await expect(welcome).toContainText('Intenta acordarte');
   await welcome.getByRole('button', { name: 'Entendido' }).click();
@@ -49,24 +47,20 @@ test('a new student: enters the course, turns a lecture on and studies with two 
   await answer.getByRole('button', { name: /^Bien/ }).click();
   await expect(front(page)).toContainText('Pregunta sin extra ni pista');
 
-  // Undo is a button.
   await page.getByRole('button', { name: 'Deshacer' }).click();
   await expect(front(page).locator('.pregunta')).toHaveText('¿Cuántas vértebras cervicales hay?');
   await expect(page.getByText('Deshecho: Responder tarjeta')).toBeVisible();
 
-  // With the keyboard: space shows the answer, 2 is «Bien».
   await page.keyboard.press('Space');
   await expect(page.getByRole('region', { name: 'Reverso de la tarjeta' })).toBeVisible();
   await page.keyboard.press('2');
   await expect(front(page)).toContainText('Pregunta sin extra ni pista');
 
-  // «Más»: the few things one does with a card.
   await page.getByRole('button', { name: 'Más' }).click();
   await expect(page.getByRole('menuitem', { name: /Enterrar/ })).toHaveCount(0);
   await page.getByRole('menuitem', { name: /Saltar por hoy/ }).click();
   await expect(page.getByText('Saltada por hoy.')).toBeVisible();
 
-  // It stays: back in the study, the welcome does not show again.
   await page.reload();
   await expect(front(page)).toBeVisible();
   await expect(welcome).toHaveCount(0);
@@ -80,7 +74,6 @@ test('with nothing turned on, «Estudiar» says what to do and links to where to
   await expect(
     page.getByRole('heading', { name: 'Todavía no activas esta materia' }),
   ).toBeVisible();
-  // Without a card in front, the welcome does not open: the screen already says what to do (step 3.2).
   await expect(page.getByRole('dialog', { name: 'Cómo se estudia aquí' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Elegir qué estudiar' }).click();
   await expect(page).toHaveURL(new RegExp(`${COURSE_URL}$`));
@@ -101,7 +94,6 @@ test('the assessment’s page: new cards a day and «Incluir extras», and its E
 
   const load = page.getByRole('group', { name: 'Para hoy' }).getByRole('button');
   await expect(load).toHaveText(/^4 para hoy/);
-  // The breakdown: on opening it.
   await load.click();
   await expect(page.getByRole('group', { name: 'Para hoy' })).toContainText('Aprendiendo');
 
@@ -126,13 +118,11 @@ test('«Modo avanzado» adds options, and the four buttons are a choice of their
   await expect(page.getByRole('heading', { name: 'Anki general' })).toBeVisible();
   await expect(page.getByLabel('Límite del estudio por adelantado')).toHaveCount(0);
   await page.getByRole('switch', { name: /Modo avanzado/ }).check();
-  // Its options, in a box of their own; on saving, it says so.
   await expect(page.getByLabel('Límite del estudio por adelantado')).toBeVisible();
   await expect(page.getByText('Sin guardar')).toBeVisible();
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByText('Guardado', { exact: true })).toBeVisible();
 
-  // The same page of the assessment: the switch, and its button.
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   await expect(
@@ -202,7 +192,6 @@ test('on a small phone: nothing scrolls sideways, and the welcome can be closed'
     await expect(page.locator('h1').first()).toBeVisible();
     await expect.poll(sideways, { message: url }).toBe(0);
   }
-  // The welcome comes only with a card in front.
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   await expect(page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' })).toBeChecked();
@@ -247,7 +236,6 @@ test('nothing moves while a slow deck arrives', async ({ page }) => {
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   const list = page.getByRole('list', { name: 'Submazos' });
   await expect(list).toBeVisible();
-  // Never the table of the full Anki.
   await expect(page.getByRole('table')).toHaveCount(0);
   const before = (await list.boundingBox())!;
   const load = page.getByRole('group', { name: 'Para hoy' }).getByRole('button');
@@ -255,7 +243,6 @@ test('nothing moves while a slow deck arrives', async ({ page }) => {
   await expect(page.getByRole('table')).toHaveCount(0);
   expect((await list.boundingBox())!.y).toBe(before.y);
 
-  // The course's page: its line is there from the start.
   await page.goto(COURSE_URL);
   const line = page.getByRole('button', { name: /Qué estás estudiando/ });
   await expect(line).toBeVisible();
@@ -290,7 +277,6 @@ test('after studying, a new visit shows the answered lecture turned on, also aft
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByLabel('Límite del estudio por adelantado')).toBeVisible();
 
-  // An answer.
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   await page.goto(`${DECK_URL}/study`);
@@ -298,7 +284,6 @@ test('after studying, a new visit shows the answered lecture turned on, also aft
   await page.keyboard.press('4');
   await expect(front(page)).toContainText('Pregunta sin extra ni pista');
 
-  // Back to simple: that week counts as on, without touching anything, and the answer is still there.
   await page.goto('/settings/anki');
   await page.getByRole('switch', { name: /Modo avanzado/ }).uncheck();
   await page.getByRole('button', { name: 'Guardar' }).click();

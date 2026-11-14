@@ -1,3 +1,4 @@
+// A practice test page: finds the test in the catalog, picks the section (tab) and runs the cover, rounds and results.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
@@ -31,20 +32,15 @@ import { useReadingFonts } from '../../lib/readingFonts';
 import './quiz.css';
 import { useCountOpen } from '../usage/count';
 
-/** The tab last opened in this browser (a convenience: the URL is what says the tab). */
 const tabKey = (quizId: string) => `qv-quiz-tab:${quizId}`;
 function rememberTab(quizId: string, sectionId: string) {
   try {
     localStorage.setItem(tabKey(quizId), sectionId);
   } catch {
-    // blocked storage: the tab is not remembered
+    // not remembered
   }
 }
 
-/**
- * The section to open when the URL does not say: the tab last opened in this browser, or the one with the
- * latest saved step (another device), or the first.
- */
 function lastUsed(quiz: QuizDetail, saved: SavedQuiz): string {
   let remembered: string | null = null;
   try {
@@ -61,7 +57,6 @@ function lastUsed(quiz: QuizDetail, saved: SavedQuiz): string {
   return best?.id ?? quiz.sections[0]!.id;
 }
 
-/** The course's colors of the test («tema»), as CSS variables for quiz.css. */
 function themeStyle(quiz: QuizDetail): CSSProperties {
   const style: Record<string, string> = {};
   for (const t of QUIZ_THEME_TOKENS) {
@@ -71,11 +66,6 @@ function themeStyle(quiz: QuizDetail): CSSProperties {
   return style as CSSProperties;
 }
 
-/**
- * A practice test: `/semesters/:n/courses/:courseId/tests/:assessment/:quizSlug[/:sectionId]` (the slug is
- * unique in its assessment). A test with several sections (tabs) has its tab in the URL; without one, it
- * goes to the last one used.
- */
 export function QuizPage() {
   const {
     courseId = '',
@@ -87,14 +77,11 @@ export function QuizPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [search] = useSearchParams();
-  // «Ponte a prueba» of an article: the cover with that lecture's topics chosen. Read once (the screen keeps
-  // it); the URL loses it so that a reload in the middle of a round does not go back to the cover.
-  // Only for the tab it came with: another tab's groups with the same ids are other topics.
+  // `?topics=` is read once and dropped from the URL (a reload must not reopen the cover); it is only for its own tab.
   const [arrival, setArrival] = useState(() => {
     const topics = search.get('topics')?.split(',').filter(Boolean);
     return topics?.length ? { section: sectionId ?? null, topics } : null;
   });
-  // Leaving that tab forgets them (going back to it does not choose them again).
   if (arrival && (sectionId ?? null) !== arrival.section) setArrival(null);
   useEffect(() => {
     if (search.has('topics')) {
@@ -108,24 +95,21 @@ export function QuizPage() {
     }
   }, [search, navigate, location]);
   const catalog = useCatalog();
-  // The test, by where it is in the catalog: its id is what the API and the progress know.
   const found = catalog.data ? findCourse(catalog.data, courseId) : null;
   const summary =
     found?.course.assessments
       .find((a) => a.id === `${courseId}/${assessmentSegment}`)
       ?.quizzes.find((q) => q.slug === quizSlug) ?? null;
   const quiz = useQuizDetail(summary?.id ?? null);
-  // «Uso» (step 2.9): a test's cover and its rounds are what open a test (not «Ponte a prueba»).
   useCountOpen('quiz', quiz.data?.id ?? null);
   const saved = useSavedQuiz(quiz.data?.id ?? null);
   const sections = quiz.data?.sections ?? [];
   const active: QuizSectionSummary | null =
     sections.length === 1 ? sections[0]! : (sections.find((s) => s.id === sectionId) ?? null);
   const detail = useQuizSection(quiz.data?.id ?? null, active?.id ?? null);
-  // As an article, it is never drawn with another font (its questions use Inter's italic).
   const fonts = useReadingFonts();
 
-  // A refetch that fails (the section's, to renew its photos) leaves what was there: the round goes on.
+  // A failed refetch (to renew the photo URLs) keeps the data, so the round goes on.
   for (const q of [catalog, quiz, saved, detail]) {
     if (q.isError && q.data === undefined) {
       return <ErrorWithRetry error={q.error} onRetry={() => void q.refetch()} />;
@@ -139,7 +123,6 @@ export function QuizPage() {
   if (String(semester.number) !== number) {
     return <Canonical path={paths.quiz(course, data, sectionId)} />;
   }
-  // One section: no segment for it. Several: the URL says which (or the last one used).
   if (sections.length === 1 && sectionId) return <Canonical path={paths.quiz(course, data)} />;
   if (sections.length > 1 && !sectionId) {
     return <Canonical path={paths.quiz(course, data, lastUsed(data, saved.data))} />;
@@ -147,14 +130,12 @@ export function QuizPage() {
   if (!active) return <NotFoundPage />;
   if (!detail.data || !fonts) return <Loading />;
   const assessment = course.assessments.find((a) => a.id === data.assessmentId);
-  // The assessment's only test: «Tests» of the assessment goes straight to it, so it is called that, in the breadcrumbs
-  // and its heading, as the list of tests of an assessment with several.
   const onlyTest = !!assessment && assessment.quizzes.length === 1;
 
   return (
     <div className="quiz pb-4" style={themeStyle(data)}>
       <QuizScreen
-        // Each section has its own round: another tab is another screen.
+        // Each section has its own round, so another tab remounts the screen.
         key={active.id}
         quiz={data}
         section={active}
@@ -176,7 +157,6 @@ export function QuizPage() {
                 ...(assessment
                   ? [
                       { label: assessment.name, to: paths.assessment(course, assessment.id) },
-                      // With a single test there is no list of tests to go back to.
                       ...(assessment.quizzes.length > 1
                         ? [{ label: 'Tests', to: paths.assessmentTests(course, assessment.id) }]
                         : []),
@@ -192,10 +172,7 @@ export function QuizPage() {
   );
 }
 
-/**
- * What the test's history entry remembers: `fromTab`, that it was opened from a tab of its cover; `inRound`,
- * that a round was on screen (a reload or «back» returns to it; a link to the test opens its cover).
- */
+// History entry state: `inRound` lets a reload or «back» return to the round, while a link opens the cover.
 interface QuizState {
   fromTab?: boolean;
   inRound?: boolean;
@@ -218,15 +195,11 @@ function QuizScreen({
   section: QuizSectionSummary;
   detail: QuizSectionDetail;
   course: CourseRef & { name: string; emoji: string };
-  /** The assessment the test is from (its own link in the top bar), if the catalog has it. */
   assessment: { id: string; name: string } | null;
   saved: SavedQuiz;
   fromTab: boolean;
-  /** The page is reloaded (or returned to) in the middle of a round: it goes on there. */
   inRound: boolean;
-  /** Groups to choose on the cover (arriving from an article's «Ponte a prueba»). */
   topics?: readonly string[] | null;
-  /** The cover's heading instead of the test's own («Tests», for an assessment's only test). */
   heading?: string | null;
   crumbs: React.ReactNode;
 }) {
@@ -235,16 +208,12 @@ function QuizScreen({
     quizId: quiz.id,
     section: detail,
     saved: saved[section.id],
-    // Arriving from a link (the menu, the course, an article…), always the cover with its topics (a round half
-    // done offers «Continuar» there); only a reload in the middle of a round goes back to the question.
     showCover: fromTab || !inRound,
     topics: topics ?? null,
   });
   const { round, preferences, current, entries, actions } = session;
   const screen = round?.screen ?? 'cover';
-  // Answering, the site's menu goes away (as everything else that is not the question).
   useFocusMode(screen === 'question');
-  // While answering, this history entry remembers it (for a reload); the URL does not change.
   const location = useLocation();
   useEffect(() => {
     const state = (location.state as QuizState | null) ?? {};
@@ -258,7 +227,6 @@ function QuizScreen({
   }, [screen, location, navigate]);
   const [zoom, setZoom] = useState<OpenImage | null>(null);
   const [confirming, setConfirming] = useState(false);
-  // Step 2.6: «Reportar error» of a question (answered, or of the finished round), and the thanks after it.
   const [reporting, setReporting] = useState<QuestionEntry | null>(null);
   const [thanks, setThanks] = useState(false);
   useEffect(() => {
@@ -279,13 +247,11 @@ function QuizScreen({
       number: e.number,
     },
   });
-  // A short question with its answer shown (before saying whether the user knew it).
   const [revealedAt, setRevealedAt] = useState<string | null>(null);
   const sectionIndex = quiz.sections.findIndex((s) => s.id === section.id);
   const restartRef = useRef<HTMLButtonElement>(null);
 
-  // A new question on screen: from the top, the answer of a short one hidden again. With its id: after
-  // «Saltar» another question is at the same position.
+  // With the question id: after «Saltar» another question is at the same index.
   const position =
     round && screen === 'question'
       ? `${round.id}/${round.index}/${round.queue[round.index]}`
@@ -296,7 +262,6 @@ function QuizScreen({
     window.scrollTo(0, 0);
   }, [position]);
 
-  // The keys of the skill's page: 1–6 answer, Enter goes on, S skips; Space and 1/2 on short ones.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (zoom || confirming || reporting || screen !== 'question' || !round || !current) return;
@@ -312,7 +277,7 @@ function QuizScreen({
         return;
       }
       if (e.key === 'Enter') {
-        // On a focused button, Enter is that button's.
+        // Before answering, Enter on a focused button is that button's.
         if (e.target instanceof HTMLButtonElement && !done) return;
         if (done) actions.next();
         else if (q.kind === 'short' && !revealed) reveal();
@@ -350,13 +315,9 @@ function QuizScreen({
 
   return (
     <>
-      {/* The test's bar: only while answering. On the cover and the results the menu and the breadcrumbs
-          already say where the test is. */}
       {screen === 'question' ? (
         <div className="qz-bar">
           <div className="wrap hrow">
-            {/* As studying a deck: back to the cover, where the topics are chosen (the round stays saved). The
-                course and the assessment: the breadcrumbs are not on this screen. */}
             <BackButton
               className="qz-back"
               label={backLabel(course.name, assessment?.name)}
@@ -415,7 +376,6 @@ function QuizScreen({
                       strokeLinejoin="round"
                       aria-hidden="true"
                     >
-                      {/* A finish flag. */}
                       <path d="M5 21V4" />
                       <path d="M5 4h11l-2 4 2 4H5" />
                     </svg>
@@ -425,7 +385,6 @@ function QuizScreen({
               </>
             ) : null}
           </div>
-          {/* As wide as the bar's row and the question, not from edge to edge. */}
           <div className="wrap">
             <div className="pb">
               <i style={{ width: `${round ? progress(round) * 100 : 0}%` }} />
@@ -539,7 +498,6 @@ function QuizScreen({
   );
 }
 
-/** «¿Reiniciar la ronda?», inside the page. */
 function RestartDialog({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   const yes = useRef<HTMLButtonElement>(null);
   useEffect(() => {

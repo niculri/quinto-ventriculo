@@ -1,16 +1,9 @@
+// The web version of a note for the dry-run folder, by the same rule as the content database's `save_note()`.
 import type { ImportedNote } from '@qv/schema';
 
 /**
- * The web version of a note given the one published before it: the same rule as `save_note()` of the
- * content database (migration …_articles.sql), for the dry-run folder.
- *
- * - Nothing changed (same `hash`): everything stays as it was, also `updatedAt`.
- * - Something changed but not what the reader sees (`versionHash`: the position, the «Ponte a prueba»
- *   links): same version.
- * - What the reader sees changed: the next version, dated now.
- * - First publication as an article (no previous one, or a previous one from before the articles): 1, and
- *   that is its «Creado el».
- * - A note without a web code (no `versionHash`) has no version.
+ * Same `hash`: nothing changes, not even `updatedAt`. Only a new `versionHash` (what the reader sees) gives the next
+ * version, dated now; the first one is 1. A note without `versionHash` has no version.
  */
 export function withVersion(note: ImportedNote, previous: ImportedNote | undefined): ImportedNote {
   const { version: _v, publishedAt: _p, versionAt: _a, ...base } = note;

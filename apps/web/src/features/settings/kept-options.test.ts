@@ -1,3 +1,5 @@
+// A preset saved with «Retención histórica» or its own FSRS parameters, which «Opciones» no longer edits, still
+// reads and schedules with them.
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMETERS,
@@ -8,10 +10,6 @@ import {
   schedulingStates,
 } from '@qv/srs';
 
-/**
- * Step 3.4 (ANK-14): «Retención histórica» and editing the FSRS parameters left «Opciones», but @qv/srs did not
- * change: a preset saved with them reads and schedules as before.
- */
 describe('a preset saved with what «Opciones» no longer shows', () => {
   const custom = Array.from({ length: 21 }, (_, i) =>
     Number((DEFAULT_PARAMETERS[i]! * 1.3).toFixed(4)),

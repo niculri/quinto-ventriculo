@@ -1,7 +1,5 @@
-// Plan step 1.8 (20261114000000_groups_and_site_settings.sql): the site's settings (the semesters without material
-// hidden), which live only in public and never go through the draft, and the notes' group, kept by save_note(). Also
-// «avance intacto» of a note that changes assessment (the Seminario 8 of Biocel, from the Certamen 2 to the 3): the
-// same id, slug, code and version after publishing, so that the students' readings (by note id) follow it.
+// The site's settings, which live only in public and never go through the draft; the notes' group, kept by save_note();
+// and a note that changes assessment, which keeps its id, slug, code and version so that the readings follow it.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ContentBundle } from '@qv/schema';
@@ -32,7 +30,6 @@ const catalogWithC3 = {
   ],
 };
 
-/** The Seminario 8, in one assessment or the other, with or without a group (outside what the reader sees). */
 function seminar(assessmentId: string, group?: string) {
   const a = article('AP-BC-C2-SEM8', assessmentId, 'Comunicación intercelular', 10);
   const { hash: _hash, versionHash, updatedAt, ...rest } = a;
@@ -159,7 +156,6 @@ describe('the site settings', () => {
     await service('select public.set_site_settings($1::jsonb)', [
       { hideEmptySemesters: true, by: 'dueno@ug.uchile.cl' },
     ]);
-    // Emptying the draft, importing to it and publishing leave the setting as it was.
     await save(published, [seminar(BC)]);
     await service('select public.reset_draft()');
     await save(draft, [seminar(BC3)]);
@@ -179,7 +175,6 @@ describe('a note that changes assessment, and its group', () => {
     expect(before).toMatchObject({ assessment_id: BC, version: 1, group: null });
     await service('select public.reset_draft()');
 
-    // To the Certamen 3, and in a group: what the reader sees is the same.
     await save(draft, [seminar(BC3, 'Semana 9')]);
     expect(await noteRow('draft')).toMatchObject({ assessment_id: BC3, group: 'Semana 9' });
     expect(await publish()).toMatchObject({ title: 'Biología celular · Certamen 3' });

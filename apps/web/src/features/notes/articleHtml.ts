@@ -1,3 +1,6 @@
+// Prepares a sanitized article's HTML before the first paint: figure sizes, scrolling tables, the font's own
+// superscript glyphs and images that open the viewer.
+
 import { figureLayout, rowWidths, toRem } from './figures';
 import type { FigureSize } from './figures';
 import { placeThumbs } from './placeThumbs';
@@ -5,11 +8,6 @@ import { placeThumbs } from './placeThumbs';
 /** What Inter's superscripts and subscripts (`sups`, `subs`) cover: the glyphs of ⁰–⁹ ⁺ ⁻ ₀–₉ ᵢ and more. */
 const OWN_GLYPHS = /^[a-z0-9()[\]=+−]+$/;
 
-/**
- * The note's HTML (already sanitized) ready to read: each figure a thumbnail on the right or wide across the column,
- * with its width, each table in a wrapper that scrolls sideways, the superscripts and subscripts with the font's own
- * glyphs where it has them, and each image a button that opens the viewer. Done before the first paint, so nothing moves afterwards.
- */
 export function prepareArticle(html: string): string {
   const template = document.createElement('template');
   template.innerHTML = html;

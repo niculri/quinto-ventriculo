@@ -1,3 +1,5 @@
+// Tests the taxonomy checks of the import: units and topics of every card and question, what stops the import, and
+// the taxonomy files compared with their git history.
 import { execFileSync } from 'node:child_process';
 import { copyFile, mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -12,10 +14,6 @@ import { compareWithHistory, compareWithPrevious, readTaxonomies, taxonomyLines 
 import type { Manifest } from './manifest';
 import type { TaxonomyHistory } from './taxonomy';
 
-/**
- * A test assessment with everything a taxonomy covers: an article with four `##` and a Resumen, a deck with its
- * Extras (16 cards: basic, cloze and occlusion) and a test with two groups (3 questions).
- */
 const A = 'anatomia-1/certamen-1';
 const QUIZ = 'anatomia-1-certamen-1-practica';
 const SAMPLE = join(import.meta.dirname, '../../anki-format/test/fixtures/sample.apkg');
@@ -120,7 +118,6 @@ const topicMap = (): TopicMapFile => ({
     { guid: 'Or&8~[!Z2<', code: 'T-PR-01-001', topic: 't1' },
     { guid: 's@/AqX%n?#', code: 'T-PR-01-002', topic: 't2' },
     { guid: 'cloze-1', topic: 't2' },
-    // An occlusion whose card 4 is of another topic.
     { guid: 'oclusion-1', topic: 't3', ords: { '4': 't1' } },
     { guid: 'extra-basica-1', topic: 't4' },
     { guid: 'cloze-anidado', topic: 't5' },
@@ -236,9 +233,7 @@ describe('a test assessment with a taxonomy', () => {
     expect(notices).toContain(
       'La sección «4. Sin ítems» (4-sin-items) de AP-PR-S1-01, unidad s1, no tiene ningún ítem.',
     );
-    // Resumen never has a topic.
     expect(notices.join('\n')).not.toContain('resumen');
-    // A section left out on purpose.
     const skipped = await build(
       manifest(({ taxonomy }) => {
         taxonomy.units[0]!.skipSections = ['4-sin-items'];
@@ -300,7 +295,6 @@ describe('what stops the import', () => {
   });
 
   it('a deck of several units (a gymkana): each card takes the unit of its topic, if it is one of those', async () => {
-    // Revisión de cero (1.6): a deck was of only one unit, and a gymkana is one deck for the whole assessment.
     const gym = (topic: string) =>
       manifest(({ taxonomy, map }) => {
         taxonomy.nextTopic = 9;
@@ -314,8 +308,6 @@ describe('what stops the import', () => {
       });
     const r = await build(gym('t8'));
     expect(r.taxonomy[0]).toEqual(expect.objectContaining({ units: 3, cards: 16, questions: 3 }));
-    // Revisión de cero (1.6, arreglos): an occlusion of the gymkana with structures of two weeks: each card takes the
-    // unit of its own topic (the note's, or its ord's), so one note can count in two units.
     const split = manifest(({ taxonomy, map }) => {
       taxonomy.nextTopic = 9;
       taxonomy.units.push({
@@ -327,11 +319,9 @@ describe('what stops the import', () => {
       map.notes.find((n) => n.guid === 'oclusion-1')!.ords = { '4': 't8' };
     });
     expect((await build(split)).taxonomy[0]).toMatchObject({ cards: 16 });
-    // A topic of a unit the deck is not of: the message names every unit of the deck.
     expect(await failure(gym('t4'))).toContain(
       'La tarjeta 0 de la nota T-PR-01-001 está en un mazo de las unidades s1, gym, y su tema t4 «Extra básico» es de la unidad extras.',
     );
-    // The closest deck still wins: the Extras cards are of the unit extras only.
     const extras = await failure(
       manifest(({ taxonomy, map }) => {
         taxonomy.nextTopic = 9;
@@ -349,7 +339,7 @@ describe('what stops the import', () => {
     );
   });
 
-  it('a card or a question without a unit (CON-6): its deck or its group is of no unit', async () => {
+  it('a card or a question without a unit: its deck or its group is of no unit', async () => {
     const m = await failure(
       manifest(({ taxonomy }) => {
         taxonomy.units[0]!.decks = [];
@@ -362,7 +352,7 @@ describe('what stops the import', () => {
     expect(m).toContain(
       `La pregunta ${QUIZ}/P-3 está en el grupo ${QUIZ}/all/02, que no es de ninguna unidad («quizGroups»).`,
     );
-    // 12 cards of «Mazo de prueba» without a unit: the list is cut.
+    // The 12 cards of «Mazo de prueba» are without a unit.
     expect(m.match(/que no es de ninguna unidad\./g)).toHaveLength(12);
   });
 
@@ -400,7 +390,7 @@ describe('what stops the import', () => {
   it('a section the article does not have, an article the unit does not have, a topic that cannot know its article', async () => {
     const m = await failure(
       manifest(({ taxonomy }) => {
-        taxonomy.units[0]!.topics[2]!.section = '2-1-ligamento-amarillo'; // a ###, not a ##
+        taxonomy.units[0]!.topics[2]!.section = '2-1-ligamento-amarillo';
         taxonomy.units[1]!.topics[0]!.section = '1-vertebras';
         taxonomy.units[1]!.notes = ['AP-PR-S1-99'];
       }),
@@ -491,7 +481,7 @@ describe('what stops the import', () => {
   it('a group of several units: each question takes the unit of its topic, one of those', async () => {
     const shared = manifest(({ taxonomy, map }) => {
       taxonomy.units[1]!.quizGroups = [`${QUIZ}/all/01`, `${QUIZ}/all/02`];
-      map.questions[0]!.topic = 't5'; // P-1 (group 01) to the other unit: allowed, the group is of both
+      map.questions[0]!.topic = 't5';
     });
     expect((await build(shared)).taxonomy[0]!.questions).toBe(3);
     const m = await failure(
@@ -517,7 +507,6 @@ describe('partial imports and the scope', () => {
       unchecked: ['secciones', 'tests'],
       notices: [],
     });
-    // A map item of what is not imported is not «not published».
     expect(taxonomyLines(r.taxonomy)[0]).toContain('(no se revisaron: secciones, tests)');
   });
 
@@ -552,7 +541,7 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     if (t) await writeFile(join(folder, 'taxonomy', name), JSON.stringify(t));
     if (m) await writeFile(join(folder, 'topic-map', name), JSON.stringify(m));
   };
-  const none = null; // no repository: only the files of now
+  const none = null;
 
   it('a tree goes with its map, of the same version and with the assessment’s file name', async () => {
     const ok = join(root, 'files-ok');
@@ -596,19 +585,15 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     const before = tree();
     const same = compareWithPrevious(before, tree());
     expect(same).toEqual([]);
-    // Renaming a topic or adding one with a new number is fine (adding one, with the version up).
     const grown = tree();
     grown.version = 2;
     grown.nextTopic = 9;
     grown.units[0]!.topics[0]!.title = 'Vértebras típicas';
     grown.units[1]!.topics.push({ id: 't8', title: 'Nuevo' });
     expect(compareWithPrevious(before, grown)).toEqual([]);
-
-    // t3 left the file and a new topic took its number: inside the file nothing is missing, but it is t3 used again.
     const reused = tree();
     reused.units[0]!.topics[2] = { id: 't3', title: 'Otra cosa' };
-    expect(compareWithPrevious(before, reused)).toEqual([]); // a rename: allowed
-    // Below, the version goes up with the topics (its rule has its own test): each case gives only its error.
+    expect(compareWithPrevious(before, reused)).toEqual([]);
     const gone = tree();
     gone.version = 2;
     gone.units[0]!.topics.splice(2, 1);
@@ -634,7 +619,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     expect(compareWithPrevious(before, down)).toContain(
       '«nextTopic» bajó de 8 a 7: los números ya dados no se vuelven a usar.',
     );
-    // A last commit with a hole (t3 removed there): a new t3 now is a number already given.
     const holed = tree();
     holed.units[0]!.topics.splice(2, 1);
     expect(compareWithPrevious(holed, { ...tree(), version: 2 })).toEqual([
@@ -643,8 +627,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('the version, against the last commit: it never goes down, and goes up when the topics change', () => {
-    // Revisión de cero (1.6): the version is what item_topic_map will repeat, and it could go down or stay the same
-    // with other topics (two trees with one number).
     const before = { ...tree(), version: 3 };
     const at = (version: number, edit: (t: TaxonomyFile) => void = () => {}) => {
       const t = { ...tree(), version };
@@ -665,7 +647,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     expect(at(3, (t) => Object.assign(t.units[0]!.topics[2]!, { mergedInto: 't2' }))).toEqual([
       bump,
     ]);
-    // A join that changes target is another tree too; a title, a section or a unit's decks are not.
     expect(at(3, (t) => Object.assign(t.units[0]!.topics[4]!, { mergedInto: 't2' }))).toEqual([
       bump,
     ]);
@@ -701,12 +682,11 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('npm run unpublish reads the manifest without the taxonomy: one being edited does not stop it', async () => {
-    // Revisión de cero (1.6): readManifest failed with the taxonomy's errors, and unpublishing (1.5) used it.
     const folder = join(root, 'unpublish');
     await mkdir(folder, { recursive: true });
     await writeFile(join(folder, 'catalog.json'), JSON.stringify(manifest().catalog));
     const t = tree();
-    t.units[0]!.topics.splice(0, 1); // t1 left: a hole
+    t.units[0]!.topics.splice(0, 1);
     await write(folder, t, topicMap());
     await expect(readManifest(folder, { history: none })).rejects.toThrow(/Falta el tema t1/);
     expect((await readManifest(folder, { taxonomies: false })).taxonomies).toEqual([]);
@@ -729,7 +709,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     expect((await readManifest(content)).taxonomies).toEqual([
       expect.objectContaining({ assessmentId: A, history: 'commit' }),
     ]);
-    // The topic t3 leaves and another one takes its place in the file: by itself it is valid, against HEAD it is not.
     const t = tree();
     t.units[0]!.topics[2] = { id: 't3', title: 'Otra cosa', section: '3-imagen' };
     t.units[1]!.topics.push(...t.units[0]!.topics.splice(2, 1));
@@ -737,15 +716,12 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     await expect(readManifest(content)).rejects.toThrow(
       /content\/taxonomy\/anatomia-1-certamen-1\.json: el tema t3 \(«Imagen»\) pasó de la unidad s1 a la extras/,
     );
-    // Without a repository there is nothing to compare with: only the file itself (and the report says it).
     expect((await readManifest(content, { history: none })).taxonomies).toEqual([
       expect.objectContaining({ assessmentId: A, history: 'none' }),
     ]);
   });
 
   it('every committed version counts: a bad edit already committed, a deleted taxonomy, a shallow clone', async () => {
-    // Revisión de cero (1.6): only HEAD was compared, so a bad edit with its commit passed, deleting the whole taxonomy
-    // went back to «sin taxonomía», and CI's shallow clone compared the commit with itself.
     const repo = join(root, 'repo-history');
     const content = join(repo, 'content');
     await mkdir(content, { recursive: true });
@@ -759,7 +735,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     await write(content, tree(), topicMap());
     git('add', '.');
     git('commit', '-q', '-m', 'v1');
-    // v2 brings back the retired t6, and is committed without importing: against HEAD alone it passed.
     const back = tree();
     back.version = 2;
     delete back.units[0]!.topics[3]!.retired;
@@ -769,7 +744,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
       /el tema t6 \(«Un tema viejo»\) estaba retirado y volvió/,
     );
 
-    // A shallow clone has only the last commit: the report says the history was not complete.
     const shallow = join(root, 'repo-shallow');
     execFileSync('git', ['clone', '-q', '--depth', '1', `file://${repo}`, shallow], {
       stdio: 'pipe',
@@ -779,8 +753,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     expect(cloned.taxonomies).toEqual([
       expect.objectContaining({ assessmentId: A, history: 'shallow' }),
     ]);
-
-    // Deleting the taxonomy (and its map), before and after the commit, stops the import.
     await rm(join(content, 'taxonomy'), { recursive: true });
     await rm(join(content, 'topic-map'), { recursive: true });
     const deleted =
@@ -789,15 +761,12 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     git('add', '-A');
     git('commit', '-q', '-m', 'sin taxonomía');
     await expect(readManifest(content)).rejects.toThrow(deleted);
-    // A misnamed file that was committed is not a taxonomy: it can leave.
     await write(content, tree(), null, 'mal-nombre.json');
     git('add', '-A');
     git('commit', '-q', '-m', 'mal nombre');
     await rm(join(content, 'taxonomy', 'mal-nombre.json'));
     await expect(readManifest(content)).rejects.not.toThrow(/mal-nombre\.json estaba en un commit/);
   });
-
-  /** A git repository with content/ (or another folder) and the test catalog. */
   const gitRepo = async (name: string, sub = 'content') => {
     const repo = join(root, name);
     const content = join(repo, sub);
@@ -819,8 +788,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   const mapAt = (version: number) => ({ ...topicMap(), taxonomyVersion: version });
 
   it('a mistake already committed is fixed with another commit: a topic moved to another unit', async () => {
-    // Revisión de cero (1.6, arreglos): each committed version was compared on its own, so once a commit moved t2 to
-    // another unit, t2 had to be in both units at once: every edit failed, and the repository was stuck for good.
     const { content, git } = await gitRepo('repo-moved');
     await write(content, tree(), topicMap());
     git('add', '.');
@@ -831,7 +798,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     await expect(readManifest(content)).rejects.toThrow(
       /el tema t2 \(«Ligamentos»\) pasó de la unidad s1 a la extras: un tema no cambia de unidad; déjalo en la s1/,
     );
-    // Back in its first unit, with the version up: it reads.
     await write(content, at(3), mapAt(3));
     expect((await readManifest(content)).taxonomies).toEqual([
       expect.objectContaining({ history: 'commit' }),
@@ -839,8 +805,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('two branches that gave one number to two topics: the merge keeps the main branch’s, and its own version counts', async () => {
-    // Revisión de cero (1.6, arreglos): after the merge, t8 had to be in the unit of both branches (stuck for good),
-    // and the merge's own version (the conflict solved by hand) was not a version: what it added could leave.
     const { content, git } = await gitRepo('repo-branches');
     await write(content, tree(), topicMap());
     git('add', '.');
@@ -856,7 +820,7 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     git('checkout', '-q', 'main');
     await write(content, add(1, 'De y'), mapAt(2));
     git('commit', '-q', '-am', 'main: t8 en extras');
-    expect(() => git('merge', '-q', 'x', '-m', 'merge')).toThrow(); // a conflict
+    expect(() => git('merge', '-q', 'x', '-m', 'merge')).toThrow();
     // Solved: main's t8 stays, x's becomes t9.
     const solved = at(3, (t) => {
       t.nextTopic = 10;
@@ -869,7 +833,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     expect((await readManifest(content)).taxonomies).toEqual([
       expect.objectContaining({ history: 'commit' }),
     ]);
-    // t9 came in the merge: it cannot leave either.
     const without = at(4, (t) => {
       t.nextTopic = 9;
       t.units[1]!.topics.push({ id: 't8', title: 'De y' });
@@ -881,18 +844,15 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('every version together: one mistake gives one message, and a long list is cut', async () => {
-    // Revisión de cero (1.6, arreglos): with 40 versions, a «version» set back to 1 gave 39 messages.
     const versions = Array.from({ length: 40 }, (_, i) => at(40 - i));
     expect(compareWithHistory(versions, at(1))).toEqual([
       '«version» bajó de 40 a 1: una versión ya dada no se vuelve a usar.',
     ]);
-    // Two versions with one number and other topics (a commit that did not raise it): the next one goes above both.
     const retired = at(5, (t) => Object.assign(t.units[0]!.topics[2]!, { retired: true }));
     expect(compareWithHistory([retired, at(5)], retired)).toEqual([
       expect.stringContaining('«version» sigue en 5: súbela a 6'),
     ]);
     expect(compareWithHistory([retired, at(5)], { ...retired, version: 6 })).toEqual([]);
-    // Fed to readTaxonomies by hand (no git): a whole unit gone gives one line per topic, cut at 25 by kind.
     const big = at(1, (t) => {
       t.nextTopic = 48;
       for (let n = 8; n < 48; n++) t.units[1]!.topics.push({ id: `t${n}`, title: `Tema ${n}` });
@@ -910,8 +870,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('a path with accents: a deleted taxonomy is still seen', async () => {
-    // Revisión de cero (1.6, arreglos): git log --name-only quotes «médica» as «m\303\251dica», so no committed file
-    // matched and deleting the taxonomy passed.
     const { content, git } = await gitRepo('repo acentos', 'Materia médica/contenído');
     await write(content, tree(), topicMap());
     git('add', '.');
@@ -925,8 +883,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('a committed taxonomy of an assessment not in the catalog can leave; if it comes back, its old versions count', async () => {
-    // Revisión de cero (1.6, arreglos): a misspelt assessment id, once committed, could neither stay (the import stops)
-    // nor leave (a committed taxonomy is never deleted): stuck for good.
     const typo = 'anatomia-1/certamen-9';
     const kept = manifest();
     kept.taxonomies!.push({
@@ -951,7 +907,6 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
     await rm(join(content, 'topic-map', name));
     git('commit', '-q', '-am', 'fuera');
     expect((await readManifest(content)).taxonomies).toEqual([]);
-    // Back, with the retired t6 active: compared with the versions before it left.
     const back = { ...at(2, (t) => delete t.units[0]!.topics[3]!.retired), assessmentId: typo };
     await write(content, back, { ...mapAt(2), assessmentId: typo }, name);
     await expect(readManifest(content)).rejects.toThrow(
@@ -960,22 +915,18 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
   });
 
   it('a repository with no commit yet: only the file, and the report says it', async () => {
-    // Revisión de cero (1.6, arreglos): git log fails there; it is the only failure of git that means «no history».
     const { content } = await gitRepo('repo-empty');
     await write(content, tree(), topicMap());
     expect((await readManifest(content)).taxonomies).toEqual([
       expect.objectContaining({ history: 'none' }),
     ]);
   });
-
-  // The private repository's content/ (step 2.4), with its git history: where it is; skipped in the public CI.
   const PRIVATE = privateMaterial();
   it.skipIf(!PRIVATE.content)(
     PRIVATE.content
       ? 'the private content/ reads, and each taxonomy it has is of an assessment of the catalog'
       : `the private content/ reads (se salta: ${PRIVATE.skipReason})`,
     async () => {
-      // Revisión de cero (1.6): it said «toEqual([])», and would fail as soon as the 6.1 adds Biocel C2's.
       const m = await readManifest(PRIVATE.content!);
       const assessments = new Set(m.catalog.assessments.map((a) => a.id));
       for (const t of m.taxonomies ?? []) {

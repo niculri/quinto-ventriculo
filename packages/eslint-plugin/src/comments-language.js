@@ -9,8 +9,7 @@ import { TextSourceCodeBase, VisitNodeStep } from '@eslint/plugin-kit';
  */
 
 /**
- * The comment syntax of a file by its name: CSS has only block comments, JSON with comments has JavaScript's two,
- * and everything else (YAML, shell scripts, git hooks without an extension) has `#`.
+ * CSS has only block comments, JSON with comments has JavaScript's two, and the rest (YAML, shell, hooks) has `#`.
  * @param {string} path
  * @returns {Syntax}
  */
@@ -21,7 +20,7 @@ export function syntaxOf(path) {
 }
 
 /**
- * Where each line starts, to turn an index into a line (from 1) and a column (from 0).
+ * Turns an index into a line (from 1) and a column (from 0).
  * @param {string} text
  */
 function locator(text) {
@@ -36,8 +35,7 @@ function locator(text) {
 }
 
 /**
- * Where the string that starts at `i` ends, or null if none starts there. With `#` comments (YAML and shell) a quote
- * inside a word is an apostrophe («don't») and no string spans lines; that is enough to find the comments.
+ * With `#` comments (YAML and shell), a quote inside a word is an apostrophe («don't») and no string spans lines.
  * @param {string} text @param {number} i @param {Syntax} syntax
  * @returns {number | null}
  */
@@ -54,7 +52,6 @@ function stringEnd(text, i, syntax) {
 }
 
 /**
- * The comment that starts at `i`, without its place in lines, or null if none starts there.
  * @param {string} text @param {number} i @param {Syntax} syntax
  * @returns {{ type: Comment['type'], start: number, end: number, value: string } | null}
  */
@@ -79,7 +76,7 @@ function commentAt(text, i, syntax) {
 }
 
 /**
- * The comments of `text` and the index where its code starts (the length of the text when it has no code).
+ * `codeStart` is the length of the text when it has no code.
  * @param {string} text @param {Syntax} syntax
  * @returns {{ comments: Comment[], codeStart: number }}
  */

@@ -1,11 +1,7 @@
+// The account in the users database: accepting the terms, entering (which cancels a requested deletion), downloading
+// the data and asking to delete it. The database decides, from the caller's token and open session.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
-
-/**
- * The account in the USERS database (step 2.3): accepting the terms and the privacy policy, entering (which cancels a
- * deletion asked for), downloading everything and asking to delete it. The database decides: each function only
- * knows the caller (their token) and asks for their session open.
- */
 
 interface AcceptedVersions {
   terms: string;
@@ -14,13 +10,10 @@ interface AcceptedVersions {
 }
 
 export interface AccountState {
-  /** The versions accepted last (null: never accepted). */
   accepted: AcceptedVersions | null;
-  /** Entering cancelled a deletion this person had asked for. */
   deletionCancelled: boolean;
 }
 
-/** What the database refuses, by name, so that the web can say it. */
 export type AccountErrorCode = 'session_closed' | 'email_mismatch' | 'admin_account' | 'unknown';
 
 export class AccountError extends Error {
@@ -34,15 +27,10 @@ export class AccountError extends Error {
 }
 
 export interface AccountRepository {
-  /**
-   * On entering: what was accepted (`versions` if they were, if not the ones accepted last), and whether a deletion
-   * was cancelled (it is cancelled here).
-   */
+  /** Entering also cancels a requested deletion. */
   resume(versions: { terms: string; privacy: string }): Promise<AccountState>;
   accept(versions: { terms: string; privacy: string }): Promise<{ acceptedAt: string }>;
-  /** Everything of the person, as the JSON file to save (not parsed). */
   exportData(): Promise<Blob>;
-  /** Asks to delete the account; its sessions close. When it will be deleted. */
   requestDeletion(email: string): Promise<{ deleteAfter: string }>;
 }
 
@@ -54,7 +42,7 @@ const MESSAGES: Record<AccountErrorCode, string> = {
   unknown: 'No se pudo hacer. Revisa tu conexión e intenta de nuevo.',
 };
 
-/** The database's refusal (its message is the code: …_privacy_and_account.sql) → an AccountError. */
+/** The database's refusal carries the code as its message. */
 export function accountError(e: unknown): AccountError {
   if (e instanceof AccountError) return e;
   const text = e && typeof e === 'object' && 'message' in e ? String(e.message) : '';
@@ -71,7 +59,7 @@ interface ResumeRow {
 
 export function supabaseAccountRepository(
   client: SupabaseClient,
-  /** The project's URL and publishable key, for the download (it goes as it comes, not through supabase-js). */
+  /** The download goes by fetch, so the file is saved as it comes, not parsed by supabase-js. */
   project: { url: string; key: string },
 ): AccountRepository {
   const call = async <T>(fn: string, args?: Record<string, unknown>): Promise<T> => {
@@ -134,16 +122,11 @@ export function supabaseAccountRepository(
   };
 }
 
-/** What the demo keeps in this browser. */
 interface LocalAccount {
   accepted: AcceptedVersions | null;
   deletion: { requestedAt: string; deleteAfter: string } | null;
 }
 
-/**
- * The demo and the tests, without a database: in this browser (or in memory). `email` is the demo's account;
- * `exported` is what the download brings (the demo's own data in this browser).
- */
 export function localAccountRepository(
   options: {
     storage?: Storage | null;

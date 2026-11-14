@@ -1,7 +1,8 @@
+// Renders the cards of a whole collection, looking up each note, note type and deck once.
 import { renderCard } from './render';
 import type { RenderedCard } from './render';
 
-/** The parts of a collection the renderer needs (the shape of @qv/anki-format's AnkiCollection). */
+/** A subset of @qv/anki-format's AnkiCollection, which this leaf package cannot import. */
 export interface CollectionLike {
   noteTypes: {
     id: string;
@@ -23,7 +24,6 @@ export interface CardLike {
   flags: number;
 }
 
-/** Renders the cards of a collection (the note, its type and its deck are looked up once). */
 export function createCardRenderer(collection: CollectionLike): (card: CardLike) => RenderedCard {
   const noteTypes = new Map(collection.noteTypes.map((t) => [t.id, t]));
   const notes = new Map(collection.notes.map((n) => [n.id, n]));

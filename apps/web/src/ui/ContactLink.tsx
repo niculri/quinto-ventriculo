@@ -1,8 +1,8 @@
+// The contact address as a `mailto:` link, also inside a notice's text.
 import { Fragment } from 'react';
 import type { ReactNode } from 'react';
 import { CONTACT_EMAIL } from '@qv/schema';
 
-/** The contact address as a `mailto:` link (it is defined once, in @qv/schema). */
 export function ContactLink() {
   return (
     <a
@@ -14,7 +14,6 @@ export function ContactLink() {
   );
 }
 
-/** A notice's text with the contact address, if it has it, as a link. */
 export function withContactLink(text: string): ReactNode {
   const parts = text.split(CONTACT_EMAIL);
   if (parts.length === 1) return text;

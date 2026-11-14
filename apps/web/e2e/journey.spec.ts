@@ -1,3 +1,5 @@
+// E2e tests of a student's way through the site: signing in and out, reaching a note, searching, the URLs and the
+// protected images.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 
@@ -43,8 +45,6 @@ test('sign in and navigate to a note, with no reading progress on home', async (
     .poll(() => figure.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth))
     .toBeGreaterThan(0);
 
-  // There is no reading progress (removed at the author's request): home only offers the last note opened on this
-  // device, under «Seguir» (step 3.2), with no percentage.
   await page.goto('/home');
   await expect(page.getByRole('heading', { level: 1, name: /Hola/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Seguir leyendo' })).toHaveCount(0);
@@ -137,13 +137,11 @@ test('the URLs follow the hierarchy, and old links redirect keeping the anchor',
     /\/semesters\/2\/courses\/biologia-celular\/notes\/10-nucleo-celular$/,
   );
 
-  // A saved link with the old form: to the canonical URL, with its ?query and its #anchor.
   await page.goto('/notes/10-nucleo-celular?desde=guardado#nucleolo');
   await expect(page).toHaveURL(
     /\/semesters\/2\/courses\/biologia-celular\/notes\/10-nucleo-celular\?desde=guardado#nucleolo$/,
   );
   await expect(page.getByRole('heading', { level: 2, name: 'El nucléolo' })).toBeInViewport();
-  // The redirect replaced the old entry: «back» does not return to it.
   await page.goBack();
   await expect(page).not.toHaveURL(/\/notes\/10-nucleo-celular\?desde/);
 

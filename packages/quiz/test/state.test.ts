@@ -1,3 +1,4 @@
+// Tests of restoring saved rounds and cover choices against the questions of today, and of round summaries.
 import { describe, expect, it } from 'vitest';
 import {
   answerChoice,
@@ -45,7 +46,6 @@ function halfway(): Round {
   return r;
 }
 
-/** Through JSON, as it is stored. */
 const roundTrip = (r: unknown) => JSON.parse(JSON.stringify(r)) as unknown;
 
 describe('preferences of the cover', () => {
@@ -127,7 +127,6 @@ describe('saving and continuing a round', () => {
   });
 
   describe('a question of the round is gone (the author took it out)', () => {
-    /** a and b answered (b wrong), c on screen and not answered yet. */
     function onC(): Round {
       let r = startRound(Q, { shuffle: false, shuffleOptions: false, id: 'r', now: T0 });
       r = next(answerChoice(r, Q[0]!, 0, T0));
@@ -145,10 +144,8 @@ describe('saving and continuing a round', () => {
       expect(r).not.toBeNull();
       expect(r.queue).toEqual(['a', 'c', 'd']);
       expect(r.answers).toEqual([expect.objectContaining({ position: 0, questionId: 'a' })]);
-      // Still on c, now the second question.
       expect(currentQuestionId(r)).toBe('c');
       expect([r.index, r.top]).toEqual([1, 1]);
-      // A new id: the positions of the history (quiz_answers) are the old ones and must not be taken again.
       expect(r.id).toBe('r2');
       expect(r.startedAt).toBe(T0.toISOString());
     });
@@ -198,7 +195,6 @@ describe('saving and continuing a round', () => {
         [0, 'a'],
         [1, 'c'],
       ]);
-      // A saved finished round on a question (it cannot happen through the round's steps): its results.
       const odd = { ...(roundTrip(r) as Record<string, unknown>), screen: 'question' };
       expect(restoreRound(odd, without('b'))).toMatchObject({ id: 'r', screen: 'results' });
     });
@@ -244,8 +240,8 @@ describe('saving and continuing a round', () => {
     raw.index = -4;
     raw.answers = [
       ...(raw.answers as unknown[]),
-      { position: 0, questionId: r.queue[0], chosen: 0, correct: true }, // repeated position
-      { position: 3, questionId: 'zzz', chosen: 0 }, // another question
+      { position: 0, questionId: r.queue[0], chosen: 0, correct: true },
+      { position: 3, questionId: 'zzz', chosen: 0 },
       { position: 'x' },
       'nope',
     ];

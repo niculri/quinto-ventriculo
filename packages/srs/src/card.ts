@@ -2,10 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * A user's card as the scheduler keeps it (Anki's card: type, queue, due, interval, remaining steps, FSRS
- * memory, reps and lapses) and the two operations of answering it: the four next states
- * (rslib/src/scheduler/answering/mod.rs, current.rs) and applying one (learning.rs, review.rs,
- * relearning.rs of answering/).
+ * A user's card as the scheduler keeps it, its four next states and applying an answer
+ * (rslib/src/scheduler/answering/: mod.rs, current.rs, learning.rs, review.rs, relearning.rs).
  */
 import type { DeckConfig } from './config';
 import { allowShortTerm, fsrsNextStates } from './fsrs';
@@ -41,7 +39,6 @@ export interface CardRecord {
   difficulty: number | null;
   reps: number;
   lapses: number;
-  /** Unix time (seconds) of the last answer. */
   lastReview: number | null;
 }
 
@@ -50,7 +47,6 @@ export interface CardKey {
   ord: number;
 }
 
-/** A card that was never answered (Anki: type and queue new, `due` = its position). */
 export function newCard(position: number): CardRecord {
   return {
     phase: 'new',
@@ -127,11 +123,8 @@ export function daysElapsed(card: CardRecord, timing: SchedTiming): number {
 }
 
 export interface AnswerOptions {
-  /** Interval fuzz and learning-step fuzz (off in the comparisons with Anki in test mode). */
   fuzz?: boolean;
-  /** Anki's global «FSRS short-term with steps» option. */
   shortTermWithSteps?: boolean;
-  /** A given fuzz factor in [0, 1) instead of the card's (tests). */
   fuzzFactor?: number;
 }
 
@@ -164,7 +157,6 @@ export function schedulingStates(
   });
 }
 
-/** The next state for a rating. */
 export function stateFor(states: SchedulingStates, rating: Rating): CardState {
   return [states.again, states.hard, states.good, states.easy][rating - 1]!;
 }
@@ -175,18 +167,14 @@ export interface AnswerLog {
   /** Days (positive) or seconds (negative), as Anki's revlog `ivl`. */
   interval: number;
   lastInterval: number;
-  /** Anki's revlog type: the phase of the card before answering. */
   phaseBefore: Phase;
 }
 
 export interface AnswerResult {
   card: CardRecord;
   log: AnswerLog;
-  /** Became a leech with this answer (Anki adds the «leech» tag). */
   leech: boolean;
-  /** The preset suspends leeches. */
   suspend: boolean;
-  /** Queue of the card before answering (for the day's counts). */
   queueBefore: Queue;
 }
 
@@ -219,7 +207,6 @@ export function answerCard(
   const factor = fuzz ? unitFromSeed(fuzzSeed(key.noteGuid, key.ord, card.reps)) : null;
   const out: CardRecord = { ...card, reps: card.reps + 1, lastReview: timing.now };
 
-  /** Learning and relearning: under the rollover, a time today; over it, a day. */
   const placeLearning = (secs: number) => {
     const kind = maybeAsDays({ secs }, secsUntilRollover);
     if ('secs' in kind) {

@@ -1,3 +1,4 @@
+// Tests the practice recorder: batches within the database's caps, retries and refusals.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';

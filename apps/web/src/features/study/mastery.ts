@@ -1,13 +1,12 @@
+// Dominio: how much of a deck one would remember today, the average of FSRS's retrievability over its cards with the
+// ones never seen as 0; it goes up by moving forward and down with time.
+
 import { retrievability } from '@qv/srs';
 import { cardKey, configsFor, deckIds } from './scheduler';
 import type { StudyData } from './scheduler';
 import { ASSESSMENT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';
 
-/**
- * Dominio: how much of a deck one would remember today, the average of FSRS's retrievability over all its cards, with
- * the ones never seen as 0. It goes up by moving forward and down with time. Cards under «No mostrar más» do not
- * count, and neither do Extras if the assessment does not include them.
- */
+/** Cards under «No mostrar más» do not count, nor Extras if the assessment does not include them. */
 export function masteryByDeck(data: StudyData, nowMs = Date.now()): Map<string, number> {
   const configs = configsFor(data, nowMs);
   const parents = new Map(data.decks.map((d) => [d.id, d.parentId]));

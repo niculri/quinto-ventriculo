@@ -1,20 +1,16 @@
+// E2e test of the whole Anki tour with the synthetic deck: the course's deck tree, studying from the assessment, the
+// cards' table with Anki's search and «Opciones».
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
-/** What the deck has for today, on its page: «4 para hoy» gives 4. */
 const today = async (page: Page) => {
   const text = await page.getByRole('group', { name: 'Para hoy' }).first().innerText();
   return Number(/(\d+) para hoy/.exec(text)?.[1] ?? 0);
 };
 
-/**
- * The whole tour with the synthetic deck (🦴 Anatomía I → Certamen 1 → S1 → Mazo de prueba → Extras): the
- * course's deck tree, studying from the assessment, the browser and «Opciones» → «Anki».
- */
 test('course → Certamen 1 → study → browse → options', async ({ page, isMobile }) => {
   await signIn(page);
-  // No Anki of every course: the top bar has no link to it, and /anki goes home.
   await expect(page.getByRole('banner').getByRole('link', { name: 'Anki' })).toHaveCount(0);
   await page.goto('/anki');
   await expect(page).toHaveURL(/\/home$/);
@@ -31,7 +27,6 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
     .first()
     .click();
   await expect(page).toHaveURL(/\/semesters\/1\/courses\/anatomia-1$/);
-  // The course's page is a dashboard; its whole deck tree, one link away.
   await page.getByRole('main').getByRole('link', { name: 'Todos los mazos del ramo' }).click();
   await expect(page).toHaveURL(/\/semesters\/1\/courses\/anatomia-1\/anki$/);
   await expect.poll(() => today(page)).toBeGreaterThan(0);
@@ -40,7 +35,6 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
     await expect(tree.getByText(name, { exact: true })).toBeVisible();
   }
 
-  // Certamen 1: its page, and studying from it studies everything below.
   await page.getByRole('navigation', { name: 'Ruta' }).getByText('Anatomía I').waitFor();
   await page.goto('/semesters/1/courses/anatomia-1/anki/certamen-1');
   await expect(page).toHaveURL(/\/semesters\/1\/courses\/anatomia-1\/anki\/certamen-1$/);
@@ -57,7 +51,6 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
     .click();
   await expect(front).toContainText('Pregunta sin extra ni pista');
 
-  // A deck's configuration is chosen from the list, and its cards are in the browser.
   await page.goto(DECK_URL);
   await expect(page).toHaveURL(/\/anki\/certamen-1$/);
   await page.getByRole('button', { name: 'Configuración de Mazo de prueba' }).click();
@@ -71,12 +64,10 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
   await presetDialog.getByRole('button', { name: 'Cerrar' }).click();
   await page.getByRole('link', { name: 'Ver las tarjetas' }).click();
   await expect(page).toHaveURL(/\/anki\/certamen-1\/cards$/);
-  // Anki's table: the «Tabla» of «Modo avanzado».
   await page.getByRole('group', { name: 'Vista' }).getByRole('button', { name: 'Tabla' }).click();
   const grid = page.getByRole('grid', { name: 'Tarjetas' });
   await expect(page.getByText('16 tarjetas', { exact: true })).toBeVisible();
 
-  // Search with Anki's syntax: the one just studied is a review now.
   const box = page.getByRole('searchbox', { name: /Buscar/ });
   await box.fill('is:review');
   await box.press('Enter');
@@ -84,13 +75,11 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
   await grid.getByRole('row', { name: /¿Cuántas vértebras/ }).click();
   const info = page.getByRole('region', { name: 'Información de la tarjeta' });
   await expect(info.getByRole('table', { name: 'Historial de repasos' })).toContainText('Fácil');
-  // Suspend it, and undo.
   await page.getByRole('button', { name: 'Suspender' }).click();
   await expect(page.getByRole('button', { name: 'Quitar suspensión' })).toBeVisible();
   await page.keyboard.press('ControlOrMeta+z');
   await expect(page.getByText('Deshecho: Suspender tarjeta')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Suspender' })).toBeVisible();
-  // «Olvidar»: back to new, and it leaves this search.
   await page.getByRole('button', { name: 'Olvidar…' }).click();
   await page
     .getByRole('dialog', { name: 'Olvidar' })
@@ -98,10 +87,8 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
     .click();
   await expect(page.getByText('0 tarjetas', { exact: true })).toBeVisible();
 
-  // «Opciones» from the user menu: its page, then «Anki general» and «Configuración de mazos» from the side menu.
   await page.getByRole('button', { name: 'Tu cuenta' }).click();
   await page.getByRole('menuitem', { name: /Opciones/ }).click();
-  // Its sections: in the site's menu on the computer, as tabs on top of the page on the phone.
   const sections = page.getByRole('navigation', {
     name: isMobile ? 'Secciones de las opciones' : 'Menú del sitio',
   });
@@ -122,7 +109,6 @@ test('course → Certamen 1 → study → browse → options', async ({ page, is
   await expect(page.getByRole('region', { name: 'Mazos que la usan' })).toContainText(
     'Mazo de prueba',
   );
-  // Neither «Opciones» nor the landing page scroll sideways (the phone included).
   const sideways = () =>
     page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(await sideways()).toBeLessThanOrEqual(0);

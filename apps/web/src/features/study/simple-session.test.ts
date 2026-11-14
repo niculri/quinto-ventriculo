@@ -1,3 +1,5 @@
+// Tests simple-mode sessions: «N para hoy» from every level, going back and forth, leeches and Extras turned off.
+
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema';
 import { deckCounts } from './DeckCounts';
@@ -22,7 +24,6 @@ afterAll(() => {
 
 const COURSE = '3';
 const ASSESSMENT = '4';
-/** Lectures of the assessment, a week with two decks and their Extras, and a second assessment. */
 const L1 = '51';
 const L1_EXTRAS = '61';
 const L2 = '52';
@@ -63,7 +64,6 @@ const card = (noteGuid: string, ord: number, deckId: string): CardSummary => ({
   text: '',
 });
 
-/** In each deck with cards, 12 notes; every third one with a sibling, in its Extras if the deck has one. */
 function cards(): CardSummary[] {
   const extrasOf: Record<string, string> = { [L1]: L1_EXTRAS, [WEEK_D1]: WEEK_D1_EXTRAS };
   const out: CardSummary[] = [];
@@ -145,7 +145,6 @@ function study(rows: StoredCard[], plan: Partial<StudyPlan>, answers: AnswerToda
   } satisfies StudyData;
 }
 
-/** Saves nothing: what is under test is what the session does with the queue. */
 function noSaving(): StudyRepository {
   return {
     ...localStudyRepository(null),
@@ -156,7 +155,6 @@ function noSaving(): StudyRepository {
   };
 }
 
-/** The subset of the deck a session opens with, as the API gives it for that deck. */
 function withRoot(data: StudyData, root: string): StudyData {
   const name = data.decks.find((d) => d.id === root)!.name;
   const ids = new Set(
@@ -168,7 +166,6 @@ function withRoot(data: StudyData, root: string): StudyData {
   };
 }
 
-/** Everything a session shows answering «Bien» until nothing is left: the cards, once each, by how they came. */
 function walk(data: StudyData, root: string) {
   const session = new StudySession(withRoot(data, root), root, noSaving());
   session.showNext();
@@ -297,7 +294,6 @@ describe('going back and forth in a session', () => {
     expect(first).toMatchObject({ deckId: L2, ord: 0, kind: 'new' });
     s.reveal();
     s.answer(3);
-    // Its sibling (ord 1 of the same note) went with it: buried until tomorrow.
     const sibling = { noteGuid: first.noteGuid, ord: 1 };
     expect(s.row(sibling)?.buriedUntil).toBeTruthy();
     expect(s.counts()).not.toEqual(before);
@@ -320,7 +316,6 @@ describe('going back and forth in a session', () => {
       s.reveal();
       s.answer(3);
     }
-    // Then it says that nothing is on, and that the new ones are there to turn on.
     expect(s.congrats()).toMatchObject({ nothingActive: true });
     expect(s.congrats().inactiveNew).toBeGreaterThan(0);
   });
@@ -361,9 +356,7 @@ describe('a card that costs a lot (a leech)', () => {
       const base = withRoot(study([row], { activations: on(L2), answeredDecks: [L2] }), L2);
       const data = {
         ...base,
-        // Only that card, so that it comes first in both modes.
         deck: { ...base.deck, cards: base.deck.cards.filter(same) },
-        // The preset says to suspend it.
         authorPresets: [
           { name: 'Default', config: { lapse: { leechAction: 0, leechFails: 8 } } },
           { name: 'Extras', config: {} },

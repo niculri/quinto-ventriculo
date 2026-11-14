@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+
+// A study session of a deck (Anki's reviewer): the queue, answers applied at once and saved in order in the
+// background, and undo back to the start of the session; the page subscribes with useSyncExternalStore.
 import {
   answerCard,
   retrievability,
@@ -58,7 +61,6 @@ const ACTION_LABELS: Record<ActionName, string> = {
   forget: 'Olvidar',
 };
 
-/** The same actions as simple mode calls them. */
 const SIMPLE_ACTION_LABELS: Partial<Record<ActionName, string>> = {
   bury_card: 'Saltar por hoy',
   bury_note: 'Saltar por hoy',
@@ -67,7 +69,6 @@ const SIMPLE_ACTION_LABELS: Partial<Record<ActionName, string>> = {
   flag: 'Marcar para revisar',
 };
 
-/** What an action is called for this user. */
 export function actionLabel(action: ActionName, fullAnki: boolean): string {
   return (!fullAnki && SIMPLE_ACTION_LABELS[action]) || ACTION_LABELS[action];
 }
@@ -78,7 +79,6 @@ type HistoryItem =
   | {
       kind: 'answer';
       card: CardRef;
-      /** Rows of the card and of the siblings it buried, before. */
       before: Map<string, StoredCard | undefined>;
       stamps: Map<string, string | null>;
       update: QueueUpdate;
@@ -95,43 +95,30 @@ type HistoryItem =
 export interface Shown {
   entry: QueueEntry;
   states: SchedulingStates;
-  /** The four buttons' intervals («<1 m», «10 m», «1 d», «4 d»). */
   labels: [string, string, string, string];
-  /** When the front was shown (Anki times the answer from there). */
   shownAt: number;
 }
 
 export interface CongratsInfo {
-  /** «La próxima tarjeta estará lista en…» (empty if none today). */
   learnMessage: string;
   reviewLimitReached: boolean;
   newLimitReached: boolean;
   buried: boolean;
   dueTomorrow: number;
-  /** Simple mode: new cards of what is not turned on (Extras do not count). */
   inactiveNew: number;
-  /** Simple mode: nothing of this deck is turned on. */
   nothingActive: boolean;
-  /** Simple mode: this deck is an «Extras» and its assessment does not include them. */
   extrasOff: boolean;
-  /** Simple mode: what the assessment mode has to say when the day is done (null above an assessment). */
   exam: ExamNotes | null;
 }
 
 export interface ExamNotes {
-  /** The new cards of the day come from the date, not from a number the student can raise. */
   computed: boolean;
-  /** No new cards: these are the days of the final review. */
   finalReview: boolean;
-  /** Today was the last day with new cards: tomorrow the final review starts. */
   lastNewDay: boolean;
-  /** «Para llegar a la fecha, ahora son 35 al día». */
   roseTo: number | null;
-  /** A large backlog elsewhere in the assessment. */
   catchUp: CatchUp | null;
 }
 
-/** A row for a card the database has none of (a new card): what `card_states` defaults to. */
 export function blankRow(ref: CardRef): StoredCard {
   return {
     ...ref,
@@ -153,15 +140,6 @@ export function blankRow(ref: CardRef): StoredCard {
   };
 }
 
-/**
- * A study session of a deck (Anki's reviewer): the queue lives here; answers apply at once and are saved to
- * the database in order, in the background; undo goes back one action, also in the database. The page
- * subscribes to it (useSyncExternalStore) and calls its methods from its event handlers.
- */
-/**
- * A card that is new: without a row, or forgotten in the browser (Anki keeps its repetitions and lapses
- * unless «Olvidar» reset them).
- */
 function asNew(row: StoredCard | undefined) {
   return { ...newCard(0), reps: row?.reps ?? 0, lapses: row?.lapses ?? 0 };
 }
@@ -170,19 +148,15 @@ export class StudySession {
   shown: Shown | null = null;
   revealed = false;
   toast: string | null = null;
-  /** A save that failed: the session stops (the user reloads). */
   failure: string | null = null;
-  /** When the queue was last looked at (the congratulations screen counts from it). */
   now = Date.now();
 
   private data: StudyData;
   private queue: StudyQueue;
   private configs: Map<string, DeckConfig>;
   private history: HistoryItem[] = [];
-  /** Each card's `updatedAt` in the database (what the next answer sends to detect a conflict). */
   private stamps: Map<string, string | null>;
   private chain: Promise<unknown> = Promise.resolve();
-  /** Writes not yet saved (the page asks before leaving while there are some). */
   pending = 0;
   private listeners = new Set<() => void>();
   private version = 0;
@@ -193,7 +167,6 @@ export class StudySession {
     private readonly rootId: string,
     private readonly repository: StudyRepository,
     private readonly prefetch: (entries: QueueEntry[]) => void = () => {},
-    /** Waits before trying an answer again when the connection failed (twice: after 1 s and 3 s). */
     private readonly retryDelaysMs: readonly number[] = [1000, 3000],
   ) {
     this.data = { ...initial, rows: new Map(initial.rows), answers: [...initial.answers] };
@@ -222,12 +195,10 @@ export class StudySession {
     return this.queue.counts();
   }
 
-  /** The row of a card as the session has it now. */
   row(key: { noteGuid: string; ord: number }): StoredCard | undefined {
     return this.data.rows.get(cardKey(key));
   }
 
-  /** Waits until everything is saved. */
   saved(): Promise<unknown> {
     return this.chain;
   }
@@ -246,7 +217,6 @@ export class StudySession {
     this.queue = buildQueue(this.data, this.rootId);
   }
 
-  /** Shows the next card of the queue (its front), with its four next states computed now. */
   showNext() {
     const now = Date.now();
     this.now = now;
@@ -275,16 +245,11 @@ export class StudySession {
       this.queue.learnAheadSecs,
     );
     this.shown = { entry, states, labels, shownAt: now };
-    // The next cards are fetched ahead, so there is no wait between cards.
     this.prefetch(this.queue.upcoming(4).slice(1));
     this.changed();
   }
 
-  /**
-   * The card on screen is no longer on the site (the author took it out after the session opened, and the API
-   * answers 404): it leaves this session and the next one comes. Nothing is written: its progress stays as it
-   * was, and if the card comes back it goes on from there.
-   */
+  // Nothing is written: if the card comes back to the site, its progress goes on from where it was.
   skipMissing(card: CardKey) {
     const entry = this.shown?.entry;
     if (!entry || entry.noteGuid !== card.noteGuid || entry.ord !== card.ord) return;
@@ -297,7 +262,6 @@ export class StudySession {
     this.showNext();
   }
 
-  /** While there is nothing to show: a learning card may have come due. */
   tick() {
     if (this.shown) return;
     this.showNext();
@@ -309,11 +273,7 @@ export class StudySession {
     this.changed();
   }
 
-  /**
-   * Saves to the database in order; a failure stops the session with a message, and what was waiting behind
-   * it is not written (it was computed on top of what failed: after reloading, those cards come back as the
-   * database has them).
-   */
+  // In order; after a failure what was waiting behind is not written (it was computed on top of the failed one).
   private enqueue(write: () => Promise<unknown>) {
     this.pending++;
     this.chain = this.chain
@@ -332,12 +292,8 @@ export class StudySession {
       });
   }
 
-  /**
-   * Saves an answer. A failed connection is tried again (a phone that loses the signal for a moment); a
-   * retry cannot save it twice, because the database only takes it if the card is still as it was shown. If
-   * the first try did save it and only the reply was lost, the retry finds the card changed by this very
-   * answer, and that counts as saved.
-   */
+  // A retry cannot save an answer twice: the database takes it only if the card is as it was shown, and finding it
+  // changed by this very answer counts as saved.
   private async saveAnswer(input: ReviewInput, key: string): Promise<void> {
     for (let attempt = 0; ; attempt++) {
       try {
@@ -455,7 +411,6 @@ export class StudySession {
         },
         key,
       );
-      // The siblings it buried changed in the database: their new times are read back.
       if (bury.length) await this.refreshStamps(bury.map((b) => b.deckId));
     });
     // In simple mode a leech is only noted down: nothing is suspended by itself, and nothing to explain.
@@ -474,7 +429,6 @@ export class StudySession {
     for (const r of fresh) this.stamps.set(cardKey(r), r.updatedAt);
   }
 
-  /** Bury or suspend (the card or its whole note): the queue is rebuilt without them, as in Anki. */
   hide(action: HideAction) {
     const ref = this.currentRef();
     if (!ref || this.failure) return;
@@ -516,7 +470,6 @@ export class StudySession {
     this.showNext();
   }
 
-  /** The flag (1–7); the same flag again takes it off, as in Anki. */
   flag(value: number) {
     const ref = this.currentRef();
     if (!ref || this.failure) return;
@@ -532,15 +485,12 @@ export class StudySession {
     this.changed();
   }
 
-  /** There is something to undo: only what was done since this study session started. */
-  /** How many cards were answered in this session (undone ones too: the tips only need to know one was). */
   answeredInSession = 0;
 
   get canUndo(): boolean {
     return this.history.length > 0;
   }
 
-  /** Undoes the last action of this study session; what was done before it stays as it is. */
   undo() {
     if (this.failure) return;
     const item = this.history.pop();
@@ -626,10 +576,7 @@ export class StudySession {
     };
   }
 
-  /**
-   * The assessment this session is in, for the screen at the end. What was due in the decks of this session is gone by
-   * then; what was due in the others of the assessment is as it was when the session opened.
-   */
+  // What was due in this session's decks is gone by the end; the assessment's other decks are as when it opened.
   private examNotes(today: number): ExamNotes | null {
     const root = this.data.decks.find((d) => d.id === this.rootId);
     const name = root ? ancestorName(root.name, ASSESSMENT_DEPTH) : null;
@@ -655,15 +602,10 @@ export class StudySession {
     };
   }
 
-  /**
-   * Whether today has answers in these decks (step 3.4): «Listo por hoy» keeps the place of its summary only then. The
-   * figures of the summary are read from review_log, not from here.
-   */
   answeredToday(deckIds: ReadonlySet<string>): boolean {
     return this.data.answers.some((a) => deckIds.has(a.deckId));
   }
 
-  /** Cards already seen in an assessment: its final review has something to show. */
   hasSeen(assessmentId: string): boolean {
     const root = this.data.decks.find((d) => d.id === assessmentId);
     if (!root) return false;

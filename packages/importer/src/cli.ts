@@ -1,4 +1,5 @@
 #!/usr/bin/env -S npx tsx
+// `npm run import`: builds the content bundle and writes it to the dry-run folder or to the draft.
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { buildBundle } from './build';
@@ -15,10 +16,6 @@ import { sameUnpublished } from './unpublished';
 import { taxonomyLines } from './taxonomy';
 import { PRIVATE_FOLDER_NAME, contentFolder, requireContentFolder } from './private-folder';
 
-/**
- * Step 1.7, part 3: the importer no longer writes what the students see. Whoever runs the old command gets this,
- * before anything is built.
- */
 const TARGET_CLOUD_GONE =
   '--target cloud ya no existe: el material va al borrador con --target draft y se publica desde ' +
   'Opciones → Publicaciones (el botón «Publicar», que también se puede deshacer). Ver docs/configuracion.md, ' +
@@ -79,7 +76,6 @@ async function main() {
   ) {
     throw new Error('--only, --only-decks y --only-tests no se pueden usar juntos.');
   }
-  // Before building the bundle (minutes), not after.
   if (values.target === 'cloud') {
     throw new Error(TARGET_CLOUD_GONE);
   }
@@ -89,7 +85,7 @@ async function main() {
   if (values['reset-draft'] && values.target !== 'draft') {
     throw new Error('--reset-draft va solo con --target draft.');
   }
-  // After checking the options: a wrong option says so even where the private repository is not.
+  // After the options, so a wrong one says so even without the private repository.
   const content = requireContentFolder(contentFolder(values.content));
   const manifest = await readManifest(content);
   const started = Date.now();
@@ -127,8 +123,6 @@ async function main() {
         : null;
   if (!target) throw new Error(`Destino desconocido: ${values.target}`);
 
-  // Nothing goes to the draft with warnings (an image that could not be read would show up as
-  // «[imagen no encontrada]» on the page), unless explicitly requested.
   if (remote && warnings.length && !values['allow-warnings']) {
     console.error(
       `\n⚠ ${warnings.length} avisos; no se subió nada (usa --allow-warnings para subir igual):\n` +
@@ -138,8 +132,7 @@ async function main() {
     return;
   }
 
-  // The list may have changed while the bundle was built (npm run unpublish in another terminal): what it took off
-  // would be published again.
+  // An `npm run unpublish` during the build would otherwise be undone.
   const listNow = await readUnpublished(resolve(content, 'unpublished.json'));
   if (!sameUnpublished(listNow, manifest.unpublished ?? [])) {
     throw new Error(
@@ -147,7 +140,6 @@ async function main() {
     );
   }
 
-  // The draft started again from what is published (what it had and was not published is lost).
   if (values['reset-draft']) {
     const r = await contentDatabase(cloudConfigFromEnv(process.env)).rpc('reset_draft', {});
     if (r.error) throw new Error(`reset_draft: ${r.error.message}`);
@@ -209,7 +201,6 @@ async function main() {
       `Tiempo: ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     ].join('\n'),
   );
-  // The taxonomy's notices do not stop the import (they are for approving a course, step 6.1).
   const notices = taxonomy.flatMap((t) => t.notices.map((n) => `${t.assessmentId}: ${n}`));
   if (notices.length) {
     console.log(

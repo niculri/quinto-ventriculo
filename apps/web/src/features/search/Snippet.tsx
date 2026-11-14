@@ -1,3 +1,4 @@
+// A search result's snippet, with its matches highlighted.
 import { HIGHLIGHT_END, HIGHLIGHT_START } from '@qv/schema';
 
 /** Turns «text ⟦match⟧ text» into <mark>, without innerHTML (the snippet is plain text). */

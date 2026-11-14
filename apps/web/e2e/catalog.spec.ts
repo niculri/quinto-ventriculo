@@ -1,12 +1,8 @@
+// E2e tests of the catalog: an assessment's notes grouped by week, a note that changes assessment and keeps its link,
+// and the administrator's switch that hides the semesters without material; nothing moves.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
-
-/**
- * Step 1.8: the notes of an assessment grouped by week (Anatomía II's Certamen 2 will have 29 articles in 5 weeks), a
- * note that changes assessment (the Seminario 8 of Biocel, from the Certamen 2 to the 3) whose link keeps working, and
- * the administrator's switch that hides the semesters without material. Nothing moves while loading or between pages.
- */
 
 interface NoteShape {
   id: string;
@@ -26,7 +22,6 @@ interface CatalogShape {
   }[];
 }
 
-/** Changes the catalog the API gives (as a later import would). */
 async function withCatalog(page: Page, change: (c: CatalogShape) => void) {
   await page.route('**/api/catalog', async (route) => {
     const response = await route.fetch();
@@ -46,7 +41,6 @@ const WEEKS = [
 const PER_WEEK = [7, 6, 6, 6, 4];
 const NOTES_URL = '/semesters/1/courses/anatomia-1/assessments/certamen-1/notes';
 
-/** 29 articles in 5 weeks, in the e2e content's Anatomía I · Certamen 1. */
 function twentyNine(c: CatalogShape) {
   const a = c.semesters
     .flatMap((s) => s.courses)
@@ -72,7 +66,6 @@ function twentyNine(c: CatalogShape) {
   a.notes = notes;
 }
 
-/** Where the breadcrumbs and the title are, and how wide the page is. */
 async function frame(page: Page, isMobile: boolean) {
   const main = page.getByRole('main');
   const crumbs = main.getByRole('navigation', { name: 'Ruta' });
@@ -99,7 +92,6 @@ test('29 articles in 5 weeks: one block per week, in order, and the frame does n
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1, name: 'Apuntes' })).toBeVisible();
   expect(await frame(page, isMobile)).toEqual(course);
-  // A week per block, in order, each with its notes; nothing left by kind.
   await expect(main.getByRole('heading', { level: 2 })).toHaveText(WEEKS);
   const lists = main
     .getByRole('list')
@@ -110,7 +102,6 @@ test('29 articles in 5 weeks: one block per week, in order, and the frame does n
   }
   await expect(main.getByRole('link', { name: /^Tema \d+ de la semana/ })).toHaveCount(29);
   await expect(main.getByRole('heading', { level: 2, name: 'Clases' })).toHaveCount(0);
-  // Nothing jumps in after it appears.
   const title = main.getByRole('heading', { level: 1 });
   const first = await title.boundingBox();
   await page.waitForTimeout(600);
@@ -118,7 +109,6 @@ test('29 articles in 5 weeks: one block per week, in order, and the frame does n
   expect(await noSideScroll(page)).toBeLessThanOrEqual(0);
 
   if (!isMobile) {
-    // The menu: «Apuntes» with the weeks' names (not links) above their notes.
     const menu = page.getByRole('navigation', { name: 'Menú del sitio' });
     await expect(menu.getByRole('button', { name: 'Apuntes' })).toHaveAttribute(
       'aria-expanded',
@@ -135,7 +125,6 @@ test('a note that changes assessment: its link opens it in the new one, and the 
 }) => {
   const ARTICLE = '/semesters/2/courses/biologia-celular/notes/10-nucleo-celular';
   await signIn(page);
-  // The e2e content's «Núcleo celular» goes to a Certamen 3, as the Seminario 8 of Biocel did.
   await withCatalog(page, (c) => {
     const course = c.semesters.flatMap((s) => s.courses).find((x) => x.id === 'biologia-celular')!;
     const c2 = course.assessments.find((a) => a.id === 'biologia-celular/certamen-2')!;
@@ -156,11 +145,9 @@ test('a note that changes assessment: its link opens it in the new one, and the 
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
   await expect(crumbs).toContainText('Certamen 3');
   await expect(crumbs).not.toContainText('Certamen 2');
-  // The oldest form of the link (/notes/<slug>) lands on the same page.
   await page.goto('/notes/10-nucleo-celular');
   await expect(page).toHaveURL(new RegExp(`${ARTICLE}$`));
   await expect(crumbs).toContainText('Certamen 3');
-  // Listed in the new assessment, not in the old one.
   await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-3/notes');
   await expect(page.getByRole('main').getByRole('link', { name: /Núcleo/ })).toHaveCount(1);
   await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
@@ -183,7 +170,6 @@ test.describe('the semesters without material', () => {
     page,
   }) => {
     await signIn(page);
-    // «La carrera» left the home page for its own (step 3.2).
     await page.goto('/courses');
     const main = page.getByRole('main');
     const third = main.getByText('3° Semestre', { exact: true });
@@ -201,7 +187,6 @@ test.describe('the semesters without material', () => {
     await expect(page.getByText(/^Cambiado el .* por demo@ug\.uchile\.cl$/)).toBeVisible();
     expect(await toggle.boundingBox()).toEqual(box);
 
-    // At once in this tab: through the menu and the home page's line, without reloading.
     await page
       .getByRole('navigation', { name: 'Menú del sitio' })
       .getByRole('link', { name: 'Inicio' })
@@ -217,13 +202,11 @@ test.describe('the semesters without material', () => {
     );
     await expect(main.getByRole('link', { name: /2° Semestre/ })).toBeVisible();
 
-    // A hidden semester does not open by its URL.
     await page.goto('/semesters/3');
     await expect(
       page.getByRole('heading', { level: 1, name: 'Esta página no aparece ni en el Netter' }),
     ).toBeVisible();
 
-    // Off again: back as it was.
     await page.goto('/admin/site');
     await toggle.click();
     await expect(toggle).not.toBeChecked();

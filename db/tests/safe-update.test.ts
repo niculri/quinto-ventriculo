@@ -1,12 +1,12 @@
+// Every UPDATE and DELETE in the functions of both databases has a WHERE, as pg-safeupdate demands in Supabase.
 import { describe, expect, it } from 'vitest';
 import { createDatabase } from './pglite';
 
 /**
  * Supabase runs every statement of its API (PostgREST, as the authenticator role) with the pg-safeupdate extension:
  * an UPDATE or a DELETE without WHERE fails («DELETE requires a WHERE clause»), also inside a function. PGlite does
- * not have it, so a function that empties a table passed every test and failed in production (step 1.7, the first
- * publication: `delete from public.release_changes`). This reads every function of both databases as safeupdate
- * would: each UPDATE … SET and DELETE FROM, up to its «;», needs a WHERE.
+ * not have it, so a function that empties a table passes every test and fails in production. This reads every
+ * function of both databases as safeupdate would: each UPDATE … SET and DELETE FROM, up to its «;», needs a WHERE.
  * An «on conflict … do update» is part of an INSERT and does not count; «where true» is the way to empty on purpose.
  */
 function withoutWhere(source: string): string[] {

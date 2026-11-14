@@ -1,3 +1,5 @@
+// The menu of the whole app, on the left: Inicio, the semester, the course, its assessments and their notes, tests and
+// decks. Only the path to the page open unfolds; in an assessment, its other parts are always there.
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -25,19 +27,15 @@ import { useSettingsGroups } from '../features/settings/useSettingsGroups';
 import { useIsAdmin } from '../features/admin/queries';
 import { ADMIN_SECTIONS } from '../features/admin/sections';
 
-/** What the URL is showing, as far as the menu cares. */
 export interface Where {
   semester: number | null;
   courseId: string | null;
   assessmentId: string | null;
-  /** The assessment's part being read. */
   tab: 'notes' | 'tests' | 'anki' | null;
   noteSlug: string | null;
   quizSlug: string | null;
-  /** The deck open (or being studied), by id. */
   deckId: string | null;
   settings: boolean;
-  /** «Administración» (step 2.10). */
   admin: boolean;
 }
 
@@ -61,7 +59,6 @@ const decode = (s: string) => {
   }
 };
 
-/** Where a path is in the material (app/paths.ts builds them). */
 function locate(pathname: string, catalog: Catalog | null, tree: AnkiTree | null): Where {
   if (pathname.startsWith('/settings')) return { ...NOWHERE, settings: true };
   if (pathname === '/admin' || pathname.startsWith('/admin/')) return { ...NOWHERE, admin: true };
@@ -110,7 +107,6 @@ function locate(pathname: string, catalog: Catalog | null, tree: AnkiTree | null
   return where;
 }
 
-/** A course has something to show: notes, tests or decks. */
 function hasMaterial(course: CourseWithAssessments, tree: AnkiTree | null): boolean {
   return (
     course.assessments.some((a) => a.notes.length || a.quizzes.length) ||
@@ -121,7 +117,6 @@ function hasMaterial(course: CourseWithAssessments, tree: AnkiTree | null): bool
 const row = 'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left transition-colors';
 const idle = 'text-muted hover:bg-surface-2 hover:text-ink';
 const current = 'bg-brand-soft font-medium text-ink';
-/** On the path to the page open, but not it. */
 const onPath = 'font-medium text-ink hover:bg-surface-2';
 
 function NavLink({
@@ -152,7 +147,6 @@ function NavLink({
   );
 }
 
-/** A part that opens and closes (an assessment, «Apuntes», «Tests»…), with what is in it below. */
 function Branch({
   label,
   icon,
@@ -188,7 +182,6 @@ function Branch({
   );
 }
 
-/** One level down (the lists of a part): the tree's line under the icons, and little room taken. */
 function Nested({ children }: { children: ReactNode }) {
   return (
     <ul className="mt-0.5 mb-1 ml-[1.1rem] space-y-0.5 border-l border-border pl-1.5">
@@ -199,11 +192,6 @@ function Nested({ children }: { children: ReactNode }) {
 
 const icon = 'size-4 flex-none';
 
-/**
- * The menu of the whole app, on the left: Inicio, the semester, the course, its assessments and, in each, its
- * notes, tests and decks. Only the path to the page open is unfolded (the levels above show just the way
- * there); in an assessment, its other parts («Tests» when reading a note, «Anki»…) are always there.
- */
 export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const { pathname } = useLocation();
   const catalog = useCatalog();
@@ -260,7 +248,6 @@ function NavTree({
       ) : where.admin ? (
         <AdminBranch pathname={pathname} onNavigate={onNavigate} />
       ) : semester ? (
-        // Inside a semester: only it (the others are a step back, in «Inicio»).
         <SemesterBranch
           semester={semester}
           where={where}
@@ -282,7 +269,6 @@ function NavTree({
               </NavLink>
             </li>
           ))}
-          {/* The semesters the site hides (no material yet): one line where they would be. */}
           {catalog?.hiddenSemesters ? (
             <li className="px-2.5 py-1.5 text-xs text-muted">{MORE_SEMESTERS_SOON}</li>
           ) : null}
@@ -292,10 +278,6 @@ function NavTree({
   );
 }
 
-/**
- * The semester and, inside a course, the course and its assessments: one under the other, without indenting
- * (they are the way there, as breadcrumbs); only the lists inside them go one step in.
- */
 function SemesterBranch({
   semester,
   where,
@@ -327,7 +309,6 @@ function SemesterBranch({
         >
           {semester.name}
         </NavLink>
-        {/* On the semester's page, its courses. */}
         {course ? null : (
           <Nested>
             {semester.courses
@@ -395,7 +376,6 @@ function CourseAssessments({
         const deck = decks.find((d) => d.assessmentId === a.id) ?? null;
         return (
           <li key={a.id}>
-            {/* The assessment: a small heading that opens and closes its parts. */}
             <button
               type="button"
               onClick={() => setToggled((t) => ({ ...t, [a.id]: !open }))}
@@ -430,14 +410,16 @@ function CourseAssessments({
   );
 }
 
-/** The notes of an assessment in the menu: by blocks with a title if some note has a week, else one block in order. */
+/**
+ * The notes of an assessment: if some note has a week, the same blocks as the assessment's list (a note without a week
+ * goes under its kind, not under the last week); else one block in order.
+ */
 function menuNoteBlocks(
   notes: readonly NoteSummary[],
 ): { key: string; title: string | null; notes: readonly NoteSummary[] }[] {
   return notes.some((n) => n.group) ? noteBlocks(notes) : [{ key: 'all', title: null, notes }];
 }
 
-/** «Apuntes», «Tests» and «Anki» of an assessment: the one being read unfolded, the others one line each. */
 function AssessmentParts({
   course,
   assessment,
@@ -465,9 +447,6 @@ function AssessmentParts({
           inPath={where.tab === 'notes'}
           onToggle={() => toggle('notes')}
         >
-          {/* Revisión de cero (1.8): with weeks (the notes' groups), the same blocks as the assessment's list, each
-              name above its notes (not a link); a note without a week then goes under its kind («Seminarios»), not
-              under the last week. Without weeks, in order, as before. */}
           {menuNoteBlocks(assessment.notes).flatMap((block, b) =>
             block.notes.map((n, i) => (
               <li key={n.id}>
@@ -491,7 +470,6 @@ function AssessmentParts({
         </Branch>
       ) : null}
       {assessment.quizzes.length === 1 ? (
-        // One test: «Tests» goes straight to it (no list of one under it).
         <li>
           <NavLink
             to={paths.quiz(course, assessment.quizzes[0]!)}
@@ -540,10 +518,6 @@ function AssessmentParts({
   );
 }
 
-/**
- * «Administración» and its sections, as the page has them (only for an administrator: anybody else on its URL sees «no
- * existe», and nothing here).
- */
 function AdminBranch({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const isAdmin = useIsAdmin();
   if (isAdmin.data !== true) return null;
@@ -577,7 +551,6 @@ function SettingsBranch({ pathname, onNavigate }: { pathname: string; onNavigate
       <p className={`${row} font-medium text-ink`}>
         <Settings className={icon} aria-hidden="true" /> Opciones
       </p>
-      {/* Its groups' titles («Cuenta», «Anki») are headings, not links, as on the page. */}
       {groups.map((g) => (
         <div key={g.title}>
           <p className="mt-3 px-2.5 py-1 text-xs font-semibold tracking-wide text-muted uppercase">

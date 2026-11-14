@@ -1,9 +1,6 @@
+// Tells a JSON `null` (a database function that found nothing) from a body to stream, reading only its first bytes.
 const WHITESPACE = new Set([0x20, 0x09, 0x0a, 0x0d]);
 
-/**
- * The body of a JSON response, or null if the JSON is `null` (a function of the database that found
- * nothing). It reads only up to the first character that is not a space; the rest is passed on as it comes.
- */
 export async function nonNull(
   body: ReadableStream<Uint8Array>,
 ): Promise<ReadableStream<Uint8Array> | null> {
@@ -12,7 +9,6 @@ export async function nonNull(
   for (;;) {
     const { value, done } = await reader.read();
     if (done) {
-      // Nothing but spaces: no value.
       return null;
     }
     head.push(value);

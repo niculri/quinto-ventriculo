@@ -1,3 +1,6 @@
+// Data hooks of the cards page: the card indexes, the student's rows, failed cards, text search and the cards
+// of a heatmap day.
+
 import { useMemo } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
@@ -22,7 +25,6 @@ import type { CardsScope } from './scope';
 const cardsKeys = {
   index: (assessmentId: string, hash: string) => ['card-index', assessmentId, hash] as const,
   thumbs: ['card-thumbs'] as const,
-  /** Under the study's keys: an action of the viewer reads them again. */
   failed: (since: number) => [...studyKeys.all, 'failed', since] as const,
   day: (scope: string, day: string) => [...studyKeys.all, 'cards-day', scope, day] as const,
 };
@@ -50,7 +52,6 @@ function useCardIndexes(scope: CardsScope | null) {
   });
 }
 
-/** One signature for every thumbnail; it lasts at least an hour, asked for again every 10 minutes. */
 export function useThumbQuery() {
   const { api } = useServices();
   const q = useQuery({
@@ -61,10 +62,8 @@ export function useThumbQuery() {
   return q.data?.query ?? null;
 }
 
-/** The thumbnail's URL, with the signature. */
 export const thumbUrl = (thumb: string, query: string) => `/api/media/${thumb}?${query}`;
 
-/** The student's rows of the scope's decks (only those: step 3.3, ANK-7). */
 function useScopeRows(scope: CardsScope | null) {
   const { study } = useServices();
   return useQuery({
@@ -75,7 +74,6 @@ function useScopeRows(scope: CardsScope | null) {
   });
 }
 
-/** The cards with an «Otra vez» in the last FAILED_DAYS days (the start of the student's day). */
 export function useFailed(prefs: StudyPreferences | undefined, nowMs: number) {
   const { study } = useServices();
   const since = prefs ? timingFor(prefs, nowMs).nextDayAt - FAILED_DAYS * 86_400 : 0;
@@ -92,11 +90,9 @@ export function useFailed(prefs: StudyPreferences | undefined, nowMs: number) {
   });
 }
 
-/** What the scope's data are, for the list, the table and the practice. */
 export interface CardsData {
   indexes: CardIndex[];
   notes: ExplorerNote[];
-  /** Every card, as @qv/anki-search and the table see it. */
   cards: BrowseCard[];
   byKey: Map<string, BrowseCard>;
   noteTypes: NoteTypeSummary[];
@@ -104,10 +100,6 @@ export interface CardsData {
   prefs: StudyPreferences;
 }
 
-/**
- * The index of each assessment of the scope, the student's progress in it and their preferences. While something is
- * missing, `data` is undefined; `missing`: an assessment of the scope has no index yet.
- */
 export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, nowMs: number) {
   const indexes = useCardIndexes(scope);
   const rows = useScopeRows(scope);
@@ -115,7 +107,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
   const presets = useUserPresets();
   const settings = useDeckSettings();
   const authorPresets = useAuthorPresets();
-  // (Revisión de cero, 3.3: an assessment whose decks have no cards has no index, and is not missing one.)
+  // An assessment whose decks have no cards has no index, and is not missing one.
   const missing = !!scope && scope.assessments.some((a) => !a.cardIndex && a.cardCount > 0);
   const prefs = preferences.prefs;
   const ready =
@@ -179,7 +171,6 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
 }
 
 function useAuthorPresets() {
-  // The author's presets are in the catalog, already loaded by the page.
   const { api } = useServices();
   const q = useQuery({
     queryKey: ['catalog'],
@@ -195,10 +186,6 @@ function uniqueTypes(indexes: readonly CardIndex[]): NoteTypeSummary[] {
   return [...out.values()];
 }
 
-/**
- * The cards a search finds (null: no search), with Anki's syntax and without accents. `rated:` and `introduced:` read
- * the answers they need first (`waiting`).
- */
 export function useTextMatch(data: CardsData | undefined, query: string, tree: AnkiTree | null) {
   const { study } = useServices();
   const parsed = useMemo(() => {
@@ -244,7 +231,6 @@ export function useTextMatch(data: CardsData | undefined, query: string, tree: A
       })),
       timing: timingFor(data.prefs),
       learnAheadSecs: data.prefs.learnAheadMinutes * 60,
-      // «vertebra» finds «vértebra» (Anki's «Ignore accents in search», on here).
       ignoreAccents: true,
       answers: (rated.data ?? []).map((a) => ({
         noteGuid: a.noteGuid,
@@ -269,29 +255,15 @@ export function useTextMatch(data: CardsData | undefined, query: string, tree: A
 /** Now, for a burial («Saltar por hoy») that has not ended: its end is a day's start. */
 const nowOf = (prefs: StudyPreferences) => timingFor(prefs).now * 1000;
 
-/** What a day of the heatmap is on this page: answered (a past day, or today with answers) or due. */
 export interface DayCards {
   day: number;
   kind: 'answered' | 'due';
   keys: Set<string>;
-  /** Answers of that day of the scope's cards (review_log). */
   answers: number;
-  /**
-   * The scope's cards with an «Otra vez» that day (empty for a day to come): with a day already answered, «Falladas»
-   * are these, not those of the last FAILED_DAYS days (step 3.4, «Ver las que fallaste» of «Listo por hoy»).
-   */
   failed: Set<string>;
-  /**
-   * Practice that day in the scope's decks (the final review, «Practicar estas»): its cell counts it too, but it is
-   * kept by deck, not by card, so the list cannot show it (Revisión de cero, 3.3).
-   */
   practice: number;
 }
 
-/**
- * What «Falladas» finds: with a day of the heatmap already answered, the cards failed that day; otherwise those of the
- * last FAILED_DAYS days (undefined while they load).
- */
 export function failedOf(
   day: DayCards | null,
   recent: Set<string> | undefined,
@@ -299,11 +271,6 @@ export function failedOf(
   return day?.kind === 'answered' ? day.failed : recent;
 }
 
-/**
- * The cards of a day of the heatmap (`day`: «2026-11-03»): a past day, those answered that day, read by the range of
- * `reviewed_at`; a day to come, those due that day, from the progress already read. Today: the answered ones if there
- * are, else the due ones, as its cell.
- */
 export function useDayCards(
   scope: CardsScope | null,
   data: CardsData | undefined,
@@ -313,7 +280,6 @@ export function useDayCards(
   const day = dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayNumber(dayParam) : null;
   const prefs = data?.prefs;
   const today = prefs ? timingFor(prefs).today : null;
-  // The student's days (as the home page's heatmap reads them): the practice of a day, which its cell counts.
   const heat = useQuery({
     queryKey: heatmapKeys.scope('all'),
     queryFn: () => study.heatmap(null),

@@ -1,20 +1,14 @@
+// The user's practice test progress in the users database (round and cover choices per section, rounds and answers),
+// with a Supabase implementation and an in-browser one for the demo.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RoundOrigin } from '@qv/quiz';
 
-/**
- * Each user's practice tests, in the USERS database (protected with RLS, like the study data): where they go
- * in each section (the round and the cover's choices), and the history of rounds and answers for the
- * statistics. The questions are the author's and come from the API.
- */
-
-/** What is saved of a section: its round (@qv/quiz's, as it is) and the cover's choices. */
 export interface SavedSection {
   preferences: unknown;
   round: unknown;
   updatedAt: string;
 }
 
-/** Every section of a test with something saved, by section id. */
 export type SavedQuiz = Record<string, SavedSection>;
 
 export interface RoundInfo {
@@ -36,19 +30,15 @@ export interface AnswerInfo {
   answeredAt: string;
 }
 
-/** One step of a test: what `save_quiz_progress()` saves, atomically. */
 export interface QuizStep {
   quizId: string;
   sectionId: string;
-  /** The cover's choices; without them, the saved ones stay. */
   preferences?: unknown;
-  /** The section's round (null: none, «Descartar»). */
   round: unknown;
   roundInfo?: RoundInfo;
   answer?: AnswerInfo;
 }
 
-/** A round started and not finished, with something answered: «Seguir» on the home page (step 3.2). */
 interface OpenRound {
   quizId: string;
   sectionId: string;
@@ -57,13 +47,11 @@ interface OpenRound {
   updatedAt: string;
 }
 
-/** At most this many of the latest open rounds: the home page shows two. */
 export const OPEN_ROUNDS = 5;
 
 export interface QuizRepository {
   load(quizId: string): Promise<SavedQuiz>;
   save(step: QuizStep): Promise<void>;
-  /** The user's latest open rounds, the latest first. */
   openRounds(): Promise<OpenRound[]>;
 }
 
@@ -140,10 +128,6 @@ function safeLocalStorage(): Storage | null {
   }
 }
 
-/**
- * Demo mode: everything stays in the browser (`qv-demo-quiz`), with the same rules as the database's
- * function (an answer saved once, the replaced round abandoned, the finished one finished).
- */
 export function localQuizRepository(storage: Storage | null = safeLocalStorage()): QuizRepository {
   const KEY = 'qv-demo-quiz';
   let memory: LocalData = { progress: {}, rounds: [], answers: [] };
@@ -165,7 +149,7 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
     try {
       storage?.setItem(KEY, JSON.stringify(d));
     } catch {
-      // full or blocked storage: it stays in memory for this visit
+      // stays in memory
     }
   };
   const roundId = (round: unknown) =>

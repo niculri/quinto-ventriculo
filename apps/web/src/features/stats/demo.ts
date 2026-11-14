@@ -1,14 +1,11 @@
+// Demo-only heatmap history: a made-up, deterministic past added to what the demo student did in this browser.
 import { dayOf } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
 import type { StudyRepository } from '../study/repository';
 import { browserTimeZone } from '../study/repository';
 import type { HeatmapData } from './heatmap';
 
-/**
- * Demo mode only: a made-up past for the heatmap (nothing of anybody), on top of what the demo's student really did in
- * this browser. Deterministic, so that the picture is the same on every visit. `qv-demo-heatmap` changes it for the
- * e2e tests: `empty` (no made-up past), `slow` (the data come 1.5 s late), `error` (reading fails); several, with commas.
- */
+// For the e2e tests, `qv-demo-heatmap` in localStorage takes `empty`, `slow` (1.5 s late) and `error`, with commas.
 export function withDemoHistory(
   study: StudyRepository,
   catalog: () => Promise<Catalog>,
@@ -58,7 +55,7 @@ function demoFlags(): string[] {
   }
 }
 
-/** A fixed sequence for a day (a «random» that is the same on every visit): mulberry32. */
+/** mulberry32. */
 function randomOf(seed: number) {
   let s = seed >>> 0;
   return () => {
@@ -70,10 +67,6 @@ function randomOf(seed: number) {
   };
 }
 
-/**
- * About 14 months of a student: most days of the semesters, few in the summer, the last ten days in a row (a streak
- * alive), and reviews scheduled for the next two months.
- */
 function inventedHistory(
   today: number,
   deckIds: string[],

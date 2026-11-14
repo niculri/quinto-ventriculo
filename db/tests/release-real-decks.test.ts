@@ -1,12 +1,5 @@
-// Plan step 1.7, part 2 (B4 «Listo cuando»): with real decks, an earlier version against the current one gives exactly
-// the known changes, and no changed answer of the ones classified by hand comes out as «format».
-//
-// The decks are the author's: two versions of the same decks, before and after a sweep of changes. The earlier
-// version goes to public, the current one to the draft, as an import would put them. The known changes are what a
-// script outside this code says (it reads the .apkg with sqlite). The hand labels were made by an agent that saw only
-// each note's before and after, not the classifier. Which decks, the script, the labels and how many notes changed
-// are in the private repository (tests/real-material.json, step 2.4): without it (the public CI) or python3, it is
-// skipped.
+// With real decks, an earlier version against the current one gives exactly the known changes, and no changed answer
+// classified by hand comes out as «format».
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -25,6 +18,9 @@ import { ReleaseCardItem, ReleaseSummary } from '@qv/schema';
 import { serviceRpc } from './import-fixtures';
 import { createDatabase } from './pglite';
 
+// Two versions of the author's decks go to public and the draft; the known changes come from a script outside this
+// code and the hand labels from someone who did not see the classifier. Both are in the private material
+// (tests/real-material.json): without it or python3, this is skipped.
 const PRIVATE = privateMaterial();
 const REAL = PRIVATE.config?.releaseDecks;
 const ROOT = PRIVATE.root;
@@ -168,7 +164,6 @@ describe.skipIf(!available)(
         n.fieldsAfter?.['Código'] ?? n.fieldsBefore?.['Código'] ?? n.guid;
       expect(notes.filter((n) => n.op === 'removed')).toHaveLength(k.lost);
       expect(notes.filter((n) => n.op === 'added')).toHaveLength(k.added);
-      // A field (not the code nor the dates) that is not the same, character for character: comparar_mazos.py's.
       const rawChanged = notes.filter(
         (n) =>
           n.op === 'changed' &&
@@ -178,7 +173,6 @@ describe.skipIf(!available)(
       );
       expect(new Set(rawChanged.map(code))).toEqual(k.changed);
       expect(k.changed.size).toBe(REAL!.changed);
-      // The rest of the changed notes only changed their code or dates (or their cards' rendering): never «answer».
       for (const n of notes.filter((x) => x.op === 'changed' && !rawChanged.includes(x))) {
         expect([n.code, n.classification]).toEqual([
           n.code,
@@ -191,9 +185,8 @@ describe.skipIf(!available)(
 
     it('no changed answer of the ones classified by hand is «format»', () => {
       if (process.env.QV_WRITE_HAND_SAMPLE) {
-        // The sample for the hand classification: 50 notes whose text changed, half of them of the ones this classifier
-        // calls «answer» and half of the others (where a mistake would hide a changed answer), in an order that says
-        // nothing of the classifier (by a hash of the GUID). Only the fields that changed, before and after.
+        // The sample for the hand labels: half of what this classifier calls «answer» and half of the rest, ordered by a
+        // hash of the GUID so that the order says nothing of the classifier.
         const changed = notes.filter(
           (n) =>
             n.op === 'changed' &&

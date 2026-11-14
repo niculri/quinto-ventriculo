@@ -1,13 +1,8 @@
+// E2e tests of «Administración»: hidden from a student, nothing moves entering or changing section, «Acceso» with
+// popups of its own and «Fuera del sitio» only to look at. `qv-demo-role` turns the demo's administrator into another.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
-
-/**
- * Step 2.10: «Administración», its own page by sections, from the account menu. A student does not see it nor open it
- * (the API's side is apps/api/src/*.test.ts); nothing moves when entering, changing section or loading; «Acceso»
- * invites and removes with popups of its own; «Fuera del sitio» only shows the record (e2e/content/release/
- * unpublish-log.json). The demo's user is an administrator; `qv-demo-role` = `student` makes it a student.
- */
 
 const SECTIONS = [
   ['Publicaciones', '/admin/releases', 'Publicaciones'],
@@ -59,7 +54,6 @@ async function boxesWhile(
   return page.evaluate(() => (window as unknown as { boxes_: Record<string, string[]> }).boxes_);
 }
 
-/** The menu that has the sections: the site's on wide screens, the page's (tabs) on the phone. */
 async function sectionsMenu(page: Page) {
   const own = page.getByRole('navigation', { name: 'Secciones de la administración' });
   return (await own.isVisible()) ? own : page.getByRole('navigation', { name: 'Menú del sitio' });
@@ -96,11 +90,9 @@ test('from the account menu to «Administración»; changing section moves nothi
   await expect(page).toHaveURL(/\/admin\/releases$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Administración' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'Publicaciones' })).toBeVisible();
-  // «Opciones» no longer has it.
   await page.goto('/settings/account');
   await expect(page.getByRole('heading', { level: 1, name: 'Opciones' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Publicaciones' })).toHaveCount(0);
-  // The old URL goes to its section.
   await page.goto('/settings/admin/releases');
   await expect(page).toHaveURL(/\/admin\/releases$/);
   await expect(page.getByRole('heading', { name: 'Lista de revisión' })).toBeVisible();
@@ -127,11 +119,6 @@ test('from the account menu to «Administración»; changing section moves nothi
   }
 });
 
-/**
- * Revisión de cero (2.10): entering and loading, not only changing section. Every section opened by its URL (a page
- * loaded from nothing): from the first frame on, the route, the title and the section's title take one place each
- * once they are there, and the route and the title are where «Opciones» has them (the same frame as every page).
- */
 test('entering and loading «Administración»: the frame of «Opciones», and nothing moves from the first frame', async ({
   page,
   isMobile,
@@ -189,7 +176,7 @@ test('«Acceso»: invite into a new list, see what it did, and remove a person w
   await expect(page.getByText(/Solo las cuentas invitadas: 3 en 2 listas/)).toBeVisible();
   const button = page.getByRole('button', { name: 'Invitar', exact: true });
   const boxes = await boxesWhile(page, ['form button[type="submit"]', 'main h3'], async () => {
-    // As Gmail copies them (Revisión de cero, 2.10, con el dueño): only the emails between < > are sent.
+    // As Gmail copies them: only the emails between < > are sent.
     await page
       .getByLabel('Correos @ug.uchile.cl')
       .fill(
@@ -203,7 +190,6 @@ test('«Acceso»: invite into a new list, see what it did, and remove a person w
   const result = page.getByRole('dialog', { name: 'Invitaciones a «Medicina 2027»' });
   await expect(result).toContainText('1 persona invitada, 1 ya estaba y 1 correo rechazado.');
   await expect(result).toContainText('alguien@gmail.com · no es @ug.uchile.cl');
-  // The names were never sent: nothing of them comes back.
   await expect(result).not.toContainText('Díaz');
   await expect(result).not.toContainText('Alguien');
   await result.getByRole('button', { name: 'Listo' }).click();
@@ -221,10 +207,8 @@ test('«Acceso»: invite into a new list, see what it did, and remove a person w
   await done.getByRole('button', { name: 'Listo' }).click();
   await expect(page.getByRole('article', { name: 'Lista Medicina 2027' })).toHaveCount(0);
 
-  // A list of only administrators has no «Sacar la lista» (it would take out nobody; Revisión de cero, 2.10).
   const team = page.getByRole('article', { name: 'Lista Equipo' });
   await expect(team.getByRole('button', { name: 'Sacar la lista' })).toHaveCount(0);
-  // With someone else in it, it has; the administrator stays, with the reason.
   await page.getByRole('button', { name: /^Lista: / }).click();
   await page.getByRole('menuitemradio', { name: 'Equipo' }).click();
   await page.getByLabel('Correos @ug.uchile.cl').fill('ayudante@ug.uchile.cl');
@@ -243,7 +227,7 @@ test('«Acceso»: invite into a new list, see what it did, and remove a person w
   expect(browserDialogs).toEqual([]);
 });
 
-test('«Acceso», step 2.10 b: the owner names an administrator and removes them, with popups of their own', async ({
+test('«Acceso»: the site owner names an administrator and removes them, with popups of their own', async ({
   page,
 }) => {
   const browserDialogs: string[] = [];
@@ -256,11 +240,10 @@ test('«Acceso», step 2.10 b: the owner names an administrator and removes them
   const course = page.getByRole('article', { name: 'Lista Curso de prueba' });
   const name = course.getByRole('button', { name: 'Hacer administrador a ana.perez@ug.uchile.cl' });
   await expect(name).toBeVisible();
-  // The demo's user is the owner: their own row says so, without buttons.
+  // The demo's user is the site owner: their own row says so, without buttons.
   const team = page.getByRole('article', { name: 'Lista Equipo' });
   await expect(team.getByText('Dueño', { exact: true })).toBeVisible();
   await expect(team.getByRole('button', { name: /administrador a / })).toHaveCount(0);
-  // Nothing wider than the screen (the phone too).
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
@@ -298,7 +281,7 @@ test('«Acceso», step 2.10 b: the owner names an administrator and removes them
   expect(browserDialogs).toEqual([]);
 });
 
-test('«Acceso», step 2.10 b: another administrator uses it, without naming or removing administrators', async ({
+test('«Acceso»: another administrator uses it, without naming or removing administrators', async ({
   page,
 }) => {
   await page.addInitScript(() => window.localStorage.setItem('qv-demo-role', 'admin'));
@@ -314,7 +297,6 @@ test('«Fuera del sitio»: what is off now and the record, only to look at', asy
   const now = page.getByRole('region', { name: 'Ahora fuera del sitio' });
   await expect(now.getByRole('listitem')).toHaveCount(2);
   await expect(now).toContainText('Figura con un error');
-  // The image is not in the store: off the site.
   await expect(now).toContainText('Imagen de prueba que se sacó');
   await expect(now.getByText('Fuera del sitio', { exact: true })).toHaveCount(2);
   const log = page.getByRole('region', { name: 'Registro' });

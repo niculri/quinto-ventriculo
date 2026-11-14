@@ -1,5 +1,4 @@
-// `npm run suppressions [-- --base <rev>] [--require-base]`: fails if, for some rule, the ESLint suppressions plus the
-// inline `eslint-disable` directives grew with respect to <rev> (origin/main by default). See suppressions.ts.
+// `npm run suppressions`: runs the lint ratchet of suppressions.ts against --base (origin/main by default).
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { baseExists, git, missingBase, parseBaseArgs, readAtBase } from './git-base';
@@ -7,7 +6,7 @@ import { repositoryRoot } from './repository-root';
 import {
   checkRatchet,
   directivesByRule,
-  localRuleFile,
+  newLocalRules,
   suppressionsByRule,
   SUPPRESSIONS_FILE,
 } from './suppressions';
@@ -49,22 +48,19 @@ if (!baseExists(root, args.base)) {
       inline: directivesByRule(grepBase ?? ''),
     },
     args.base,
-    newLocalRules(current, args.base),
+    newLocalRules(
+      rulesOf(current),
+      (file) => readAtBase(root, args.base, file) !== null,
+      (file) => existsSync(join(root, file)),
+    ),
   );
   for (const line of result.lines) (result.ok ? console.log : console.error)(line);
   if (!result.ok) process.exitCode = 1;
 }
 
-/** The rules of this repository's plugin that the base does not have yet (see localRuleFile). */
-function newLocalRules(current: Snapshot, base: string): Set<string> {
-  const rules = [
+function rulesOf(current: Snapshot): string[] {
+  return [
     ...(current.suppressions ? suppressionsByRule(current.suppressions).keys() : []),
     ...current.inline.keys(),
   ];
-  return new Set(
-    rules.filter((rule) => {
-      const file = localRuleFile(rule);
-      return file !== null && readAtBase(root, base, file) === null;
-    }),
-  );
 }

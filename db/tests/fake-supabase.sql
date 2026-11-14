@@ -22,12 +22,10 @@ create table auth.sessions (
   updated_at timestamptz,
   refreshed_at timestamp,
   not_after timestamptz,
-  -- Supabase Auth keeps the browser and the IP address a session was opened from (step 2.3: /privacy says it, and
-  -- export_my_data() gives them).
+  -- Supabase Auth keeps the browser and the IP address a session was opened from (export_my_data() gives them).
   user_agent text,
   ip inet
 );
--- The identity of each provider (Google, here), with what it sent.
 create table auth.identities (
   id uuid primary key default gen_random_uuid(),
   provider_id text not null,

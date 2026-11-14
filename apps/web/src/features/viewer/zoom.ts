@@ -17,7 +17,6 @@ export interface View {
   y: number;
 }
 
-/** The whole image in sight, never bigger than its natural size. */
 export function fitScale(image: Size, stage: Size): number {
   return Math.min(1, stage.width / image.width, stage.height / image.height);
 }
@@ -36,7 +35,6 @@ function clampScale(scale: number, image: Size, stage: Size): number {
   return Math.min(maxScale(image, stage), Math.max(fitScale(image, stage), scale));
 }
 
-/** Within the limits: centered on an axis where it fits, and without empty borders where it does not. */
 export function clampView(view: View, image: Size, stage: Size): View {
   const scale = clampScale(view.scale, image, stage);
   return {

@@ -1,5 +1,4 @@
-// The lint ratchet: per rule, the suppressions and the inline directives may go down, never up; the CI and the
-// pre-push hook run it.
+// Tests for the lint ratchet and for where it runs.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -10,6 +9,7 @@ import {
   checkRatchet,
   directivesByRule,
   localRuleFile,
+  newLocalRules,
   suppressionsByRule,
   total,
 } from './suppressions';
@@ -130,6 +130,20 @@ describe('checkRatchet', () => {
     for (const rule of ['max-lines', 'sonarjs/cognitive-complexity', 'qv/../x', ALL_RULES]) {
       expect(localRuleFile(rule)).toBeNull();
     }
+  });
+
+  it('a rule is new only with its file in the working tree and not in the base', () => {
+    const tree = new Set([
+      'packages/eslint-plugin/src/file-header.js',
+      'packages/eslint-plugin/src/old.js',
+    ]);
+    const base = new Set(['packages/eslint-plugin/src/old.js']);
+    const found = newLocalRules(
+      ['qv/file-header', 'qv/old', 'qv/elsewhere', 'max-lines'],
+      (path) => base.has(path),
+      (path) => tree.has(path),
+    );
+    expect([...found]).toEqual(['qv/file-header']);
   });
 
   it('an inline directive counts as a suppression of its rule', () => {

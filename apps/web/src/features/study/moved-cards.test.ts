@@ -1,4 +1,4 @@
-// Plan step 1.3: cards the author moves to another deck or takes out while students have progress in them.
+// Tests cards the author moves to another deck or takes out while students have progress in them.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dayStartsAt } from '@qv/srs';
 import type { AnkiTreeDeck, CardChanges, CardSummary, DeckDetail } from '@qv/schema';
@@ -33,7 +33,6 @@ const card = (deckId: string, guid: string): CardSummary => ({
   text: '',
 });
 
-/** The content as the API has it now: its cards, and what moved or left, numbered as the database numbers it. */
 class Content implements CardChangeSource {
   cards: CardSummary[];
   private log: (CardChange & { id: number })[] = [];
@@ -57,7 +56,6 @@ class Content implements CardChangeSource {
       { noteGuid, ord: 0, deckId, id },
     ];
   }
-  /** As `anki_card_changes_since()`, with pages of `pageSize`. */
   pageSize = 2000;
   async cardChanges(since: number): Promise<CardChanges> {
     const after = this.log.filter((l) => l.id > since);
@@ -70,7 +68,6 @@ class Content implements CardChangeSource {
     };
   }
 
-  /** The catalog's tree (a deck's count with its subdecks') and a deck as `/api/decks/:id` gives it. */
   tree(): AnkiTreeDeck[] {
     const deck = (id: string, name: string, parentId: string | null): AnkiTreeDeck => ({
       id,
@@ -129,7 +126,6 @@ class Content implements CardChangeSource {
   }
 }
 
-/** What the study page loads (useStudyData), from what the repository gives. */
 async function load(
   content: Content,
   study: StudyRepository,
@@ -157,7 +153,6 @@ async function load(
   };
 }
 
-/** Answers «Bien» to everything that comes out; how many were new. */
 async function studyAll(session: StudySession, start: number) {
   let now = start;
   let fresh = 0;
@@ -173,7 +168,6 @@ async function studyAll(session: StudySession, start: number) {
   return fresh;
 }
 
-/** The student enters: what the site does before reading their progress. */
 const enter = (study: StudyRepository, content: Content) =>
   withCardSync(study, content, async () => 'ana');
 
@@ -195,7 +189,6 @@ describe('a card that moved to another deck after it was seen', () => {
     const before = (await local.allCards()).find((r) => r.noteGuid === `${L1}-00`)!;
     expect(before.reps).toBeGreaterThan(0);
 
-    // The author moves it (to «Extras», say); the next day the student opens the other lecture.
     content.move(`${L1}-00`, L2);
     vi.setSystemTime(NOW + DAY);
     const study = enter(local, content);
@@ -240,7 +233,6 @@ describe('with a date, everything still comes out in time after the author moves
       const now = NOW + day * DAY;
       vi.setSystemTime(now);
       if (day === 2) {
-        // Seen cards move from one lecture to the other, unseen ones the other way, and two seen ones leave.
         const seen = (await local.allCards())
           .filter((r) => r.phase !== 'new')
           .map((r) => r.noteGuid);
@@ -262,7 +254,6 @@ describe('with a date, everything still comes out in time after the author moves
         today: timingFor(PREFS, now).today,
         prefs: PREFS,
       });
-      // What the pace counts as left is what is really left to see.
       const rows = await study.allCards();
       const unseen = content.cards.filter(
         (c) => !rows.some((r) => r.noteGuid === c.noteGuid && r.phase !== 'new'),
@@ -310,7 +301,6 @@ describe('syncCards', () => {
     let first = true;
     const racing: StudyRepository = {
       ...local,
-      // Another tab writes between this tab's read and its write.
       reconcileCards: async (input) => {
         if (first) {
           first = false;
@@ -370,7 +360,6 @@ describe('the final review', () => {
 });
 
 describe('a page that was behind (the users’ database)', () => {
-  /** Just what the repository calls: the cursor row, and the functions (with the header each one got). */
   function fakeClient(row: { synced_to: number; repair_from: number | null } | null) {
     const calls: { fn: string; header: string | null }[] = [];
     const client = {
@@ -401,7 +390,6 @@ describe('a page that was behind (the users’ database)', () => {
   it('each write says up to which change the page has the decks', async () => {
     const { client, calls } = fakeClient({ synced_to: 9, repair_from: null });
     const repo = supabaseStudyRepository(client);
-    // Before reconciling, it says nothing (the database does not mark anything).
     await repo.suspend([ref], false);
     expect(await repo.cardsSyncedTo()).toBe(9);
     await repo.suspend([ref], false);

@@ -1,29 +1,20 @@
+// Zod contracts of the API's responses and requests (`/api/*`); the web validates every response with them.
 import { z } from 'zod';
 import { Assessment, Course, NoteSummary, Semester } from './content';
 import { AnkiTreeDeck, AuthorPreset, NoteTypeSummary } from './flashcards';
 import { CardIndexRef } from './browse-index';
 import { QuizSummary } from './quizzes';
 
-/** API contracts (`/api/*`). The web validates every response with these schemas. */
-
-/**
- * An assessment with its notes, its practice tests and how many Anki cards it has (its decks are in `anki`).
- * `quizzes` defaults to empty: a catalog from before v1.4 still parses.
- */
+/** `quizzes` defaults to empty so that an older catalog still parses. */
 export const AssessmentWithNotes = Assessment.extend({
   notes: z.array(NoteSummary),
   quizzes: z.array(QuizSummary).default([]),
   cardCount: z.number().int().nonnegative().default(0),
-  /**
-   * The current file of the card browser's index (step 3.3): `cardIndexUrl(id, hash)`. Absent: the assessment has no
-   * cards, or it was not imported again since that step (or its deck was taken off the site).
-   */
   cardIndex: CardIndexRef.optional(),
 });
 export const CourseWithAssessments = Course.extend({ assessments: z.array(AssessmentWithNotes) });
 export const SemesterWithCourses = Semester.extend({ courses: z.array(CourseWithAssessments) });
 
-/** The whole Anki deck tree (parents before children), the author's presets and the note types. */
 export const AnkiCatalog = z.object({
   decks: z.array(AnkiTreeDeck),
   presets: z.array(AuthorPreset),
@@ -31,17 +22,10 @@ export const AnkiCatalog = z.object({
 });
 export type AnkiCatalog = z.infer<typeof AnkiCatalog>;
 
-/**
- * `anki` defaults to empty: a catalog from before v1.3 that a browser still has cached (the API lets it keep
- * one for a minute) still parses, without decks, until the next request.
- */
+/** `anki` defaults to empty so that an older catalog still cached by a browser parses, without decks. */
 export const Catalog = z.object({
   semesters: z.array(SemesterWithCourses),
   anki: AnkiCatalog.default({ decks: [], presets: [], noteTypes: [] }),
-  /**
-   * How many semesters the site hides because they have no material yet (the administrator's switch, step 1.8):
-   * where they would be, the web says that they are coming. Absent when none is hidden.
-   */
   hiddenSemesters: z.number().int().positive().optional(),
 });
 export type Catalog = z.infer<typeof Catalog>;
@@ -56,7 +40,6 @@ export const SearchResult = z.object({
   courseName: z.string(),
   anchor: z.string(),
   section: z.string(),
-  /** Plain-text snippet with the matches between «⟦» and «⟧» (the web highlights them). */
   snippet: z.string(),
   score: z.number(),
 });
@@ -71,36 +54,25 @@ export type SearchResponse = z.infer<typeof SearchResponse>;
 export const ApiError = z.object({ error: z.string(), message: z.string() });
 export type ApiError = z.infer<typeof ApiError>;
 
-/** Markers of the search snippet. They are characters that never appear in the notes. */
+/** Characters that never appear in the notes. */
 export const HIGHLIGHT_START = '⟦';
 export const HIGHLIGHT_END = '⟧';
 
-/**
- * How the site is shown, set from the administration panel (step 1.8). It is not material: it changes at once, without
- * going through the draft. `updatedAt` and `updatedBy` are null until somebody changes it for the first time.
- */
+/** Not material: it changes at once, without going through the draft. */
 export const SiteSettings = z.object({
-  /** The semesters without any published article, deck or test are not shown (nor open by their URL). */
   hideEmptySemesters: z.boolean(),
   updatedAt: z.iso.datetime({ offset: true }).nullable(),
   updatedBy: z.string().nullable(),
 });
 export type SiteSettings = z.infer<typeof SiteSettings>;
 
-/** What the panel sends to change the settings. */
 export const SiteSettingsUpdate = z.object({ hideEmptySemesters: z.boolean() }).strict();
 export type SiteSettingsUpdate = z.infer<typeof SiteSettingsUpdate>;
 
-/** What `npm run unpublish` takes off (step 1.5). */
 export const UnpublishedKind = z.enum(['note', 'deck', 'quiz', 'image']);
 export type UnpublishedKind = z.infer<typeof UnpublishedKind>;
 
-/**
- * A piece taken off the site (step 1.5), as the record of the content database keeps it, for «Fuera del sitio» in
- * the administration panel (step 2.10). `removed`: what went with it (an article and its sections, a test and its
- * questions, the decks below and their cards, or the pieces that used an image). `onSite`: published again (imported
- * after `--restore`); null if it could not be told.
- */
+/** `onSite`: published again after `--restore`; null if it could not be told. */
 export const UnpublishedEntry = z.object({
   id: z.number().int(),
   kind: UnpublishedKind,
@@ -127,14 +99,12 @@ export const UnpublishedEntry = z.object({
 });
 export type UnpublishedEntry = z.infer<typeof UnpublishedEntry>;
 
-/** The latest entries of the record (at most 200), newest first, and how many there are in all. */
 export const UnpublishedLog = z.object({
   total: z.number().int().nonnegative(),
   entries: z.array(UnpublishedEntry),
 });
 export type UnpublishedLog = z.infer<typeof UnpublishedLog>;
 
-/** A semester has material when one of its courses has an article, a test or an Anki deck with cards. */
 export function semesterHasMaterial(catalog: Catalog, semester: SemesterWithCourses): boolean {
   return (
     semester.courses.some((c) =>
@@ -143,10 +113,6 @@ export function semesterHasMaterial(catalog: Catalog, semester: SemesterWithCour
   );
 }
 
-/**
- * The catalog without the semesters that have no material (the administrator's switch, step 1.8), and how many went
- * (`hiddenSemesters`). The Anki decks of a hidden semester (empty parents) go too. Nothing else changes.
- */
 export function withoutEmptySemesters(catalog: Catalog): Catalog {
   const hidden = new Set(
     catalog.semesters.filter((s) => !semesterHasMaterial(catalog, s)).map((s) => s.number),

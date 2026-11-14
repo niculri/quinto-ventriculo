@@ -1,3 +1,4 @@
+// The spaced-repetition scheduler: Anki's FSRS scheduler, its study queue and deck options.
 export * from './card';
 export * from './config';
 export * from './fsrs';

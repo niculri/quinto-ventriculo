@@ -1,10 +1,5 @@
-/**
- * The card browser's index (step 3.3) of the web's end-to-end test content (apps/web/e2e/content), as the dry run writes
- * it: the file of each assessment in media/browse/, its thumbnails in media/cards/thumb/ and `ankiBrowseIndexes` in the
- * content.json of what is published and of the draft. Run it after changing the decks of that content.
- *
- *   npx tsx packages/importer/scripts/e2e-browse-index.ts
- */
+// Writes the card browser's indexes and thumbnails of the e2e content (apps/web/e2e/content) as the dry run does. Run
+// it after changing that content's decks: `npx tsx packages/importer/scripts/e2e-browse-index.ts`.
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ContentBundle } from '@qv/schema';

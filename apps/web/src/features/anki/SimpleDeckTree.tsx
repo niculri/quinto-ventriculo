@@ -1,3 +1,5 @@
+// The simple deck list: what is left today in minutes, mastery, and the switch of each week or lecture.
+
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { ChevronRight, Play } from 'lucide-react';
@@ -23,24 +25,16 @@ import { useCollapsed } from './useCollapsed';
 import { ancestry, descendants } from './tree';
 import type { CourseDeckNode, DeckNode } from './tree';
 
-/** The assessment a deck is in (it, if it is one). */
 function assessmentOf(node: DeckNode): DeckNode | null {
   return ancestry(node).find((n) => n.depth === 3) ?? null;
 }
 
-/** The decks a student sees: an «Extras» only if its assessment includes them. */
 export function visibleChildren(node: DeckNode, plan: StudyPlan): CourseDeckNode[] {
   return (node.children as CourseDeckNode[]).filter(
     (c) => !isExtras(c.name) || includesExtras(plan, assessmentOf(c)?.id ?? ''),
   );
 }
 
-/**
- * The decks below `root`, the simple way: what is left today in minutes, with its breakdown on opening it, and
- * a switch on each week or lecture. Foldable as Anki's list; `upTo` stops at a depth (the course's page lists
- * only the weeks or lectures). Without `plan` (still loading), the same rows with skeletons where the switches
- * and the loads go, so nothing moves when they arrive.
- */
 export function SimpleDeckTree({
   root,
   counts,
@@ -52,7 +46,6 @@ export function SimpleDeckTree({
   root: CourseDeckNode;
   counts: Map<string, Counts> | undefined;
   plan: StudyPlan | undefined;
-  /** Dominio of each deck; undefined while it loads. */
   mastery: Map<string, number> | undefined;
   label?: string;
   upTo?: number;
@@ -123,13 +116,11 @@ export function SimpleDeckTree({
                   <span className="size-6 flex-none" aria-hidden="true" />
                 )}
                 <span className="min-w-0 flex-1">
-                  {/* Not a link: there is nothing more inside a week or a lecture, and its switch says what is studied. */}
                   <span
                     className={`block py-0.5 font-medium break-words ${off ? 'text-muted' : 'text-ink'}`}
                   >
                     {d.label}
                   </span>
-                  {/* On the phone the load goes under the name: beside it the name would have no room. */}
                   <span className="block text-xs text-muted sm:hidden">{load}</span>
                   {unit ? (
                     <span className="flex h-5 items-center sm:hidden">{meter('left')}</span>
@@ -174,7 +165,6 @@ export function SimpleDeckTree({
   );
 }
 
-/** The deck itself and the weeks or lectures around it: what `activeUnits()` looks at. */
 function allNodes(node: DeckNode): DeckNode[] {
   let top = node;
   while (top.parent && top.depth > 3) top = top.parent;
@@ -183,7 +173,6 @@ function allNodes(node: DeckNode): DeckNode[] {
   return out;
 }
 
-/** The deck, or the week or lecture it is in, is turned on. */
 function isOn(node: DeckNode, active: Set<string>): boolean {
   const unit = ancestry(node).find((n) => n.depth === UNIT_DEPTH);
   return !unit || active.has(unit.id);

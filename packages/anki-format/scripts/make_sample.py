@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
-"""Builds test/fixtures/sample.apkg: a small synthetic deck for the tests (reader, renderer, importer, e2e).
+"""Builds test/fixtures/sample.apkg, a small synthetic deck that covers the corners of Anki's templates, cloze and
+Image Occlusion, for the reader, renderer, importer and e2e tests.
 
-It covers what the real decks use and the corners of Anki's template language: conditionals, negated
-conditionals, FrontSide, text:, hint:, special fields (Deck, Subdeck, Tags, Type, Card), empty fields
-(only <br>), cloze with hints, nested and repeated clozes, Image Occlusion with every shape, a subdeck with
-its own preset («Extras», 0 new cards per day) and media. The images are drawn here (no copyrighted
-material).
-
-Run it with the Python that has genanki (and Pillow):
-    python3 packages/anki-format/scripts/make_sample.py
+    python3 packages/anki-format/scripts/make_sample.py   # with genanki and Pillow
 """
 
 import json
@@ -28,8 +22,7 @@ OUTPUT = os.path.join(HERE, "..", "test", "fixtures", "sample.apkg")
 ROOT_DECK_ID = 2059400110
 EXTRAS_DECK_ID = 2059400111
 EXTRAS_PRESET_ID = 1700000000001
-# As the real decks: root, semester, course and assessment as the catalog names them, a week, the deck and its
-# «Extras». The package brings only the deck and Extras (Anki exports no parents): the importer creates the rest.
+# The package brings only the deck and its «Extras», as Anki exports no parents: the importer creates the rest.
 SAMPLE_DECK = "() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba::Mazo de prueba"
 
 CSS = """
@@ -156,7 +149,6 @@ OCCLUSION = genanki.Model(
 
 
 def draw_images(folder):
-    """Two simple diagrams drawn here: a «vertebra» and a «heart» made of shapes."""
     paths = []
     img = Image.new("RGB", (800, 600), "#ffffff")
     d = ImageDraw.Draw(img)

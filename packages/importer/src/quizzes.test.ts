@@ -1,3 +1,5 @@
+// Tests the quiz converter: the skill's inline syntax, question ids, SVG sanitizing, a synthetic test and, with the
+// private material, the real tests against the skill's page and Python model.
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -22,7 +24,6 @@ const ASSESSMENT: Assessment = {
   position: 2,
 };
 
-/** An image processor that remembers what it got (the bytes of each image, by its key). */
 function recordingProcessor() {
   const inputs = new Map<string, Buffer>();
   const process: QuizImageProcessor = async (data) => {
@@ -220,7 +221,6 @@ describe('a synthetic test in the skill’s format', () => {
       footer: 'Pie',
     });
     expect(q.theme.light.ac).toBe('#5B4B9A');
-    // Without sections: one, «all», with the general texts; groups by file name.
     const [s] = q.sections;
     expect(s).toMatchObject({
       id: 'all',
@@ -230,7 +230,7 @@ describe('a synthetic test in the skill’s format', () => {
       questionCount: 3,
       hasChoices: true,
     });
-    expect(s!.description).toContain('respuesta corta'); // there is a short-answer question
+    expect(s!.description).toContain('respuesta corta');
     expect(s!.groups.map((g) => g.id)).toEqual(['01', '02']);
     expect(s!.groups[0]!.topic).toBe('Tema <i>uno</i>');
     const [first, second] = s!.groups[0]!.questions as [QuizQuestion, QuizQuestion];
@@ -283,9 +283,7 @@ describe('a synthetic test in the skill’s format', () => {
     });
     const short = s!.groups[1]!.questions[0]!;
     expect(short).toMatchObject({ id: 'S-2', kind: 'short', answer: 'La respuesta' });
-    // The internal note is not published.
     expect(JSON.stringify(q)).not.toContain('nota interna');
-    // Nor what a revision changed («cambio»).
     expect(JSON.stringify(q)).not.toContain('Revisión: algo');
   });
 
@@ -511,10 +509,6 @@ describe('a synthetic test in the skill’s format', () => {
   });
 });
 
-// ───────────────── compared with the skill (its page and its Python model) ─────────────────
-
-// Where the skill and the real test are, and what the real test must give, is in the private repository
-// (tests/real-material.json, step 2.4): these checks run where it is and are skipped in the public CI.
 const PRIVATE = privateMaterial();
 const REAL = PRIVATE.config?.quiz;
 const MATERIAL = PRIVATE.root;
@@ -525,14 +519,12 @@ const REAL_HTML = REAL ? materialPath(MATERIAL, REAL.html) : '';
 /* eslint-disable @typescript-eslint/no-explicit-any -- the skill's page data */
 type Page = Record<string, any>;
 
-/** The `TEST` of a page made with the skill (the published HTML). */
 function pageData(html: string): Page {
   const start = html.indexOf('const TEST=') + 'const TEST='.length;
   const end = html.indexOf(';\nconst ERRORES');
   return JSON.parse(html.slice(start, end)) as Page;
 }
 
-/** The skill's own normalization of a test folder (modelo.py), as its page gets it. */
 function skillNormalized(folder: string): Page {
   const out = execFileSync(
     'python3',
@@ -550,7 +542,6 @@ function skillNormalized(folder: string): Page {
   return JSON.parse(out.toString('utf8')) as Page;
 }
 
-/** The page's `FIG` (plantilla/test.html), run as it is: the charts the page would draw. */
 function pageCharts(): (spec: Page) => string {
   const html = readFileSync(join(SKILL, 'plantilla/test.html'), 'utf8');
   const from = html.indexOf('const f1=');
@@ -560,10 +551,6 @@ function pageCharts(): (spec: Page) => string {
   return (spec) => sandbox.FIG[spec.tipo](spec) as string;
 }
 
-/**
- * Every question of the page against ours, field by field: texts, key, explanations, origin,
- * figures (the same SVG once sanitized, the same image bytes), tables. Returns what differs.
- */
 function compare(
   page: Page,
   quiz: Omit<ImportedQuiz, 'hash' | 'updatedAt'>,
@@ -627,7 +614,6 @@ function compare(
         eq(`${w} e`, pq.e, q.context);
         eq(`${w} q`, pq.q, q.prompt);
         eq(`${w} exp`, pq.exp, q.explanation);
-        // «cambio» is not published (the owner, 2026-11-01).
         if ('change' in q) diffs.push(`${w}: publica «cambio»`);
         eq(`${w} origen`, pq.origen, q.origin);
         if (q.kind === 'choice') {
@@ -713,7 +699,6 @@ describe.skipIf(!haveSkill)(
           }
         }
       }
-      // Plus one of each kind with every option.
       specs.push(
         {
           tipo: 'histograma',
@@ -821,7 +806,6 @@ describe.skipIf(!haveSkill)(
 describe.skipIf(!haveReal)(
   skipped('a real test, compared with its page and the skill', haveReal),
   () => {
-    // Only read inside the tests, which run only with the config (haveReal).
     const want = REAL?.expect as NonNullable<typeof REAL>['expect'];
     let converted: Awaited<ReturnType<typeof convertQuiz>>;
     let inputs: Map<string, Buffer>;
@@ -848,7 +832,7 @@ describe.skipIf(!haveReal)(
         const pattern = new RegExp(want.newIdPattern);
         expect(ids.filter((id) => pattern.test(id))).toHaveLength(want.newIds ?? 0);
       }
-      expect(ids.every((id) => !/^\d\d-\d+$/.test(id))).toBe(true); // none by position
+      expect(ids.every((id) => !/^\d\d-\d+$/.test(id))).toBe(true);
       expect(q.media).toHaveLength(want.media);
     });
 
@@ -866,13 +850,11 @@ describe.skipIf(!haveReal)(
         .filter(([, x]) => x);
       expect(split).toHaveLength(want.statements);
       if (want.statementExample) {
-        // As the source writes them (lowercase, and a IV in capitals, in the one of the config).
         const example = want.statementExample;
         expect(split.find(([id]) => id === example.id)?.[1]?.items.map((i) => i.numeral)).toEqual(
           example.numerals,
         );
       }
-      // Every question with a line that starts with a numeral was split.
       const missed = all.filter(
         (q) =>
           /(^|<br>)\s*(I|II|III|i|ii|iii)\s*[.)-]/.test(q.prompt) && !splitStatements(q.prompt),
@@ -887,7 +869,6 @@ describe.skipIf(!haveReal)(
       const entry = manifest.tests.find((t) => t.folder === REAL_FOLDER)!;
       const r = await convertQuiz(entry, ASSESSMENT, MATERIAL, recordingProcessor().process);
       expect(r.quiz).toMatchObject(want.published);
-      // The notices say where the questions come from, not how they were made nor what is for another exam.
       const [first, second] = r.quiz.sections;
       expect(first!.notice).toBe(want.notices.first);
       expect(second!.notice).toMatch(new RegExp(want.notices.second));

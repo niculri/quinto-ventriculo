@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+
+// Tests of the card renderer: golden cards from Anki, templates, cloze, Image Occlusion and HTML helpers.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -97,7 +99,7 @@ describe('templates', () => {
   });
 
   it('the hint id is blake3, like Anki', () => {
-    // Same id as Anki's own test: hint_filter("foo", "field").
+    // The id of Anki's own test of hint_filter("foo", "field").
     const t = { ...basic('{{hint:field}}', '{{FrontSide}}'), fields: ['field'] };
     const r = renderCard(input({ noteType: t, fields: ['foo'] }));
     expect(r.question).toContain("getElementById('hint83fe48607f0f3a66')");

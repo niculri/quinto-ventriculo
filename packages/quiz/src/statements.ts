@@ -1,23 +1,14 @@
-/**
- * Questions of statements: the text brings «I. …», «II. …», «III. …», one per line, and the alternatives
- * say which are right («Sólo I», «I y II»). The owner asked to show them as a list of their own, apart from
- * the text and from the alternatives (2026-11-01). They are recognized in the question's HTML (lines are
- * separated by `<br>`): a run of two or more lines that start with the numerals in order from I (as the
- * sources write them: «I.», «I)», «I.-», «I -», «I » or lowercase «i.»). A line between two statements that
- * does not start with a numeral is part of the one before; what comes after the last one goes after the list.
- */
+// Splits the «I. …», «II. …», «III. …» statements out of a question's HTML, so they show as a list apart from the
+// text and the alternatives.
 
 export interface Statement {
-  /** The numeral as the source writes it, without its punctuation: «I», «iv». */
   numeral: string;
   html: string;
 }
 
 export interface StatementSplit {
-  /** The text before the list (HTML); may be empty. */
   before: string;
   items: Statement[];
-  /** The text after the list (HTML); usually empty. */
   after: string;
 }
 
@@ -25,6 +16,7 @@ const NUMERALS = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
 const MARK = /^\s*(viii|vii|vi|ix|iv|v|x|iii|ii|i)(?:\s*[.):–—-]+\s*|\s+)(?=\S)/i;
 const BREAK = /<br\s*\/?>/i;
 
+/** Two or more `<br>` lines numbered in order from I; a line between two statements belongs to the one before. */
 export function splitStatements(html: string): StatementSplit | null {
   const lines = html.split(BREAK);
   let start = -1;
@@ -47,7 +39,6 @@ export function splitStatements(html: string): StatementSplit | null {
       end = j;
       continue;
     }
-    // A line that does not start a statement: the continuation of the one before, if another one follows.
     const rest = lines.slice(j + 1);
     const follows = rest.findIndex((l) => {
       const n = MARK.exec(l);

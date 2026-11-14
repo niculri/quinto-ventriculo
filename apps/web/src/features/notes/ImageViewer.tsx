@@ -1,3 +1,6 @@
+// A full-screen viewer to read an image at its natural size, zoomed by touch, mouse or keyboard (+ − 0 and arrows).
+// Opened from a note, a card or a test.
+
 import * as Dialog from '@radix-ui/react-dialog';
 import { useRef, useState } from 'react';
 import { Maximize2, MessageSquareWarning, Minimize2, X, ZoomIn, ZoomOut } from 'lucide-react';
@@ -8,15 +11,10 @@ export interface OpenImage {
   src: string;
   alt: string;
   caption: string;
-  /** An article's image: the section it is in (to report it, step 2.6). */
   section?: string;
   sectionTitle?: string;
 }
 
-/**
- * An image at its natural size, to read the labels of a plate: pinch, drag and double tap on a phone; wheel, drag
- * and double click with a mouse; + − 0 and the arrows with the keyboard. Opened from a note, a card or a test.
- */
 export function ImageViewer({
   image,
   onClose,

@@ -1,6 +1,6 @@
+// A stable content hash, independent of key order.
 import { createHash } from 'node:crypto';
 
-/** sha256 of the content with sorted keys: it does not depend on the order the object was built in. */
 export function hash(value: unknown): string {
   return createHash('sha256')
     .update(JSON.stringify(sortKeys(value)))

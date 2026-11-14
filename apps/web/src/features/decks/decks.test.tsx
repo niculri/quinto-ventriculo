@@ -1,3 +1,6 @@
+// Tests the course's Anki entry points, the card viewer and its Shadow DOM, the browser's sanitizing and image
+// occlusion.
+
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -15,12 +18,10 @@ import type { ShapeProperties } from './occlusion';
 
 afterEach(() => document.documentElement.classList.remove('dark'));
 
-/** The cards of «Certamen 1» with a card open in the viewer (step 3.3). */
 const CARDS = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards';
 const viewing = (note: string, ord: number, extra = '') =>
   `${CARDS}?${extra}card=${encodeURIComponent(`${ord}:${note}`)}`;
 
-/** The card's shadow root inside the viewer. */
 async function cardRoot(
   label: RegExp | string = /Frente de la tarjeta/,
   within_: HTMLElement | null = null,
@@ -39,7 +40,6 @@ describe('catalog', () => {
     });
     expect(within(link).getByText('1 mazo · Certamen 1')).toBeInTheDocument();
     await userEvent.click(link);
-    // The dashboard: the assessment's card, and the course's own deck.
     const card = await screen.findByRole('link', { name: /^Anki.+/ });
     expect(card).toHaveAttribute('href', '/semesters/1/courses/anatomia-1/anki/certamen-1');
     await userEvent.click(screen.getByRole('link', { name: /Todos los mazos del ramo/ }));
@@ -53,12 +53,10 @@ describe('catalog', () => {
       'href',
       '/semesters/1/courses/anatomia-1/anki/study',
     );
-    // Its cards.
     expect(screen.getByRole('link', { name: /Ver las tarjetas/ })).toHaveAttribute(
       'href',
       '/semesters/1/courses/anatomia-1/anki/cards',
     );
-    // No way to the decks of every course: not in the top bar either.
     const bar = screen.getByRole('banner');
     expect(within(bar).queryByRole('link', { name: 'Anki' })).toBeNull();
   });
@@ -80,15 +78,11 @@ describe('card viewer (a row of the cards page)', () => {
     const styles = [...root.querySelectorAll('style')].map((s) => s.textContent);
     expect(styles[0]).toBe(BASE_CSS);
     expect(styles[1]).toContain('.pie { position: fixed');
-    // The card's classes do not exist outside its shadow root (and the page's do not get in).
     expect(document.querySelector('.pregunta')).toBeNull();
-    // The footer with position: fixed stays inside the frame, which contains it (contain: layout) and does
-    // not scroll: the card scrolls inside it, like in Anki's window.
     expect(root.querySelector('.qv-body .pie')).not.toBeNull();
     const region = within(dialog).getByRole('region', { name: 'Frente de la tarjeta' });
     expect(region).toHaveClass('qv-frame');
     expect(region.style.contain).toBe('layout paint');
-    // What scrolls is in the page, not in the shadow root: the dialog's scroll lock has to see it.
     const scroller = region.querySelector('.qv-scroll')!;
     expect(scroller).toHaveClass('overflow-y-auto');
     expect(scroller.querySelector('.qv-card')!.shadowRoot).toBe(root);
@@ -183,7 +177,6 @@ describe('browser sanitizing of cards', () => {
   });
 });
 
-/** A canvas context that records what is drawn. */
 function recorder() {
   const calls: string[] = [];
   const ctx = {

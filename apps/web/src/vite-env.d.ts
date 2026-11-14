@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+// The types of the web's `import.meta.env`.
+
 interface ImportMetaEnv {
   readonly VITE_USERS_SUPABASE_URL?: string;
   readonly VITE_USERS_SUPABASE_PUBLISHABLE_KEY?: string;

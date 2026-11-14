@@ -1,3 +1,4 @@
+// «Eliminar mi cuenta»: confirms with the account's email, says when it will be deleted and signs out.
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,11 +12,6 @@ import { button } from '../../ui/styles';
 import { useSession, useUser } from '../session/context';
 import { AccountError } from './repository';
 
-/**
- * «Eliminar mi cuenta» (step 2.3, decision 44): the person writes their email to confirm; the database marks it,
- * closes every session and deletes it after ACCOUNT_DELETION_DAYS days. Then the popup says until when, and
- * «Entendido» signs out (the session is already closed).
- */
 export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { account } = useServices();
   const user = useUser();
@@ -32,8 +28,7 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
     queryClient.clear();
     void navigate(paths.landing({ notice: 'deletion' }), { replace: true });
   };
-  // Revisión de cero (2.3): while asking, the popup does not close. Closed with «Cancelar» or Escape in that moment, the
-  // account was marked and its sessions closed without the person reading it.
+  // While asking, the popup does not close: closing it then would mark the account without the person reading it.
   const busy = request.isPending;
   const close = () => {
     if (done) return void leave();

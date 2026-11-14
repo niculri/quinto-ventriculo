@@ -1,3 +1,5 @@
+// The footer of every page, also the public ones: the site's links (help only with a session, about, reporting a
+// problem) and the legal texts with the source code.
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { CONTACT_EMAIL } from '@qv/schema';
@@ -6,23 +8,15 @@ import { useSession } from '../features/session/context';
 import { LogoMark } from './Logo';
 import { CREDITS, SOURCE_CODE_URL } from './credits';
 
-/** What the footer says of the site: that students make it, apart from the university (step 2.7, EXP-P1). */
 const SITE_LINE = 'Sitio de estudiantes, sin relación oficial con la Universidad de Chile';
 
 /** A footer link: at least 44 px tall on the phone, where it is touched (WCAG 2.5.5); a line of text on wider screens. */
 const linkClass = 'inline-flex min-h-11 items-center hover:text-ink sm:min-h-0';
 
-/**
- * The footer of every page (step 2.7): the signed-in app, the public pages (/about, /privacy, /terms, /licenses) and
- * the landing page. Two groups: the site (help, about, where to report a problem) and the legal texts with the source
- * code. Help is only offered with a session (it is behind the login); the rest works without one. Studying a deck
- * and answering a test's questions hide it (AppShell).
- */
 export function SiteFooter({
   variant = 'app',
   hidden = false,
 }: {
-  /** `landing`: the landing page's narrower frame, with the logo's mark. */
   variant?: 'app' | 'landing';
   hidden?: boolean;
 }) {

@@ -1,3 +1,6 @@
+// The cards page's filters («Estado», «Origen», «Tipo»), each option with how many notes it would leave; one that
+// leaves none stays, disabled, so nothing appears or goes away.
+
 import type { ReactNode } from 'react';
 import type { CardOrigin } from '@qv/schema';
 import { Switch } from '../../ui/Switch';
@@ -5,12 +8,6 @@ import { StatusDot } from './CardList';
 import { KIND_FILTERS, ORIGIN_FILTERS, STATE_FILTERS } from './model';
 import type { Facets, KindFilter, StateFilter } from './model';
 
-/**
- * The filters of the cards page, in the right column (as an article's index) or in a panel on narrower screens:
- * «Estado», «Origen» and «Tipo», each option with how many notes it would leave. An option that would leave none is
- * there, with its 0, and cannot be chosen; nothing appears or goes away. While the cards load, the counts wait in
- * their places.
- */
 export function CardFilters({
   facets,
   state,
@@ -28,7 +25,6 @@ export function CardFilters({
   state: StateFilter;
   origins: readonly CardOrigin[];
   kind: KindFilter;
-  /** A day of the heatmap already answered: «Falladas» are those of that day. */
   failedThatDay?: boolean;
   hideAnswers: boolean;
   onState: (s: StateFilter) => void;

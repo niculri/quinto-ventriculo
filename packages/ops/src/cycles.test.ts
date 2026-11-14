@@ -1,4 +1,4 @@
-// Import cycles between files and between the web's top folders, and their baseline.
+// Tests for the import cycles between files and between the web's top folders, and for their baseline.
 import { describe, expect, it } from 'vitest';
 import { count, currentCycles, folderCycles, gained, readBaseline, webFolder } from './cycles';
 import type { Cruise } from './cycles';

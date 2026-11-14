@@ -1,11 +1,5 @@
-/**
- * Site-only presentation changes to the author's note types. Anki keeps its own footer (fixed at the bottom
- * right, «Creado por Nico Ulriksen el … · T-…»); on the site the author asked for (2026-10-31): only the code and
- * the dates, not floating, at the end of the card after the source, and without «Creado por».
- *
- * It only touches note types that carry the author's footer (`<div class="pie">` with the «Código» and «Creación»
- * fields); anything else is left exactly as in Anki.
- */
+// Site-only changes to the author's note types: the card footer shows only the code and the dates, in the flow at
+// the end of the back. Note types without that footer are left exactly as in Anki.
 
 const FOOTER_RE =
   /(?:\{\{#Código\}\})?\s*<div class="pie">[\s\S]*?<\/div>\s*(?:\{\{\/Código\}\})?/g;
@@ -24,7 +18,6 @@ const SITE_FOOTER_CSS = `
 }
 `;
 
-/** What these functions need from a note type (any template with qfmt/afmt works). */
 interface FooterNoteType {
   fields: string[];
   templates: { qfmt: string; afmt: string }[];
@@ -45,7 +38,7 @@ export function forSite<T extends FooterNoteType>(type: T): T {
     ...type,
     templates: type.templates.map((t) => ({
       ...t,
-      // Front: no footer (there is no source yet). Back: the footer at the very end, after the source.
+      // The front has no source yet, so no footer; on the back it goes after the source.
       qfmt: t.qfmt.replace(FOOTER_RE, '').trimEnd(),
       afmt: `${t.afmt.replace(FOOTER_RE, '').trimEnd()}\n${SITE_FOOTER}`,
     })),

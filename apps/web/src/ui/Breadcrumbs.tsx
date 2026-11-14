@@ -1,3 +1,4 @@
+// The breadcrumbs above a page's title.
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
 

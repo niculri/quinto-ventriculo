@@ -1,38 +1,26 @@
+// Error reports in the users database: the Supabase adapter and a local one for the demo and the tests.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { CONTACT_EMAIL, REPORT_LIMITS } from '@qv/schema';
 import type { ReportCategory, ReportKind, ResolutionStatus } from '@qv/schema';
 
-/**
- * Reports of errors in every content (step 2.6), in the USERS database (`content_reports`). The database decides: a
- * student writes only through `report_content()` (the limits, the block and the place are checked there) and reads only
- * theirs; the administrator sees them grouped by content and decides for all of them at once.
- */
-
-/** Where in the content the error is: an article's section, quote or figure; a question of a test; a card's deck. */
 export interface ReportLocation {
-  /** The page it was reported from, to go back to it from the panel. */
   path?: string;
-  /** The content's name, as the student saw it. */
   title?: string;
   deckId?: string;
   section?: string;
   sectionTitle?: string;
   quote?: { exact: string; prefix?: string; suffix?: string };
-  /** The caption (or the description) of an article's image. */
   figure?: string;
   quizId?: string;
   sectionId?: string;
-  /** The question's number in its group. */
   number?: number;
 }
 
-/** What is being reported. `id`: 'guid:ord' (card) · the article's id (note) · 'quiz/question' (quiz_question). */
 export interface ReportTarget {
   kind: ReportKind;
+  /** 'guid:ord' (card) · the article's id (note) · 'quiz/question' (quiz_question). */
   id: string;
-  /** What the student sees: T-…, QV-… */
   code: string | null;
-  /** The version they saw. */
   version: number | null;
   location: ReportLocation;
 }
@@ -44,13 +32,11 @@ export interface NewReport extends ReportTarget {
 
 export interface Resolution {
   status: ResolutionStatus;
-  /** What the student reads with the decision. */
   note: string | null;
   fixedVersion: number | null;
   resolvedAt: string;
 }
 
-/** «Mis reportes»: one of the student's own reports and what was decided (never who else reported it). */
 export interface MyReport {
   id: string;
   kind: ReportKind;
@@ -82,16 +68,13 @@ export interface QueueReport {
   reporter: Reporter | null;
 }
 
-/** One content with its reports (open), or one decision with the reports it closed (resolved). */
 export interface ReportGroup {
   kind: ReportKind;
   targetId: string;
   code: string | null;
-  /** The newest version anybody reported. */
   version: number | null;
   title: string | null;
   path: string | null;
-  /** How many people (a report without an author counts as one). */
   reporters: number;
   firstAt: string;
   lastAt: string;
@@ -107,9 +90,7 @@ interface BlockedReporter {
 }
 
 export interface ReportQueue {
-  /** By content; the ones more people reported first. */
   open: ReportGroup[];
-  /** The last 200 decisions, the newest first. */
   resolved: ReportGroup[];
   blocked: BlockedReporter[];
 }
@@ -122,7 +103,6 @@ export interface ResolveInput {
   fixedVersion: number | null;
 }
 
-/** The database's refusals, said in Spanish. */
 export class ReportError extends Error {
   constructor(message: string) {
     super(message);
@@ -133,7 +113,7 @@ export class ReportError extends Error {
 export const REPORT_MESSAGES = {
   dailyLimit: `Ya enviaste ${REPORT_LIMITS.perDay} reportes hoy, el máximo por día. Podrás enviar más mañana.`,
   placeLimit: `Ya tienes ${REPORT_LIMITS.openPerPlace} reportes sin revisar en este mismo lugar, el máximo. Si es otro error, repórtalo desde su propia tarjeta, pregunta o frase del apunte.`,
-  // A blocked person is not told so in a special way (step 2.6): the refusal is the plain one, with the contact.
+  // A blocked person gets the plain refusal, with the contact, and is not told they are blocked.
   blocked: `No se pudo enviar el reporte. Si vuelve a pasar, escribe a ${CONTACT_EMAIL}.`,
   sessionClosed: 'Tu sesión se cerró. Sal y vuelve a entrar.',
   adminOnly: 'Solo para administradores.',
@@ -158,13 +138,9 @@ function reportError(error: { code?: string; message: string }): ReportError {
 
 export interface ReportsRepository {
   send(report: NewReport): Promise<void>;
-  /** The student's own reports, the newest first. */
   mine(): Promise<MyReport[]>;
-  /** Only for an administrator. */
   queue(): Promise<ReportQueue>;
-  /** Closes every open report of a content at once; how many it closed. */
   resolve(input: ResolveInput): Promise<number>;
-  /** The reports of a decision are open again. */
   reopen(resolutionId: string): Promise<void>;
   setBlocked(userId: string, blocked: boolean): Promise<void>;
 }
@@ -232,6 +208,7 @@ const groupOf = (g: GroupRow): ReportGroup => ({
   })),
 });
 
+// The database checks the limits, the block and the place in report_content(); a student reads only their own.
 export function supabaseReportsRepository(client: SupabaseClient): ReportsRepository {
   return {
     async send(r) {
@@ -340,7 +317,6 @@ interface Stored {
   blocked: boolean;
 }
 
-/** The place inside a content, as report_content() computes it: an article's section, quote and figure. */
 export function placeOf(r: Pick<NewReport, 'kind' | 'location'>): string {
   if (r.kind !== 'note') return '';
   const { section, quote, figure } = r.location;
@@ -349,10 +325,6 @@ export function placeOf(r: Pick<NewReport, 'kind' | 'location'>): string {
     : '';
 }
 
-/**
- * The demo and the tests, without a database: the reports stay in this browser (or in memory), with the database's
- * limits and grouping. Everybody is the demo's user.
- */
 export function localReportsRepository(
   options: { storage?: Storage | null; admin?: boolean; email?: string; now?: () => Date } = {},
 ): ReportsRepository {
@@ -373,7 +345,7 @@ export function localReportsRepository(
     try {
       storage?.setItem(KEY, JSON.stringify(s));
     } catch {
-      // blocked storage: they stay in memory
+      // storage blocked: memory only
     }
   };
   const onlyAdmin = () => {

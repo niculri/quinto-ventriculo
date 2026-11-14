@@ -1,11 +1,12 @@
+// The root of every dropdown menu of the site: never modal, optionally with a tap outside that only closes it.
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 /**
- * A menu that is not modal, as all of the site's: a modal one leaves the page behind it hidden but focusable (axe)
- * and locks its scroll, which moved the page. So the tap outside that closes it also reaches what is under it. With
- * `closeOnly`, where that could show an answer or answer a card, the tap only closes the menu.
+ * Not modal: a modal menu leaves the page behind it hidden but focusable (axe) and locks its scroll, which moves the
+ * page. So the tap outside that closes it also reaches what is under it; with `closeOnly`, where that could show an
+ * answer or answer a card, the tap only closes the menu.
  */
 export function MenuRoot({
   closeOnly = false,

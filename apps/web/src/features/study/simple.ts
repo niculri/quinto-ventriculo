@@ -1,34 +1,23 @@
+// Simple Anki: the options the web gives the scheduler from what the student chose (units turned on, an
+// assessment's new cards a day and date), and the load texts; @qv/srs only sees ordinary limits.
+
 import type { Counts, DeckConfig } from '@qv/srs';
 import type { AssessmentSetting, DeckActivation } from './repository';
 
-/**
- * The simple Anki (docs/arquitectura.md, «Anki simple»): what the web tells the scheduler from what the student
- * chose. @qv/srs does not know about any of this: a deck that gives no new cards is new cards hidden, and the
- * limits are ordinary limits.
- */
-
-/** New cards a day of an assessment nobody changed: Anki's default. */
 export const DEFAULT_NEW_PER_DAY = 20;
-/** «Sin tope»: more than anybody can have in a day, also added up through the tree. */
 export const NO_LIMIT = 1_000_000;
-/** Time on a card without enough history of the user's own. */
 export const DEFAULT_ANSWER_MS = 15_000;
-/** From here on the study screen warns about the load and offers to stop. */
 export const HEAVY_LOAD_MINUTES = 45;
 /** A new card is answered at least twice on its first day: the answer and its learning step. */
 export const ANSWERS_PER_NEW_CARD = 2;
 
-/** A deck's depth in the tree: 0 the root, 1 a semester, 2 a course, 3 an assessment, 4 a week or a lecture. */
 export const ASSESSMENT_DEPTH = 3;
 export const UNIT_DEPTH = 4;
 
 export interface StudyPlan {
-  /** Weeks and lectures turned on or off by hand. */
   activations: DeckActivation[];
   assessments: AssessmentSetting[];
-  /** The decks where the user answered at least one card. */
   answeredDecks: string[];
-  /** The median time on a card, or null with too few answers. */
   medianAnswerMs: number | null;
 }
 
@@ -44,21 +33,16 @@ interface NamedDeck {
   name: string;
 }
 
-/** The deck at that depth on the way to this one (itself included), by name. */
 export function ancestorName(name: string, depth: number): string | null {
   const parts = name.split('::');
   return parts.length > depth ? parts.slice(0, depth + 1).join('::') : null;
 }
 
-/** An «Extras» subdeck: what comes only from the books, or is a third view of the same thing. */
 export function isExtras(name: string): boolean {
   return name.split('::').slice(UNIT_DEPTH).includes('Extras');
 }
 
-/**
- * The weeks and lectures that count as turned on: what the student chose or, if they did not touch it, those where
- * they already answered a card (so nobody who studied loses anything).
- */
+// Untouched, a unit counts as on if the student already answered a card in it, so nobody who studied loses anything.
 export function activeUnits(decks: readonly NamedDeck[], plan: StudyPlan): Set<string> {
   const idOf = new Map(decks.map((d) => [d.name, d.id]));
   const nameOf = new Map(decks.map((d) => [d.id, d.name]));
@@ -88,7 +72,6 @@ export function includesExtras(plan: StudyPlan, assessmentDeckId: string): boole
   return settingOf(plan, assessmentDeckId)?.includeExtras ?? false;
 }
 
-/** An «Extras» whose assessment does not include them: of it, only what was already seen comes out. */
 export function extrasOff(decks: readonly NamedDeck[], plan: StudyPlan, deckId: string): boolean {
   const name = decks.find((d) => d.id === deckId)?.name;
   if (name === undefined || !isExtras(name)) return false;
@@ -96,10 +79,7 @@ export function extrasOff(decks: readonly NamedDeck[], plan: StudyPlan, deckId: 
   return !includesExtras(plan, decks.find((d) => d.name === assessment)?.id ?? '');
 }
 
-/**
- * The decks whose new cards can come out: those of a week or lecture turned on, and an Extras only if its
- * assessment includes them. A deck above those levels has no switch to turn it on, so it counts.
- */
+// A deck above weeks and lectures has no switch, so it counts as on.
 export function decksGivingNew(decks: readonly NamedDeck[], plan: StudyPlan): Set<string> {
   const active = activeUnits(decks, plan);
   const idOf = new Map(decks.map((d) => [d.name, d.id]));
@@ -118,20 +98,8 @@ export function decksGivingNew(decks: readonly NamedDeck[], plan: StudyPlan): Se
   return out;
 }
 
-/**
- * The options the scheduler gets in simple mode, on top of each deck's preset:
- * - New cards: every deck of an assessment with the assessment's number (the «Extras» preset's 0 included) and the
- *   decks above it without a limit. Limits add up through the tree, so the assessment's number is what counts,
- *   wherever one studies from (globalSettings() turns on the limits from above).
- * - Reviews without a daily limit.
- * - Nothing is suspended by itself, and siblings are always buried.
- * `paces`: the new cards a day the assessment mode computed for an assessment, instead of the student's number.
- * `deadlines`: the assessments whose date has to be met: all of their number comes out every day, even if it takes cards
- * of the same note (otherwise a note gives about one card every 2 days, and part of the material never comes out).
- * `advanced` («Modo avanzado»): the presets count. A deck keeps its limits, burying and leeches; the assessment's number
- * limits the assessment as a whole; a date still decides for every deck, and so does an Extras that was included (its
- * author's preset gives 0).
- */
+// The assessment's number goes on every deck of it and the decks above have no limit (limits add up through the tree);
+// with `deadlines`, all of it comes out every day even taking cards of the same note.
 export function simpleConfigs(
   decks: readonly NamedDeck[],
   configs: ReadonlyMap<string, DeckConfig>,
@@ -180,27 +148,23 @@ export function simpleConfigs(
 
 export const totalCards = (c: Counts) => c.new + c.learning + c.review;
 
-/** Minutes for what is left: the cards to answer by the time this user takes on a card. */
 export function estimateMinutes(counts: Counts, medianAnswerMs: number | null): number {
   const answers = counts.new * ANSWERS_PER_NEW_CARD + counts.learning + counts.review;
   if (answers === 0) return 0;
   return Math.max(1, Math.round((answers * (medianAnswerMs ?? DEFAULT_ANSWER_MS)) / 60_000));
 }
 
-/** «~20 min», «~1 h 20 min». */
 export function minutesText(minutes: number): string {
   if (minutes < 60) return `~${minutes} min`;
   const rest = minutes % 60;
   return `~${Math.floor(minutes / 60)} h${rest ? ` ${rest} min` : ''}`;
 }
 
-/** «62 para hoy · ~20 min». */
 export function loadText(counts: Counts, medianAnswerMs: number | null): string {
   const total = totalCards(counts);
   return `${total.toLocaleString('es-CL')} para hoy · ${minutesText(estimateMinutes(counts, medianAnswerMs))}`;
 }
 
-/** The breakdown of that line. */
 export function breakdownText(counts: Counts): string {
   return `Nuevas: ${counts.new} · Aprendiendo: ${counts.learning} · A repasar: ${counts.review}`;
 }

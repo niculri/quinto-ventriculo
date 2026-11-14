@@ -1,3 +1,5 @@
+// Tests a study session: saving answers when the connection fails, undo, and what an answer saves for statistics.
+
 import { DEFAULT_PARAMETERS, retrievability } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
 import { CATALOG, DECK } from '../../test/render';
@@ -29,7 +31,6 @@ function session(repository: StudyRepository, rootId = DECK.id, rows: StoredCard
   );
 }
 
-/** Shows the next card, its answer, and answers it. */
 function answer(s: StudySession, rating: 1 | 2 | 3 | 4 = 4) {
   s.reveal();
   s.answer(rating);
@@ -77,7 +78,6 @@ describe('saving the answers when the connection fails', () => {
     const s = session({ ...local, recordReview: () => Promise.reject(NETWORK()) });
     s.showNext();
     answer(s);
-    // Two more actions before the first one fails: they are not written either.
     s.flag(2);
     s.hide('suspend_card');
     await s.saved();
@@ -111,7 +111,6 @@ describe('undo', () => {
     here.showNext();
     answer(here);
     await here.saved();
-    // Another tab flags a card after it.
     const there = session(local);
     there.showNext();
     there.flag(1);
@@ -142,7 +141,6 @@ describe('undo', () => {
     await first.saved();
     const before = await local.cards(['20', '21']);
     expect(before).toHaveLength(1);
-    // The student comes back to study (the same deck, a new session): nothing of theirs to undo yet.
     const next = session(local);
     next.showNext();
     expect(next.canUndo).toBe(false);
@@ -158,7 +156,6 @@ describe('what an answer saves for the statistics', () => {
   it('the recall FSRS predicted just before (none for a new card) and the card’s version', async () => {
     const DAY = 86_400_000;
     const now = Date.now();
-    // The basic card is a review due today, answered 5 days ago; the others are new.
     const basic = DECK.cards[0]!;
     const due: StoredCard = {
       ...blankRow(basic),

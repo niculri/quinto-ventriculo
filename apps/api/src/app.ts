@@ -1,3 +1,5 @@
+// The HTTP API under /api: session, content reads, signed media, usage counts and the administration routes.
+// It does not depend on Cloudflare: it runs the same on the Worker, in Node and in tests.
 import { Hono } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import { secureHeaders } from 'hono/secure-headers';
@@ -53,76 +55,34 @@ export interface Dependencies {
   repository: ContentRepository;
   media: MediaStore;
   signer: MediaSigner;
-  /** Seconds since 1970. Injected in tests. */
   now?: () => number;
-  /**
-   * The draft (step 1.7): the same reads on the `draft` schema. Only an administrator who asks for it
-   * (`X-QV-Preview: draft`) gets it; anybody else gets what is published.
-   */
   preview?: ContentRepository;
-  /**
-   * Whether a session is still invited (step 2.1; the users' database decides, access.ts). The production Worker
-   * always has it; without it (tests, the local demo), a valid token of the domain is enough.
-   */
+  /** Without it (tests, the local demo), a valid token of the domain is enough. */
   access?: AccessChecker;
-  /** Who is an administrator (the users' database decides). Without it, nobody is. */
   admins?: AdminChecker;
-  /** The release panel's reads (only for an administrator). */
   releases?: ReleaseRepository;
-  /**
-   * How the site is shown (step 1.8): the semesters without material hidden. Without it, nothing is hidden and the
-   * panel's switch does not exist.
-   */
   settings?: SiteSettingsRepository;
-  /**
-   * What was taken off the site (step 1.5), for «Fuera del sitio» in the administration panel (step 2.10), only to
-   * look at. Without it, the route does not exist (404).
-   */
   unpublished?: UnpublishedRepository;
-  /**
-   * The id of the Worker version that answers (Cloudflare's version metadata binding), shown by `/api/health` so
-   * that the smoke test (step 1.9) can tell which version is live, for example after a rollback. Nothing else.
-   */
   version?: string;
-  /**
-   * «Uso» in the administration panel (step 2.9): the figures of the users' database (`admin_usage()`, with the
-   * administrator's token). Without it, the route does not exist (404).
-   */
   usageStats?: UsageStatsSource;
-  /** The opens counted in Workers Analytics Engine; null or absent: not configured (the page says so). */
   usageOpens?: UsageOpensReader | null;
-  /**
-   * Where a note, a deck or a test opened (and a search) is counted: never who, nor what was searched. Never awaited:
-   * a failure does not change the answer.
-   */
   usageEvents?: UsageRecorder;
-  /** Seconds «Uso» keeps its figures (default 60): the same for every administrator. */
   usageTtl?: number;
-  /**
-   * `/api/health/deep` (step 2.5): whether the databases, the images and the latest copy answer, for an external
-   * monitor (health.ts). Without it, the route does not exist (404).
-   */
   deepHealth?: DeepHealth;
 }
 
 type AppEnv = { Variables: { user: User; token: string; repository: ContentRepository } };
 
-/** The request header of the preview, and its only value. */
 export const PREVIEW_HEADER = 'X-QV-Preview';
 export const PREVIEW_VALUE = 'draft';
 
 const apiError = (code: string, message: string): ApiError => ({ error: code, message });
 const JSON_TYPE = { 'Content-Type': 'application/json; charset=UTF-8' };
-/** Seconds a browser keeps an image (docs/arquitectura.md, «Despublicar»). */
+/** Short, so that an image taken off the site stops showing soon. */
 const MEDIA_MAX_AGE = 600;
 
-/**
- * `named`: the database's detail names what stops it (the piece, the key, what was taken off): it goes after the
- * message, for the owner (Revisión de cero, 1.7, parte 3: the docs said the panel names them, and it did not).
- */
 type Refusal = { status: 400 | 409 | 422; code: string; message: string; named?: boolean };
 
-/** What the panel says when the database refuses to publish (`publish_release: <reason>`). */
 const PUBLISH_REFUSALS: Record<string, Refusal> = {
   fingerprint: {
     status: 409,
@@ -157,8 +117,6 @@ const PUBLISH_REFUSALS: Record<string, Refusal> = {
     message: 'El borrador trae imágenes de IMAIOS, que no se publican.',
     named: true,
   },
-  // Revisión de cero (1.7, parte 3): a slug or a code that goes from a piece that leaves or changes to one that comes
-  // in (publishing writes what is new first): the database refused it with a duplicate key, as a 500 without a word.
   unique: {
     status: 422,
     code: 'release_unique',
@@ -176,7 +134,6 @@ const PUBLISH_REFUSALS: Record<string, Refusal> = {
   invalid: { status: 400, code: 'invalid_release', message: 'Esa publicación no es válida.' },
 };
 
-/** What the panel says when the database refuses to undo (`revert_release: <reason>`). */
 const REVERT_REFUSALS: Record<string, Refusal> = {
   not_last: {
     status: 409,
@@ -184,8 +141,6 @@ const REVERT_REFUSALS: Record<string, Refusal> = {
     message: 'Ya no es la última publicación: recarga la página.',
   },
   reverted: { status: 409, code: 'release_reverted', message: 'Esa publicación ya se deshizo.' },
-  // Revisión de cero (1.7, parte 3): its «before» does not have what a later migration put (a new column would be
-  // left empty).
   migrated: {
     status: 409,
     code: 'release_migrated',
@@ -205,7 +160,6 @@ const REVERT_REFUSALS: Record<string, Refusal> = {
 const refusalMessage = (refusal: Refusal, detail: string | null) =>
   refusal.named && detail ? `${refusal.message} Detalle: ${detail.slice(0, 500)}` : refusal.message;
 
-/** API under `/api`. It does not depend on Cloudflare: it runs the same on the Worker, in Node (development) and in tests. */
 export function createApp(deps: Dependencies) {
   const now = deps.now ?? (() => Math.floor(Date.now() / 1000));
   const app = new Hono<AppEnv>().basePath('/api');
@@ -237,8 +191,6 @@ export function createApp(deps: Dependencies) {
             401,
           );
         }
-        // Still invited, but the session of the token is closed (signed out on another device: supabase-js closes
-        // them all). Revisión de cero (2.1): it got the 403 «no tiene acceso» of a removed student.
         if (access === 'signed_out') {
           return c.json(
             apiError(
@@ -248,8 +200,6 @@ export function createApp(deps: Dependencies) {
             401,
           );
         }
-        // Step 2.3: the web shows its popup with this code; accepting lets the next request through at once (the
-        // answer is never remembered).
         if (access === 'not_accepted') {
           return c.json(
             apiError(
@@ -279,8 +229,7 @@ export function createApp(deps: Dependencies) {
     }
     c.set('user', user);
     c.set('token', token!);
-    // The browser keeps an answer a minute; the preview's must never be the one it gives to the published site (nor
-    // the other way round): the header is part of the key, and the preview is not kept.
+    // The preview header is part of the cache key, so a cached answer of the draft never stands for the published one.
     c.header('Vary', `Authorization, ${PREVIEW_HEADER}`);
     let repository = deps.repository;
     if (
@@ -299,22 +248,16 @@ export function createApp(deps: Dependencies) {
     await next();
   });
 
-  /**
-   * Only for an administrator, and only if the API has what the route needs (`ready`): anybody else gets «no existe»
-   * (the panel's URL does not exist for them). A write by an administrator removed less than a minute ago: 403.
-   */
+  /** Anybody else gets a 404: the panel's routes do not exist for them. */
   const adminOnly = (ready: () => boolean) =>
     createMiddleware<AppEnv>(async (c, next) => {
-      // Revisión de cero (1.7, parte 2): never kept, also the «no existe» (a minute of a 404 kept by the browser would
-      // hide the panel from someone just made an administrator, or after a failed is_admin()).
+      // Never cached: a cached 404 would hide the panel from someone just made an administrator.
       c.header('Cache-Control', 'no-store');
       const token = c.get('token');
       if (!ready() || !deps.admins || !(await deps.admins.isAdmin(token))) {
         return c.json(apiError('not_found', 'No existe esa ruta.'), 404);
       }
-      // Step 2.10 b: what writes (publish, revert, mark, the site's switch, and any other) asks the database again,
-      // not the answer remembered up to a minute: an administrator the owner just removed cannot change anything any
-      // more. What only reads keeps the remembered answer (the preview asks many times a page).
+      // A write asks the database again instead of the remembered answer: a removed administrator changes nothing.
       if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
         const stillAdmin = deps.admins.isAdminNow
           ? await deps.admins.isAdminNow(token)
@@ -342,12 +285,7 @@ export function createApp(deps: Dependencies) {
   const requireUnpublishedAdmin = adminOnly(() => !!deps.unpublished);
   const requireUsageAdmin = adminOnly(() => !!deps.usageStats);
 
-  /**
-   * Counts an open (or a search) of what is published: never the preview's. Nothing of the request goes in the point
-   * (usage.ts), and nothing of it can change the answer. Only `POST /usage/open` calls it: the GET of a note, a deck or
-   * a test are also asked by other pages (the home page's «Hoy en Anki», a course's page, «Ponte a prueba»), and the
-   * browser keeps them a while.
-   */
+  /** Only `POST /usage/open` calls it: the content GETs are also made by other pages, and cached. */
   const track = (repository: ContentRepository, event: UsageEvent) => {
     if (!deps.usageEvents || repository !== deps.repository) return;
     try {
@@ -357,10 +295,7 @@ export function createApp(deps: Dependencies) {
     }
   };
 
-  /**
-   * The site's settings, for the catalog. If they cannot be read (a Worker deployed before its migration, a failure),
-   * nothing is hidden: an empty semester shown is better than a site without catalog.
-   */
+  /** Fails open: an empty semester shown is better than a site without catalog. */
   const settingsOrDefault = async () => {
     if (!deps.settings) return null;
     try {
@@ -371,13 +306,10 @@ export function createApp(deps: Dependencies) {
     }
   };
 
-  // Without a session and without anything of the material: only that the Worker answers, and which version it is.
   app.get('/health', (c) =>
     c.json(deps.version ? { ok: true, version: deps.version } : { ok: true }),
   );
 
-  // Without a session too, for the monitor (step 2.5): only «ok» or «fail» for each part, never why (that goes to the
-  // log). The answer is remembered a minute (health.ts): calling it a thousand times does not make a thousand queries.
   if (deps.deepHealth) {
     const deep = deps.deepHealth;
     app.get('/health/deep', async (c) => {
@@ -389,9 +321,6 @@ export function createApp(deps: Dependencies) {
 
   app.get('/me', requireSession, (c) => c.json(c.get('user')));
 
-  // The semesters without material are hidden when the administrator says so (step 1.8), for everybody (the
-  // administrator sees the site as a student). In the preview, «without material» is about the draft: what the site
-  // will look like once it is published.
   app.get('/catalog', requireSession, async (c) => {
     const [catalog, settings] = await Promise.all([
       c.get('repository').catalog(),
@@ -421,8 +350,7 @@ export function createApp(deps: Dependencies) {
     return c.json({ query, results } satisfies SearchResponse);
   });
 
-  // A DeckDetail. From the root it is every card of the collection: it goes as the database wrote it,
-  // without parsing it here (the web validates it).
+  // Passed through unparsed (the web validates it): from the root it is every card, too big to parse in a Worker.
   app.get('/decks/:id', requireSession, async (c) => {
     const id = DeckId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_deck', 'Ese mazo no existe.'), 400);
@@ -431,15 +359,10 @@ export function createApp(deps: Dependencies) {
     return c.body(deck, 200, JSON_TYPE);
   });
 
-  // Every note, light, as BrowseData (the browser searches them in the browser; the HTML of a card comes one
-  // by one). Several MB with tens of thousands of notes: passed through as it comes, like a deck.
   app.get('/anki/notes', requireSession, async (c) => {
     return c.body(await c.get('repository').browseJson(), 200, JSON_TYPE);
   });
 
-  // The card browser's index of an assessment (step 3.3, ANK-6): the file the importer wrote in the image store, named
-  // by its content (the catalog says which is current: `cardIndex` of the assessment). Without asking the content
-  // database anything; compressed as it is stored (a browser that does not take gzip gets it decompressed).
   app.get('/anki/index/:course/:assessment/:hash', requireSession, async (c) => {
     const { course, assessment, hash } = c.req.param();
     const segment = /^[a-z0-9-]{1,80}$/;
@@ -456,7 +379,6 @@ export function createApp(deps: Dependencies) {
     const preview = c.get('repository') !== deps.repository;
     const headers = new Headers({
       'Content-Type': 'application/json; charset=UTF-8',
-      // The key changes with the content; 10 minutes at most, as an image, so that what is taken off stops soon.
       'Cache-Control': preview ? 'no-store' : `private, max-age=${MEDIA_MAX_AGE}`,
       Vary: `Authorization, ${PREVIEW_HEADER}, Accept-Encoding`,
       'X-Content-Type-Options': 'nosniff',
@@ -469,34 +391,29 @@ export function createApp(deps: Dependencies) {
         : new Response(object.body as BodyInit).body!;
     if (/\bgzip\b/i.test(c.req.header('Accept-Encoding') ?? '')) {
       headers.set('Content-Encoding', 'gzip');
-      // Cloudflare: the body is already compressed (without it, the Worker would compress it again).
+      // Without `encodeBody: 'manual'`, Cloudflare would compress the already gzipped body again.
       return new Response(body, { headers, encodeBody: 'manual' } as ResponseInit);
     }
     return new Response(body.pipeThrough(new DecompressionStream('gzip')), { headers });
   });
 
-  // The signature of every thumbnail of the card browser (step 3.3, ANK-8): one for the whole list, with the same
-  // duration as the URL of an image, instead of signing each one. A thumbnail is `/api/media/<key>?<query>`.
   app.get('/anki/thumbs', requireSession, async (c) => {
     const { expires, query } = await deps.signer.prefixQuery(THUMB_PREFIX, now());
     c.header('Cache-Control', `private, max-age=${MEDIA_MAX_AGE}`);
     return c.json({ prefix: THUMB_PREFIX, expires, query } satisfies ThumbSignature);
   });
 
-  // The cards that moved to another deck or were taken out after a change (a page of at most 2,000): the web
-  // takes them to the student's progress when they enter.
   app.get('/anki/card-changes', requireSession, async (c) => {
     const since = c.req.query('since') ?? '0';
     if (!/^\d{1,15}$/.test(since)) {
       return c.json(apiError('invalid_since', 'Ese punto de partida no existe.'), 400);
     }
-    // Always what is published, also in the preview: the draft numbers its changes from the same point as public
-    // (reset_draft() copies them), so its numbers would move the student's cursor (reconcile_cards()) to changes
-    // public has not made yet. The web does not ask for them in the preview either.
+    // Always the published changes, also in the preview: the draft numbers its own from the same point, so they would
+    // move the student's cursor past changes the site has not made yet.
     return c.json(await deps.repository.cardChanges(Number(since), 2000));
   });
 
-  // The guid is Anki's (base91: it may have «/», «%», «?»…): the web sends it with encodeURIComponent.
+  // Anki's guid is base91 and may have «/», «%» or «?»: the web sends it with encodeURIComponent.
   app.get('/cards/:noteGuid/:ord', requireSession, async (c) => {
     const guid = NoteGuid.safeParse(c.req.param('noteGuid'));
     const ord = c.req.param('ord');
@@ -512,7 +429,6 @@ export function createApp(deps: Dependencies) {
     return c.json({ ...card, front, back } satisfies CardDetail);
   });
 
-  // Practice tests. The index of a course or an assessment (the catalog has them too).
   app.get('/quizzes', requireSession, async (c) => {
     const course = c.req.query('course');
     const assessment = c.req.query('assessment');
@@ -524,7 +440,6 @@ export function createApp(deps: Dependencies) {
     return c.json({ quizzes } satisfies QuizIndex);
   });
 
-  // A test, by its id: its sections (tabs) and groups, without the questions (they come by section).
   app.get('/quizzes/:id', requireSession, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_quiz', 'Ese test no existe.'), 400);
@@ -533,8 +448,7 @@ export function createApp(deps: Dependencies) {
     return c.json(quiz satisfies QuizDetail);
   });
 
-  // The questions of a section, by group, with a signed URL for each photo. It is not parsed (about a
-  // megabyte with its SVG figures): the images are signed on the text (the web validates it).
+  // Not parsed (about a megabyte with its SVG figures): the photos are signed on the text.
   app.get('/quizzes/:id/sections/:sectionId', requireSession, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     const section = QuizSectionId.safeParse(c.req.param('sectionId'));
@@ -546,8 +460,6 @@ export function createApp(deps: Dependencies) {
     const text = typeof body === 'string' ? body : await new Response(body).text();
     return c.body(await deps.signer.signJsonMedia(text, now()), 200, JSON_TYPE);
   });
-
-  // ── The site's settings (step 1.8), only for an administrator: they change at once, without the draft ──
 
   app.get('/admin/site-settings', requireSession, requireSettingsAdmin, async (c) => {
     return c.json((await deps.settings!.get()) satisfies SiteSettings);
@@ -562,12 +474,7 @@ export function createApp(deps: Dependencies) {
     return c.json(saved satisfies SiteSettings);
   });
 
-  // ── What was taken off the site (step 2.10), only for an administrator and only to look at ──
-
-  // The record of `npm run unpublish`, newest first. Whether an image is on the site again is what the image store
-  // says (at most 40 asked: each one is a request to the store, and a Worker has a limit of them; the rest stay null).
-  // Revisión de cero (2.10): a failure of the store is «no se pudo saber» (null) for that image, not a page without the
-  // record.
+  // At most 40 images are asked to the store: each is a subrequest, and a Worker has a limit of them.
   app.get('/admin/unpublished', requireSession, requireUnpublishedAdmin, async (c) => {
     const log = await deps.unpublished!.log();
     const keys = [
@@ -595,11 +502,7 @@ export function createApp(deps: Dependencies) {
     } satisfies UnpublishedLog);
   });
 
-  // ── What is opened, for «Uso» (step 2.9) ──
-
-  // What can be counted: the published notes, decks and tests (`note:<slug>`, `deck:<id>`, `quiz:<id>`), from the
-  // catalog, kept 5 minutes. An id with the right shape that is not published (a student's id, any text written as a
-  // slug) never goes into a point.
+  // Only published ids are counted, so no text sent by a student ever goes into a point.
   let publishedKept: { until: number; ids: Set<string> } | null = null;
   const published = async (): Promise<Set<string>> => {
     const t = now();
@@ -619,9 +522,6 @@ export function createApp(deps: Dependencies) {
     return ids;
   };
 
-  // The page of a note, of a deck (its page, its study or its final review) or of a test (its cover or a round) says it
-  // was opened, once when it opens, without waiting; and a search, when it is completed (sent, or a result opened), with
-  // the kind of page it was made from. Nothing of the student goes in the point.
   app.post('/usage/open', requireSession, async (c) => {
     c.header('Cache-Control', 'no-store');
     const text = await c.req.text().catch(() => '');
@@ -634,7 +534,6 @@ export function createApp(deps: Dependencies) {
     const open = UsageOpenRequest.safeParse(body);
     if (!open.success) return c.json(apiError('invalid_open', 'Eso no se puede contar.'), 400);
     const o = open.data;
-    // The preview's opens are not counted (track() says so too): no need to read the catalog for them.
     if (!deps.usageEvents || c.get('repository') !== deps.repository)
       return c.json({ ok: true as const });
     if (o.kind !== 'search') {
@@ -664,11 +563,6 @@ export function createApp(deps: Dependencies) {
     return c.json({ ok: true as const });
   });
 
-  // ── «Uso» (step 2.9), only for an administrator: figures of 5 students or more, never a row per student ──
-
-  // The figures of the users' database and the opens of Analytics Engine, kept a minute (they are the same for every
-  // administrator; who asks is checked before). Without the opens configured, or if they cannot be read, the page has
-  // the database's figures and says so.
   let usageKept: { until: number; report: UsageReport } | null = null;
   app.get('/admin/usage', requireSession, requireUsageAdmin, async (c) => {
     const t = now();
@@ -705,10 +599,6 @@ export function createApp(deps: Dependencies) {
     return c.json(report);
   });
 
-  // ── Releases (step 1.7, part 2): what the draft changes and its review list, only for an administrator ──
-
-  // The summary and the content version this Worker understands (a draft of a newer one cannot be published). The
-  // summary goes as the database wrote it.
   app.get('/admin/release', requireSession, requireAdmin, async (c) => {
     const [summary, indexes] = await Promise.all([
       deps.releases!.summaryJson(),
@@ -723,7 +613,6 @@ export function createApp(deps: Dependencies) {
     );
   });
 
-  // A page of the changes of one kind of one assessment, with their before and after.
   app.get('/admin/release/items', requireSession, requireAdmin, async (c) => {
     const kind = ReleaseItemKind.safeParse(c.req.query('kind'));
     const assessment = c.req.query('assessment') ?? '';
@@ -738,7 +627,6 @@ export function createApp(deps: Dependencies) {
     return c.body(await deps.releases!.itemsJson(assessment, kind.data, after), 200, JSON_TYPE);
   });
 
-  // A page of the texts the draft adds or changes, for the process and calendar phrases.
   app.get('/admin/release/texts', requireSession, requireAdmin, async (c) => {
     const after = c.req.query('after') ?? null;
     if ((after?.length ?? 0) > 300) {
@@ -747,8 +635,6 @@ export function createApp(deps: Dependencies) {
     return c.body(await deps.releases!.textsJson(after), 200, JSON_TYPE);
   });
 
-  // A page of the new images, and which of them the image store does not have (at most 40 a request: each one is a
-  // request to the store, and a Worker has a limit of them).
   app.get('/admin/release/media', requireSession, requireAdmin, async (c) => {
     const after = c.req.query('after') ?? null;
     if ((after?.length ?? 0) > 300) {
@@ -767,7 +653,6 @@ export function createApp(deps: Dependencies) {
     return c.json({ checked: page.keys, missing, next: page.next });
   });
 
-  // A mark by hand of the review list, for the draft the panel showed (its fingerprint): 409 if it changed.
   app.put('/admin/release/marks', requireSession, requireAdmin, async (c) => {
     const body = (await c.req.json().catch(() => null)) as {
       fingerprint?: unknown;
@@ -798,11 +683,7 @@ export function createApp(deps: Dependencies) {
     return c.json({ marks });
   });
 
-  // ── Publishing and undoing (step 1.7, part 3), only for an administrator ──
-
-  // The draft the panel showed (its fingerprint) goes to what is published, in one transaction of the database, which
-  // checks again the fingerprint, the marks by hand, the content version this Worker understands and what it can see
-  // of the review list. The panel sends the review list it built (`checks`), and it stays with the publication.
+  // The database checks again the fingerprint, the marks, the content version and the review list, in one transaction.
   app.post('/admin/release/publish', requireSession, requireAdmin, async (c) => {
     const body = PublishRequest.safeParse(await c.req.json().catch(() => null));
     if (!body.success) {
@@ -811,7 +692,7 @@ export function createApp(deps: Dependencies) {
     const r = await deps.releases!.publish({
       ...body.data,
       schemaVersion: CONTENT_SCHEMA_VERSION,
-      // The announcement's mark comes with the announcements (step C1).
+      // The only mark sent here is the announcement's, and there are no announcements yet.
       marks: [],
       by: c.get('user').email,
     });
@@ -820,7 +701,6 @@ export function createApp(deps: Dependencies) {
     return c.json(apiError(refusal.code, refusalMessage(refusal, r.detail)), refusal.status);
   });
 
-  // Undoes the last publication (the one the panel showed as such).
   app.post('/admin/release/revert', requireSession, requireAdmin, async (c) => {
     const body = RevertRequest.safeParse(await c.req.json().catch(() => null));
     if (!body.success) {
@@ -832,18 +712,16 @@ export function createApp(deps: Dependencies) {
     return c.json(apiError(refusal.code, refusalMessage(refusal, r.detail)), refusal.status);
   });
 
-  // The publications, newest first.
   app.get('/admin/releases', requireSession, requireAdmin, async (c) => {
     return c.json(await deps.releases!.log());
   });
 
-  // No session header: the URL signature authorizes it (see media.ts).
+  // No session: the URL signature authorizes it.
   app.get('/media/:key{.+}', async (c) => {
     const key = c.req.param('key');
     if (!isValidKey(key)) return c.json(apiError('invalid_key', 'Imagen inválida.'), 400);
     const expires = Number(c.req.query('e'));
     const signature = c.req.query('s') ?? '';
-    // `p`: the signature of a whole prefix (the card browser's thumbnails, step 3.3), only for keys under it.
     const prefix = c.req.query('p');
     const valid =
       prefix === undefined
@@ -859,8 +737,6 @@ export function createApp(deps: Dependencies) {
     if (!object) return c.json(apiError('not_found', 'No existe esa imagen.'), 404);
     const headers = new Headers({
       'Content-Type': object.contentType,
-      // The key changes if the image changes; at most 10 minutes (and never past the signature), so that an image taken
-      // off the site (step 1.5) stops showing soon.
       'Cache-Control': `private, max-age=${Math.max(0, Math.min(MEDIA_MAX_AGE, expires - now()))}, immutable`,
       'X-Content-Type-Options': 'nosniff',
       'Cross-Origin-Resource-Policy': 'same-origin',

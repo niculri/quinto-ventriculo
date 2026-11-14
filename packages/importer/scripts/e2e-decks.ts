@@ -1,9 +1,5 @@
-/**
- * Puts the synthetic deck (packages/anki-format/test/fixtures/sample.apkg) into the web's end-to-end test
- * content (apps/web/e2e/content), as the importer would: rendered cards, WebP images under media/cards/.
- *
- *   npx tsx packages/importer/scripts/e2e-decks.ts
- */
+// Puts the synthetic deck (anki-format's sample.apkg) into the e2e content (apps/web/e2e/content) as the importer
+// would. Run: `npx tsx packages/importer/scripts/e2e-decks.ts`.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ContentBundle } from '@qv/schema';

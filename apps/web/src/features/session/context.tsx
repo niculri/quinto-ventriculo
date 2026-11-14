@@ -1,3 +1,4 @@
+// Session context: follows the auth service, signs out accounts outside the allowed domain, and exposes sign-in/out.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -38,7 +39,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }));
       }
       if (!isAllowedEmail(s.user.email)) {
-        // Double check: the database and the API already reject the account, but the web does not let it in either.
         await session.signOut();
         return setState({ status: 'signed-out', notice: DOMAIN_NOTICE });
       }
@@ -68,7 +68,6 @@ export function useSession(): SessionValue {
   return v;
 }
 
-/** The session user. Only inside protected routes. */
 export function useUser(): SessionUser {
   const { state } = useSession();
   if (state.status !== 'signed-in') throw new Error('useUser without a session');

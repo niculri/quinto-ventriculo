@@ -1,3 +1,4 @@
+// Plays one section of a test: the cover's choices, the round and its actions, each step saved in the background.
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -25,12 +26,10 @@ import { savedQuizKey } from './queries';
 import type { AnswerInfo, RoundInfo, SavedQuiz, SavedSection } from './repository';
 import { StepSaver } from './saver';
 
-/** A question with what the round and the screen need: its group and its number in the group. */
 export interface QuestionEntry {
   question: QuizQuestion;
   info: QuestionInfo;
   group: QuizGroup;
-  /** Its number in its group («Pregunta 4»). */
   number: number;
 }
 
@@ -69,20 +68,11 @@ function roundInfo(round: Round): RoundInfo {
   };
 }
 
-/**
- * One section of a test, played as the skill's page plays it: the cover's choices, the round and every step,
- * each one saved in the background (the users database, or the browser in demo mode).
- */
 export function useQuizSession(options: {
   quizId: string;
   section: QuizSectionDetail;
   saved: SavedSection | undefined;
-  /** Arriving from another tab: the cover (the round stays, offered to continue). */
   showCover: boolean;
-  /**
-   * Arriving from an article's «Ponte a prueba»: the cover with these groups chosen (the ones the section
-   * does not have are ignored; none left = as usual).
-   */
   topics?: readonly string[] | null;
 }) {
   const { quizId, section, saved, showCover, topics } = options;
@@ -106,14 +96,12 @@ export function useQuizSession(options: {
     return { preferences, round };
   });
 
-  // One saver for the screen's life: the steps of this section, in order.
   const [saver] = useState(() => new StepSaver(repository));
   const status = useSyncExternalStore(
     useCallback((fn) => saver.subscribe(fn), [saver]),
     () => (saver.failed ? 'failed' : saver.pending ? 'saving' : 'saved'),
   );
 
-  // Something not saved yet: the browser asks before closing or reloading.
   useEffect(() => {
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       if (saver.pending) e.preventDefault();
@@ -133,7 +121,6 @@ export function useQuizSession(options: {
         ...(round ? { roundInfo: roundInfo(round) } : {}),
         ...(extra.answer ? { answer: extra.answer } : {}),
       });
-      // What the page has saved, for when it comes back to this section (another tab, the last one used).
       queryClient.setQueryData<SavedQuiz>(savedQuizKey(quizId), (old) => ({
         ...old,
         [section.sectionId]: {
@@ -164,14 +151,12 @@ export function useQuizSession(options: {
         : undefined;
     };
     return {
-      /** «Comenzar»: a new round with the chosen groups. */
       start(p: Preferences) {
         const questions = selectQuestions(section.groups, p.groups).map((q) => infos.get(q.id)!);
         if (!questions.length) return;
         const r = startRound(questions, { shuffle: p.shuffle, shuffleOptions: p.shuffleOptions });
         commit(r, { preferences: p });
       },
-      /** The cover's choices, before starting (they are saved with «Comenzar», as the page does). */
       choose(p: Preferences) {
         setState((s) => ({ ...s, preferences: p }));
       },
@@ -194,7 +179,6 @@ export function useQuizSession(options: {
       next() {
         if (round) commit(next(round));
       },
-      /** «Saltar»: the question on screen to the end of the round, without an answer. */
       skip() {
         if (round) commit(skip(round));
       },

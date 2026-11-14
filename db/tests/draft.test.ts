@@ -1,7 +1,5 @@
-// Plan step 1.7, part 1 (B1 + B2): the draft (20261109000000_draft.sql + `npm run import -- --target draft`).
-// The drift test (draft and public have to be the same structure, and every migration from that one on makes the
-// draft again), the real CloudTarget writing in the draft through `draft.<fn>` as supabase-js `schema('draft').rpc`
-// does, reset_draft(), discarding one assessment, npm run unpublish on both, and the privileges.
+// The draft: the same structure as public (every migration from it on makes it again), the real CloudTarget writing in
+// it, reset_draft(), discarding one assessment, npm run unpublish on both, and the privileges.
 import { readdirSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -60,7 +58,6 @@ const service = async <T>(sql: string, params: unknown[] = []) =>
     return (await tx.query<T>(sql, params)).rows;
   });
 
-/** Every row of every table of a schema (and its sequences), as text: for «byte for byte». */
 async function dump(schema: string) {
   const out: Record<string, string> = {};
   const relations = await q<{ name: string; kind: string }>(
@@ -82,7 +79,6 @@ async function dump(schema: string) {
   return out;
 }
 
-/** The copied tables of a schema and what every read of the API and of the importer gives there. */
 async function reads(schema: 'public' | 'draft') {
   const tables = (
     await q<{ name: string }>(
@@ -114,7 +110,6 @@ async function reads(schema: 'public' | 'draft') {
   return out;
 }
 
-/** What an assessment has in a schema: its row, articles, tests, decks and Anki notes (with their cards). */
 async function ofAssessment(schema: 'public' | 'draft', a: string) {
   const rows = (sql: string) =>
     q<{ r: string }>(
@@ -145,8 +140,6 @@ async function ofAssessment(schema: 'public' | 'draft', a: string) {
   };
 }
 
-/** A new version of everything: changes in both assessments (an article changed and one new, an Anki note changed,
- * one new and one taken out, a test changed). */
 const changed = (): Parts => {
   const p = everything();
   p.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida', 1);
@@ -166,8 +159,8 @@ describe('the drift test', () => {
 
   it('draft and public are the same after every migration (draft_drift gives nothing)', async () => {
     expect(await q('select * from public.draft_drift()')).toEqual([]);
-    // Everything of the content is there: 15 tables (12 of content, the card changes, from step 1.7 part 2,
-    // content_meta, and from step 3.3 the browser's indexes) and every function.
+    // Everything of the content is there: 15 tables (12 of content, the card changes, content_meta and the browser's
+    // indexes) and every function.
     const mirror = await q<{ kind: string; n: number }>(
       `select kind, count(*)::int as n from public.draft_mirror() group by kind order by kind`,
     );
@@ -183,7 +176,6 @@ describe('the drift test', () => {
       function: inDraft[0]!.functions,
     });
     expect(inDraft[0]).toMatchObject({ tables: 15, triggers: 3 });
-    // What is not content stays only in public.
     const missing = await q<{ name: string }>(
       `select c.relname as name from pg_class c where c.relnamespace = 'draft'::regnamespace
           and c.relname in ('unpublish_log', 'unpublished_note_versions', 'draft_exclusions')
@@ -275,7 +267,6 @@ describe('the drift test', () => {
          as $$ select from draft.notes $$`,
       { object: 'guard', name: 'publish_something()' },
     ],
-    // Revisión de cero (1.7, parte 1): kinds of difference the list above did not try.
     [
       'a sequence changed in the draft',
       'alter sequence draft.anki_card_change_seq increment by 2',
@@ -291,8 +282,6 @@ describe('the drift test', () => {
       'create policy anyone on public.notes for select using (true)',
       { object: 'table', name: 'notes' },
     ],
-    // Revisión de cero (1.7, parte 1): what the draft does not copy and drift used to miss (a view the API could read
-    // with from()), and copies that reach public in ways the old guard did not see.
     [
       'a view in public that the draft does not copy',
       'create view public.notes_list as select id from public.notes',
@@ -350,8 +339,6 @@ describe('the drift test', () => {
     );
   });
 
-  // Revisión de cero (1.7, parte 1): `drop schema draft cascade` dropped, without a word, what outside the draft
-  // depended on it (a view, a function with a SQL-standard body, a foreign key of public).
   it('rebuild_draft() stops instead of dropping what outside the draft depends on it', async () => {
     for (const sql of [
       'create view public.draft_notes as select id from draft.notes',
@@ -369,8 +356,6 @@ describe('the drift test', () => {
     expect(await q('select * from public.draft_drift()')).toEqual([]);
   });
 
-  // Revisión de cero (1.7, parte 1): reset_draft() did not move the identity sequences of the draft, so the first
-  // row written in the draft of a content table with an identity collided with the copied ones.
   it('reset_draft() leaves the identity sequences after the copied rows', async () => {
     await db.exec(`create table public.glossary (id bigint generated always as identity primary key, term text);
       revoke all on public.glossary from anon, authenticated;
@@ -391,8 +376,8 @@ describe('the drift test', () => {
     for (const f of files) {
       const sql = readFileSync(join(MIGRATIONS, f), 'utf8').trimEnd();
       expect(sql.endsWith('select public.rebuild_draft();'), f).toBe(true);
-      // Step 1.7, part 3: rebuild_draft() stops if the draft has changes that are not published. A migration that
-      // means to lose them says so only for itself (`set local`, its own transaction), never for the whole session.
+      // rebuild_draft() stops if the draft has changes that are not published. A migration that means to lose them
+      // says so only for itself (`set local`, its own transaction), never for the whole session.
       const code = sql.replace(/--.*$/gm, '');
       for (const m of code.matchAll(
         /^\s*set\s+(?:session\s+|local\s+)?qv\.discard_draft\b.*$/gim,
@@ -435,9 +420,7 @@ describe('the draft with content', () => {
     });
     expect(calls.every((c) => c.fn !== 'reset_draft')).toBe(true);
     expect(await dump('public')).toEqual(before);
-    // The images are uploaded as always (R2 is one: publishing does not touch them).
     expect(stored.has('notes/ap-bc-c2-10.webp')).toBe(true);
-    // The draft has it all; public, nothing of it.
     expect(
       await q(
         `select id, version from draft.notes where id in ('AP-BC-C2-08', 'AP-BC-C2-10') order by id`,
@@ -450,7 +433,6 @@ describe('the draft with content', () => {
     expect(await q(`select guid from draft.anki_notes where guid = 'bc-3'`)).toEqual([]);
     expect(await q(`select count(*)::int as n from public.anki_card_changes`)).toEqual([{ n: 0 }]);
 
-    // By assessment, and again without changes: the same 4 calls as always, and public still the same.
     await save(draft, only(changed(), AN), {
       notes: true,
       decks: true,
@@ -487,11 +469,9 @@ describe('the draft with content', () => {
     expect(await ofAssessment('draft', AN)).toEqual(otherBefore);
     expect(await q('select * from draft.anki_note_types order by id')).toEqual(typesBefore);
 
-    // Discarding the other one too: the draft is what is published.
     await service(`select public.discard_draft_assessment($1)`, [AN]);
     const tables = await reads('draft');
     const pub = await reads('public');
-    // The draft's own record of card changes keeps what happened in it (bc-3 left and came back).
     expect({ ...tables, anki_card_changes: null, changes: null, state: null }).toEqual({
       ...pub,
       anki_card_changes: null,
@@ -499,7 +479,6 @@ describe('the draft with content', () => {
       state: null,
     });
 
-    // An assessment that is only in the draft leaves it.
     const extra = 'anatomia-1/certamen-2';
     const { bundle, media } = bundleOf(everything());
     bundle.assessments.push({ id: extra, courseId: 'anatomia-1', name: 'Certamen 2', position: 2 });
@@ -517,9 +496,6 @@ describe('the draft with content', () => {
     );
   });
 
-  // Revisión de cero (1.7, parte 1): discarding one assessment brought back from public every preset and note type
-  // the draft did not use (also another assessment's, taken out by its import) and took out every empty deck above
-  // the assessments that the draft made (also another course's).
   it('discarding one assessment leaves alone the shared pieces it does not use', async () => {
     await db.exec(`
       insert into public.anki_presets (name, config) values ('Gymkana', '{}');
@@ -527,7 +503,6 @@ describe('the draft with content', () => {
         select '999', 'Otra', kind, occlusion, fields, templates, css, sort_field
           from public.anki_note_types limit 1;`);
     await save(draft, changed());
-    // A deck above the assessments that another import left empty in the draft.
     await db.exec(`insert into draft.anki_decks
         (id, name, description, parent, semester, course_id, assessment_id, preset, position)
       values ('5000000000000000010', '() Medicina UCH::1° Semestre::🧠 Otro', '', '1000000000000000010', 1, null,
@@ -543,8 +518,6 @@ describe('the draft with content', () => {
     expect(await ofAssessment('draft', BC)).toEqual(await ofAssessment('public', BC));
   });
 
-  // Revisión de cero (1.7, parte 1): the assessment's row came back column by column from a fixed list, so a column a
-  // later migration adds stayed as the draft had it.
   it('discarding one assessment brings back every column of its row, also one added later', async () => {
     await db.exec(`alter table public.assessments add column note text not null default '';
       select public.rebuild_draft();`);
@@ -557,10 +530,8 @@ describe('the draft with content', () => {
     );
   });
 
-  // Revisión de cero (1.7, parte 1): the card triggers of both schemas took the same advisory lock. An import to the
-  // draft that had written a card (and waited for that lock) and `npm run unpublish` of a deck (which held it and then
-  // deleted that same card of the draft) waited for each other: a deadlock, and Postgres could abort the unpublish.
-  // Each schema numbers its own changes, so each takes its own lock.
+  // With one lock for both schemas, an import to the draft and an unpublish that deletes the same card deadlock; each
+  // schema numbers its own changes, so each takes its own lock.
   it('the card triggers of the draft take their own lock, not public’s', async () => {
     const locks = (sql: string) =>
       db.transaction(async (tx) => {
@@ -609,14 +580,12 @@ describe('the draft with content', () => {
           confirm: async () => true,
         });
 
-      // Published: the record's trigger takes it out of the draft in the same call.
       const before = await reads('public');
       const one = await run('note', 'QV-BC-C2-09');
       expect(one).toMatchObject({ applied: true, draft: null, calls: { db: 2 } });
       expect(await q(`select id from draft.notes where id = 'AP-BC-C2-09'`)).toEqual([]);
       expect(await q(`select id from public.notes where id = 'AP-BC-C2-09'`)).toEqual([]);
 
-      // Only in the draft: one more call.
       const two = await run('note', 'AP-BC-C2-10');
       expect(two).toMatchObject({
         applied: true,
@@ -626,7 +595,6 @@ describe('the draft with content', () => {
       });
       expect(await q(`select id from draft.notes where id = 'AP-BC-C2-10'`)).toEqual([]);
 
-      // A deck: out of both, with its notes and cards.
       await run('deck', leafOf(AN));
       for (const s of ['public', 'draft']) {
         expect(
@@ -636,7 +604,6 @@ describe('the draft with content', () => {
         ).toEqual([{ n: 0 }]);
         expect(await q(`select guid from ${s}.anki_notes where guid like 'an-%'`)).toEqual([]);
       }
-      // Nothing else of public changed but what was taken off.
       const after = await reads('public');
       expect(after.quiz).toEqual(before.quiz);
     } finally {
@@ -663,7 +630,6 @@ describe('the draft with content', () => {
         ).rejects.toThrow(/permission denied/);
       }
     }
-    // service_role: the draft's reads and the importer's writes, as in public; not making it again nor its record.
     expect(await service('select count(*)::int as n from draft.notes')).toEqual([{ n: 3 }]);
     expect(await service(`select draft.save_notes('[]'::jsonb) as r`)).toEqual([{ r: [] }]);
     for (const sql of [
@@ -705,8 +671,6 @@ describe('the migration on a database with content', () => {
     expect(await reads('draft')).toEqual(await reads('public'));
   });
 
-  // Revisión de cero (1.7, parte 1): as upgrade-1.3.test.ts does, production as it is (with something already taken
-  // off the site): the migration changes nothing of what is published, and what was taken off does not reach the draft.
   it('changes nothing of what is published, nor of what was taken off', async () => {
     db = await createDatabase('content', [], MIGRATION);
     await save(published, everything());

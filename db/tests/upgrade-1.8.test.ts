@@ -1,10 +1,5 @@
-/**
- * Revisión de cero (1.8): 20261114000000_groups_and_site_settings.sql on the content database as production has it
- * (articles published by the 1.7 flow, the draft equal to what is published), and then what the owner does after it:
- * import everything again to the draft and publish. Nothing already published may change by the migration or by
- * importing the same material again (no new hash, no new version), and the Seminario 8, moved from the Certamen 2 to a
- * Certamen 3 that comes in with the catalog, keeps its row, version and dates.
- */
+// The groups and site settings migration on the content database as production has it, then everything imported again
+// and published: nothing published changes, and a seminar moved to a new assessment keeps its row, version and dates.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { ContentBundle } from '@qv/schema';
@@ -21,7 +16,7 @@ const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, []), store });
 const draft = new CloudTarget({ db: serviceRpc(() => db, [], 'draft'), store });
 
-/** As the owner in the SQL editor (draft_drift() and draft_pending_changes() are not for the API). */
+/** As the database owner in the SQL editor (draft_drift() and draft_pending_changes() are not for the API). */
 const q = async (sql: string) => (await db.query(sql)).rows;
 const service = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
   db.transaction(async (tx) => {
@@ -29,7 +24,6 @@ const service = async <T = Record<string, unknown>>(sql: string, params: unknown
     return (await tx.query<T>(sql, params)).rows;
   });
 
-/** The Seminario 8 as it is published today: in the Certamen 2, with «Ponte a prueba» to its test. */
 function seminar(assessmentId: string, practice: boolean) {
   const a = article('AP-BC-C2-SEM8', assessmentId, 'Comunicación intercelular', 10);
   const { hash: _hash, versionHash, updatedAt, ...rest } = a;
@@ -77,13 +71,12 @@ let publishedBefore: Record<string, unknown>[];
 beforeAll(async () => {
   db = await createDatabase('content', [], MIGRATION);
   await save(published, before());
-  // After a publication the draft is what is published.
   await service('select public.reset_draft()');
   publishedBefore = await rows('public');
   await applyMigration(db, 'content', MIGRATION);
 });
 
-describe('the step 1.8 migration on a database like production', () => {
+describe('the groups and site settings migration on a database like production', () => {
   it('changes nothing published, leaves the draft equal and without drift, and the switch off', async () => {
     expect(await rows('public')).toEqual(publishedBefore);
     expect(await rows('draft')).toEqual(publishedBefore);
@@ -113,7 +106,6 @@ describe('the step 1.8 migration on a database like production', () => {
       )
     )[0]!.r;
     expect(summary.catalog).toEqual([expect.objectContaining({ id: BC3, op: 'added' })]);
-    // Nothing comes in nor leaves: it is a change of the same article, in its new assessment.
     expect(summary.assessments).toEqual([
       expect.objectContaining({
         id: BC3,
@@ -148,7 +140,6 @@ describe('the step 1.8 migration on a database like production', () => {
       assessment_id: BC3,
     });
     expect((now.document as { practice?: unknown }).practice).toBeUndefined();
-    // The other articles, untouched.
     expect(after.filter((r) => r.id !== 'AP-BC-C2-SEM8')).toEqual(
       publishedBefore.filter((r) => r.id !== 'AP-BC-C2-SEM8'),
     );

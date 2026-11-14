@@ -1,3 +1,4 @@
+// The web's entry point: mounts the router inside the providers.
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';

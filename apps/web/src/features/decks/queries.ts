@@ -1,3 +1,5 @@
+// Data hooks for a deck from the API and for a card with its signed images.
+
 import { useQuery } from '@tanstack/react-query';
 import { useServices } from '../../app/services';
 
@@ -11,7 +13,6 @@ export function useDeck(deckId: string, enabled = true) {
   });
 }
 
-/** A card with its signed images (they last at least one hour). */
 export function cardQuery(
   api: ReturnType<typeof useServices>['api'],
   noteGuid: string,
@@ -20,7 +21,7 @@ export function cardQuery(
   return {
     queryKey: ['card', noteGuid, ord],
     queryFn: ({ signal }: { signal: AbortSignal }) => api.card(noteGuid, ord, signal),
-    // 10 minutes: a card taken off the site (step 1.5) stops showing soon.
+    // 10 minutes: a card taken off the site stops showing soon.
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,
   };

@@ -1,3 +1,5 @@
+// Reads the published .apkg files: cards rendered like Anki and sanitized, plus the note types, presets and the deck
+// tree they need.
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { deckLeafName, deckTree, parentDeckName, readApkgFile } from '@qv/anki-format';
@@ -19,10 +21,9 @@ import type { CatalogCourse } from './manifest';
 import type { ImageDataProcessor, ProcessedImage } from './images';
 import type { DecksManifest } from './manifest';
 
-/** IMAIOS is for the owner's personal use (its terms): nothing that names it goes up to the site. */
+/** IMAIOS is licensed for personal use only: nothing that names it goes up to the site. */
 export const IMAIOS = /imaios/i;
 
-/** Does a note name IMAIOS: in a field (an image's file name, the source, the credit) or in a tag? */
 function namesImaios(note: { fields: string[]; tags: string[] }): boolean {
   return note.fields.some((f) => IMAIOS.test(f)) || note.tags.some((t) => IMAIOS.test(t));
 }
@@ -39,21 +40,14 @@ export interface DecksResult {
 export interface DecksOptions {
   manifests: DecksManifest[];
   assessments: Map<string, Assessment>;
-  /** The catalog's courses and semesters: the deck names have to say the same. */
   courses: CatalogCourse[];
   semesters: Semester[];
-  /** Folder the `apkg` paths are resolved from. */
   root: string;
   process: ImageDataProcessor;
   onProgress?: (message: string) => void;
-  /** Reads a package (injected in tests). */
   read?: (path: string) => Promise<AnkiPackage>;
 }
 
-/**
- * The published decks: each card rendered like Anki (front and back), its images as WebP with `data-media`,
- * sanitized; plus the note types, presets and decks they need.
- */
 export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
   const read = op.read ?? readApkgFile;
   const result: DecksResult = {
@@ -66,7 +60,6 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
   };
   const noteTypes = new Map<string, AnkiNoteTypeRecord>();
   const presets = new Map<string, AnkiPresetRecord>();
-  /** The decks of the packages, by full name. */
   const decks = new Map<string, AnkiDeckRecord>();
   const deckIds = new Set<string>();
   const guids = new Set<string>();
@@ -82,7 +75,6 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
         `La evaluación ${assessment.id} no tiene su ramo o su semestre en el catálogo.`,
       );
     }
-    /** What the first levels of every deck name have to be: root, semester, course, assessment. */
     const expected = [
       ROOT_DECK_NAME,
       semester.name,
@@ -93,7 +85,6 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
       const label = entry.apkg.split('/').at(-1)!;
       op.onProgress?.(`mazo ${label}`);
       const pkg = await read(resolve(op.root, entry.apkg));
-      // The author's note types with the site's presentation (see site-note-types.ts); Anki is untouched.
       const collection = { ...pkg.collection, noteTypes: pkg.collection.noteTypes.map(forSite) };
       const warn = (m: string) => result.warnings.push(`${label}: ${m}`);
 
@@ -143,7 +134,6 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
       }
 
       const typeById = new Map(collection.noteTypes.map((t) => [t.id, t]));
-      // Note types of this package already taken (each package is compared with the previous ones once).
       const seenTypes = new Set<string>();
       const render = createCardRenderer(collection);
       const imageCache = new Map<string, ProcessedImage | null>();
@@ -170,13 +160,12 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
         if (!included.has(c.deckId)) continue;
         cardsByNote.set(c.noteId, [...(cardsByNote.get(c.noteId) ?? []), c]);
       }
-      /** The notes left out because they name IMAIOS (their code, or their GUID). */
       const imaios: string[] = [];
       for (const note of collection.notes) {
         const cards = cardsByNote.get(note.id);
         if (!cards) continue;
         if (namesImaios(note)) {
-          // Before rendering: none of its images is processed, so nothing of it reaches the bucket.
+          // Before rendering, so none of its images reaches the bucket.
           imaios.push(
             parseCardCode(note.fields.find((f) => parseCardCode(f)) ?? '')?.code ?? note.guid,
           );
@@ -201,8 +190,7 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
             css: type.css,
             sortField: type.sortField,
           };
-          // The same note type in two packages exported at different times: the web shows one CSS for
-          // all its cards, so it has to be said (as with the presets). The last one stays.
+          // The web shows one CSS for all the cards of a note type, so two different exports of it are reported.
           const before = noteTypes.get(type.id);
           if (before && JSON.stringify(before) !== JSON.stringify(record)) {
             warn(
@@ -263,8 +251,7 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
       );
     }
   }
-  // The parents the packages do not bring (Anki creates them on import): a deck of their own, with the
-  // author's «Default» preset and an id derived from the full name, so it does not change between imports.
+  // Anki exports no parent decks: they are created here with an id from the full name, stable between imports.
   for (const d of [...decks.values()]) {
     for (let name = parentDeckName(d.name); name !== null; name = parentDeckName(name)) {
       if (decks.has(name)) continue;
@@ -299,20 +286,16 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
   return result;
 }
 
-/** The preset Anki gives the decks it creates: the author's «Default» (Anki's defaults if none came). */
+/** The preset Anki gives the decks it creates. */
 const DEFAULT_PRESET = 'Default';
 
-/**
- * Stable id of a parent deck that no package brings, from its full name: 19 digits, so it never meets an
- * Anki id (a creation time in ms, 13 digits).
- */
+/** 19 digits, so it never meets an Anki deck id (a creation time in ms, 13 digits). */
 export function containerDeckId(name: string): string {
   const digest = createHash('sha256').update(`qv-deck:${name}`).digest();
   const n = digest.readBigUInt64BE(0) % 9_000_000_000_000_000_000n;
   return String(n + 1_000_000_000_000_000_000n);
 }
 
-/** Root, semester, course and assessment of a deck by the depth of its name (the rest are below them). */
 function levelOf(
   name: string,
   semester: number | null,
@@ -327,10 +310,6 @@ function levelOf(
   };
 }
 
-/**
- * The first levels of a deck name are the root, the semester, the course and the assessment of the
- * manifest (as the catalog names them); a deck with cards is at least at the assessment's level.
- */
 function checkDeckName(label: string, name: string, expected: string[], hasCards: boolean) {
   const parts = name.split('::');
   const what = ['la raíz', 'el semestre', 'el ramo', 'el certamen'];
@@ -351,7 +330,7 @@ function checkDeckName(label: string, name: string, expected: string[], hasCards
   }
 }
 
-/** Anki's note id is the time it was created, in ms (another number: unknown). */
+/** Anki's note id is its creation time in ms. */
 function createdAt(noteId: string): string | null {
   const ms = Number(noteId);
   return ms >= Date.UTC(2006, 0, 1) && ms <= Date.UTC(2100, 0, 1)

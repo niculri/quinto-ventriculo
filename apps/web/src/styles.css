@@ -1,11 +1,10 @@
+/* The site's global styles: Tailwind, the color tokens of both themes, and how an article (.note-body) reads. */
 @import 'tailwindcss';
 @import './fonts/fonts.css';
 @import '@fontsource-variable/source-serif-4';
 @import '@fontsource-variable/source-serif-4/wght-italic.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
-
-/* ---------------------------------------------------------------- tokens */
 
 :root {
   --chrome: var(--bg);
@@ -22,7 +21,6 @@
   --accent: #d9772f;
   --highlight: #fde7b0;
   --shadow: 0 1px 2px rgb(16 24 32 / 0.05), 0 4px 16px rgb(16 24 32 / 0.06);
-  /* Anki's colors of the card states: new blue, learning red, review green */
   --state-new: #1e64c8;
   --state-learn: #c62828;
   --state-review: #2e7d32;
@@ -32,8 +30,6 @@
 }
 
 .dark {
-  /* Two depths of background, as GitHub's dark theme, with the site's own turquoise: the top bar almost black, the
-     content and the menu a step lighter, its boxes one more. */
   --chrome: #050b0d;
   --bg: #0c1316;
   --surface: #141d21;
@@ -130,12 +126,7 @@ mark {
   padding: 0 1px;
 }
 
-/* ---------------------------------------------------------------- note */
-
-/*
- * How an article reads: Inter 17px (16 on the phone), line-height 1.7, the text as wide as the page (53rem), figures
- * on the right with the text around them. It holds its floats and is the container their rules measure.
- */
+/* An article: it holds its floats and is the container that the figures' rules measure. */
 .note-body {
   --c: #1a64d6;
   display: flow-root;
@@ -276,7 +267,6 @@ mark {
     'calt' 0;
 }
 
-/* Tables: as wide as the column, sideways scroll in their wrapper when they do not fit (notes/articleHtml.ts). */
 .note-body .table-scroll {
   max-width: 100%;
   overflow-x: auto;
@@ -339,7 +329,6 @@ mark {
 .dark .note-body figcaption {
   margin-top: 0.85rem;
 }
-/* A thumbnail in a soft frame, its caption inside it and as wide as the image. */
 .note-body .figure.is-thumb {
   padding: 5px;
   border: 1px solid var(--border);
@@ -375,7 +364,6 @@ mark {
 .note-body :is(h2, hr, .table-scroll, .figure-row, .is-wide, .note-summary) {
   clear: both;
 }
-/* A row of figures at the same height (their widths in proportion); on the phone, one under the other. */
 .note-body .figure-row {
   display: flex;
   justify-content: center;
@@ -399,7 +387,6 @@ mark {
   font-style: italic;
 }
 
-/* Callouts */
 .note-body .callout {
   display: flow-root;
   margin: 1.5em 0;
@@ -506,7 +493,6 @@ mark {
   --c: #a7a1f0;
 }
 
-/* Icons of the callouts' labels (the error's is its own, above). */
 .note-body .callout-datos > .callout-label,
 .note-body .callout-clinica > .callout-label,
 .note-body .callout-question > .callout-label,
@@ -545,7 +531,6 @@ mark {
   --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 11 18-5v12L3 14v-3z'/%3E%3Cpath d='M11.6 16.8a3 3 0 1 1-5.8-1.6'/%3E%3C/svg%3E");
 }
 
-/* «Datos clave»: the box at the top of an article (Kenhub's «Key facts»), unlike the other callouts. */
 .note-body .callout-datos {
   --c: #0e7490;
   margin: 0 0 2.2rem;
@@ -584,7 +569,6 @@ mark {
   color: var(--c);
 }
 
-/* «Pregunta de la guía» (seminars): the question, then its answer in the text. */
 .note-body .callout-question {
   --c: #4f46e5;
   margin: 2rem 0 1rem;
@@ -609,7 +593,6 @@ mark {
   text-transform: none;
 }
 
-/* «Resumen»: the closing of the article, highlighted. */
 .note-body .note-summary {
   margin: 3.5rem 0 0;
   padding: 1.3rem 1.4rem 1.1rem;
@@ -648,7 +631,6 @@ mark {
   color: var(--muted);
 }
 
-/* Flash when arriving at a section: a rounded box that hugs the heading's text (features/notes/flash.ts). */
 .flash-host {
   position: relative;
   isolation: isolate;

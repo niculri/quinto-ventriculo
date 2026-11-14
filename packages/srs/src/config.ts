@@ -2,9 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * Deck options (a «preset»), as Anki's DeckConfig.Config (proto/anki/deck_config.proto), with the same
- * defaults and the same valid ranges (rslib/src/deckconfig/mod.rs). Only what the scheduler with FSRS uses:
- * the SM-2 options (starting ease, easy bonus…) are kept so a preset round-trips, but FSRS ignores them.
+ * Deck options (a «preset») as Anki's DeckConfig.Config (proto/anki/deck_config.proto), with its defaults and ranges
+ * (rslib/src/deckconfig/mod.rs); the SM-2 options are kept so a preset round-trips, though FSRS ignores them.
  */
 
 export type NewCardGatherPriority =
@@ -33,9 +32,7 @@ export type ReviewMix = 'mixWithReviews' | 'afterReviews' | 'beforeReviews';
 export type LeechAction = 'suspend' | 'tagOnly';
 
 export interface DeckConfig {
-  /** Learning steps, in minutes. */
   learnSteps: number[];
-  /** Relearning steps, in minutes. */
   relearnSteps: number[];
   newPerDay: number;
   reviewsPerDay: number;
@@ -59,12 +56,8 @@ export interface DeckConfig {
   buryNew: boolean;
   buryReviews: boolean;
   buryInterdayLearning: boolean;
-  /**
-   * Not Anki's: new cards a limit still has room for do not stay buried. Siblings are kept apart while there are enough
-   * other notes; when there are not, they come out anyway, each note one at a time, so a day gives all of its number.
-   */
+  /** Not Anki's: buried new siblings come out, one per note at a time, when the limit has room and nothing else. */
   fillNewWithSiblings: boolean;
-  /** FSRS parameters (21 of FSRS-6, or 19/17 of older versions); empty = FSRS's defaults. */
   fsrsParams: number[];
   desiredRetention: number;
   historicalRetention: number;
@@ -111,7 +104,7 @@ export function defaultConfig(): DeckConfig {
   };
 }
 
-/** Valid ranges of the numeric options: [min, max] (ensure_deck_config_values_valid and the options screen). */
+/** [min, max] of each numeric option (ensure_deck_config_values_valid and the options screen). */
 export const CONFIG_RANGES = {
   newPerDay: [0, 9999],
   reviewsPerDay: [0, 9999],
@@ -177,11 +170,7 @@ const numbers = (v: unknown, fallback: number[]): number[] =>
     ? (v as number[])
     : fallback;
 
-/**
- * A preset as an .apkg brings it (Anki's «schema 11» JSON: `new`, `rev`, `lapse` and the newer options at the
- * top level) → our config, as Anki converts it on import (DeckConfSchema11 → DeckConfig) and then repairs the
- * values out of range (ensure_deck_config_values_valid: a desired retention of 0 becomes 0.9).
- */
+/** An .apkg's «schema 11» preset → our config, as Anki converts it on import (DeckConfSchema11 → DeckConfig). */
 export function configFromAnki(raw: Json): DeckConfig {
   const nw = obj(raw['new']);
   const rev = obj(raw['rev']);
@@ -223,7 +212,7 @@ export function configFromAnki(raw: Json): DeckConfig {
   });
 }
 
-/** Values out of range go back to the default, as Anki does when reading a preset. */
+/** Values out of range go back to the default (ensure_deck_config_values_valid). */
 export function repairConfig(config: DeckConfig): DeckConfig {
   const out: DeckConfig = { ...config };
   for (const [key, [min, max]] of Object.entries(CONFIG_RANGES) as [
@@ -233,7 +222,6 @@ export function repairConfig(config: DeckConfig): DeckConfig {
     const value = out[key];
     if (!Number.isFinite(value) || value < min || value > max) out[key] = DEFAULT_CONFIG[key];
   }
-  // The integer options stay integers.
   for (const key of [
     'newPerDay',
     'reviewsPerDay',
@@ -252,10 +240,7 @@ export function repairConfig(config: DeckConfig): DeckConfig {
   return out;
 }
 
-/**
- * A stored preset (ours or the author's) → a valid config. Unknown keys are ignored and missing ones take the
- * default, so presets saved by an older version of the web keep working.
- */
+/** A stored preset → a valid config; missing keys take the default, so older saved presets keep working. */
 export function parseConfig(value: unknown): DeckConfig {
   const v = obj(value);
   const d = DEFAULT_CONFIG;
@@ -302,8 +287,6 @@ export const SORT_ORDERS = Object.values(SORT);
 export const REVIEW_ORDERS = Object.values(REVIEW_ORDER);
 export const REVIEW_MIXES = Object.values(MIX);
 
-// Steps as the options screen writes them («1m 10m 1d»): ts/routes/deck-options/steps.ts.
-
 const UNIT_SECS = { s: 1, m: 60, h: 3600, d: 86_400 } as const;
 const MONTH = (365 * 86_400) / 12;
 
@@ -324,6 +307,7 @@ function stepToString(minutes: number): string {
   return `${Math.round(secs / UNIT_SECS[unit])}${unit}`;
 }
 
+/** Steps as the options screen writes them, «1m 10m 1d» (ts/routes/deck-options/steps.ts). */
 export function stepsToString(steps: number[]): string {
   return steps.map(stepToString).join(' ');
 }

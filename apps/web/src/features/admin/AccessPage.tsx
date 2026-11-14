@@ -1,3 +1,4 @@
+// «Administración» → «Acceso»: inviting by list, who is invited, removing invitations and naming administrators.
 import { useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -20,18 +21,7 @@ import type {
   SetAdminResult,
 } from './repository';
 
-/**
- * «Administración» → «Acceso» (step 2.10): who comes in. Inviting (emails pasted, one per line or separated by commas,
- * also as «Nombre <correo>», whose name is never sent; into a list that exists or a new one, with a note), what it did
- * (in a popup: nothing below moves), who is invited by
- * list, and removing a person or a whole list (a popup that asks to write what goes). An administrator is never
- * removed from here. Whether the whole domain is in (`open_to_domain`, step 4) is shown, not changed. Everything goes
- * straight to the users' database with the administrator's own token (admin_*() of …_admin_access.sql).
- *
- * Step 2.10 b: the owner of the site (and only them: `youAreOwner` comes with the report, so nothing appears after it)
- * names an invited person administrator and removes one, never themself, with a popup that asks to write the email
- * (admin_set_admin() of …_admin_owner.sql).
- */
+/** `youAreOwner` comes with the report, so the site owner's buttons never appear after it. */
 export function AccessPage() {
   const report = useAccessReport();
   return (
@@ -65,7 +55,6 @@ const messageOf = (e: unknown) => (e instanceof AccessError ? e.message : GENERI
 
 type Removing = { kind: 'person'; email: string } | { kind: 'list'; list: string; count: number };
 
-/** Naming (`admin: true`) or removing (`false`) an administrator. */
 type Appointing = { email: string; admin: boolean };
 
 function Access({ report }: { report: AccessReport }) {
@@ -103,8 +92,7 @@ function Access({ report }: { report: AccessReport }) {
           <div className="mt-3 space-y-4">
             {byList.map(([list, people]) => {
               const counts = report.lists.find((l) => l.list === list);
-              // Who «Sacar la lista» would take out: never an administrator. A list with only administrators has
-              // no button (it would take out nobody). Revisión de cero (2.10), con el dueño.
+              // «Sacar la lista» never takes out an administrator, so a list with only administrators has no button.
               const removable = people.filter((p) => !p.admin).length;
               return (
                 <article key={list} aria-label={`Lista ${list}`} className={card}>
@@ -167,7 +155,6 @@ function Access({ report }: { report: AccessReport }) {
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-/** The accounts that exist without an invitation: there should be none, so they go on top. */
 function Strays({ report }: { report: AccessReport }) {
   const n = report.accountsWithoutInvite.length;
   return (
@@ -211,9 +198,7 @@ function InviteRow({
   onAppoint,
 }: {
   invite: AccessInvite;
-  /** This row is the owner's: never removed, as an administrator or as invited. */
   isOwner: boolean;
-  /** Whoever looks is the owner: only they see «Hacer administrador» and «Quitar administrador». */
   youAreOwner: boolean;
   onRemove: () => void;
   onAppoint: (admin: boolean) => void;
@@ -277,21 +262,13 @@ function InviteRow({
   );
 }
 
-/**
- * What is pasted, as `<…>` (an email as Gmail or a mailing list copies it, «Nombre Apellido <correo@ug.uchile.cl>»),
- * a quoted name («"Pérez, Ana" <…>», whose comma does not separate) or a word, in order. A quoted name may not cross
- * a `<`, a `>` or a line, so that an unclosed quote does not swallow the emails after it.
- */
+// An email as `<…>`, a quoted name (whose comma does not separate) or a word; a quoted name stops at `<`, `>` or a
+// line, so an unclosed quote does not swallow the emails after it.
 const PIECES = /<([^<>]*)>|"([^"<>\n]*)"|[^\s,;<>"]+/g;
 const SEPARATORS = /[\s,;]+/;
 
-/**
- * The emails in what was pasted: one per line, or separated by commas, semicolons or spaces; of «Nombre Apellido
- * <correo@ug.uchile.cl>», only what is between `< >`. Revisión de cero (2.10), con el dueño: a person's name never
- * leaves the browser (it reached the database as a rejected «email»). Only what has an `@` is sent: a name, a quoted
- * name or any other word without one stays out, and `ignored` says how many words there were, so that an email
- * written without its `@` is noticed.
- */
+// Only what has an `@` is sent, so a pasted person's name never leaves the browser; `ignored` counts the other
+// words, so that an email written without its `@` is noticed.
 export function readEmails(text: string): { emails: string[]; ignored: number } {
   const emails: string[] = [];
   let ignored = 0;
@@ -319,8 +296,7 @@ function InviteForm({ lists }: { lists: string[] }) {
   const [note, setNote] = useState('');
   const [result, setResult] = useState<{ list: string; result: InviteResult } | null>(null);
   // The list chosen is always an option: the one just invited into until the report brings it, and one removed while
-  // chosen (the Select would show nothing, and the next invitation would still go to that name). Revisión de cero
-  // (2.10): it was only the one just made, and a list removed while chosen left the Select empty.
+  // chosen (the Select would show nothing, and the next invitation would still go to that name).
   const chosen = choice === NEW_LIST ? null : choice.slice('list:'.length);
   const names = useMemo(
     () => [...new Set([...lists, ...(chosen ? [chosen] : [])])].sort(),
@@ -382,8 +358,7 @@ function InviteForm({ lists }: { lists: string[] }) {
             placeholder="Uno por línea, o separados por comas"
             className="mt-1.5 block w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-base text-ink sm:text-sm"
           />
-          {/* Revisión de cero (2.10): the longest is the failure's message, not the count (on a small phone it takes two
-              lines, and the form moved when it came). */}
+          {/* The longest text is the failure's message, not the count: on a small phone it takes two lines. */}
           <Reserved longest={GENERIC_FAILURE} className="mt-1 text-xs">
             <p
               role={invite.isError ? 'alert' : undefined}
@@ -409,7 +384,6 @@ function InviteForm({ lists }: { lists: string[] }) {
               className="mt-1.5 h-11 w-full sm:h-10"
             />
           </div>
-          {/* Always there (only enabled for a new list): choosing does not move the form. */}
           <div className="min-w-0">
             <label htmlFor={`${id}-new`} className="text-sm font-medium">
               Nombre de la lista nueva
@@ -570,10 +544,6 @@ function InviteResultDialog({
   );
 }
 
-/**
- * Removing a person or a whole list: the popup says what happens and asks to write the email or the list's name
- * (never `confirm`); then it says what was done. It does not close while it works.
- */
 function RemoveDialog({ target: t, onClose }: { target: Removing; onClose: () => void }) {
   const id = useId();
   const remove = useRemoveInvites();
@@ -637,8 +607,6 @@ function RemoveDialog({ target: t, onClose }: { target: Removing; onClose: () =>
           </Dialog.Description>
           <label htmlFor={`${id}-confirm`} className="mt-5 block text-sm font-medium">
             Para confirmar, escribe {t.kind === 'person' ? 'el correo' : 'el nombre de la lista'} (
-            {/* Revisión de cero (2.10): an email breaks anywhere (it has no spaces); a list's name, between words (it
-                broke «Curs / o de prueba» on the phone). */}
             <span className={`font-mono ${t.kind === 'person' ? 'break-all' : 'break-words'}`}>
               {expected}
             </span>
@@ -653,7 +621,6 @@ function RemoveDialog({ target: t, onClose }: { target: Removing; onClose: () =>
             disabled={busy}
             className="mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink sm:text-sm"
           />
-          {/* Its place is there from the start: an error does not move the buttons. */}
           <Reserved
             longest="No se pudo. Revisa tu conexión e intenta de nuevo."
             className="mt-2 text-sm"
@@ -694,13 +661,8 @@ function RemoveDialog({ target: t, onClose }: { target: Removing; onClose: () =>
   );
 }
 
-/** The longest refusal the popup of administrators can show: its place is there from the start. */
 const LONGEST_ADMIN_REFUSAL = 'Solo el dueño del sitio nombra o quita administradores.';
 
-/**
- * Step 2.10 b: naming an invited person administrator, or removing one. The popup says what it means and asks to write
- * the email (never `confirm`); then it says what was done. It does not close while it works.
- */
 function AdminDialog({ target: t, onClose }: { target: Appointing; onClose: () => void }) {
   const id = useId();
   const setAdmin = useSetAdmin();

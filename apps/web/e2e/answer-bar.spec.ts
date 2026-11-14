@@ -1,13 +1,9 @@
+// E2e test that the screens where one answers look alike: the same «Volver» at the same height, Anki's counts in the
+// middle of the screen, and one reading width for the test's bar, its progress bar and the question.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
-/**
- * The screens where one answers look alike: studying a deck and answering a test have the same «Volver» on top
- * (the course and the assessment; on a phone, only the arrow) at the same height, Anki's counts are in the middle
- * of the screen whatever the length of the sides, and the test keeps one reading width for its bar, its progress
- * bar and the question.
- */
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 
 const box = async (l: Locator) => (await l.boundingBox())!;
@@ -27,18 +23,15 @@ test('studying a deck and answering a test: the same «Volver», the counts cent
   const counts = page.getByRole('group', { name: 'Tarjetas que quedan' });
   await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
 
-  // A deck of a week: «Volver» says its course and assessment, and goes to the deck's page.
   const back = page.getByRole('link', { name: 'Volver a Anatomía I · Certamen 1' });
   await expect(back).toHaveAttribute('href', DECK_URL);
   await expect(back).toHaveAttribute('title', 'Anatomía I · Certamen 1');
   const text = back.getByText('Anatomía I · Certamen 1');
   if (isMobile) await expect(text).toBeHidden();
   else await expect(text).toBeVisible();
-  // The counts in the middle of the screen, not of what is left between the sides.
   expect(Math.abs((await center(counts)) - (await viewportCenter(page)))).toBeLessThan(2);
   const studyBack = await box(back);
 
-  // The test: the same «Volver», at the same place, and the question as wide as the card was.
   await page.goto(`${TEST_URL}/pautas`);
   await page.getByRole('button', { name: 'Comenzar' }).click();
   const quizBack = page.getByRole('button', { name: 'Volver a Biología celular · Certamen 2' });
@@ -47,8 +40,6 @@ test('studying a deck and answering a test: the same «Volver», the counts cent
   const quizText = quizBack.getByText('Biología celular · Certamen 2');
   if (isMobile) await expect(quizText).toBeHidden();
   else await expect(quizText).toBeVisible();
-  // «Volver» at the same height as studying's; the bar, its progress bar and the question at one reading width
-  // (48rem), centered, with the same edges (on a phone, the whole screen, with the margins of studying).
   const b = await box(quizBack);
   expect(Math.abs(b.y - studyBack.y)).toBeLessThan(1);
   expect(Math.abs(b.height - studyBack.height)).toBeLessThan(1);
@@ -65,11 +56,9 @@ test('studying a deck and answering a test: the same «Volver», the counts cent
   expect(Math.abs(bar.x - card.x)).toBeLessThan(1);
   expect(Math.abs(bar.width - card.width)).toBeLessThan(1);
   expect(Math.abs(b.x - card.x)).toBeLessThan(1);
-  // The right edge: «Terminar» ends where the card does.
   const end = await box(page.getByRole('button', { name: 'Terminar ahora' }));
   expect(Math.abs(end.x + end.width - (card.x + card.width))).toBeLessThan(1);
 
-  // «Saltar» next to «Siguiente»; the shortcuts say its key (where there is a keyboard).
   const skip = page.getByRole('button', { name: 'Saltar' });
   await expect(skip).toBeEnabled();
   const next = page.getByRole('button', { name: 'Siguiente' });
@@ -79,7 +68,6 @@ test('studying a deck and answering a test: the same «Volver», the counts cent
   expect(s.x).toBeLessThan(n.x);
   if (!isMobile) await expect(page.locator('.atajo')).toContainText('S saltar');
 
-  // «Volver»: the cover, where the topics are chosen, with the round to continue.
   await quizBack.click();
   await expect(page.getByRole('region', { name: 'Ronda a medias' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Comenzar' })).toBeVisible();

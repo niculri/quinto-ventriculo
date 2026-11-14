@@ -1,51 +1,39 @@
+// Converts the images of notes, cards and tests to WebP keyed by content, with a local cache and the browser's
+// thumbnails.
 import { createHash } from 'node:crypto';
 import { appendFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import sharp from 'sharp';
 
 export interface ProcessedImage {
-  /** Key in the store, by content: the same image in two notes is stored once. */
   key: string;
   width: number;
   height: number;
   contentType: 'image/webp';
-  /**
-   * The WebP bytes, read only when a target needs them (an image that is not uploaded is never read): a big
-   * import does not keep every image in memory.
-   */
+  /** Lazy, so a big import does not keep every image in memory. */
   read(): Promise<Buffer>;
 }
 
 export type ImageProcessor = (path: string) => Promise<ProcessedImage>;
 
-/** Processes an image already in memory (the media of an .apkg). */
 export type ImageDataProcessor = (data: Uint8Array) => Promise<ProcessedImage>;
 
-/** Maximum width on the web (px). Labeled plates need resolution to read the labels. */
+/** Labeled plates need this resolution for their labels to be read. */
 export const MAX_WIDTH = 1800;
 const QUALITY = 84;
 const EFFORT = 5;
-/**
- * Goes up by hand when the conversion changes in a way the parameters below do not say: every cached WebP is
- * made again (and, if its bytes change, its key, so the pieces that use it are sent again).
- */
+/** Goes up by hand when the conversion changes in a way the other parameters do not show: it remakes the cache. */
 const CONVERSION = 1;
 
 type Prefix = 'notes' | 'cards' | 'tests';
 
-/** High-quality WebP, never enlarged, with the EXIF orientation applied and no metadata. */
 export const processImage: ImageProcessor = async (path) => inMemory(await readFile(path), 'notes');
 
-/**
- * The images of the cards, with the same processing (`cards/<hash>.webp`). The occlusion masks are in
- * fractions of the image, so shrinking it does not move them.
- */
+/** The occlusion masks are in fractions of the image, so shrinking it does not move them. */
 export const processCardImage: ImageDataProcessor = (data) => inMemory(data, 'cards');
 
-/** The photos of the practice tests (`tests/<hash>.webp`); their SVG figures go inline. */
 export const processQuizImage: ImageDataProcessor = (data) => inMemory(data, 'tests');
 
-/** The hash in an image's key (`cards/<hash>.webp`): of its WebP bytes. */
 const digestOf = (data: Uint8Array) => createHash('sha256').update(data).digest('hex').slice(0, 32);
 
 async function convert(original: Uint8Array) {
@@ -68,14 +56,11 @@ async function inMemory(original: Uint8Array, prefix: Prefix): Promise<Processed
   };
 }
 
-/** Width of the card browser's thumbnails (px): about 120 px in the list, on a screen of density 2. */
+/** About 120 px in the browser's list, on a screen of density 2. */
 export const THUMB_WIDTH = 240;
 const THUMB_QUALITY = 72;
 
-/**
- * The thumbnail of a card image for the browser's list (`cards/thumb/<hash>.webp`, step 3.3): its WebP, 240 px wide
- * (never enlarged). It is made from the image already processed, so the same image always gives the same thumbnail.
- */
+/** Made from the processed image, so the same image always gives the same thumbnail. */
 export async function makeThumbnail(webp: Buffer): Promise<Buffer> {
   return sharp(webp)
     .resize({ width: THUMB_WIDTH, withoutEnlargement: true })
@@ -90,10 +75,8 @@ interface CacheEntry {
 }
 
 /**
- * A local cache of the WebP of each source image, outside the repository (`.cache/images/`): an image already
- * converted is not converted again. Its entry is the sha256 of the source bytes and of the conversion
- * parameters; the WebP is kept under its store key (`<folder>/cards/<hash>.webp`). The index is a file of
- * JSON lines, written one line at a time, so an import that stops halfway keeps what it converted.
+ * Keyed by the sha256 of the source and the conversion parameters. The index is JSON lines appended one at a time,
+ * so an import that stops halfway keeps what it converted.
  */
 export class ImageCache {
   hits = 0;
@@ -125,7 +108,6 @@ export class ImageCache {
     return new ImageCache(folder, entries);
   }
 
-  /** The note images (by path). */
   readonly file: ImageProcessor = async (path) => this.convert(await readFile(path), 'notes');
   readonly card: ImageDataProcessor = (data) => this.convert(data, 'cards');
   readonly quiz: ImageDataProcessor = (data) => this.convert(data, 'tests');
@@ -156,9 +138,8 @@ export class ImageCache {
     return {
       ...entry,
       contentType: 'image/webp',
-      // The key is the hash of the bytes and the store keeps it forever: a cached file that no longer matches it
-      // (cut, or changed by hand) is never uploaded nor written under that key. It is removed, so the next
-      // import converts it again.
+      // The store keeps a key forever, so a cached file that no longer matches its hash is never uploaded: it is
+      // removed, and the next import converts it again.
       read: async () => {
         const data = await readFile(file);
         if (digestOf(data) !== basename(entry.key, '.webp')) {

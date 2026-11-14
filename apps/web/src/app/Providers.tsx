@@ -1,3 +1,4 @@
+// The providers around the whole site: services, React Query and the session, with the admin preview of the draft.
 import { Fragment, useState } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -31,7 +32,6 @@ export function Providers({
   queryClient?: QueryClient;
 }) {
   const [client] = useState(() => queryClient ?? createQueryClient());
-  // The preview of the draft has a cache of its own (features/preview/preview.tsx).
   const [previewClient] = useState(() => createQueryClient());
   return (
     <PreviewSwitch

@@ -1,18 +1,10 @@
-"""Studies a deep deck tree in real Anki (25.9.x, v3 scheduler, FSRS on), as the published decks are: the
-root «() Medicina UCH», the semesters, the courses, the assessments, the weeks, the decks and their
-«Extras». Records the counts of every deck of Anki's deck list and whole study sessions started from the
-assessment («Certamen 1») and from the root, to compare the @qv/srs queue with them.
+"""Studies a deep deck tree in real Anki (25.9.x, v3 scheduler, FSRS on) from several levels and records the deck
+list counts and the sessions, as the golden data of the @qv/srs tree queue.
 
     ANKI_TEST_MODE=1 python3 packages/srs/scripts/anki_tree.py \
         packages/srs/test/golden/queue-tree.json
-
-The parents are created by Anki with the «Default» preset (as when a package without them is imported);
-the decks with cards have their own presets. The limits of every level matter: from the assessment, the
-limits of the root, the semester and the course do not apply (only with «Límites empiezan desde arriba»).
-
-With --names it records the scenarios of deck names instead (test/golden/queue-tree-names.json): a deck named
-like another one plus a suffix, whose subdecks must stay with their own parent («06 - X::Extras» under
-«06 - X», not under «06 - X (IMAIOS)»), and the case folding and code points of Anki's order of decks.
+    ANKI_TEST_MODE=1 python3 packages/srs/scripts/anki_tree.py \
+        packages/srs/test/golden/queue-tree-names.json --names
 """
 
 import json
@@ -37,7 +29,8 @@ S4 = f"{C1}::S4 - Miembro superior"
 SEM2 = f"{ROOT}::2° Semestre"
 BIO = f"{SEM2}::🧬 Biología celular::Certamen 2"
 
-# key → (full name, preset key). Parents with «Default» (Anki creates them with it).
+# key → (full name, preset key). Parents get «Default», as Anki creates them when a package lacks them; from a
+# deck below the root, the limits of the levels above it do not apply.
 DECKS = {
     "root": (ROOT, "default"),
     "sem1": (SEM1, "default"),
@@ -95,6 +88,8 @@ WEEK = f"{ROOT}::S4 - Visión y audición"
 IMAGES = f"{WEEK}::06 - Imagenología de órbita y oído"
 IMAIOS = f"{IMAGES} (IMAIOS)"
 
+# A deck named like another plus a suffix, whose subdecks must stay with their own parent, and names that test
+# the case folding and code points of Anki's deck order.
 NAMES_DECKS = {
     "root": (ROOT, "default"),
     "week": (WEEK, "default"),

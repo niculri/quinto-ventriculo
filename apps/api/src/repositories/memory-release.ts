@@ -1,16 +1,11 @@
+// The release panel without a database (demo and e2e): the `release_*` answers saved in `<folder>/release/`, with
+// marks, publishing and undoing kept in memory. Nothing is written in the folder.
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { ReleaseMark, ReleaseRecord } from '@qv/schema';
 import type { ReleaseRepository } from '../repository';
 
-/**
- * The release panel without a database (demo mode and the e2e tests): what `release_*` of the content database gave
- * for a folder's published content and its draft, saved in `<folder>/release/` (`summary.json`; `items.json`,
- * `{ "<assessment>|<kind>": [items] }`; `texts.json`; `media.json`). The e2e folder's are written by the database's
- * test (`db/tests/release.test.ts`) from the real SQL. Without the folder, a draft equal to what is published.
- * The marks stay in memory, and so do publishing and undoing (step 1.7, part 3): published, the draft is what is
- * published (an empty summary); undone, it is the folder's again. Nothing is written in the folder.
- */
+/** `items.json` is `{ "<assessment>|<kind>": [items] }`; `db/tests/release.test.ts` writes the e2e folder's files. */
 export async function folderReleaseRepository(folder: string): Promise<ReleaseRepository> {
   const read = async <T>(name: string, fallback: T): Promise<T> => {
     try {
@@ -39,7 +34,6 @@ export async function folderReleaseRepository(folder: string): Promise<ReleaseRe
   const browseIndexes = await read<unknown[]>('browse-indexes.json', []);
   const media = await read<string[]>('media.json', []);
   const draftFingerprint = String(summary.fingerprint);
-  /** The fingerprint of a draft equal to what is published, after publishing it. */
   const publishedFingerprint = 'f'.repeat(32);
   const empty = {
     ...summary,

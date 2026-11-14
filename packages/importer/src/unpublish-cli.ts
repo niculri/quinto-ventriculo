@@ -1,4 +1,5 @@
 #!/usr/bin/env -S npx tsx
+// `npm run unpublish`: takes a piece off the site, lists what is off, or puts it back in the publishable list.
 import { resolve } from 'node:path';
 import { userInfo } from 'node:os';
 import { createInterface } from 'node:readline/promises';
@@ -70,7 +71,6 @@ async function main() {
   if (!kind.success || !id || positionals.length !== 2) {
     throw new Error(`Uso: npm run unpublish -- <note|deck|quiz|image> <id> --reason "…" (--help)`);
   }
-  // Without the taxonomy: unpublishing does not use it, and one being edited must not stop it (step 1.6).
   const manifest = await readManifest(content, { taxonomies: false });
 
   if (values.restore) {

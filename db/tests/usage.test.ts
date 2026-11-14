@@ -1,18 +1,15 @@
+// «Uso» in the administration panel: admin_usage(), only for an administrator with an open session, and nothing of
+// its answer names or identifies a student.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, asUser, createDatabase } from './pglite';
 
-/**
- * Step 2.9: «Uso» in the administration panel (…_admin_usage.sql). Only an administrator with their session open calls
- * admin_usage(); a figure of 1 to 4 students goes as '<5' (and so does a figure made by 1 to 4 students), the lists only
- * have what 5 or more used, the activation counts the first answer within 7 days of the account, and nothing of the
- * answer names or identifies a student.
- */
+// A figure of 1 to 4 students goes as '<5' (and so does a figure made by 1 to 4 students), the lists only have what 5
+// or more used, and the activation counts the first answer within 7 days of the account.
 
 type Claims = { sub: string; email: string; session_id?: string };
 
 let n = 0;
-/** A made-up invited student (or the owner) with an open session; their account was created `daysAgo` days ago. */
 async function person(
   db: PGlite,
   op: { email?: string; createdAt?: string } = {},
@@ -101,7 +98,6 @@ const studied = (db: PGlite, who: Claims, day: string, deck: string, answers = 1
     [who.sub, day, deck, answers, newSeen],
   );
 
-/** A round of a test, started (and finished, if so) now. */
 async function round(db: PGlite, who: Claims, quiz: string, finished = false) {
   const id = crypto.randomUUID();
   await db.query(
@@ -119,7 +115,6 @@ async function round(db: PGlite, who: Claims, quiz: string, finished = false) {
   return id;
 }
 
-/** Every key and every text of the answer, to look for anything of a student. */
 function walk(v: unknown, keys: string[] = [], texts: string[] = []) {
   if (Array.isArray(v)) v.forEach((x) => walk(x, keys, texts));
   else if (v && typeof v === 'object') {
@@ -194,7 +189,6 @@ describe('fewer than 5 students', () => {
   };
   beforeAll(async () => {
     db = await createDatabase('users');
-    // The owner's account is old and they did not study: it does not count among the active.
     owner = await person(db, { email: OWNER_EMAIL, createdAt: `now() - interval '60 days'` });
     for (let i = 0; i < 5; i++) {
       students.push(await person(db, { createdAt: `now() - interval '60 days'` }));
@@ -214,11 +208,9 @@ describe('fewer than 5 students', () => {
       expect(f.new_cards).toBe('<5');
       expect(f.rounds_started).toBe('<5');
       expect(f.rounds_finished).toBe('<5');
-      // Nobody's account was created in these days: 0 is said as it is.
       expect(f.new_students).toBe(0);
     }
     expect(r.weeks.at(-1)!.active_students).toBe('<5');
-    // A day nobody studied: 0.
     expect(r.days[0]!.active_students).toBe(0);
     expect(r.decks).toEqual([]);
     expect(r.quizzes).toEqual([]);
@@ -235,12 +227,10 @@ describe('fewer than 5 students', () => {
       active_students: 5,
       new_students: 0,
       anki_answers: 47,
-      // Only 4 students saw new cards: their sum stays hidden.
       new_cards: '<5',
       rounds_started: 5,
       rounds_finished: 5,
     });
-    // The unit 900 has 4 students (hidden); the course and the assessment, 5 different ones across both decks.
     expect(r.decks).toEqual([]);
     expect(r.courses).toEqual([
       {
@@ -264,7 +254,6 @@ describe('fewer than 5 students', () => {
     await studied(db, students[4]!, await siteDay(db, 1), DECK, 5, 5);
     const r = await usage(db, owner, groups);
     expect(r.decks).toEqual([{ deck_id: '900', students: 5, answers: 45, new_cards: 17 }]);
-    // Yesterday only one studied: hidden; the last 7 days have the 5.
     expect(r.days.at(-2)!.anki_answers).toBe('<5');
     expect(r.totals.last_7.active_students).toBe(5);
   });
@@ -285,7 +274,6 @@ describe('fewer than 5 students', () => {
 
   it('the invited who signed in and those who never did', async () => {
     let r = await usage(db, owner);
-    // The owner and the 5 students have an account; the friend of the seeds never signed in.
     expect(r.invited).toEqual({ signed_in: 6, never: '<5' });
     for (let i = 0; i < 4; i++) {
       await db.query(
@@ -298,7 +286,7 @@ describe('fewer than 5 students', () => {
   });
 });
 
-describe('activation (EXP-C8)', () => {
+describe('activation: the accounts that answered within their first 7 days', () => {
   let db: PGlite;
   let owner: Claims;
   beforeAll(async () => {
@@ -306,7 +294,6 @@ describe('activation (EXP-C8)', () => {
     owner = await person(db, { email: OWNER_EMAIL });
   });
 
-  /** A first answer of Anki (review_log; the trigger adds it to study_days) at `at`. */
   const answered = (who: Claims, at: string) =>
     db.query(
       `insert into public.review_log (user_id, action, note_guid, ord, deck_id, reviewed_at, rating, queue_before,
@@ -314,7 +301,6 @@ describe('activation (EXP-C8)', () => {
        values ($1, 'answer', 'g1', 0, '1001', ${at}, 3, 'new', 'new', 'learning')`,
       [who.sub],
     );
-  /** A first answer of a test at `at`. */
   async function answeredTest(who: Claims, at: string) {
     const id = crypto.randomUUID();
     await db.query(
@@ -334,7 +320,6 @@ describe('activation (EXP-C8)', () => {
   it('counts the accounts of 7 days or more that answered within 7 days, at the edges', async () => {
     // A fixed moment (now() moves between the statements).
     const created = `timestamptz '${new Date(Date.now() - 20 * 86_400_000).toISOString()}'`;
-    // Activated: the first answer one minute before the 7 days, or exactly at them (Anki or a test).
     for (let i = 0; i < 5; i++) {
       const s = await person(db, { createdAt: created });
       const at =
@@ -344,20 +329,17 @@ describe('activation (EXP-C8)', () => {
       if (i % 2) await answeredTest(s, at);
       else await answered(s, at);
     }
-    // Not activated: one minute after the 7 days, or never.
     for (let i = 0; i < 5; i++) {
       const s = await person(db, { createdAt: created });
       if (i < 3) await answered(s, `${created} + interval '7 days' + interval '1 minute'`);
       else if (i === 3) await answeredTest(s, `${created} + interval '8 days'`);
     }
-    // Not eligible: their account has not had 7 days (one minute short), although they answered at once.
     for (let i = 0; i < 3; i++) {
       const s = await person(db, {
         createdAt: `now() - interval '7 days' + interval '1 minute'`,
       });
       await answered(s, `now() - interval '6 days'`);
     }
-    // Exactly 7 days: eligible, and it never answered.
     await person(db, { createdAt: `now() - interval '7 days' - interval '1 second'` });
 
     const r = await usage(db, owner);
@@ -400,7 +382,6 @@ describe('activation (EXP-C8)', () => {
       not_activated: null,
       percent: null,
     });
-    // 5 and 5: both exact, and the percent.
     for (let i = 0; i < 3; i++) await person(fresh, { createdAt: created });
     expect((await usage(fresh, admin)).activation).toEqual({
       eligible: 10,

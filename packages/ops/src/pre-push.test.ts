@@ -1,9 +1,4 @@
-// Step 2.4: the two guards of the pre-push hook, with real pushes to a bare repository in a temporary folder.
-// - The checks against the real material are required only where `git config qv.requirePrivate` is true (the owner's
-//   clone): anybody else pushes without the private repository.
-// - If the private repository has its list of forbidden patterns (tests/prohibidos.txt), a push that carries one of
-//   them, in any of its commits, stops before anything is sent; without the list, the hook goes on.
-// The slow checks (typecheck, lint, Vitest) are a fake npm here, which writes down QV_REQUIRE_PRIVATE.
+// Tests for the pre-push hook's two guards, with real pushes to a bare repository and a fake npm that logs its calls.
 import { spawnSync } from 'node:child_process';
 import {
   chmodSync,
@@ -66,7 +61,7 @@ beforeEach(() => {
     `#!/bin/sh\necho "npm $* QV_REQUIRE_PRIVATE=\${QV_REQUIRE_PRIVATE:-}" >> "${npmLog}"\nexit 0\n`,
   );
   chmodSync(join(root, 'bin', 'npm'), 0o755);
-  // Without CI (the hook does nothing there), with the fake npm first and no private repository of the computer.
+  // Without CI, where the hook does nothing, and without this computer's private repository.
   const skip = new Set(['CI', 'GITHUB_ACTIONS', 'QV_PRIVATE_DIR', 'QV_REQUIRE_PRIVATE', 'GIT_DIR']);
   env = Object.fromEntries(Object.entries(process.env).filter(([name]) => !skip.has(name)));
   env.PATH = `${join(root, 'bin')}:${process.env.PATH ?? ''}`;
@@ -76,7 +71,7 @@ beforeEach(() => {
   git('config', 'user.email', 'persona@example.com');
   git('config', 'core.hooksPath', '.githooks');
   git('config', 'commit.gpgsign', 'false');
-  // The hook's own files are not part of what the tests push (its comments have an example email).
+  // The hook's own files are not part of what the tests push (they could carry an example email).
   mkdirSync(join(code, '.git', 'info'), { recursive: true });
   writeFileSync(join(code, '.git', 'info', 'exclude'), '.githooks/\n');
   git('remote', 'add', 'origin', join(root, 'remote.git'));
@@ -86,7 +81,7 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-describe('the pre-push hook (step 2.4)', () => {
+describe('the pre-push hook', () => {
   it('somebody without the private repository nor the setting pushes: the real-material checks are not required', () => {
     commit('a.ts', 'export const a = 1;\n');
     const r = push();
@@ -102,7 +97,6 @@ describe('the pre-push hook (step 2.4)', () => {
     const r = push();
     expect(r.status, r.stderr).toBe(0);
     expect(npmCalls()).toContain('npm test --silent QV_REQUIRE_PRIVATE=1');
-    // Without the list there is nothing to check, and the owner's clone says so.
     expect(r.stderr).toMatch(/no se revisó si el push trae datos prohibidos/);
   });
 
@@ -116,7 +110,7 @@ describe('the pre-push hook (step 2.4)', () => {
     const r = push();
     expect(r.status).not.toBe(0);
     expect(remoteHead()).toBe(before);
-    expect(npmCalls()).toHaveLength(calls); // stopped before the slow checks
+    expect(npmCalls()).toHaveLength(calls);
     expect(r.stderr).toMatch(/trae datos que no pueden ir a este repositorio/);
     expect(r.stderr).toMatch(/b\.ts:1 · patrón de la línea 3: .*f•••@ug\.uchile\.cl/);
     expect(r.stderr).not.toContain('fulano.real@');
@@ -127,7 +121,7 @@ describe('the pre-push hook (step 2.4)', () => {
     commit('base.ts', 'export const base = 0;\n');
     expect(push().status).toBe(0);
     commit('a.ts', '// Secreta S.A.\n');
-    commit('a.ts', '// limpio\n'); // the tree is clean again, the history is not
+    commit('a.ts', '// limpio\n');
     let r = push();
     expect(r.status).not.toBe(0);
     expect(r.stderr).toMatch(/a\.ts:1 · patrón de la línea 1: \/\/ Secreta S\.A\./);
@@ -153,11 +147,11 @@ describe('the pre-push hook (step 2.4)', () => {
 
   it('only what the remote does not have is read, and without the list the hook goes on', () => {
     commit('a.ts', '// Secreta S.A.\n');
-    expect(push().status).toBe(0); // no list yet
+    expect(push().status).toBe(0);
     privateList('secreta s\\.a\\.\n');
     commit('b.ts', 'export const b = 2;\n');
     const r = push();
-    expect(r.status, r.stderr).toBe(0); // a.ts is already in the remote
+    expect(r.status, r.stderr).toBe(0);
     expect(remoteHead()).toBe(git('rev-parse', 'HEAD').trim());
   });
 });

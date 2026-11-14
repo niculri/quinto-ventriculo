@@ -3,9 +3,9 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { CircleCheck, CircleX, LoaderCircle, TriangleAlert } from 'lucide-react';
-import { lastName, onlyInCatalog, plainText, releaseTitle, wordDiff } from '@qv/schema';
+import { lastName, onlyInCatalog, plainText, releaseTitle, wordDiff } from '@qv/release-review';
+import type { Check, ReviewList } from '@qv/release-review';
 import type {
-  Check,
   ReleaseArticleItem,
   ReleaseAssessment,
   ReleaseCardItem,
@@ -14,7 +14,6 @@ import type {
   ReleaseOverview,
   ReleaseQuestionItem,
   ReleaseRecord,
-  ReviewList,
 } from '@qv/schema';
 import { Skeleton } from '../../ui/Loading';
 import { ErrorWithRetry } from '../../ui/Notice';

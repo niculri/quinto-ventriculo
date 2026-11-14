@@ -48,7 +48,7 @@ export const QuizFigure = z.discriminatedUnion('kind', [
 ]);
 export type QuizFigure = z.infer<typeof QuizFigure>;
 
-export const QuizTableCell = z.object({
+const QuizTableCell = z.object({
   html: Html,
   header: z.boolean(),
   highlight: z.boolean().optional(),
@@ -56,7 +56,7 @@ export const QuizTableCell = z.object({
   colSpan: z.number().int().min(2).optional(),
   rowSpan: z.number().int().min(2).optional(),
 });
-export type QuizTableCell = z.infer<typeof QuizTableCell>;
+type QuizTableCell = z.infer<typeof QuizTableCell>;
 
 export const QuizTable = z.object({
   title: Html.optional(),
@@ -75,7 +75,7 @@ const QuestionBase = z.object({
   origin: Html.optional(),
 });
 
-export const ChoiceQuestion = QuestionBase.extend({
+const ChoiceQuestion = QuestionBase.extend({
   kind: z.literal('choice'),
   options: z.array(Html).min(2).max(6),
   /** From 0, in the original order. */
@@ -89,13 +89,13 @@ export const ChoiceQuestion = QuestionBase.extend({
     (q) => !q.optionExplanations || q.optionExplanations.length === q.options.length,
     'una explicación por alternativa',
   );
-export type ChoiceQuestion = z.infer<typeof ChoiceQuestion>;
+type ChoiceQuestion = z.infer<typeof ChoiceQuestion>;
 
-export const ShortQuestion = QuestionBase.extend({
+const ShortQuestion = QuestionBase.extend({
   kind: z.literal('short'),
   answer: Html,
 });
-export type ShortQuestion = z.infer<typeof ShortQuestion>;
+type ShortQuestion = z.infer<typeof ShortQuestion>;
 
 export const QuizQuestion = z.discriminatedUnion('kind', [ChoiceQuestion, ShortQuestion]);
 export type QuizQuestion = z.infer<typeof QuizQuestion>;
@@ -108,15 +108,15 @@ export const QuizGroup = z.object({
 });
 export type QuizGroup = z.infer<typeof QuizGroup>;
 
-export const QuizGroupSummary = z.object({
+const QuizGroupSummary = z.object({
   id: QuizGroupId,
   name: Html,
   topic: Html.optional(),
   questionCount: z.number().int().positive(),
 });
-export type QuizGroupSummary = z.infer<typeof QuizGroupSummary>;
+type QuizGroupSummary = z.infer<typeof QuizGroupSummary>;
 
-export const QuizListingItem = z.union([Html, z.object({ title: Html, items: z.array(Html) })]);
+const QuizListingItem = z.union([Html, z.object({ title: Html, items: z.array(Html) })]);
 export const QuizListing = z.object({ title: Html, items: z.array(QuizListingItem) });
 export type QuizListing = z.infer<typeof QuizListing>;
 

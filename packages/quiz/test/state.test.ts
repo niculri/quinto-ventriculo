@@ -2,21 +2,20 @@
 import { describe, expect, it } from 'vitest';
 import {
   answerChoice,
-  back,
   currentQuestionId,
   finish,
   next,
   restorePreferences,
   restoreRound,
-  seededRandom,
   selectQuestions,
   skip,
   selfAssess,
   startRound,
-  summarize,
   toCover,
 } from '../src';
 import type { QuestionInfo, Round } from '../src';
+import { back, seededRandom } from '../src/round';
+import { summarize } from '../src/state';
 
 const Q: QuestionInfo[] = [
   { id: 'a', options: 4, correct: 0 },

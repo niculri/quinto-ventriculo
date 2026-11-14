@@ -4,15 +4,12 @@ import {
   LETTERS,
   answerAt,
   answerChoice,
-  back,
-  canGoBack,
   canSkip,
   currentQuestionId,
   displayOrder,
   finish,
   isAnswered,
   isResumable,
-  letterOf,
   next,
   progress,
   repeatAll,
@@ -22,15 +19,14 @@ import {
   resume,
   resumeLine,
   score,
-  seededRandom,
   selfAssess,
-  shuffled,
   skip,
   startRound,
   toCover,
   wrongAnswers,
 } from '../src';
 import type { QuestionInfo, Round } from '../src';
+import { back, canGoBack, letterOf, seededRandom, shuffled } from '../src/round';
 
 const Q: QuestionInfo[] = [
   { id: 'a', options: 5, correct: 0 },

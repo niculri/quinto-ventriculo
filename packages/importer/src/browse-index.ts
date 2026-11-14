@@ -2,8 +2,9 @@
 // thumbnails its notes name.
 import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
-import { THUMB_PREFIX, buildCardIndexes, cardIndexCards, cardIndexKey } from '@qv/schema';
+import { THUMB_PREFIX, cardIndexKey } from '@qv/schema';
 import type { CardIndex, CardIndexRecord, ContentBundle } from '@qv/schema';
+import { buildCardIndexes, cardIndexCards } from './card-index';
 
 export interface PackedIndex {
   record: CardIndexRecord;

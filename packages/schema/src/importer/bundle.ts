@@ -11,13 +11,13 @@ import {
 import { CardIndexRecord } from '../anki/browse-index';
 import { ImportedQuiz } from '../quiz/quizzes';
 
-export const NoteSection = z.object({
+const NoteSection = z.object({
   anchor: z.string(),
   title: z.string(),
   level: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   text: z.string(),
 });
-export type NoteSection = z.infer<typeof NoteSection>;
+type NoteSection = z.infer<typeof NoteSection>;
 
 export const ImportedNote = Note.extend({
   sections: z.array(NoteSection),

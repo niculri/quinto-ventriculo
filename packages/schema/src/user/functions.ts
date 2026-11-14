@@ -2,6 +2,6 @@
 import type { Database } from '@qv/db-types/users';
 import type { RpcContract } from '../database/contract';
 
-export type UsersFunction = keyof Database['public']['Functions'];
+type UsersFunction = keyof Database['public']['Functions'];
 
 export type UsersContracts = Partial<Record<UsersFunction, RpcContract>>;

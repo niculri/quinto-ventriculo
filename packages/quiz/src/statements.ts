@@ -1,7 +1,7 @@
 // Splits the «I. …», «II. …», «III. …» statements out of a question's HTML, so they show as a list apart from the
 // text and the alternatives.
 
-export interface Statement {
+interface Statement {
   numeral: string;
   html: string;
 }

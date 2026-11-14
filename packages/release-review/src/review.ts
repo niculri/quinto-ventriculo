@@ -7,7 +7,7 @@ import type {
   ReleaseMarkId,
   ReleaseSummary,
   ReleaseText,
-} from './release';
+} from '@qv/schema/release';
 
 export type CheckSeverity = 'block' | 'warn';
 
@@ -53,7 +53,7 @@ export const CHECK_RULES: readonly { rule: CheckRule; severity: CheckSeverity; t
   { rule: 'mask_moved', severity: 'warn', title: 'Máscaras que cambiaron de lugar' },
 ];
 
-export interface CheckItem {
+interface CheckItem {
   key: string;
   assessmentId: string | null;
   text: string;
@@ -67,7 +67,7 @@ export interface Check {
   pending: boolean;
 }
 
-export interface ManualMark {
+interface ManualMark {
   mark: ReleaseMarkId;
   label: string;
   checked: boolean;
@@ -222,7 +222,7 @@ export function similarity(a: string, b: string): number {
   return (2 * both) / (x.length - 1 + (y.length - 1));
 }
 
-export const codeBase = (code: string | null | undefined) =>
+const codeBase = (code: string | null | undefined) =>
   code ? code.replace(/^T-/, '').replace(/\.\d+$/, '') : null;
 
 interface Candidate {
@@ -256,7 +256,7 @@ interface Box {
 }
 
 /** Boxes of a mask signature («rect:left=.48:top=.08:width=.06:height=.03;…»); an ellipse gives its box. */
-export function maskBoxes(signature: string): Box[] {
+function maskBoxes(signature: string): Box[] {
   return signature
     .split(';')
     .map((shape) => {
@@ -333,7 +333,7 @@ export function renumbered(
 const daysBetween = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / 86_400_000);
 
-export function isEmptyRelease(s: ReleaseSummary): boolean {
+function isEmptyRelease(s: ReleaseSummary): boolean {
   return (
     !s.assessments.length &&
     !s.catalog.length &&

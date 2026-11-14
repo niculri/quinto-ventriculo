@@ -3,7 +3,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { ReleaseAssessment, ReleaseFinding, ReleaseSummary } from './release';
+import type { ReleaseAssessment, ReleaseFinding, ReleaseSummary } from '@qv/schema/release';
 import {
   CHECK_RULES,
   PROCESS_RULES,
@@ -18,8 +18,8 @@ import {
   reviewChecks,
   similarity,
   wordDiff,
-} from './review';
-import type { CheckRule, ReleaseReviewInput } from './review';
+} from '../src/review';
+import type { CheckRule, ReleaseReviewInput } from '../src/review';
 
 const FP = 'a'.repeat(32);
 const assessment = (o: Partial<ReleaseAssessment> = {}): ReleaseAssessment => ({
@@ -470,7 +470,7 @@ describe('the process and calendar phrases', () => {
   });
 
   // The published articles as the importer's dry run built them; without that folder (as in the CI), nothing to read.
-  const OUTPUT = join(import.meta.dirname, '..', '..', '..', '..', '.output', 'content.json');
+  const OUTPUT = join(import.meta.dirname, '..', '..', '..', '.output', 'content.json');
   it.skipIf(!existsSync(OUTPUT))('gives 0 in the 10 articles on line', () => {
     const bundle = JSON.parse(readFileSync(OUTPUT, 'utf8')) as {
       notes: {

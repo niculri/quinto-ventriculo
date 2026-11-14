@@ -37,8 +37,8 @@ export type Assessment = z.infer<typeof Assessment>;
 export const NoteKind = z.enum(['lecture', 'seminar', 'practical', 'summary']);
 export type NoteKind = z.infer<typeof NoteKind>;
 
-export const Term = z.enum(['autumn', 'spring']);
-export type Term = z.infer<typeof Term>;
+const Term = z.enum(['autumn', 'spring']);
+type Term = z.infer<typeof Term>;
 
 export const NoteHeader = z.object({
   number: z

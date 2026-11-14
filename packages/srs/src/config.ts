@@ -29,7 +29,7 @@ export type ReviewCardOrder =
   | 'added'
   | 'reverseAdded';
 export type ReviewMix = 'mixWithReviews' | 'afterReviews' | 'beforeReviews';
-export type LeechAction = 'suspend' | 'tagOnly';
+type LeechAction = 'suspend' | 'tagOnly';
 
 export interface DeckConfig {
   learnSteps: number[];
@@ -213,7 +213,7 @@ export function configFromAnki(raw: Json): DeckConfig {
 }
 
 /** Values out of range go back to the default (ensure_deck_config_values_valid). */
-export function repairConfig(config: DeckConfig): DeckConfig {
+function repairConfig(config: DeckConfig): DeckConfig {
   const out: DeckConfig = { ...config };
   for (const [key, [min, max]] of Object.entries(CONFIG_RANGES) as [
     keyof typeof CONFIG_RANGES,
@@ -281,11 +281,6 @@ export function parseConfig(value: unknown): DeckConfig {
     historicalRetention: num(v['historicalRetention'], d.historicalRetention),
   });
 }
-
-export const GATHER_PRIORITIES = Object.values(GATHER);
-export const SORT_ORDERS = Object.values(SORT);
-export const REVIEW_ORDERS = Object.values(REVIEW_ORDER);
-export const REVIEW_MIXES = Object.values(MIX);
 
 const UNIT_SECS = { s: 1, m: 60, h: 3600, d: 86_400 } as const;
 const MONTH = (365 * 86_400) / 12;

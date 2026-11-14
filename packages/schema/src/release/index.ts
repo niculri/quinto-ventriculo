@@ -1,3 +1,30 @@
-// A content release and its review list: `@qv/schema/release`.
-export * from './release';
-export * from './review';
+// A content release: its schemas and types, `@qv/schema/release`.
+export {
+  CONTENT_SCHEMA_VERSION,
+  DeckImpact,
+  PublishRequest,
+  PublishResult,
+  ReleaseArticleItem,
+  ReleaseArticlePage,
+  ReleaseAssessment,
+  ReleaseCardItem,
+  ReleaseCardPage,
+  ReleaseChecks,
+  ReleaseClass,
+  ReleaseFinding,
+  ReleaseLog,
+  ReleaseMark,
+  ReleaseMarkId,
+  ReleaseMarks,
+  ReleaseMediaPage,
+  ReleaseOp,
+  ReleaseOverview,
+  ReleaseQuestionItem,
+  ReleaseQuestionPage,
+  ReleaseRecord,
+  ReleaseSummary,
+  ReleaseText,
+  ReleaseTextPage,
+  RevertRequest,
+  RevertResult,
+} from './release';

@@ -1,2 +1,20 @@
 // Practice test schemas: `@qv/schema/quiz`.
-export * from './quizzes';
+export {
+  ImportedQuiz,
+  QUIZ_THEME_TOKENS,
+  QuizDetail,
+  quizDetail,
+  QuizFigure,
+  QuizGroup,
+  QuizId,
+  QuizIndex,
+  QuizListing,
+  QuizQuestion,
+  QuizSectionDetail,
+  QuizSectionId,
+  QuizSectionSummary,
+  quizSummary,
+  QuizSummary,
+  QuizTable,
+  QuizTheme,
+} from './quizzes';

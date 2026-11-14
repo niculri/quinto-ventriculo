@@ -21,7 +21,7 @@ import { LearningSteps } from './steps';
 import type { SchedTiming } from './timing';
 
 /** Anki's card type. */
-export type Phase = 'new' | 'learning' | 'review' | 'relearning';
+type Phase = 'new' | 'learning' | 'review' | 'relearning';
 /** Anki's queue (without the buried and suspended ones, which the web keeps apart). */
 export type Queue = 'new' | 'learn' | 'dayLearn' | 'review';
 export type Rating = 1 | 2 | 3 | 4;
@@ -62,14 +62,14 @@ export function newCard(position: number): CardRecord {
   };
 }
 
-export function memoryOf(card: CardRecord): MemoryState | null {
+function memoryOf(card: CardRecord): MemoryState | null {
   return card.stability !== null && card.difficulty !== null
     ? { stability: card.stability, difficulty: card.difficulty }
     : null;
 }
 
 /** The card's current state (current.rs `normal_study_state`). */
-export function currentState(card: CardRecord, config: DeckConfig, timing: SchedTiming): CardState {
+function currentState(card: CardRecord, config: DeckConfig, timing: SchedTiming): CardState {
   const memory = memoryOf(card);
   // Outside a filtered deck a review is never due «before today».
   const due = card.phase === 'review' ? Math.min(card.due, timing.today) : card.due;
@@ -117,7 +117,7 @@ export function currentState(card: CardRecord, config: DeckConfig, timing: Sched
 }
 
 /** Days since the last answer, as Anki gives them to FSRS: counted from the next rollover. */
-export function daysElapsed(card: CardRecord, timing: SchedTiming): number {
+function daysElapsed(card: CardRecord, timing: SchedTiming): number {
   if (card.lastReview === null) return 0;
   return Math.floor(Math.max(0, timing.nextDayAt - card.lastReview) / 86_400);
 }
@@ -157,12 +157,12 @@ export function schedulingStates(
   });
 }
 
-export function stateFor(states: SchedulingStates, rating: Rating): CardState {
+function stateFor(states: SchedulingStates, rating: Rating): CardState {
   return [states.again, states.hard, states.good, states.easy][rating - 1]!;
 }
 
 /** What an answer writes to the review log (Anki's revlog). */
-export interface AnswerLog {
+interface AnswerLog {
   rating: Rating;
   /** Days (positive) or seconds (negative), as Anki's revlog `ivl`. */
   interval: number;
@@ -184,7 +184,7 @@ function roundTo(value: number, places: number): number {
 }
 
 /** Up to 25 % more seconds, at most 5 minutes (learning.rs `learning_ivl_with_fuzz`). */
-export function learningIntervalWithFuzz(secs: number, factor: number | null): number {
+function learningIntervalWithFuzz(secs: number, factor: number | null): number {
   if (factor === null) return secs;
   const upperExclusive = secs + Math.floor(Math.min(secs * 0.25, 300));
   return secs >= upperExclusive ? secs : secs + Math.floor(factor * (upperExclusive - secs));

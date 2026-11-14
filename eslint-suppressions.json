@@ -824,6 +824,14 @@
       "count": 1
     }
   },
+  "packages/importer/src/card-index.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
   "packages/importer/src/cli.ts": {
     "max-lines-per-function": {
       "count": 1
@@ -942,20 +950,7 @@
       "count": 1
     }
   },
-  "packages/schema/src/anki/browse-index.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "packages/schema/src/importer/taxonomy.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "packages/schema/src/release/review.ts": {
+  "packages/release-review/src/review.ts": {
     "max-lines": {
       "count": 1
     },
@@ -966,13 +961,7 @@
       "count": 3
     }
   },
-  "packages/srs/src/queue.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
+  "packages/schema/src/importer/taxonomy.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     }

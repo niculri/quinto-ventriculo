@@ -1,3 +1,10 @@
 // The importer's formats (the content bundle and an assessment's taxonomy): `@qv/schema/importer`.
-export * from './bundle';
-export * from './taxonomy';
+export { ContentBundle, ImportedNote } from './bundle';
+export {
+  resolveTopic,
+  TaxonomyFile,
+  TaxonomyTopic,
+  TaxonomyUnit,
+  TopicMapFile,
+  topicNumber,
+} from './taxonomy';

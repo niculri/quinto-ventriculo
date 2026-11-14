@@ -6,16 +6,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_CONFIG,
-  LearningSteps,
   StudyQueue,
-  answerButtonTime,
-  answerButtonTimeCollapsible,
   answerCard,
   configFromAnki,
   dayStartsAt,
   defaultConfig,
-  intersperse,
-  leechThresholdMet,
   newCard,
   nextLearnMessage,
   parseConfig,
@@ -24,9 +19,13 @@ import {
   stepsToString,
   stringToSteps,
   timeSpan,
-  utcOffset,
 } from '../src';
 import type { QueueCard, QueueDeck } from '../src';
+import { intersperse } from '../src/queue/intersperse';
+import { leechThresholdMet } from '../src/states';
+import { LearningSteps } from '../src/steps';
+import { answerButtonTime, answerButtonTimeCollapsible } from '../src/timespan';
+import { utcOffset } from '../src/timing';
 
 const DAY = 86_400;
 

@@ -2,7 +2,10 @@
 // Supabase, nor the browser's storage or the network.
 
 // Each domain package and what it may import from this repository.
-const DOMAIN_PACKAGES = { study: ['@qv/schema', '@qv/srs'] };
+const DOMAIN_PACKAGES = {
+  study: ['@qv/schema', '@qv/srs'],
+  'release-review': ['@qv/schema'],
+};
 const BROWSER_AND_NETWORK = [
   'globalThis',
   'self',

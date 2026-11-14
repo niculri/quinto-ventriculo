@@ -18,7 +18,7 @@ function fuzzDelta(interval: number): number {
   );
 }
 
-export function fuzzBounds(interval: number): [number, number] {
+function fuzzBounds(interval: number): [number, number] {
   const delta = fuzzDelta(interval);
   return [Math.round(interval - delta), Math.round(interval + delta)];
 }

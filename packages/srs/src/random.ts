@@ -19,7 +19,7 @@ export function fnv1a64(text: string): bigint {
   return h;
 }
 
-export function splitmix64(seed: bigint): bigint {
+function splitmix64(seed: bigint): bigint {
   let z = (seed + 0x9e3779b97f4a7c15n) & MASK;
   z = ((z ^ (z >> 30n)) * 0xbf58476d1ce4e5b9n) & MASK;
   z = ((z ^ (z >> 27n)) * 0x94d049bb133111ebn) & MASK;

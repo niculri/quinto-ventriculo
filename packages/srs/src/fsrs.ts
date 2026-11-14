@@ -13,7 +13,7 @@ export interface MemoryState {
   difficulty: number;
 }
 
-export interface ItemState {
+interface ItemState {
   memory: MemoryState;
   interval: number;
 }
@@ -86,7 +86,7 @@ function algorithmFor(params: readonly number[]): FSRS6Algorithm {
 }
 
 /** fsrs-rs `next_interval`: stability / factor · (r^(1/decay) − 1), without rounding. */
-export function nextInterval(
+function nextInterval(
   params: readonly number[],
   stability: number,
   desiredRetention: number,

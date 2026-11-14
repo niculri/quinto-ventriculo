@@ -126,13 +126,13 @@ export type DeckProgress = z.infer<typeof DeckProgress>;
 // a day and «r» a review (`due` is the start of its day).
 export const HomeQueue = z.enum(['l', 'd', 'r']);
 
-export const HomeDueCard = z.object({
+const HomeDueCard = z.object({
   noteGuid: z.string(),
   ord: z.number(),
   queue: HomeQueue,
   due: z.number(),
 });
-export type HomeDueCard = z.infer<typeof HomeDueCard>;
+type HomeDueCard = z.infer<typeof HomeDueCard>;
 
 export const HomeDeckCounts = z.object({
   deckId: z.string(),

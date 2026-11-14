@@ -18,7 +18,7 @@ export const ResolutionRow = z.object({
 });
 export type ResolutionRow = z.infer<typeof ResolutionRow>;
 
-export const MyReportRow = z.object({
+const MyReportRow = z.object({
   id: z.string(),
   kind: ReportKindSchema,
   target_id: z.string(),

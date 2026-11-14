@@ -9,12 +9,12 @@ import type { MemoryState, NextStates } from './fsrs';
 import { withReviewFuzz } from './fuzz';
 import type { LearningSteps } from './steps';
 
-export interface NewState {
+interface NewState {
   kind: 'new';
   position: number;
 }
 
-export interface LearnState {
+interface LearnState {
   kind: 'learning';
   remainingSteps: number;
   scheduledSecs: number;
@@ -22,7 +22,7 @@ export interface LearnState {
   memory: MemoryState | null;
 }
 
-export interface ReviewState {
+interface ReviewState {
   kind: 'review';
   scheduledDays: number;
   elapsedDays: number;
@@ -31,7 +31,7 @@ export interface ReviewState {
   memory: MemoryState | null;
 }
 
-export interface RelearnState {
+interface RelearnState {
   kind: 'relearning';
   learning: Omit<LearnState, 'kind'>;
   review: Omit<ReviewState, 'kind'>;

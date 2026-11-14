@@ -21,7 +21,7 @@ const Cards = z.object({ cards: z.array(CardRef) });
 const Changed = z.number();
 
 /** `home_counts()` as arrays, to keep 20,000 cards small: [deck, seen, hidden new, touched, suspended, recall, due]. */
-export const HomeCountsRow = z.object({
+const HomeCountsRow = z.object({
   decks: z
     .array(
       z.tuple([
@@ -39,12 +39,12 @@ export const HomeCountsRow = z.object({
 });
 
 /** Days as `YYYY-MM-DD`: [day, deck, answers, practice] and [day, cards due]. */
-export const HeatmapRow = z.object({
+const HeatmapRow = z.object({
   days: z.array(z.tuple([z.string(), z.string(), z.number(), z.number()])).optional(),
   due: z.array(z.tuple([z.string(), z.number()])).optional(),
 });
 
-export const ReviewPayload = CardRef.extend({
+const ReviewPayload = CardRef.extend({
   expectedUpdatedAt: z.string().nullable(),
   rating: Rating,
   queueBefore: QueueName,

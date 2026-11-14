@@ -47,6 +47,7 @@ export type {
 } from './targets';
 export { buildDecks } from './decks';
 export { packCardIndexes, inPool } from './browse-index';
+export { buildCardIndexes } from './card-index';
 export type { PackedIndex } from './browse-index';
 export type { ThumbMaker } from './targets';
 export type { DecksOptions, DecksResult } from './decks';

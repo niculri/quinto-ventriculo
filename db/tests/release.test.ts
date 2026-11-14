@@ -6,7 +6,8 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
 import type { MediaStore } from '@qv/importer';
-import { ContentBundle, ReleaseSummary, buildReview } from '@qv/schema';
+import { buildReview } from '@qv/release-review';
+import { ContentBundle, ReleaseSummary } from '@qv/schema';
 import {
   AN,
   BC,

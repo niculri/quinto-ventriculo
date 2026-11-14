@@ -8,14 +8,14 @@ import { QuizGroupId, QuizId, QuizQuestionId, QuizSectionId } from '../quiz/quiz
 export const TopicId = z.string().regex(/^t[1-9]\d{0,5}$/, 'id de tema inválido (t1, t2, …)');
 export type TopicId = z.infer<typeof TopicId>;
 
-export const MAX_NEXT_TOPIC = 1_000_000;
+const MAX_NEXT_TOPIC = 1_000_000;
 
 export function topicNumber(id: string): number {
   return Number(id.slice(1));
 }
 
-export const UnitId = Slug;
-export type UnitId = z.infer<typeof UnitId>;
+const UnitId = Slug;
+type UnitId = z.infer<typeof UnitId>;
 
 export const QuizGroupRef = z.string().refine((s) => {
   const parts = s.split('/');
@@ -153,15 +153,15 @@ export function resolveTopic(
   return at && !at.retired && !at.mergedInto ? at : null;
 }
 
-export const TopicMapNote = z.strictObject({
+const TopicMapNote = z.strictObject({
   guid: NoteGuid,
   code: z.string().min(1).optional(),
   topic: TopicId,
   ords: z.record(z.string().regex(/^\d+$/, 'ord inválido'), TopicId).optional(),
 });
-export type TopicMapNote = z.infer<typeof TopicMapNote>;
+type TopicMapNote = z.infer<typeof TopicMapNote>;
 
-export const TopicMapQuestion = z
+const TopicMapQuestion = z
   .strictObject({
     id: QuestionRef,
     /** The only topic that counts in the percentages. */
@@ -178,7 +178,7 @@ export const TopicMapQuestion = z
       });
     }
   });
-export type TopicMapQuestion = z.infer<typeof TopicMapQuestion>;
+type TopicMapQuestion = z.infer<typeof TopicMapQuestion>;
 
 export const TopicMapFile = z
   .strictObject({

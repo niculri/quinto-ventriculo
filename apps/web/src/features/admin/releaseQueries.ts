@@ -1,7 +1,8 @@
 // The release panel's reads and changes: the draft's overview, its review list, marks, publishing and undoing.
 import { useMemo } from 'react';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { buildReview, processPhrases, releaseTitle, reviewChecks } from '@qv/schema';
+import { buildReview, processPhrases, releaseTitle, reviewChecks } from '@qv/release-review';
+import type { ReviewList } from '@qv/release-review';
 import type {
   DeckImpact,
   ReleaseArticlePage,
@@ -10,7 +11,6 @@ import type {
   ReleaseMarkId,
   ReleaseOverview,
   ReleaseText,
-  ReviewList,
 } from '@qv/schema';
 import { useServices } from '../../app/services';
 import { ApiRequestError } from '../../lib/api';

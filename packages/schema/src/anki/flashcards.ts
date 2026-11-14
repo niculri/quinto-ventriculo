@@ -69,14 +69,14 @@ export const NoteTypeSummary = z.object({
 });
 export type NoteTypeSummary = z.infer<typeof NoteTypeSummary>;
 
-export const SubdeckSummary = z.object({
+const SubdeckSummary = z.object({
   id: DeckId,
   name: z.string().min(1),
   parentId: DeckId.nullable(),
   preset: z.string().nullable(),
   cardCount: z.number().int().nonnegative(),
 });
-export type SubdeckSummary = z.infer<typeof SubdeckSummary>;
+type SubdeckSummary = z.infer<typeof SubdeckSummary>;
 
 export const CardSummary = z.object({
   noteGuid: NoteGuid,

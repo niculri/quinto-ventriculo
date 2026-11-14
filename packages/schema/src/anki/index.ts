@@ -1,3 +1,36 @@
 // Anki content schemas and the card browser's index: `@qv/schema/anki`.
-export * from './flashcards';
-export * from './browse-index';
+export {
+  AnkiDeckRecord,
+  AnkiNoteTypeRecord,
+  AnkiPresetRecord,
+  AnkiTreeDeck,
+  AuthorPreset,
+  BrowseData,
+  BrowseNote,
+  CardChanges,
+  CardDetail,
+  CardKind,
+  CardSummary,
+  DeckDetail,
+  DeckId,
+  deckSlugs,
+  ImportedAnkiCard,
+  ImportedAnkiNote,
+  NoteTypeSummary,
+  parseCardCode,
+  ROOT_DECK_NAME,
+} from './flashcards';
+export {
+  ankiPlainText,
+  CARD_INDEX_VERSION,
+  CardIndex,
+  cardIndexKey,
+  CardIndexKind,
+  CardIndexNote,
+  CardIndexRecord,
+  CardOrigin,
+  ORIGIN_TAGS,
+  THUMB_PREFIX,
+  thumbKeyOf,
+  ThumbSignature,
+} from './browse-index';

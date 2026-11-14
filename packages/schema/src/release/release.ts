@@ -27,7 +27,7 @@ export type ReleaseMark = z.infer<typeof ReleaseMark>;
 
 const count = z.number().int().nonnegative();
 
-export const ReleaseDeckChange = z.object({
+const ReleaseDeckChange = z.object({
   id: z.string(),
   name: z.string(),
   nameBefore: z.string().nullable(),
@@ -37,7 +37,7 @@ export const ReleaseDeckChange = z.object({
   presetBefore: z.string().nullable(),
   presetAfter: z.string().nullable(),
 });
-export type ReleaseDeckChange = z.infer<typeof ReleaseDeckChange>;
+type ReleaseDeckChange = z.infer<typeof ReleaseDeckChange>;
 
 export const ReleaseAssessment = z.object({
   id: z.string(),
@@ -234,11 +234,11 @@ export type DeckImpact = z.infer<typeof DeckImpact>;
 export const ReleaseMarks = z.object({ marks: z.array(ReleaseMark) });
 export type ReleaseMarks = z.infer<typeof ReleaseMarks>;
 
-export const ReleaseTableChanges = z.record(
+const ReleaseTableChanges = z.record(
   z.string(),
   z.object({ insert: count, update: count, delete: count }),
 );
-export type ReleaseTableChanges = z.infer<typeof ReleaseTableChanges>;
+type ReleaseTableChanges = z.infer<typeof ReleaseTableChanges>;
 
 export const ReleaseChecks = z.object({
   blocking: count,

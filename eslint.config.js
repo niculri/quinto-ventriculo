@@ -119,7 +119,7 @@ export default tseslint.config(
   },
   {
     // Permanent exceptions: a file ported from Anki that keeps the original's shape, to compare it line by line (not
-    // srs/src/queue.ts, which is split as Anki splits it), and a page that is only fixed text, without state or data.
+    // srs/src/queue/, which is split as Anki splits it), and a page that is only fixed text, without state or data.
     files: [...PORTED_FROM_ANKI, ...FIXED_TEXT_PAGES],
     rules: {
       'max-lines': 'off',

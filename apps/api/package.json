@@ -24,6 +24,7 @@
     "@cloudflare/workers-types": "5.20261031.1",
     "@qv/db": "0.0.0",
     "@qv/db-types": "0.0.0",
+    "@qv/importer": "0.0.0",
     "wrangler": "4.156.0"
   }
 }

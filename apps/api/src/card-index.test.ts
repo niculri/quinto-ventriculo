@@ -4,6 +4,7 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { buildCardIndexes } from '@qv/importer';
 import {
   CardIndex,
   Catalog,
@@ -11,7 +12,6 @@ import {
   PREVIEW_HEADER,
   PREVIEW_VALUE,
   apiPaths,
-  buildCardIndexes,
   cardIndexKey,
 } from '@qv/schema';
 import type { CardIndexRecord, ContentBundle, ImportedAnkiNote } from '@qv/schema';

@@ -53,15 +53,6 @@ export function utcOffset(unixSecs: number, timeZone: string): number {
   return wall - Math.floor(unixSecs);
 }
 
-export function isValidTimeZone(timeZone: string): boolean {
-  try {
-    formatter(timeZone);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function schedTiming(nowSecs: number, timeZone: string, rolloverHour: number): SchedTiming {
   const now = Math.floor(nowSecs);
   // As Anki: the date and the rollover with the current offset (a fixed offset, not the next day's).

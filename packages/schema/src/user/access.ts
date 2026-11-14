@@ -40,7 +40,7 @@ export type SetAdminResult = z.infer<typeof SetAdminResult>;
 export const InviteRejection = z.enum(['domain', 'invalid', 'repeated', 'empty']);
 export type InviteRejection = z.infer<typeof InviteRejection>;
 
-export const RejectedInvite = z.object({ email: z.string(), reason: InviteRejection });
+const RejectedInvite = z.object({ email: z.string(), reason: InviteRejection });
 
 export const InviteResult = z.object({
   added: z.array(z.string()),

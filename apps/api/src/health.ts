@@ -1,5 +1,7 @@
 // `/api/health/deep`: whether each part the site needs answers, for an external monitor. Public, so it says only
 // `ok` or `fail` per part, never an error, URL, key or row; what failed and why goes to the Worker's log.
+import type { Database as ContentDatabase } from '@qv/db-types/content';
+import type { Database as UsersDatabase } from '@qv/db-types/users';
 
 export type HealthCheck = (signal: AbortSignal) => Promise<void>;
 
@@ -102,7 +104,9 @@ export function usersDatabaseCheck(
 ): HealthCheck {
   return async (signal) => {
     if (!publishableKey) throw new Error('USERS_SUPABASE_PUBLISHABLE_KEY is missing');
-    const r = await doFetch(`${supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/health`, {
+    // By fetch, not supabase-js: it needs the abort signal and the status alone, and no client for one call.
+    const fn: keyof UsersDatabase['public']['Functions'] = 'health';
+    const r = await doFetch(`${supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, {
       method: 'POST',
       headers: {
         apikey: publishableKey,
@@ -140,7 +144,9 @@ export function contentDatabaseCheck(
   doFetch: Fetch = fetch,
 ): HealthCheck {
   return async (signal) => {
-    const r = await doFetch(`${supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/site_settings`, {
+    // By fetch, as the users' check: the abort signal and the status alone, without reading the body.
+    const fn: keyof ContentDatabase['public']['Functions'] = 'site_settings';
+    const r = await doFetch(`${supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, {
       method: 'POST',
       headers: {
         apikey: serviceKey,

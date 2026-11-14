@@ -1,0 +1,179 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the calls of contentDatabase(draft) 1`] = `
+{
+  "calls": [
+    {
+      "body": {
+        "assessments": [
+          "a1",
+        ],
+        "shared": {},
+      },
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "draft",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/import_state",
+    },
+    {
+      "body": {
+        "items": [
+          {
+            "id": "n1",
+          },
+        ],
+      },
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "draft",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/save_notes",
+    },
+    {
+      "body": {},
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "draft",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/reset_draft",
+    },
+    {
+      "body": {
+        "item": "n1",
+        "kind": "note",
+      },
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "draft",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/unpublish_draft",
+    },
+  ],
+  "results": [
+    {
+      "data": {
+        "ok": 1,
+      },
+      "error": null,
+    },
+    {
+      "data": {
+        "ok": 1,
+      },
+      "error": null,
+    },
+    {
+      "data": {
+        "ok": 1,
+      },
+      "error": null,
+    },
+    {
+      "data": null,
+      "error": "unpublish_draft: nope",
+    },
+  ],
+}
+`;
+
+exports[`the calls of contentDatabase(public) 1`] = `
+{
+  "calls": [
+    {
+      "body": {
+        "assessments": [
+          "a1",
+        ],
+        "shared": {},
+      },
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "public",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/import_state",
+    },
+    {
+      "body": {
+        "items": [
+          {
+            "id": "n1",
+          },
+        ],
+      },
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "public",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/save_notes",
+    },
+    {
+      "body": {},
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "public",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/reset_draft",
+    },
+    {
+      "body": {
+        "item": "n1",
+        "kind": "note",
+      },
+      "headers": {
+        "apikey": "service-test-key",
+        "authorization": "Bearer service-test-key",
+        "content-profile": "public",
+        "content-type": "application/json",
+      },
+      "method": "POST",
+      "path": "/rest/v1/rpc/unpublish_draft",
+    },
+  ],
+  "results": [
+    {
+      "data": {
+        "ok": 1,
+      },
+      "error": null,
+    },
+    {
+      "data": {
+        "ok": 1,
+      },
+      "error": null,
+    },
+    {
+      "data": {
+        "ok": 1,
+      },
+      "error": null,
+    },
+    {
+      "data": null,
+      "error": "unpublish_draft: nope",
+    },
+  ],
+}
+`;

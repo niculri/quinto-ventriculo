@@ -1,6 +1,5 @@
 // The content database on Supabase, read with the service key (only from the Worker, never in the browser).
-import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/content';
 import {
   AnkiTreeDeck,
   Assessment,
@@ -19,7 +18,13 @@ import {
 import type { ContentRepository } from '../../repository';
 import { buildCatalog } from '../build-catalog';
 import { nonNull } from '../stream';
+import { contentClient } from './client';
+import type { ContentClient } from './client';
+import { fromJson } from './json';
 import { rawRpcOf } from './raw-rpc';
+
+type Tables = Database['public']['Tables'];
+type Functions = Database['public']['Functions'];
 
 // `group` is an SQL keyword, so it is renamed rather than relying on PostgREST quoting it.
 const SUMMARY_COLUMNS =
@@ -27,37 +32,26 @@ const SUMMARY_COLUMNS =
 const NOTE_COLUMNS =
   'id, slug, course_id, assessment_id, kind, title, subtitle, position, updated_at, code, version, published_at, version_at, document';
 
-interface NoteRow {
-  id: string;
-  slug: string;
-  course_id: string;
-  assessment_id: string;
-  kind: string;
-  title: string;
-  subtitle: string | null;
-  position: number;
-  updated_at: string;
-  code?: string | null;
+/** The columns of a note's summary, with what its `document` adds. */
+type NoteSummaryRow = Omit<Tables['notes']['Row'], 'document' | 'hash' | 'version_hash'> & {
   header?: unknown;
-  version?: number | null;
-  published_at?: string | null;
-  version_at?: string | null;
   practice?: unknown;
   note_group?: unknown;
-  document?: {
-    sources?: string[];
-    html?: string;
-    toc?: unknown[];
-    createdOn?: string;
-    header?: unknown;
-    practice?: unknown;
-    group?: unknown;
-  };
+};
+
+interface NoteDocument {
+  sources?: string[];
+  html?: string;
+  toc?: unknown[];
+  createdOn?: string;
+  header?: unknown;
+  practice?: unknown;
+  group?: unknown;
 }
 
 const iso = (t: string) => new Date(t).toISOString();
 
-function summary(r: NoteRow) {
+function summary(r: NoteSummaryRow) {
   return {
     id: r.id,
     slug: r.slug,
@@ -78,43 +72,8 @@ function summary(r: NoteRow) {
   };
 }
 
-interface DeckRow {
-  id: string;
-  name: string;
-  parent: string | null;
-  preset: string | null;
-  semester: number | null;
-  course_id: string | null;
-  assessment_id: string | null;
-  note_count: number;
-  card_count: number;
-  /** These three are missing before their migration. */
-  own_note_count?: number;
-  exclusive_note_count?: number;
-  closed_note_count?: number;
-}
-
-interface NoteTypeRow {
-  id: string;
-  name: string;
-  kind: 'normal' | 'cloze';
-  occlusion: boolean;
-  fields: string[];
-  templates: { name: string }[];
-  sort_field: number;
-}
-
-interface QuizRow {
-  id: string;
-  slug: string;
-  course_id: string;
-  assessment_id: string;
-  title: string;
-  position: number;
-  question_count: number;
-  section_count: number;
-  updated_at: string;
-}
+type DeckRow = Functions['anki_deck_tree']['Returns'][number];
+type QuizRow = Omit<Tables['quizzes']['Row'], 'document' | 'hash'>;
 const QUIZ_COLUMNS =
   'id, slug, course_id, assessment_id, title, position, question_count, section_count, updated_at';
 
@@ -139,16 +98,17 @@ export function supabaseRepository(
   url: string,
   serviceKey: string,
   schema: 'public' | 'draft' = 'public',
+  client: ContentClient = contentClient(url, serviceKey),
 ): ContentRepository {
-  const db = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-    db: { schema },
-  }) as unknown as SupabaseClient;
+  const db = client.schema(schema);
   const rawRpc = rawRpcOf(url, serviceKey, schema);
 
-  const unwrap = <T>(r: { data: T | null; error: { message: string } | null }, what: string): T => {
+  const unwrap = <T>(
+    r: { data: T; error: null } | { data: null; error: { message: string } },
+    what: string,
+  ): T => {
     if (r.error) throw new Error(`Content database (${what}): ${r.error.message}`);
-    return r.data as T;
+    return r.data;
   };
 
   /** Paged: PostgREST gives at most 1000 rows of a set, and the tree can have more decks. */
@@ -157,7 +117,7 @@ export function supabaseRepository(
     for (let from = 0; ; from += TREE_PAGE) {
       const r = await db.rpc('anki_deck_tree').range(from, from + TREE_PAGE - 1);
       if (r.error) return { data: null, error: r.error };
-      const rows = (r.data ?? []) as DeckRow[];
+      const rows = r.data ?? [];
       out.push(...rows);
       if (rows.length < TREE_PAGE) return { data: out, error: null };
     }
@@ -180,12 +140,11 @@ export function supabaseRepository(
       ]);
       const semesters = unwrap(s, 'semesters').map((x) => Semester.parse(x));
       const courses = unwrap(c, 'courses').map((x) => Course.parse(x));
-      const assessments = unwrap(a, 'assessments').map(
-        (x: { course_id: string; suggested_date: string | null }) =>
-          Assessment.parse({ ...x, courseId: x.course_id, suggestedDate: x.suggested_date }),
+      const assessments = unwrap(a, 'assessments').map((x) =>
+        Assessment.parse({ ...x, courseId: x.course_id, suggestedDate: x.suggested_date }),
       );
-      const notes = unwrap(n, 'notes').map((x) => NoteSummary.parse(summary(x as NoteRow)));
-      const decks = (unwrap(d, 'decks') as DeckRow[]).map((x) =>
+      const notes = unwrap(n, 'notes').map((x) => NoteSummary.parse(summary(x)));
+      const decks = unwrap<DeckRow[]>(d, 'decks').map((x) =>
         AnkiTreeDeck.parse({
           id: x.id,
           name: x.name,
@@ -196,6 +155,7 @@ export function supabaseRepository(
           assessmentId: x.assessment_id,
           noteCount: x.note_count,
           cardCount: x.card_count,
+          // A content database before their migration does not send these three.
           ...(x.own_note_count === undefined ? {} : { ownNoteCount: x.own_note_count }),
           ...(x.exclusive_note_count === undefined
             ? {}
@@ -203,23 +163,25 @@ export function supabaseRepository(
           ...(x.closed_note_count === undefined ? {} : { closedNoteCount: x.closed_note_count }),
         }),
       );
-      const noteTypes = (unwrap(t, 'note types') as NoteTypeRow[]).map((x) =>
+      const noteTypes = unwrap(t, 'note types').map((x) =>
         NoteTypeSummary.parse({
           id: x.id,
           name: x.name,
           kind: x.kind,
           occlusion: x.occlusion,
           fields: x.fields,
-          templates: x.templates.map((tm) => tm.name),
+          templates: fromJson<{ name: string }[]>(x.templates).map((tm) => tm.name),
           sortField: x.sort_field,
         }),
       );
-      const presets = unwrap(p, 'presets') as { name: string; config: Record<string, unknown> }[];
-      const quizzes = (unwrap(z, 'quizzes') as QuizRow[]).map(quizSummary);
+      const presets = fromJson<{ name: string; config: Record<string, unknown> }[]>(
+        unwrap(p, 'presets'),
+      );
+      const quizzes = unwrap(z, 'quizzes').map(quizSummary);
       // A database before that migration lacks the function: the catalog goes without indexes rather than failing.
       let indexes: CardIndexRecord[] = [];
       if (x.error) console.error(`Content database (browse indexes): ${x.error.message}`);
-      else indexes = ((x.data ?? []) as unknown[]).map((r) => CardIndexRecord.parse(r));
+      else indexes = fromJson<unknown[]>(x.data ?? []).map((r) => CardIndexRecord.parse(r));
       return buildCatalog(
         semesters,
         courses,
@@ -232,9 +194,7 @@ export function supabaseRepository(
     },
 
     async quizzes() {
-      return (unwrap(await db.from('quizzes').select(QUIZ_COLUMNS), 'quizzes') as QuizRow[]).map(
-        quizSummary,
-      );
+      return unwrap(await db.from('quizzes').select(QUIZ_COLUMNS), 'quizzes').map(quizSummary);
     },
 
     async quiz(id) {
@@ -267,9 +227,9 @@ export function supabaseRepository(
 
     async note(slug) {
       const r = await db.from('notes').select(NOTE_COLUMNS).eq('slug', slug).maybeSingle();
-      const row = unwrap(r, 'note') as NoteRow | null;
+      const row = unwrap(r, 'note');
       if (!row) return null;
-      const doc = row.document ?? {};
+      const doc = fromJson<NoteDocument | null>(row.document) ?? {};
       return Note.parse({
         ...summary({ ...row, header: doc.header, note_group: doc.group }),
         sources: doc.sources ?? [],
@@ -282,16 +242,7 @@ export function supabaseRepository(
 
     async search(query, limit) {
       const r = await db.rpc('search_notes', { query, max_results: limit });
-      const rows = unwrap(r, 'search') as {
-        note_id: string;
-        note_slug: string;
-        note_title: string;
-        course_name: string;
-        anchor: string;
-        section: string;
-        snippet: string;
-        score: number;
-      }[];
+      const rows = unwrap(r, 'search');
       return rows.map((row) =>
         SearchResult.parse({
           noteId: row.note_id,

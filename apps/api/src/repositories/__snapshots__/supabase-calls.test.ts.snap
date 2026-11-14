@@ -1,0 +1,1054 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`content database: the calls of each adapter > content (draft) 1`] = `
+[
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/semesters?select=number,name",
+      },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/courses?select=id,semester,name,emoji,position",
+      },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/assessments?select=id,course_id,name,position,suggested_date",
+      },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/notes?select=id,slug,course_id,assessment_id,kind,title,subtitle,position,updated_at,code,version,published_at,version_at,header:document->header,practice:document->practice,note_group:document->group",
+      },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_presets?select=name,config",
+      },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_note_types?select=id,name,kind,occlusion,fields,templates,sort_field",
+      },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/quizzes?select=id,slug,course_id,assessment_id,title,position,question_count,section_count,updated_at",
+      },
+      {
+        "body": {},
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_deck_tree?offset=0&limit=1000",
+      },
+      {
+        "body": {},
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_browse_indexes",
+      },
+    ],
+    "result": {
+      "anki": {
+        "decks": [
+          {
+            "assessmentId": null,
+            "cardCount": 3,
+            "closedNoteCount": 2,
+            "courseId": null,
+            "exclusiveNoteCount": 2,
+            "id": "1",
+            "name": "Raíz",
+            "noteCount": 2,
+            "ownNoteCount": 0,
+            "parentId": null,
+            "preset": null,
+            "semester": 1,
+          },
+        ],
+        "noteTypes": [],
+        "presets": [],
+      },
+      "semesters": [
+        {
+          "courses": [],
+          "name": "Primer semestre",
+          "number": 1,
+        },
+      ],
+    },
+    "step": "catalog",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/quizzes?select=id,slug,course_id,assessment_id,title,position,question_count,section_count,updated_at",
+      },
+    ],
+    "result": [],
+    "step": "quizzes",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "quiz_id": "q1",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/quiz_detail",
+      },
+    ],
+    "result": null,
+    "step": "quiz",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "quiz_id": "q1",
+          "section_id": "s1",
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/quiz_section",
+      },
+    ],
+    "result": "stream: {"questions":[]}",
+    "step": "quizSectionJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_browse_notes",
+      },
+    ],
+    "result": "stream: []",
+    "step": "browseJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "deck_id": "1",
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_deck_detail",
+      },
+    ],
+    "result": null,
+    "step": "deckJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "max_rows": 100,
+          "since": 5,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_card_changes_since",
+      },
+    ],
+    "error": "[
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "next"
+    ],
+    "message": "Invalid input: expected number, received undefined"
+  }
+]",
+    "step": "cardChanges",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "card_ord": 0,
+          "note_guid": "g1",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_card",
+      },
+    ],
+    "result": null,
+    "step": "card",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/notes?select=id,slug,course_id,assessment_id,kind,title,subtitle,position,updated_at,code,version,published_at,version_at,document&slug=eq.n1",
+      },
+    ],
+    "result": null,
+    "step": "note",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "max_results": 10,
+          "query": "nucleo",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/search_notes",
+      },
+    ],
+    "result": [
+      {
+        "anchor": "a",
+        "courseName": "Ramo",
+        "noteId": "n1",
+        "noteSlug": "n1",
+        "noteTitle": "Nota",
+        "score": 1,
+        "section": "S",
+        "snippet": "s",
+      },
+    ],
+    "step": "search",
+  },
+]
+`;
+
+exports[`content database: the calls of each adapter > content (public) 1`] = `
+[
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/semesters?select=number,name",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/courses?select=id,semester,name,emoji,position",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/assessments?select=id,course_id,name,position,suggested_date",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/notes?select=id,slug,course_id,assessment_id,kind,title,subtitle,position,updated_at,code,version,published_at,version_at,header:document->header,practice:document->practice,note_group:document->group",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_presets?select=name,config",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_note_types?select=id,name,kind,occlusion,fields,templates,sort_field",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/quizzes?select=id,slug,course_id,assessment_id,title,position,question_count,section_count,updated_at",
+      },
+      {
+        "body": {},
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_deck_tree?offset=0&limit=1000",
+      },
+      {
+        "body": {},
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_browse_indexes",
+      },
+    ],
+    "result": {
+      "anki": {
+        "decks": [
+          {
+            "assessmentId": null,
+            "cardCount": 3,
+            "closedNoteCount": 2,
+            "courseId": null,
+            "exclusiveNoteCount": 2,
+            "id": "1",
+            "name": "Raíz",
+            "noteCount": 2,
+            "ownNoteCount": 0,
+            "parentId": null,
+            "preset": null,
+            "semester": 1,
+          },
+        ],
+        "noteTypes": [],
+        "presets": [],
+      },
+      "semesters": [
+        {
+          "courses": [],
+          "name": "Primer semestre",
+          "number": 1,
+        },
+      ],
+    },
+    "step": "catalog",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/quizzes?select=id,slug,course_id,assessment_id,title,position,question_count,section_count,updated_at",
+      },
+    ],
+    "result": [],
+    "step": "quizzes",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "quiz_id": "q1",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/quiz_detail",
+      },
+    ],
+    "result": null,
+    "step": "quiz",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "quiz_id": "q1",
+          "section_id": "s1",
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/quiz_section",
+      },
+    ],
+    "result": "stream: {"questions":[]}",
+    "step": "quizSectionJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_browse_notes",
+      },
+    ],
+    "result": "stream: []",
+    "step": "browseJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "deck_id": "1",
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_deck_detail",
+      },
+    ],
+    "result": null,
+    "step": "deckJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "max_rows": 100,
+          "since": 5,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_card_changes_since",
+      },
+    ],
+    "error": "[
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "next"
+    ],
+    "message": "Invalid input: expected number, received undefined"
+  }
+]",
+    "step": "cardChanges",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "card_ord": 0,
+          "note_guid": "g1",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/anki_card",
+      },
+    ],
+    "result": null,
+    "step": "card",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/notes?select=id,slug,course_id,assessment_id,kind,title,subtitle,position,updated_at,code,version,published_at,version_at,document&slug=eq.n1",
+      },
+    ],
+    "result": null,
+    "step": "note",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "max_results": 10,
+          "query": "nucleo",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/search_notes",
+      },
+    ],
+    "result": [
+      {
+        "anchor": "a",
+        "courseName": "Ramo",
+        "noteId": "n1",
+        "noteSlug": "n1",
+        "noteTitle": "Nota",
+        "score": 1,
+        "section": "S",
+        "snippet": "s",
+      },
+    ],
+    "step": "search",
+  },
+]
+`;
+
+exports[`content database: the calls of each adapter > release 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_summary",
+      },
+    ],
+    "result": "stream: {"ok":true}",
+    "step": "summaryJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_browse_index_changes",
+      },
+    ],
+    "result": "stream: {"ok":true}",
+    "step": "browseIndexesJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "after_key": null,
+          "assessment": "a1",
+          "kind": "card",
+          "max_rows": 200,
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_items",
+      },
+    ],
+    "result": "stream: {"ok":true}",
+    "step": "itemsJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "after_key": "k",
+          "max_rows": 500,
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_texts",
+      },
+    ],
+    "result": "stream: {"ok":true}",
+    "step": "textsJson",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "after_key": null,
+          "max_rows": 50,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_media",
+      },
+    ],
+    "result": {
+      "keys": [
+        "a.png",
+      ],
+      "next": null,
+    },
+    "step": "media",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "checked": true,
+          "checked_by": "admin@ug.uchile.cl",
+          "fingerprint": "f",
+          "mark": "phone",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/set_release_mark",
+      },
+    ],
+    "result": "stale",
+    "step": "setMark, stale",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "checked": false,
+          "checked_by": "admin@ug.uchile.cl",
+          "fingerprint": "f",
+          "mark": "answers",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/set_release_mark",
+      },
+    ],
+    "result": [],
+    "step": "setMark",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "by": "admin@ug.uchile.cl",
+            "checks": {},
+            "fingerprint": "f",
+            "marks": [
+              "phone",
+            ],
+            "schemaVersion": 1,
+            "title": "T",
+          },
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/publish_release",
+      },
+    ],
+    "result": {
+      "detail": "phone",
+      "ok": false,
+      "reason": "marks",
+    },
+    "step": "publish, refused",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "by": "admin@ug.uchile.cl",
+            "id": 3,
+          },
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/revert_release",
+      },
+    ],
+    "error": "Content database (revert_release): boom",
+    "step": "revert, failing",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "max_rows": 50,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_log",
+      },
+    ],
+    "error": "[
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received array"
+  }
+]",
+    "step": "log",
+  },
+]
+`;
+
+exports[`content database: the calls of each adapter > site settings and the unpublished log 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/site_settings",
+      },
+    ],
+    "result": {
+      "hideEmptySemesters": true,
+      "updatedAt": "2026-11-10T07:00:00.000Z",
+      "updatedBy": "admin@ug.uchile.cl",
+    },
+    "step": "get",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "by": "admin@ug.uchile.cl",
+            "hideEmptySemesters": false,
+          },
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/set_site_settings",
+      },
+    ],
+    "result": {
+      "hideEmptySemesters": true,
+      "updatedAt": "2026-11-10T07:00:00.000Z",
+      "updatedBy": "admin@ug.uchile.cl",
+    },
+    "step": "set",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "max_entries": 200,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/unpublish_log_entries",
+      },
+    ],
+    "error": "[
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "entries",
+      0,
+      "id"
+    ],
+    "message": "Invalid input: expected number, received string"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "entries",
+      0,
+      "itemId"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "expected": "boolean",
+    "code": "invalid_type",
+    "path": [
+      "entries",
+      0,
+      "onSite"
+    ],
+    "message": "Invalid input: expected boolean, received undefined"
+  }
+]",
+    "step": "log",
+  },
+]
+`;
+
+exports[`users database with the student’s token: the calls > access, administrators, usage and health 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {
+          "privacy_version": "p1",
+          "terms_version": "t1",
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "pk",
+          "authorization": "Bearer student-token",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/access_status",
+      },
+    ],
+    "result": "allowed",
+    "step": "access",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "pk",
+          "authorization": "Bearer student-token",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/is_admin",
+      },
+    ],
+    "result": true,
+    "step": "isAdminNow",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "decks": {},
+            "quizzes": {},
+          },
+        },
+        "headers": {
+          "accept": "application/json",
+          "apikey": "pk",
+          "authorization": "Bearer admin-token",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_usage",
+      },
+    ],
+    "result": {
+      "ok": true,
+    },
+    "step": "usage",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "pk",
+          "authorization": "Bearer pk",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/health",
+      },
+    ],
+    "result": undefined,
+    "step": "users health",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/site_settings",
+      },
+    ],
+    "result": undefined,
+    "step": "content health",
+  },
+]
+`;

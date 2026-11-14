@@ -1,5 +1,7 @@
 // Who is an administrator, asked to the users' database (`is_admin()`) with the student's own session token: the
 // Worker never gets the users' service key.
+import type { Database } from '@qv/db-types/users';
+
 export interface AdminChecker {
   /** Remembered `ttl` seconds: for reads. */
   isAdmin(token: string): Promise<boolean>;
@@ -26,7 +28,9 @@ export function supabaseAdminChecker(op: AdminCheckerOptions): AdminChecker {
   const ask = async (token: string): Promise<boolean | null> => {
     let admin: boolean;
     try {
-      const r = await doFetch(`${base}/rest/v1/rpc/is_admin`, {
+      // By fetch, not supabase-js: each student's token, from a Worker that keeps no client per session.
+      const fn: keyof Database['public']['Functions'] = 'is_admin';
+      const r = await doFetch(`${base}/rest/v1/rpc/${fn}`, {
         method: 'POST',
         headers: {
           apikey: op.publishableKey,

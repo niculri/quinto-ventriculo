@@ -13,6 +13,7 @@ import {
 } from './health';
 import { MediaSigner, r2Store } from './media';
 import {
+  contentClient,
   supabaseReleaseRepository,
   supabaseRepository,
   supabaseSiteSettingsRepository,
@@ -42,24 +43,44 @@ export interface Env {
 let app: ReturnType<typeof createApp> | null = null;
 
 function getApp(env: Env, origin: string) {
+  let client: ReturnType<typeof contentClient> | undefined;
+  // One client of the content database for every repository, made with the app.
+  const content = () =>
+    (client ??= contentClient(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY));
   app ??= createApp({
     verifier: supabaseVerifier({
       supabaseUrl: env.USERS_SUPABASE_URL,
       ...(env.USERS_JWT_SECRET ? { hs256Secret: env.USERS_JWT_SECRET } : {}),
     }),
-    repository: supabaseRepository(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY),
+    repository: supabaseRepository(
+      env.CONTENT_SUPABASE_URL,
+      env.CONTENT_SERVICE_ROLE_KEY,
+      'public',
+      content(),
+    ),
     media: r2Store(env.MEDIA),
     signer: new MediaSigner(env.MEDIA_SECRET),
     // Needs `draft` in the content project's exposed schemas.
-    preview: supabaseRepository(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY, 'draft'),
-    releases: supabaseReleaseRepository(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY),
+    preview: supabaseRepository(
+      env.CONTENT_SUPABASE_URL,
+      env.CONTENT_SERVICE_ROLE_KEY,
+      'draft',
+      content(),
+    ),
+    releases: supabaseReleaseRepository(
+      env.CONTENT_SUPABASE_URL,
+      env.CONTENT_SERVICE_ROLE_KEY,
+      content(),
+    ),
     settings: supabaseSiteSettingsRepository(
       env.CONTENT_SUPABASE_URL,
       env.CONTENT_SERVICE_ROLE_KEY,
+      content(),
     ),
     unpublished: supabaseUnpublishedRepository(
       env.CONTENT_SUPABASE_URL,
       env.CONTENT_SERVICE_ROLE_KEY,
+      content(),
     ),
     access: env.USERS_SUPABASE_PUBLISHABLE_KEY
       ? supabaseAccessChecker({

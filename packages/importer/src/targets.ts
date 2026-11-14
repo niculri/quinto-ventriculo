@@ -10,6 +10,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { createClient } from '@supabase/supabase-js';
+import type { Database, Json } from '@qv/db-types/content';
 import { CONTENT_SCHEMA_VERSION, ContentBundle } from '@qv/schema';
 import { inPool, packCardIndexes } from './browse-index';
 import type { PackedIndex } from './browse-index';
@@ -432,9 +433,12 @@ export function cloudConfigFromEnv(env: NodeJS.ProcessEnv): CloudConfig {
   return c;
 }
 
-export interface ContentDatabase {
+/** The functions of `public`, or of both schemas when it can be either. */
+type FunctionName<S extends ContentSchema> = keyof Database[S]['Functions'] & string;
+
+export interface ContentDatabase<S extends ContentSchema = 'public'> {
   rpc(
-    fn: string,
+    fn: FunctionName<S>,
     args: Record<string, unknown>,
   ): PromiseLike<{ data: unknown; error: { message: string } | null }>;
 }
@@ -445,7 +449,7 @@ export interface MediaStore {
 }
 
 export interface CloudOptions {
-  db: ContentDatabase;
+  db: ContentDatabase<ContentSchema>;
   store: MediaStore;
   maxBatchBytes?: number;
   /** The database accepts at most 1000. */
@@ -467,17 +471,26 @@ interface ImportState {
 /** `draft` mirrors `public` with the same functions, and only an administrator sees it. */
 export type ContentSchema = 'public' | 'draft';
 
+type Config = Pick<CloudConfig, 'contentUrl' | 'contentServiceKey'>;
+
 /** For `draft`, PostgREST has to expose the schema (Supabase: Settings → API → Exposed schemas). */
+export function contentDatabase(config: Config): ContentDatabase;
 export function contentDatabase(
-  config: Pick<CloudConfig, 'contentUrl' | 'contentServiceKey'>,
+  config: Config,
+  schema: ContentSchema,
+): ContentDatabase<ContentSchema>;
+export function contentDatabase(
+  config: Config,
   schema: ContentSchema = 'public',
-): ContentDatabase {
-  const client = createClient(config.contentUrl, config.contentServiceKey, {
+): ContentDatabase<ContentSchema> {
+  const client = createClient<Database>(config.contentUrl, config.contentServiceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  if (schema === 'public') return { rpc: (fn, args) => client.rpc(fn, args) };
+  // The importer's arguments are its bundle's shapes, not `Json`: the functions check them (`jsonb` mostly).
+  const loose = (args: Record<string, unknown>) => args as Record<string, Json>;
+  if (schema === 'public') return { rpc: (fn, args) => client.rpc(fn, loose(args)) };
   const draft = client.schema(schema);
-  return { rpc: (fn, args) => draft.rpc(fn, args) };
+  return { rpc: (fn, args) => draft.rpc(fn, loose(args)) };
 }
 
 export function r2Media(config: CloudConfig): MediaStore & {
@@ -565,14 +578,20 @@ export class CloudTarget implements Target {
     return new CloudTarget({ db: contentDatabase(config, schema), store: r2Media(config) });
   }
 
-  private async call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
+  private async call<T>(
+    fn: FunctionName<ContentSchema>,
+    args: Record<string, unknown>,
+  ): Promise<T> {
     const r = await this.options.db.rpc(fn, args);
     if (r.error) throw new Error(`${fn}: ${r.error.message}`);
     return r.data as T;
   }
 
   /** Returns the ids the database says changed. */
-  private async saveAll(fn: string, items: readonly object[]): Promise<Set<string>> {
+  private async saveAll(
+    fn: FunctionName<ContentSchema>,
+    items: readonly object[],
+  ): Promise<Set<string>> {
     const changed = new Set<string>();
     const { maxBatchBytes = 2_000_000, maxBatchItems = 500 } = this.options;
     for (const batch of batches(items, maxBatchBytes, maxBatchItems)) {

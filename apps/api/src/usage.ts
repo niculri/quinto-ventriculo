@@ -8,6 +8,7 @@ import {
   USAGE_MIN_STUDENTS,
   UsageReport,
 } from '@qv/schema';
+import type { Database } from '@qv/db-types/users';
 import type {
   AdminUsageFigures,
   AdminUsageGroup,
@@ -189,11 +190,14 @@ export function memoryUsageEvents(
 const HOUR_MS = 3_600_000;
 const DAY_MS = 24 * HOUR_MS;
 
-/** Each deck's unit, assessment and course, from the catalog: the users' database does not know the content. */
-export interface UsageGroups {
+/**
+ * Each deck's unit, assessment and course, from the catalog: the users' database does not know the content. A type,
+ * not an interface, so that it is the `Json` argument of `admin_usage()`.
+ */
+export type UsageGroups = {
   decks: Record<string, [string | null, string | null, string | null]>;
   quizzes: Record<string, [string | null, string | null]>;
-}
+};
 
 const DECK_ID = /^\d{1,20}$/;
 const QUIZ_ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -225,6 +229,8 @@ export function usageGroups(catalog: Catalog): UsageGroups {
   return { decks, quizzes };
 }
 
+type Functions = Database['public']['Functions'];
+
 export interface UsageStatsSource {
   stats(token: string, groups: UsageGroups): Promise<unknown>;
 }
@@ -238,7 +244,9 @@ export function supabaseUsageStats(op: {
   const doFetch = op.fetch ?? fetch;
   return {
     async stats(token, groups) {
-      const r = await doFetch(`${base}/rest/v1/rpc/admin_usage`, {
+      // By fetch, not supabase-js: the administrator's own token, from a Worker that keeps no client per session.
+      const fn: keyof Functions = 'admin_usage';
+      const r = await doFetch(`${base}/rest/v1/rpc/${fn}`, {
         method: 'POST',
         headers: {
           apikey: op.publishableKey,
@@ -246,7 +254,7 @@ export function supabaseUsageStats(op: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({ p: groups }),
+        body: JSON.stringify({ p: groups } satisfies Functions['admin_usage']['Args']),
       });
       if (!r.ok) throw new Error(`admin_usage: ${r.status}`);
       return r.json();

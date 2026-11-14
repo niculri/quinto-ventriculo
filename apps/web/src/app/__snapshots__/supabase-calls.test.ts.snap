@@ -1,0 +1,1590 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`users database: the calls of each adapter > account, with the download by fetch 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {
+          "privacy_version": "p1",
+          "terms_version": "t1",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer user-token",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/resume_account",
+      },
+    ],
+    "result": {
+      "accepted": null,
+      "deletionCancelled": false,
+    },
+    "step": "resume",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "privacy_version": "p1",
+          "terms_version": "t1",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer user-token",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/accept_legal",
+      },
+    ],
+    "result": {
+      "acceptedAt": "2026-11-10T07:00:00Z",
+    },
+    "step": "accept",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "accept": "application/json",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer user-token",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/export_my_data",
+      },
+    ],
+    "result": "Blob",
+    "step": "exportData",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "confirm_email": "a@ug.uchile.cl",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer user-token",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/request_account_deletion",
+      },
+    ],
+    "result": {
+      "deleteAfter": "2026-12-10",
+    },
+    "step": "requestDeletion",
+  },
+]
+`;
+
+exports[`users database: the calls of each adapter > admin 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/is_admin",
+      },
+    ],
+    "result": true,
+    "step": "isAdmin",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "deck_ids": [
+            "d1",
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_deck_impact",
+      },
+    ],
+    "result": [],
+    "step": "deckImpact",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_access_report",
+      },
+    ],
+    "result": {
+      "accountsWithoutInvite": [],
+      "invited": [],
+      "lists": [],
+      "openToDomain": false,
+      "owner": null,
+      "youAreOwner": false,
+    },
+    "step": "accessReport",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "emails": [
+              "a@ug.uchile.cl",
+            ],
+            "list": "L",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_invite_emails",
+      },
+    ],
+    "result": {
+      "added": [
+        "a@ug.uchile.cl",
+      ],
+      "already": [],
+      "rejected": [],
+    },
+    "step": "invite",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "emails": [],
+            "list": "L",
+            "note": "n",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_invite_emails",
+      },
+    ],
+    "result": {
+      "added": [
+        "a@ug.uchile.cl",
+      ],
+      "already": [],
+      "rejected": [],
+    },
+    "step": "invite with a note",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "list": "L",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_remove_invites",
+      },
+    ],
+    "result": {
+      "keptAdmins": [],
+      "notInvited": [],
+      "openToDomain": false,
+      "removed": [],
+      "sessionsClosed": 0,
+    },
+    "step": "removeInvites",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "admin": true,
+            "email": "a@ug.uchile.cl",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_set_admin",
+      },
+    ],
+    "result": {
+      "admin": true,
+    },
+    "step": "setAdmin",
+  },
+]
+`;
+
+exports[`users database: the calls of each adapter > quiz 1`] = `
+[
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/quiz_progress?select=section_id,preferences,round,updated_at&quiz_id=eq.q1",
+      },
+    ],
+    "result": {
+      "s1": {
+        "preferences": {},
+        "round": null,
+        "updatedAt": "2026-11-09T12:00:00Z",
+      },
+    },
+    "step": "load",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "quizId": "q1",
+            "sectionId": "s1",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/save_quiz_progress",
+      },
+    ],
+    "result": undefined,
+    "step": "save",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/quiz_rounds?select=quiz_id,section_id,answered,question_count,updated_at&status=eq.active&answered=gt.0&order=updated_at.desc&limit=5",
+      },
+    ],
+    "result": [],
+    "step": "openRounds",
+  },
+]
+`;
+
+exports[`users database: the calls of each adapter > reports 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "category": "error",
+            "code": null,
+            "comment": "x",
+            "id": "g1/0",
+            "kind": "card",
+            "location": {},
+            "version": 1,
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/report_content",
+      },
+    ],
+    "result": undefined,
+    "step": "send",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/my_reports",
+      },
+    ],
+    "result": [],
+    "step": "mine",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_report_queue",
+      },
+    ],
+    "result": {
+      "blocked": [],
+      "open": [],
+      "resolved": [],
+    },
+    "step": "queue",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "fixed_version": 2,
+            "kind": "card",
+            "note": null,
+            "status": "fixed",
+            "target_id": "g1/0",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_resolve_reports",
+      },
+    ],
+    "result": 2,
+    "step": "resolve",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "resolution_id": "r1",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_reopen_reports",
+      },
+    ],
+    "result": undefined,
+    "step": "reopen",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "blocked": true,
+            "user_id": "u1",
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/admin_set_report_block",
+      },
+    ],
+    "result": undefined,
+    "step": "setBlocked",
+  },
+]
+`;
+
+exports[`users database: the calls of each adapter > study 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {
+          "p_deck_ids": [
+            "d1",
+            "d2",
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/card_states_of_decks",
+      },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/card_states?select=*&deck_id=in.(d1,d2)&order=note_guid.asc,ord.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [
+      {
+        "buriedUntil": null,
+        "deckId": "d1",
+        "difficulty": 6,
+        "due": "2026-11-12T09:00:00.000Z",
+        "flag": 0,
+        "interday": true,
+        "interval": 3,
+        "lapses": 1,
+        "lastReview": "2026-11-09T12:00:00.000Z",
+        "leech": false,
+        "noteGuid": "g1",
+        "ord": 0,
+        "phase": "review",
+        "remainingSteps": 0,
+        "reps": 3,
+        "retiredAt": null,
+        "stability": 4.5,
+        "suspended": false,
+        "updatedAt": "2026-11-09T12:00:00.123456+00:00",
+      },
+    ],
+    "step": "cards, without the function",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p_deck_ids": [
+            "d1",
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/card_states_of_decks",
+      },
+    ],
+    "result": [
+      {
+        "buriedUntil": null,
+        "deckId": "d1",
+        "difficulty": 6,
+        "due": "2026-11-12T09:00:00.000Z",
+        "flag": 0,
+        "interday": true,
+        "interval": 3,
+        "lapses": 1,
+        "lastReview": "2026-11-09T12:00:00.000Z",
+        "leech": false,
+        "noteGuid": "g1",
+        "ord": 0,
+        "phase": "review",
+        "remainingSteps": 0,
+        "reps": 3,
+        "retiredAt": null,
+        "stability": 4.5,
+        "suspended": false,
+        "updatedAt": "2026-11-09T12:00:00.123456+00:00",
+      },
+    ],
+    "step": "cards",
+  },
+  {
+    "calls": [],
+    "result": [],
+    "step": "cards of no decks",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/card_states?select=*&order=note_guid.asc,ord.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [
+      {
+        "buriedUntil": null,
+        "deckId": "d1",
+        "difficulty": 6,
+        "due": "2026-11-12T09:00:00.000Z",
+        "flag": 0,
+        "interday": true,
+        "interval": 3,
+        "lapses": 1,
+        "lastReview": "2026-11-09T12:00:00.000Z",
+        "leech": false,
+        "noteGuid": "g1",
+        "ord": 0,
+        "phase": "review",
+        "remainingSteps": 0,
+        "reps": 3,
+        "retiredAt": null,
+        "stability": 4.5,
+        "suspended": false,
+        "updatedAt": "2026-11-09T12:00:00.123456+00:00",
+      },
+    ],
+    "step": "allCards",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/review_log?select=action,reviewed_at,rating,queue_before,phase_before,phase_after,interval,stability_after,difficulty_after,duration_ms&note_guid=eq.g1&ord=eq.0&order=id.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "cardLog",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/review_log?select=note_guid,ord,rating,reviewed_at&rating=not.is.null&reviewed_at=gte.2026-11-10T07:00:00.000Z&order=id.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "ratedSince",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/review_log?select=note_guid,ord,deck_id,rating,reviewed_at&rating=not.is.null&reviewed_at=gte.2026-11-10T07:00:00.000Z&reviewed_at=lt.2026-11-11T07:00:00.000Z&order=id.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "ratedBetween",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "since": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/first_answers_since?order=note_guid.asc,ord.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "firstAnswersSince",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/review_log?select=deck_id,queue_before&rating=not.is.null&reviewed_at=gte.2026-11-10T07:00:00.000Z&order=id.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "answersSince",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/study_preferences?select=*",
+      },
+    ],
+    "result": {
+      "addedCourses": [],
+      "applyAllParentLimits": false,
+      "dayStartsAt": 4,
+      "dismissed": [],
+      "fourButtons": false,
+      "fullAnki": false,
+      "learnAheadMinutes": 20,
+      "newCardsIgnoreReviewLimit": false,
+      "removedCourses": [],
+      "semester": null,
+      "timeZone": "America/Santiago",
+      "welcomeSeen": true,
+    },
+    "step": "preferences",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "added_courses": [
+            "c1",
+          ],
+          "apply_all_parent_limits": false,
+          "day_starts_at": 4,
+          "dismissed": [
+            "tip",
+          ],
+          "four_buttons": false,
+          "full_anki": false,
+          "learn_ahead_minutes": 20,
+          "new_cards_ignore_review_limit": false,
+          "removed_courses": [],
+          "semester": 2,
+          "time_zone": "America/Santiago",
+          "updated_at": "2026-11-10T07:00:00.000Z",
+          "welcome_seen": true,
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "resolution=merge-duplicates",
+        },
+        "method": "POST",
+        "path": "/rest/v1/study_preferences?on_conflict=user_id",
+      },
+    ],
+    "result": undefined,
+    "step": "savePreferences",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/user_presets?select=id,name,replaces,config,updated_at&order=created_at.asc",
+      },
+    ],
+    "result": [
+      {
+        "config": {
+          "newPerDay": 10,
+        },
+        "id": "p1",
+        "name": "Mío",
+        "replaces": null,
+        "updatedAt": "2026-11-09T12:00:00+00:00",
+      },
+    ],
+    "step": "presets",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "config": {
+            "a": 1,
+          },
+          "name": "Mío",
+          "replaces": null,
+          "updated_at": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "accept": "application/vnd.pgrst.object+json",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "return=representation",
+        },
+        "method": "POST",
+        "path": "/rest/v1/user_presets?select=id,name,replaces,config,updated_at",
+      },
+    ],
+    "result": {
+      "config": {
+        "newPerDay": 10,
+      },
+      "id": "p1",
+      "name": "Mío",
+      "replaces": null,
+      "updatedAt": "2026-11-09T12:00:00+00:00",
+    },
+    "step": "savePreset, new",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "config": {},
+          "name": "Mío",
+          "replaces": "x",
+          "updated_at": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "accept": "application/vnd.pgrst.object+json",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "return=representation",
+        },
+        "method": "PATCH",
+        "path": "/rest/v1/user_presets?id=eq.p1&select=id,name,replaces,config,updated_at",
+      },
+    ],
+    "result": {
+      "config": {
+        "newPerDay": 10,
+      },
+      "id": "p1",
+      "name": "Mío",
+      "replaces": null,
+      "updatedAt": "2026-11-09T12:00:00+00:00",
+    },
+    "step": "savePreset",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "DELETE",
+        "path": "/rest/v1/user_presets?id=eq.p1",
+      },
+    ],
+    "result": undefined,
+    "step": "deletePreset",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/deck_settings?select=deck_id,preset_id,author_preset",
+      },
+    ],
+    "result": [],
+    "step": "deckSettings",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "author_preset": null,
+          "deck_id": "d1",
+          "preset_id": "p1",
+          "updated_at": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "resolution=merge-duplicates",
+        },
+        "method": "POST",
+        "path": "/rest/v1/deck_settings?on_conflict=user_id,deck_id",
+      },
+    ],
+    "result": undefined,
+    "step": "setDeckPreset, preset",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "author_preset": "Autor",
+          "deck_id": "d1",
+          "preset_id": null,
+          "updated_at": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "resolution=merge-duplicates",
+        },
+        "method": "POST",
+        "path": "/rest/v1/deck_settings?on_conflict=user_id,deck_id",
+      },
+    ],
+    "result": undefined,
+    "step": "setDeckPreset, author",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "DELETE",
+        "path": "/rest/v1/deck_settings?deck_id=eq.d1",
+      },
+    ],
+    "result": undefined,
+    "step": "setDeckPreset, none",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/deck_activations?select=deck_id,active",
+      },
+    ],
+    "result": [],
+    "step": "deckActivations",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "active": true,
+          "deck_id": "d1",
+          "updated_at": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "resolution=merge-duplicates",
+        },
+        "method": "POST",
+        "path": "/rest/v1/deck_activations?on_conflict=user_id,deck_id",
+      },
+    ],
+    "result": undefined,
+    "step": "setDeckActivation",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/assessment_settings?select=deck_id,include_extras,new_per_day,exam_date,final_review_days,exam_date_set_at",
+      },
+    ],
+    "result": [],
+    "step": "assessmentSettings",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "deck_id": "d1",
+          "exam_date": null,
+          "exam_date_set_at": null,
+          "final_review_days": 3,
+          "include_extras": true,
+          "new_per_day": 20,
+          "updated_at": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "prefer": "resolution=merge-duplicates",
+        },
+        "method": "POST",
+        "path": "/rest/v1/assessment_settings?on_conflict=user_id,deck_id",
+      },
+    ],
+    "result": undefined,
+    "step": "saveAssessmentSetting",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/answered_decks?order=deck_id.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "answeredDecks",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/median_answer_ms",
+      },
+    ],
+    "result": 1234,
+    "step": "medianAnswerMs",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "day_start": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/deck_progress?order=deck_id.asc&offset=0&limit=1000",
+      },
+    ],
+    "result": [],
+    "step": "deckProgress",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "a": {
+            "buriedUntil": null,
+            "bury": [
+              {
+                "deckId": "d1",
+                "noteGuid": "g1",
+                "ord": 1,
+              },
+            ],
+            "cardVersion": null,
+            "deckId": "d1",
+            "durationMs": 5000,
+            "expectedUpdatedAt": "2026-11-09T12:00:00.123456+00:00",
+            "interval": 4,
+            "lastInterval": 3,
+            "noteGuid": "g1",
+            "ord": 0,
+            "queueBefore": "review",
+            "rBefore": null,
+            "rating": 3,
+            "state": {
+              "phase": "review",
+            },
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/record_review",
+      },
+    ],
+    "result": {
+      "updatedAt": "2026-11-10T07:00:01+00:00",
+    },
+    "step": "recordReview, before syncing",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/card_sync?select=synced_to,repair_from",
+      },
+    ],
+    "result": 5,
+    "step": "cardsSyncedTo",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "a": {
+            "buriedUntil": null,
+            "bury": [
+              {
+                "deckId": "d1",
+                "noteGuid": "g1",
+                "ord": 1,
+              },
+            ],
+            "cardVersion": null,
+            "deckId": "d1",
+            "durationMs": 5000,
+            "expectedUpdatedAt": "2026-11-09T12:00:00.123456+00:00",
+            "interval": 4,
+            "lastInterval": 3,
+            "noteGuid": "g1",
+            "ord": 0,
+            "queueBefore": "review",
+            "rBefore": null,
+            "rating": 3,
+            "state": {
+              "phase": "review",
+            },
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/record_review",
+      },
+    ],
+    "result": {
+      "updatedAt": "2026-11-10T07:00:01+00:00",
+    },
+    "step": "recordReview",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "cards": [
+            {
+              "deckId": "d1",
+              "noteGuid": "g1",
+              "ord": 0,
+            },
+          ],
+          "note": true,
+          "until": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/bury_cards",
+      },
+    ],
+    "result": undefined,
+    "step": "bury",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "cards": [
+            {
+              "deckId": "d1",
+              "noteGuid": "g1",
+              "ord": 0,
+            },
+          ],
+          "note": false,
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/suspend_cards",
+      },
+    ],
+    "result": undefined,
+    "step": "suspend",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "card": {
+            "deckId": "d1",
+            "noteGuid": "g1",
+            "ord": 0,
+          },
+          "flag": 2,
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/set_flag",
+      },
+    ],
+    "result": undefined,
+    "step": "setFlag",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "cards": [
+            {
+              "deckId": "d1",
+              "noteGuid": "g1",
+              "ord": 0,
+            },
+          ],
+          "flag": 0,
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/set_flags",
+      },
+    ],
+    "result": undefined,
+    "step": "setFlags",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "cards": [
+            {
+              "deckId": "d1",
+              "noteGuid": "g1",
+              "ord": 0,
+            },
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/unsuspend_cards",
+      },
+    ],
+    "result": undefined,
+    "step": "unsuspend",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "cards": [
+            {
+              "deckId": "d1",
+              "noteGuid": "g1",
+              "ord": 0,
+            },
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/unbury_cards",
+      },
+    ],
+    "result": undefined,
+    "step": "unbury",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "cards": [
+            {
+              "deckId": "d1",
+              "noteGuid": "g1",
+              "ord": 0,
+            },
+          ],
+          "reset_counts": true,
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/forget_cards",
+      },
+    ],
+    "result": undefined,
+    "step": "forget",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "5",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/undo_last_review",
+      },
+    ],
+    "result": null,
+    "step": "undo",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/study_heatmap",
+      },
+    ],
+    "result": {
+      "days": [
+        {
+          "answers": 3,
+          "day": 20766,
+          "deckId": "d1",
+          "practice": 1,
+        },
+      ],
+      "due": [],
+    },
+    "step": "heatmap of all",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p_deck_ids": [
+            "d1",
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/study_heatmap",
+      },
+    ],
+    "result": {
+      "days": [
+        {
+          "answers": 3,
+          "day": 20766,
+          "deckId": "d1",
+          "practice": 1,
+        },
+      ],
+      "due": [],
+    },
+    "step": "heatmap",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "decks": [
+              {
+                "deckId": "d1",
+                "n": 2,
+              },
+            ],
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/record_practice",
+      },
+    ],
+    "result": undefined,
+    "step": "recordPractice",
+  },
+  {
+    "calls": [],
+    "result": undefined,
+    "step": "recordPractice of nothing",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p_decay": {
+            "d1": 0.9,
+          },
+          "p_deck_ids": [
+            "d1",
+          ],
+          "p_until": "2026-11-10T07:00:00.000Z",
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/home_counts",
+      },
+    ],
+    "result": {
+      "decks": [
+        {
+          "deckId": "d1",
+          "due": [
+            {
+              "due": "x",
+              "noteGuid": "g1",
+              "ord": 0,
+              "queue": "review",
+            },
+          ],
+          "hiddenNew": 0,
+          "recall": 0.9,
+          "seen": 1,
+          "suspended": 0,
+          "touched": 1,
+        },
+      ],
+      "truncated": false,
+    },
+    "step": "homeCounts",
+  },
+  {
+    "calls": [],
+    "result": {
+      "decks": [],
+      "truncated": false,
+    },
+    "step": "homeCounts of no decks",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "changes": [],
+            "since": 5,
+            "upTo": 7,
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/reconcile_cards",
+      },
+    ],
+    "result": {
+      "applied": true,
+      "changed": 1,
+      "syncedTo": 7,
+    },
+    "step": "reconcileCards",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "a": {
+            "buriedUntil": null,
+            "bury": [
+              {
+                "deckId": "d1",
+                "noteGuid": "g1",
+                "ord": 1,
+              },
+            ],
+            "cardVersion": null,
+            "deckId": "d1",
+            "durationMs": 5000,
+            "expectedUpdatedAt": "2026-11-09T12:00:00.123456+00:00",
+            "interval": 4,
+            "lastInterval": 3,
+            "noteGuid": "g1",
+            "ord": 0,
+            "queueBefore": "review",
+            "rBefore": null,
+            "rating": 3,
+            "state": {
+              "phase": "review",
+            },
+          },
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+          "x-card-sync": "7",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/record_review",
+      },
+    ],
+    "result": {
+      "updatedAt": "2026-11-10T07:00:01+00:00",
+    },
+    "step": "recordReview, after reconciling",
+  },
+]
+`;

@@ -30,7 +30,9 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
   `features/session/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/repositories/supabase/` que nombra
   `SUPABASE_ADAPTERS` en `eslint.config.js` (no su `index.ts`) y `packages/importer/src/targets.ts`; un `import type`
-  vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios.
+  vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
+  tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
+  migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): 300 líneas por archivo, 80 por
   función, complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
   portado de Anki en un paquete que conserva la forma del original, y las páginas que son solo texto fijo.

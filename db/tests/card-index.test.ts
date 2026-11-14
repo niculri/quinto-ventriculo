@@ -51,7 +51,7 @@ const store: MediaStore & MediaRemover = {
 const logged = (db: () => PGlite, schema: 'public' | 'draft') => {
   const rpc = serviceRpc(db, calls, schema);
   return {
-    rpc: (fn: string, args: Record<string, unknown>) => {
+    rpc: (fn: Parameters<typeof rpc.rpc>[0], args: Record<string, unknown>) => {
       events.push(`rpc ${fn}`);
       return rpc.rpc(fn, args);
     },

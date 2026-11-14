@@ -1,6 +1,8 @@
 // The account in the users database: accepting the terms, entering (which cancels a requested deletion), downloading
 // the data and asking to delete it. The database decides, from the caller's token and open session.
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
+import { fromJson } from '../../../lib/json';
 import type { AccountRepository } from './port';
 import { AccountError, MESSAGES } from './model';
 
@@ -14,27 +16,31 @@ export function accountError(e: unknown): AccountError {
   return new AccountError(code ?? 'unknown', MESSAGES[code ?? 'unknown']);
 }
 
+type Functions = Database['public']['Functions'];
+
 interface ResumeRow {
   accepted: { terms_version: string; privacy_version: string; accepted_at: string } | null;
   deletion_cancelled: boolean;
 }
 
 export function supabaseAccountRepository(
-  client: SupabaseClient,
+  client: SupabaseClient<Database>,
   /** The download goes by fetch, so the file is saved as it comes, not parsed by supabase-js. */
   project: { url: string; key: string },
 ): AccountRepository {
-  const call = async <T>(fn: string, args?: Record<string, unknown>): Promise<T> => {
+  const call = async <F extends keyof Functions>(fn: F, args?: Functions[F]['Args']) => {
     const { data, error } = await client.rpc(fn, args);
     if (error) throw accountError(error);
-    return data as T;
+    return data;
   };
   return {
     async resume(versions) {
-      const r = await call<ResumeRow>('resume_account', {
-        terms_version: versions.terms,
-        privacy_version: versions.privacy,
-      });
+      const r = fromJson<ResumeRow>(
+        await call('resume_account', {
+          terms_version: versions.terms,
+          privacy_version: versions.privacy,
+        }),
+      );
       return {
         accepted: r.accepted
           ? {
@@ -47,10 +53,12 @@ export function supabaseAccountRepository(
       };
     },
     async accept(versions) {
-      const r = await call<{ accepted_at: string }>('accept_legal', {
-        terms_version: versions.terms,
-        privacy_version: versions.privacy,
-      });
+      const r = fromJson<{ accepted_at: string }>(
+        await call('accept_legal', {
+          terms_version: versions.terms,
+          privacy_version: versions.privacy,
+        }),
+      );
       return { acceptedAt: r.accepted_at };
     },
     async exportData() {
@@ -59,7 +67,8 @@ export function supabaseAccountRepository(
       if (!token) throw new AccountError('session_closed', MESSAGES.session_closed);
       let r: Response;
       try {
-        r = await fetch(`${project.url.replace(/\/+$/, '')}/rest/v1/rpc/export_my_data`, {
+        const fn: keyof Functions = 'export_my_data';
+        r = await fetch(`${project.url.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, {
           method: 'POST',
           headers: {
             apikey: project.key,
@@ -76,9 +85,9 @@ export function supabaseAccountRepository(
       return new Blob([await r.arrayBuffer()], { type: 'application/json' });
     },
     async requestDeletion(email) {
-      const r = await call<{ delete_after: string }>('request_account_deletion', {
-        confirm_email: email,
-      });
+      const r = fromJson<{ delete_after: string }>(
+        await call('request_account_deletion', { confirm_email: email }),
+      );
       return { deleteAfter: r.delete_after };
     },
   };

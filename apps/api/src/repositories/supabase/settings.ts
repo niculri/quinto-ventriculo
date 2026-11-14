@@ -1,23 +1,24 @@
 // The site's settings in the content database, read and written with the service key.
-import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Json } from '@qv/db-types/content';
 import { SiteSettings } from '@qv/schema';
 import type { SiteSettingsRepository } from '../../repository';
+import { contentClient } from './client';
+import type { ContentClient } from './client';
+import { fromJson } from './json';
 
 /** In `public`: the draft does not have the settings. */
 export function supabaseSiteSettingsRepository(
   url: string,
   serviceKey: string,
+  client: ContentClient = contentClient(url, serviceKey),
 ): SiteSettingsRepository {
-  const db: SupabaseClient = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-  const parse = (data: unknown) => {
-    const d = data as {
+  const db = client;
+  const parse = (data: Json) => {
+    const d = fromJson<{
       hideEmptySemesters: boolean;
       updatedAt: string | null;
       updatedBy: string | null;
-    };
+    }>(data);
     return SiteSettings.parse({
       ...d,
       updatedAt: d.updatedAt ? new Date(d.updatedAt).toISOString() : null,

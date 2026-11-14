@@ -1,5 +1,6 @@
 // The authentication service the web uses, and its Supabase implementation (Google sign-in).
 import type { Session as SupabaseSession, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
 import { ALLOWED_DOMAIN } from '@qv/schema';
 
 export interface SessionUser {
@@ -42,7 +43,7 @@ function toSession(s: SupabaseSession | null): Session | null {
   };
 }
 
-export function supabaseSessionService(client: SupabaseClient): SessionService {
+export function supabaseSessionService(client: SupabaseClient<Database>): SessionService {
   return {
     async current() {
       const { data } = await client.auth.getSession();

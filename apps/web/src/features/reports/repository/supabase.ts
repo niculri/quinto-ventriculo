@@ -1,5 +1,7 @@
 // Error reports in the users database: the database checks the limits, the block and the place.
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
+import { fromJson, toJson } from '../../../lib/json';
 import type { ReportCategory, ReportKind, ResolutionStatus } from '@qv/schema';
 import type { ReportsRepository } from './port';
 import { REPORT_MESSAGES, ReportError } from './model';
@@ -83,11 +85,11 @@ const groupOf = (g: GroupRow): ReportGroup => ({
 });
 
 // The database checks the limits, the block and the place in report_content(); a student reads only their own.
-export function supabaseReportsRepository(client: SupabaseClient): ReportsRepository {
+export function supabaseReportsRepository(client: SupabaseClient<Database>): ReportsRepository {
   return {
     async send(r) {
       const { error } = await client.rpc('report_content', {
-        p: {
+        p: toJson({
           kind: r.kind,
           id: r.id,
           code: r.code,
@@ -95,15 +97,15 @@ export function supabaseReportsRepository(client: SupabaseClient): ReportsReposi
           category: r.category,
           comment: r.comment,
           location: r.location,
-        },
+        }),
       });
       if (error) throw reportError(error);
     },
     async mine() {
       const { data, error } = await client.rpc('my_reports');
       if (error) throw reportError(error);
-      return (
-        data as {
+      return fromJson<
+        {
           id: string;
           kind: ReportKind;
           target_id: string;
@@ -115,7 +117,7 @@ export function supabaseReportsRepository(client: SupabaseClient): ReportsReposi
           created_at: string;
           resolution: ResolutionRow | null;
         }[]
-      ).map((r) => ({
+      >(data).map((r) => ({
         id: r.id,
         kind: r.kind,
         targetId: r.target_id,
@@ -131,11 +133,11 @@ export function supabaseReportsRepository(client: SupabaseClient): ReportsReposi
     async queue() {
       const { data, error } = await client.rpc('admin_report_queue');
       if (error) throw reportError(error);
-      const q = data as {
+      const q = fromJson<{
         open: GroupRow[];
         resolved: GroupRow[];
         blocked: { id: string; name: string | null; email: string | null; blocked_at: string }[];
-      };
+      }>(data);
       return {
         open: q.open.map(groupOf),
         resolved: q.resolved.map(groupOf),
@@ -158,7 +160,7 @@ export function supabaseReportsRepository(client: SupabaseClient): ReportsReposi
         },
       });
       if (error) throw reportError(error);
-      return (data as { resolved: number }).resolved;
+      return fromJson<{ resolved: number }>(data).resolved;
     },
     async reopen(resolutionId) {
       const { error } = await client.rpc('admin_reopen_reports', {

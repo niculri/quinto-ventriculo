@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
 import { PREVIEW_HEADERS, createApiClient } from '../lib/api';
 import type { ApiClient } from '../lib/api';
 import { localStudyRepository, supabaseStudyRepository } from '../features/study/repository';
@@ -73,7 +74,7 @@ export function createServices(): Services {
   if (!url || !key) {
     throw new Error('Faltan VITE_USERS_SUPABASE_URL y VITE_USERS_SUPABASE_PUBLISHABLE_KEY.');
   }
-  const client = createClient(url, key, {
+  const client = createClient<Database>(url, key, {
     auth: {
       flowType: 'pkce',
       persistSession: true,

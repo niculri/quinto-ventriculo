@@ -1,0 +1,15 @@
+{
+  "name": "@qv/db-types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The Database type of each Supabase project (users, content), generated from the migrations by npm run db:types",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    "./users": "./src/users.ts",
+    "./content": "./src/content.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  }
+}

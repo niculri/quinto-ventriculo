@@ -1,15 +1,21 @@
 // The release of the draft (summary, items, marks, publish and revert) in the content database, with the service key.
-import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/content';
 import { PublishResult, ReleaseLog, ReleaseMark, RevertResult } from '@qv/schema';
 import type { Refused, ReleaseRepository } from '../../repository';
+import { contentClient } from './client';
+import type { ContentClient } from './client';
+import { fromJson, toJson } from './json';
 import { rawRpcOf } from './raw-rpc';
 
+type Functions = Database['public']['Functions'];
+
 /** In `public`: the `release_*` functions read the draft themselves. */
-export function supabaseReleaseRepository(url: string, serviceKey: string): ReleaseRepository {
-  const db: SupabaseClient = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
+export function supabaseReleaseRepository(
+  url: string,
+  serviceKey: string,
+  client: ContentClient = contentClient(url, serviceKey),
+): ReleaseRepository {
+  const db = client;
   const rawRpc = rawRpcOf(url, serviceKey);
   return {
     summaryJson: () => rawRpc('release_summary', {}),
@@ -18,9 +24,11 @@ export function supabaseReleaseRepository(url: string, serviceKey: string): Rele
       rawRpc('release_items', { assessment, kind, after_key: after, max_rows: 200 }),
     textsJson: (after) => rawRpc('release_texts', { after_key: after, max_rows: 500 }),
     async media(after, limit) {
-      const r = await db.rpc('release_media', { after_key: after, max_rows: limit });
+      // `after_key` is null on the first page: SQL takes it, the generated types leave null out of every argument.
+      const args = { after_key: after, max_rows: limit } as Functions['release_media']['Args'];
+      const r = await db.rpc('release_media', args);
       if (r.error) throw new Error(`Content database (release_media): ${r.error.message}`);
-      const data = r.data as { keys: string[]; next: string | null };
+      const data = fromJson<{ keys: string[]; next: string | null }>(r.data);
       return { keys: data.keys, next: data.next };
     },
     async setMark(fingerprint, mark, checked, by) {
@@ -29,10 +37,10 @@ export function supabaseReleaseRepository(url: string, serviceKey: string): Rele
         if (r.error.code === 'P0409') return 'stale';
         throw new Error(`Content database (set_release_mark): ${r.error.message}`);
       }
-      return (r.data as unknown[]).map((m) => ReleaseMark.parse(m));
+      return fromJson<unknown[]>(r.data).map((m) => ReleaseMark.parse(m));
     },
     async publish(input) {
-      const r = await db.rpc('publish_release', { p: input });
+      const r = await db.rpc('publish_release', { p: toJson(input) });
       if (r.error) return refusedOr('publish_release', r.error);
       return { ok: true, result: PublishResult.parse(r.data) };
     },

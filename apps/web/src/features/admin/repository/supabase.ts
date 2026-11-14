@@ -1,6 +1,8 @@
 // Administrators and invitations in the users database. The database decides who is an administrator and what each
 // one can read (RLS and `is_admin()`); the web only uses the answer to show the panel.
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
+import { fromJson, toJson } from '../../../lib/json';
 import type { AdminRepository } from './port';
 import { AccessError, MAX_EMAILS } from './model';
 import type { AccessReport, InviteRejection, SetAdminResult } from './model';
@@ -75,7 +77,7 @@ function accessError(error: { code?: string; message: string }): AccessError {
   return new AccessError('No se pudo. Revisa tu conexión e intenta de nuevo.');
 }
 
-export function supabaseAdminRepository(client: SupabaseClient): AdminRepository {
+export function supabaseAdminRepository(client: SupabaseClient<Database>): AdminRepository {
   return {
     async isAdmin() {
       const { data, error } = await client.rpc('is_admin');
@@ -83,16 +85,9 @@ export function supabaseAdminRepository(client: SupabaseClient): AdminRepository
       return data === true;
     },
     async deckImpact(deckIds) {
-      const { data, error } = await client.rpc('admin_deck_impact', { deck_ids: deckIds });
+      const { data, error } = await client.rpc('admin_deck_impact', { deck_ids: [...deckIds] });
       if (error) throw error;
-      return (
-        data as {
-          deck_id: string;
-          students_seen: number;
-          cards_seen: number;
-          students_active: number;
-        }[]
-      ).map((r) => ({
+      return data.map((r) => ({
         deckId: r.deck_id,
         studentsSeen: r.students_seen,
         cardsSeen: r.cards_seen,
@@ -102,30 +97,30 @@ export function supabaseAdminRepository(client: SupabaseClient): AdminRepository
     async accessReport() {
       const { data, error } = await client.rpc('admin_access_report');
       if (error) throw accessError(error);
-      return accessReportOf(data as AccessReportRow);
+      return accessReportOf(fromJson<AccessReportRow>(data));
     },
     async invite({ emails, list, note }) {
       const { data, error } = await client.rpc('admin_invite_emails', {
-        p: { emails, list, ...(note ? { note } : {}) },
+        p: toJson({ emails, list, ...(note ? { note } : {}) }),
       });
       if (error) throw accessError(error);
-      const r = data as {
+      const r = fromJson<{
         added_emails: string[];
         already_emails: string[];
         rejected: { email: string; reason: InviteRejection }[];
-      };
+      }>(data);
       return { added: r.added_emails, already: r.already_emails, rejected: r.rejected };
     },
     async removeInvites(target) {
-      const { data, error } = await client.rpc('admin_remove_invites', { p: target });
+      const { data, error } = await client.rpc('admin_remove_invites', { p: toJson(target) });
       if (error) throw accessError(error);
-      const r = data as {
+      const r = fromJson<{
         removed: string[];
         not_invited: string[];
         kept_admins: string[];
         sessions_closed: number;
         open_to_domain: boolean;
-      };
+      }>(data);
       return {
         removed: r.removed,
         notInvited: r.not_invited,
@@ -137,7 +132,7 @@ export function supabaseAdminRepository(client: SupabaseClient): AdminRepository
     async setAdmin({ email, admin }) {
       const { data, error } = await client.rpc('admin_set_admin', { p: { email, admin } });
       if (error) throw accessError(error);
-      return data as SetAdminResult;
+      return fromJson<SetAdminResult>(data);
     },
   };
 }

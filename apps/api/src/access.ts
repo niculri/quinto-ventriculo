@@ -1,6 +1,7 @@
 // Whether a session is still invited, asked to the users' database (`access_status()`) with the student's own token.
 // A JWT stays valid up to an hour after a removal, so it is not enough; the Worker never holds a service key.
 import { decodeJwt } from 'jose';
+import type { Database } from '@qv/db-types/users';
 import { LEGAL_VERSIONS } from '@qv/schema';
 
 /** Only `allowed`, `denied` and `signed_out` are remembered: accepting the terms or a failure counts at once. */
@@ -18,6 +19,8 @@ export interface AccessCheckerOptions {
   fetch?: typeof fetch;
   now?: () => number;
 }
+
+type Functions = Database['public']['Functions'];
 
 export const ACCESS_TTL = 30;
 const MAX_REMEMBERED = 500;
@@ -51,7 +54,7 @@ export function supabaseAccessChecker(op: AccessCheckerOptions): AccessChecker {
   const body = JSON.stringify({
     terms_version: op.legal?.terms ?? LEGAL_VERSIONS.terms.version,
     privacy_version: op.legal?.privacy ?? LEGAL_VERSIONS.privacy.version,
-  });
+  } satisfies Functions['access_status']['Args']);
   const remembered = new Map<
     string,
     { access: 'allowed' | 'denied' | 'signed_out'; until: number }
@@ -62,7 +65,9 @@ export function supabaseAccessChecker(op: AccessCheckerOptions): AccessChecker {
       if (hit && hit.until > now()) return hit.access;
       let access: 'allowed' | 'denied' | 'signed_out' | 'not_accepted' | undefined;
       try {
-        const r = await doFetch(`${base}/rest/v1/rpc/access_status`, {
+        // By fetch, not supabase-js: each student's token, and its HTTP status, which says why it failed.
+        const fn: keyof Functions = 'access_status';
+        const r = await doFetch(`${base}/rest/v1/rpc/${fn}`, {
           method: 'POST',
           headers: {
             apikey: op.publishableKey,

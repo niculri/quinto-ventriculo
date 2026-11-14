@@ -109,10 +109,10 @@ export default tseslint.config(
     ignores: TESTS_AND_SCRIPTS,
     plugins: { sonarjs },
     rules: {
-      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 350, skipBlankLines: true, skipComments: true }],
       'max-lines-per-function': [
         'error',
-        { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },
+        { max: 90, skipBlankLines: true, skipComments: true, IIFEs: true },
       ],
       'sonarjs/cognitive-complexity': ['error', 15],
     },

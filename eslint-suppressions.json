@@ -112,7 +112,7 @@
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 4
+      "count": 3
     }
   },
   "apps/web/src/features/admin/UsagePage.tsx": {
@@ -155,9 +155,6 @@
     }
   },
   "apps/web/src/features/anki/AssessmentOptions.tsx": {
-    "max-lines": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     },
@@ -180,7 +177,7 @@
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 2
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -278,12 +275,6 @@
     }
   },
   "apps/web/src/features/cards/demo.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
@@ -298,9 +289,6 @@
   },
   "apps/web/src/features/cards/queries.ts": {
     "boundaries/dependencies": {
-      "count": 1
-    },
-    "max-lines": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -322,9 +310,6 @@
   },
   "apps/web/src/features/catalog/CoursePage.tsx": {
     "boundaries/dependencies": {
-      "count": 1
-    },
-    "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
@@ -386,7 +371,7 @@
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 3
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -463,11 +448,6 @@
       "count": 2
     }
   },
-  "apps/web/src/features/notes/Toc.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/notes/articleHtml.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -486,9 +466,6 @@
   "apps/web/src/features/preview/preview.tsx": {
     "boundaries/dependencies": {
       "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "apps/web/src/features/quiz/Cover.tsx": {
@@ -497,9 +474,6 @@
     }
   },
   "apps/web/src/features/quiz/QuestionCard.tsx": {
-    "max-lines": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     },
@@ -531,11 +505,6 @@
   },
   "apps/web/src/features/quiz/queries.ts": {
     "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/quiz/repository/memory.ts": {
-    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -636,11 +605,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/settings/PresetDialogs.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/settings/SettingsLayout.tsx": {
     "boundaries/dependencies": {
       "count": 1
@@ -659,7 +623,7 @@
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 3
+      "count": 2
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -683,9 +647,6 @@
   "apps/web/src/features/study/DaySummary.tsx": {
     "boundaries/dependencies": {
       "count": 2
-    },
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "apps/web/src/features/study/FinalReviewPage.tsx": {
@@ -696,7 +657,7 @@
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 2
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -825,9 +786,6 @@
     }
   },
   "packages/importer/src/card-index.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -841,9 +799,6 @@
     }
   },
   "packages/importer/src/decks.ts": {
-    "max-lines": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     },
@@ -898,9 +853,6 @@
     }
   },
   "packages/importer/src/unpublish.ts": {
-    "max-lines": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     },
@@ -917,9 +869,6 @@
     }
   },
   "packages/notes-md/src/convert.ts": {
-    "max-lines": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
@@ -932,20 +881,7 @@
       "count": 2
     }
   },
-  "packages/ops/src/smoke.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "packages/quiz/src/round.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "packages/quiz/src/state.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -984,11 +920,6 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "packages/study/src/scheduler.ts": {
-    "max-lines": {
       "count": 1
     }
   }

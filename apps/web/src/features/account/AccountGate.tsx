@@ -6,6 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { LEGAL_VERSIONS } from '@qv/schema';
+import { ErrorCode } from '@qv/schema/http';
 import { paths } from '../../app/paths';
 import { useServices } from '../../app/services';
 import { ApiRequestError } from '../../lib/api';
@@ -93,7 +94,7 @@ export function AccountGate({ children }: { children: ReactNode }) {
       queryClient.getQueryCache().subscribe((event) => {
         if (event.type !== 'updated' || event.action.type !== 'error') return;
         const e = event.action.error;
-        if (!(e instanceof ApiRequestError) || e.code !== 'terms_not_accepted') return;
+        if (!(e instanceof ApiRequestError) || e.code !== ErrorCode.enum.terms_not_accepted) return;
         if (accepted) setStaleBundle(true);
         else void refetch();
       }),

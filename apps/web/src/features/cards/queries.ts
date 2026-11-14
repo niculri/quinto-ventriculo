@@ -7,6 +7,7 @@ import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-s
 import type { SearchContext } from '@qv/anki-search';
 import { dayOfStart, dayStartsAt } from '@qv/srs';
 import type { CardIndex, NoteTypeSummary } from '@qv/schema';
+import { apiPaths } from '@qv/schema/http';
 import { useServices } from '../../app/services';
 import { ApiRequestError } from '../../lib/api';
 import type { AnkiTree } from '../anki/tree';
@@ -62,7 +63,7 @@ export function useThumbQuery() {
   return q.data?.query ?? null;
 }
 
-export const thumbUrl = (thumb: string, query: string) => `/api/media/${thumb}?${query}`;
+export const thumbUrl = (thumb: string, query: string) => `${apiPaths.media(thumb)}?${query}`;
 
 function useScopeRows(scope: CardsScope | null) {
   const { study } = useServices();

@@ -2,6 +2,7 @@
 import { createRemoteJWKSet, decodeProtectedHeader, jwtVerify } from 'jose';
 import type { JWTPayload, JWTVerifyGetKey } from 'jose';
 import { isAllowedEmail } from '@qv/schema';
+import { BearerToken } from '@qv/schema/http';
 
 export interface User {
   id: string;
@@ -52,6 +53,6 @@ export function supabaseVerifier(op: VerifierOptions): SessionVerifier {
 }
 
 export function tokenFromHeader(header: string | undefined | null): string | null {
-  const m = header?.match(/^Bearer\s+(\S+)$/i);
-  return m ? m[1]! : null;
+  const token = BearerToken.safeParse(header);
+  return token.success ? token.data : null;
 }

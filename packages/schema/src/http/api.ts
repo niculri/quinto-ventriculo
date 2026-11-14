@@ -51,8 +51,13 @@ export const SearchResponse = z.object({
 });
 export type SearchResponse = z.infer<typeof SearchResponse>;
 
+/** `error` is an ErrorCode; any text is accepted so that an older web still shows the message of a newer code. */
 export const ApiError = z.object({ error: z.string(), message: z.string() });
 export type ApiError = z.infer<typeof ApiError>;
+
+/** `GET /api/health`: the Worker's version, when it has one. */
+export const Health = z.object({ ok: z.literal(true), version: z.string().optional() });
+export type Health = z.infer<typeof Health>;
 
 /** Characters that never appear in the notes. */
 export const HIGHLIGHT_START = '⟦';

@@ -31,10 +31,6 @@ const SUPABASE_ADAPTERS = [
 const DATA_ADAPTERS = SUPABASE_ADAPTERS.filter(
   (g) => g.startsWith('apps/') && !g.includes('.test.'),
 );
-const AS_ON_DATA =
-  "TSAsExpression[expression.type='MemberExpression'][expression.property.name='data'], TSAsExpression[expression.type='Identifier'][expression.name='data']";
-const AS_ON_DATA_MESSAGE =
-  'A database answer is checked with its contract (fromDatabase), not taken with `as`.';
 
 const PORTED_FROM_ANKI = [
   ...['ast', 'compile', 'errors', 'parser', 'term', 'text'].map(
@@ -172,11 +168,8 @@ export default tseslint.config(
     },
   },
   {
-    // Their only `no-restricted-syntax`: the block above leaves them out.
     files: DATA_ADAPTERS,
-    rules: {
-      'no-restricted-syntax': ['error', { selector: AS_ON_DATA, message: AS_ON_DATA_MESSAGE }],
-    },
+    rules: { 'qv/no-cast-on-data': 'error' },
   },
   {
     files: ['packages/*/src/**/*.ts'],

@@ -1,8 +1,8 @@
 // Tests for the administrators' switch that hides the semesters without material from the catalog.
 import { describe, expect, it } from 'vitest';
-import { Catalog, SiteSettings } from '@qv/schema';
+import { Catalog, PREVIEW_HEADER, SiteSettings } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
-import { PREVIEW_HEADER, createApp } from './app';
+import { createApp } from './app';
 import { MediaSigner } from './media';
 import { memoryRepository } from './repositories/memory';
 import { memorySiteSettings } from './repositories/memory-settings';

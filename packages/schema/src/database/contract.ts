@@ -15,9 +15,12 @@ export const rpcContract = <A extends z.ZodType, R extends z.ZodType>(
   returns: R,
 ): RpcContract<A, R> => ({ args, returns });
 
-/** A schema and what it gives, for code that does not depend on zod itself. */
+/**
+ * A schema and the type of a value that fits it, for code that does not depend on zod itself. It is the schema's
+ * input: `checked` gives the value as it came, without any default or transform applied.
+ */
 export type Schema = z.ZodType;
-export type Infer<S extends Schema> = z.infer<S>;
+export type Infer<S extends Schema> = z.input<S>;
 
 export type RpcArgs<C extends RpcContract> = z.infer<C['args']>;
 export type RpcResult<C extends RpcContract> = z.infer<C['returns']>;
@@ -25,7 +28,7 @@ export type RpcResult<C extends RpcContract> = z.infer<C['returns']>;
 const LOGGED_ISSUES = 5;
 
 /**
- * `value` as its schema's type. It is returned as it came, also when it fits (no key is stripped nor any default
+ * `value` as its schema's input type. It is returned as it came, also when it fits (no key is stripped nor any default
  * filled in); when it does not, it goes on the same and the problem is logged with where it came from and the paths
  * and kinds of the first issues, never the values (they are a student's data).
  */
@@ -33,7 +36,7 @@ export function checked<S extends z.ZodType>(
   source: string,
   schema: S,
   value: unknown,
-): z.infer<S> {
+): z.input<S> {
   const r = schema.safeParse(value);
   if (!r.success) {
     const issues = r.error.issues.slice(0, LOGGED_ISSUES).map((i) => ({
@@ -43,5 +46,5 @@ export function checked<S extends z.ZodType>(
     }));
     console.error(`${source}: unexpected shape`, { issues, total: r.error.issues.length });
   }
-  return value as z.infer<S>;
+  return value as z.input<S>;
 }

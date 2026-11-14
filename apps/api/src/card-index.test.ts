@@ -8,12 +8,14 @@ import {
   CardIndex,
   Catalog,
   ThumbSignature,
+  PREVIEW_HEADER,
+  PREVIEW_VALUE,
+  apiPaths,
   buildCardIndexes,
   cardIndexKey,
-  cardIndexUrl,
 } from '@qv/schema';
 import type { CardIndexRecord, ContentBundle, ImportedAnkiNote } from '@qv/schema';
-import { PREVIEW_HEADER, PREVIEW_VALUE, createApp } from './app';
+import { createApp } from './app';
 import { MediaSigner } from './media';
 import type { MediaStore } from './media';
 import { memoryRepository } from './repositories/memory';
@@ -181,7 +183,7 @@ describe('the card browser index', () => {
     content.reads.length = 0;
     requested.length = 0;
     const r = await get(
-      cardIndexUrl(A, published.hash),
+      apiPaths.cardIndex(A, published.hash),
       await withSession({ 'Accept-Encoding': 'gzip, br' }),
     );
     expect(r.status).toBe(200);
@@ -204,7 +206,7 @@ describe('the card browser index', () => {
 
   it('a browser that does not take gzip gets it decompressed', async () => {
     const r = await get(
-      cardIndexUrl(A, published.hash),
+      apiPaths.cardIndex(A, published.hash),
       await withSession({ 'Accept-Encoding': 'identity' }),
     );
     expect(r.status).toBe(200);
@@ -213,7 +215,7 @@ describe('the card browser index', () => {
   });
 
   it('without a session, 401; an odd path, 400; a file that is not there, 404', async () => {
-    expect((await get(cardIndexUrl(A, published.hash))).status).toBe(401);
+    expect((await get(apiPaths.cardIndex(A, published.hash))).status).toBe(401);
     const s = await withSession();
     expect((await get(`/api/anki/index/${A}/NOPE`, s)).status).toBe(400);
     expect((await get(`/api/anki/index/BIO/certamen-2/${published.hash}`, s)).status).toBe(400);
@@ -245,7 +247,7 @@ describe('the card browser index', () => {
       .sign(pair.privateKey);
     requested.length = 0;
     const headers = { Authorization: `Bearer ${t}`, 'Accept-Encoding': 'gzip' };
-    const index = await outside.request(cardIndexUrl(A, published.hash), { headers });
+    const index = await outside.request(apiPaths.cardIndex(A, published.hash), { headers });
     expect(index.status).toBe(403);
     expect(((await index.json()) as { error: string }).error).toBe('not_invited');
     expect((await outside.request('/api/anki/thumbs', { headers })).status).toBe(403);
@@ -256,7 +258,7 @@ describe('the card browser index', () => {
     const s = await withSession({ [PREVIEW_HEADER]: PREVIEW_VALUE });
     const catalog = Catalog.parse(await (await get('/api/catalog', s)).json());
     expect(catalog.semesters[0]!.courses[0]!.assessments[0]!.cardIndex?.hash).toBe(draft.hash);
-    const r = await get(cardIndexUrl(A, draft.hash), { ...s, 'Accept-Encoding': 'gzip' });
+    const r = await get(apiPaths.cardIndex(A, draft.hash), { ...s, 'Accept-Encoding': 'gzip' });
     expect(r.status).toBe(200);
     expect(r.headers.get('Cache-Control')).toBe('no-store');
     expect(

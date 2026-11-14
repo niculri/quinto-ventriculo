@@ -1,5 +1,5 @@
 // A read that does not fit its contract goes on as it came and is logged without its values.
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { z } from 'zod';
 import { checked } from './contract';
 
@@ -37,5 +37,14 @@ describe('checked', () => {
     const [, detail] = log.mock.calls[0] as [string, { issues: unknown[]; total: number }];
     expect(detail.issues).toHaveLength(5);
     expect(detail.total).toBe(18);
+  });
+
+  it('types the value with what comes in, not what parsing would give: no default is assumed', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const WithDefault = z.object({ id: z.string(), tags: z.array(z.string()).default([]) });
+    expectTypeOf(checked('db (f)', WithDefault, { id: 'a' })).toEqualTypeOf<{
+      id: string;
+      tags?: string[] | undefined;
+    }>();
   });
 });

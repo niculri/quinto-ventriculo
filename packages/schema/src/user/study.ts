@@ -193,12 +193,8 @@ export type RatedAnswer = z.infer<typeof RatedAnswer>;
 export const UndoResult = CardRef.extend({ action: ActionName, rating: z.number().nullable() });
 export type UndoResult = z.infer<typeof UndoResult>;
 
-export const CardChange = z.object({
-  noteGuid: z.string(),
-  ord: z.number(),
-  deckId: z.string().nullable(),
-});
-export type CardChange = z.infer<typeof CardChange>;
+/** A card that moved or was taken out, as the API gives it: what reconcile_cards() receives. */
+export { CardChange } from '../anki/flashcards';
 
 export const ReconcileResult = z.object({
   applied: z.boolean(),

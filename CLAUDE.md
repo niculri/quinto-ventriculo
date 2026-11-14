@@ -33,9 +33,14 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
   migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas
-  con uniones) se lee con `fromDatabase` y su contrato de `@qv/schema/user` o `/content`, nunca con `as` (lo prohíbe el
-  lint), y cada contrato corre contra el SQL en `db/tests/*-contracts.test.ts`; los rechazos de la base se reconocen
-  solo con `databaseError()` de `@qv/schema/database`.
+  con uniones) se lee con `fromDatabase` y su contrato de `@qv/schema/user` o `/content`, nunca con `as` (lo prohíbe
+  `qv/no-cast-on-data`), y cada contrato corre contra el SQL en `db/tests/*-contracts.test.ts`; los rechazos de la
+  base se reconocen solo con `databaseError()` de `@qv/schema/database`.
+- **Contrato web ↔ API:** rutas (`API_ROUTES`, y `apiPaths` para pedirlas), códigos de error (`ErrorCode`), la
+  cabecera de la vista previa y lo que acepta cada ruta (`requests.ts`) viven en `@qv/schema/http`. La API valida toda
+  entrada con esos schemas y cada respuesta JSON lleva `satisfies` de su schema (los cuerpos que pasan como stream no
+  se parsean). `apps/api/src/routes.test.ts` y `apps/web/src/app/api-routes.test.ts` fallan si una ruta queda en un
+  solo lado; `apps/api/src/inputs.test.ts` fija cómo responde la API a cada entrada.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): 300 líneas por archivo, 80 por
   función, complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
   portado de Anki en un paquete que conserva la forma del original, y las páginas que son solo texto fijo.

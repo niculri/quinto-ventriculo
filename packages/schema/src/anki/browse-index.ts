@@ -56,9 +56,6 @@ export function cardIndexKey(assessmentId: string, hash: string): string {
   return `browse/${assessmentId}/${hash}.json.gz`;
 }
 
-export const cardIndexUrl = (assessmentId: string, hash: string) =>
-  `/api/anki/index/${assessmentId}/${hash}`;
-
 /** One signature covers every thumbnail under this prefix (`GET /api/anki/thumbs`). */
 export const THUMB_PREFIX = 'cards/thumb/';
 

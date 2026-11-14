@@ -29,8 +29,8 @@ import {
   UsageOpenAck,
   UsageReport,
 } from '@qv/schema';
-import { cardIndexUrl } from '@qv/schema';
-import type { PublishRequest, ReleaseItemKind, ReleaseMarkId, UsageOpenRequest } from '@qv/schema';
+import { PREVIEW_HEADER, PREVIEW_VALUE, apiPaths } from '@qv/schema/http';
+import type { PublishRequest, ReleaseMarkId, UsageOpenRequest } from '@qv/schema';
 
 export class ApiRequestError extends Error {
   constructor(
@@ -46,7 +46,7 @@ export class ApiRequestError extends Error {
 export type GetToken = () => Promise<string | null>;
 
 /** The header that asks the API for the draft: only an administrator gets it. */
-export const PREVIEW_HEADERS = { 'X-QV-Preview': 'draft' } as const;
+export const PREVIEW_HEADERS = { [PREVIEW_HEADER]: PREVIEW_VALUE } as const;
 
 /** With the preview's `headers`, nothing is taken from nor left in the browser's cache. */
 export function createApiClient(
@@ -103,99 +103,71 @@ export function createApiClient(
   return {
     /** `fresh`: not the copy the browser keeps (a minute), e.g. right after changing the site's settings. */
     catalog: (signal?: AbortSignal, options: { fresh?: boolean } = {}) =>
-      request('/api/catalog', Catalog, signal, options.fresh ? { fresh: true } : {}),
-    note: (slug: string, signal?: AbortSignal) =>
-      request(`/api/notes/${encodeURIComponent(slug)}`, Note, signal),
-    deck: (id: string, signal?: AbortSignal) =>
-      request(`/api/decks/${encodeURIComponent(id)}`, DeckDetail, signal),
-    ankiNotes: (signal?: AbortSignal) => request('/api/anki/notes', BrowseData, signal),
+      request(apiPaths.catalog(), Catalog, signal, options.fresh ? { fresh: true } : {}),
+    note: (slug: string, signal?: AbortSignal) => request(apiPaths.note(slug), Note, signal),
+    deck: (id: string, signal?: AbortSignal) => request(apiPaths.deck(id), DeckDetail, signal),
+    ankiNotes: (signal?: AbortSignal) => request(apiPaths.ankiNotes(), BrowseData, signal),
     cardIndex: (assessmentId: string, hash: string, signal?: AbortSignal) =>
-      request(cardIndexUrl(assessmentId, hash), CardIndex, signal),
-    /** One signature for every thumbnail of the browser: `/api/media/<thumb>?<query>`. */
-    thumbSignature: (signal?: AbortSignal) => request('/api/anki/thumbs', ThumbSignature, signal),
+      request(apiPaths.cardIndex(assessmentId, hash), CardIndex, signal),
+    /** One signature for every thumbnail of the browser: `apiPaths.media(<thumb>)?<query>`. */
+    thumbSignature: (signal?: AbortSignal) => request(apiPaths.thumbs(), ThumbSignature, signal),
     /** The cards that moved to another deck or were taken out after the change `since` (a page). */
     cardChanges: (since: number, signal?: AbortSignal) =>
-      request(`/api/anki/card-changes?since=${since}`, CardChanges, signal),
+      request(apiPaths.cardChanges(since), CardChanges, signal),
     /** The guid is Anki's: it may have «/», «%», «?»… (it travels encoded). */
     card: (noteGuid: string, ord: number, signal?: AbortSignal) =>
-      request(`/api/cards/${encodeURIComponent(noteGuid)}/${ord}`, CardDetail, signal),
+      request(apiPaths.card(noteGuid, ord), CardDetail, signal),
     quizzes: (filter: { course?: string; assessment?: string } = {}, signal?: AbortSignal) =>
-      request(
-        `/api/quizzes${Object.keys(filter).length ? `?${new URLSearchParams(filter)}` : ''}`,
-        QuizIndex,
-        signal,
-      ),
-    quiz: (id: string, signal?: AbortSignal) =>
-      request(`/api/quizzes/${encodeURIComponent(id)}`, QuizDetail, signal),
+      request(apiPaths.quizzes(filter), QuizIndex, signal),
+    quiz: (id: string, signal?: AbortSignal) => request(apiPaths.quiz(id), QuizDetail, signal),
     quizSection: (id: string, sectionId: string, signal?: AbortSignal) =>
-      request(
-        `/api/quizzes/${encodeURIComponent(id)}/sections/${encodeURIComponent(sectionId)}`,
-        QuizSectionDetail,
-        signal,
-      ),
-    siteSettings: (signal?: AbortSignal) =>
-      request('/api/admin/site-settings', SiteSettings, signal),
+      request(apiPaths.quizSection(id, sectionId), QuizSectionDetail, signal),
+    siteSettings: (signal?: AbortSignal) => request(apiPaths.siteSettings(), SiteSettings, signal),
     setSiteSettings: (body: { hideEmptySemesters: boolean }) =>
-      request('/api/admin/site-settings', SiteSettings, undefined, { method: 'PUT', body }),
+      request(apiPaths.siteSettings(), SiteSettings, undefined, { method: 'PUT', body }),
     unpublishedLog: (signal?: AbortSignal) =>
-      request('/api/admin/unpublished', UnpublishedLog, signal),
+      request(apiPaths.unpublished(), UnpublishedLog, signal),
     /** Usage figures, only of groups of 5 students or more. */
-    usage: (signal?: AbortSignal) => request('/api/admin/usage', UsageReport, signal),
+    usage: (signal?: AbortSignal) => request(apiPaths.usage(), UsageReport, signal),
     /**
      * Counts, without who, a note, deck or test opened by its page, or a search completed. `keepalive`: it arrives even
      * if the page changes right after (a search that opens a result).
      */
     usageOpen: (body: UsageOpenRequest) =>
-      request('/api/usage/open', UsageOpenAck, undefined, {
+      request(apiPaths.usageOpen(), UsageOpenAck, undefined, {
         method: 'POST',
         body,
         keepalive: true,
       }),
-    releaseOverview: (signal?: AbortSignal) =>
-      request('/api/admin/release', ReleaseOverview, signal),
+    releaseOverview: (signal?: AbortSignal) => request(apiPaths.release(), ReleaseOverview, signal),
     releaseCards: (assessment: string, after: string | null, signal?: AbortSignal) =>
-      request(itemsPath(assessment, 'card', after), ReleaseCardPage, signal),
+      request(apiPaths.releaseItems(assessment, 'card', after), ReleaseCardPage, signal),
     releaseArticles: (assessment: string, after: string | null, signal?: AbortSignal) =>
-      request(itemsPath(assessment, 'article', after), ReleaseArticlePage, signal),
+      request(apiPaths.releaseItems(assessment, 'article', after), ReleaseArticlePage, signal),
     releaseQuestions: (assessment: string, after: string | null, signal?: AbortSignal) =>
-      request(itemsPath(assessment, 'question', after), ReleaseQuestionPage, signal),
+      request(apiPaths.releaseItems(assessment, 'question', after), ReleaseQuestionPage, signal),
     releaseTexts: (after: string | null, signal?: AbortSignal) =>
-      request(
-        `/api/admin/release/texts${after ? `?${new URLSearchParams({ after })}` : ''}`,
-        ReleaseTextPage,
-        signal,
-      ),
+      request(apiPaths.releaseTexts(after), ReleaseTextPage, signal),
     releaseMedia: (after: string | null, signal?: AbortSignal) =>
-      request(
-        `/api/admin/release/media${after ? `?${new URLSearchParams({ after })}` : ''}`,
-        ReleaseMediaPage,
-        signal,
-      ),
+      request(apiPaths.releaseMedia(after), ReleaseMediaPage, signal),
     setReleaseMark: (fingerprint: string, mark: ReleaseMarkId, checked: boolean) =>
-      request('/api/admin/release/marks', ReleaseMarks, undefined, {
+      request(apiPaths.releaseMarks(), ReleaseMarks, undefined, {
         method: 'PUT',
         body: { fingerprint, mark, checked },
       }),
     /** Publishes the draft the panel showed: 409 if it changed, 422 if something stops it. */
     publishRelease: (body: PublishRequest) =>
-      request('/api/admin/release/publish', PublishResult, undefined, { method: 'POST', body }),
+      request(apiPaths.publishRelease(), PublishResult, undefined, { method: 'POST', body }),
     /** Undoes the last publication (409 if it is not the last one any more, or what is published changed). */
     revertRelease: (id: number) =>
-      request('/api/admin/release/revert', RevertResult, undefined, {
+      request(apiPaths.revertRelease(), RevertResult, undefined, {
         method: 'POST',
         body: { id },
       }),
-    releaseLog: (signal?: AbortSignal) => request('/api/admin/releases', ReleaseLog, signal),
+    releaseLog: (signal?: AbortSignal) => request(apiPaths.releaseLog(), ReleaseLog, signal),
     search: (query: string, limit = 20, signal?: AbortSignal) =>
-      request(
-        `/api/search?${new URLSearchParams({ q: query, limit: String(limit) })}`,
-        SearchResponse,
-        signal,
-      ),
+      request(apiPaths.search(query, limit), SearchResponse, signal),
   };
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;
-
-const itemsPath = (assessment: string, kind: ReleaseItemKind, after: string | null) =>
-  `/api/admin/release/items?${new URLSearchParams({ assessment, kind, ...(after ? { after } : {}) })}`;

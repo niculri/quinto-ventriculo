@@ -53,6 +53,7 @@ export const UsageOpenRequest = z.discriminatedUnion('kind', [
 ]);
 export type UsageOpenRequest = z.infer<typeof UsageOpenRequest>;
 export const UsageOpenAck = z.object({ ok: z.literal(true) });
+export type UsageOpenAck = z.infer<typeof UsageOpenAck>;
 
 const Day = z.iso.date();
 

@@ -146,6 +146,20 @@ describe('checkRatchet', () => {
     expect([...found]).toEqual(['qv/file-header']);
   });
 
+  it('a new rule may start in the suppressions file, never with an inline directive', () => {
+    const fresh = new Set(['qv/new']);
+    const inFile = checkRatchet(
+      snap(file({ 'a.ts': { 'max-lines': 2 }, 'b.ts': { 'qv/new': 3 } })),
+      snap(base),
+      'main',
+      fresh,
+    );
+    const inline = checkRatchet(snap(base, { 'qv/new': 1 }), snap(base), 'main', fresh);
+    expect(inFile.ok).toBe(true);
+    expect(inline.ok).toBe(false);
+    expect(inline.lines.join('\n')).toContain('qv/new: 0 → 1');
+  });
+
   it('an inline directive counts as a suppression of its rule', () => {
     const moved = checkRatchet(
       snap(file({ 'b.ts': { complexity: 1 } }), { 'max-lines': 2 }),

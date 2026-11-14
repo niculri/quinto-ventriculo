@@ -6,15 +6,11 @@ import { secureHeaders } from 'hono/secure-headers';
 import {
   CONTENT_SCHEMA_VERSION,
   DeckId,
-  NoteGuid,
   PublishRequest,
   QuizId,
   QuizSectionId,
-  ReleaseItemKind,
-  ReleaseMarkId,
   RevertRequest,
   SiteSettingsUpdate,
-  UsageOpenRequest,
   CONTACT_EMAIL,
   Slug,
   THUMB_PREFIX,
@@ -23,20 +19,47 @@ import {
 } from '@qv/schema';
 import type {
   ApiError,
+  CardChanges,
   CardDetail,
   Catalog,
   Note,
+  PublishResult,
   QuizDetail,
   QuizIndex,
+  ReleaseLog,
+  ReleaseMarks,
+  ReleaseMediaPage,
+  RevertResult,
   SearchResponse,
   SiteSettings,
   ThumbSignature,
   UnpublishedLog,
+  UsageOpenAck,
   UsageReport,
 } from '@qv/schema';
+import {
+  API_PREFIX,
+  API_ROUTES as R,
+  AcceptsGzip,
+  CardChangesQuery,
+  CardIndexParams,
+  CardParams,
+  MediaKey,
+  MediaQuery,
+  PREVIEW_HEADER,
+  PREVIEW_VALUE,
+  PreviewRequest,
+  QuizzesQuery,
+  ReleaseItemsQuery,
+  ReleaseMarkRequest,
+  ReleasePageQuery,
+  SearchQuery,
+  UsageOpenBody,
+} from '@qv/schema/http';
+import type { ErrorCode, Health } from '@qv/schema/http';
 import type { AccessChecker } from './access';
 import type { AdminChecker } from './admin';
-import type { DeepHealth } from './health';
+import type { DeepHealth, DeepHealthResult } from './health';
 import { isValidKey } from './media';
 import type { MediaStore, MediaSigner } from './media';
 import type {
@@ -73,15 +96,12 @@ export interface Dependencies {
 
 type AppEnv = { Variables: { user: User; token: string; repository: ContentRepository } };
 
-export const PREVIEW_HEADER = 'X-QV-Preview';
-export const PREVIEW_VALUE = 'draft';
-
-const apiError = (code: string, message: string): ApiError => ({ error: code, message });
+const apiError = (code: ErrorCode, message: string): ApiError => ({ error: code, message });
 const JSON_TYPE = { 'Content-Type': 'application/json; charset=UTF-8' };
 /** Short, so that an image taken off the site stops showing soon. */
 const MEDIA_MAX_AGE = 600;
 
-type Refusal = { status: 400 | 409 | 422; code: string; message: string; named?: boolean };
+type Refusal = { status: 400 | 409 | 422; code: ErrorCode; message: string; named?: boolean };
 
 const PUBLISH_REFUSALS: Record<string, Refusal> = {
   fingerprint: {
@@ -162,7 +182,7 @@ const refusalMessage = (refusal: Refusal, detail: string | null) =>
 
 export function createApp(deps: Dependencies) {
   const now = deps.now ?? (() => Math.floor(Date.now() / 1000));
-  const app = new Hono<AppEnv>().basePath('/api');
+  const app = new Hono<AppEnv>().basePath(API_PREFIX);
 
   app.use('*', secureHeaders({ crossOriginResourcePolicy: 'same-origin' }));
 
@@ -233,7 +253,7 @@ export function createApp(deps: Dependencies) {
     c.header('Vary', `Authorization, ${PREVIEW_HEADER}`);
     let repository = deps.repository;
     if (
-      c.req.header(PREVIEW_HEADER) === PREVIEW_VALUE &&
+      PreviewRequest.safeParse(c.req.header(PREVIEW_HEADER)).success &&
       deps.preview &&
       deps.admins &&
       (await deps.admins.isAdmin(token!))
@@ -306,22 +326,25 @@ export function createApp(deps: Dependencies) {
     }
   };
 
-  app.get('/health', (c) =>
-    c.json(deps.version ? { ok: true, version: deps.version } : { ok: true }),
+  app.get(R.health.pattern, (c) =>
+    c.json((deps.version ? { ok: true, version: deps.version } : { ok: true }) satisfies Health),
   );
 
   if (deps.deepHealth) {
     const deep = deps.deepHealth;
-    app.get('/health/deep', async (c) => {
+    app.get(R.deepHealth.pattern, async (c) => {
       const result = await deep.run();
       c.header('Cache-Control', 'no-store');
-      return c.json({ ok: result.ok, checks: result.checks }, result.ok ? 200 : 503);
+      return c.json(
+        { ok: result.ok, checks: result.checks } satisfies DeepHealthResult,
+        result.ok ? 200 : 503,
+      );
     });
   }
 
-  app.get('/me', requireSession, (c) => c.json(c.get('user')));
+  app.get(R.me.pattern, requireSession, (c) => c.json(c.get('user') satisfies User));
 
-  app.get('/catalog', requireSession, async (c) => {
+  app.get(R.catalog.pattern, requireSession, async (c) => {
     const [catalog, settings] = await Promise.all([
       c.get('repository').catalog(),
       settingsOrDefault(),
@@ -331,7 +354,7 @@ export function createApp(deps: Dependencies) {
     );
   });
 
-  app.get('/notes/:slug', requireSession, async (c) => {
+  app.get(R.note.pattern, requireSession, async (c) => {
     const slug = Slug.safeParse(c.req.param('slug'));
     if (!slug.success) return c.json(apiError('invalid_slug', 'Ese apunte no existe.'), 400);
     const note = await c.get('repository').note(slug.data);
@@ -340,18 +363,17 @@ export function createApp(deps: Dependencies) {
     return c.json({ ...note, html } satisfies Note);
   });
 
-  app.get('/search', requireSession, async (c) => {
-    const query = (c.req.query('q') ?? '').trim().slice(0, 200);
-    const limit = Math.min(
-      50,
-      Math.max(1, Number.parseInt(c.req.query('limit') ?? '20', 10) || 20),
-    );
+  app.get(R.search.pattern, requireSession, async (c) => {
+    const { q: query, limit } = SearchQuery.parse({
+      q: c.req.query('q'),
+      limit: c.req.query('limit'),
+    });
     const results = query.length < 2 ? [] : await c.get('repository').search(query, limit);
     return c.json({ query, results } satisfies SearchResponse);
   });
 
   // Passed through unparsed (the web validates it): from the root it is every card, too big to parse in a Worker.
-  app.get('/decks/:id', requireSession, async (c) => {
+  app.get(R.deck.pattern, requireSession, async (c) => {
     const id = DeckId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_deck', 'Ese mazo no existe.'), 400);
     const deck = await c.get('repository').deckJson(id.data);
@@ -359,16 +381,14 @@ export function createApp(deps: Dependencies) {
     return c.body(deck, 200, JSON_TYPE);
   });
 
-  app.get('/anki/notes', requireSession, async (c) => {
+  app.get(R.ankiNotes.pattern, requireSession, async (c) => {
     return c.body(await c.get('repository').browseJson(), 200, JSON_TYPE);
   });
 
-  app.get('/anki/index/:course/:assessment/:hash', requireSession, async (c) => {
-    const { course, assessment, hash } = c.req.param();
-    const segment = /^[a-z0-9-]{1,80}$/;
-    if (!segment.test(course) || !segment.test(assessment) || !/^[0-9a-f]{32}$/.test(hash)) {
-      return c.json(apiError('invalid_index', 'Ese índice no existe.'), 400);
-    }
+  app.get(R.cardIndex.pattern, requireSession, async (c) => {
+    const params = CardIndexParams.safeParse(c.req.param());
+    if (!params.success) return c.json(apiError('invalid_index', 'Ese índice no existe.'), 400);
+    const { course, assessment, hash } = params.data;
     const object = await deps.media.get(cardIndexKey(`${course}/${assessment}`, hash));
     if (!object) {
       return c.json(
@@ -389,7 +409,7 @@ export function createApp(deps: Dependencies) {
       object.body instanceof ReadableStream
         ? object.body
         : new Response(object.body as BodyInit).body!;
-    if (/\bgzip\b/i.test(c.req.header('Accept-Encoding') ?? '')) {
+    if (AcceptsGzip.safeParse(c.req.header('Accept-Encoding') ?? '').success) {
       headers.set('Content-Encoding', 'gzip');
       // Without `encodeBody: 'manual'`, Cloudflare would compress the already gzipped body again.
       return new Response(body, { headers, encodeBody: 'manual' } as ResponseInit);
@@ -397,30 +417,29 @@ export function createApp(deps: Dependencies) {
     return new Response(body.pipeThrough(new DecompressionStream('gzip')), { headers });
   });
 
-  app.get('/anki/thumbs', requireSession, async (c) => {
+  app.get(R.thumbs.pattern, requireSession, async (c) => {
     const { expires, query } = await deps.signer.prefixQuery(THUMB_PREFIX, now());
     c.header('Cache-Control', `private, max-age=${MEDIA_MAX_AGE}`);
     return c.json({ prefix: THUMB_PREFIX, expires, query } satisfies ThumbSignature);
   });
 
-  app.get('/anki/card-changes', requireSession, async (c) => {
-    const since = c.req.query('since') ?? '0';
-    if (!/^\d{1,15}$/.test(since)) {
+  app.get(R.cardChanges.pattern, requireSession, async (c) => {
+    const query = CardChangesQuery.safeParse({ since: c.req.query('since') ?? '0' });
+    if (!query.success) {
       return c.json(apiError('invalid_since', 'Ese punto de partida no existe.'), 400);
     }
     // Always the published changes, also in the preview: the draft numbers its own from the same point, so they would
     // move the student's cursor past changes the site has not made yet.
-    return c.json(await deps.repository.cardChanges(Number(since), 2000));
+    return c.json(
+      (await deps.repository.cardChanges(Number(query.data.since), 2000)) satisfies CardChanges,
+    );
   });
 
   // Anki's guid is base91 and may have «/», «%» or «?»: the web sends it with encodeURIComponent.
-  app.get('/cards/:noteGuid/:ord', requireSession, async (c) => {
-    const guid = NoteGuid.safeParse(c.req.param('noteGuid'));
-    const ord = c.req.param('ord');
-    if (!guid.success || !/^\d{1,4}$/.test(ord)) {
-      return c.json(apiError('invalid_card', 'Esa tarjeta no existe.'), 400);
-    }
-    const card = await c.get('repository').card(guid.data, Number(ord));
+  app.get(R.card.pattern, requireSession, async (c) => {
+    const params = CardParams.safeParse(c.req.param());
+    if (!params.success) return c.json(apiError('invalid_card', 'Esa tarjeta no existe.'), 400);
+    const card = await c.get('repository').card(params.data.noteGuid, Number(params.data.ord));
     if (!card) return c.json(apiError('not_found', 'Esa tarjeta no existe.'), 404);
     const [front, back] = await Promise.all([
       deps.signer.signHtml(card.front, now()),
@@ -429,9 +448,11 @@ export function createApp(deps: Dependencies) {
     return c.json({ ...card, front, back } satisfies CardDetail);
   });
 
-  app.get('/quizzes', requireSession, async (c) => {
-    const course = c.req.query('course');
-    const assessment = c.req.query('assessment');
+  app.get(R.quizzes.pattern, requireSession, async (c) => {
+    const { course, assessment } = QuizzesQuery.parse({
+      course: c.req.query('course'),
+      assessment: c.req.query('assessment'),
+    });
     const quizzes = (await c.get('repository').quizzes())
       .filter(
         (q) => (!course || q.courseId === course) && (!assessment || q.assessmentId === assessment),
@@ -440,7 +461,7 @@ export function createApp(deps: Dependencies) {
     return c.json({ quizzes } satisfies QuizIndex);
   });
 
-  app.get('/quizzes/:id', requireSession, async (c) => {
+  app.get(R.quiz.pattern, requireSession, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_quiz', 'Ese test no existe.'), 400);
     const quiz = await c.get('repository').quiz(id.data);
@@ -449,7 +470,7 @@ export function createApp(deps: Dependencies) {
   });
 
   // Not parsed (about a megabyte with its SVG figures): the photos are signed on the text.
-  app.get('/quizzes/:id/sections/:sectionId', requireSession, async (c) => {
+  app.get(R.quizSection.pattern, requireSession, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     const section = QuizSectionId.safeParse(c.req.param('sectionId'));
     if (!id.success || !section.success) {
@@ -461,11 +482,11 @@ export function createApp(deps: Dependencies) {
     return c.body(await deps.signer.signJsonMedia(text, now()), 200, JSON_TYPE);
   });
 
-  app.get('/admin/site-settings', requireSession, requireSettingsAdmin, async (c) => {
+  app.get(R.siteSettings.pattern, requireSession, requireSettingsAdmin, async (c) => {
     return c.json((await deps.settings!.get()) satisfies SiteSettings);
   });
 
-  app.put('/admin/site-settings', requireSession, requireSettingsAdmin, async (c) => {
+  app.put(R.setSiteSettings.pattern, requireSession, requireSettingsAdmin, async (c) => {
     const body = SiteSettingsUpdate.safeParse(await c.req.json().catch(() => null));
     if (!body.success) {
       return c.json(apiError('invalid_settings', 'Esos ajustes no son válidos.'), 400);
@@ -475,7 +496,7 @@ export function createApp(deps: Dependencies) {
   });
 
   // At most 40 images are asked to the store: each is a subrequest, and a Worker has a limit of them.
-  app.get('/admin/unpublished', requireSession, requireUnpublishedAdmin, async (c) => {
+  app.get(R.unpublished.pattern, requireSession, requireUnpublishedAdmin, async (c) => {
     const log = await deps.unpublished!.log();
     const keys = [
       ...new Set(log.entries.filter((e) => e.kind === 'image').map((e) => e.itemId)),
@@ -522,20 +543,13 @@ export function createApp(deps: Dependencies) {
     return ids;
   };
 
-  app.post('/usage/open', requireSession, async (c) => {
+  app.post(R.usageOpen.pattern, requireSession, async (c) => {
     c.header('Cache-Control', 'no-store');
-    const text = await c.req.text().catch(() => '');
-    let body: unknown;
-    try {
-      body = text.length <= 512 ? JSON.parse(text) : null;
-    } catch {
-      body = null;
-    }
-    const open = UsageOpenRequest.safeParse(body);
+    const open = UsageOpenBody.safeParse(await c.req.text().catch(() => ''));
     if (!open.success) return c.json(apiError('invalid_open', 'Eso no se puede contar.'), 400);
     const o = open.data;
     if (!deps.usageEvents || c.get('repository') !== deps.repository)
-      return c.json({ ok: true as const });
+      return c.json({ ok: true as const } satisfies UsageOpenAck);
     if (o.kind !== 'search') {
       let known: Set<string>;
       try {
@@ -560,13 +574,13 @@ export function createApp(deps: Dependencies) {
             path: `/api/${o.kind === 'note' ? 'notes' : o.kind === 'deck' ? 'decks' : 'quizzes'}/${o.id}`,
           },
     );
-    return c.json({ ok: true as const });
+    return c.json({ ok: true as const } satisfies UsageOpenAck);
   });
 
   let usageKept: { until: number; report: UsageReport } | null = null;
-  app.get('/admin/usage', requireSession, requireUsageAdmin, async (c) => {
+  app.get(R.usage.pattern, requireSession, requireUsageAdmin, async (c) => {
     const t = now();
-    if (usageKept && usageKept.until > t) return c.json(usageKept.report);
+    if (usageKept && usageKept.until > t) return c.json(usageKept.report satisfies UsageReport);
     const catalog = await deps.repository.catalog();
     const readOpens = async () => {
       if (!deps.usageOpens) return { status: 'not_configured' as const };
@@ -596,10 +610,10 @@ export function createApp(deps: Dependencies) {
     }
     const report = usageReport(statsResult.s, opens);
     usageKept = { until: t + (deps.usageTtl ?? 60), report };
-    return c.json(report);
+    return c.json(report satisfies UsageReport);
   });
 
-  app.get('/admin/release', requireSession, requireAdmin, async (c) => {
+  app.get(R.release.pattern, requireSession, requireAdmin, async (c) => {
     const [summary, indexes] = await Promise.all([
       deps.releases!.summaryJson(),
       deps.releases!.browseIndexesJson(),
@@ -613,34 +627,33 @@ export function createApp(deps: Dependencies) {
     );
   });
 
-  app.get('/admin/release/items', requireSession, requireAdmin, async (c) => {
-    const kind = ReleaseItemKind.safeParse(c.req.query('kind'));
-    const assessment = c.req.query('assessment') ?? '';
-    const after = c.req.query('after') ?? null;
-    if (
-      !kind.success ||
-      !/^[a-z0-9-]+\/[a-z0-9-]+$/.test(assessment) ||
-      (after?.length ?? 0) > 200
-    ) {
+  app.get(R.releaseItems.pattern, requireSession, requireAdmin, async (c) => {
+    const query = ReleaseItemsQuery.safeParse({
+      kind: c.req.query('kind'),
+      assessment: c.req.query('assessment'),
+      after: c.req.query('after'),
+    });
+    if (!query.success) {
       return c.json(apiError('invalid_release', 'Esa parte de la publicación no existe.'), 400);
     }
-    return c.body(await deps.releases!.itemsJson(assessment, kind.data, after), 200, JSON_TYPE);
+    const { assessment, kind, after } = query.data;
+    return c.body(await deps.releases!.itemsJson(assessment, kind, after ?? null), 200, JSON_TYPE);
   });
 
-  app.get('/admin/release/texts', requireSession, requireAdmin, async (c) => {
-    const after = c.req.query('after') ?? null;
-    if ((after?.length ?? 0) > 300) {
+  app.get(R.releaseTexts.pattern, requireSession, requireAdmin, async (c) => {
+    const query = ReleasePageQuery.safeParse({ after: c.req.query('after') });
+    if (!query.success) {
       return c.json(apiError('invalid_release', 'Esa parte de la publicación no existe.'), 400);
     }
-    return c.body(await deps.releases!.textsJson(after), 200, JSON_TYPE);
+    return c.body(await deps.releases!.textsJson(query.data.after ?? null), 200, JSON_TYPE);
   });
 
-  app.get('/admin/release/media', requireSession, requireAdmin, async (c) => {
-    const after = c.req.query('after') ?? null;
-    if ((after?.length ?? 0) > 300) {
+  app.get(R.releaseMedia.pattern, requireSession, requireAdmin, async (c) => {
+    const query = ReleasePageQuery.safeParse({ after: c.req.query('after') });
+    if (!query.success) {
       return c.json(apiError('invalid_release', 'Esa parte de la publicación no existe.'), 400);
     }
-    const page = await deps.releases!.media(after, 40);
+    const page = await deps.releases!.media(query.data.after ?? null, 40);
     const missing: string[] = [];
     for (const key of page.keys) {
       const there = !isValidKey(key)
@@ -650,41 +663,25 @@ export function createApp(deps: Dependencies) {
           : await deps.media.get(key).then((o) => o !== null);
       if (!there) missing.push(key);
     }
-    return c.json({ checked: page.keys, missing, next: page.next });
+    return c.json({ checked: page.keys, missing, next: page.next } satisfies ReleaseMediaPage);
   });
 
-  app.put('/admin/release/marks', requireSession, requireAdmin, async (c) => {
-    const body = (await c.req.json().catch(() => null)) as {
-      fingerprint?: unknown;
-      mark?: unknown;
-      checked?: unknown;
-    } | null;
-    const mark = ReleaseMarkId.safeParse(body?.mark);
-    if (
-      !mark.success ||
-      typeof body?.fingerprint !== 'string' ||
-      !/^[0-9a-f]{32}$/.test(body.fingerprint) ||
-      typeof body.checked !== 'boolean'
-    ) {
-      return c.json(apiError('invalid_mark', 'Esa marca no existe.'), 400);
-    }
-    const marks = await deps.releases!.setMark(
-      body.fingerprint,
-      mark.data,
-      body.checked,
-      c.get('user').email,
-    );
+  app.put(R.releaseMarks.pattern, requireSession, requireAdmin, async (c) => {
+    const body = ReleaseMarkRequest.safeParse(await c.req.json().catch(() => null));
+    if (!body.success) return c.json(apiError('invalid_mark', 'Esa marca no existe.'), 400);
+    const { fingerprint, mark, checked } = body.data;
+    const marks = await deps.releases!.setMark(fingerprint, mark, checked, c.get('user').email);
     if (marks === 'stale') {
       return c.json(
         apiError('release_changed', 'El borrador cambió: revisa de nuevo lo que trae.'),
         409,
       );
     }
-    return c.json({ marks });
+    return c.json({ marks } satisfies ReleaseMarks);
   });
 
   // The database checks again the fingerprint, the marks, the content version and the review list, in one transaction.
-  app.post('/admin/release/publish', requireSession, requireAdmin, async (c) => {
+  app.post(R.publishRelease.pattern, requireSession, requireAdmin, async (c) => {
     const body = PublishRequest.safeParse(await c.req.json().catch(() => null));
     if (!body.success) {
       return c.json(apiError('invalid_release', 'Esa publicación no es válida.'), 400);
@@ -696,33 +693,36 @@ export function createApp(deps: Dependencies) {
       marks: [],
       by: c.get('user').email,
     });
-    if (r.ok) return c.json(r.result);
+    if (r.ok) return c.json(r.result satisfies PublishResult);
     const refusal = PUBLISH_REFUSALS[r.reason] ?? PUBLISH_REFUSALS.invalid!;
     return c.json(apiError(refusal.code, refusalMessage(refusal, r.detail)), refusal.status);
   });
 
-  app.post('/admin/release/revert', requireSession, requireAdmin, async (c) => {
+  app.post(R.revertRelease.pattern, requireSession, requireAdmin, async (c) => {
     const body = RevertRequest.safeParse(await c.req.json().catch(() => null));
     if (!body.success) {
       return c.json(apiError('invalid_release', 'Esa publicación no existe.'), 400);
     }
     const r = await deps.releases!.revert(body.data.id, c.get('user').email);
-    if (r.ok) return c.json(r.result);
+    if (r.ok) return c.json(r.result satisfies RevertResult);
     const refusal = REVERT_REFUSALS[r.reason] ?? REVERT_REFUSALS.invalid!;
     return c.json(apiError(refusal.code, refusalMessage(refusal, r.detail)), refusal.status);
   });
 
-  app.get('/admin/releases', requireSession, requireAdmin, async (c) => {
-    return c.json(await deps.releases!.log());
+  app.get(R.releaseLog.pattern, requireSession, requireAdmin, async (c) => {
+    return c.json((await deps.releases!.log()) satisfies ReleaseLog);
   });
 
   // No session: the URL signature authorizes it.
-  app.get('/media/:key{.+}', async (c) => {
-    const key = c.req.param('key');
-    if (!isValidKey(key)) return c.json(apiError('invalid_key', 'Imagen inválida.'), 400);
-    const expires = Number(c.req.query('e'));
-    const signature = c.req.query('s') ?? '';
-    const prefix = c.req.query('p');
+  app.get(R.media.pattern, async (c) => {
+    const parsed = MediaKey.safeParse(c.req.param('key'));
+    if (!parsed.success) return c.json(apiError('invalid_key', 'Imagen inválida.'), 400);
+    const key = parsed.data;
+    const {
+      e: expires,
+      s: signature,
+      p: prefix,
+    } = MediaQuery.parse({ e: c.req.query('e'), s: c.req.query('s'), p: c.req.query('p') });
     const valid =
       prefix === undefined
         ? await deps.signer.isValid(key, expires, signature, now())

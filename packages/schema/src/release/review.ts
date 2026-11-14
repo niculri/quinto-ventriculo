@@ -83,7 +83,7 @@ export interface ReviewList {
   empty: boolean;
 }
 
-export interface ReviewInput {
+export interface ReleaseReviewInput {
   summary: ReleaseSummary;
   browseIndexes?: readonly unknown[];
   supportedSchemaVersion: number;
@@ -353,7 +353,7 @@ const detail = (f: ReleaseFinding, k: string) => {
   return typeof v === 'string' || typeof v === 'number' ? String(v) : null;
 };
 
-export function buildReview(input: ReviewInput): ReviewList {
+export function buildReview(input: ReleaseReviewInput): ReviewList {
   const { summary: s } = input;
   const items = new Map<CheckRule, CheckItem[]>(CHECK_RULES.map((r) => [r.rule, []]));
   const add = (rule: CheckRule, item: CheckItem) => items.get(rule)!.push(item);

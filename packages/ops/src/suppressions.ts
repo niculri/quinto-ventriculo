@@ -77,7 +77,8 @@ export interface RatchetResult {
   lines: string[];
 }
 
-// Without a suppressions file in the base, only the inline directives are compared; rules in `newRules` do not count.
+// Without a suppressions file in the base, only the inline directives are compared. A rule in `newRules` may start
+// with entries in the suppressions file, but never with an inline directive.
 export function checkRatchet(
   current: Snapshot,
   base: Snapshot,
@@ -92,7 +93,11 @@ export function checkRatchet(
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([rule, count]) => `${rule}: ${count}`);
   const grown = [...now.all]
-    .filter(([rule, count]) => !newRules.has(rule) && count > (before.all.get(rule) ?? 0))
+    .filter(([rule, count]) =>
+      newRules.has(rule)
+        ? (now.inline.get(rule) ?? 0) > (before.inline.get(rule) ?? 0)
+        : count > (before.all.get(rule) ?? 0),
+    )
     .sort(([a], [b]) => a.localeCompare(b))
     .map(
       ([rule, count]) =>

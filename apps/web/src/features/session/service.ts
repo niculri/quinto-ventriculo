@@ -28,7 +28,8 @@ export const NEXT_KEY = 'qv-next';
 
 function toSession(s: SupabaseSession | null): Session | null {
   if (!s) return null;
-  const m = s.user.user_metadata as Record<string, unknown>;
+  // Auth's metadata is typed `any`: read as `unknown`, each field is checked before use.
+  const m: Record<string, unknown> = s.user.user_metadata;
   const text = (v: unknown) => (typeof v === 'string' && v ? v : null);
   return {
     token: s.access_token,

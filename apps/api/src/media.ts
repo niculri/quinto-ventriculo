@@ -1,5 +1,6 @@
 // Private images served by signed URLs that expire, so a copied link stops working. An <img> tag cannot send the
 // session token, which is why the URL is signed instead of asking for the header.
+import { MediaKey, apiPaths } from '@qv/schema/http';
 
 interface MediaObject {
   body: ReadableStream | ArrayBuffer | Uint8Array;
@@ -12,14 +13,13 @@ export interface MediaStore {
   has?(key: string): Promise<boolean>;
 }
 
-const KEY_RE = /^[a-z0-9]+(?:\/[a-z0-9._-]+)+$/;
 const HOUR = 3600;
 
 /** The only prefixes one signature may open: the card browser's thumbnails, hundreds in a list. */
 const SIGNED_PREFIXES: readonly string[] = ['cards/thumb/'];
 
 export function isValidKey(key: string): boolean {
-  return KEY_RE.test(key) && !key.includes('..');
+  return MediaKey.safeParse(key).success;
 }
 
 /** Rounded to the next hour plus one, so that for an hour an image keeps its URL and the browser reuses its cache. */
@@ -87,7 +87,7 @@ export class MediaSigner {
 
   async url(key: string, nowSec: number): Promise<string> {
     const expires = expiry(nowSec);
-    return `/api/media/${key}?e=${expires}&s=${await this.sign(key, expires)}`;
+    return `${apiPaths.media(key)}?e=${expires}&s=${await this.sign(key, expires)}`;
   }
 
   async signHtml(html: string, nowSec: number): Promise<string> {

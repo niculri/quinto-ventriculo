@@ -19,7 +19,7 @@ import {
   similarity,
   wordDiff,
 } from './review';
-import type { CheckRule, ReviewInput } from './review';
+import type { CheckRule, ReleaseReviewInput } from './review';
 
 const FP = 'a'.repeat(32);
 const assessment = (o: Partial<ReleaseAssessment> = {}): ReleaseAssessment => ({
@@ -66,7 +66,7 @@ const finding = (rule: string, key: string, detail: Record<string, unknown>): Re
   key,
   detail,
 });
-const review = (o: Partial<ReviewInput> = {}) =>
+const review = (o: Partial<ReleaseReviewInput> = {}) =>
   buildReview({
     summary: summary(),
     supportedSchemaVersion: 1,

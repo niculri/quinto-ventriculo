@@ -1,4 +1,5 @@
 // The Cloudflare Worker: builds the API from its bindings for /api and serves the web's static files otherwise.
+import { API_PREFIX } from '@qv/schema/http';
 import { accessUnavailable, supabaseAccessChecker } from './access';
 import { noAdmins, supabaseAdminChecker } from './admin';
 import { createApp } from './app';
@@ -126,7 +127,7 @@ function getApp(env: Env, origin: string) {
 export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
-    if (pathname === '/api' || pathname.startsWith('/api/')) {
+    if (pathname === API_PREFIX || pathname.startsWith(`${API_PREFIX}/`)) {
       return getApp(env, new URL(request.url).origin).fetch(request, env, ctx);
     }
     // Normally a static file does not even get here: see run_worker_first in wrangler.jsonc.

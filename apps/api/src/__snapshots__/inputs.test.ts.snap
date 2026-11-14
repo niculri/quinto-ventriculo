@@ -1,0 +1,2605 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the answer to each input stays the same > Authorization 1`] = `
+{
+  "basic": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "bearer": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "empty": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "leadingSpace": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "lowercase": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "missing": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "noSpace": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "onlyScheme": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "schemeAndSpace": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "tab": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "trailingSpace": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "twoSpaces": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "twoWords": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "unknownToken": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "uppercase": {
+    "body": {
+      "email": "user-token@ug.uchile.cl",
+      "id": "user-token",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > X-QV-Preview 1`] = `
+{
+  "capitalized": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "draft": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Borrador</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Borrador",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+      "x-qv-preview": "draft",
+    },
+    "status": 200,
+  },
+  "empty": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "lowercaseName": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Borrador</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Borrador",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+      "x-qv-preview": "draft",
+    },
+    "status": 200,
+  },
+  "missing": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "one": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "plural": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "spaces": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Borrador</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Borrador",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+      "x-qv-preview": "draft",
+    },
+    "status": 200,
+  },
+  "student": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "uppercase": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > images 1`] = `
+{
+  "badExpiry": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+  "decimalExpiry": {
+    "body": "",
+    "calls": [
+      [
+        "media.get",
+        "cards/hay.webp",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600, immutable",
+    },
+    "status": 200,
+  },
+  "dotsKey": {
+    "body": {
+      "error": "invalid_key",
+      "message": "Imagen inválida.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 400,
+  },
+  "emptyExpiry": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+  "emptyPrefix": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+  "missingImage": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+  "oneSegment": {
+    "body": {
+      "error": "invalid_key",
+      "message": "Imagen inválida.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 400,
+  },
+  "otherPrefix": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+  "prefix": {
+    "body": {
+      "error": "not_found",
+      "message": "No existe esa imagen.",
+    },
+    "calls": [
+      [
+        "media.get",
+        "cards/thumb/0123456789abcdef0123456789abcdef.webp",
+      ],
+    ],
+    "headers": {},
+    "status": 404,
+  },
+  "signed": {
+    "body": "",
+    "calls": [
+      [
+        "media.get",
+        "cards/hay.webp",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600, immutable",
+    },
+    "status": 200,
+  },
+  "uppercaseKey": {
+    "body": {
+      "error": "invalid_key",
+      "message": "Imagen inválida.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 400,
+  },
+  "withoutQuery": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+  "withoutSignature": {
+    "body": {
+      "error": "link_expired",
+      "message": "El enlace de la imagen venció: recarga la página.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 403,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > notes, decks and tests by id 1`] = `
+{
+  "deck": {
+    "body": {
+      "deck": 1,
+    },
+    "calls": [
+      [
+        "deckJson",
+        "1",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "deck20": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [
+      [
+        "deckJson",
+        "99999999999999999999",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "deck21": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "deckDecimal": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "deckEncoded": {
+    "body": {
+      "deck": 1,
+    },
+    "calls": [
+      [
+        "deckJson",
+        "1",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "deckLetters": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "deckMissing": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [
+      [
+        "deckJson",
+        "0",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "deckNegative": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "note": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "noteAccent": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "noteDoubleDash": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "noteEmpty": {
+    "body": {
+      "error": "not_found",
+      "message": "No existe esa ruta.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 404,
+  },
+  "noteEncoded": {
+    "body": {
+      "assessmentId": "curso/certamen-2",
+      "courseId": "curso",
+      "html": "<p>Publicado</p>",
+      "id": "AP-X-01",
+      "kind": "lecture",
+      "position": 1,
+      "slug": "a-b",
+      "sources": [],
+      "title": "Publicado",
+      "toc": [],
+      "updatedAt": "2026-10-31T12:00:00.000Z",
+    },
+    "calls": [
+      [
+        "note",
+        "a-b",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "noteLeadingDash": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "noteLong": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [
+      [
+        "note",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "noteMissing": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [
+      [
+        "note",
+        "zz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "noteSlash": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "noteSpace": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "noteTrailingDash": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "noteUppercase": {
+    "body": {
+      "error": "invalid_slug",
+      "message": "Ese apunte no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "quiz": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese test no existe.",
+    },
+    "calls": [
+      [
+        "quiz",
+        "practica",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "quizSpace": {
+    "body": {
+      "error": "invalid_quiz",
+      "message": "Ese test no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "quizUppercase": {
+    "body": {
+      "error": "invalid_quiz",
+      "message": "Ese test no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "section": {
+    "body": {
+      "error": "not_found",
+      "message": "Esa sección del test no existe.",
+    },
+    "calls": [
+      [
+        "quizSectionJson",
+        "practica",
+        "pautas",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "sectionBad": {
+    "body": {
+      "error": "invalid_quiz",
+      "message": "Esa sección del test no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "sectionQuizBad": {
+    "body": {
+      "error": "invalid_quiz",
+      "message": "Esa sección del test no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > search and the list of tests 1`] = `
+{
+  "limitBig": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        50,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitDecimal": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        3,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitEmpty": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        20,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitExponent": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        1,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitNegative": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        1,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitSpace": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        7,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitText": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        20,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "limitZero": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        20,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "long": {
+    "body": {
+      "query": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        20,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "none": {
+    "body": {
+      "query": "",
+      "results": [],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "quizzes": {
+    "body": {
+      "quizzes": [
+        {
+          "assessmentId": "a/c2",
+          "courseId": "a",
+          "id": "q2",
+          "position": 1,
+        },
+        {
+          "assessmentId": "a/c1",
+          "courseId": "a",
+          "id": "q1",
+          "position": 2,
+        },
+        {
+          "assessmentId": "b/c1",
+          "courseId": "b",
+          "id": "q3",
+          "position": 1,
+        },
+      ],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "quizzesBoth": {
+    "body": {
+      "quizzes": [
+        {
+          "assessmentId": "a/c2",
+          "courseId": "a",
+          "id": "q2",
+          "position": 1,
+        },
+      ],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "quizzesCourse": {
+    "body": {
+      "quizzes": [
+        {
+          "assessmentId": "a/c2",
+          "courseId": "a",
+          "id": "q2",
+          "position": 1,
+        },
+        {
+          "assessmentId": "a/c1",
+          "courseId": "a",
+          "id": "q1",
+          "position": 2,
+        },
+      ],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "quizzesEmpty": {
+    "body": {
+      "quizzes": [
+        {
+          "assessmentId": "a/c2",
+          "courseId": "a",
+          "id": "q2",
+          "position": 1,
+        },
+        {
+          "assessmentId": "a/c1",
+          "courseId": "a",
+          "id": "q1",
+          "position": 2,
+        },
+        {
+          "assessmentId": "b/c1",
+          "courseId": "b",
+          "id": "q3",
+          "position": 1,
+        },
+      ],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "quizzesOther": {
+    "body": {
+      "quizzes": [],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "short": {
+    "body": {
+      "query": "a",
+      "results": [],
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "spaces": {
+    "body": {
+      "query": "ab",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "ab",
+        20,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "twice": {
+    "body": {
+      "query": "uno",
+      "results": [],
+    },
+    "calls": [
+      [
+        "search",
+        "uno",
+        20,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > the cards: index, changes, a card 1`] = `
+{
+  "card": {
+    "body": {
+      "error": "not_found",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [
+      [
+        "card",
+        "abc",
+        0,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "card10000": {
+    "body": {
+      "error": "invalid_card",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "card9999": {
+    "body": {
+      "error": "not_found",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [
+      [
+        "card",
+        "abc",
+        9999,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "cardGuid64": {
+    "body": {
+      "error": "not_found",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [
+      [
+        "card",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        1,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "cardGuid65": {
+    "body": {
+      "error": "invalid_card",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "cardGuidAccent": {
+    "body": {
+      "error": "invalid_card",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "cardGuidEncoded": {
+    "body": {
+      "error": "not_found",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [
+      [
+        "card",
+        "a/b%c?d",
+        1,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "cardGuidSpace": {
+    "body": {
+      "error": "invalid_card",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "cardOrdLeadingZero": {
+    "body": {
+      "error": "not_found",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [
+      [
+        "card",
+        "abc",
+        7,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "cardOrdNegative": {
+    "body": {
+      "error": "invalid_card",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "cardOrdText": {
+    "body": {
+      "error": "invalid_card",
+      "message": "Esa tarjeta no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changes": {
+    "body": {
+      "changes": [],
+      "latest": 0,
+      "more": false,
+      "next": 0,
+    },
+    "calls": [
+      [
+        "cardChanges",
+        0,
+        2000,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "changes15": {
+    "body": {
+      "changes": [],
+      "latest": 999999999999999,
+      "more": false,
+      "next": 999999999999999,
+    },
+    "calls": [
+      [
+        "cardChanges",
+        999999999999999,
+        2000,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "changes16": {
+    "body": {
+      "error": "invalid_since",
+      "message": "Ese punto de partida no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changesDecimal": {
+    "body": {
+      "error": "invalid_since",
+      "message": "Ese punto de partida no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changesEmpty": {
+    "body": {
+      "error": "invalid_since",
+      "message": "Ese punto de partida no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changesEncoded": {
+    "body": {
+      "changes": [],
+      "latest": 1,
+      "more": false,
+      "next": 1,
+    },
+    "calls": [
+      [
+        "cardChanges",
+        1,
+        2000,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "changesLeadingZero": {
+    "body": {
+      "changes": [],
+      "latest": 7,
+      "more": false,
+      "next": 7,
+    },
+    "calls": [
+      [
+        "cardChanges",
+        7,
+        2000,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "changesNegative": {
+    "body": {
+      "error": "invalid_since",
+      "message": "Ese punto de partida no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changesSpace": {
+    "body": {
+      "error": "invalid_since",
+      "message": "Ese punto de partida no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changesText": {
+    "body": {
+      "error": "invalid_since",
+      "message": "Ese punto de partida no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "changesZero": {
+    "body": {
+      "changes": [],
+      "latest": 0,
+      "more": false,
+      "next": 0,
+    },
+    "calls": [
+      [
+        "cardChanges",
+        0,
+        2000,
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "index": {
+    "body": "�      �VJN,J)V���� ���   ",
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600",
+      "content-encoding": "gzip",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+    },
+    "status": 200,
+  },
+  "index80": {
+    "body": {
+      "error": "not_found",
+      "message": "Las tarjetas de este certamen cambiaron: recarga la página.",
+    },
+    "calls": [
+      [
+        "media.get",
+        "browse/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/c/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "index81": {
+    "body": {
+      "error": "invalid_index",
+      "message": "Ese índice no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "indexEncoded": {
+    "body": "�      �VJN,J)V���� ���   ",
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600",
+      "content-encoding": "gzip",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+    },
+    "status": 200,
+  },
+  "indexGzipUppercase": {
+    "body": "�      �VJN,J)V���� ���   ",
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600",
+      "content-encoding": "gzip",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+    },
+    "status": 200,
+  },
+  "indexGzipped": {
+    "body": {
+      "cards": [],
+    },
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+    },
+    "status": 200,
+  },
+  "indexHash31": {
+    "body": {
+      "error": "invalid_index",
+      "message": "Ese índice no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "indexHash33": {
+    "body": {
+      "error": "invalid_index",
+      "message": "Ese índice no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "indexHashUppercase": {
+    "body": {
+      "error": "invalid_index",
+      "message": "Ese índice no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "indexMissing": {
+    "body": {
+      "error": "not_found",
+      "message": "Las tarjetas de este certamen cambiaron: recarga la página.",
+    },
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-1/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "indexPlain": {
+    "body": {
+      "cards": [],
+    },
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+    },
+    "status": 200,
+  },
+  "indexPreview": {
+    "body": "�      �VJN,J)V���� ���   ",
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "content-encoding": "gzip",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+      "x-qv-preview": "draft",
+    },
+    "status": 200,
+  },
+  "indexUnderscore": {
+    "body": {
+      "error": "invalid_index",
+      "message": "Ese índice no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "indexUppercase": {
+    "body": {
+      "error": "invalid_index",
+      "message": "Ese índice no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "private, max-age=60",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "indexXGzip": {
+    "body": "�      �VJN,J)V���� ���   ",
+    "calls": [
+      [
+        "media.get",
+        "browse/curso/certamen-2/0123456789abcdef0123456789abcdef.json.gz",
+      ],
+    ],
+    "headers": {
+      "cache-control": "private, max-age=600",
+      "content-encoding": "gzip",
+      "vary": "Authorization, X-QV-Preview, Accept-Encoding",
+    },
+    "status": 200,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > the release panel 1`] = `
+{
+  "items": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "itemsJson",
+        "a/b",
+        "card",
+        null,
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "itemsAfter": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "itemsJson",
+        "a/b",
+        "article",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "itemsAfterEmpty": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "itemsJson",
+        "a/b",
+        "card",
+        "",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "itemsAfterLong": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemsEncoded": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "itemsJson",
+        "a/b",
+        "card",
+        null,
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "itemsKind": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemsNoAssessment": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemsNoKind": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemsOneSegment": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemsThreeSegments": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemsUppercase": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "mark": {
+    "body": {
+      "marks": [],
+    },
+    "calls": [
+      [
+        "setMark",
+        "ffffffffffffffffffffffffffffffff",
+        "phone",
+        true,
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "markArray": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markBroken": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markChecked": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markEmpty": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markExtra": {
+    "body": {
+      "marks": [],
+    },
+    "calls": [
+      [
+        "setMark",
+        "ffffffffffffffffffffffffffffffff",
+        "phone",
+        true,
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "markKind": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markNull": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markNumber": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markShort": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markStale": {
+    "body": {
+      "error": "release_changed",
+      "message": "El borrador cambió: revisa de nuevo lo que trae.",
+    },
+    "calls": [
+      [
+        "setMark",
+        "00000000000000000000000000000000",
+        "answers",
+        false,
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 409,
+  },
+  "markString": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markUppercase": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "markWithout": {
+    "body": {
+      "error": "invalid_mark",
+      "message": "Esa marca no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "media": {
+    "body": {
+      "checked": [],
+      "missing": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "media",
+        null,
+        40,
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "media300": {
+    "body": {
+      "checked": [],
+      "missing": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "media",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        40,
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "media301": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "publishBroken": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no es válida.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "publishEmpty": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no es válida.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "revert": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no existe.",
+    },
+    "calls": [
+      [
+        "revert",
+        3,
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "revertText": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "revertZero": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settings": {
+    "body": {
+      "hideEmptySemesters": true,
+      "updatedAt": "2026-11-14T12:00:00.000Z",
+      "updatedBy": "admin-token@ug.uchile.cl",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "settingsBroken": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Esos ajustes no son válidos.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settingsExtra": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Esos ajustes no son válidos.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settingsText": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Esos ajustes no son válidos.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "student": {
+    "body": {
+      "error": "not_found",
+      "message": "No existe esa ruta.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "texts": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "textsJson",
+        null,
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "texts300": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "textsJson",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "texts301": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa parte de la publicación no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "textsEmpty": {
+    "body": {
+      "items": [],
+      "next": null,
+    },
+    "calls": [
+      [
+        "textsJson",
+        "",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+}
+`;
+
+exports[`the answer to each input stays the same > usage counts 1`] = `
+{
+  "at512": {
+    "body": {
+      "ok": true,
+    },
+    "calls": [
+      [
+        "record",
+        {
+          "kind": "note",
+          "path": "/api/notes/a-b",
+        },
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "at513": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "broken": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "empty": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "extra": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "kind": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "notPublished": {
+    "body": {
+      "error": "not_found",
+      "message": "Eso no está publicado.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "note": {
+    "body": {
+      "ok": true,
+    },
+    "calls": [
+      [
+        "record",
+        {
+          "kind": "note",
+          "path": "/api/notes/a-b",
+        },
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "nullBody": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "preview": {
+    "body": {
+      "ok": true,
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+      "x-qv-preview": "draft",
+    },
+    "status": 200,
+  },
+  "search": {
+    "body": {
+      "ok": true,
+    },
+    "calls": [
+      [
+        "record",
+        {
+          "context": "home",
+          "kind": "search",
+          "path": "/api/search",
+        },
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "searchContext": {
+    "body": {
+      "error": "invalid_open",
+      "message": "Eso no se puede contar.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+}
+`;

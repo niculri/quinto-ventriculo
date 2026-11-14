@@ -5,13 +5,14 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   CONTENT_SCHEMA_VERSION,
   Catalog,
+  PREVIEW_HEADER,
   PublishResult,
   ReleaseLog,
   ReleaseOverview,
 } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { supabaseAdminChecker } from './admin';
-import { PREVIEW_HEADER, createApp } from './app';
+import { createApp } from './app';
 import { MediaSigner } from './media';
 import { memoryRepository } from './repositories/memory';
 import type { PublishInput, ReleaseRepository } from './repository';

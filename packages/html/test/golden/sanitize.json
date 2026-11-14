@@ -536,27 +536,27 @@
       "missing": []
     },
     "style-url-newline": {
-      "html": "<span style=\"background:red\nurl(https://evil.example/x.png)\">x</span>",
+      "html": "<span>x</span>",
       "media": [],
       "missing": []
     },
     "style-url-newline-entity": {
-      "html": "<span style=\"background:red\nurl(https://evil.example/x.png)\">x</span>",
+      "html": "<span>x</span>",
       "media": [],
       "missing": []
     },
     "style-url-carriage-return": {
-      "html": "<span style=\"background:blue\rurl(https://evil.example/y.png)\">x</span>",
+      "html": "<span>x</span>",
       "media": [],
       "missing": []
     },
     "style-url-line-separator": {
-      "html": "<span style=\"background:blue url(https://evil.example/y.png)\">x</span>",
+      "html": "<span>x</span>",
       "media": [],
       "missing": []
     },
     "style-url-comment-newline": {
-      "html": "<span style=\"background:red/*\n*/url(https://evil.example/x.png)\">x</span>",
+      "html": "<span>x</span>",
       "media": [],
       "missing": []
     },

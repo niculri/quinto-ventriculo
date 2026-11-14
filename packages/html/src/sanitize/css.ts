@@ -1,9 +1,12 @@
 // The CSS values the sanitizers accept: one check for a card's inline style and another for an SVG presentation
 // attribute. They accept different values (test/golden/css.json), so they stay two.
 
-/** A CSS value without anything that loads or runs something (url(), expression(), javascript:). */
+/**
+ * A CSS value without anything that loads or runs something (url(), expression(), javascript:). The `s` flag
+ * matters: without it a line break in the value hides whatever comes after it from the lookaheads.
+ */
 export const CARD_SAFE_VALUE =
-  /^(?!.*(?:url|expression|image-set|image|element|paint)\s*\()(?!.*javascript:)[^<>"\\{};]*$/i;
+  /^(?!.*(?:url|src|expression|image-set|image|element|paint)\s*\()(?!.*javascript:)[^<>"\\{};]*$/is;
 
 export const STYLE_PROPERTIES = [
   'color',

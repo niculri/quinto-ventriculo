@@ -211,8 +211,8 @@ export default tseslint.config(
   ...domainPackages,
   {
     // Layers of the web: shared (shared/, and ui/ while it keeps pieces that import features) → data features → page
-    // features → app, each importing only from itself and the ones below. A file at the root of src other than the entry point and Vite's
-    // types has no layer.
+    // features → app, each importing only from itself and the ones below. A file at the root of src other than the
+    // entry point and Vite's types has no layer.
     files: ['apps/web/src/**/*.{ts,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', 'apps/web/src/test/**'],
     plugins: { boundaries },

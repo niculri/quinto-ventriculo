@@ -90,8 +90,10 @@ describe('answers and «card_changed»', () => {
     expect(await actions(A)).toEqual(['answer', 'answer']);
   });
 
-  it('takes an answer at any time, and its log keeps that time', async () => {
-    const at = iso(NOW - 3 * DAY);
+  it('refuses an answer more than a day away from now; its log keeps the time it says', async () => {
+    const late = answer(A, null, { state: reviewed({ lastReview: iso(NOW - 3 * DAY) }) });
+    await expect(repo.recordReview(late)).rejects.toThrow('invalid_time');
+    const at = iso(NOW - 3 * HOUR);
     await repo.recordReview(answer(A, null, { state: reviewed({ lastReview: at }) }));
     expect((await repo.cardLog(A))[0]).toMatchObject({ action: 'answer', reviewedAt: at });
   });
@@ -176,11 +178,11 @@ describe('undo', () => {
     expect(await row(B)).toMatchObject({ suspended: false, deckId: 'd1', retiredAt: iso(NOW) });
   });
 
-  it('reaches an action of any age (the database: only the last 48 hours)', async () => {
+  it('reaches an action of the last 48 hours, not older', async () => {
     await repo.recordReview(answer(A, null));
     vi.setSystemTime(NOW + 72 * HOUR);
-    expect(await repo.undo()).toMatchObject({ action: 'answer', noteGuid: 'n1' });
-    expect(await repo.allCards()).toEqual([]);
+    expect(await repo.undo()).toBeNull();
+    expect(await repo.allCards()).toHaveLength(1);
   });
 });
 
@@ -283,13 +285,16 @@ describe('cards that moved or left (reconcile_cards)', () => {
     expect((await repo.heatmap(null)).due).toEqual([]);
   });
 
-  it('takes any number of changes in a call (the database: at most 2,000)', async () => {
+  it('refuses more than 2,000 changes in a call', async () => {
     const changes = Array.from({ length: 2001 }, (_, i) => ({
       noteGuid: `x${i}`,
       ord: 0,
       deckId: 'd2',
     }));
-    expect(await repo.reconcileCards({ since: 0, upTo: 1, changes })).toMatchObject({
+    await expect(repo.reconcileCards({ since: 0, upTo: 1, changes })).rejects.toThrow('too_large');
+    expect(
+      await repo.reconcileCards({ since: 0, upTo: 1, changes: changes.slice(1) }),
+    ).toMatchObject({
       applied: true,
     });
   });
@@ -373,7 +378,7 @@ describe('what the web reads of the progress', () => {
     await repo.recordReview(
       answer(D, null, {
         queueBefore: 'review',
-        state: reviewed({ due: iso(NOW - 5 * DAY), lastReview: iso(NOW - 10 * DAY) }),
+        state: reviewed({ due: iso(NOW - 5 * DAY), lastReview: iso(NOW - 21 * HOUR) }),
       }),
     );
     await repo.bury([D], new Date(dayStart - HOUR), false);
@@ -427,7 +432,7 @@ describe('what the web reads of the progress', () => {
     expect(decks[0]!.recall).toBeGreaterThan(1.9);
   });
 
-  it('home_counts is never truncated, however many cards are due', async () => {
+  it('home_counts past 20,000 cards due is truncated, without decks', async () => {
     const due = 20_001;
     const cards = Array.from({ length: due }, (_, i) => ({
       ...card(`h${i}`),
@@ -443,7 +448,7 @@ describe('what the web reads of the progress', () => {
     } as Storage;
     const big = localStudyRepository(storage, { timeZone: 'America/Santiago' });
     const counts = await big.homeCounts(['d1'], new Date(NOW + DAY), {});
-    expect(counts.truncated).toBe(false);
-    expect(counts.decks[0]!.due).toHaveLength(due);
+    expect(counts.truncated).toBe(true);
+    expect(counts.decks).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 // The user's practice test progress kept in the browser, for the demo, the preview and the tests.
 import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
-import type { AnswerInfo, RoundInfo, SavedQuiz } from './model';
+import type { AnswerInfo, QuizStep, RoundInfo, SavedQuiz } from './model';
 
 interface LocalData {
   progress: Record<string, SavedQuiz>;
@@ -9,8 +9,31 @@ interface LocalData {
     quizId: string;
     sectionId: string;
     status: 'active' | 'finished' | 'abandoned';
+    /** The last save that changed it (as quiz_rounds.updated_at); absent in what was kept before it had one. */
+    updatedAt?: string;
   })[];
   answers: (AnswerInfo & { quizId: string; sectionId: string })[];
+}
+
+/** A new round, and an answer once (each save of one marks its round as changed, as quiz_rounds.updated_at). */
+function keepRoundAndAnswer(d: LocalData, step: QuizStep, at: string) {
+  const info = step.roundInfo;
+  if (info && !d.rounds.some((r) => r.id === info.id)) {
+    d.rounds.push({
+      ...info,
+      quizId: step.quizId,
+      sectionId: step.sectionId,
+      status: 'active',
+      updatedAt: at,
+    });
+  }
+  const ans = step.answer;
+  if (!ans) return;
+  if (!d.answers.some((a) => a.roundId === ans.roundId && a.position === ans.position)) {
+    d.answers.push({ ...ans, quizId: step.quizId, sectionId: step.sectionId });
+  }
+  const r = d.rounds.find((x) => x.id === ans.roundId);
+  if (r) r.updatedAt = at;
 }
 
 function safeLocalStorage(): Storage | null {
@@ -45,6 +68,7 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
       // stays in memory
     }
   };
+  const isObject = (v: unknown) => !!v && typeof v === 'object' && !Array.isArray(v);
   const roundId = (round: unknown) =>
     round && typeof round === 'object' && typeof (round as { id?: unknown }).id === 'string'
       ? (round as { id: string }).id
@@ -56,34 +80,30 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
     },
     async save(step) {
       const d = read();
+      const at = new Date().toISOString();
       const quiz = (d.progress[step.quizId] ??= {});
       const before = quiz[step.sectionId];
       const info = step.roundInfo;
-      if (info && !d.rounds.some((r) => r.id === info.id)) {
-        d.rounds.push({
-          ...info,
-          quizId: step.quizId,
-          sectionId: step.sectionId,
-          status: 'active',
-        });
-      }
-      const ans = step.answer;
-      if (ans && !d.answers.some((a) => a.roundId === ans.roundId && a.position === ans.position)) {
-        d.answers.push({ ...ans, quizId: step.quizId, sectionId: step.sectionId });
-      }
-      if (info?.finished) {
-        const r = d.rounds.find((x) => x.id === info.id);
-        if (r) r.status = 'finished';
+      const round = (id: string) => d.rounds.find((r) => r.id === id);
+      keepRoundAndAnswer(d, step, at);
+      const finished = info?.finished ? round(info.id) : undefined;
+      if (finished && finished.status !== 'finished') {
+        finished.status = 'finished';
+        finished.updatedAt = at;
       }
       const previous = roundId(before?.round);
       if (previous && previous !== roundId(step.round)) {
-        const r = d.rounds.find((x) => x.id === previous);
-        if (r && r.status === 'active') r.status = 'abandoned';
+        const r = round(previous);
+        if (r && r.status === 'active') {
+          r.status = 'abandoned';
+          r.updatedAt = at;
+        }
       }
+      // As save_quiz_progress(): only an object is a round.
       quiz[step.sectionId] = {
         preferences: step.preferences ?? before?.preferences ?? {},
-        round: step.round ?? null,
-        updatedAt: new Date().toISOString(),
+        round: isObject(step.round) ? step.round : null,
+        updatedAt: at,
       };
       write(d);
     },
@@ -93,7 +113,9 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
         .filter((r) => r.status === 'active')
         .map((r) => {
           const answers = d.answers.filter((a) => a.roundId === r.id);
-          const last = answers.reduce((t, a) => (a.answeredAt > t ? a.answeredAt : t), r.startedAt);
+          const last =
+            r.updatedAt ??
+            answers.reduce((t, a) => (a.answeredAt > t ? a.answeredAt : t), r.startedAt);
           return {
             quizId: r.quizId,
             sectionId: r.sectionId,

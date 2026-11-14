@@ -1,4 +1,4 @@
-// Tests that the in-memory account repository follows the users database's account rules («Differs» marks where not).
+// Tests that the in-memory account repository follows the users database's account rules.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
 import { AccountError, localAccountRepository } from './repository';
@@ -27,24 +27,24 @@ describe('accepting the terms', () => {
     expect((await repo.resume(V2)).accepted).toMatchObject({ ...V2, ...second });
   });
 
-  // Differs: after a rollback to versions accepted before, the database does not ask again.
-  it('entering gives the versions accepted last, whatever versions the page asks about', async () => {
+  it('entering gives the versions the page asks about if they were accepted, otherwise the last accepted', async () => {
     const repo = localAccountRepository({ email: EMAIL });
     await repo.accept(V1);
+    vi.setSystemTime(NOW + 60_000);
     await repo.accept(V2);
-    expect((await repo.resume(V1)).accepted).toMatchObject(V2);
+    expect((await repo.resume(V1)).accepted).toMatchObject(V1);
+    expect((await repo.resume({ terms: '9', privacy: '9' })).accepted).toMatchObject(V2);
   });
 });
 
 describe('accepting the terms again', () => {
-  // Differs: accept_legal() keeps the first date of each pair of versions, so accepting V1 again gives it back.
-  it('V1, then V2, then V1 again: V1 gets a new date', async () => {
+  it('V1, then V2, then V1 again: V1 keeps its first date', async () => {
     const repo = localAccountRepository({ email: EMAIL });
     await repo.accept(V1);
     vi.setSystemTime(NOW + 60_000);
     await repo.accept(V2);
     vi.setSystemTime(NOW + 120_000);
-    expect((await repo.accept(V1)).acceptedAt).toBe(new Date(NOW + 120_000).toISOString());
+    expect((await repo.accept(V1)).acceptedAt).toBe(new Date(NOW).toISOString());
   });
 });
 

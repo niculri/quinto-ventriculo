@@ -92,14 +92,10 @@ describe('inviting', () => {
     );
   });
 
-  // Differs: invite_emails() refuses a note of more than 200 characters.
-  it('takes a note of any length', async () => {
-    const result = await repo().invite({
-      emails: ['x@ug.uchile.cl'],
-      list: 'L',
-      note: 'n'.repeat(300),
-    });
-    expect(result.added).toEqual(['x@ug.uchile.cl']);
+  it('refuses a note of more than 200 characters', async () => {
+    await expect(
+      repo().invite({ emails: ['x@ug.uchile.cl'], list: 'L', note: 'n'.repeat(300) }),
+    ).rejects.toThrow('La nota tiene a lo más 200 letras.');
   });
 });
 

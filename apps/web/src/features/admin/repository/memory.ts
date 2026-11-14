@@ -21,6 +21,12 @@ function invite(email: string, list: string, admin: boolean, hasAccount: boolean
   };
 }
 
+const TOO_MANY = `A lo más ${MAX_EMAILS} correos por vez.`;
+/** What the Supabase adapter says for a refusal it does not name. */
+const FAILED = 'No se pudo. Revisa tu conexión e intenta de nuevo.';
+/** Characters as the database counts them (code points, not UTF-16 units). */
+const length = (text: string) => [...text].length;
+
 export function localAdminRepository(
   options: {
     admin?: boolean;
@@ -82,6 +88,7 @@ export function localAdminRepository(
         throw new AccessError('Solo el dueño del sitio nombra o quita administradores.');
       }
       const e = normalizeEmail(email);
+      if (!e) throw new AccessError(FAILED);
       const found = invites.find((i) => i.email === e);
       if (!admin && e === ownerEmail) throw new AccessError('Al dueño del sitio no se le quita.');
       if (admin && !found) {
@@ -93,13 +100,16 @@ export function localAdminRepository(
     },
     async invite({ emails, list, note }) {
       await onlyAdmin();
+      // In the order invite_emails() checks them, counting characters as the database does.
       const name = list.trim();
-      if (!name || name.length > 60) {
+      const kept = note?.trim() || null;
+      if (emails.length > MAX_EMAILS) throw new AccessError(TOO_MANY);
+      if (!name || length(name) > 60) {
         throw new AccessError('El nombre de la lista tiene que tener entre 1 y 60 letras.');
       }
-      if (emails.length > MAX_EMAILS)
-        throw new AccessError(`A lo más ${MAX_EMAILS} correos por vez.`);
+      if (kept && length(kept) > 200) throw new AccessError('La nota tiene a lo más 200 letras.');
       const result: InviteResult = { added: [], already: [], rejected: [] };
+      const at = new Date().toISOString();
       const seen = new Set<string>();
       const next = [...invites];
       for (const raw of emails) {
@@ -118,9 +128,9 @@ export function localAdminRepository(
             next.push({
               email,
               list: name,
-              note: note?.trim() || null,
+              note: kept,
               invitedBy: me,
-              invitedAt: new Date().toISOString(),
+              invitedAt: at,
               admin: false,
               hasAccount: false,
               lastSignInAt: null,
@@ -133,9 +143,14 @@ export function localAdminRepository(
     },
     async removeInvites(target) {
       await onlyAdmin();
+      const list = 'list' in target ? target.list.trim() : null;
+      if (list === '') throw new AccessError(FAILED);
+      if ('emails' in target && target.emails.length > MAX_EMAILS) {
+        throw new AccessError(TOO_MANY);
+      }
       const asked =
         'list' in target
-          ? invites.filter((i) => i.list === target.list).map((i) => i.email)
+          ? invites.filter((i) => i.list === list).map((i) => i.email)
           : [...new Set(target.emails.map(normalizeEmail).filter(Boolean))];
       if ('list' in target && !asked.length) {
         throw new AccessError('Esa lista ya no existe. Recarga la página.');
@@ -149,12 +164,17 @@ export function localAdminRepository(
         removed,
         notInvited: targets.filter((e) => !removed.includes(e)).sort(),
         keptAdmins,
+        // The demo has no sessions: one for each person removed.
         sessionsClosed: removed.length,
         openToDomain: options.openToDomain ?? false,
       };
     },
-    // Nobody else studies in the demo.
-    deckImpact: async (deckIds) =>
-      deckIds.map((deckId) => ({ deckId, studentsSeen: 0, cardsSeen: 0, studentsActive: 0 })),
+    // As admin_deck_impact(), but nobody else studies in the demo.
+    async deckImpact(deckIds) {
+      await onlyAdmin();
+      if (deckIds.length > 300) throw new AccessError('admin_deck_impact: at most 300 decks');
+      const ids = [...new Set(deckIds.filter((id) => /^[0-9]{1,20}$/.test(id)))].sort();
+      return ids.map((deckId) => ({ deckId, studentsSeen: 0, cardsSeen: 0, studentsActive: 0 }));
+    },
   };
 }

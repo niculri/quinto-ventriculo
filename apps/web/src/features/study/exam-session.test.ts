@@ -508,7 +508,12 @@ describe('a student who answers everything, day after day, with the real schedul
         interval: 2,
         lastInterval: 2,
         durationMs: 4000,
-        state: { ...review(c), due: new Date(NOW - 3 * DAY).toISOString() },
+        // Answered now: the database refuses an answer more than a day away.
+        state: {
+          ...review(c),
+          due: new Date(NOW - 3 * DAY).toISOString(),
+          lastReview: new Date().toISOString(),
+        },
         bury: [],
         buriedUntil: null,
       });

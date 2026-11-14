@@ -27,6 +27,10 @@ import type {
 } from './model';
 
 const MIN_ANSWERS_FOR_MEDIAN = 20;
+const UNDO_MS = 48 * 3_600_000;
+const MAX_CHANGES = 2000;
+const MAX_HOME_DUE = 20_000;
+const MAX_DECKS = 5000;
 
 interface LogRow extends CardRef {
   id: number;
@@ -37,6 +41,12 @@ interface LogRow extends CardRef {
   queueBefore: QueueName | null;
   before: StoredCard | null;
   after: StoredCard;
+  /** What an answer sends (null for the other changes); absent in what was kept before. */
+  interval?: number | null;
+  durationMs?: number | null;
+  /** When it was written, for the 48 hours of undo, and its study day then (as review_log.study_day). */
+  loggedAt?: string;
+  day?: number;
 }
 
 interface LocalData {
@@ -47,7 +57,6 @@ interface LocalData {
   preferences: StudyPreferences | null;
   activations: DeckActivation[];
   assessments: AssessmentSetting[];
-  durations: number[];
   syncedTo?: number;
   practice?: { day: string; deckId: string; n: number }[];
 }
@@ -60,8 +69,50 @@ const empty = (): LocalData => ({
   preferences: null,
   activations: [],
   assessments: [],
-  durations: [],
 });
+
+/** The zone and the hour the day starts as the database takes them: Santiago and 4:00 without preferences. */
+const dayRule = (d: LocalData) => ({
+  timeZone: d.preferences?.timeZone ?? 'America/Santiago',
+  dayStartsAt: d.preferences?.dayStartsAt ?? 4,
+});
+const studyDay = (d: LocalData, atMs: number) => {
+  const rule = dayRule(d);
+  return dayOf(atMs / 1000, rule.timeZone, rule.dayStartsAt);
+};
+
+/** median_answer_ms(): the median of the last 500 answers with a time, rounded as Postgres rounds (half to even). */
+function medianOf(log: LogRow[]): number | null {
+  const recent = log
+    .filter((l) => l.rating !== null && typeof l.durationMs === 'number')
+    .sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt) || b.id - a.id)
+    .slice(0, 500)
+    .map((l) => l.durationMs!)
+    .sort((a, b) => a - b);
+  if (recent.length < MIN_ANSWERS_FOR_MEDIAN) return null;
+  const mid = (recent.length - 1) / 2;
+  const value = (recent[Math.floor(mid)]! + recent[Math.ceil(mid)]!) / 2;
+  const floor = Math.floor(value);
+  if (value - floor !== 0.5) return Math.round(value);
+  return floor % 2 === 0 ? floor : floor + 1;
+}
+
+/** The checks of home_counts() and study_heatmap() on what they are asked. */
+function checkDecks(deckIds: string[] | null, decay: Record<string, number> = {}) {
+  if ((deckIds?.length ?? 0) > MAX_DECKS) return 'too_large';
+  const bad = Object.values(decay).some((v) => typeof v !== 'number' || !(v >= 0.01 && v <= 2));
+  return bad ? 'invalid_decay' : null;
+}
+
+/** The decks of a batch of practice as record_practice() takes them: each once, in the order of the batch. */
+function practiceBatch(counts: { deckId: string; n: number }[]) {
+  const decks = counts.filter((c) => c.n > 0);
+  const total = decks.reduce((t, c) => t + c.n, 0);
+  if (decks.length > PRACTICE_BATCH_DECKS || total > PRACTICE_BATCH_MAX) return 'too_large';
+  const byDeck = new Map<string, number>();
+  for (const c of decks) byDeck.set(c.deckId, (byDeck.get(c.deckId) ?? 0) + c.n);
+  return [...byDeck].map(([deckId, n]) => ({ deckId, n }));
+}
 
 export function localStudyRepository(
   storage: Storage | null = safeLocalStorage(),
@@ -113,6 +164,7 @@ export function localStudyRepository(
     buriedUntil: null,
     leech: false,
     updatedAt: '',
+    retiredAt: null,
   });
   let nextId = 1;
   const uuid = () =>
@@ -156,6 +208,10 @@ export function localStudyRepository(
       queueBefore: null,
       before,
       after,
+      interval: null,
+      durationMs: null,
+      loggedAt: new Date().toISOString(),
+      day: studyDay(d, Date.parse(at)),
       ...row,
     });
     return true;
@@ -166,6 +222,7 @@ export function localStudyRepository(
     actionId: string,
     action: ActionName,
     ref: CardRef,
+    at: string,
     patch: Partial<StoredCard>,
   ) {
     const before = d.cards.find((c) => same(c, ref));
@@ -176,7 +233,7 @@ export function localStudyRepository(
     ) {
       return;
     }
-    change(d, actionId, action, ref, new Date().toISOString(), patch);
+    change(d, actionId, action, ref, at, patch);
   }
 
   return {
@@ -197,10 +254,11 @@ export function localStudyRepository(
           queueBefore: l.queueBefore,
           phaseBefore: l.before?.phase ?? 'new',
           phaseAfter: l.after.phase,
-          interval: l.rating === null ? null : l.after.interval,
+          interval:
+            l.interval !== undefined ? l.interval : l.rating === null ? null : l.after.interval,
           stability: l.after.stability,
           difficulty: l.after.difficulty,
-          durationMs: null,
+          durationMs: l.durationMs ?? null,
         }));
     },
     async ratedSince(since) {
@@ -259,7 +317,12 @@ export function localStudyRepository(
         throw new Error('No se pudo guardar las opciones: ya existe.');
       }
       const preset: UserPreset = { id: id ?? uuid(), name, replaces, config, updatedAt: stamp() };
-      write({ ...d, presets: [...d.presets.filter((p) => p.id !== preset.id), preset] });
+      // An edit keeps its place: the database lists them in the order they were made.
+      const kept = d.presets.some((p) => p.id === preset.id);
+      const presets = kept
+        ? d.presets.map((p) => (p.id === preset.id ? preset : p))
+        : [...d.presets, preset];
+      write({ ...d, presets });
       return preset;
     },
     async deletePreset(id) {
@@ -357,15 +420,13 @@ export function localStudyRepository(
       return [...new Set(answered.map((c) => c.deckId))];
     },
     async medianAnswerMs() {
-      const recent = read().durations.slice(-500);
-      if (recent.length < MIN_ANSWERS_FOR_MEDIAN) return null;
-      const sorted = [...recent].sort((a, b) => a - b);
-      const mid = (sorted.length - 1) / 2;
-      return Math.round((sorted[Math.floor(mid)]! + sorted[Math.ceil(mid)]!) / 2);
+      return medianOf(read().log);
     },
     async heatmap(deckIds) {
+      const refused = checkDecks(deckIds);
+      if (refused) throw new Error(`No se pudo leer tus días de estudio: ${refused}`);
       const d = read();
-      const prefs = { ...defaultPreferences(), ...d.preferences };
+      const prefs = dayRule(d);
       const only = deckIds === null ? null : new Set(deckIds);
       const nowSecs = Date.now() / 1000;
       const today = dayOf(nowSecs, prefs.timeZone, prefs.dayStartsAt);
@@ -383,12 +444,7 @@ export function localStudyRepository(
       };
       for (const l of d.log) {
         if (l.rating === null) continue;
-        add(
-          dayOf(Date.parse(l.reviewedAt) / 1000, prefs.timeZone, prefs.dayStartsAt),
-          l.deckId,
-          1,
-          0,
-        );
+        add(l.day ?? studyDay(d, Date.parse(l.reviewedAt)), l.deckId, 1, 0);
       }
       for (const p of d.practice ?? []) add(dayNumber(p.day), p.deckId, 0, p.n);
       const due = new Map<number, number>();
@@ -406,17 +462,13 @@ export function localStudyRepository(
       };
     },
     async recordPractice(counts) {
-      const decks = counts.filter((c) => c.n > 0);
-      if (!decks.length) return;
-      if (
-        decks.length > PRACTICE_BATCH_DECKS ||
-        decks.reduce((t, c) => t + c.n, 0) > PRACTICE_BATCH_MAX
-      ) {
-        throw new PracticeRefusedError('No se pudo guardar tu repaso: too_large');
+      const decks = practiceBatch(counts);
+      if (typeof decks === 'string') {
+        throw new PracticeRefusedError(`No se pudo guardar tu repaso: ${decks}`);
       }
+      if (!decks.length) return;
       const d = read();
-      const prefs = { ...defaultPreferences(), ...d.preferences };
-      const day = isoOfDay(dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt));
+      const day = isoOfDay(studyDay(d, Date.now()));
       const practice = [...(d.practice ?? [])];
       let room = PRACTICE_DAY_MAX - practice.reduce((t, p) => t + (p.day === day ? p.n : 0), 0);
       for (const c of decks) {
@@ -430,9 +482,15 @@ export function localStudyRepository(
       write({ ...d, practice });
     },
     async recordReview(input) {
+      // In the order record_review() checks them; the answer's time is the device's, within a day of now.
+      if (input.bury.length > 100) throw new Error('No se pudo guardar tu respuesta: too_large');
       const d = read();
       const current = d.cards.find((c) => same(c, input.card)) ?? null;
       if ((current?.updatedAt ?? null) !== input.expectedUpdatedAt) throw new CardChangedError();
+      const last = input.state.lastReview;
+      if (last !== null && Math.abs(Date.parse(last) - Date.now()) > 86_400_000) {
+        throw new Error('No se pudo guardar tu respuesta: invalid_time');
+      }
       const actionId = uuid();
       const at = input.state.lastReview ?? new Date().toISOString();
       change(
@@ -446,20 +504,26 @@ export function localStudyRepository(
           suspended: (current?.suspended ?? false) || input.state.suspended,
           leech: (current?.leech ?? false) || input.state.leech,
         },
-        { rating: input.rating, queueBefore: input.queueBefore },
+        {
+          rating: input.rating,
+          queueBefore: input.queueBefore,
+          interval: input.interval,
+          durationMs: input.durationMs,
+        },
       );
       for (const sibling of input.bury) {
         change(d, actionId, 'answer', sibling, at, { buriedUntil: input.buriedUntil });
       }
-      d.durations.push(input.durationMs);
       write(d);
       return { updatedAt: d.cards.find((c) => same(c, input.card))!.updatedAt };
     },
     async bury(cards, until, note) {
       const d = read();
       const actionId = uuid();
+      // One moment for the whole action, as the database's now().
+      const at = new Date().toISOString();
       for (const c of cards) {
-        change(d, actionId, note ? 'bury_note' : 'bury_card', c, new Date().toISOString(), {
+        change(d, actionId, note ? 'bury_note' : 'bury_card', c, at, {
           buriedUntil: until.toISOString(),
         });
       }
@@ -468,44 +532,49 @@ export function localStudyRepository(
     async suspend(cards, note) {
       const d = read();
       const actionId = uuid();
+      const at = new Date().toISOString();
       for (const c of cards) {
-        change(d, actionId, note ? 'suspend_note' : 'suspend_card', c, new Date().toISOString(), {
-          suspended: true,
-        });
+        change(d, actionId, note ? 'suspend_note' : 'suspend_card', c, at, { suspended: true });
       }
       write(d);
     },
     async setFlag(card, flag) {
+      if (!validFlag(flag)) throw new Error('No se pudo marcar la tarjeta: invalid_flag');
       const d = read();
       change(d, uuid(), 'flag', card, new Date().toISOString(), { flag });
       write(d);
     },
     async setFlags(cards, flag) {
+      if (!validFlag(flag)) throw new Error('No se pudo marcar las tarjetas: invalid_flag');
       const d = read();
       const actionId = uuid();
+      const at = new Date().toISOString();
       for (const c of cards) {
         if ((d.cards.find((x) => same(x, c))?.flag ?? 0) === flag) continue;
-        change(d, actionId, 'flag', c, new Date().toISOString(), { flag });
+        change(d, actionId, 'flag', c, at, { flag });
       }
       write(d);
     },
     async unsuspend(cards) {
       const d = read();
       const actionId = uuid();
-      for (const c of cards) browseChange(d, actionId, 'unsuspend', c, { suspended: false });
+      const at = new Date().toISOString();
+      for (const c of cards) browseChange(d, actionId, 'unsuspend', c, at, { suspended: false });
       write(d);
     },
     async unbury(cards) {
       const d = read();
       const actionId = uuid();
-      for (const c of cards) browseChange(d, actionId, 'unbury', c, { buriedUntil: null });
+      const at = new Date().toISOString();
+      for (const c of cards) browseChange(d, actionId, 'unbury', c, at, { buriedUntil: null });
       write(d);
     },
     async forget(cards, resetCounts) {
       const d = read();
       const actionId = uuid();
+      const at = new Date().toISOString();
       for (const c of cards) {
-        browseChange(d, actionId, 'forget', c, {
+        browseChange(d, actionId, 'forget', c, at, {
           phase: 'new',
           interday: false,
           remainingSteps: 0,
@@ -523,7 +592,9 @@ export function localStudyRepository(
     },
     async undo() {
       const d = read();
-      const last = d.log.at(-1);
+      // As review_undo: only what was written in the last 48 hours can be undone.
+      const since = Date.now() - UNDO_MS;
+      const last = d.log.findLast((l) => Date.parse(l.loggedAt ?? l.reviewedAt) >= since);
       if (!last) return null;
       const rows = d.log.filter((l) => l.actionId === last.actionId);
       for (const row of [...rows].reverse()) {
@@ -546,6 +617,8 @@ export function localStudyRepository(
       };
     },
     async homeCounts(deckIds, until, decay) {
+      const refused = deckIds.length ? checkDecks(deckIds, decay) : null;
+      if (refused) throw new Error(`No se pudo leer tu avance: ${refused}`);
       const wanted = new Set(deckIds);
       const nowMs = Date.now();
       const hidden = (c: StoredCard) =>
@@ -592,6 +665,9 @@ export function localStudyRepository(
           due: Math.floor(Date.parse(c.due) / 1000),
         });
       }
+      // Past 20,000 cards due the database gives no decks, and the web reads the decks instead.
+      const due = [...out.values()].reduce((t, deck) => t + deck.due.length, 0);
+      if (due > MAX_HOME_DUE) return { truncated: true, decks: [] };
       return {
         truncated: false,
         decks: [...out.values()]
@@ -609,17 +685,21 @@ export function localStudyRepository(
       return read().syncedTo ?? 0;
     },
     async reconcileCards({ since, upTo, changes }) {
+      if (changes.length > MAX_CHANGES) {
+        throw new Error('No se pudo poner al día tus tarjetas: too_large');
+      }
       const d = read();
       if ((d.syncedTo ?? 0) !== since) {
         return { applied: false, syncedTo: d.syncedTo ?? 0, changed: 0 };
       }
       let changed = 0;
+      const now = new Date().toISOString();
       for (const c of changes) {
         const i = d.cards.findIndex((x) => same(x, c));
         if (i < 0) continue;
         const row = d.cards[i]!;
         const deckId = c.deckId ?? row.deckId;
-        const retiredAt = c.deckId === null ? (row.retiredAt ?? new Date().toISOString()) : null;
+        const retiredAt = c.deckId === null ? (row.retiredAt ?? now) : null;
         if (deckId === row.deckId && !!retiredAt === !!row.retiredAt) continue;
         d.cards[i] = { ...row, deckId, retiredAt };
         changed++;
@@ -629,6 +709,8 @@ export function localStudyRepository(
     },
   };
 }
+
+const validFlag = (flag: number) => Number.isInteger(flag) && flag >= 0 && flag <= 7;
 
 function safeLocalStorage(): Storage | null {
   try {

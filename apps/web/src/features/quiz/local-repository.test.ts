@@ -1,5 +1,5 @@
 // Pins the rules the in-memory tests repository re-implements from save_quiz_progress() and quiz_rounds.
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { localQuizRepository, OPEN_ROUNDS } from './repository';
 import type { AnswerInfo, RoundInfo } from './repository';
 
@@ -67,9 +67,15 @@ describe('saving a section', () => {
 });
 
 describe('«Seguir» on the home page (openRounds)', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it(`only active rounds with an answer, at most ${OPEN_ROUNDS}, the latest first`, async () => {
     const repo = localQuizRepository(null);
+    vi.useFakeTimers({ toFake: ['Date'] });
     for (let i = 0; i < OPEN_ROUNDS + 2; i++) {
+      vi.setSystemTime(Date.parse(`2026-03-10T12:0${i}:00.000Z`));
       await repo.save({
         quizId: `q${i}`,
         sectionId: 's',
@@ -85,13 +91,14 @@ describe('«Seguir» on the home page (openRounds)', () => {
       sectionId: 's',
       answered: 1,
       questionCount: 10,
-      updatedAt: '2026-03-10T11:06:00.000Z',
+      updatedAt: '2026-03-10T12:06:00.000Z',
     });
   });
 
-  // Differs from the database, which orders by the moment of the save (updated_at = now()).
-  it('orders by the moment each answer says it was answered, not by when it was saved', async () => {
+  it('orders by when each round was last saved, not by the moment each answer says', async () => {
     const repo = localQuizRepository(null);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.parse('2026-03-10T12:30:00.000Z'));
     await repo.save({
       quizId: 'late',
       sectionId: 's',
@@ -99,6 +106,7 @@ describe('«Seguir» on the home page (openRounds)', () => {
       roundInfo: info('r1'),
       answer: answer('r1', 0, '2026-03-10T12:00:00.000Z'),
     });
+    vi.setSystemTime(Date.parse('2026-03-10T12:31:00.000Z'));
     await repo.save({
       quizId: 'early',
       sectionId: 's',
@@ -106,6 +114,6 @@ describe('«Seguir» on the home page (openRounds)', () => {
       roundInfo: info('r2'),
       answer: answer('r2', 0, '2026-03-10T11:00:00.000Z'),
     });
-    expect((await repo.openRounds()).map((r) => r.quizId)).toEqual(['late', 'early']);
+    expect((await repo.openRounds()).map((r) => r.quizId)).toEqual(['early', 'late']);
   });
 });

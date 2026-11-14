@@ -59,12 +59,12 @@ describe('sending', () => {
     await repo.send(noteReport('una frase'));
   });
 
-  it('the place takes the quote as it comes: other spaces are another place, and a long quote is kept whole', async () => {
-    expect(placeOf(noteReport('una  frase'))).not.toBe(placeOf(noteReport('una frase')));
+  it('the place takes the quote with its spaces as one, and a long quote is cut to 500', async () => {
+    expect(placeOf(noteReport('una  frase'))).toBe(placeOf(noteReport('una frase')));
     expect(placeOf(cardReport('g1:0'))).toBe('');
     const repo = localReportsRepository();
     await repo.send(noteReport('x'.repeat(600)));
-    expect((await repo.mine())[0]!.location.quote!.exact).toHaveLength(600);
+    expect((await repo.mine())[0]!.location.quote!.exact).toHaveLength(500);
   });
 
   it('the comment is kept trimmed, the newest report first', async () => {
@@ -138,11 +138,11 @@ describe('the panel', () => {
     await expect(repo.reopen(resolved.resolution!.id)).rejects.toThrow(REPORT_MESSAGES.nothingOpen);
   });
 
-  it('a blocked person cannot report any more, also when it is the administrator', async () => {
+  it('an administrator is never blocked', async () => {
     const repo = localReportsRepository({ admin: true });
-    await repo.setBlocked('demo', true);
-    await expect(repo.send(cardReport('g1:0'))).rejects.toThrow(REPORT_MESSAGES.blocked);
-    expect((await repo.queue()).blocked).toHaveLength(1);
+    await expect(repo.setBlocked('demo', true)).rejects.toThrow(REPORT_MESSAGES.adminStays);
+    await repo.send(cardReport('g1:0'));
+    expect((await repo.queue()).blocked).toHaveLength(0);
     await repo.setBlocked('demo', false);
     await repo.send(cardReport('g1:0'));
   });

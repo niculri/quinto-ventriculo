@@ -4,6 +4,15 @@ import type { ReportKind } from '@qv/schema';
 import type { ReportsRepository } from './port';
 import { REPORT_MESSAGES, ReportError } from './model';
 import type { NewReport, Reporter, ReportGroup, Resolution } from './model';
+import { cleanLocation, placeOf, trimSpaces } from './memory-place';
+
+export { placeOf } from './memory-place';
+
+/** report_content() keeps the code trimmed, or none. */
+const codeOf = (code: string | null) => (code === null ? null : trimSpaces(code) || null);
+/** The last report that has it, as admin_report_queue() takes a group's title and path. */
+const lastWith = (list: NewReport[], key: 'title' | 'path') =>
+  [...list].reverse().find((r) => r.location[key] !== undefined)?.location[key] ?? null;
 
 interface StoredReport extends NewReport {
   reportId: string;
@@ -19,14 +28,6 @@ interface Stored {
   reports: StoredReport[];
   resolutions: StoredResolution[];
   blocked: boolean;
-}
-
-export function placeOf(r: Pick<NewReport, 'kind' | 'location'>): string {
-  if (r.kind !== 'note') return '';
-  const { section, quote, figure } = r.location;
-  return section || quote?.exact || figure
-    ? `${section ?? ''}|${quote?.exact.slice(0, 500) ?? ''}|${figure ?? ''}`
-    : '';
 }
 
 export function localReportsRepository(
@@ -81,7 +82,9 @@ export function localReportsRepository(
         reports: [
           {
             ...r,
-            comment: r.comment.trim(),
+            code: codeOf(r.code),
+            location: cleanLocation(r.kind, r.location),
+            comment: trimSpaces(r.comment),
             reportId: crypto.randomUUID(),
             createdAt: now().toISOString(),
             resolutionId: null,
@@ -133,8 +136,8 @@ export function localReportsRepository(
           targetId: last.id,
           code: [...list].reverse().find((r) => r.code)?.code ?? null,
           version: versions.length ? Math.max(...versions) : null,
-          title: last.location.title ?? null,
-          path: last.location.path ?? null,
+          title: lastWith(list, 'title'),
+          path: lastWith(list, 'path'),
           reporters: 1,
           firstAt: list[0]!.createdAt,
           lastAt: last.createdAt,
@@ -160,9 +163,11 @@ export function localReportsRepository(
       });
       return {
         open: all.filter((g) => !g.resolution),
+        // As admin_report_queue(): the last 200.
         resolved: all
           .filter((g) => g.resolution)
-          .sort((a, b) => b.resolution!.resolvedAt.localeCompare(a.resolution!.resolvedAt)),
+          .sort((a, b) => b.resolution!.resolvedAt.localeCompare(a.resolution!.resolvedAt))
+          .slice(0, 200),
         blocked: s.blocked
           ? [{ id: me.id, name: me.name, email: me.email, blockedAt: now().toISOString() }]
           : [],
@@ -170,6 +175,8 @@ export function localReportsRepository(
     },
     async resolve(input) {
       onlyAdmin();
+      const note = input.note === null ? null : trimSpaces(input.note) || null;
+      if (note && [...note].length > 500) throw new ReportError(REPORT_MESSAGES.offline);
       const s = read();
       const open = s.reports.filter(
         (r) => !r.resolutionId && r.kind === input.kind && r.id === input.targetId,
@@ -185,7 +192,7 @@ export function localReportsRepository(
             kind: input.kind,
             targetId: input.targetId,
             status: input.status,
-            note: input.note?.trim() || null,
+            note,
             fixedVersion: input.status === 'fixed' ? input.fixedVersion : null,
             resolvedAt: now().toISOString(),
           },
@@ -208,8 +215,10 @@ export function localReportsRepository(
         ),
       });
     },
+    // The demo's only person is the administrator, and admin_set_report_block() never blocks one.
     async setBlocked(_userId, blocked) {
       onlyAdmin();
+      if (blocked) throw new ReportError(REPORT_MESSAGES.adminStays);
       write({ ...read(), blocked });
     },
   };

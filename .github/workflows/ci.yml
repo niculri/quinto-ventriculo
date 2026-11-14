@@ -38,6 +38,20 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      # The ratchets compare with the base of the push or the pull request: per rule, the lint suppressions and inline
+      # eslint-disable directives may not grow, nor may the baseline of import cycles. A base that cannot be fetched
+      # fails the step; the nightly run and a run by hand compare with themselves.
+      - name: Ratchets (lint suppressions and import cycles)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          base=HEAD
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            base=FETCH_HEAD
+          fi
+          npm run --silent suppressions -- --base "$base"
+          npm run --silent deps -- --base "$base"
       - run: npm run format:check
       - run: npm test
 

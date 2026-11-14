@@ -1,0 +1,23 @@
+// Unused files, exports and dependencies (`npm run knip`). Entries that knip cannot see by itself are listed here,
+// each with the reason it is used.
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "workspaces": {
+    ".": {
+      // Run by the pre-push hook (a shell script).
+      "entry": [".githooks/*.mjs"],
+    },
+    "apps/web": {
+      // vite.config.ts loads the demo API with server.ssrLoadModule('@qv/api/demo'), a string knip does not follow.
+      "ignoreDependencies": ["@qv/api"],
+    },
+    "packages/importer": {
+      // Run by hand with `npx tsx` to write the content the e2e tests read.
+      "entry": ["scripts/*.ts"],
+    },
+    "packages/ops": {
+      // The command-line programs behind npm run deploy, smoke, suppressions and deps (root package.json).
+      "entry": ["src/*-cli.ts"],
+    },
+  },
+}

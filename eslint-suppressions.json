@@ -1,0 +1,1020 @@
+{
+  "apps/api/src/access.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "apps/api/src/admin.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "apps/api/src/app.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "apps/api/src/health.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "apps/api/src/repositories/memory-decks.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/memory-release.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/memory-usage.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/memory.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/supabase.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/api/src/usage.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/account/AccountGate.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/account/DeleteAccountDialog.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/AccessPage.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 4
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/admin/AdminLayout.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/ReleasesPage.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/ReportsPage.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/admin/UsagePage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/admin/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/releaseQueries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/repository.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/sections.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/AnkiRoute.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/AssessmentOptions.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/DeckPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/DeckPresetDialog.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/anki/SimpleDeckTree.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/tree.ts": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/browse/BrowsePage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/browse/CardPreview.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/browse/Sidebar.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/browse/data.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/cards/CardList.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/CardsPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/Filters.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/LegacyBrowse.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/PracticePage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/Viewer.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/demo.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/cards/model.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/cards/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/catalog/AssessmentSections.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/catalog/CareerPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/catalog/CoursePage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/catalog/Redirects.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/catalog/SemesterPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/catalog/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/CardViewer.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/occlusion.ts": {
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/help/HelpPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/HomePage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/counts.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/landing/LandingPage.tsx": {
+    "@typescript-eslint/no-misused-promises": {
+      "count": 2
+    },
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/legal/AboutPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/legal/LegalPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/legal/LicensesPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/legal/PrivacyPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/legal/TermsPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/ImageViewer.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/NotePage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/Practice.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/notes/Toc.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/articleHtml.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/noteCrumbs.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/placeThumbs.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/preview/preview.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/Cover.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/QuestionCard.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/QuizPage.tsx": {
+    "@typescript-eslint/no-floating-promises": {
+      "count": 1
+    },
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/quiz/Results.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/repository.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/saver.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/useQuizSession.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/ReportDialog.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/labels.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/repository.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/search/SearchPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/search/SearchPalette.tsx": {
+    "@typescript-eslint/no-floating-promises": {
+      "count": 1
+    },
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/search/useSearch.ts": {
+    "boundaries/dependencies": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/session/AuthCallbackPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/session/ProtectedRoute.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/session/context.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/settings/AccountSettingsPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/settings/AnkiSettingsPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/settings/PresetDialogs.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/settings/SettingsLayout.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/settings/sections.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/HeatmapCard.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/demo.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/practice.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/DaySummary.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/FinalReviewPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/StudyPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/study/mastery.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/material.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/pace.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/queries.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/repository.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/study/scheduler.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/session.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/usage/count.ts": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/viewer/useImageZoom.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/lib/api.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/AppNav.tsx": {
+    "boundaries/dependencies": {
+      "count": 7
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/AppShell.tsx": {
+    "boundaries/dependencies": {
+      "count": 3
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/NotFoundPage.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/RouteError.tsx": {
+    "boundaries/dependencies": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/SiteFooter.tsx": {
+    "boundaries/dependencies": {
+      "count": 2
+    }
+  },
+  "apps/web/src/ui/UserMenu.tsx": {
+    "@typescript-eslint/no-misused-promises": {
+      "count": 3
+    },
+    "boundaries/dependencies": {
+      "count": 3
+    }
+  },
+  "apps/web/vite.config.ts": {
+    "@typescript-eslint/no-misused-promises": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/src/compile.ts": {
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/build.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/cli.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/decks.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/manifest.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/quizzes.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "packages/importer/src/targets.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "packages/importer/src/taxonomy.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 4
+    }
+  },
+  "packages/importer/src/unpublish-cli.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/unpublish.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "packages/importer/src/unpublished.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/notes-md/src/convert.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "packages/ops/src/deploy.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "packages/ops/src/smoke.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "packages/quiz/src/round.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "packages/quiz/src/state.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/browse-index.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/review.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "packages/schema/src/taxonomy.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/queue.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  }
+}

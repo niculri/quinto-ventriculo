@@ -44,7 +44,11 @@ jobs:
           fi
           npm run --silent suppressions -- --base "$base"
           npm run --silent deps -- --base "$base"
+      # knip loads vite.config.ts, which refuses to run in production mode without the users' URL.
       - run: npm run knip
+        env:
+          VITE_USERS_SUPABASE_URL: https://example.supabase.co
+          VITE_USERS_SUPABASE_PUBLISHABLE_KEY: sb_publishable_example
       - run: npm run format:check
       - run: npm test
 

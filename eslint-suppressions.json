@@ -45,10 +45,7 @@
       "count": 1
     }
   },
-  "apps/api/src/repositories/supabase.ts": {
-    "max-lines": {
-      "count": 1
-    },
+  "apps/api/src/repositories/supabase/content.ts": {
     "max-lines-per-function": {
       "count": 1
     }
@@ -139,10 +136,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/repository.ts": {
-    "max-lines": {
-      "count": 1
-    },
+  "apps/web/src/features/admin/repository/memory.ts": {
     "max-lines-per-function": {
       "count": 1
     }
@@ -548,7 +542,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/quiz/repository.ts": {
+  "apps/web/src/features/quiz/repository/memory.ts": {
     "max-lines-per-function": {
       "count": 1
     }
@@ -584,12 +578,14 @@
       "count": 1
     }
   },
-  "apps/web/src/features/reports/repository.ts": {
-    "max-lines": {
-      "count": 1
-    },
+  "apps/web/src/features/reports/repository/memory.ts": {
     "max-lines-per-function": {
-      "count": 2
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/repository/supabase.ts": {
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "apps/web/src/features/search/SearchPage.tsx": {
@@ -759,15 +755,23 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/repository.ts": {
+  "apps/web/src/features/study/repository/memory.ts": {
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 2
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
+    }
+  },
+  "apps/web/src/features/study/repository/supabase.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "apps/web/src/features/study/scheduler.ts": {

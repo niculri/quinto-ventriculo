@@ -11,26 +11,15 @@ import {
   Note,
   NoteSummary,
   NoteTypeSummary,
-  PublishResult,
   QuizDetail,
   QuizSummary,
-  ReleaseLog,
-  ReleaseMark,
-  RevertResult,
   SearchResult,
   Semester,
-  SiteSettings,
-  UnpublishedLog,
 } from '@qv/schema';
-import type {
-  ContentRepository,
-  Refused,
-  ReleaseRepository,
-  SiteSettingsRepository,
-  UnpublishedRepository,
-} from '../repository';
-import { buildCatalog } from './build-catalog';
-import { nonNull } from './stream';
+import type { ContentRepository } from '../../repository';
+import { buildCatalog } from '../build-catalog';
+import { nonNull } from '../stream';
+import { rawRpcOf } from './raw-rpc';
 
 // `group` is an SQL keyword, so it is renamed rather than relying on PostgREST quoting it.
 const SUMMARY_COLUMNS =
@@ -144,28 +133,6 @@ function quizSummary(r: QuizRow): QuizSummary {
 }
 
 const TREE_PAGE = 1000;
-
-/** An RPC called as supabase-js calls it, but returning the response body unparsed. */
-function rawRpcOf(url: string, serviceKey: string, schema: 'public' | 'draft' = 'public') {
-  return async (fn: string, args: Record<string, unknown>) => {
-    const r = await fetch(`${url.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, {
-      method: 'POST',
-      headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...(schema === 'public' ? {} : { 'Content-Profile': schema }),
-      },
-      body: JSON.stringify(args),
-    });
-    if (!r.ok || !r.body) {
-      const detail = await r.text().catch(() => '');
-      throw new Error(`Content database (${fn}): ${r.status} ${detail.slice(0, 300)}`);
-    }
-    return r.body;
-  };
-}
 
 /** `draft`: the same reads on the draft's mirror tables, for the preview. */
 export function supabaseRepository(
@@ -337,115 +304,6 @@ export function supabaseRepository(
           score: row.score,
         }),
       );
-    },
-  };
-}
-
-/** In `public`: the `release_*` functions read the draft themselves. */
-export function supabaseReleaseRepository(url: string, serviceKey: string): ReleaseRepository {
-  const db: SupabaseClient = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-  const rawRpc = rawRpcOf(url, serviceKey);
-  return {
-    summaryJson: () => rawRpc('release_summary', {}),
-    browseIndexesJson: () => rawRpc('release_browse_index_changes', {}),
-    itemsJson: (assessment, kind, after) =>
-      rawRpc('release_items', { assessment, kind, after_key: after, max_rows: 200 }),
-    textsJson: (after) => rawRpc('release_texts', { after_key: after, max_rows: 500 }),
-    async media(after, limit) {
-      const r = await db.rpc('release_media', { after_key: after, max_rows: limit });
-      if (r.error) throw new Error(`Content database (release_media): ${r.error.message}`);
-      const data = r.data as { keys: string[]; next: string | null };
-      return { keys: data.keys, next: data.next };
-    },
-    async setMark(fingerprint, mark, checked, by) {
-      const r = await db.rpc('set_release_mark', { fingerprint, mark, checked, checked_by: by });
-      if (r.error) {
-        if (r.error.code === 'P0409') return 'stale';
-        throw new Error(`Content database (set_release_mark): ${r.error.message}`);
-      }
-      return (r.data as unknown[]).map((m) => ReleaseMark.parse(m));
-    },
-    async publish(input) {
-      const r = await db.rpc('publish_release', { p: input });
-      if (r.error) return refusedOr('publish_release', r.error);
-      return { ok: true, result: PublishResult.parse(r.data) };
-    },
-    async revert(id, by) {
-      const r = await db.rpc('revert_release', { p: { id, by } });
-      if (r.error) return refusedOr('revert_release', r.error);
-      return { ok: true, result: RevertResult.parse(r.data) };
-    },
-    async log() {
-      const r = await db.rpc('release_log', { max_rows: 50 });
-      if (r.error) throw new Error(`Content database (release_log): ${r.error.message}`);
-      return ReleaseLog.parse(r.data);
-    },
-  };
-}
-
-/** «publish_release: marks» with SQLSTATE P0409 or P0422 is a refusal; anything else is a database error. */
-function refusedOr(
-  fn: string,
-  error: { code?: string; message: string; details?: string | null },
-): Refused {
-  const reason = new RegExp(`^${fn}: ([a-z_]+)$`).exec(error.message)?.[1];
-  if (!reason || (error.code !== 'P0409' && error.code !== 'P0422')) {
-    throw new Error(`Content database (${fn}): ${error.message}`);
-  }
-  return { ok: false, reason, detail: error.details ?? null };
-}
-
-/** In `public`: the draft does not have the settings. */
-export function supabaseSiteSettingsRepository(
-  url: string,
-  serviceKey: string,
-): SiteSettingsRepository {
-  const db: SupabaseClient = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-  const parse = (data: unknown) => {
-    const d = data as {
-      hideEmptySemesters: boolean;
-      updatedAt: string | null;
-      updatedBy: string | null;
-    };
-    return SiteSettings.parse({
-      ...d,
-      updatedAt: d.updatedAt ? new Date(d.updatedAt).toISOString() : null,
-    });
-  };
-  return {
-    async get() {
-      const r = await db.rpc('site_settings');
-      if (r.error) throw new Error(`Content database (site_settings): ${r.error.message}`);
-      return parse(r.data);
-    },
-    async set({ hideEmptySemesters, by }) {
-      const r = await db.rpc('set_site_settings', { p: { hideEmptySemesters, by } });
-      if (r.error) throw new Error(`Content database (set_site_settings): ${r.error.message}`);
-      return parse(r.data);
-    },
-  };
-}
-
-export function supabaseUnpublishedRepository(
-  url: string,
-  serviceKey: string,
-): UnpublishedRepository {
-  const db: SupabaseClient = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-  return {
-    async log() {
-      const r = await db.rpc('unpublish_log_entries', { max_entries: 200 });
-      if (r.error) throw new Error(`Content database (unpublish_log_entries): ${r.error.message}`);
-      const data = r.data as { total: number; entries: { doneAt: string }[] };
-      return UnpublishedLog.parse({
-        ...data,
-        entries: data.entries.map((e) => ({ ...e, doneAt: new Date(e.doneAt).toISOString() })),
-      });
     },
   };
 }

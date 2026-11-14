@@ -19,10 +19,10 @@ const TESTS_AND_SCRIPTS = [
 
 // The only files that may import Supabase (type-only imports are allowed anywhere; tests build their own clients).
 const SUPABASE_ADAPTERS = [
-  'apps/web/src/features/*/repository.ts',
+  'apps/web/src/features/*/repository/supabase*.ts',
   'apps/web/src/features/session/service.ts',
   'apps/web/src/app/services.tsx',
-  'apps/api/src/repositories/supabase.ts',
+  'apps/api/src/repositories/supabase/{content,raw-rpc,release,settings,unpublished}.ts',
   'packages/importer/src/targets.ts',
   '**/*.test.{ts,tsx}',
 ];

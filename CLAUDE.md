@@ -27,9 +27,10 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los
-  `repository.ts` de las features, `features/session/service.ts`, `app/services.tsx`,
-  `apps/api/src/repositories/supabase.ts` y `packages/importer/src/targets.ts`; un `import type` vale en cualquier lado.
-  El contenido va por la API; los datos del usuario, por esos repositorios.
+  `repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
+  `features/session/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/repositories/supabase/` que nombra
+  `SUPABASE_ADAPTERS` en `eslint.config.js` (no su `index.ts`) y `packages/importer/src/targets.ts`; un `import type`
+  vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): 300 líneas por archivo, 80 por
   función, complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
   portado de Anki en un paquete que conserva la forma del original, y las páginas que son solo texto fijo.

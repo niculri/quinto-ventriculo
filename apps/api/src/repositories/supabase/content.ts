@@ -15,12 +15,13 @@ import {
   SearchResult,
   Semester,
 } from '@qv/schema';
+import { CONTENT_RPC, NoteDocument, NoteTypeTemplates, PresetRows } from '@qv/schema/content';
 import type { ContentRepository } from '../../repository';
 import { buildCatalog } from '../build-catalog';
 import { nonNull } from '../stream';
 import { contentClient } from './client';
 import type { ContentClient } from './client';
-import { fromJson } from './json';
+import { fromDatabase } from './json';
 import { rawRpcOf } from './raw-rpc';
 
 type Tables = Database['public']['Tables'];
@@ -38,16 +39,6 @@ type NoteSummaryRow = Omit<Tables['notes']['Row'], 'document' | 'hash' | 'versio
   practice?: unknown;
   note_group?: unknown;
 };
-
-interface NoteDocument {
-  sources?: string[];
-  html?: string;
-  toc?: unknown[];
-  createdOn?: string;
-  header?: unknown;
-  practice?: unknown;
-  group?: unknown;
-}
 
 const iso = (t: string) => new Date(t).toISOString();
 
@@ -170,18 +161,24 @@ export function supabaseRepository(
           kind: x.kind,
           occlusion: x.occlusion,
           fields: x.fields,
-          templates: fromJson<{ name: string }[]>(x.templates).map((tm) => tm.name),
+          templates: fromDatabase('anki_note_types', NoteTypeTemplates, x.templates).map(
+            (tm) => tm.name,
+          ),
           sortField: x.sort_field,
         }),
       );
-      const presets = fromJson<{ name: string; config: Record<string, unknown> }[]>(
-        unwrap(p, 'presets'),
-      );
+      const presets = fromDatabase('anki_presets', PresetRows, unwrap(p, 'presets'));
       const quizzes = unwrap(z, 'quizzes').map(quizSummary);
       // A database before that migration lacks the function: the catalog goes without indexes rather than failing.
       let indexes: CardIndexRecord[] = [];
       if (x.error) console.error(`Content database (browse indexes): ${x.error.message}`);
-      else indexes = fromJson<unknown[]>(x.data ?? []).map((r) => CardIndexRecord.parse(r));
+      else {
+        indexes = fromDatabase(
+          'anki_browse_indexes',
+          CONTENT_RPC.anki_browse_indexes.returns,
+          x.data ?? [],
+        ).map((r) => CardIndexRecord.parse(r));
+      }
       return buildCatalog(
         semesters,
         courses,
@@ -229,7 +226,7 @@ export function supabaseRepository(
       const r = await db.from('notes').select(NOTE_COLUMNS).eq('slug', slug).maybeSingle();
       const row = unwrap(r, 'note');
       if (!row) return null;
-      const doc = fromJson<NoteDocument | null>(row.document) ?? {};
+      const doc = fromDatabase('notes', NoteDocument, row.document) ?? {};
       return Note.parse({
         ...summary({ ...row, header: doc.header, note_group: doc.group }),
         sources: doc.sources ?? [],

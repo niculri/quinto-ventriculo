@@ -2,29 +2,14 @@
 // one can read (RLS and `is_admin()`); the web only uses the answer to show the panel.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
-import { fromJson, toJson } from '../../../lib/json';
+import { databaseError } from '@qv/schema/database';
+import type { DbErrorLike } from '@qv/schema/database';
+import { ACCESS_RPC } from '@qv/schema/user';
+import type { AccessReportRow } from '@qv/schema/user';
+import { fromDatabase } from '../../../lib/json';
 import type { AdminRepository } from './port';
 import { AccessError, MAX_EMAILS } from './model';
-import type { AccessReport, InviteRejection, SetAdminResult } from './model';
-
-interface AccessReportRow {
-  open_to_domain: boolean;
-  lists: { list: string; invited: number; with_account: number }[];
-  invited: {
-    email: string;
-    list: string;
-    note: string | null;
-    invited_by: string | null;
-    invited_at: string;
-    admin: boolean;
-    has_account: boolean;
-    last_sign_in_at: string | null;
-  }[];
-  accounts_without_invite: { email: string; created_at: string; last_sign_in_at: string | null }[];
-  /** Absent from a database without the site owner column. */
-  owner?: string | null;
-  you_are_owner?: boolean;
-}
+import type { AccessReport } from './model';
 
 const accessReportOf = (r: AccessReportRow): AccessReport => ({
   openToDomain: r.open_to_domain,
@@ -48,30 +33,31 @@ const accessReportOf = (r: AccessReportRow): AccessReport => ({
   youAreOwner: r.you_are_owner === true,
 });
 
-function accessError(error: { code?: string; message: string }): AccessError {
-  if (error.code === '28000' || /session_closed/.test(error.message)) {
+function accessError(raw: DbErrorLike): AccessError {
+  const error = databaseError(raw);
+  if (error.hasCode('28000') || error.says('session_closed')) {
     return new AccessError('Tu sesión se cerró. Sal y vuelve a entrar.');
   }
   // Before the codes: these refusals share 42501 and P0002 with the others.
-  if (/owner_only/.test(error.message)) {
+  if (error.says('owner_only')) {
     return new AccessError('Solo el dueño del sitio nombra o quita administradores.');
   }
-  if (/owner_stays/.test(error.message)) {
+  if (error.says('owner_stays')) {
     return new AccessError('Al dueño del sitio no se le quita.');
   }
-  if (/not_invited/.test(error.message)) {
+  if (error.says('not_invited')) {
     return new AccessError('Primero tiene que estar invitado. Recarga la página.');
   }
-  if (error.code === '42501') return new AccessError('Solo para administradores.');
-  if (error.code === 'P0002') return new AccessError('Esa lista ya no existe. Recarga la página.');
-  if (/at most 500/.test(error.message)) {
+  if (error.hasCode('42501')) return new AccessError('Solo para administradores.');
+  if (error.hasCode('P0002')) return new AccessError('Esa lista ya no existe. Recarga la página.');
+  if (error.says('too_many_emails')) {
     return new AccessError(`A lo más ${MAX_EMAILS} correos por vez.`);
   }
   // By the message of each refusal, not by any that names the key («expected { "emails": [...], "list": … }» also does).
-  if (/"list" is required/.test(error.message)) {
+  if (error.says('list_required')) {
     return new AccessError('El nombre de la lista tiene que tener entre 1 y 60 letras.');
   }
-  if (/"note" has at most/.test(error.message)) {
+  if (error.says('note_too_long')) {
     return new AccessError('La nota tiene a lo más 200 letras.');
   }
   return new AccessError('No se pudo. Revisa tu conexión e intenta de nuevo.');
@@ -97,30 +83,22 @@ export function supabaseAdminRepository(client: SupabaseClient<Database>): Admin
     async accessReport() {
       const { data, error } = await client.rpc('admin_access_report');
       if (error) throw accessError(error);
-      return accessReportOf(fromJson<AccessReportRow>(data));
+      return accessReportOf(
+        fromDatabase('admin_access_report', ACCESS_RPC.admin_access_report.returns, data),
+      );
     },
     async invite({ emails, list, note }) {
       const { data, error } = await client.rpc('admin_invite_emails', {
-        p: toJson({ emails, list, ...(note ? { note } : {}) }),
+        p: { emails, list, ...(note ? { note } : {}) },
       });
       if (error) throw accessError(error);
-      const r = fromJson<{
-        added_emails: string[];
-        already_emails: string[];
-        rejected: { email: string; reason: InviteRejection }[];
-      }>(data);
+      const r = fromDatabase('admin_invite_emails', ACCESS_RPC.admin_invite_emails.returns, data);
       return { added: r.added_emails, already: r.already_emails, rejected: r.rejected };
     },
     async removeInvites(target) {
-      const { data, error } = await client.rpc('admin_remove_invites', { p: toJson(target) });
+      const { data, error } = await client.rpc('admin_remove_invites', { p: target });
       if (error) throw accessError(error);
-      const r = fromJson<{
-        removed: string[];
-        not_invited: string[];
-        kept_admins: string[];
-        sessions_closed: number;
-        open_to_domain: boolean;
-      }>(data);
+      const r = fromDatabase('admin_remove_invites', ACCESS_RPC.admin_remove_invites.returns, data);
       return {
         removed: r.removed,
         notInvited: r.not_invited,
@@ -132,7 +110,7 @@ export function supabaseAdminRepository(client: SupabaseClient<Database>): Admin
     async setAdmin({ email, admin }) {
       const { data, error } = await client.rpc('admin_set_admin', { p: { email, admin } });
       if (error) throw accessError(error);
-      return fromJson<SetAdminResult>(data);
+      return fromDatabase('admin_set_admin', ACCESS_RPC.admin_set_admin.returns, data);
     },
   };
 }

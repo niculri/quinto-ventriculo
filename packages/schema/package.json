@@ -6,12 +6,24 @@
   "description": "Content and API types and validation (zod), shared by every package",
   "license": "AGPL-3.0-or-later",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./content": "./src/content/index.ts",
+    "./anki": "./src/anki/index.ts",
+    "./quiz": "./src/quiz/index.ts",
+    "./user": "./src/user/index.ts",
+    "./database": "./src/database/index.ts",
+    "./http": "./src/http/index.ts",
+    "./release": "./src/release/index.ts",
+    "./importer": "./src/importer/index.ts",
+    "./constants": "./src/constants/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p ."
   },
   "dependencies": {
     "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@qv/db-types": "0.0.0"
   }
 }

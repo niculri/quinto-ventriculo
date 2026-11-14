@@ -1,8 +1,8 @@
 // Zod schemas for an assessment's taxonomy (units and topics) and for the map of each card and question to its topic.
 import { z } from 'zod';
-import { NoteCode, Slug } from './content';
-import { NoteGuid } from './flashcards';
-import { QuizGroupId, QuizId, QuizQuestionId, QuizSectionId } from './quizzes';
+import { NoteCode, Slug } from '../content/content';
+import { NoteGuid } from '../anki/flashcards';
+import { QuizGroupId, QuizId, QuizQuestionId, QuizSectionId } from '../quiz/quizzes';
 
 /** Never reused: a topic that goes is marked `retired` or `mergedInto` and stays in the file. */
 export const TopicId = z.string().regex(/^t[1-9]\d{0,5}$/, 'id de tema inválido (t1, t2, …)');

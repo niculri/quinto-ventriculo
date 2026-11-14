@@ -1,66 +1,37 @@
 // Error reports in the users database: the database checks the limits, the block and the place.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
-import { fromJson, toJson } from '../../../lib/json';
-import type { ReportCategory, ReportKind, ResolutionStatus } from '@qv/schema';
+import { databaseError } from '@qv/schema/database';
+import type { DbErrorLike } from '@qv/schema/database';
+import { REPORTS_RPC } from '@qv/schema/user';
+import type { GroupRow, ResolutionRow } from '@qv/schema/user';
+import { fromDatabase } from '../../../lib/json';
 import type { ReportsRepository } from './port';
 import { REPORT_MESSAGES, ReportError } from './model';
-import type { ReportGroup, ReportLocation, Resolution } from './model';
+import type { ReportGroup, Resolution } from './model';
 
-function reportError(error: { code?: string; message: string }): ReportError {
-  const m = error.message;
-  if (/report_daily_limit/.test(m)) return new ReportError(REPORT_MESSAGES.dailyLimit);
-  if (/report_place_limit/.test(m)) return new ReportError(REPORT_MESSAGES.placeLimit);
-  if (/report_blocked/.test(m)) return new ReportError(REPORT_MESSAGES.blocked);
-  if (/nothing_open|nothing_to_reopen/.test(m)) return new ReportError(REPORT_MESSAGES.nothingOpen);
-  if (/admin_stays/.test(m)) return new ReportError(REPORT_MESSAGES.adminStays);
-  if (error.code === '28000' || /session_closed/.test(m)) {
+function reportError(raw: DbErrorLike): ReportError {
+  const e = databaseError(raw);
+  if (e.says('report_daily_limit')) return new ReportError(REPORT_MESSAGES.dailyLimit);
+  if (e.says('report_place_limit')) return new ReportError(REPORT_MESSAGES.placeLimit);
+  if (e.says('report_blocked')) return new ReportError(REPORT_MESSAGES.blocked);
+  if (e.says('nothing_open') || e.says('nothing_to_reopen')) {
+    return new ReportError(REPORT_MESSAGES.nothingOpen);
+  }
+  if (e.says('admin_stays')) return new ReportError(REPORT_MESSAGES.adminStays);
+  if (e.hasCode('28000') || e.says('session_closed')) {
     return new ReportError(REPORT_MESSAGES.sessionClosed);
   }
-  if (/admin_only/.test(m)) return new ReportError(REPORT_MESSAGES.adminOnly);
+  if (e.says('admin_only')) return new ReportError(REPORT_MESSAGES.adminOnly);
   return new ReportError(REPORT_MESSAGES.offline);
 }
 
-interface ResolutionRow {
-  id?: string;
-  status: ResolutionStatus;
-  note: string | null;
-  fixed_version: number | null;
-  resolved_at: string;
-}
 const resolutionOf = (r: ResolutionRow): Resolution => ({
   status: r.status,
   note: r.note,
   fixedVersion: r.fixed_version,
   resolvedAt: r.resolved_at,
 });
-
-interface GroupRow {
-  kind: ReportKind;
-  target_id: string;
-  code: string | null;
-  version: number | null;
-  title: string | null;
-  path: string | null;
-  reporters: number;
-  first_at: string;
-  last_at: string;
-  resolution: (ResolutionRow & { id: string }) | null;
-  reports: {
-    id: string;
-    category: ReportCategory;
-    comment: string;
-    location: ReportLocation;
-    version: number | null;
-    created_at: string;
-    reporter: {
-      id: string;
-      name: string | null;
-      email: string | null;
-      blocked: boolean;
-    } | null;
-  }[];
-}
 
 const groupOf = (g: GroupRow): ReportGroup => ({
   kind: g.kind,
@@ -89,7 +60,7 @@ export function supabaseReportsRepository(client: SupabaseClient<Database>): Rep
   return {
     async send(r) {
       const { error } = await client.rpc('report_content', {
-        p: toJson({
+        p: {
           kind: r.kind,
           id: r.id,
           code: r.code,
@@ -97,27 +68,14 @@ export function supabaseReportsRepository(client: SupabaseClient<Database>): Rep
           category: r.category,
           comment: r.comment,
           location: r.location,
-        }),
+        },
       });
       if (error) throw reportError(error);
     },
     async mine() {
       const { data, error } = await client.rpc('my_reports');
       if (error) throw reportError(error);
-      return fromJson<
-        {
-          id: string;
-          kind: ReportKind;
-          target_id: string;
-          code: string | null;
-          version: number | null;
-          category: ReportCategory;
-          comment: string;
-          location: ReportLocation;
-          created_at: string;
-          resolution: ResolutionRow | null;
-        }[]
-      >(data).map((r) => ({
+      return fromDatabase('my_reports', REPORTS_RPC.my_reports.returns, data).map((r) => ({
         id: r.id,
         kind: r.kind,
         targetId: r.target_id,
@@ -133,11 +91,7 @@ export function supabaseReportsRepository(client: SupabaseClient<Database>): Rep
     async queue() {
       const { data, error } = await client.rpc('admin_report_queue');
       if (error) throw reportError(error);
-      const q = fromJson<{
-        open: GroupRow[];
-        resolved: GroupRow[];
-        blocked: { id: string; name: string | null; email: string | null; blocked_at: string }[];
-      }>(data);
+      const q = fromDatabase('admin_report_queue', REPORTS_RPC.admin_report_queue.returns, data);
       return {
         open: q.open.map(groupOf),
         resolved: q.resolved.map(groupOf),
@@ -160,7 +114,8 @@ export function supabaseReportsRepository(client: SupabaseClient<Database>): Rep
         },
       });
       if (error) throw reportError(error);
-      return fromJson<{ resolved: number }>(data).resolved;
+      return fromDatabase('admin_resolve_reports', REPORTS_RPC.admin_resolve_reports.returns, data)
+        .resolved;
     },
     async reopen(resolutionId) {
       const { error } = await client.rpc('admin_reopen_reports', {

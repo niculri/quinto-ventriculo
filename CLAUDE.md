@@ -32,7 +32,10 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `SUPABASE_ADAPTERS` en `eslint.config.js` (no su `index.ts`) y `packages/importer/src/targets.ts`; un `import type`
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
-  migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo.
+  migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas
+  con uniones) se lee con `fromDatabase` y su contrato de `@qv/schema/user` o `/content`, nunca con `as` (lo prohíbe el
+  lint), y cada contrato corre contra el SQL en `db/tests/*-contracts.test.ts`; los rechazos de la base se reconocen
+  solo con `databaseError()` de `@qv/schema/database`.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): 300 líneas por archivo, 80 por
   función, complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
   portado de Anki en un paquete que conserva la forma del original, y las páginas que son solo texto fijo.

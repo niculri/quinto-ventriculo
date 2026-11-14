@@ -53,14 +53,15 @@ export interface ReleaseRepository {
   log(): Promise<ReleaseLog>;
 }
 
-export interface PublishInput {
+/** A type, not an interface: it goes as the `jsonb` argument of publish_release(). */
+export type PublishInput = {
   fingerprint: string;
   title: string;
   schemaVersion: number;
   checks: ReleaseChecks;
   marks: ('announcement' | 'phone' | 'answers')[];
   by: string;
-}
+};
 
 export type Refused = { ok: false; reason: string; detail: string | null };
 

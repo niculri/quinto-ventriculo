@@ -1,10 +1,13 @@
 // The release of the draft (summary, items, marks, publish and revert) in the content database, with the service key.
 import type { Database } from '@qv/db-types/content';
 import { PublishResult, ReleaseLog, ReleaseMark, RevertResult } from '@qv/schema';
+import { CONTENT_RPC } from '@qv/schema/content';
+import { databaseError } from '@qv/schema/database';
+import type { DbErrorLike } from '@qv/schema/database';
 import type { Refused, ReleaseRepository } from '../../repository';
 import { contentClient } from './client';
 import type { ContentClient } from './client';
-import { fromJson, toJson } from './json';
+import { fromDatabase } from './json';
 import { rawRpcOf } from './raw-rpc';
 
 type Functions = Database['public']['Functions'];
@@ -28,19 +31,21 @@ export function supabaseReleaseRepository(
       const args = { after_key: after, max_rows: limit } as Functions['release_media']['Args'];
       const r = await db.rpc('release_media', args);
       if (r.error) throw new Error(`Content database (release_media): ${r.error.message}`);
-      const data = fromJson<{ keys: string[]; next: string | null }>(r.data);
+      const data = fromDatabase('release_media', CONTENT_RPC.release_media.returns, r.data);
       return { keys: data.keys, next: data.next };
     },
     async setMark(fingerprint, mark, checked, by) {
       const r = await db.rpc('set_release_mark', { fingerprint, mark, checked, checked_by: by });
       if (r.error) {
-        if (r.error.code === 'P0409') return 'stale';
+        if (databaseError(r.error).hasCode('P0409')) return 'stale';
         throw new Error(`Content database (set_release_mark): ${r.error.message}`);
       }
-      return fromJson<unknown[]>(r.data).map((m) => ReleaseMark.parse(m));
+      return fromDatabase('set_release_mark', CONTENT_RPC.set_release_mark.returns, r.data).map(
+        (m) => ReleaseMark.parse(m),
+      );
     },
     async publish(input) {
-      const r = await db.rpc('publish_release', { p: toJson(input) });
+      const r = await db.rpc('publish_release', { p: input });
       if (r.error) return refusedOr('publish_release', r.error);
       return { ok: true, result: PublishResult.parse(r.data) };
     },
@@ -58,13 +63,11 @@ export function supabaseReleaseRepository(
 }
 
 /** «publish_release: marks» with SQLSTATE P0409 or P0422 is a refusal; anything else is a database error. */
-function refusedOr(
-  fn: string,
-  error: { code?: string; message: string; details?: string | null },
-): Refused {
-  const reason = new RegExp(`^${fn}: ([a-z_]+)$`).exec(error.message)?.[1];
-  if (!reason || (error.code !== 'P0409' && error.code !== 'P0422')) {
+function refusedOr(fn: string, raw: DbErrorLike): Refused {
+  const error = databaseError(raw);
+  const reason = error.refusal(fn);
+  if (!reason || !error.hasCode('P0409', 'P0422')) {
     throw new Error(`Content database (${fn}): ${error.message}`);
   }
-  return { ok: false, reason, detail: error.details ?? null };
+  return { ok: false, reason, detail: error.details };
 }

@@ -25,6 +25,7 @@ export function supabaseQuizRepository(client: SupabaseClient<Database>): QuizRe
       return out;
     },
     async save(step) {
+      // The round and the cover's choices are opaque to the code (unknown): the database checks their size.
       const r = await client.rpc('save_quiz_progress', { p: toJson(step) });
       if (r.error) throw new Error(`No se pudo guardar tu avance (${r.error.message}).`);
     },

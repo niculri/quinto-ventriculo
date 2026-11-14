@@ -1,8 +1,8 @@
 // Zod schemas of the admin panel's usage figures: totals over students, never a row per student, from the users'
 // database plus the opens the Worker counts in Workers Analytics Engine (without who or what was searched).
 import { z } from 'zod';
-import { Slug } from './content';
-import { DeckId } from './flashcards';
+import { Slug } from '../content/content';
+import { DeckId } from '../anki/flashcards';
 
 /** Below this many students a figure is not shown exact. */
 export const USAGE_MIN_STUDENTS = 5;

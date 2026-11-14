@@ -1,69 +1,31 @@
-// The study domain: card states, the review log, presets, preferences and settings, with their defaults, limits
-// and errors, shared by the port, both repositories and the rest of the app.
+// The study domain: card states, the review log, presets, preferences and settings (their types are the schemas of
+// @qv/schema/user), with their defaults, limits and errors, shared by the port, both repositories and the rest of the app.
+import type { StudyPreferences } from '@qv/schema/user';
 
-export type Phase = 'new' | 'learning' | 'review' | 'relearning';
-export type QueueName = 'new' | 'learn' | 'day_learn' | 'review';
-
-export interface CardKey {
-  noteGuid: string;
-  ord: number;
-}
-
-export interface CardRef extends CardKey {
-  deckId: string;
-}
-
-export interface StoredCard extends CardRef {
-  phase: Phase;
-  /** Learning: `due` is a day (it passed the rollover). Reviews: always. */
-  interday: boolean;
-  remainingSteps: number;
-  /** ISO time: the moment of a learning step today, or the start of the due day. */
-  due: string | null;
-  interval: number;
-  stability: number | null;
-  difficulty: number | null;
-  reps: number;
-  lapses: number;
-  lastReview: string | null;
-  flag: number;
-  suspended: boolean;
-  buriedUntil: string | null;
-  leech: boolean;
-  updatedAt: string;
-  retiredAt?: string | null;
-}
-
-export type CardStateFields = Pick<
+export type {
+  ActionName,
+  AnswerToday,
+  AssessmentSetting,
+  CardChange,
+  CardKey,
+  CardLogEntry,
+  CardRef,
+  CardStateFields,
+  DeckActivation,
+  DeckProgress,
+  DeckSetting,
+  HomeCounts,
+  HomeDeckCounts,
+  PracticeCount,
+  QueueName,
+  RatedAnswer,
+  ReconcileResult,
+  ReviewInput,
   StoredCard,
-  | 'phase'
-  | 'interday'
-  | 'remainingSteps'
-  | 'due'
-  | 'interval'
-  | 'stability'
-  | 'difficulty'
-  | 'reps'
-  | 'lapses'
-  | 'lastReview'
-  | 'suspended'
-  | 'leech'
->;
-
-export interface StudyPreferences {
-  timeZone: string;
-  dayStartsAt: number;
-  learnAheadMinutes: number;
-  newCardsIgnoreReviewLimit: boolean;
-  applyAllParentLimits: boolean;
-  fullAnki: boolean;
-  fourButtons: boolean;
-  welcomeSeen: boolean;
-  semester: number | null;
-  addedCourses: string[];
-  removedCourses: string[];
-  dismissed: string[];
-}
+  StudyPreferences,
+  UndoResult,
+  UserPreset,
+} from '@qv/schema/user';
 
 export function defaultPreferences(timeZone = browserTimeZone()): StudyPreferences {
   return {
@@ -88,141 +50,6 @@ export function browserTimeZone(): string {
   } catch {
     return 'America/Santiago';
   }
-}
-
-export interface UserPreset {
-  id: string;
-  name: string;
-  replaces: string | null;
-  config: Record<string, unknown>;
-  updatedAt: string;
-}
-
-export interface DeckSetting {
-  deckId: string;
-  presetId: string | null;
-  authorPreset: string | null;
-}
-
-export interface DeckActivation {
-  deckId: string;
-  active: boolean;
-}
-
-export interface AssessmentSetting {
-  deckId: string;
-  includeExtras: boolean;
-  newPerDay: number | null;
-  examDate?: string | null;
-  finalReviewDays?: number;
-  examDateSetAt?: string | null;
-}
-
-export interface DeckProgress {
-  deckId: string;
-  seen: number;
-  newSuspended: number;
-  overdue: number;
-  newToday: number;
-  newYesterday: number;
-}
-
-// As `home_counts()` gives it, in Unix seconds: «l» a learning step of today (`due` is its moment), «d» learning past
-// a day and «r» a review (`due` is the start of its day).
-export interface HomeDueCard {
-  noteGuid: string;
-  ord: number;
-  queue: 'l' | 'd' | 'r';
-  due: number;
-}
-
-export interface HomeDeckCounts {
-  deckId: string;
-  seen: number;
-  hiddenNew: number;
-  touched: number;
-  suspended: number;
-  recall: number;
-  due: HomeDueCard[];
-}
-
-export interface HomeCounts {
-  decks: HomeDeckCounts[];
-  truncated: boolean;
-}
-
-export interface AnswerToday {
-  deckId: string;
-  queueBefore: QueueName;
-}
-
-export interface ReviewInput {
-  card: CardRef;
-  expectedUpdatedAt: string | null;
-  rating: 1 | 2 | 3 | 4;
-  queueBefore: QueueName;
-  interval: number;
-  lastInterval: number;
-  durationMs: number;
-  rBefore?: number | null;
-  cardVersion?: number | null;
-  state: CardStateFields;
-  bury: CardRef[];
-  buriedUntil: string | null;
-}
-
-export type ActionName =
-  | 'answer'
-  | 'bury_card'
-  | 'bury_note'
-  | 'suspend_card'
-  | 'suspend_note'
-  | 'flag'
-  | 'unbury'
-  | 'unsuspend'
-  | 'forget';
-
-export interface CardLogEntry {
-  action: ActionName;
-  reviewedAt: string;
-  rating: number | null;
-  queueBefore: QueueName | null;
-  phaseBefore: Phase;
-  phaseAfter: Phase;
-  /** Days (positive) or seconds (negative), as Anki's revlog. */
-  interval: number | null;
-  stability: number | null;
-  difficulty: number | null;
-  durationMs: number | null;
-}
-
-export interface RatedAnswer {
-  noteGuid: string;
-  ord: number;
-  rating: 1 | 2 | 3 | 4;
-  reviewedAt: string;
-}
-
-export interface UndoResult extends CardRef {
-  action: ActionName;
-  rating: number | null;
-}
-
-export interface CardChange {
-  noteGuid: string;
-  ord: number;
-  deckId: string | null;
-}
-
-export interface ReconcileResult {
-  applied: boolean;
-  syncedTo: number;
-  changed: number;
-}
-
-export interface PracticeCount {
-  deckId: string;
-  n: number;
 }
 
 export const PRACTICE_BATCH_MAX = 1000;

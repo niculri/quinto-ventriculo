@@ -1,15 +1,6 @@
 // The account domain: accepted versions, the state on entering, and its error with the messages it shows.
 
-export interface AcceptedVersions {
-  terms: string;
-  privacy: string;
-  acceptedAt: string;
-}
-
-export interface AccountState {
-  accepted: AcceptedVersions | null;
-  deletionCancelled: boolean;
-}
+export type { AcceptedVersions, AccountState } from '@qv/schema/user';
 
 export type AccountErrorCode = 'session_closed' | 'email_mismatch' | 'admin_account' | 'unknown';
 

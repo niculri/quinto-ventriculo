@@ -583,11 +583,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/reports/repository/supabase.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/search/SearchPage.tsx": {
     "boundaries/dependencies": {
       "count": 2
@@ -764,14 +759,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/study/repository/supabase.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "apps/web/src/features/study/scheduler.ts": {
@@ -981,7 +968,7 @@
       "count": 1
     }
   },
-  "packages/schema/src/browse-index.ts": {
+  "packages/schema/src/anki/browse-index.ts": {
     "max-lines-per-function": {
       "count": 1
     },
@@ -989,7 +976,12 @@
       "count": 1
     }
   },
-  "packages/schema/src/review.ts": {
+  "packages/schema/src/importer/taxonomy.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/release/review.ts": {
     "max-lines": {
       "count": 1
     },
@@ -998,11 +990,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
-    }
-  },
-  "packages/schema/src/taxonomy.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
     }
   },
   "packages/srs/src/queue.ts": {

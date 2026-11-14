@@ -1,15 +1,15 @@
 // The content bundle the importer produces and the content database stores; the dry run writes it to
 // `.output/content.json`, which the API can serve from memory.
 import { z } from 'zod';
-import { Assessment, Course, Note, Semester } from './content';
+import { Assessment, Course, Note, Semester } from '../content/content';
 import {
   AnkiDeckRecord,
   AnkiNoteTypeRecord,
   AnkiPresetRecord,
   ImportedAnkiNote,
-} from './flashcards';
-import { CardIndexRecord } from './browse-index';
-import { ImportedQuiz } from './quizzes';
+} from '../anki/flashcards';
+import { CardIndexRecord } from '../anki/browse-index';
+import { ImportedQuiz } from '../quiz/quizzes';
 
 export const NoteSection = z.object({
   anchor: z.string(),

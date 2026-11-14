@@ -1,9 +1,9 @@
 // Zod contracts of the API's responses and requests (`/api/*`); the web validates every response with them.
 import { z } from 'zod';
-import { Assessment, Course, NoteSummary, Semester } from './content';
-import { AnkiTreeDeck, AuthorPreset, NoteTypeSummary } from './flashcards';
-import { CardIndexRef } from './browse-index';
-import { QuizSummary } from './quizzes';
+import { Assessment, Course, NoteSummary, Semester } from '../content/content';
+import { AnkiTreeDeck, AuthorPreset, NoteTypeSummary } from '../anki/flashcards';
+import { CardIndexRef } from '../anki/browse-index';
+import { QuizSummary } from '../quiz/quizzes';
 
 /** `quizzes` defaults to empty so that an older catalog still parses. */
 export const AssessmentWithNotes = Assessment.extend({

@@ -27,6 +27,15 @@ const SUPABASE_ADAPTERS = [
   '**/*.test.{ts,tsx}',
 ];
 
+// The web's and the API's adapters, without their tests: what the database answers is checked with its contract.
+const DATA_ADAPTERS = SUPABASE_ADAPTERS.filter(
+  (g) => g.startsWith('apps/') && !g.includes('.test.'),
+);
+const AS_ON_DATA =
+  "TSAsExpression[expression.type='MemberExpression'][expression.property.name='data'], TSAsExpression[expression.type='Identifier'][expression.name='data']";
+const AS_ON_DATA_MESSAGE =
+  'A database answer is checked with its contract (fromDatabase), not taken with `as`.';
+
 const PORTED_FROM_ANKI = [
   ...['ast', 'compile', 'errors', 'parser', 'term', 'text'].map(
     (f) => `packages/anki-search/src/${f}.ts`,
@@ -160,6 +169,13 @@ export default tseslint.config(
           message: 'PostgREST (/rest/v1) is reached only through a repository (data adapter).',
         },
       ],
+    },
+  },
+  {
+    // Their only `no-restricted-syntax`: the block above leaves them out.
+    files: DATA_ADAPTERS,
+    rules: {
+      'no-restricted-syntax': ['error', { selector: AS_ON_DATA, message: AS_ON_DATA_MESSAGE }],
     },
   },
   {

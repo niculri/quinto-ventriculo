@@ -26,7 +26,7 @@ describe('isAllowedEmail', () => {
 
 describe('deckSlug', () => {
   it('readable, without accents or symbols', async () => {
-    const { deckSlug } = await import('./flashcards');
+    const { deckSlug } = await import('../anki/flashcards');
     expect(deckSlug('01 - Columna vertebral')).toBe('01-columna-vertebral');
     expect(deckSlug('S3 · Músculos del dorso (Extras)')).toBe('s3-musculos-del-dorso-extras');
     expect(deckSlug('()')).toBe('mazo');

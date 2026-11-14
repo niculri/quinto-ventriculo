@@ -470,7 +470,7 @@ describe('the process and calendar phrases', () => {
   });
 
   // The published articles as the importer's dry run built them; without that folder (as in the CI), nothing to read.
-  const OUTPUT = join(import.meta.dirname, '..', '..', '..', '.output', 'content.json');
+  const OUTPUT = join(import.meta.dirname, '..', '..', '..', '..', '.output', 'content.json');
   it.skipIf(!existsSync(OUTPUT))('gives 0 in the 10 articles on line', () => {
     const bundle = JSON.parse(readFileSync(OUTPUT, 'utf8')) as {
       notes: {

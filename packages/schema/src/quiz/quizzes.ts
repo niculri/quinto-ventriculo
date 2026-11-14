@@ -1,6 +1,6 @@
 // Zod schemas of the practice tests (test → sections or tabs → groups or topics → questions) and their API shapes.
 import { z } from 'zod';
-import { Slug } from './content';
+import { Slug } from '../content/content';
 
 /** Unique on the site and stable: everybody's progress hangs from it. */
 export const QuizId = Slug;

@@ -2,26 +2,25 @@
 // the data and asking to delete it. The database decides, from the caller's token and open session.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
-import { fromJson } from '../../../lib/json';
+import { databaseError } from '@qv/schema/database';
+import { ACCOUNT_RPC } from '@qv/schema/user';
+import { fromDatabase } from '../../../lib/json';
 import type { AccountRepository } from './port';
 import { AccountError, MESSAGES } from './model';
 
 /** The database's refusal carries the code as its message. */
 export function accountError(e: unknown): AccountError {
   if (e instanceof AccountError) return e;
-  const text = e && typeof e === 'object' && 'message' in e ? String(e.message) : '';
+  const error = databaseError({
+    message: e && typeof e === 'object' && 'message' in e ? String(e.message) : '',
+  });
   const code = (['session_closed', 'email_mismatch', 'admin_account'] as const).find((c) =>
-    text.includes(c),
+    error.says(c),
   );
   return new AccountError(code ?? 'unknown', MESSAGES[code ?? 'unknown']);
 }
 
 type Functions = Database['public']['Functions'];
-
-interface ResumeRow {
-  accepted: { terms_version: string; privacy_version: string; accepted_at: string } | null;
-  deletion_cancelled: boolean;
-}
 
 export function supabaseAccountRepository(
   client: SupabaseClient<Database>,
@@ -35,7 +34,9 @@ export function supabaseAccountRepository(
   };
   return {
     async resume(versions) {
-      const r = fromJson<ResumeRow>(
+      const r = fromDatabase(
+        'resume_account',
+        ACCOUNT_RPC.resume_account.returns,
         await call('resume_account', {
           terms_version: versions.terms,
           privacy_version: versions.privacy,
@@ -53,7 +54,9 @@ export function supabaseAccountRepository(
       };
     },
     async accept(versions) {
-      const r = fromJson<{ accepted_at: string }>(
+      const r = fromDatabase(
+        'accept_legal',
+        ACCOUNT_RPC.accept_legal.returns,
         await call('accept_legal', {
           terms_version: versions.terms,
           privacy_version: versions.privacy,
@@ -85,7 +88,9 @@ export function supabaseAccountRepository(
       return new Blob([await r.arrayBuffer()], { type: 'application/json' });
     },
     async requestDeletion(email) {
-      const r = fromJson<{ delete_after: string }>(
+      const r = fromDatabase(
+        'request_account_deletion',
+        ACCOUNT_RPC.request_account_deletion.returns,
         await call('request_account_deletion', { confirm_email: email }),
       );
       return { deleteAfter: r.delete_after };

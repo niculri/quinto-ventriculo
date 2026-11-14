@@ -21,7 +21,9 @@ import {
   serviceRpc,
 } from './import-fixtures';
 import type { Parts } from './import-fixtures';
-import { applyMigration, asUser, createDatabase } from './pglite';
+import { applyMigration, asUser, createDatabase, closeAfterEachTest } from './pglite';
+
+closeAfterEachTest();
 
 const MIGRATION = '20261109000000_draft.sql';
 const MIGRATIONS = join(import.meta.dirname, '..', 'content', 'supabase', 'migrations');

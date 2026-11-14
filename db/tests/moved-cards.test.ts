@@ -2,7 +2,9 @@
 // web brings the content's changes on entering and reconcile_cards() applies them to that student's rows only.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { asUser, createDatabase } from './pglite';
+import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+
+closeAfterEachTest();
 
 const ANA = { sub: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.cl' };
 const BETO = { sub: '00000000-0000-4000-8000-00000000000b', email: 'beto@ug.uchile.cl' };

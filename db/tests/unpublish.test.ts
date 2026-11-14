@@ -28,7 +28,9 @@ import {
   withHash,
 } from './import-fixtures';
 import type { Parts } from './import-fixtures';
-import { asUser, createDatabase } from './pglite';
+import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+
+closeAfterEachTest();
 
 let db: PGlite;
 let users: PGlite;

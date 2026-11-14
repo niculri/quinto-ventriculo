@@ -18,7 +18,9 @@ import {
   quiz,
 } from './import-fixtures';
 import type { Parts } from './import-fixtures';
-import { asUser, createDatabase } from './pglite';
+import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+
+closeAfterEachTest();
 
 let db: PGlite;
 let calls: { fn: string; args: Record<string, unknown> }[];

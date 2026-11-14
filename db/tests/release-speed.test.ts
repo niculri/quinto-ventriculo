@@ -17,7 +17,9 @@ import {
   withHash,
 } from './import-fixtures';
 import type { Parts } from './import-fixtures';
-import { applyMigration, createDatabase } from './pglite';
+import { applyMigration, createDatabase, closeAfterEachTest } from './pglite';
+
+closeAfterEachTest();
 
 const MIGRATION = '20261113000000_publish_speed.sql';
 const BIG = ['anki_cards', 'anki_notes'];

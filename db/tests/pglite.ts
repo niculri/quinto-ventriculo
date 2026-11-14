@@ -1,6 +1,7 @@
 // In-memory test databases (PGlite) with the fake Supabase and the migrations of db/users or db/content.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { afterEach, expect } from 'vitest';
 import { PGlite } from '@electric-sql/pglite';
 import { unaccent } from '@electric-sql/pglite/contrib/unaccent';
 
@@ -13,6 +14,31 @@ const HERE = import.meta.dirname;
  * takes a fraction of applying every migration again, and each call still gets a database of its own.
  */
 const built = new Map<string, Promise<Blob>>();
+
+/**
+ * The databases handed out and not closed yet, apart by when they were asked for: inside a test (or its
+ * beforeEach) or outside one (beforeAll, the top of the file). Each open database holds some 300 MB and a
+ * worker runs many test files, so tests/setup.ts closes them all after each file; a file that makes one per
+ * test calls closeAfterEachTest().
+ */
+const open = { test: new Set<PGlite>(), file: new Set<PGlite>() };
+
+function track(db: PGlite): PGlite {
+  open[expect.getState().currentTestName ? 'test' : 'file'].add(db);
+  return db;
+}
+
+export async function closeDatabases(of: 'test' | 'file'): Promise<void> {
+  const all = of === 'file' ? [...open.test, ...open.file] : [...open.test];
+  open.test.clear();
+  if (of === 'file') open.file.clear();
+  await Promise.all(all.map((db) => (db.closed ? undefined : db.close())));
+}
+
+/** For a test file whose tests make their own databases and share none made inside a test. */
+export function closeAfterEachTest(): void {
+  afterEach(() => closeDatabases('test'));
+}
 
 /**
  * An in-memory database with the fake Supabase and every migration of `db/<name>`, in the order of their
@@ -40,7 +66,7 @@ export async function createDatabase(
       });
     built.set(key, dump);
   }
-  return PGlite.create({ loadDataDir: await dump, extensions: { unaccent } });
+  return track(await PGlite.create({ loadDataDir: await dump, extensions: { unaccent } }));
 }
 
 /**
@@ -52,7 +78,7 @@ export async function createFreshDatabase(
   order: string[] = [],
   until?: string,
 ): Promise<PGlite> {
-  const db = await PGlite.create({ extensions: { unaccent } });
+  const db = track(await PGlite.create({ extensions: { unaccent } }));
   await db.exec(readFileSync(join(HERE, 'fake-supabase.sql'), 'utf8'));
   const folder = join(HERE, '..', name, 'supabase', 'migrations');
   const byName = readdirSync(folder)

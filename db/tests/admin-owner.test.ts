@@ -2,7 +2,9 @@
 // among the invited and never themself; the other administrators use the panel but cannot call it.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { OWNER_EMAIL, applyMigration, asUser, createDatabase } from './pglite';
+import { OWNER_EMAIL, applyMigration, asUser, createDatabase, closeAfterEachTest } from './pglite';
+
+closeAfterEachTest();
 
 let db: PGlite;
 const OWNER = { sub: '00000000-0000-4000-8000-0000000000d1', email: OWNER_EMAIL };

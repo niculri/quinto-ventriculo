@@ -51,7 +51,6 @@ export { buildCardIndexes } from './card-index';
 export type { PackedIndex } from './browse-index';
 export type { ThumbMaker } from './targets';
 export type { DecksOptions, DecksResult } from './decks';
-export { sanitizeCard } from './card-html';
 export {
   ImageCache,
   processImage,
@@ -66,7 +65,6 @@ export {
   inlineHtml,
   questionId,
   stableQuestionId,
-  sanitizeSvg,
   defaultQuizId,
   QUIZ_THEMES,
 } from './quizzes';

@@ -3,7 +3,6 @@ export {
   buildReview,
   lastName,
   onlyInCatalog,
-  plainText,
   processPhrases,
   releaseTitle,
   reviewChecks,

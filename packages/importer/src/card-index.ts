@@ -1,6 +1,7 @@
 // Builds the card browser's indexes from a bundle's notes: per assessment, each note's kind, topic, front and back as
 // short plain text, its thumbnail and origin, in the content database's order.
-import { CARD_INDEX_VERSION, ORIGIN_TAGS, ankiPlainText, thumbKeyOf } from '@qv/schema';
+import { ankiPlainText } from '@qv/html/text';
+import { CARD_INDEX_VERSION, ORIGIN_TAGS, thumbKeyOf } from '@qv/schema';
 import type {
   AnkiDeckRecord,
   AnkiNoteTypeRecord,

@@ -12,7 +12,7 @@ import { gunzipSync } from 'node:zlib';
 import { buildBundle, hash } from './build';
 import { packCardIndexes } from './browse-index';
 import { containerDeckId } from './decks';
-import { sanitizeCard } from './card-html';
+import { sanitizeCard } from '@qv/html/sanitize';
 import { FolderTarget, batches, cardMoves, sharedConflicts } from './targets';
 import { ImageCache, MAX_WIDTH, THUMB_WIDTH, processCardImage, processImage } from './images';
 import { readManifest, readUnpublished, validateReferences } from './manifest';

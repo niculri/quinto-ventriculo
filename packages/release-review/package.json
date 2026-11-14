@@ -14,5 +14,8 @@
   },
   "dependencies": {
     "@qv/schema": "0.0.0"
+  },
+  "devDependencies": {
+    "@qv/html": "0.0.0"
   }
 }

@@ -44,19 +44,6 @@ export function codeWithVersion(code: string | null, version: number | null): st
   return version ? `${code}.${version}` : code;
 }
 
-export function plainText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 // In a text fragment (`#:~:text=`) «-», «,» and «&» have a meaning, so they are escaped too.
 const fragmentPart = (text: string) =>
   encodeURIComponent(text).replace(/-/g, '%2D').replace(/,/g, '%2C');

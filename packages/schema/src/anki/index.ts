@@ -21,7 +21,6 @@ export {
   ROOT_DECK_NAME,
 } from './flashcards';
 export {
-  ankiPlainText,
   CARD_INDEX_VERSION,
   CardIndex,
   cardIndexKey,

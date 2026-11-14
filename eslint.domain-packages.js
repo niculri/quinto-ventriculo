@@ -5,6 +5,7 @@
 const DOMAIN_PACKAGES = {
   study: ['@qv/schema', '@qv/srs'],
   'release-review': ['@qv/schema'],
+  html: [],
 };
 const BROWSER_AND_NETWORK = [
   'globalThis',
@@ -30,7 +31,9 @@ export const domainPackages = Object.entries(DOMAIN_PACKAGES).map(([name, allowe
         patterns: [
           {
             group: ['@qv/*', ...allowed.flatMap((p) => [`!${p}`, `!${p}/*`]), '**/apps/**'],
-            message: `@qv/${name} imports only ${allowed.join(' and ')} of this repository, and no app.`,
+            message: allowed.length
+              ? `@qv/${name} imports only ${allowed.join(' and ')} of this repository, and no app.`
+              : `@qv/${name} imports nothing of this repository.`,
           },
           {
             group: ['react', 'react/*', 'react-*', '@tanstack/*', '@supabase/*'],

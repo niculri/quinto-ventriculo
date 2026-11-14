@@ -80,7 +80,6 @@ export {
 export {
   AnkiDeckRecord,
   AnkiNoteTypeRecord,
-  ankiPlainText,
   AnkiPresetRecord,
   AnkiTreeDeck,
   AuthorPreset,

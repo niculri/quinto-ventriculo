@@ -74,6 +74,8 @@ export interface RealMaterialConfig {
     /** Relative to the private repository, not to `root`. */
     labels: string;
   };
+  /** Digests of what the HTML code gives for this material (`html-real.test.ts`); `material` names the material. */
+  html?: { material: string; digests: Record<string, string> };
 }
 
 const CONFIG = 'tests/real-material.json';

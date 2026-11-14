@@ -8,5 +8,4 @@ export type {
   Section,
 } from './convert';
 export { CALLOUT_LABELS, calloutLabel } from './callouts';
-export { slugify, plainText } from './text';
-export { sanitize } from './sanitize';
+export { slugify } from './text';

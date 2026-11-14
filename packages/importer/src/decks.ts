@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { deckLeafName, deckTree, parentDeckName, readApkgFile } from '@qv/anki-format';
 import type { AnkiPackage } from '@qv/anki-format';
 import { createCardRenderer, isImageOcclusion, noteSortText } from '@qv/anki-render';
+import { sanitizeCard } from '@qv/html/sanitize';
 import { ROOT_DECK_NAME, parseCardCode } from '@qv/schema';
 import type {
   AnkiDeckRecord,
@@ -15,7 +16,6 @@ import type {
   ImportedAnkiNote,
   Semester,
 } from '@qv/schema';
-import { sanitizeCard } from './card-html';
 import { forSite } from './site-note-types';
 import type { CatalogCourse } from './manifest';
 import type { ImageDataProcessor, ProcessedImage } from './images';

@@ -2,7 +2,6 @@
 // with the same rules and texts as the skill's modelo.py and page.
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, isAbsolute, join, relative, resolve } from 'node:path';
-import sanitizeHtml from 'sanitize-html';
 import { ImportedQuiz } from '@qv/schema';
 import type {
   Assessment,
@@ -13,6 +12,7 @@ import type {
   QuizTable,
   QuizTheme,
 } from '@qv/schema';
+import { sanitizeSvg } from '@qv/html/sanitize';
 import { drawChart } from './quiz-charts';
 import type { ProcessedImage } from './images';
 
@@ -191,108 +191,6 @@ function correctIndex(ok: unknown, n: number): number {
   if (i < 0 || i >= n)
     throw new Error(`«ok» = ${JSON.stringify(ok)} fuera de rango: hay ${n} alternativas`);
   return i;
-}
-
-const SVG_TAGS = [
-  'svg',
-  'g',
-  'rect',
-  'circle',
-  'ellipse',
-  'line',
-  'polyline',
-  'polygon',
-  'path',
-  'text',
-  'tspan',
-  'title',
-];
-const SVG_ATTRIBUTES = [
-  'viewBox',
-  'width',
-  'height',
-  'x',
-  'y',
-  'x1',
-  'y1',
-  'x2',
-  'y2',
-  'cx',
-  'cy',
-  'r',
-  'rx',
-  'ry',
-  'd',
-  'points',
-  'dx',
-  'dy',
-  'transform',
-  'fill',
-  'fill-opacity',
-  'fill-rule',
-  'stroke',
-  'stroke-width',
-  'stroke-opacity',
-  'stroke-dasharray',
-  'stroke-linecap',
-  'stroke-linejoin',
-  'stroke-miterlimit',
-  'opacity',
-  'font-family',
-  'font-size',
-  'font-weight',
-  'font-style',
-  'text-anchor',
-  'dominant-baseline',
-  'letter-spacing',
-  'preserveAspectRatio',
-  'role',
-  'aria-label',
-  'aria-hidden',
-  'xmlns',
-];
-/** No `url(`, `javascript:` or backslash: presentation attributes are read as CSS, where `u\72 l(` is `url(`. */
-const SAFE_VALUE =
-  /^(?![\s\S]*javascript:)(?![\s\S]*url\s*\()(?![\s\S]*expression\s*\()(?![\s\S]*\\)/i;
-
-const SVG_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: SVG_TAGS,
-  allowedAttributes: Object.fromEntries(SVG_TAGS.map((t) => [t, SVG_ATTRIBUTES])),
-  allowedSchemes: [],
-  selfClosing: SVG_TAGS.filter((t) => !['svg', 'g', 'text', 'tspan', 'title'].includes(t)),
-  parser: { lowerCaseAttributeNames: false, lowerCaseTags: false },
-  exclusiveFilter: () => false,
-  transformTags: {
-    '*': (tagName, attribs) => ({
-      tagName,
-      attribs: Object.fromEntries(
-        Object.entries(attribs).filter(([, v]) => SAFE_VALUE.test(v)),
-      ) as Record<string, string>,
-    }),
-  },
-};
-
-/** Keeps only drawing tags and attributes; `dropped` warns that the figure may not look like the original. */
-export function sanitizeSvg(svg: string): { svg: string; dropped: string[] } {
-  const clean = sanitizeHtml(svg.trim(), SVG_OPTIONS);
-  const dropped: string[] = [];
-  const tags = (s: string) => [...s.matchAll(/<([a-zA-Z][\w-]*)/g)].map((m) => m[1]!);
-  const attrs = (s: string) => [...s.matchAll(/\s([a-zA-Z][\w:-]*)="/g)].map((m) => m[1]!);
-  const before = tags(svg);
-  const after = tags(clean);
-  if (before.length !== after.length) {
-    const lost = before.filter((t) => !SVG_TAGS.includes(t));
-    dropped.push(
-      `etiquetas quitadas: ${[...new Set(lost)].join(', ') || before.length - after.length}`,
-    );
-  }
-  const ab = attrs(svg);
-  const aa = attrs(clean);
-  if (ab.length !== aa.length) {
-    const lost = ab.filter((a) => !SVG_ATTRIBUTES.includes(a));
-    dropped.push(`atributos quitados: ${[...new Set(lost)].join(', ') || ab.length - aa.length}`);
-  }
-  return { svg: clean, dropped };
 }
 
 interface LoadedGroup {

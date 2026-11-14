@@ -1,9 +1,10 @@
 // Converts a note's Markdown (apunte.md) to the wiki's sanitized HTML, with its table of contents and sections.
 import MarkdownIt from 'markdown-it';
+import { sanitizeNote as sanitize } from '@qv/html/sanitize';
+import { notePlainText as plainText } from '@qv/html/note-text';
 import type { TocEntry } from '@qv/schema';
 import { calloutLabel } from './callouts';
-import { sanitize } from './sanitize';
-import { escapeAttribute, plainText, slugify } from './text';
+import { escapeAttribute, slugify } from './text';
 
 export interface ResolvedImage {
   key: string;

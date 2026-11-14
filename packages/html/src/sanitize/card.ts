@@ -1,65 +1,6 @@
 // Sanitizes the HTML of a rendered card for the web and points its images at the image store.
 import sanitizeHtml from 'sanitize-html';
-import type { ProcessedImage } from './images';
-
-/** A CSS value without anything that loads or runs something (url(), expression(), javascript:). */
-const SAFE_VALUE =
-  /^(?!.*(?:url|expression|image-set|image|element|paint)\s*\()(?!.*javascript:)[^<>"\\{};]*$/i;
-
-const STYLE_PROPERTIES = [
-  'color',
-  'background',
-  'background-color',
-  'font',
-  'font-family',
-  'font-size',
-  'font-style',
-  'font-weight',
-  'font-variant',
-  'text-align',
-  'text-decoration',
-  'text-transform',
-  'text-indent',
-  'letter-spacing',
-  'line-height',
-  'white-space',
-  'vertical-align',
-  'display',
-  'visibility',
-  'width',
-  'height',
-  'min-width',
-  'min-height',
-  'max-width',
-  'max-height',
-  'margin',
-  'margin-top',
-  'margin-right',
-  'margin-bottom',
-  'margin-left',
-  'padding',
-  'padding-top',
-  'padding-right',
-  'padding-bottom',
-  'padding-left',
-  'border',
-  'border-top',
-  'border-right',
-  'border-bottom',
-  'border-left',
-  'border-color',
-  'border-style',
-  'border-width',
-  'border-radius',
-  'border-collapse',
-  'float',
-  'clear',
-  'opacity',
-  'list-style',
-  'list-style-type',
-  'direction',
-  'unicode-bidi',
-];
+import { CARD_SAFE_VALUE, STYLE_PROPERTIES } from './css';
 
 /** Unlike the notes', a card keeps what its note type's CSS and Image Occlusion need; scripts and handlers go away. */
 const OPTIONS: sanitizeHtml.IOptions = {
@@ -146,7 +87,7 @@ const OPTIONS: sanitizeHtml.IOptions = {
     button: ['type'],
     canvas: ['width', 'height'],
   },
-  allowedStyles: { '*': Object.fromEntries(STYLE_PROPERTIES.map((p) => [p, [SAFE_VALUE]])) },
+  allowedStyles: { '*': Object.fromEntries(STYLE_PROPERTIES.map((p) => [p, [CARD_SAFE_VALUE]])) },
   allowedSchemes: ['https'],
   allowedSchemesAppliedToAttributes: ['href'],
   allowProtocolRelative: false,
@@ -160,7 +101,8 @@ export interface SanitizedCard {
   missing: string[];
 }
 
-export type ImageResolver = (name: string) => Promise<ProcessedImage | null>;
+/** Only the key of the stored image is read: the importer passes its processed images. */
+export type ImageResolver = (name: string) => Promise<{ key: string } | null>;
 
 /** Each `<img src="file">` becomes `data-media="cards/<hash>.webp"`, which the API turns into a signed URL. */
 export async function sanitizeCard(
@@ -178,7 +120,7 @@ export async function sanitizeCard(
       },
     },
   });
-  const images = new Map<string, ProcessedImage | null>();
+  const images = new Map<string, { key: string } | null>();
   for (const name of names) {
     images.set(name, isRemote(name) ? null : await resolveImage(name));
   }

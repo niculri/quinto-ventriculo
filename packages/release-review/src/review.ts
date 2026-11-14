@@ -630,25 +630,6 @@ export function releaseTitle(s: ReleaseSummary): string {
 
 export const lastName = (deckName: string) => deckName.split('::').pop() ?? deckName;
 
-/** Like `release_text()` in SQL: only what looks like a tag goes (a loose «p<0.05 y q>1» is text). */
-export function plainText(html: string | null | undefined): string {
-  return (html ?? '')
-    .replace(
-      /<(?:img|video|audio|source|embed)\b[^>]*\b(?:data-media|src)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))[^>]*>/gi,
-      (_m, a?: string, b?: string, c?: string) => ` [img ${a ?? b ?? c ?? ''}] `,
-    )
-    .replace(/<\/?[a-z][^>]*>|<![^>]*>/gi, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&')
-    .replace(/\u00a0/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 export type DiffPart = { op: 'same' | 'del' | 'add'; text: string };
 
 export function wordDiff(before: string, after: string): DiffPart[] {

@@ -1,5 +1,4 @@
-// Text helpers for the notes' HTML: slugs, plain text and attribute escaping.
-import { decodeHTML } from 'entities';
+// Text helpers for the notes' HTML: slugs and attribute escaping.
 
 /** «Núcleo celular: 1.º parte» → «nucleo-celular-1-o-parte». */
 export function slugify(text: string, max = 64): string {
@@ -10,13 +9,6 @@ export function slugify(text: string, max = 64): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
   return base.slice(0, max).replace(/-+$/, '') || 'section';
-}
-
-export function plainText(html: string): string {
-  const withoutTags = html
-    .replace(/<(?:br|\/p|\/li|\/h\d|\/tr|\/td|\/th|\/figcaption)\b[^>]*>/gi, ' ')
-    .replace(/<[^>]+>/g, '');
-  return decodeHTML(withoutTags).replace(/\s+/g, ' ').trim();
 }
 
 export function escapeAttribute(text: string): string {

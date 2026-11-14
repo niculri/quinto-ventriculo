@@ -1,0 +1,24 @@
+{
+  "name": "@qv/html",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The sanitizing of the HTML the site shows (cards, notes, the tests' SVG figures) and its HTML-to-text forms, without React or network",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    "./sanitize": "./src/sanitize/index.ts",
+    "./text": "./src/text/index.ts",
+    "./note-text": "./src/text/note.ts"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "entities": "9.0.0",
+    "sanitize-html": "2.18.1"
+  },
+  "devDependencies": {
+    "@types/sanitize-html": "2.16.2"
+  }
+}

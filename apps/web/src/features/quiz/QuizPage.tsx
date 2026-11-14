@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
+import { reportPlainText as plainText } from '@qv/html/text';
 import { canSkip, isAnswered, progress, score } from '@qv/quiz';
 import { QUIZ_THEME_TOKENS } from '@qv/schema';
 import type { QuizDetail, QuizSectionDetail, QuizSectionSummary } from '@qv/schema';
@@ -25,7 +26,6 @@ import type { SavedQuiz } from './repository';
 import { useQuizSession } from './useQuizSession';
 import type { QuestionEntry } from './useQuizSession';
 import { ReportDialog } from '../reports/ReportDialog';
-import { plainText } from '../reports/labels';
 import type { ReportTarget } from '../reports/repository';
 import { useFocusMode } from '../../ui/focus';
 import { useReadingFonts } from '../../lib/readingFonts';

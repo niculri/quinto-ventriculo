@@ -9,7 +9,7 @@ import type {
   ContentBundle,
   DeckDetail,
 } from '@qv/schema';
-import { ankiPlainText } from '@qv/schema';
+import { ankiPlainText } from '@qv/html/text';
 
 export function memoryDecks(bundle: ContentBundle) {
   const decks = new Map(bundle.ankiDecks.map((d) => [d.id, d]));

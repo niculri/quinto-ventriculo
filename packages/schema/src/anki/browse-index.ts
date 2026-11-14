@@ -67,17 +67,3 @@ export const ThumbSignature = z.object({
   query: z.string(),
 });
 export type ThumbSignature = z.infer<typeof ThumbSignature>;
-
-/** Has to match `anki_plain_text()` of the content database. */
-export function ankiPlainText(html: string | undefined): string {
-  return (html ?? '')
-    .replace(/<[^>]*>/g, ' ')
-    .replaceAll('&nbsp;', ' ')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#39;', "'")
-    .replaceAll('&amp;', '&')
-    .replace(/\s+/g, ' ')
-    .trim();
-}

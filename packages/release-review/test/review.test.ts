@@ -3,6 +3,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { releasePlainText as plainText } from '@qv/html/text';
 import type { ReleaseAssessment, ReleaseFinding, ReleaseSummary } from '@qv/schema/release';
 import {
   CHECK_RULES,
@@ -11,7 +12,6 @@ import {
   changedGuids,
   findProcessPhrases,
   maskOverlap,
-  plainText,
   onlyInCatalog,
   releaseTitle,
   renumbered,

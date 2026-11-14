@@ -1,0 +1,1821 @@
+{
+  "card": {
+    "plain": {
+      "html": "Hola mundo",
+      "media": [],
+      "missing": []
+    },
+    "bold": {
+      "html": "<b>negrita</b> y <strong>fuerte</strong>",
+      "media": [],
+      "missing": []
+    },
+    "inline-marks": {
+      "html": "<i>a</i> <em>b</em> <u>c</u> <s>d</s> <del>e</del> <ins>f</ins>",
+      "media": [],
+      "missing": []
+    },
+    "paragraphs": {
+      "html": "<p>Uno</p><p>Dos</p>",
+      "media": [],
+      "missing": []
+    },
+    "br-variants": {
+      "html": "a<br />b<br />c<br />d",
+      "media": [],
+      "missing": []
+    },
+    "anki-divs": {
+      "html": "<div>Primera línea</div><div>Segunda</div>",
+      "media": [],
+      "missing": []
+    },
+    "list": {
+      "html": "<ul><li>Uno</li><li>Dos <b>tres</b></li></ul>",
+      "media": [],
+      "missing": []
+    },
+    "ordered-list": {
+      "html": "<ol start=\"3\" type=\"a\"><li>x</li><li>y</li></ol>",
+      "media": [],
+      "missing": []
+    },
+    "definition-list": {
+      "html": "<dl><dt>Término</dt><dd>Definición</dd></dl>",
+      "media": [],
+      "missing": []
+    },
+    "table": {
+      "html": "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" width=\"100%\" align=\"center\"><caption>Tabla</caption><colgroup><col span=\"2\" width=\"50\" /></colgroup><thead><tr><th colspan=\"2\" style=\"text-align:center\">Título</th></tr></thead><tbody><tr><td rowspan=\"2\" valign=\"top\" style=\"text-align:left\">a</td><td style=\"text-align:justify\">b</td></tr></tbody><tfoot><tr><td>pie</td></tr></tfoot></table>",
+      "media": [],
+      "missing": []
+    },
+    "img-local": {
+      "html": "<img data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "img-attributes": {
+      "html": "<img alt=\"Corte &quot;axial&quot;\" width=\"200\" height=\"100\" style=\"max-width:50%\" data-media=\"cards/b%20c.png.webp\" />",
+      "media": ["cards/b%20c.png.webp"],
+      "missing": []
+    },
+    "img-unicode-name": {
+      "html": "<img data-media=\"cards/img%2F%C3%BC.jpg.webp\" />",
+      "media": ["cards/img%2F%C3%BC.jpg.webp"],
+      "missing": []
+    },
+    "img-missing": {
+      "html": "<img alt=\"[imagen no encontrada: nope.png]\" />",
+      "media": [],
+      "missing": ["nope.png"]
+    },
+    "img-remote": {
+      "html": "<img alt=\"[imagen no encontrada: https://example.org/x.png]\" />",
+      "media": [],
+      "missing": ["https://example.org/x.png"]
+    },
+    "img-protocol-relative": {
+      "html": "<img alt=\"[imagen no encontrada: //example.org/x.png]\" />",
+      "media": [],
+      "missing": ["//example.org/x.png"]
+    },
+    "img-own-data-media": {
+      "html": "<img data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "img-data-media-only": {
+      "html": "<img alt=\"[imagen no encontrada: ]\" />",
+      "media": [],
+      "missing": []
+    },
+    "span-data-media": {
+      "html": "<span>t</span>",
+      "media": [],
+      "missing": []
+    },
+    "img-single-quotes": {
+      "html": "<img data-media=\"cards/a.png.webp\" /> x",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "img-unquoted-upper": {
+      "html": "<img class=\"x\" alt=\"[imagen no encontrada: b.png]\" /> x",
+      "media": [],
+      "missing": ["b.png"]
+    },
+    "img-src-and-data-media": {
+      "html": "<img data-media=\"cards/c.png.webp\" />",
+      "media": ["cards/c.png.webp"],
+      "missing": []
+    },
+    "img-srcset": {
+      "html": "<img data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "media-tags": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "sub-sup": {
+      "html": "H<sub>2</sub>O y x<sup>2</sup>; CO₂ y m²",
+      "media": [],
+      "missing": []
+    },
+    "cloze-rendered": {
+      "html": "<span class=\"cloze\" data-cloze=\"ATP\" data-ordinal=\"1\">[...]</span> y <span class=\"cloze-inactive\">ADP</span>",
+      "media": [],
+      "missing": []
+    },
+    "cloze-raw": {
+      "html": "{{c1::mitocondria::organelo}} produce {{c2::ATP}}",
+      "media": [],
+      "missing": []
+    },
+    "anki-front-back": {
+      "html": "<div class=\"front\">Tema</div><hr id=\"answer\" /><div class=\"back\">Respuesta</div>",
+      "media": [],
+      "missing": []
+    },
+    "anki-sound-type": {
+      "html": "[sound:x.mp3] [[type:Front]] texto",
+      "media": [],
+      "missing": []
+    },
+    "anki-occlusion": {
+      "html": "<div id=\"image-occlusion-container\"><img data-media=\"cards/a.png.webp\" /><canvas id=\"image-occlusion-canvas\" width=\"10\" height=\"10\"></canvas></div><div data-shape=\"rect\" data-left=\".1\" data-top=\".1\" data-width=\".2\" data-height=\".2\" data-ordinal=\"1\"></div>",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "mathjax-inline": {
+      "html": "\\(x^2 + y_1\\) y \\[\\frac{a}{b}\\]",
+      "media": [],
+      "missing": []
+    },
+    "mathjax-script": {
+      "html": "después",
+      "media": [],
+      "missing": []
+    },
+    "style-inline": {
+      "html": "<span style=\"color:red;font-weight:bold\">rojo</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-many": {
+      "html": "<div style=\"background-color:#fff;margin:0 auto;padding:4px;border:1px solid #ccc;text-align:center;font-family:'Arial', sans-serif;line-height:1.4\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-unknown-property": {
+      "html": "<div>tapa</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-on-table-cells": {
+      "html": "<table><tr><th style=\"text-align:right;color:red\">a</th><td style=\"text-align:middle\">b</td></tr></table>",
+      "media": [],
+      "missing": []
+    },
+    "classes": {
+      "html": "<div class=\"callout callout-ojo\"><p class=\"figure-caption source\">x</p><span class=\"fixed inset-0 z-50 missing-image\">y</span></div>",
+      "media": [],
+      "missing": []
+    },
+    "note-figure": {
+      "html": "<figure class=\"figure side-right\" style=\"width:40%\"><img alt=\"[imagen no encontrada: ]\" width=\"300\" height=\"200\" /><figcaption>Figura 1. <em>Corte</em> sagital</figcaption></figure>",
+      "media": [],
+      "missing": []
+    },
+    "note-figure-bad-width": {
+      "html": "<figure style=\"width:1000px\">x</figure><figure style=\"width:40%;height:9px\">y</figure>",
+      "media": [],
+      "missing": []
+    },
+    "headings": {
+      "html": "<h1>H1</h1><h2 id=\"sec-1\" class=\"x\">Dos</h2><h3 id=\"a\">Tres</h3><h4>Cuatro</h4><h5>Cinco</h5><h6>Seis</h6>",
+      "media": [],
+      "missing": []
+    },
+    "aside-section": {
+      "html": "<aside class=\"callout-libro\"><section class=\"note-summary\">s</section></aside><article><header>h</header><footer>f</footer></article>",
+      "media": [],
+      "missing": []
+    },
+    "code-pre": {
+      "html": "<pre><code>if (a &lt; b) { return; }</code></pre> <kbd>Ctrl</kbd>",
+      "media": [],
+      "missing": []
+    },
+    "quote-mark-small": {
+      "html": "<blockquote>cita</blockquote><q>q</q><cite>c</cite><abbr title=\"adenosín trifosfato\">ATP</abbr><mark>m</mark><small>s</small><big>b</big>",
+      "media": [],
+      "missing": []
+    },
+    "link-https": {
+      "html": "<a href=\"https://example.org/a?b=c&amp;d=e\">enlace</a>",
+      "media": [],
+      "missing": []
+    },
+    "link-http": {
+      "html": "<a>http</a>",
+      "media": [],
+      "missing": []
+    },
+    "link-relative": {
+      "html": "<a href=\"/semesters/2/courses/x\">relativo</a>",
+      "media": [],
+      "missing": []
+    },
+    "link-anchor": {
+      "html": "<a href=\"#sec\">ancla</a> <a href=\"#\" class=\"hint\" draggable=\"false\">pista</a>",
+      "media": [],
+      "missing": []
+    },
+    "link-mailto": {
+      "html": "<a>correo</a>",
+      "media": [],
+      "missing": []
+    },
+    "link-protocol-relative": {
+      "html": "<a>sin esquema</a>",
+      "media": [],
+      "missing": []
+    },
+    "font-tag": {
+      "html": "<font color=\"red\" face=\"Arial\" size=\"3\">viejo</font>",
+      "media": [],
+      "missing": []
+    },
+    "center": {
+      "html": "<center>centro</center>",
+      "media": [],
+      "missing": []
+    },
+    "details": {
+      "html": "<details><summary>Más</summary>oculto</details>",
+      "media": [],
+      "missing": []
+    },
+    "ruby": {
+      "html": "<ruby>漢<rp>(</rp><rt>kan</rt><rp>)</rp></ruby>",
+      "media": [],
+      "missing": []
+    },
+    "wbr-canvas": {
+      "html": "pala<wbr></wbr>bra<canvas width=\"1\" height=\"1\"></canvas>",
+      "media": [],
+      "missing": []
+    },
+    "entities-named": {
+      "html": "a &amp; b &lt;c&gt; \"d\" 'e' 'f'  g á ñ © —",
+      "media": [],
+      "missing": []
+    },
+    "entities-numeric": {
+      "html": "é é 😀 � � � A",
+      "media": [],
+      "missing": []
+    },
+    "entities-malformed": {
+      "html": "&amp; &amp;nope; &amp; ; &amp;#; &amp;#x; AT&amp;T &amp;x",
+      "media": [],
+      "missing": []
+    },
+    "entities-unknown-name": {
+      "html": "&amp;nope; y &amp; &amp;zzz;",
+      "media": [],
+      "missing": []
+    },
+    "entities-unknown-after-known": {
+      "html": "a &amp; b &amp;nope; c",
+      "media": [],
+      "missing": []
+    },
+    "entities-legacy-no-semicolon": {
+      "html": "© 2026 &lt;3 á",
+      "media": [],
+      "missing": []
+    },
+    "double-escaped": {
+      "html": "&amp;lt;script&amp;gt; &amp;amp;",
+      "media": [],
+      "missing": []
+    },
+    "nbsp-raw": {
+      "html": "a b  c",
+      "media": [],
+      "missing": []
+    },
+    "whitespace": {
+      "html": "  a \n\t b \r\n c  ",
+      "media": [],
+      "missing": []
+    },
+    "loose-less-than": {
+      "html": "p&lt;0.05 y q&gt;1 <b>z</b>",
+      "media": [],
+      "missing": []
+    },
+    "less-than-letters": {
+      "html": "a<b>d y 3&lt;4</b>",
+      "media": [],
+      "missing": []
+    },
+    "comment": {
+      "html": "ab",
+      "media": [],
+      "missing": []
+    },
+    "comment-unclosed": {
+      "html": "a",
+      "media": [],
+      "missing": []
+    },
+    "conditional-comment": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "downlevel-revealed": {
+      "html": "<b>x</b>",
+      "media": [],
+      "missing": []
+    },
+    "cdata": {
+      "html": "y",
+      "media": [],
+      "missing": []
+    },
+    "doctype": {
+      "html": "t<p>x</p>",
+      "media": [],
+      "missing": []
+    },
+    "processing-instruction": {
+      "html": "<p>x</p>",
+      "media": [],
+      "missing": []
+    },
+    "empty": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "only-spaces": {
+      "html": "   ",
+      "media": [],
+      "missing": []
+    },
+    "unicode": {
+      "html": "Núcleo 🧬 — «comillas» ñ ü 漢字",
+      "media": [],
+      "missing": []
+    },
+    "svg-chart": {
+      "html": "Curva0Máx",
+      "media": [],
+      "missing": []
+    },
+    "svg-namespaces": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-gradient": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-uppercase": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-self-closing": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-style-attribute": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "script": {
+      "html": "ok",
+      "media": [],
+      "missing": []
+    },
+    "script-upper": {
+      "html": "ok",
+      "media": [],
+      "missing": []
+    },
+    "script-mixed-case-src": {
+      "html": "ok",
+      "media": [],
+      "missing": []
+    },
+    "script-unclosed": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "script-split": {
+      "html": "ipt&gt;alert(1)",
+      "media": [],
+      "missing": []
+    },
+    "script-inside-attribute": {
+      "html": "<img alt=\"&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;\" data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "onerror": {
+      "html": "<img data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "onload-svg": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "onclick-upper": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "onmouseover-unquoted": {
+      "html": "<b>x</b>",
+      "media": [],
+      "missing": []
+    },
+    "on-without-space": {
+      "html": "<img data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "js-href": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-decimal-entities": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-hex-entities": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-named-entity": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-tab": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-newline-entity": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-leading-space": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-mixed-case": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-null": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "js-href-unquoted": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "vbscript-href": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "data-href": {
+      "html": "<a>x</a>",
+      "media": [],
+      "missing": []
+    },
+    "data-img": {
+      "html": "<img alt=\"[imagen no encontrada: data:image/svg+xml,&lt;svg onload=alert(1)&gt;]\" />",
+      "media": [],
+      "missing": ["data:image/svg+xml,<svg onload=alert(1)>"]
+    },
+    "js-img": {
+      "html": "<img alt=\"[imagen no encontrada: javascript:alert(1)]\" />",
+      "media": [],
+      "missing": ["javascript:alert(1)"]
+    },
+    "style-url": {
+      "html": "<span>x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-newline": {
+      "html": "<span style=\"background:red\nurl(https://evil.example/x.png)\">x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-newline-entity": {
+      "html": "<span style=\"background:red\nurl(https://evil.example/x.png)\">x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-carriage-return": {
+      "html": "<span style=\"background:blue\rurl(https://evil.example/y.png)\">x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-line-separator": {
+      "html": "<span style=\"background:blue url(https://evil.example/y.png)\">x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-comment-newline": {
+      "html": "<span style=\"background:red/*\n*/url(https://evil.example/x.png)\">x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-css-escape": {
+      "html": "<span>x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-html-entity": {
+      "html": "<span>x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-upper": {
+      "html": "<span>x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-url-space": {
+      "html": "<span>x</span>",
+      "media": [],
+      "missing": []
+    },
+    "style-expression": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-javascript": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-import": {
+      "html": "<div style=\"color:red\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-image-set": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-webkit-image-set": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-behavior-binding": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-brace-breakout": {
+      "html": "<div style=\"color:red\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-quote-breakout": {
+      "html": "<div style=\"color:red\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-css-comment": {
+      "html": "<div style=\"color:red;background:u/**/rl(x)\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-important": {
+      "html": "<div style=\"color:red !important\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-content": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-display-none": {
+      "html": "<div style=\"display:none;visibility:hidden;opacity:0\">oculto</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-huge-margin": {
+      "html": "<div style=\"margin:-9999px;width:99999px\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-element": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "style-tag": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "style-tag-import": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "style-tag-after-text": {
+      "html": "<p>a</p>b",
+      "media": [],
+      "missing": []
+    },
+    "style-tag-in-div": {
+      "html": "<div>x</div>",
+      "media": [],
+      "missing": []
+    },
+    "link-stylesheet": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "iframe": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "iframe-srcdoc": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "object-embed": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "form": {
+      "html": "<button>ok</button>",
+      "media": [],
+      "missing": []
+    },
+    "button-attributes": {
+      "html": "<button type=\"submit\">b</button>",
+      "media": [],
+      "missing": []
+    },
+    "meta-refresh": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "base": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "svg-foreign-object": {
+      "html": "<div>html</div>",
+      "media": [],
+      "missing": []
+    },
+    "svg-use": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-animate": {
+      "html": "<a>t</a>",
+      "media": [],
+      "missing": []
+    },
+    "svg-set": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-script": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-style-tag": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-fill-url": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-fill-css-escape": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-fill-html-entity": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-fill-newline-url": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-transform-expression": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-image": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "svg-script-upper": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "math-annotation": {
+      "html": "x",
+      "media": [],
+      "missing": []
+    },
+    "mxss-noscript": {
+      "html": "<p title=\"&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;\"></p>",
+      "media": [],
+      "missing": []
+    },
+    "mxss-textarea": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "mxss-title": {
+      "html": "&lt;img src=x onerror=alert(1)&gt;",
+      "media": [],
+      "missing": []
+    },
+    "mxss-svg-style": {
+      "html": "<p></p>",
+      "media": [],
+      "missing": []
+    },
+    "unclosed-tags": {
+      "html": "<b><i>sin cerrar<p>párrafo</p></i></b>",
+      "media": [],
+      "missing": []
+    },
+    "broken-nesting": {
+      "html": "<b><i>a</i></b><table><tr><td>x<p></p></td></tr></table>",
+      "media": [],
+      "missing": []
+    },
+    "broken-attribute-quote": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "tag-without-end": {
+      "html": "",
+      "media": [],
+      "missing": []
+    },
+    "end-tags-with-spaces": {
+      "html": "xy",
+      "media": [],
+      "missing": []
+    },
+    "null-byte-in-tag": {
+      "html": "alert(1)",
+      "media": [],
+      "missing": []
+    },
+    "null-byte-in-attribute-name": {
+      "html": "<img data-media=\"cards/a.png.webp\" />",
+      "media": ["cards/a.png.webp"],
+      "missing": []
+    },
+    "null-byte-in-text": {
+      "html": "a\u0000b",
+      "media": [],
+      "missing": []
+    },
+    "control-characters": {
+      "html": "a\u0001\b\u000b\f\u001fb",
+      "media": [],
+      "missing": []
+    },
+    "invisible-characters": {
+      "html": "﻿a​b c d",
+      "media": [],
+      "missing": []
+    },
+    "utf7": {
+      "html": "+ADw-script+AD4-alert(1)+ADw-/script+AD4-",
+      "media": [],
+      "missing": []
+    },
+    "entity-smuggled-tag": {
+      "html": "&lt;img src=x onerror=alert(1)&gt;",
+      "media": [],
+      "missing": []
+    },
+    "entity-in-attribute": {
+      "html": "<a href=\"https://example.org\" title=\"&lt;script&gt;\">t</a>",
+      "media": [],
+      "missing": []
+    },
+    "id-clobbering": {
+      "html": "<h2 id=\"__proto__\">a</h2><img id=\"location\" alt=\"[imagen no encontrada: ]\" />",
+      "media": [],
+      "missing": []
+    },
+    "data-and-aria": {
+      "html": "<div data-x=\"1\" data-on-click=\"y\">x</div>",
+      "media": [],
+      "missing": []
+    },
+    "lang-dir-title": {
+      "html": "<p lang=\"es\" dir=\"rtl\" title=\"t\">x</p>",
+      "media": [],
+      "missing": []
+    },
+    "deep-nesting": {
+      "html": "<div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div>x</div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div>",
+      "media": [],
+      "missing": []
+    },
+    "many-attributes": {
+      "html": "<span>x</span>",
+      "media": [],
+      "missing": []
+    }
+  },
+  "note": {
+    "plain": "Hola mundo",
+    "bold": "<b>negrita</b> y <strong>fuerte</strong>",
+    "inline-marks": "<i>a</i> <em>b</em> <u>c</u> <s>d</s> e f",
+    "paragraphs": "<p>Uno</p><p>Dos</p>",
+    "br-variants": "a<br />b<br />c<br />d",
+    "anki-divs": "<div>Primera línea</div><div>Segunda</div>",
+    "list": "<ul><li>Uno</li><li>Dos <b>tres</b></li></ul>",
+    "ordered-list": "<ol start=\"3\"><li>x</li><li>y</li></ol>",
+    "definition-list": "TérminoDefinición",
+    "table": "<table>Tabla<thead><tr><th colspan=\"2\" style=\"text-align:center\">Título</th></tr></thead><tbody><tr><td rowspan=\"2\" style=\"text-align:left\">a</td><td>b</td></tr></tbody><tr><td>pie</td></tr></table>",
+    "img-local": "<img />",
+    "img-attributes": "<img alt=\"Corte &quot;axial&quot;\" width=\"200\" height=\"100\" />",
+    "img-unicode-name": "<img />",
+    "img-missing": "<img />",
+    "img-remote": "<img />",
+    "img-protocol-relative": "<img />",
+    "img-own-data-media": "<img data-media=\"cards/evil.webp\" />",
+    "img-data-media-only": "<img data-media=\"notes/a.webp\" alt=\"a\" loading=\"lazy\" decoding=\"async\" />",
+    "span-data-media": "<span>t</span>",
+    "img-single-quotes": "<img /> x",
+    "img-unquoted-upper": "<img /> x",
+    "img-src-and-data-media": "<img data-media=\"cards/c.webp\" />",
+    "img-srcset": "<img />",
+    "media-tags": "",
+    "sub-sup": "H<sub>2</sub>O y x<sup>2</sup>; CO₂ y m²",
+    "cloze-rendered": "<span>[...]</span> y <span>ADP</span>",
+    "cloze-raw": "{{c1::mitocondria::organelo}} produce {{c2::ATP}}",
+    "anki-front-back": "<div>Tema</div><hr /><div>Respuesta</div>",
+    "anki-sound-type": "[sound:x.mp3] [[type:Front]] texto",
+    "anki-occlusion": "<div><img /></div><div></div>",
+    "mathjax-inline": "\\(x^2 + y_1\\) y \\[\\frac{a}{b}\\]",
+    "mathjax-script": "después",
+    "style-inline": "<span>rojo</span>",
+    "style-many": "<div>x</div>",
+    "style-unknown-property": "<div>tapa</div>",
+    "style-on-table-cells": "<table><tr><th style=\"text-align:right\">a</th><td>b</td></tr></table>",
+    "classes": "<div class=\"callout callout-ojo\"><p class=\"figure-caption source\">x</p><span class=\"missing-image\">y</span></div>",
+    "note-figure": "<figure class=\"figure side-right\" style=\"width:40%\"><img data-media=\"notes/a.webp\" alt=\"a\" width=\"300\" height=\"200\" loading=\"lazy\" decoding=\"async\" /><figcaption>Figura 1. <em>Corte</em> sagital</figcaption></figure>",
+    "note-figure-bad-width": "<figure>x</figure><figure style=\"width:40%\">y</figure>",
+    "headings": "H1<h2 id=\"sec-1\">Dos</h2><h3 id=\"a\">Tres</h3><h4>Cuatro</h4>CincoSeis",
+    "aside-section": "<aside class=\"callout-libro\"><section class=\"note-summary\">s</section></aside>hf",
+    "code-pre": "<pre><code>if (a &lt; b) { return; }</code></pre> Ctrl",
+    "quote-mark-small": "<blockquote>cita</blockquote>qcATP<mark>m</mark><small>s</small>b",
+    "link-https": "<a href=\"https://example.org/a?b=c&amp;d=e\">enlace</a>",
+    "link-http": "<a>http</a>",
+    "link-relative": "<a href=\"/semesters/2/courses/x\">relativo</a>",
+    "link-anchor": "<a href=\"#sec\">ancla</a> <a href=\"#\">pista</a>",
+    "link-mailto": "<a>correo</a>",
+    "link-protocol-relative": "<a>sin esquema</a>",
+    "font-tag": "viejo",
+    "center": "centro",
+    "details": "Másoculto",
+    "ruby": "漢(kan)",
+    "wbr-canvas": "palabra",
+    "entities-named": "a &amp; b &lt;c&gt; \"d\" 'e' 'f'  g á ñ © —",
+    "entities-numeric": "é é 😀 � � � A",
+    "entities-malformed": "&amp; &amp;nope; &amp; ; &amp;#; &amp;#x; AT&amp;T &amp;x",
+    "entities-unknown-name": "&amp;nope; y &amp; &amp;zzz;",
+    "entities-unknown-after-known": "a &amp; b &amp;nope; c",
+    "entities-legacy-no-semicolon": "© 2026 &lt;3 á",
+    "double-escaped": "&amp;lt;script&amp;gt; &amp;amp;",
+    "nbsp-raw": "a b  c",
+    "whitespace": "  a \n\t b \r\n c  ",
+    "loose-less-than": "p&lt;0.05 y q&gt;1 <b>z</b>",
+    "less-than-letters": "a<b>d y 3&lt;4</b>",
+    "comment": "ab",
+    "comment-unclosed": "a",
+    "conditional-comment": "x",
+    "downlevel-revealed": "<b>x</b>",
+    "cdata": "y",
+    "doctype": "t<p>x</p>",
+    "processing-instruction": "<p>x</p>",
+    "empty": "",
+    "only-spaces": "   ",
+    "unicode": "Núcleo 🧬 — «comillas» ñ ü 漢字",
+    "svg-chart": "Curva0Máx",
+    "svg-namespaces": "",
+    "svg-gradient": "",
+    "svg-uppercase": "",
+    "svg-self-closing": "",
+    "svg-style-attribute": "",
+    "script": "ok",
+    "script-upper": "ok",
+    "script-mixed-case-src": "ok",
+    "script-unclosed": "",
+    "script-split": "ipt&gt;alert(1)",
+    "script-inside-attribute": "<img alt=\"&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;\" />",
+    "onerror": "<img />",
+    "onload-svg": "",
+    "onclick-upper": "<div>x</div>",
+    "onmouseover-unquoted": "<b>x</b>",
+    "on-without-space": "<img />",
+    "js-href": "<a>x</a>",
+    "js-href-decimal-entities": "<a>x</a>",
+    "js-href-hex-entities": "<a>x</a>",
+    "js-href-named-entity": "<a>x</a>",
+    "js-href-tab": "<a>x</a>",
+    "js-href-newline-entity": "<a>x</a>",
+    "js-href-leading-space": "<a>x</a>",
+    "js-href-mixed-case": "<a>x</a>",
+    "js-href-null": "<a>x</a>",
+    "js-href-unquoted": "<a>x</a>",
+    "vbscript-href": "<a>x</a>",
+    "data-href": "<a>x</a>",
+    "data-img": "<img />",
+    "js-img": "<img />",
+    "style-url": "<span>x</span>",
+    "style-url-newline": "<span>x</span>",
+    "style-url-newline-entity": "<span>x</span>",
+    "style-url-carriage-return": "<span>x</span>",
+    "style-url-line-separator": "<span>x</span>",
+    "style-url-comment-newline": "<span>x</span>",
+    "style-url-css-escape": "<span>x</span>",
+    "style-url-html-entity": "<span>x</span>",
+    "style-url-upper": "<span>x</span>",
+    "style-url-space": "<span>x</span>",
+    "style-expression": "<div>x</div>",
+    "style-javascript": "<div>x</div>",
+    "style-import": "<div>x</div>",
+    "style-image-set": "<div>x</div>",
+    "style-webkit-image-set": "<div>x</div>",
+    "style-behavior-binding": "<div>x</div>",
+    "style-brace-breakout": "<div>x</div>",
+    "style-quote-breakout": "<div>x</div>",
+    "style-css-comment": "<div>x</div>",
+    "style-important": "<div>x</div>",
+    "style-content": "<div>x</div>",
+    "style-display-none": "<div>oculto</div>",
+    "style-huge-margin": "<div>x</div>",
+    "style-element": "<div>x</div>",
+    "style-tag": "x",
+    "style-tag-import": "x",
+    "style-tag-after-text": "<p>a</p>b",
+    "style-tag-in-div": "<div>x</div>",
+    "link-stylesheet": "x",
+    "iframe": "x",
+    "iframe-srcdoc": "x",
+    "object-embed": "x",
+    "form": "ok",
+    "button-attributes": "b",
+    "meta-refresh": "x",
+    "base": "x",
+    "svg-foreign-object": "<div>html</div>",
+    "svg-use": "",
+    "svg-animate": "<a>t</a>",
+    "svg-set": "",
+    "svg-script": "",
+    "svg-style-tag": "",
+    "svg-fill-url": "",
+    "svg-fill-css-escape": "",
+    "svg-fill-html-entity": "",
+    "svg-fill-newline-url": "",
+    "svg-transform-expression": "",
+    "svg-image": "",
+    "svg-script-upper": "",
+    "math-annotation": "x",
+    "mxss-noscript": "<p></p>",
+    "mxss-textarea": "",
+    "mxss-title": "&lt;img src=x onerror=alert(1)&gt;",
+    "mxss-svg-style": "<p></p>",
+    "unclosed-tags": "<b><i>sin cerrar<p>párrafo</p></i></b>",
+    "broken-nesting": "<b><i>a</i></b><table><tr><td>x<p></p></td></tr></table>",
+    "broken-attribute-quote": "",
+    "tag-without-end": "",
+    "end-tags-with-spaces": "xy",
+    "null-byte-in-tag": "alert(1)",
+    "null-byte-in-attribute-name": "<img />",
+    "null-byte-in-text": "a\u0000b",
+    "control-characters": "a\u0001\b\u000b\f\u001fb",
+    "invisible-characters": "﻿a​b c d",
+    "utf7": "+ADw-script+AD4-alert(1)+ADw-/script+AD4-",
+    "entity-smuggled-tag": "&lt;img src=x onerror=alert(1)&gt;",
+    "entity-in-attribute": "<a href=\"https://example.org\">t</a>",
+    "id-clobbering": "<h2 id=\"__proto__\">a</h2><img />",
+    "data-and-aria": "<div>x</div>",
+    "lang-dir-title": "<p>x</p>",
+    "deep-nesting": "<div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div>x</div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div>",
+    "many-attributes": "<span>x</span>"
+  },
+  "svg": {
+    "plain": {
+      "svg": "Hola mundo",
+      "dropped": []
+    },
+    "bold": {
+      "svg": "negrita y fuerte",
+      "dropped": ["etiquetas quitadas: b, strong"]
+    },
+    "inline-marks": {
+      "svg": "a b c d e f",
+      "dropped": ["etiquetas quitadas: i, em, u, s, del, ins"]
+    },
+    "paragraphs": {
+      "svg": "UnoDos",
+      "dropped": ["etiquetas quitadas: p"]
+    },
+    "br-variants": {
+      "svg": "abcd",
+      "dropped": ["etiquetas quitadas: br, BR"]
+    },
+    "anki-divs": {
+      "svg": "Primera líneaSegunda",
+      "dropped": ["etiquetas quitadas: div"]
+    },
+    "list": {
+      "svg": "UnoDos tres",
+      "dropped": ["etiquetas quitadas: ul, li, b"]
+    },
+    "ordered-list": {
+      "svg": "xy",
+      "dropped": ["etiquetas quitadas: ol, li", "atributos quitados: start, type"]
+    },
+    "definition-list": {
+      "svg": "TérminoDefinición",
+      "dropped": ["etiquetas quitadas: dl, dt, dd"]
+    },
+    "table": {
+      "svg": "TablaTítuloabpie",
+      "dropped": [
+        "etiquetas quitadas: table, caption, colgroup, col, thead, tr, th, tbody, td, tfoot",
+        "atributos quitados: border, cellpadding, cellspacing, align, span, colspan, style, rowspan, valign"
+      ]
+    },
+    "img-local": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "img-attributes": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src, alt, style"]
+    },
+    "img-unicode-name": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "img-missing": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "img-remote": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "img-protocol-relative": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "img-own-data-media": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src, data-media"]
+    },
+    "img-data-media-only": {
+      "svg": "",
+      "dropped": [
+        "etiquetas quitadas: img",
+        "atributos quitados: data-media, alt, loading, decoding"
+      ]
+    },
+    "span-data-media": {
+      "svg": "t",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: data-media"]
+    },
+    "img-single-quotes": {
+      "svg": " x",
+      "dropped": ["etiquetas quitadas: img"]
+    },
+    "img-unquoted-upper": {
+      "svg": " x",
+      "dropped": ["etiquetas quitadas: IMG", "atributos quitados: class"]
+    },
+    "img-src-and-data-media": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src, data-media"]
+    },
+    "img-srcset": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src, srcset"]
+    },
+    "media-tags": {
+      "svg": "",
+      "dropped": [
+        "etiquetas quitadas: video, audio, source, embed",
+        "atributos quitados: src, poster"
+      ]
+    },
+    "sub-sup": {
+      "svg": "H2O y x2; CO₂ y m²",
+      "dropped": ["etiquetas quitadas: sub, sup"]
+    },
+    "cloze-rendered": {
+      "svg": "[...] y ADP",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: class, data-cloze, data-ordinal"]
+    },
+    "cloze-raw": {
+      "svg": "{{c1::mitocondria::organelo}} produce {{c2::ATP}}",
+      "dropped": []
+    },
+    "anki-front-back": {
+      "svg": "TemaRespuesta",
+      "dropped": ["etiquetas quitadas: div, hr", "atributos quitados: class"]
+    },
+    "anki-sound-type": {
+      "svg": "[sound:x.mp3] [[type:Front]] texto",
+      "dropped": []
+    },
+    "anki-occlusion": {
+      "svg": "",
+      "dropped": [
+        "etiquetas quitadas: div, img, canvas",
+        "atributos quitados: id, src, data-shape, data-left, data-top, data-width, data-height, data-ordinal"
+      ]
+    },
+    "mathjax-inline": {
+      "svg": "\\(x^2 + y_1\\) y \\[\\frac{a}{b}\\]",
+      "dropped": []
+    },
+    "mathjax-script": {
+      "svg": "después",
+      "dropped": ["etiquetas quitadas: script", "atributos quitados: type"]
+    },
+    "style-inline": {
+      "svg": "rojo",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-many": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-unknown-property": {
+      "svg": "tapa",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-on-table-cells": {
+      "svg": "ab",
+      "dropped": ["etiquetas quitadas: table, tr, th, td", "atributos quitados: style"]
+    },
+    "classes": {
+      "svg": "xy",
+      "dropped": ["etiquetas quitadas: div, p, span", "atributos quitados: class"]
+    },
+    "note-figure": {
+      "svg": "Figura 1. Corte sagital",
+      "dropped": [
+        "etiquetas quitadas: figure, img, figcaption, em",
+        "atributos quitados: class, style, data-media, alt, loading, decoding"
+      ]
+    },
+    "note-figure-bad-width": {
+      "svg": "xy",
+      "dropped": ["etiquetas quitadas: figure", "atributos quitados: style"]
+    },
+    "headings": {
+      "svg": "H1DosTresCuatroCincoSeis",
+      "dropped": ["etiquetas quitadas: h1, h2, h3, h4, h5, h6", "atributos quitados: id, class"]
+    },
+    "aside-section": {
+      "svg": "shf",
+      "dropped": [
+        "etiquetas quitadas: aside, section, article, header, footer",
+        "atributos quitados: class"
+      ]
+    },
+    "code-pre": {
+      "svg": "if (a &lt; b) { return; } Ctrl",
+      "dropped": ["etiquetas quitadas: pre, code, kbd"]
+    },
+    "quote-mark-small": {
+      "svg": "citaqcATPmsb",
+      "dropped": [
+        "etiquetas quitadas: blockquote, q, cite, abbr, mark, small, big",
+        "atributos quitados: title"
+      ]
+    },
+    "link-https": {
+      "svg": "enlace",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "link-http": {
+      "svg": "http",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "link-relative": {
+      "svg": "relativo",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "link-anchor": {
+      "svg": "ancla pista",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href, class, draggable"]
+    },
+    "link-mailto": {
+      "svg": "correo",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "link-protocol-relative": {
+      "svg": "sin esquema",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "font-tag": {
+      "svg": "viejo",
+      "dropped": ["etiquetas quitadas: font", "atributos quitados: color, face, size"]
+    },
+    "center": {
+      "svg": "centro",
+      "dropped": ["etiquetas quitadas: center"]
+    },
+    "details": {
+      "svg": "Másoculto",
+      "dropped": ["etiquetas quitadas: details, summary"]
+    },
+    "ruby": {
+      "svg": "漢(kan)",
+      "dropped": ["etiquetas quitadas: ruby, rp, rt"]
+    },
+    "wbr-canvas": {
+      "svg": "palabra",
+      "dropped": ["etiquetas quitadas: wbr, canvas", "atributos quitados: 2"]
+    },
+    "entities-named": {
+      "svg": "a &amp; b &lt;c&gt; \"d\" 'e' 'f'  g á ñ © —",
+      "dropped": []
+    },
+    "entities-numeric": {
+      "svg": "é é 😀 � � � A",
+      "dropped": []
+    },
+    "entities-malformed": {
+      "svg": "&amp; &amp;nope; &amp; ; &amp;#; &amp;#x; AT&amp;T &amp;x",
+      "dropped": []
+    },
+    "entities-unknown-name": {
+      "svg": "&amp;nope; y &amp; &amp;zzz;",
+      "dropped": []
+    },
+    "entities-unknown-after-known": {
+      "svg": "a &amp; b &amp;nope; c",
+      "dropped": []
+    },
+    "entities-legacy-no-semicolon": {
+      "svg": "© 2026 &lt;3 á",
+      "dropped": []
+    },
+    "double-escaped": {
+      "svg": "&amp;lt;script&amp;gt; &amp;amp;",
+      "dropped": []
+    },
+    "nbsp-raw": {
+      "svg": "a b  c",
+      "dropped": []
+    },
+    "whitespace": {
+      "svg": "a \n\t b \r\n c",
+      "dropped": []
+    },
+    "loose-less-than": {
+      "svg": "p&lt;0.05 y q&gt;1 z",
+      "dropped": ["etiquetas quitadas: b"]
+    },
+    "less-than-letters": {
+      "svg": "ad y 3&lt;4",
+      "dropped": ["etiquetas quitadas: b"]
+    },
+    "comment": {
+      "svg": "ab",
+      "dropped": []
+    },
+    "comment-unclosed": {
+      "svg": "a",
+      "dropped": []
+    },
+    "conditional-comment": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: script"]
+    },
+    "downlevel-revealed": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: b"]
+    },
+    "cdata": {
+      "svg": "y",
+      "dropped": ["etiquetas quitadas: script"]
+    },
+    "doctype": {
+      "svg": "<title>t</title>x",
+      "dropped": ["etiquetas quitadas: html, head, body, p"]
+    },
+    "processing-instruction": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: p", "atributos quitados: version"]
+    },
+    "empty": {
+      "svg": "",
+      "dropped": []
+    },
+    "only-spaces": {
+      "svg": "",
+      "dropped": []
+    },
+    "unicode": {
+      "svg": "Núcleo 🧬 — «comillas» ñ ü 漢字",
+      "dropped": []
+    },
+    "svg-chart": {
+      "svg": "<svg viewBox=\"0 0 200 100\" width=\"200\" height=\"100\" role=\"img\" aria-label=\"Gráfico\"><title>Curva</title><g transform=\"translate(10 0)\"><polyline points=\"0,90 50,40 100,60\" fill=\"none\" stroke=\"#2a7\" stroke-width=\"2\" stroke-dasharray=\"4 2\" stroke-linecap=\"round\" /><text x=\"10\" y=\"95\" font-size=\"8\" font-family=\"Inter\" text-anchor=\"start\" dominant-baseline=\"middle\">0</text><text x=\"100\" y=\"10\"><tspan dx=\"2\" dy=\"1\">Máx</tspan></text><path d=\"M0 0 L10 10 Z\" fill-rule=\"evenodd\" fill-opacity=\"0.5\" /><line x1=\"0\" y1=\"0\" x2=\"10\" y2=\"0\" stroke-opacity=\".3\" /><ellipse cx=\"1\" cy=\"1\" rx=\"1\" ry=\"2\" /><polygon points=\"0,0 1,1 0,1\" /><rect x=\"1\" y=\"1\" width=\"5\" height=\"5\" rx=\"1\" opacity=\"0.8\" /><circle cx=\"5\" cy=\"5\" r=\"4\" aria-hidden=\"true\" /></g></svg>",
+      "dropped": []
+    },
+    "svg-namespaces": {
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\" preserveAspectRatio=\"xMidYMid meet\"><rect width=\"1\" height=\"1\" /></svg>",
+      "dropped": ["atributos quitados: xmlns:xlink"]
+    },
+    "svg-gradient": {
+      "svg": "<svg viewBox=\"0 0 1 1\"><rect width=\"1\" height=\"1\" /></svg>",
+      "dropped": [
+        "etiquetas quitadas: defs, linearGradient, stop",
+        "atributos quitados: id, offset"
+      ]
+    },
+    "svg-uppercase": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: SVG, RECT", "atributos quitados: VIEWBOX, WIDTH"]
+    },
+    "svg-self-closing": {
+      "svg": "<svg><text></text><rect /><g></g></svg>",
+      "dropped": []
+    },
+    "svg-style-attribute": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["atributos quitados: style, class, id"]
+    },
+    "script": {
+      "svg": "ok",
+      "dropped": ["etiquetas quitadas: script"]
+    },
+    "script-upper": {
+      "svg": "alert(1)ok",
+      "dropped": ["etiquetas quitadas: SCRIPT"]
+    },
+    "script-mixed-case-src": {
+      "svg": "ok",
+      "dropped": ["etiquetas quitadas: ScRiPt"]
+    },
+    "script-unclosed": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: script"]
+    },
+    "script-split": {
+      "svg": "ipt&gt;alert(1)",
+      "dropped": ["etiquetas quitadas: scr, script"]
+    },
+    "script-inside-attribute": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img, script", "atributos quitados: src, alt"]
+    },
+    "onerror": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src, onerror"]
+    },
+    "onload-svg": {
+      "svg": "<svg><rect width=\"1\" height=\"1\" /></svg>",
+      "dropped": ["atributos quitados: onload"]
+    },
+    "onclick-upper": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: OnClick"]
+    },
+    "onmouseover-unquoted": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: b"]
+    },
+    "on-without-space": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "js-href": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-decimal-entities": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-hex-entities": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-named-entity": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-tab": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-newline-entity": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-leading-space": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-mixed-case": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-null": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "js-href-unquoted": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a"]
+    },
+    "vbscript-href": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "data-href": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href"]
+    },
+    "data-img": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "js-img": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "style-url": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-newline": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-newline-entity": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-carriage-return": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-line-separator": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-comment-newline": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-css-escape": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-html-entity": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-upper": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-url-space": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: span", "atributos quitados: style"]
+    },
+    "style-expression": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-javascript": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-import": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-image-set": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-webkit-image-set": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-behavior-binding": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-brace-breakout": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-quote-breakout": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-css-comment": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-important": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-content": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-display-none": {
+      "svg": "oculto",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-huge-margin": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-element": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: style"]
+    },
+    "style-tag": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: style"]
+    },
+    "style-tag-import": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: style"]
+    },
+    "style-tag-after-text": {
+      "svg": "ab",
+      "dropped": ["etiquetas quitadas: p, style"]
+    },
+    "style-tag-in-div": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div, style"]
+    },
+    "link-stylesheet": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: link", "atributos quitados: rel, href"]
+    },
+    "iframe": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: iframe", "atributos quitados: src"]
+    },
+    "iframe-srcdoc": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: iframe", "atributos quitados: srcdoc"]
+    },
+    "object-embed": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: object, embed", "atributos quitados: data, src"]
+    },
+    "form": {
+      "svg": "ok",
+      "dropped": [
+        "etiquetas quitadas: form, input, button",
+        "atributos quitados: action, name, type, formaction"
+      ]
+    },
+    "button-attributes": {
+      "svg": "b",
+      "dropped": ["etiquetas quitadas: button", "atributos quitados: type, onclick, formaction"]
+    },
+    "meta-refresh": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: meta", "atributos quitados: http-equiv, content"]
+    },
+    "base": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: base", "atributos quitados: href"]
+    },
+    "svg-foreign-object": {
+      "svg": "<svg>html</svg>",
+      "dropped": ["etiquetas quitadas: foreignObject, div, script"]
+    },
+    "svg-use": {
+      "svg": "<svg></svg>",
+      "dropped": ["etiquetas quitadas: use", "atributos quitados: href, xlink:href"]
+    },
+    "svg-animate": {
+      "svg": "<svg><text x=\"1\" y=\"1\">t</text></svg>",
+      "dropped": ["etiquetas quitadas: a, animate", "atributos quitados: attributeName, values"]
+    },
+    "svg-set": {
+      "svg": "<svg></svg>",
+      "dropped": ["etiquetas quitadas: set", "atributos quitados: attributeName, to"]
+    },
+    "svg-script": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["etiquetas quitadas: script"]
+    },
+    "svg-style-tag": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["etiquetas quitadas: style"]
+    },
+    "svg-fill-url": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["atributos quitados: 1"]
+    },
+    "svg-fill-css-escape": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["atributos quitados: 1"]
+    },
+    "svg-fill-html-entity": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["atributos quitados: 1"]
+    },
+    "svg-fill-newline-url": {
+      "svg": "<svg><rect width=\"1\" /></svg>",
+      "dropped": ["atributos quitados: 1"]
+    },
+    "svg-transform-expression": {
+      "svg": "<svg><g><rect width=\"1\" /></g></svg>",
+      "dropped": ["atributos quitados: 1"]
+    },
+    "svg-image": {
+      "svg": "<svg></svg>",
+      "dropped": ["etiquetas quitadas: image", "atributos quitados: href"]
+    },
+    "svg-script-upper": {
+      "svg": "<svg>alert(1)</svg>",
+      "dropped": ["etiquetas quitadas: SCRIPT"]
+    },
+    "math-annotation": {
+      "svg": "x",
+      "dropped": [
+        "etiquetas quitadas: math, mi, annotation-xml, script",
+        "atributos quitados: encoding"
+      ]
+    },
+    "mxss-noscript": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: noscript, p, img", "atributos quitados: title"]
+    },
+    "mxss-textarea": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: textarea, img"]
+    },
+    "mxss-title": {
+      "svg": "<title>&lt;img src=x onerror=alert(1)&gt;</title>",
+      "dropped": ["etiquetas quitadas: img"]
+    },
+    "mxss-svg-style": {
+      "svg": "<svg></svg>",
+      "dropped": ["etiquetas quitadas: style, a, img", "atributos quitados: id"]
+    },
+    "unclosed-tags": {
+      "svg": "sin cerrarpárrafo",
+      "dropped": ["etiquetas quitadas: b, i, p"]
+    },
+    "broken-nesting": {
+      "svg": "ax",
+      "dropped": ["etiquetas quitadas: b, i, table, tr, td"]
+    },
+    "broken-attribute-quote": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "tag-without-end": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img"]
+    },
+    "end-tags-with-spaces": {
+      "svg": "xy",
+      "dropped": []
+    },
+    "null-byte-in-tag": {
+      "svg": "alert(1)",
+      "dropped": ["etiquetas quitadas: scr"]
+    },
+    "null-byte-in-attribute-name": {
+      "svg": "",
+      "dropped": ["etiquetas quitadas: img", "atributos quitados: src"]
+    },
+    "null-byte-in-text": {
+      "svg": "a\u0000b",
+      "dropped": []
+    },
+    "control-characters": {
+      "svg": "a\u0001\b\u000b\f\u001fb",
+      "dropped": []
+    },
+    "invisible-characters": {
+      "svg": "a​b c d",
+      "dropped": []
+    },
+    "utf7": {
+      "svg": "+ADw-script+AD4-alert(1)+ADw-/script+AD4-",
+      "dropped": []
+    },
+    "entity-smuggled-tag": {
+      "svg": "&lt;img src=x onerror=alert(1)&gt;",
+      "dropped": []
+    },
+    "entity-in-attribute": {
+      "svg": "t",
+      "dropped": ["etiquetas quitadas: a", "atributos quitados: href, title"]
+    },
+    "id-clobbering": {
+      "svg": "a",
+      "dropped": ["etiquetas quitadas: h2, img, form", "atributos quitados: id, name"]
+    },
+    "data-and-aria": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div", "atributos quitados: data-x, data-on-click, tabindex"]
+    },
+    "lang-dir-title": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: p", "atributos quitados: lang, dir, title"]
+    },
+    "deep-nesting": {
+      "svg": "x",
+      "dropped": ["etiquetas quitadas: div"]
+    },
+    "many-attributes": {
+      "svg": "x",
+      "dropped": [
+        "etiquetas quitadas: span",
+        "atributos quitados: a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29"
+      ]
+    }
+  }
+}

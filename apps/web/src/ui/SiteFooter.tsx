@@ -7,7 +7,7 @@ import { LogoMark } from './Logo';
 import { CREDITS, SOURCE_CODE_URL } from './credits';
 
 /** What the footer says of the site: that students make it, apart from the university (step 2.7, EXP-P1). */
-export const SITE_LINE = 'Sitio de estudiantes, sin relación oficial con la Universidad de Chile';
+const SITE_LINE = 'Sitio de estudiantes, sin relación oficial con la Universidad de Chile';
 
 /** A footer link: at least 44 px tall on the phone, where it is touched (WCAG 2.5.5); a line of text on wider screens. */
 const linkClass = 'inline-flex min-h-11 items-center hover:text-ink sm:min-h-0';

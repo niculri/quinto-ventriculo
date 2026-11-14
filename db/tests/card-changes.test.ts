@@ -2,7 +2,7 @@
 // (20261106000000_card_changes.sql), so that each student's progress can follow them when they enter.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { asUser, createDatabase } from './pglite';
+import { asUser, createDatabase, createFreshDatabase } from './pglite';
 
 let db: PGlite;
 
@@ -175,7 +175,7 @@ describe('what the content remembers', () => {
   it('a content database made again numbers its changes after any cursor of the one before', async () => {
     const before = (await changesSince(0)).latest;
     expect(before).toBeGreaterThan(Date.parse('2026-01-01'));
-    const again = await createDatabase('content');
+    const again = await createFreshDatabase('content');
     await again.exec(`
       insert into semesters values (1, '1° Semestre');
       insert into courses values ('anatomia-1', 1, 'Anatomía I', '🦴', 3);

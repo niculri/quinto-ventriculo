@@ -191,8 +191,7 @@ export const NOTE: Note = {
 };
 
 /** The test deck where the real ones are: root → semester → course → assessment → week → deck → Extras. */
-export const WEEK =
-  '() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba';
+const WEEK = '() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S1 - Semana de prueba';
 export const DECK_PATH =
   '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba';
 
@@ -316,7 +315,7 @@ for (const d of CATALOG.anki.decks) {
 CATALOG.anki.presets = DECK.presets;
 
 /** What `/api/decks/:id` gives for every deck of the tree (the same cards, from where it is). */
-export function deckDetail(id: string): DeckDetail | null {
+function deckDetail(id: string): DeckDetail | null {
   const all = CATALOG.anki.decks;
   const d = all.find((x) => x.id === id);
   if (!d) return null;
@@ -343,7 +342,7 @@ export function deckDetail(id: string): DeckDetail | null {
   };
 }
 
-export const BROWSE: BrowseData = {
+const BROWSE: BrowseData = {
   notes: [
     {
       guid: 's@/AqX%n?#',
@@ -422,7 +421,7 @@ export const CARD_INDEX: CardIndex = {
     },
   ],
 };
-export const CARD_INDEX_HASH = 'abcdefabcdefabcdefabcdefabcdef12';
+const CARD_INDEX_HASH = 'abcdefabcdefabcdefabcdefabcdef12';
 CATALOG.semesters[0]!.courses[0]!.assessments[0]!.cardIndex = {
   hash: CARD_INDEX_HASH,
   noteCount: 3,
@@ -435,7 +434,7 @@ const CSS = `.card { --fondo: #ffffff; background-color: var(--fondo); }
 #image-occlusion-canvas { --active-shape-color: #ff7b72; --inactive-shape-color: #ffe08a; }
 .pie { position: fixed; right: 10px; bottom: 6px; }`;
 
-export const CARDS: Record<string, CardDetail> = {
+const CARDS: Record<string, CardDetail> = {
   's@/AqX%n?#/0': {
     noteGuid: 's@/AqX%n?#',
     ord: 0,
@@ -521,7 +520,7 @@ export const QUIZ: QuizDetail = {
   ],
 };
 
-export const QUIZ_SECTIONS: Record<string, QuizSectionDetail> = {
+const QUIZ_SECTIONS: Record<string, QuizSectionDetail> = {
   pautas: {
     quizId: QUIZ.id,
     sectionId: 'pautas',

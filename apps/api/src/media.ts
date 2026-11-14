@@ -4,7 +4,7 @@
  * asking for the header.
  */
 
-export interface MediaObject {
+interface MediaObject {
   body: ReadableStream | ArrayBuffer | Uint8Array;
   contentType: string;
   etag?: string;
@@ -23,7 +23,7 @@ const HOUR = 3600;
  * The prefixes a single signature may open (step 3.3): the card browser's thumbnails, hundreds in a list, signed once
  * instead of one by one. A prefix signature never opens another key (a whole image, a note's figure).
  */
-export const SIGNED_PREFIXES: readonly string[] = ['cards/thumb/'];
+const SIGNED_PREFIXES: readonly string[] = ['cards/thumb/'];
 
 export function isValidKey(key: string): boolean {
   return KEY_RE.test(key) && !key.includes('..');
@@ -33,7 +33,7 @@ export function isValidKey(key: string): boolean {
  * Expiry rounded to the next hour + 1 h: for an hour the same image has the same URL and the browser reuses
  * it from its cache. It lasts between 1 and 2 hours.
  */
-export function expiry(nowSec: number): number {
+function expiry(nowSec: number): number {
   return (Math.floor(nowSec / HOUR) + 2) * HOUR;
 }
 

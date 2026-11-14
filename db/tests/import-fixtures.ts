@@ -83,7 +83,7 @@ export const article = (id: string, assessmentId: string, text: string, n: numbe
   };
 };
 
-export const colors = (c: string) =>
+const colors = (c: string) =>
   Object.fromEntries(['ac', 'ac-b', 'ac2', 'ac2-b', 'on-ac', 'g1', 'g2', 'g3'].map((k) => [k, c]));
 export const quiz = (id: string, assessmentId: string, prompts: string[]) => ({
   ...withHash({

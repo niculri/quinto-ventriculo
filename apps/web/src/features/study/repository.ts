@@ -9,7 +9,7 @@ import type { HeatmapData } from '../stats/heatmap';
  * themselves are the author's and come from the API.
  */
 
-export type Phase = 'new' | 'learning' | 'review' | 'relearning';
+type Phase = 'new' | 'learning' | 'review' | 'relearning';
 export type QueueName = 'new' | 'learn' | 'day_learn' | 'review';
 
 export interface CardKey {
@@ -164,7 +164,7 @@ export interface DeckProgress {
  * A card that can come out today, as `home_counts()` gives it: «l» a learning step of today (`due` is its moment),
  * «d» learning past a day and «r» a review (`due` is the start of its day); Unix seconds.
  */
-export interface HomeDueCard {
+interface HomeDueCard {
   noteGuid: string;
   ord: number;
   queue: 'l' | 'd' | 'r';
@@ -253,7 +253,7 @@ export interface RatedAnswer {
   reviewedAt: string;
 }
 
-export interface UndoResult extends CardRef {
+interface UndoResult extends CardRef {
   action: ActionName;
   rating: number | null;
 }
@@ -266,7 +266,7 @@ export interface CardChange {
 }
 
 /** What `reconcile_cards()` did: `applied` false = another tab was ahead (its cursor is `syncedTo`). */
-export interface ReconcileResult {
+interface ReconcileResult {
   applied: boolean;
   syncedTo: number;
   changed: number;
@@ -439,7 +439,7 @@ function fromRow(r: CardRow): StoredCard {
 }
 
 /** `home_counts()`'s answer, as the web uses it. */
-export function homeCountsFromJson(data: unknown): HomeCounts {
+function homeCountsFromJson(data: unknown): HomeCounts {
   const raw = (data ?? {}) as {
     decks?: [string, number, number, number, number, number, [string, number, string, number][]][];
     truncated?: boolean;

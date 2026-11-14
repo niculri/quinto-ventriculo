@@ -50,7 +50,7 @@ export const parseOrigins = (v: string | null): CardOrigin[] => {
   return ORIGIN_TAGS.filter((o) => on.has(o));
 };
 
-export function cardStatus(row: StoredCard | undefined): CardStatus {
+function cardStatus(row: StoredCard | undefined): CardStatus {
   if (!row) return 'new';
   if (row.suspended) return 'hidden';
   if (row.phase === 'new') return 'new';
@@ -222,7 +222,7 @@ export function applyFilters(
 }
 
 /** A group of the list: a topic of a lecture, or its images; `title` null: the notes of the lecture without a topic. */
-export interface Group {
+interface Group {
   key: string;
   lectureId: string;
   title: string | null;
@@ -238,7 +238,7 @@ export interface Lecture {
 }
 
 /** The images of a lecture go in one group: their «Encabezado» is a title per figure, not a topic. */
-export const IMAGES_TITLE = 'Imágenes';
+const IMAGES_TITLE = 'Imágenes';
 /** «Si casi todo es foto»: from this share of photos, the group is a grid. */
 const GRID_SHARE = 0.8;
 

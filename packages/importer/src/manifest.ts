@@ -26,12 +26,12 @@ export const CatalogCourse = Course.extend({ ankiName: z.string().min(1).optiona
 export type CatalogCourse = z.infer<typeof CatalogCourse>;
 
 /** `content/catalog.json`: semesters, courses and assessments. */
-export const CatalogManifest = z.object({
+const CatalogManifest = z.object({
   semesters: z.array(Semester),
   courses: z.array(CatalogCourse),
   assessments: z.array(Assessment),
 });
-export type CatalogManifest = z.infer<typeof CatalogManifest>;
+type CatalogManifest = z.infer<typeof CatalogManifest>;
 
 export const NoteEntry = z.object({
   /** The note's identity (the PDF's code, AP-…): search results and links hang from it. Never changes. */
@@ -61,11 +61,11 @@ export const NoteEntry = z.object({
 export type NoteEntry = z.infer<typeof NoteEntry>;
 
 /** `content/notes/<assessment>.json`: the published notes of an assessment. */
-export const NotesManifest = z.object({
+const NotesManifest = z.object({
   assessmentId: z.string(),
   notes: z.array(NoteEntry),
 });
-export type NotesManifest = z.infer<typeof NotesManifest>;
+type NotesManifest = z.infer<typeof NotesManifest>;
 
 /** `content/decks/<assessment>.json`: the published Anki decks of an assessment. */
 export const DecksManifest = z.object({
@@ -88,7 +88,7 @@ export type DecksManifest = z.infer<typeof DecksManifest>;
  * `content/tests/<assessment>.json`: the published practice tests of an assessment, each one a folder made
  * with the `pauta-a-test` skill (test.json + its questions and figures).
  */
-export const QuizzesManifest = z.object({
+const QuizzesManifest = z.object({
   assessmentId: z.string(),
   tests: z.array(
     z.object({
@@ -134,14 +134,14 @@ export const QuizzesManifest = z.object({
     }),
   ),
 });
-export type QuizzesManifest = z.infer<typeof QuizzesManifest>;
+type QuizzesManifest = z.infer<typeof QuizzesManifest>;
 
 /** What can be taken off the site in minutes (step 1.5): an article, a deck with its subdecks, a test or an image. */
 export const UnpublishedKind = z.enum(['note', 'deck', 'quiz', 'image']);
 export type UnpublishedKind = z.infer<typeof UnpublishedKind>;
 
 /** An image's key in R2: `notes/<hash>.webp`, `cards/…` or `tests/…` (its name is its hash). */
-export const MediaKey = z
+const MediaKey = z
   .string()
   .regex(/^(?:notes|cards|tests)\/[0-9a-f]{16,64}\.webp$/, 'clave de imagen inválida');
 
@@ -341,7 +341,7 @@ export function validateReferences({ catalog, notes, decks, tests = [] }: Manife
  * A group of notes (a week) shows as one block in its assessment's list: its notes have to go one after the other by
  * `position`, or the week would show twice. Notes without a group may go anywhere.
  */
-export function splitGroups(m: NotesManifest): string[] {
+function splitGroups(m: NotesManifest): string[] {
   const ordered = [...m.notes].sort((a, b) => a.position - b.position);
   const closed = new Set<string>();
   const errors: string[] = [];

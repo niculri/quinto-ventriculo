@@ -44,8 +44,6 @@ import type { StudyData } from './scheduler';
 import { StudySession } from './session';
 import { HEAVY_LOAD_MINUTES, estimateMinutes, minutesText, totalCards } from './simple';
 import { FLAGS } from './flags';
-
-export { FLAGS };
 import type { CongratsInfo, HideAction } from './session';
 import { keys } from '../../ui/keys';
 import { ReportDialog } from '../reports/ReportDialog';

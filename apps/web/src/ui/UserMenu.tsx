@@ -17,7 +17,7 @@ export function initials(name: string | null, email: string): string {
   );
 }
 
-export function Avatar({
+function Avatar({
   name,
   email,
   avatar,

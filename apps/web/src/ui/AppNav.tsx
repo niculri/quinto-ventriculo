@@ -62,7 +62,7 @@ const decode = (s: string) => {
 };
 
 /** Where a path is in the material (app/paths.ts builds them). */
-export function locate(pathname: string, catalog: Catalog | null, tree: AnkiTree | null): Where {
+function locate(pathname: string, catalog: Catalog | null, tree: AnkiTree | null): Where {
   if (pathname.startsWith('/settings')) return { ...NOWHERE, settings: true };
   if (pathname === '/admin' || pathname.startsWith('/admin/')) return { ...NOWHERE, admin: true };
   const m =

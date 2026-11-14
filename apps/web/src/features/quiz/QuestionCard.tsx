@@ -9,7 +9,7 @@ import { Figures, Html, Table, TextWithStatements, besideStyle } from './Figures
 import type { QuestionEntry } from './useQuizSession';
 
 /** Statement, question, figure and table (the figure beside the alternatives goes with them). */
-export function QuestionBody({
+function QuestionBody({
   question,
   onZoom,
 }: {
@@ -38,7 +38,7 @@ export function QuestionBody({
 }
 
 /** The figure to the left of the alternatives («fig_izq»), or the alternatives alone. */
-export function WithFigure({
+function WithFigure({
   question,
   onZoom,
   children,
@@ -66,7 +66,7 @@ export function WithFigure({
  * The explanations under the alternatives: one per alternative («Por qué cada alternativa», with the letter
  * shown on screen), the general one («Idea clave» or «Explicación») and what was changed in the question.
  */
-export function Explanation({
+function Explanation({
   question,
   order,
   chosen,

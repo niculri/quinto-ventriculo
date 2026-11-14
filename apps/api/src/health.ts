@@ -11,7 +11,7 @@
 /** A part of the site that is checked: it resolves if it answers and throws (or rejects) if not. */
 export type HealthCheck = (signal: AbortSignal) => Promise<void>;
 
-export type CheckStatus = 'ok' | 'fail';
+type CheckStatus = 'ok' | 'fail';
 
 export interface DeepHealthResult {
   ok: boolean;
@@ -38,7 +38,7 @@ export interface DeepHealthOptions {
   shared?: SharedHealthCache;
 }
 
-export const HEALTH_TTL = 60;
+const HEALTH_TTL = 60;
 const TIMEOUT_MS = 5000;
 
 export function deepHealth(
@@ -189,7 +189,7 @@ export function mediaCheck(bucket: BucketLike): HealthCheck {
   };
 }
 
-export const BACKUP_MAX_AGE_HOURS = 36;
+const BACKUP_MAX_AGE_HOURS = 36;
 const BACKUP_PREFIX = 'users/';
 const BACKUP_SUFFIX = '.tar.age';
 

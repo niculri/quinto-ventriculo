@@ -46,7 +46,7 @@ import { assessmentView, rollProgress } from './pace';
 import type { CatchUp } from './pace';
 import { ASSESSMENT_DEPTH, ancestorName, decksGivingNew, extrasOff, isExtras } from './simple';
 
-export const ACTION_LABELS: Record<ActionName, string> = {
+const ACTION_LABELS: Record<ActionName, string> = {
   answer: 'Responder tarjeta',
   bury_card: 'Enterrar tarjeta',
   bury_note: 'Enterrar nota',

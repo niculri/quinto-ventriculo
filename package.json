@@ -31,13 +31,14 @@
     "e2e": "npm run e2e -w @qv/web",
     "import": "npm run import -w @qv/importer --",
     "unpublish": "npm run unpublish -w @qv/importer --",
-    "check": "npm run typecheck && npm run lint && npm run suppressions && npm run deps && npm run format:check && npm test",
+    "check": "npm run typecheck && npm run lint && npm run suppressions && npm run deps && npm run knip && npm run format:check && npm test",
     "deploy": "tsx packages/ops/src/deploy-cli.ts",
     "smoke": "tsx packages/ops/src/smoke-cli.ts",
     "prepare": "sh .githooks/install.sh"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@qv/eslint-plugin": "0.0.0",
     "@types/node": "26.6.6",
     "@vitest/coverage-v8": "5.0.5",
     "dependency-cruiser": "18.7.2",
@@ -48,6 +49,7 @@
     "globals": "17.13.0",
     "knip": "6.45.1",
     "prettier": "3.9.10",
+    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",
     "vitest": "5.0.5"

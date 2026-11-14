@@ -105,14 +105,14 @@ export function shapeFromElement(el: HTMLElement): Shape | null {
   }
 }
 
-export function shapesIn(root: ParentNode, selector: string): Shape[] {
+function shapesIn(root: ParentNode, selector: string): Shape[] {
   return [...root.querySelectorAll(selector)].flatMap((el) =>
     el instanceof HTMLDivElement ? (shapeFromElement(el) ?? []) : [],
   );
 }
 
 /** From fractions of the image to canvas pixels (Anki rounds each value). */
-export function toAbsolute(shape: Shape, size: Size): Shape {
+function toAbsolute(shape: Shape, size: Size): Shape {
   const x = (v: number) => Math.round(v * size.width);
   const y = (v: number) => Math.round(v * size.height);
   const base = { left: x(shape.left), top: y(shape.top) };
@@ -187,7 +187,7 @@ type Context = Pick<
   | 'clearRect'
 >;
 
-export function drawShape(
+function drawShape(
   ctx: Context,
   size: Size,
   original: Shape,

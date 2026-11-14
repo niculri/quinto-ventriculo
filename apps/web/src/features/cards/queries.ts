@@ -19,7 +19,7 @@ import type { ExplorerNote } from './model';
 import { lectureOf } from './scope';
 import type { CardsScope } from './scope';
 
-export const cardsKeys = {
+const cardsKeys = {
   index: (assessmentId: string, hash: string) => ['card-index', assessmentId, hash] as const,
   thumbs: ['card-thumbs'] as const,
   /** Under the study's keys: an action of the viewer reads them again. */
@@ -28,7 +28,7 @@ export const cardsKeys = {
 };
 
 /** An index does not change while its hash is the same (its file is named by its content). */
-export function useCardIndexes(scope: CardsScope | null) {
+function useCardIndexes(scope: CardsScope | null) {
   const { api } = useServices();
   const refs = (scope?.assessments ?? []).flatMap((a) =>
     a.cardIndex ? [{ id: a.id, hash: a.cardIndex.hash }] : [],
@@ -65,7 +65,7 @@ export function useThumbQuery() {
 export const thumbUrl = (thumb: string, query: string) => `/api/media/${thumb}?${query}`;
 
 /** The student's rows of the scope's decks (only those: step 3.3, ANK-7). */
-export function useScopeRows(scope: CardsScope | null) {
+function useScopeRows(scope: CardsScope | null) {
   const { study } = useServices();
   return useQuery({
     queryKey: studyKeys.cards(scope?.node.id ?? ''),

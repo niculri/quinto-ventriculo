@@ -49,7 +49,7 @@ export interface QuizStep {
 }
 
 /** A round started and not finished, with something answered: «Seguir» on the home page (step 3.2). */
-export interface OpenRound {
+interface OpenRound {
   quizId: string;
   sectionId: string;
   answered: number;

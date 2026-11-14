@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
@@ -37,28 +38,36 @@ function demoApi(supabaseUrl?: string): Plugin {
         resolve(process.env.QV_OUTPUT ?? resolve(ROOT, '.output')),
         supabaseUrl ? { supabaseUrl } : {},
       );
-      server.middlewares.use(async (req, res, next) => {
+      server.middlewares.use((req, res, next) => {
         if (!req.url?.startsWith('/api/')) return next();
-        const headers = new Headers();
-        for (const [k, v] of Object.entries(req.headers))
-          if (typeof v === 'string') headers.set(k, v);
-        // The body too (the release panel's marks are a PUT).
-        const chunks: Buffer[] = [];
-        for await (const chunk of req) chunks.push(chunk as Buffer);
-        const body = chunks.length ? Buffer.concat(chunks) : undefined;
-        const r = await app.fetch(
-          new Request(`http://localhost${req.url}`, {
-            method: req.method ?? 'GET',
-            headers,
-            ...(body && req.method !== 'GET' && req.method !== 'HEAD' ? { body } : {}),
-          }),
-        );
-        res.statusCode = r.status;
-        r.headers.forEach((v, k) => res.setHeader(k, v));
-        res.end(Buffer.from(await r.arrayBuffer()));
+        forwardToApi(app, req, res).catch(next);
       });
     },
   };
+}
+
+/** Answers a request of the Vite server with the demo API; a failure goes to Vite's error handler. */
+async function forwardToApi(
+  app: { fetch(r: Request): Response | Promise<Response> },
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  const headers = new Headers();
+  for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
+  // The body too (the release panel's marks are a PUT).
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) chunks.push(chunk as Buffer);
+  const body = chunks.length ? Buffer.concat(chunks) : undefined;
+  const r = await app.fetch(
+    new Request(`http://localhost${req.url}`, {
+      method: req.method ?? 'GET',
+      headers,
+      ...(body && req.method !== 'GET' && req.method !== 'HEAD' ? { body } : {}),
+    }),
+  );
+  res.statusCode = r.status;
+  r.headers.forEach((v, k) => res.setHeader(k, v));
+  res.end(Buffer.from(await r.arrayBuffer()));
 }
 
 /** Cloudflare `_headers` with the web's security policy (CSP and friends). */

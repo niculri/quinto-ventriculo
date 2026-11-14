@@ -34,7 +34,7 @@ export interface QuestionEntry {
   number: number;
 }
 
-export function questionIndex(section: QuizSectionDetail): Map<string, QuestionEntry> {
+function questionIndex(section: QuizSectionDetail): Map<string, QuestionEntry> {
   const map = new Map<string, QuestionEntry>();
   for (const group of section.groups) {
     group.questions.forEach((question, i) => {

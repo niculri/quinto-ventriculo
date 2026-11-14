@@ -9,6 +9,7 @@ import {
   ALL_RULES,
   checkRatchet,
   directivesByRule,
+  localRuleFile,
   suppressionsByRule,
   total,
 } from './suppressions';
@@ -99,6 +100,36 @@ describe('checkRatchet', () => {
     expect(result.ok).toBe(false);
     expect(result.lines.join('\n')).toContain('complexity: 1 → 2');
     expect(result.lines.join('\n')).not.toContain('max-lines:');
+  });
+
+  it('a rule that the base did not have does not count as growth; once in the base, it does', () => {
+    const now = file({
+      'a.ts': { 'max-lines': 2, 'qv/file-header': 7 },
+      'b.ts': { complexity: 1 },
+    });
+    const fresh = checkRatchet(snap(now), snap(base), 'main', new Set(['qv/file-header']));
+    expect(fresh.ok).toBe(true);
+    expect(fresh.lines.join('\n')).toContain('qv/file-header: 7');
+    const grown = checkRatchet(
+      snap(now, { complexity: 1 }),
+      snap(base),
+      'main',
+      new Set(['qv/file-header']),
+    );
+    expect(grown.ok).toBe(false);
+    expect(grown.lines.join('\n')).toContain('complexity: 1 → 2');
+    expect(grown.lines.join('\n')).not.toContain('qv/file-header: 0');
+    expect(checkRatchet(snap(now), snap(base), 'main').ok).toBe(false);
+  });
+
+  it("only this repository's own rules can be new, by the file of the rule", () => {
+    expect(localRuleFile('qv/file-header')).toBe('packages/eslint-plugin/src/file-header.js');
+    expect(localRuleFile('qv/no-history-comments')).toBe(
+      'packages/eslint-plugin/src/no-history-comments.js',
+    );
+    for (const rule of ['max-lines', 'sonarjs/cognitive-complexity', 'qv/../x', ALL_RULES]) {
+      expect(localRuleFile(rule)).toBeNull();
+    }
   });
 
   it('an inline directive counts as a suppression of its rule', () => {

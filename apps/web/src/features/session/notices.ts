@@ -3,7 +3,7 @@ import { ACCOUNT_DELETION_DAYS, ALLOWED_DOMAIN, CONTACT_EMAIL } from '@qv/schema
 export const DOMAIN_NOTICE =
   'El Quinto Ventrículo es solo para cuentas @ug.uchile.cl. Entra con tu cuenta de la U.';
 export const GOOGLE_NOTICE = 'No se pudo entrar con Google. Intenta de nuevo.';
-export const DELETION_NOTICE = `Pediste eliminar tu cuenta: se cerraron tus sesiones y se borrará en ${ACCOUNT_DELETION_DAYS} días. Si vuelves a entrar antes, se cancela.`;
+const DELETION_NOTICE = `Pediste eliminar tu cuenta: se cerraron tus sesiones y se borrará en ${ACCOUNT_DELETION_DAYS} días. Si vuelves a entrar antes, se cancela.`;
 export const INVITE_NOTICE = `El Quinto Ventrículo está en prueba y por ahora solo entran personas invitadas. Si deberías tener acceso, escribe a ${CONTACT_EMAIL}.`;
 
 /**

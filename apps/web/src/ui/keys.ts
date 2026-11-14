@@ -12,7 +12,7 @@ function detectMac(): boolean {
   return /mac|iphone|ipad|ipod/i.test(platform || navigator.userAgent);
 }
 
-export const isMac = detectMac();
+const isMac = detectMac();
 
 const MAC_KEYS: Record<string, string> = { Ctrl: '⌘', Alt: '⌥', Mayús: '⇧' };
 

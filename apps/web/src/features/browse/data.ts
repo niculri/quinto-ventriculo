@@ -27,7 +27,7 @@ export interface BrowseCard extends SearchCard {
 /** The FSRS decay of a deck's preset (FSRS-6: w20), for `prop:r` and «Recuperabilidad». */
 export type DecayOf = (deckId: string) => number;
 
-export function kindOf(t: NoteTypeSummary | undefined): CardKind {
+function kindOf(t: NoteTypeSummary | undefined): CardKind {
   if (t?.occlusion) return 'occlusion';
   return t?.kind === 'cloze' ? 'cloze' : 'basic';
 }

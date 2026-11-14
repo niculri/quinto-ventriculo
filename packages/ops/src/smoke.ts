@@ -9,7 +9,7 @@ const APP_ROUTE = '/semesters/1';
 /** The path used to check the redirect from the bare domain (any path: it has to come back the same). */
 const REDIRECT_PROBE = '/semesters/1?smoke=1';
 
-export interface SmokeCheck {
+interface SmokeCheck {
   /** What was checked, in Spanish (it is printed). */
   name: string;
   ok: boolean;

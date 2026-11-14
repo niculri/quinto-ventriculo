@@ -19,7 +19,7 @@ import type {
  * A JSON body the API sends as it comes, without parsing it: a deck from the root or every note of the
  * browser is several MB, and parsing and writing it again would take more CPU than a Worker request has.
  */
-export type JsonBody = string | ReadableStream<Uint8Array>;
+type JsonBody = string | ReadableStream<Uint8Array>;
 
 /**
  * Access to the content database. The API only knows this interface: today there is a Supabase

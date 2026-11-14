@@ -74,7 +74,7 @@ function randomOf(seed: number) {
  * About 14 months of a student: most days of the semesters, few in the summer, the last ten days in a row (a streak
  * alive), and reviews scheduled for the next two months.
  */
-export function inventedHistory(
+function inventedHistory(
   today: number,
   deckIds: string[],
   only: ReadonlySet<string> | null,

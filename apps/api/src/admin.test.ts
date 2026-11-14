@@ -2,11 +2,11 @@
 // What only reads may keep that minute; what writes asks the database again, so the removed administrator's next write
 // is refused at once. The users' database is the real one (every migration, in PGlite) and the fetch plays PostgREST:
 // it runs is_admin() as the token's user.
-import type { PGlite } from '@electric-sql/pglite';
+import type { PGlite } from '@qv/db/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { SiteSettings } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
-import { OWNER_EMAIL, asUser, createDatabase } from '../../../db/tests/pglite';
+import { OWNER_EMAIL, asUser, createDatabase } from '@qv/db/testing';
 import { supabaseAdminChecker } from './admin';
 import { createApp } from './app';
 import { MediaSigner } from './media';

@@ -19,7 +19,7 @@ const BAR = 64;
 const OVERSCAN = 600;
 
 /** Wide enough for the question and the answer side by side (Tailwind's `sm`). */
-export function useWide(): boolean {
+function useWide(): boolean {
   const query = '(min-width: 640px)';
   const [wide, setWide] = useState(() =>
     typeof window === 'undefined' || !window.matchMedia ? true : window.matchMedia(query).matches,
@@ -293,7 +293,7 @@ const STATUS_WORDS: Record<CardStatus, [string, string]> = {
 };
 
 /** «3 tarjetas: 1 sin ver, 2 vistas»: what the dots say, for a screen reader. */
-export function statusText(cards: readonly ExplorerCard[]): string {
+function statusText(cards: readonly ExplorerCard[]): string {
   const by = new Map<CardStatus, number>();
   for (const c of cards) by.set(c.status, (by.get(c.status) ?? 0) + 1);
   const parts = (['new', 'seen', 'hard', 'hidden'] as const)

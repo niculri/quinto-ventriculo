@@ -10,7 +10,7 @@ import type { StoredCard, StudyRepository } from '../study/repository';
  * Deterministic: the same page on every visit.
  */
 
-export const DEMO_PREFIX = 'demo-';
+const DEMO_PREFIX = 'demo-';
 
 /** A fixed sequence (mulberry32): a «random» that is the same on every visit. */
 function randomOf(seed: number) {
@@ -207,7 +207,7 @@ export function syntheticRows(index: CardIndex, nowMs: number, seed = 11): Store
 }
 
 /** How many made-up notes the demo shows (`qv-demo-cards`), or null: the real index. */
-export function demoCardCount(storage: Storage | null = safeStorage()): number | null {
+function demoCardCount(storage: Storage | null = safeStorage()): number | null {
   const n = Number(storage?.getItem('qv-demo-cards') ?? '');
   return Number.isInteger(n) && n > 0 ? Math.min(n, 20_000) : null;
 }

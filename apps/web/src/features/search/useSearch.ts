@@ -5,7 +5,7 @@ import { paths } from '../../app/paths';
 import { locateNote } from '../catalog/queries';
 import { useServices } from '../../app/services';
 
-export function useDebounced<T>(value: T, ms: number): T {
+function useDebounced<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
     const t = setTimeout(() => setDebounced(value), ms);

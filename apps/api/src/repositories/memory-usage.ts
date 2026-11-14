@@ -33,7 +33,7 @@ function figures(i: number, scale = 1) {
   };
 }
 
-export function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
+function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
   const today = siteDay(nowMs);
   const day = (back: number) => siteDay(nowMs - back * DAY_MS);
   const weekday = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;

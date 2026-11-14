@@ -92,7 +92,7 @@ function useHideAnswers() {
 }
 
 /** «<ord>:<guid>» of the URL's `card` (the guid may have any character, the number never a «:»). */
-export function parseCardParam(value: string | null): { noteGuid: string; ord: number } | null {
+function parseCardParam(value: string | null): { noteGuid: string; ord: number } | null {
   if (!value) return null;
   const at = value.indexOf(':');
   const ord = Number(value.slice(0, at));

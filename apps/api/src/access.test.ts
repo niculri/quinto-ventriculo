@@ -2,11 +2,11 @@
 // real one (every migration, in PGlite) and the fetch plays PostgREST: it runs `access_status()` as the token's user.
 import { SignJWT, createLocalJWKSet, decodeJwt, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
-import type { PGlite } from '@electric-sql/pglite';
+import type { PGlite } from '@qv/db/testing';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { CONTACT_EMAIL, LEGAL_VERSIONS } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
-import { asUser, createDatabase } from '../../../db/tests/pglite';
+import { asUser, createDatabase } from '@qv/db/testing';
 import { ACCESS_TTL, accessUnavailable, supabaseAccessChecker } from './access';
 import { createApp } from './app';
 import { MediaSigner } from './media';

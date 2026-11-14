@@ -32,7 +32,7 @@ function clampAxis(offset: number, length: number, room: number): number {
   return Math.min(0, Math.max(room - length, offset));
 }
 
-export function clampScale(scale: number, image: Size, stage: Size): number {
+function clampScale(scale: number, image: Size, stage: Size): number {
   return Math.min(maxScale(image, stage), Math.max(fitScale(image, stage), scale));
 }
 

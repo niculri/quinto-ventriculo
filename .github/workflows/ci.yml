@@ -52,12 +52,18 @@ jobs:
           fi
           npm run --silent suppressions -- --base "$base"
           npm run --silent deps -- --base "$base"
+      - run: npm run knip
       - run: npm run format:check
       - run: npm test
 
   e2e:
-    name: End to end (Playwright)
+    name: End to end (Playwright, ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
+    # Chromium's specs (desktop and phone) in three parts that run at the same time.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -67,12 +73,12 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
         working-directory: apps/web
-      - run: npx playwright test --project=desktop --project=phone
+      - run: npx playwright test --project=desktop --project=phone --shard=${{ matrix.shard }}/3
         working-directory: apps/web
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: apps/web/test-results
           retention-days: 7
 

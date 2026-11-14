@@ -2,7 +2,7 @@ import { Flag, Layers, SlidersHorizontal, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../app/paths';
 
-export interface SettingsSection {
+interface SettingsSection {
   label: string;
   to: string;
   icon: LucideIcon;

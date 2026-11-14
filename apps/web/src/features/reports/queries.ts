@@ -3,7 +3,7 @@ import { useServices } from '../../app/services';
 import type { NewReport, ResolveInput } from './repository';
 
 /** The keys of the reports (the preview of the draft shares them with the site: features/preview). */
-export const reportKeys = {
+const reportKeys = {
   queue: ['report-queue'] as const,
   mine: ['my-reports'] as const,
 };

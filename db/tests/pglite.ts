@@ -3,7 +3,15 @@ import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { unaccent } from '@electric-sql/pglite/contrib/unaccent';
 
+export type { PGlite };
+
 const HERE = import.meta.dirname;
+
+/**
+ * The databases already built in this test process, as data-directory dumps by their migrations: loading a dump
+ * takes a fraction of applying every migration again, and each call still gets a database of its own.
+ */
+const built = new Map<string, Promise<Blob>>();
 
 /**
  * An in-memory database with the fake Supabase and every migration of `db/<name>`, in the order of their
@@ -14,6 +22,33 @@ export async function createDatabase(
   name: 'users' | 'content',
   order: string[] = [],
   /** Stop before this migration (to test it on a database with data of the previous ones). */
+  until?: string,
+): Promise<PGlite> {
+  const key = JSON.stringify([name, order, until ?? null]);
+  let dump = built.get(key);
+  if (!dump) {
+    dump = createFreshDatabase(name, order, until)
+      .then(async (db) => {
+        const data = await db.dumpDataDir('none');
+        await db.close();
+        return data;
+      })
+      .catch((error: unknown) => {
+        built.delete(key);
+        throw error;
+      });
+    built.set(key, dump);
+  }
+  return PGlite.create({ loadDataDir: await dump, extensions: { unaccent } });
+}
+
+/**
+ * Like createDatabase, but applying every migration now: for what depends on when the database was made (the
+ * numbers of the content's card changes start at that time).
+ */
+export async function createFreshDatabase(
+  name: 'users' | 'content',
+  order: string[] = [],
   until?: string,
 ): Promise<PGlite> {
   const db = await PGlite.create({ extensions: { unaccent } });
@@ -35,7 +70,7 @@ export async function createDatabase(
 
 /** The test accounts: the site's owner (invited, administrator) and a friend who helps to test (invited). */
 export const OWNER_EMAIL = 'dueno@ug.uchile.cl';
-export const FRIEND_EMAIL = 'invitado@ug.uchile.cl';
+const FRIEND_EMAIL = 'invitado@ug.uchile.cl';
 
 /**
  * The rows the first migrations inserted in production (the owner and a friend; step 2.4: they are not in the

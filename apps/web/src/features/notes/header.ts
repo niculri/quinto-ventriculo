@@ -12,14 +12,14 @@ export const KIND_NAMES: Record<NoteKind, string> = {
 const TERMS = { autumn: 'otoño', spring: 'primavera' } as const;
 
 /** «Clase 8», «Seminario 5», «Apunte base para la clase 8 en adelante»; null if it has no number. */
-export function noteLabel(kind: NoteKind, header: NoteHeader): string | null {
+function noteLabel(kind: NoteKind, header: NoteHeader): string | null {
   if (header.baseFor) return `Apunte base para la clase ${header.baseFor} en adelante`;
   if (header.number) return `${KIND_NAMES[kind]} ${header.number}`;
   return null;
 }
 
 /** «Semestre de primavera 2026». */
-export function termLabel(header: NoteHeader): string {
+function termLabel(header: NoteHeader): string {
   return `Semestre de ${TERMS[header.term]} ${header.year}`;
 }
 

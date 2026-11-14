@@ -88,7 +88,7 @@ export interface AnalyticsReaderOptions {
 }
 
 /** The dataset of wrangler.jsonc. */
-export const USAGE_DATASET = 'qv_usage';
+const USAGE_DATASET = 'qv_usage';
 
 /** The rows of a `FORMAT JSON` answer. */
 function aeRows(body: unknown): Record<string, unknown>[] {

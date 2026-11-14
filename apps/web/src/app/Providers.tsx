@@ -7,7 +7,7 @@ import { SessionProvider } from '../features/session/context';
 import { ServicesProvider } from './services';
 import type { Services } from './services';
 
-export function createQueryClient() {
+function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {

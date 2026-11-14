@@ -191,7 +191,7 @@ export function licensesText(packages: ThirdPartyPackage[], notices = ''): strin
  * apps/web (the fonts are imported from the CSS: their files are assets) and Tailwind, whose base styles are in the
  * CSS although it is a development dependency.
  */
-export function webDirectExtras(): string[] {
+function webDirectExtras(): string[] {
   const web = join(ROOT, 'apps/web');
   const names = [
     ...Object.keys(readJson(join(web, 'package.json')).dependencies ?? {}),

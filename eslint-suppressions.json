@@ -1,12 +1,82 @@
 {
+  ".githooks/forbidden.mjs": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  ".githooks/install.sh": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  ".githooks/pre-push": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  ".github/workflows/ci.yml": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  ".github/workflows/deploy.yml": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/api/src/access.test.ts": {
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
   "apps/api/src/access.ts": {
     "no-restricted-syntax": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/api/src/admin.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
     }
   },
   "apps/api/src/admin.ts": {
     "no-restricted-syntax": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/api/src/app.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
     }
   },
   "apps/api/src/app.ts": {
@@ -16,26 +86,113 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 27
+    },
     "sonarjs/cognitive-complexity": {
       "count": 2
+    }
+  },
+  "apps/api/src/card-index.test.ts": {
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/api/src/demo.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/api/src/health.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/api/src/health.ts": {
     "no-restricted-syntax": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/api/src/media.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/api/src/preview.test.ts": {
+    "qv/no-history-comments": {
+      "count": 6
+    }
+  },
+  "apps/api/src/repositories/build-catalog.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/build-catalog.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/api/src/repositories/memory-decks.ts": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
   "apps/api/src/repositories/memory-release.ts": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/memory-settings.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/memory-unpublished.ts": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/api/src/repositories/memory-usage.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -43,6 +200,19 @@
   "apps/api/src/repositories/memory.ts": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/stream.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/api/src/repositories/supabase.test.ts": {
+    "qv/no-history-comments": {
+      "count": 4
     }
   },
   "apps/api/src/repositories/supabase.ts": {
@@ -50,6 +220,49 @@
       "count": 1
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 6
+    }
+  },
+  "apps/api/src/repository.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "apps/api/src/session.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/api/src/site-settings.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/api/src/unpublished.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/api/src/usage.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -60,8 +273,497 @@
     "no-restricted-syntax": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/api/src/worker.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "apps/api/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/api/wrangler.jsonc": {
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "apps/web/build/creator-photo.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/build/licenses.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/build/preload-font.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/a11y.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/a11y.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/about.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/accepted.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/account.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/admin.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "apps/web/e2e/anki.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/answer-bar.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/article.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/card-index.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/cards.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/catalog.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/e2e/contact.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/e2e/decks.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/done-today.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/e2e/exam.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/web/e2e/health.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/heatmap.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/e2e/helpers.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/home.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/journey.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/licenses.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/phone.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/quiz.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/reading.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/release.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "apps/web/e2e/reports.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/screen-reader.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/simple.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/study.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/unpublish.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/e2e/usage.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/web/e2e/viewer.spec.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/playwright.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/Providers.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/about.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/account-settings.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/admin-access.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/admin-reports.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/admin-site.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/admin-unpublished.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/admin-usage.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/admin.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/anki.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/assessment-notes.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/assessment-tests.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/browse.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/course.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/courses.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/deck-options.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/dev-reading.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/help.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/home.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/licenses.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/my-reports.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/note.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/privacy.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/quiz.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/releases.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/search.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/semester.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/settings.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/pages/terms.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/paths.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    }
+  },
+  "apps/web/src/app/routes.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 4
+    }
+  },
+  "apps/web/src/app/services.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/web/src/app/web.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    }
+  },
+  "apps/web/src/creator-photo.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
     }
   },
   "apps/web/src/features/account/AccountGate.tsx": {
@@ -69,6 +771,12 @@
       "count": 2
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -81,6 +789,38 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/account/account.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/account/local-repository.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/account/remembered.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/account/repository.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/admin/AccessPage.tsx": {
@@ -90,12 +830,24 @@
     "max-lines-per-function": {
       "count": 4
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 9
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
   },
   "apps/web/src/features/admin/AdminLayout.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -105,6 +857,12 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 6
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -116,6 +874,28 @@
     },
     "max-lines-per-function": {
       "count": 4
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/admin/SitePage.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/UnpublishedPage.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/admin/UsagePage.tsx": {
@@ -127,16 +907,60 @@
     },
     "max-lines-per-function": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/access-repository.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/admin/admin.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/admin/local-repository.test.ts": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/admin/queries.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 6
     }
   },
   "apps/web/src/features/admin/releaseQueries.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/admin/releases.test.tsx": {
+    "qv/no-history-comments": {
+      "count": 4
     }
   },
   "apps/web/src/features/admin/repository.ts": {
@@ -145,15 +969,38 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 12
     }
   },
   "apps/web/src/features/admin/sections.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/usage.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/anki/AnkiRoute.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -167,6 +1014,9 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -174,11 +1024,20 @@
   "apps/web/src/features/anki/DeckPage.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/anki/DeckPresetDialog.tsx": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/anki/SimpleDeckTree.tsx": {
@@ -188,7 +1047,20 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/presets.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/tree.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -196,7 +1068,18 @@
     "boundaries/dependencies": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/anki/useCollapsed.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -210,6 +1093,12 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
@@ -220,14 +1109,33 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/browse/QuickFilters.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/browse/Sidebar.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/browse/browse.test.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/browse/data.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
@@ -237,6 +1145,12 @@
       "count": 1
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -253,6 +1167,12 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -260,11 +1180,20 @@
   "apps/web/src/features/cards/Filters.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/cards/LegacyBrowse.tsx": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -273,6 +1202,12 @@
   "apps/web/src/features/cards/PracticePage.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/cards/Viewer.tsx": {
@@ -280,6 +1215,17 @@
       "count": 1
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/cards.test.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -290,12 +1236,24 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
   },
   "apps/web/src/features/cards/model.ts": {
     "max-lines": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -309,13 +1267,30 @@
     "max-lines": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 4
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/scope.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
   "apps/web/src/features/catalog/AssessmentSections.tsx": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -324,6 +1299,12 @@
   "apps/web/src/features/catalog/CareerPage.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
     }
   },
   "apps/web/src/features/catalog/CoursePage.tsx": {
@@ -336,6 +1317,9 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -343,15 +1327,40 @@
   "apps/web/src/features/catalog/Redirects.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/catalog/SectionArt.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/catalog/SemesterPage.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/catalog/queries.ts": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/decks/CardFrame.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -360,6 +1369,25 @@
       "count": 1
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/decks.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/labels.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -370,6 +1398,9 @@
     "max-lines": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -377,10 +1408,24 @@
   "apps/web/src/features/decks/queries.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/help/HelpPage.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/help/HowToUse.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -394,7 +1439,26 @@
     "max-lines-per-function": {
       "count": 3
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/counts-harder.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/counts.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -402,13 +1466,46 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/lastNote.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/myCourses.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/myCourses.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
   "apps/web/src/features/home/queries.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
     }
   },
   "apps/web/src/features/landing/LandingPage.tsx": {
@@ -423,15 +1520,30 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/legal/AboutPage.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/legal/LegalPage.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -441,20 +1553,49 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/legal/PrivacyPage.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
   "apps/web/src/features/legal/TermsPage.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/notes/ImageViewer.tsx": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/NoteContent.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -468,6 +1609,12 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -475,25 +1622,73 @@
   "apps/web/src/features/notes/Practice.tsx": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/notes/Toc.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/articleHtml.test.ts": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/notes/articleHtml.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/header.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/features/notes/noteCrumbs.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/notes/placeThumbs.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/reporting.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/sample/sample.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/useActiveSection.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/useScrollableTables.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -503,10 +1698,24 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
     }
   },
   "apps/web/src/features/quiz/Cover.tsx": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/Figures.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -515,6 +1724,12 @@
       "count": 1
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -534,6 +1749,12 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
@@ -541,19 +1762,71 @@
   "apps/web/src/features/quiz/Results.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/html.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/html.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/local-repository.test.ts": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/quiz/queries.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/quiz/quiz.css": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/quiz/quiz.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
     }
   },
   "apps/web/src/features/quiz/repository.ts": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/quiz/saver.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -564,10 +1837,27 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/MyReportsPage.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/reports/ReportDialog.tsx": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -575,13 +1865,35 @@
     "boundaries/dependencies": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/local-repository.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/features/reports/queries.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/reports/reports.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
     }
   },
   "apps/web/src/features/reports/repository.ts": {
@@ -590,6 +1902,20 @@
     },
     "max-lines-per-function": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/reports/targets.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/search/SearchPage.tsx": {
@@ -597,6 +1923,12 @@
       "count": 2
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -612,26 +1944,70 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/search/Snippet.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/search/useSearch.ts": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/session/AuthCallbackPage.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/features/session/ProtectedRoute.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/session/context.tsx": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/session/demo.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/session/notices.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/session/service.ts": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/settings/AccountSettingsPage.tsx": {
@@ -639,6 +2015,12 @@
       "count": 2
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -651,20 +2033,51 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/settings/PresetDialogs.tsx": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/features/settings/SettingsLayout.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/settings/kept-options.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/settings/sections.ts": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/settings/useSettingsGroups.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -678,22 +2091,60 @@
     "max-lines-per-function": {
       "count": 3
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
   "apps/web/src/features/stats/demo.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/heatmap-ui.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/heatmap.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/heatmap.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/stats/practice.test.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/features/stats/practice.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/features/stats/queries.ts": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -702,6 +2153,25 @@
       "count": 2
     },
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/DeckCounts.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/DeckCounts.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -715,7 +2185,31 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/MasteryMeter.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/MaterialRow.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/StudyFallback.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -729,12 +2223,70 @@
     "max-lines-per-function": {
       "count": 3
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 6
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
   },
+  "apps/web/src/features/study/cards-of-decks.test.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/day-summary.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/day-summary.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/exam-session.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/exam-ui.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/final-review.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/local-repository.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
   "apps/web/src/features/study/mastery.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/material.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -742,12 +2294,28 @@
     "boundaries/dependencies": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/moved-cards.test.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/pace.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/features/study/pace.ts": {
     "max-lines": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -756,6 +2324,9 @@
   },
   "apps/web/src/features/study/queries.ts": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -766,12 +2337,31 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
   },
+  "apps/web/src/features/study/scheduler.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
   "apps/web/src/features/study/scheduler.ts": {
     "max-lines": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/session.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -779,17 +2369,97 @@
     "max-lines": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/simple-session.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/simple-ui.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/simple.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/simple.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/study.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/sync.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/tips/useTip.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/usage/count.test.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
   "apps/web/src/features/usage/count.ts": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "apps/web/src/features/viewer/useImageZoom.ts": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/viewer/zoom.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/fonts/fonts.css": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -797,7 +2467,59 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/lib/dates.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/lib/readingFonts.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/lib/theme.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/main.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/styles.css": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/test/render.tsx": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 11
+    }
+  },
+  "apps/web/src/test/setup.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/third-party-licenses.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -811,6 +2533,12 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -821,21 +2549,89 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/BackButton.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/Breadcrumbs.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/ContactLink.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/Loading.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/Logo.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/MenuRoot.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/ui/NotFoundPage.tsx": {
     "boundaries/dependencies": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/Notice.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/Reserved.tsx": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "apps/web/src/ui/RouteError.tsx": {
     "boundaries/dependencies": {
       "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/Select.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/ui/SiteFooter.tsx": {
     "boundaries/dependencies": {
       "count": 2
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "apps/web/src/ui/ThemePicker.tsx": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/src/ui/UserMenu.tsx": {
@@ -844,15 +2640,517 @@
     },
     "boundaries/dependencies": {
       "count": 3
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/answerScreen.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/credits.ts": {
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "apps/web/src/ui/focus.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/keys.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/ui/rail.tsx": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/src/vite-env.d.ts": {
+    "qv/file-header": {
+      "count": 1
     }
   },
   "apps/web/vite.config.ts": {
-    "@typescript-eslint/no-misused-promises": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "apps/web/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "db/tests/account.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "db/tests/admin-access.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/admin-owner.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "db/tests/admin.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/articles.test.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/assessment-mode.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "db/tests/browse.test.ts": {
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/card-changes.test.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/card-index-upgrade.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/card-index.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/cards-of-decks.test.ts": {
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/close-writes.test.ts": {
+    "qv/no-history-comments": {
+      "count": 18
+    }
+  },
+  "db/tests/content.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "db/tests/deck-note-counts.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/deck-tree.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/draft.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 11
+    }
+  },
+  "db/tests/flashcards.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "db/tests/health.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/heatmap.test.ts": {
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/history.test.ts": {
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/home.test.ts": {
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/import-fixtures.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/incremental-import.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/invite-lists.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/invites.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "db/tests/moved-cards.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/pglite.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/publish.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/quizzes.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/release-real-decks.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/release-speed.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/release.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 4
+    }
+  },
+  "db/tests/reports.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    }
+  },
+  "db/tests/safe-update.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/simple-anki.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "db/tests/site-settings.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/study.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/timeouts.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/unpublish-log-entries.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "db/tests/unpublish.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "db/tests/upgrade-1.3.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/upgrade-1.8.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "db/tests/usage.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 4
+    }
+  },
+  "db/tests/users.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "eslint.config.js": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/anki-format/src/decks.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-format/src/index.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-format/src/read.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-format/test/read.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-format/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/scripts/compare.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/cloze.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/collection.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/filters.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/html.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/index.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/notes.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/render.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/src/template.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/test/golden.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/test/render.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-render/vitest.config.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "packages/anki-search/src/compile.ts": {
     "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/src/index.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/src/parser.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/src/term.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/src/text.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/test/compile.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/test/parser.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/anki-search/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/scripts/e2e-browse-index.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/importer/scripts/e2e-decks.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/scripts/e2e-quizzes.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/browse-index.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -860,7 +3158,23 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 4
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/card-html.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/cli.test.ts": {
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -868,7 +3182,26 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/credits.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/credits.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     }
   },
@@ -879,13 +3212,72 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
+  "packages/importer/src/hash.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/images.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/importer.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "packages/importer/src/index.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
   "packages/importer/src/manifest.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "packages/importer/src/private-folder.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "packages/importer/src/quiz-charts.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/quizzes.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
     }
   },
   "packages/importer/src/quizzes.ts": {
@@ -895,8 +3287,24 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
+    }
+  },
+  "packages/importer/src/site-note-types.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/site-note-types.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
     }
   },
   "packages/importer/src/targets.ts": {
@@ -906,8 +3314,22 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 12
+    },
     "sonarjs/cognitive-complexity": {
       "count": 2
+    }
+  },
+  "packages/importer/src/taxonomy.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 13
     }
   },
   "packages/importer/src/taxonomy.ts": {
@@ -917,12 +3339,24 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 4
     }
   },
   "packages/importer/src/unpublish-cli.ts": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -936,6 +3370,12 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 6
+    },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
@@ -944,7 +3384,33 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/importer/src/versions.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/importer/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/notes-md/src/callouts.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/notes-md/src/convert.test.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -952,25 +3418,116 @@
     "max-lines": {
       "count": 1
     },
-    "sonarjs/cognitive-complexity": {
-      "count": 2
-    }
-  },
-  "packages/ops/src/deploy.ts": {
-    "max-lines": {
+    "qv/file-header": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
   },
+  "packages/notes-md/src/index.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/notes-md/src/sanitize.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/notes-md/src/text.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/notes-md/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/cycles-cli.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/cycles.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/deploy.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/deploy.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "packages/ops/src/pre-push.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "packages/ops/src/repository-root.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/smoke.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
   "packages/ops/src/smoke.ts": {
     "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/suppressions.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/ops/src/workflows.test.ts": {
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/ops/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/quiz/src/index.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
   "packages/quiz/src/round.ts": {
     "max-lines": {
+      "count": 1
+    },
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -978,16 +3535,131 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "packages/quiz/src/statements.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/quiz/test/round.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/quiz/test/state.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/quiz/test/statements.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/quiz/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/api.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
     }
   },
   "packages/schema/src/browse-index.ts": {
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "packages/schema/src/bundle.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "packages/schema/src/content.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/domain.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/flashcards.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/flashcards.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 5
+    }
+  },
+  "packages/schema/src/index.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/legal.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 3
+    }
+  },
+  "packages/schema/src/quizzes.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/release.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    }
+  },
+  "packages/schema/src/reports.ts": {
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
+  "packages/schema/src/review.test.ts": {
+    "qv/no-history-comments": {
+      "count": 3
     }
   },
   "packages/schema/src/review.ts": {
@@ -997,12 +3669,70 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 8
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
   },
+  "packages/schema/src/site.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/taxonomy.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 2
+    }
+  },
   "packages/schema/src/taxonomy.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/schema/src/usage.ts": {
+    "qv/file-header": {
+      "count": 1
+    },
+    "qv/no-history-comments": {
+      "count": 1
+    }
+  },
+  "packages/schema/vitest.config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/card.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/config.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/fsrs.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/index.ts": {
+    "qv/file-header": {
       "count": 1
     }
   },
@@ -1013,7 +3743,55 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/file-header": {
+      "count": 1
+    },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/random.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/states.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/src/timing.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/test/anki.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/test/queue-anki.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/test/queue-rebuild.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/test/queue-tree.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/test/srs.test.ts": {
+    "qv/file-header": {
+      "count": 1
+    }
+  },
+  "packages/srs/vitest.config.ts": {
+    "qv/file-header": {
       "count": 1
     }
   }

@@ -42,7 +42,7 @@ const count = (n: number | undefined, one: string, many: string) =>
   n === undefined ? null : `${n} ${n === 1 ? one : many}`;
 
 /** What went with it, in a line. */
-export function removedLine(e: UnpublishedEntry): string {
+function removedLine(e: UnpublishedEntry): string {
   const r = e.removed;
   const parts =
     e.kind === 'note'

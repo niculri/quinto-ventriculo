@@ -117,7 +117,7 @@ export function sharedConflicts(
 }
 
 /** The import stops before writing anything. */
-export function sharedConflictError(conflicts: readonly SharedConflict[]): Error {
+function sharedConflictError(conflicts: readonly SharedConflict[]): Error {
   const list = conflicts
     .map(
       (c) =>

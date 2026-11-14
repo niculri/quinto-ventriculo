@@ -7,7 +7,7 @@ import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
  * knows the caller (their token) and asks for their session open.
  */
 
-export interface AcceptedVersions {
+interface AcceptedVersions {
   terms: string;
   privacy: string;
   acceptedAt: string;

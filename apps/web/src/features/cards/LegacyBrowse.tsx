@@ -11,10 +11,7 @@ import { cardParam } from './CardsPage';
 import { scopeNodeOf, unitOf } from './scope';
 
 /** The deck a search starts with (`"deck:…"`, as a deck's link wrote it) and what follows it. */
-export function deckOfSearch(
-  tree: AnkiTree,
-  q: string,
-): { node: CourseDeckNode; rest: string } | null {
+function deckOfSearch(tree: AnkiTree, q: string): { node: CourseDeckNode; rest: string } | null {
   let best: { node: CourseDeckNode; rest: string; length: number } | null = null;
   for (const n of tree.nodes) {
     if (!hasPage(n)) continue;

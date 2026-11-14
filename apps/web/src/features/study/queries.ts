@@ -4,7 +4,7 @@ import { dayStartsAt, schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import { useServices } from '../../app/services';
 import { browserTimeZone, defaultPreferences } from './repository';
-import type { AssessmentSetting, StudyPreferences, UserPreset } from './repository';
+import type { AssessmentSetting, StudyPreferences } from './repository';
 import { useCatalog } from '../catalog/queries';
 import { assessmentView } from './pace';
 import type { AssessmentView } from './pace';
@@ -301,11 +301,3 @@ export function useStudyData(deck: DeckDetail | undefined) {
     retry: () => parts.forEach((p) => p.isError && void p.refetch()),
   };
 }
-
-/** After studying or changing options, what the deck page shows has to be read again. */
-export function useInvalidateStudy() {
-  const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: studyKeys.all });
-}
-
-export type { UserPreset };

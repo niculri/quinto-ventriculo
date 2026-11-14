@@ -10,7 +10,7 @@ import type { PracticeCount } from '../study/repository';
 import { heatmapKeys } from './queries';
 
 /** How many answers of practice go in a batch: few, so that leaving the page loses almost nothing. */
-export const PRACTICE_BATCH = 10;
+const PRACTICE_BATCH = 10;
 
 /** The counts in batches within the database's caps: at most PRACTICE_BATCH_MAX answers and PRACTICE_BATCH_DECKS decks. */
 export function practiceBatches(counts: readonly PracticeCount[]): PracticeCount[][] {

@@ -166,7 +166,7 @@ export function memoryDecks(bundle: ContentBundle) {
   };
 }
 
-export function kindOf(type: Pick<AnkiNoteTypeRecord, 'kind' | 'occlusion'> | undefined): CardKind {
+function kindOf(type: Pick<AnkiNoteTypeRecord, 'kind' | 'occlusion'> | undefined): CardKind {
   if (type?.occlusion) return 'occlusion';
   return type?.kind === 'cloze' ? 'cloze' : 'basic';
 }
@@ -179,4 +179,4 @@ const compareCodes = (a: string | null, b: string | null) =>
   a === b ? 0 : a === null ? 1 : b === null ? -1 : compare(a, b);
 
 /** A field's HTML as one line of plain text, as `anki_plain_text()` of the content database. */
-export const plainText = ankiPlainText;
+const plainText = ankiPlainText;

@@ -19,7 +19,7 @@ import { LEGAL_VERSIONS } from '@qv/schema';
  * - `unknown`: it could not be asked (network, the database down, a wrong key, an answer it does not know). Never
  *   remembered: the next request asks again.
  */
-export type Access = 'allowed' | 'denied' | 'signed_out' | 'not_accepted' | 'expired' | 'unknown';
+type Access = 'allowed' | 'denied' | 'signed_out' | 'not_accepted' | 'expired' | 'unknown';
 
 export interface AccessChecker {
   check(token: string): Promise<Access>;

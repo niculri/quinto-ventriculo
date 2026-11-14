@@ -15,7 +15,7 @@ export interface GoldenCard {
  * goes separately). Nothing else is normalized, not even the whitespace: the render is byte for byte
  * Anki's (whitespace matters in «white-space: pre» and inside the «data-cloze» attributes).
  */
-export function normalize(html: string): string {
+function normalize(html: string): string {
   return html.replace(/^<style>[\s\S]*?<\/style>/, '');
 }
 

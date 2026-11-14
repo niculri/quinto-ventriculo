@@ -59,7 +59,7 @@ export function deckCounts(data: StudyData, nowMs = Date.now()): Map<string, Cou
  * When the counts can change by themselves: a learning step of today coming within the learn-ahead limit, or a card
  * buried until a moment that passes. Null: not before the day changes (the study data are read again then).
  */
-export function nextCountChange(data: StudyData, nowMs = Date.now()): number | null {
+function nextCountChange(data: StudyData, nowMs = Date.now()): number | null {
   const ahead = data.prefs.learnAheadMinutes * 60_000;
   let next: number | null = null;
   const consider = (at: number) => {

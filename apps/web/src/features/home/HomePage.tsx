@@ -45,7 +45,7 @@ import { todayCourses, useCountsTick, useHomeStudy } from './queries';
 /** The page's height the last time, on this device. */
 const HEIGHT_KEY = 'qv-home-height';
 const DEFAULT_HEIGHT = 1100;
-export const FIRST_STEPS = 'first-steps';
+const FIRST_STEPS = 'first-steps';
 
 function savedHeight(): number {
   try {

@@ -69,6 +69,28 @@ describe('GitHub workflows', () => {
     expect(deploy).not.toMatch(/^\s*schedule:/m);
   });
 
+  it('knip runs in npm run check, in the CI and in the pre-push hook', () => {
+    const hook = readFileSync(join(repositoryRoot(), '.githooks', 'pre-push'), 'utf8');
+    const scripts = (
+      JSON.parse(readFileSync(join(repositoryRoot(), 'package.json'), 'utf8')) as {
+        scripts: Record<string, string>;
+      }
+    ).scripts;
+    expect(scripts.check).toContain('npm run knip');
+    expect(ci).toContain('- run: npm run knip');
+    expect(hook).toContain('npm run --silent knip');
+  });
+
+  it("Chromium's end to end tests run in parallel parts that together run every spec", () => {
+    const shards = /shard: \[([\d, ]+)\]/
+      .exec(ci)?.[1]
+      ?.split(',')
+      .map((n) => Number(n.trim()));
+    expect(shards).toEqual([1, 2, 3]);
+    expect(ci).toContain('--project=desktop --project=phone --shard=${{ matrix.shard }}/3');
+    expect(ci).toContain('name: playwright-report-${{ matrix.shard }}');
+  });
+
   it('the pre-push hook does not run in the CI', () => {
     const hook = readFileSync(join(repositoryRoot(), '.githooks', 'pre-push'), 'utf8');
     expect(hook).toContain('CI');

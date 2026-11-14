@@ -147,14 +147,6 @@ export function studiedToday(
 
 export type PresetRef = { kind: 'author'; name: string } | { kind: 'user'; id: string };
 
-export interface ResolvedPreset {
-  ref: PresetRef;
-  name: string;
-  config: DeckConfig;
-  /** The user's preset that replaces the author's one, if any. */
-  replacement: UserPreset | null;
-}
-
 export interface PresetChoice {
   ref: PresetRef;
   name: string;

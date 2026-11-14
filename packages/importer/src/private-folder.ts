@@ -14,7 +14,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 export const PRIVATE_FOLDER_NAME = 'quinto-ventriculo-privado';
 
 /** The root of this repository (packages/importer/src → three levels up). */
-export const REPOSITORY = resolve(import.meta.dirname, '../../..');
+const REPOSITORY = resolve(import.meta.dirname, '../../..');
 
 type Env = Record<string, string | undefined>;
 

@@ -17,7 +17,7 @@ import { AccountError } from './repository';
 import type { AccountState } from './repository';
 import { rememberAccount, rememberedAccount } from './remembered';
 
-export const accountKey = (userId: string) => ['account', userId] as const;
+const accountKey = (userId: string) => ['account', userId] as const;
 
 /** The versions in force (this bundle's) are the ones accepted last. */
 export const acceptedNow = (state: AccountState | undefined) =>

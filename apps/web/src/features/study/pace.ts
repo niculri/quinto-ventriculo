@@ -183,7 +183,7 @@ export function assessmentFacts(
 
 // The pace ---------------------------------------------------------------------------------------------
 
-export type PaceKind =
+type PaceKind =
   /** No date: the student's number. */
   | 'none'
   /** The date passed: the student's number. */
@@ -210,7 +210,7 @@ export interface Pace {
  */
 export const newAtDayStart = (facts: AssessmentFacts) => facts.newLeft + facts.newToday;
 
-export function newPerDayFor(cards: number, days: number): number {
+function newPerDayFor(cards: number, days: number): number {
   return days <= 0 ? 0 : Math.ceil(cards / days);
 }
 

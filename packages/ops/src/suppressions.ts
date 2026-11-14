@@ -8,6 +8,16 @@ export const ALL_RULES = '*';
 
 export type Counts = Map<string, number>;
 
+/**
+ * The file of a rule of this repository's own ESLint plugin (`qv/<name>`), or null for any other rule. A `qv/` rule
+ * whose file the base does not have is new: what it finds the first time is the debt it starts with, not growth.
+ * Every other rule counts as one the base already had.
+ */
+export function localRuleFile(rule: string): string | null {
+  const name = /^qv\/([a-z][a-z-]*)$/.exec(rule)?.[1];
+  return name ? `packages/eslint-plugin/src/${name}.js` : null;
+}
+
 /** Suppressions per rule, from the JSON that ESLint writes: { file: { rule: { count } } }. */
 export function suppressionsByRule(json: string): Counts {
   const parsed: unknown = JSON.parse(json);
@@ -64,14 +74,23 @@ export interface RatchetResult {
 
 /**
  * Compares the working tree with the base, rule by rule. When the base has no suppressions file (the first time),
- * only the inline directives are compared.
+ * only the inline directives are compared. The rules in `newRules` did not exist in the base: they do not count.
  */
-export function checkRatchet(current: Snapshot, base: Snapshot, baseName: string): RatchetResult {
+export function checkRatchet(
+  current: Snapshot,
+  base: Snapshot,
+  baseName: string,
+  newRules: ReadonlySet<string> = new Set(),
+): RatchetResult {
   const withFile = base.suppressions !== null;
   const now = combined(current, withFile);
   const before = combined(base, withFile);
+  const started = [...now.all]
+    .filter(([rule]) => newRules.has(rule))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([rule, count]) => `${rule}: ${count}`);
   const grown = [...now.all]
-    .filter(([rule, count]) => count > (before.all.get(rule) ?? 0))
+    .filter(([rule, count]) => !newRules.has(rule) && count > (before.all.get(rule) ?? 0))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(
       ([rule, count]) =>
@@ -84,7 +103,11 @@ export function checkRatchet(current: Snapshot, base: Snapshot, baseName: string
     ? `${total(now.all)} (en ${baseName}: ${total(before.all)})`
     : `${inFile} en ${SUPPRESSIONS_FILE} (${baseName} no lo tiene) y ${total(now.inline)} con ` +
       `eslint-disable (en ${baseName}: ${total(before.inline)})`;
-  if (grown.length === 0) return { ok: true, lines: [`Supresiones de ESLint: ${summary}.`] };
+  const fresh = started.length
+    ? [`Reglas nuevas respecto de ${baseName} (no cuentan esta vez): ${started.join(', ')}.`]
+    : [];
+  if (grown.length === 0)
+    return { ok: true, lines: [`Supresiones de ESLint: ${summary}.`, ...fresh] };
   return {
     ok: false,
     lines: [

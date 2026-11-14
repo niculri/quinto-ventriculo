@@ -71,7 +71,7 @@ export function readSelection(root: HTMLElement): ReportLocation | null {
  * away before its click arrives (the system does it, and `preventDefault` does not stop a touch): the bar is still
  * there for that click, and reports what was selected. Revisión de cero (2.6).
  */
-export const SELECTION_GRACE_MS = 400;
+const SELECTION_GRACE_MS = 400;
 
 /** The selection inside the article, as it changes (null: nothing selected there). */
 export function useArticleSelection(root: RefObject<HTMLElement | null>, enabled: boolean) {

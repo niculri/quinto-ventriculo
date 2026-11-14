@@ -1,0 +1,17 @@
+{
+  "name": "@qv/eslint-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "This repository's own ESLint rules: every file starts with a comment that says what it does, and comments carry no history",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@eslint/plugin-kit": "0.7.3"
+  }
+}

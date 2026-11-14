@@ -7,8 +7,5 @@
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "typecheck": "tsc -p ."
-  },
-  "devDependencies": {
-    "tsx": "4.23.15"
   }
 }

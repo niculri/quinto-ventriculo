@@ -15,7 +15,7 @@ export const SITE_FOOTER =
   '{{#Actualización}} · actualizada el {{Actualización}}{{/Actualización}}</div>{{/Código}}';
 
 /** Appended after the note type's CSS, so it wins over its `position: fixed` footer. */
-export const SITE_FOOTER_CSS = `
+const SITE_FOOTER_CSS = `
 /* El Quinto Ventrículo: the footer goes in the flow, at the end of the card, after the source. */
 .pie {
   position: static; right: auto; bottom: auto; z-index: auto; pointer-events: auto;

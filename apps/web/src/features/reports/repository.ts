@@ -99,7 +99,7 @@ export interface ReportGroup {
   reports: QueueReport[];
 }
 
-export interface BlockedReporter {
+interface BlockedReporter {
   id: string;
   name: string | null;
   email: string | null;
@@ -142,7 +142,7 @@ export const REPORT_MESSAGES = {
   offline: 'No se pudo. Revisa tu conexión e inténtalo de nuevo.',
 } as const;
 
-export function reportError(error: { code?: string; message: string }): ReportError {
+function reportError(error: { code?: string; message: string }): ReportError {
   const m = error.message;
   if (/report_daily_limit/.test(m)) return new ReportError(REPORT_MESSAGES.dailyLimit);
   if (/report_place_limit/.test(m)) return new ReportError(REPORT_MESSAGES.placeLimit);

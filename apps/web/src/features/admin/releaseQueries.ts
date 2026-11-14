@@ -18,7 +18,7 @@ import { ApiRequestError } from '../../lib/api';
  * The release panel's reads (step 1.7, part 2). Every key starts with «release»: the preview of the draft shares them
  * (features/preview), they are about the draft anyway.
  */
-export const releaseKeys = {
+const releaseKeys = {
   overview: ['release', 'overview'] as const,
   log: ['release', 'log'] as const,
   texts: (fp: string) => ['release', 'texts', fp] as const,
@@ -29,7 +29,7 @@ export const releaseKeys = {
 };
 
 /** Today in Santiago, YYYY-MM-DD. */
-export const santiagoToday = (now = new Date()) =>
+const santiagoToday = (now = new Date()) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(now);
 
 export function useReleaseOverview(enabled: boolean) {

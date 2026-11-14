@@ -23,7 +23,7 @@ import type { DecksManifest } from './manifest';
 export const IMAIOS = /imaios/i;
 
 /** Does a note name IMAIOS: in a field (an image's file name, the source, the credit) or in a tag? */
-export function namesImaios(note: { fields: string[]; tags: string[] }): boolean {
+function namesImaios(note: { fields: string[]; tags: string[] }): boolean {
   return note.fields.some((f) => IMAIOS.test(f)) || note.tags.some((t) => IMAIOS.test(t));
 }
 

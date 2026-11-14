@@ -38,12 +38,12 @@ export function isGlob(txt: string): boolean {
 }
 
 /** Escape a string for a JavaScript regular expression with the `u` flag. */
-export function escapeRegex(s: string): string {
+function escapeRegex(s: string): string {
   return s.replace(/[\\^$.*+?()[\]{}|/]/g, '\\$&');
 }
 
 /** Rust's `.` (any character but \n). */
-export const ANY_BUT_NEWLINE = '[^\\n]';
+const ANY_BUT_NEWLINE = '[^\\n]';
 
 /**
  * Anki text → JavaScript regular expression source (`*` → `wildcard*`, `_` → `wildcard`, the rest

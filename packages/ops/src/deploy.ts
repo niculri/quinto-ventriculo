@@ -13,7 +13,7 @@ export const CI_WORKFLOW_FILE = 'ci.yml';
 const MAIN_EVENTS = new Set(['push', 'schedule', 'workflow_dispatch']);
 /** Wrangler cuts the message of a version at 100 characters. */
 const MESSAGE_MAX = 100;
-export const DEFAULT_WAIT_MINUTES = 30;
+const DEFAULT_WAIT_MINUTES = 30;
 const MAX_WAIT_MINUTES = 120;
 const POLL_SECONDS = 20;
 /**
@@ -21,7 +21,7 @@ const POLL_SECONDS = 20;
  * packages/ are the code, and a file at the root (a tsconfig, a PostCSS config) changes how it builds.
  */
 const OUTSIDE_BUILD = ['docs/', '.claude/'];
-export const WEB_ENV_FILE = 'apps/web/.env.local';
+const WEB_ENV_FILE = 'apps/web/.env.local';
 /** Only their names are checked (never printed nor their values read aloud). */
 const WEB_ENV_KEYS = ['VITE_USERS_SUPABASE_URL', 'VITE_USERS_SUPABASE_PUBLISHABLE_KEY'];
 /** The files that Vite reads after .env.local in a production build (they would win). */
@@ -136,7 +136,7 @@ export interface DeployEnvironment {
 }
 
 /** A refusal: why it does not deploy, and what to do. */
-export class Refusal extends Error {}
+class Refusal extends Error {}
 
 export interface CiRun {
   databaseId: number;
@@ -191,7 +191,7 @@ async function git(env: DeployEnvironment, args: readonly string[], what: string
  * («"apps/web/caf\303\251.ts"» would not start with «apps/»), and every untracked file listed one by one whatever
  * `status.showUntrackedFiles` says (with «no», git hides them all).
  */
-export const STATUS_ARGS = ['status', '--porcelain=v1', '-z', '--untracked-files=all'] as const;
+const STATUS_ARGS = ['status', '--porcelain=v1', '-z', '--untracked-files=all'] as const;
 /**
  * The paths whose changes do not run the CI: `paths-ignore` of ci.yml, the same list (workflows.test.ts checks it).
  * None goes into the build nor is read by a test: the docs, Claude's notes and the Markdown files at the root
@@ -248,7 +248,7 @@ const list = (paths: string[]) =>
     .concat(paths.length > 10 ? [`    … y ${paths.length - 10} más`] : [])
     .join('\n');
 
-export interface Commit {
+interface Commit {
   sha: string;
   subject: string;
   /** `owner/repo` on GitHub (from origin), where the CI is asked for. */
@@ -277,7 +277,7 @@ async function checkClean(env: DeployEnvironment, when = ''): Promise<void> {
  * Right before building and right before deploying: the tree is still clean and HEAD is still the commit whose CI
  * was checked. Waiting for the CI takes minutes, and other sessions work in this same folder.
  */
-export async function checkUnchanged(env: DeployEnvironment, sha: string, when: string) {
+async function checkUnchanged(env: DeployEnvironment, sha: string, when: string) {
   await checkClean(env, `${when}: `);
   const head = await git(env, ['rev-parse', 'HEAD'], 'No pude leer HEAD');
   if (head !== sha) {
@@ -288,7 +288,7 @@ export async function checkUnchanged(env: DeployEnvironment, sha: string, when: 
 }
 
 /** The working tree is clean and HEAD is origin/main, on GitHub. */
-export async function checkGit(env: DeployEnvironment): Promise<Commit> {
+async function checkGit(env: DeployEnvironment): Promise<Commit> {
   await git(env, ['rev-parse', '--show-toplevel'], 'No estoy dentro del repositorio');
   await checkClean(env);
   const origin = await git(env, ['remote', 'get-url', 'origin'], 'No pude leer el remoto origin');
@@ -326,7 +326,7 @@ export async function checkGit(env: DeployEnvironment): Promise<Commit> {
  * run; a push of code and docs together has one run, on its last commit, which can be a docs commit. Their code is
  * the same, so a green run on any of them counts. The nearest one with a run decides (npm run deploy).
  */
-export async function testedCommits(env: DeployEnvironment, sha: string): Promise<string[]> {
+async function testedCommits(env: DeployEnvironment, sha: string): Promise<string[]> {
   const listed = await git(
     env,
     ['rev-list', '--first-parent', `--max-count=${MAX_DOCS_COMMITS + 1}`, sha],
@@ -391,7 +391,7 @@ async function ciRuns(env: DeployEnvironment, commit: Commit): Promise<CiRun[]> 
 }
 
 /** The CI of the commit ended in success (waiting for it if asked). */
-export async function checkCi(
+async function checkCi(
   env: DeployEnvironment,
   commit: Commit,
   waitMinutes: number | null,
@@ -445,7 +445,7 @@ export async function checkCi(
 }
 
 /** apps/web/.env.local exists and names the two variables the build needs (their values are not looked at). */
-export async function checkWebEnv(env: DeployEnvironment): Promise<void> {
+async function checkWebEnv(env: DeployEnvironment): Promise<void> {
   const text = await env.readFile(WEB_ENV_FILE);
   if (text === null) {
     throw new Refusal(

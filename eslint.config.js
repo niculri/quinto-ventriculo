@@ -1,6 +1,7 @@
 // ESLint for the whole repository. The rules are errors; what the code broke before they existed is listed in
 // eslint-suppressions.json, whose total may only go down (`npm run suppressions`).
 import js from '@eslint/js';
+import qv from '@qv/eslint-plugin';
 import globals from 'globals';
 import boundaries from 'eslint-plugin-boundaries';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -47,6 +48,11 @@ const FIXED_TEXT_PAGES = [
   'apps/web/src/features/help/HelpPage.tsx',
 ];
 
+// The code ESLint lints by default (and TypeScript), and the other files whose comments it reads (qv/comments).
+const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];
+const OTHER_FILES = ['**/*.css', '**/*.{yml,yaml}', '**/*.sh', '**/*.jsonc', '.githooks/pre-push'];
+const onCode = (config) => ({ ...config, files: config.files ?? CODE });
+
 // The packages that depend on nothing else of this repository.
 const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
 
@@ -63,9 +69,9 @@ export default tseslint.config(
   },
   // An `eslint-disable` that no longer silences anything is an error; the ones that do are counted by the ratchet.
   { linterOptions: { reportUnusedDisableDirectives: 'error' } },
-  js.configs.recommended,
-  ...tseslint.configs.strict,
+  ...[js.configs.recommended, ...tseslint.configs.strict].map(onCode),
   {
+    files: CODE,
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',
@@ -77,6 +83,13 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
+  {
+    // Every file starts with a comment that says what it does, and no comment carries history.
+    files: [...CODE, ...OTHER_FILES],
+    plugins: { qv },
+    rules: { 'qv/file-header': 'error', 'qv/no-history-comments': 'error' },
+  },
+  { files: OTHER_FILES, language: 'qv/comments' },
   {
     // Rules that need type information. Configuration files outside every tsconfig are linted without types.
     files: ['**/*.{ts,tsx}'],

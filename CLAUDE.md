@@ -47,11 +47,13 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Comentarios:** cada archivo empieza con un comentario breve (una o dos líneas) que dice qué hace; en los portados,
   después de la cabecera SPDX. Dentro, solo se comenta una función difícil o cuyo nombre no basta, diciendo qué hace o
   por qué es así. Nada de historia (pasos, revisiones, fechas, quién lo pidió) ni comentarios que repiten el código.
-- `npm run knip` lista archivos, exports y dependencias sin uso; `npm run coverage`, la cobertura (sin umbral).
+- `npm run knip` lista archivos, exports y dependencias sin uso, y falla si hay alguno (en `npm run check`, la CI y el
+  `pre-push`); `npm run coverage`, la cobertura (sin umbral). Las reglas de comentarios son `qv/file-header` y
+  `qv/no-history-comments`, de `packages/eslint-plugin` (también leen CSS, YAML, shell y JSON con comentarios).
 
 ## Antes de subir un cambio
-`npm run typecheck`, `npm run lint`, `npm run format:check`, `npx vitest run` y `npm run e2e`. El hook `pre-push` corre
-los cuatro primeros, más `npm run suppressions` y `npm run deps` (`npm run check` corre los mismos). En el clon del
-dueño (`git config qv.requirePrivate true`) exige además las pruebas del material real (`QV_REQUIRE_PRIVATE=1`), y si
-el privado tiene `tests/prohibidos.txt`, detiene el push que traiga uno de esos patrones en cualquiera de sus commits
-(`.githooks/forbidden.mjs`). No uses `--no-verify` para saltarlo.
+`npm run typecheck`, `npm run lint`, `npm run format:check`, `npx vitest run` y `npm run e2e`. El hook `pre-push`
+corre los cuatro primeros, más `npm run suppressions`, `npm run deps` y `npm run knip` (`npm run check` corre los
+mismos). En el clon del dueño (`git config qv.requirePrivate true`) exige además las pruebas del material real
+(`QV_REQUIRE_PRIVATE=1`), y si el privado tiene `tests/prohibidos.txt`, detiene el push que traiga uno de esos
+patrones en cualquiera de sus commits (`.githooks/forbidden.mjs`). No uses `--no-verify` para saltarlo.

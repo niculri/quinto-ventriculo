@@ -12,7 +12,7 @@ const fmt = (v: number) => String(+(+v).toFixed(6)).replace('.', ',');
 const COL = (c: unknown) => (typeof c === 'number' ? `var(--g${c})` : (c as string) || 'var(--g1)');
 const TX = 'fill="var(--mute)" font-family="var(--fbody)" font-size="11"';
 
-export function esc(s: unknown): string {
+function esc(s: unknown): string {
   return String(s ?? '').replace(
     /[&<>"]/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!,
@@ -204,8 +204,6 @@ const CHARTS: Record<string, (s: Spec) => string> = {
     return g + axisLabels(m, iw, ih, H, s.x_rotulo, s.y_rotulo) + '</svg>';
   },
 };
-
-export const CHART_KINDS = Object.keys(CHARTS);
 
 /** The chart as SVG; throws if its data are not numbers (the page shows «No se pudo dibujar…»). */
 export function drawChart(spec: Spec): string {

@@ -26,7 +26,7 @@ export interface MyCourses {
   addable: CourseWithAssessments[];
 }
 
-export function hasMaterial(catalog: Catalog, course: CourseWithAssessments): boolean {
+function hasMaterial(catalog: Catalog, course: CourseWithAssessments): boolean {
   return materialLabel(countNotes(course), countDecks(catalog, course.id)) !== '';
 }
 

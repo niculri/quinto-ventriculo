@@ -10,10 +10,10 @@
 export const CREDITS_FILE = 'credits.json';
 
 /** The groups of the thanks on /about. Teachers are not one of them, on purpose. */
-export const CREDIT_GROUPS = ['material', 'pad', 'reports', 'other'] as const;
-export type CreditGroup = (typeof CREDIT_GROUPS)[number];
+const CREDIT_GROUPS = ['material', 'pad', 'reports', 'other'] as const;
+type CreditGroup = (typeof CREDIT_GROUPS)[number];
 
-export interface CreditedPerson {
+interface CreditedPerson {
   name: string;
   group: CreditGroup;
   permission: {
@@ -22,10 +22,6 @@ export interface CreditedPerson {
     /** How: the message or the email where they said it. */
     how: string;
   };
-}
-
-export interface Credits {
-  people: CreditedPerson[];
 }
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;

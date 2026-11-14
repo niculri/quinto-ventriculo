@@ -24,7 +24,7 @@ import { AdminSectionTitle } from './AdminLayout';
 import { useUsageReport } from './queries';
 
 /** Cloudflare Web Analytics of the account (the visits and the pages): the panel opens the account's own. */
-export const WEB_ANALYTICS_URL = 'https://dash.cloudflare.com/?to=/:account/web-analytics';
+const WEB_ANALYTICS_URL = 'https://dash.cloudflare.com/?to=/:account/web-analytics';
 
 const NUMBER = new Intl.NumberFormat('es-CL');
 const SHORT_DAY = new Intl.DateTimeFormat('es-CL', {

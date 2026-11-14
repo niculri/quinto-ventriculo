@@ -30,8 +30,6 @@ export interface HeatmapData {
   due: HeatmapDue[];
 }
 
-export const emptyHeatmap = (): HeatmapData => ({ days: [], due: [] });
-
 /** «2026-11-03» → its day number. */
 export function dayNumber(iso: string): number {
   const [y, m, d] = iso.split('-').map(Number);
@@ -47,7 +45,7 @@ export function isoOfDay(day: number): string {
 export const yearOf = (day: number): number => new Date(day * MS_DAY).getUTCFullYear();
 
 /** The first day of a year. */
-export const firstDayOf = (year: number): number => Math.round(Date.UTC(year, 0, 1) / MS_DAY);
+const firstDayOf = (year: number): number => Math.round(Date.UTC(year, 0, 1) / MS_DAY);
 
 /** 0 = Monday … 6 = Sunday (1970-01-01 was a Thursday). */
 export const weekdayOf = (day: number): number => (((day + 3) % 7) + 7) % 7;
@@ -95,7 +93,7 @@ export interface HeatmapStats {
 }
 
 /** The add-on's floor for the scale: with fewer answers a day, a short day does not look like a full one. */
-export const MIN_SCALE = 20;
+const MIN_SCALE = 20;
 
 /**
  * Python's round(), which the add-on uses: to the nearest integer and, half way, to the even one (2.5 → 2, 12.5 → 12;
@@ -133,8 +131,7 @@ export function heatmapStats(byDay: ReadonlyMap<number, number>, today: number):
 }
 
 /** The add-on's thresholds, times the scale: 10 shades for the days with something. */
-export const THRESHOLDS = [0.125, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4] as const;
-export const LEVELS = THRESHOLDS.length + 1;
+const THRESHOLDS = [0.125, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4] as const;
 
 /**
  * 0 (nothing) or 1–10: 1 up to an eighth of the scale, 10 above four times it. As the add-on's calendar (cal-heatmap,
@@ -218,7 +215,7 @@ export function yearRange(
 
 // Words ------------------------------------------------------------------------------------------------------------
 
-export const MONTHS = [
+const MONTHS = [
   'enero',
   'febrero',
   'marzo',

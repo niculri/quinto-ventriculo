@@ -5,6 +5,9 @@
   "type": "module",
   "description": "Migrations of the two databases (users and content) and their tests with PGlite",
   "license": "AGPL-3.0-or-later",
+  "exports": {
+    "./testing": "./tests/pglite.ts"
+  },
   "scripts": {
     "typecheck": "tsc -p ."
   },

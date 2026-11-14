@@ -1,6 +1,6 @@
 // The account kept in the browser, for the demo and the tests.
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
-import { normalizeEmail } from '../../../lib/email';
+import { normalizeEmail } from '../../../shared/lib/email';
 import type { AccountRepository } from './port';
 import { AccountError, MESSAGES } from './model';
 import type { AcceptedVersions } from './model';

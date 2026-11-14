@@ -16,13 +16,13 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   y se anota en `NOTICE.md` (con el aviso de su licencia, si no es la AGPL).
 - `content/`, `docs/`, `tests/` y `.claude/` (salvo `settings.json`) están ignorados a propósito: son del repositorio
   privado. No los saques del `.gitignore` sin el sí del dueño.
-- Interfaz: nada se mueve al navegar, tocar o cargar; interruptores para on/off; `ui/Select` para listas; nunca
+- Interfaz: nada se mueve al navegar, tocar o cargar; interruptores para on/off; `shared/ui/Select` para listas; nunca
   `prompt` ni `confirm` del navegador.
 
 ## Arquitectura
-- **Capas, en un solo sentido.** En la web: `shared` (`ui/`, `lib/`, y más adelante `shared/`) → `features/<x>` →
-  `app/` (router, providers, composición de servicios). `shared` no importa features ni `app`; una feature no importa
-  `app`. Dentro de una feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés.
+- **Capas, en un solo sentido.** En la web: `shared` (`shared/ui`, `shared/lib`, y `ui/` mientras le queden piezas que
+  importan features) → `features/<x>` → `app/` (router, providers, composición de servicios). `shared` no importa
+  features ni `app`; una feature no importa `app`. Dentro de una feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés.
   Una función vive en la capa más baja posible: si no usa React ni red, es dominio y va a `model/` o a un paquete.
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
@@ -46,7 +46,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   mezcla responsabilidades. Complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
   portado de Anki en un paquete que conserva la forma del original, y las páginas que son solo texto fijo.
 - **Sin ciclos de imports**, ni entre archivos ni entre las carpetas de primer nivel de la web (`features/<x>`, `app`,
-  `ui`, `lib`, `shared/<x>`): `npm run deps` falla con un ciclo que no esté en `.import-cycles.json`, y también si ese
+  `ui`, `shared/<x>`): `npm run deps` falla con un ciclo que no esté en `.import-cycles.json`, y también si ese
   archivo ganó ciclos respecto de `origin/main`. `npm run deps:baseline` lo rehace, pero solo sirve para sacar los
   ciclos que ya se rompieron: uno nuevo no se agrega, se rompe.
 - **Trinquete:** todas las reglas están en `error`; lo que ya las violaba está en `eslint-suppressions.json`. Por cada

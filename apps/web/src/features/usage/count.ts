@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import type { SearchContext, UsageOpenRequest } from '@qv/schema';
 import { useServices } from '../../app/services';
-import type { ApiClient } from '../../lib/api';
+import type { ApiClient } from '../../shared/lib/api';
 
 const SAME_OPEN_MS = 10 * 60_000;
 

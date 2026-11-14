@@ -1,9 +1,9 @@
 // Redirects from old and non-canonical URLs to the canonical ones.
 import { Navigate, useLocation, useParams } from 'react-router';
-import { paths } from '../../app/paths';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Loading } from '../../ui/Loading';
-import { NotFoundPage } from '../../ui/NotFoundPage';
+import { paths } from '../../shared/lib/paths';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Loading } from '../../shared/ui/Loading';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { buildAnkiTree, descendants, hasPage } from '../anki/tree';
 import { findCourse, locateNote, useCatalog } from './queries';
 

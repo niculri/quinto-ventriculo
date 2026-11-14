@@ -1,7 +1,7 @@
 // Development-only route: a made-up article with every block the converter makes, for looking at and the e2e tests.
 import { NoteView } from '../../features/notes/NotePage';
 import { sampleNote } from '../../features/notes/sample/sample';
-import { useReadingFonts } from '../../lib/readingFonts';
+import { useReadingFonts } from '../../shared/lib/readingFonts';
 
 export default function DevReadingPage() {
   const fonts = useReadingFonts();

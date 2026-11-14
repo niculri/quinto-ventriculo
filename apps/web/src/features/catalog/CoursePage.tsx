@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowRight, ChevronRight, Layers, Search } from 'lucide-react';
 import { Link, useParams } from 'react-router';
-import { assessmentAnchor, paths } from '../../app/paths';
+import { assessmentAnchor, paths } from '../../shared/lib/paths';
 import { Canonical } from './Redirects';
 import type { Counts } from '@qv/srs';
 import type {
@@ -12,11 +12,11 @@ import type {
   CourseWithAssessments,
   SemesterWithCourses,
 } from '@qv/schema';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Loading, Skeleton } from '../../ui/Loading';
-import { button, card, linkCard, page, tapArea } from '../../ui/styles';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { NotFoundPage } from '../../ui/NotFoundPage';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Loading, Skeleton } from '../../shared/ui/Loading';
+import { button, card, linkCard, page, tapArea } from '../../shared/ui/styles';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { plural } from './AssessmentSections';
 import { countDecks, countNotes, findCourse, useCatalog } from './queries';
 import { AnkiArt, NotesArt, TestsArt } from './SectionArt';

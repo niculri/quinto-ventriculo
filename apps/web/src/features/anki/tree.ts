@@ -4,9 +4,9 @@ import { useMemo } from 'react';
 import { deckSlugs } from '@qv/schema';
 import { sortDecksByName } from '@qv/srs';
 import type { AnkiTreeDeck, Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
-import { paths } from '../../app/paths';
-import type { DeckRef } from '../../app/paths';
-import type { Crumb } from '../../ui/Breadcrumbs';
+import { paths } from '../../shared/lib/paths';
+import type { DeckRef } from '../../shared/lib/paths';
+import type { Crumb } from '../../shared/ui/Breadcrumbs';
 import { useCatalog } from '../catalog/queries';
 
 export interface DeckNode extends AnkiTreeDeck {

@@ -23,11 +23,11 @@ import {
 } from 'lucide-react';
 import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
 import type { SearchContext } from '@qv/anki-search';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
-import { Notice } from '../../ui/Notice';
-import { Switch } from '../../ui/Switch';
-import { button, card as cardStyle } from '../../ui/styles';
+import { Notice } from '../../shared/ui/Notice';
+import { Switch } from '../../shared/ui/Switch';
+import { button, card as cardStyle } from '../../shared/ui/styles';
 import { hasPage } from '../anki/tree';
 import { actionLabel, cardKey, FLAGS, presetChoices, presetOf, timingFor } from '@qv/study';
 import { studyKeys, useNow } from '../study/queries';
@@ -55,8 +55,8 @@ import type { BrowseCard, ColumnKey } from './data';
 import { BrowseSidebar, combineSearch } from './Sidebar';
 import { QuickFilters } from './QuickFilters';
 import type { Combine } from './Sidebar';
-import { keys } from '../../ui/keys';
-import { Rail } from '../../ui/rail';
+import { keys } from '../../shared/ui/keys';
+import { Rail } from '../../shared/ui/rail';
 import type { DeckNode } from '../anki/tree';
 
 const ROW = 34;

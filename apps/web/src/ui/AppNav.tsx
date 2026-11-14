@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import type { Catalog, CourseWithAssessments, NoteSummary, SemesterWithCourses } from '@qv/schema';
-import { paths } from '../app/paths';
+import { paths } from '../shared/lib/paths';
 import {
   MORE_SEMESTERS_SOON,
   locateNote,

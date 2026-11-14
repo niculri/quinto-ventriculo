@@ -12,13 +12,13 @@ import type {
   UsageOpenFigures,
   UsageReport,
 } from '@qv/schema';
-import { paths } from '../../app/paths';
-import { formatDateTime } from '../../lib/dates';
-import { Skeleton } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Reserved } from '../../ui/Reserved';
-import { Select } from '../../ui/Select';
-import { card } from '../../ui/styles';
+import { paths } from '../../shared/lib/paths';
+import { formatDateTime } from '../../shared/lib/dates';
+import { Skeleton } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Reserved } from '../../shared/ui/Reserved';
+import { Select } from '../../shared/ui/Select';
+import { card } from '../../shared/ui/styles';
 import { buildAnkiTree, hasPage } from '../anki/tree';
 import { findCourse, locateNote, useCatalog } from '../catalog/queries';
 import { AdminSectionTitle } from './AdminLayout';

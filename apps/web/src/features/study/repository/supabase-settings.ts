@@ -1,7 +1,7 @@
 // The study adapter's settings: preferences, presets, each deck's preset and activation, and each assessment's
 // options.
 import { UserPreset } from '@qv/schema/user';
-import { fromDatabase, toJson } from '../../../lib/json';
+import { fromDatabase, toJson } from '../../../shared/lib/json';
 import type { StudyRepository } from './port';
 import { iso } from './supabase-context';
 import type { StudyContext } from './supabase-context';

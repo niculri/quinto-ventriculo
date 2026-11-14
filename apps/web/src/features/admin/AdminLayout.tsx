@@ -2,11 +2,11 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { NavLink, Outlet } from 'react-router';
-import { paths } from '../../app/paths';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { Loading } from '../../ui/Loading';
-import { NotFoundPage } from '../../ui/NotFoundPage';
-import { page } from '../../ui/styles';
+import { paths } from '../../shared/lib/paths';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
+import { Loading } from '../../shared/ui/Loading';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
+import { page } from '../../shared/ui/styles';
 import { useIsAdmin } from './queries';
 import { ADMIN_SECTIONS } from './sections';
 

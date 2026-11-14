@@ -1,7 +1,7 @@
 // Route guard: without a session, back to the landing page remembering the destination; with one, through AccountGate.
 import { Navigate, useLocation } from 'react-router';
-import { paths } from '../../app/paths';
-import { Loading } from '../../ui/Loading';
+import { paths } from '../../shared/lib/paths';
+import { Loading } from '../../shared/ui/Loading';
 import { AppShell } from '../../ui/AppShell';
 import { AccountGate } from '../account/AccountGate';
 import { useSession } from './context';

@@ -5,7 +5,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { CATALOG, CARD_INDEX, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
-import { ApiRequestError } from '../../lib/api';
+import { ApiRequestError } from '../../shared/lib/api';
 import { localStudyRepository } from '../study/repository';
 import type { StoredCard, StudyRepository } from '../study/repository';
 import { buildAnkiTree } from '../anki/tree';

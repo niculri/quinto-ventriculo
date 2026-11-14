@@ -1,9 +1,9 @@
 // The public /about page: what the site is, who makes it, where each piece comes from, how it is reviewed, and thanks.
 import { Link } from 'react-router';
-import { paths } from '../../app/paths';
-import { ContactLink } from '../../ui/ContactLink';
-import { initials } from '../../ui/UserMenu';
-import { AUTHOR, creatorPhoto } from '../../ui/credits';
+import { paths } from '../../shared/lib/paths';
+import { ContactLink } from '../../shared/ui/ContactLink';
+import { initials } from '../../shared/lib/initials';
+import { AUTHOR, creatorPhoto } from '../../shared/ui/credits';
 import { LegalPage, Part } from './LegalPage';
 
 const link = 'text-brand underline underline-offset-2';

@@ -6,7 +6,7 @@ import { QueryClient } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ReleaseSummary } from '@qv/schema';
-import { ApiRequestError } from '../../lib/api';
+import { ApiRequestError } from '../../shared/lib/api';
 import type { ReleaseOverview } from '@qv/schema';
 import {
   CATALOG,

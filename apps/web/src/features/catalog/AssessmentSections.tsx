@@ -9,14 +9,14 @@ import type {
   SemesterWithCourses,
 } from '@qv/schema';
 import type { Counts } from '@qv/srs';
-import { paths } from '../../app/paths';
-import type { CourseRef } from '../../app/paths';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { NotFoundPage } from '../../ui/NotFoundPage';
-import { button, card, page } from '../../ui/styles';
-import { formatDate } from '../../lib/dates';
+import { paths } from '../../shared/lib/paths';
+import type { CourseRef } from '../../shared/lib/paths';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
+import { button, card, page } from '../../shared/ui/styles';
+import { formatDate } from '../../shared/lib/dates';
 import { buildAnkiTree, courseDeck } from '../anki/tree';
 import type { AnkiTree } from '../anki/tree';
 import { useDeck } from '../decks/queries';

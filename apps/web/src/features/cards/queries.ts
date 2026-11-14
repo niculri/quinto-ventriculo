@@ -9,7 +9,7 @@ import { dayOfStart, dayStartsAt } from '@qv/srs';
 import type { CardIndex, NoteTypeSummary } from '@qv/schema';
 import { apiPaths } from '@qv/schema/http';
 import { useServices } from '../../app/services';
-import { ApiRequestError } from '../../lib/api';
+import { ApiRequestError } from '../../shared/lib/api';
 import type { AnkiTree } from '../anki/tree';
 import { buildBrowseCards, decayFromParams } from '../browse/data';
 import type { BrowseCard } from '../browse/data';

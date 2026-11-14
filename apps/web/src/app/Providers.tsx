@@ -2,7 +2,7 @@
 import { Fragment, useState } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiRequestError } from '../lib/api';
+import { ApiRequestError } from '../shared/lib/api';
 import { PreviewSwitch } from '../features/preview/preview';
 import { SessionProvider } from '../features/session/context';
 import { ServicesProvider } from './services';

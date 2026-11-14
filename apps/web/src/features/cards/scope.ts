@@ -1,7 +1,7 @@
 // The cards page's scope (a course or an assessment) and its units, the weeks and lectures it can be narrowed to.
 
 import type { AssessmentWithNotes, Catalog } from '@qv/schema';
-import type { SelectOption } from '../../ui/Select';
+import type { SelectOption } from '../../shared/ui/Select';
 import { descendants, hasPage } from '../anki/tree';
 import type { CourseDeckNode, DeckNode } from '../anki/tree';
 

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { locateNote } from '../catalog/queries';
 import { useServices } from '../../app/services';
 

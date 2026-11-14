@@ -4,7 +4,7 @@ import { MessageSquareWarning } from 'lucide-react';
 import { LETTERS, answerAt, canSkip, displayOrder } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import type { QuizQuestion } from '@qv/schema';
-import { keys } from '../../ui/keys';
+import { keys } from '../../shared/ui/keys';
 import type { OpenImage } from '../notes/ImageViewer';
 import { Figures, Html, Table, TextWithStatements, besideStyle } from './Figures';
 import type { QuestionEntry } from './useQuizSession';

@@ -1,14 +1,14 @@
 // The search page: every result for the `?q=` text, grouped by note.
 import { Search } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router';
-import { Notice, errorMessage } from '../../ui/Notice';
-import { withContactLink } from '../../ui/ContactLink';
-import { Skeleton } from '../../ui/Loading';
-import { card, page } from '../../ui/styles';
-import { paths } from '../../app/paths';
+import { Notice, errorMessage } from '../../shared/ui/Notice';
+import { withContactLink } from '../../shared/ui/ContactLink';
+import { Skeleton } from '../../shared/ui/Loading';
+import { card, page } from '../../shared/ui/styles';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
 import { countSearch } from '../usage/count';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { Snippet } from './Snippet';
 import { useCatalog } from '../catalog/queries';
 import { groupByNote, resultLink, useSearch } from './useSearch';

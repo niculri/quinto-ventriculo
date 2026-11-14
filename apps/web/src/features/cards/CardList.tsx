@@ -4,7 +4,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { Flag, ImageIcon } from 'lucide-react';
-import { Skeleton } from '../../ui/Loading';
+import { Skeleton } from '../../shared/ui/Loading';
 import { clozeParts, headingAt, itemAt, listItems, listMetrics } from './model';
 import type { CardStatus, ExplorerCard, Lecture, ListItem, Matched } from './model';
 import { thumbUrl } from './queries';

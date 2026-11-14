@@ -1,10 +1,10 @@
 // «Mis reportes» settings page: the student's own reports and what happened with each one.
 import { useEffect } from 'react';
 import { Link } from 'react-router';
-import { formatDateTime } from '../../lib/dates';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { card } from '../../ui/styles';
+import { formatDateTime } from '../../shared/lib/dates';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { card } from '../../shared/ui/styles';
 import { SettingsLayout } from '../settings/SettingsLayout';
 import {
   CATEGORY_LABELS,

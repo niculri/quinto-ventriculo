@@ -2,7 +2,7 @@
 // reconciling of the cards' decks with the content's changes.
 import { databaseError } from '@qv/schema/database';
 import { STUDY_RPC } from '@qv/schema/user';
-import { fromDatabase } from '../../../lib/json';
+import { fromDatabase } from '../../../shared/lib/json';
 import { CardChangedError, PracticeRefusedError } from './model';
 import type { StudyRepository } from './port';
 import { refs } from './supabase-context';

@@ -4,10 +4,10 @@
 import { Navigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { searchTerm } from '@qv/anki-search';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { hasPage, useAnkiTree } from '../anki/tree';
 import type { AnkiTree, CourseDeckNode } from '../anki/tree';
 import { cardParam } from './CardsPage';

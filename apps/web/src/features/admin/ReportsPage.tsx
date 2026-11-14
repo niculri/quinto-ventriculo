@@ -6,12 +6,12 @@ import { Ban, Check, ClipboardCopy, ExternalLink, RotateCcw, X } from 'lucide-re
 import { Link } from 'react-router';
 import { RESOLUTION_NOTE_MAX, RESOLUTION_STATUSES } from '@qv/schema';
 import type { ReportCategory, ResolutionStatus } from '@qv/schema';
-import { formatDateTime } from '../../lib/dates';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Select } from '../../ui/Select';
-import { Switch } from '../../ui/Switch';
-import { button, card } from '../../ui/styles';
+import { formatDateTime } from '../../shared/lib/dates';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Select } from '../../shared/ui/Select';
+import { Switch } from '../../shared/ui/Switch';
+import { button, card } from '../../shared/ui/styles';
 import { locateNote, useCatalog } from '../catalog/queries';
 import { useCard } from '../decks/queries';
 import {

@@ -1,10 +1,10 @@
 // The help page: how to use the site, the boxes of the articles, shortcuts, search tips and progress.
 import { CALLOUT_LABELS } from '@qv/schema';
 import { HowToUse } from './HowToUse';
-import { keys } from '../../ui/keys';
-import { page } from '../../ui/styles';
-import { paths } from '../../app/paths';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
+import { keys } from '../../shared/ui/keys';
+import { page } from '../../shared/ui/styles';
+import { paths } from '../../shared/lib/paths';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 
 const CALLOUTS: { type: string; explanation: string }[] = [
   {

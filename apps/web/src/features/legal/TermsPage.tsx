@@ -1,8 +1,8 @@
 // The public /terms page, the terms of use that every account accepts.
 import { Link } from 'react-router';
 import { LEGAL_VERSIONS } from '@qv/schema';
-import { paths } from '../../app/paths';
-import { ContactLink } from '../../ui/ContactLink';
+import { paths } from '../../shared/lib/paths';
+import { ContactLink } from '../../shared/ui/ContactLink';
 import { LegalPage, Part } from './LegalPage';
 
 /** Changing what it says means a new LEGAL_VERSIONS.terms: everybody accepts it again. */

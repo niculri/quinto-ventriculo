@@ -4,8 +4,8 @@ import { isResumable, resumeLine } from '@qv/quiz';
 import type { Preferences, Round } from '@qv/quiz';
 import type { QuizDetail, QuizSectionSummary } from '@qv/schema';
 import { Play } from 'lucide-react';
-import { button, card } from '../../ui/styles';
-import { Switch } from '../../ui/Switch';
+import { button, card } from '../../shared/ui/styles';
+import { Switch } from '../../shared/ui/Switch';
 import { Html } from './Figures';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;

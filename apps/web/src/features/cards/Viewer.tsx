@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning, X } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
 import { useServices } from '../../app/services';
-import { button } from '../../ui/styles';
+import { button } from '../../shared/ui/styles';
 import { CardInfo } from '../browse/CardPreview';
 import type { BrowseCard } from '../browse/data';
 import { CardViewer } from '../decks/CardViewer';

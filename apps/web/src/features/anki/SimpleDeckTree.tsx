@@ -4,10 +4,10 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { ChevronRight, Play } from 'lucide-react';
 import type { Counts } from '@qv/srs';
-import { paths } from '../../app/paths';
-import { Skeleton } from '../../ui/Loading';
-import { button } from '../../ui/styles';
-import { Switch } from '../../ui/Switch';
+import { paths } from '../../shared/lib/paths';
+import { Skeleton } from '../../shared/ui/Loading';
+import { button } from '../../shared/ui/styles';
+import { Switch } from '../../shared/ui/Switch';
 import {
   activeUnits,
   EMPTY_PLAN,

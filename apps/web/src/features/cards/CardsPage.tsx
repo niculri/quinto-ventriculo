@@ -14,15 +14,15 @@ import {
   X,
 } from 'lucide-react';
 import type { CardOrigin, CardSummary } from '@qv/schema';
-import { paths } from '../../app/paths';
-import type { CardsQuery } from '../../app/paths';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { Skeleton } from '../../ui/Loading';
-import { ErrorWithRetry, Notice } from '../../ui/Notice';
-import { Rail } from '../../ui/rail';
-import { Reserved } from '../../ui/Reserved';
-import { Select } from '../../ui/Select';
-import { button, page } from '../../ui/styles';
+import { paths } from '../../shared/lib/paths';
+import type { CardsQuery } from '../../shared/lib/paths';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
+import { Skeleton } from '../../shared/ui/Loading';
+import { ErrorWithRetry, Notice } from '../../shared/ui/Notice';
+import { Rail } from '../../shared/ui/rail';
+import { Reserved } from '../../shared/ui/Reserved';
+import { Select } from '../../shared/ui/Select';
+import { button, page } from '../../shared/ui/styles';
 import { deckCrumbs, useAnkiTree } from '../anki/tree';
 import type { AnkiTree, CourseDeckNode } from '../anki/tree';
 import { CardTable } from '../browse/BrowsePage';

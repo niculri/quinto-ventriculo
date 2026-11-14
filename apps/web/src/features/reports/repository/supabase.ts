@@ -5,7 +5,7 @@ import { databaseError } from '@qv/schema/database';
 import type { DbErrorLike } from '@qv/schema/database';
 import { REPORTS_RPC } from '@qv/schema/user';
 import type { GroupRow, ResolutionRow } from '@qv/schema/user';
-import { fromDatabase } from '../../../lib/json';
+import { fromDatabase } from '../../../shared/lib/json';
 import type { ReportsRepository } from './port';
 import { REPORT_MESSAGES, ReportError } from './model';
 import type { ReportGroup, Resolution } from './model';

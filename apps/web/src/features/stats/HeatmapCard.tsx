@@ -5,11 +5,11 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router';
 import { ChevronLeft, ChevronRight, Circle, Layers, X } from 'lucide-react';
 import type { Catalog } from '@qv/schema';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { buildAnkiTree, courseDeck, hasPage } from '../anki/tree';
 import type { CourseDeckNode, DeckNode } from '../anki/tree';
-import { Skeleton } from '../../ui/Loading';
-import { button, card } from '../../ui/styles';
+import { Skeleton } from '../../shared/ui/Loading';
+import { button, card } from '../../shared/ui/styles';
 import { usePreferences, useToday } from '../study/queries';
 import {
   answersText,

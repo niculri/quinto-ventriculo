@@ -16,11 +16,11 @@ import type {
   ReleaseQuestionItem,
   ReleaseRecord,
 } from '@qv/schema';
-import { Skeleton } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Reserved } from '../../ui/Reserved';
-import { Switch } from '../../ui/Switch';
-import { button, card } from '../../ui/styles';
+import { Skeleton } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Reserved } from '../../shared/ui/Reserved';
+import { Switch } from '../../shared/ui/Switch';
+import { button, card } from '../../shared/ui/styles';
 import { usePreview } from '../preview/preview';
 import { useCatalog } from '../catalog/queries';
 import { useUser } from '../session/context';

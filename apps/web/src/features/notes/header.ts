@@ -1,7 +1,7 @@
 // The texts of an article's header: the line under the title, its code with the version, and its dates.
 
 import type { Note, NoteHeader, NoteKind } from '@qv/schema';
-import { formatDate, formatDay } from '../../lib/dates';
+import { formatDate, formatDay } from '../../shared/lib/dates';
 
 export const KIND_NAMES: Record<NoteKind, string> = {
   lecture: 'Clase',

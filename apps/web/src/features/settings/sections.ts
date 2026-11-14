@@ -1,7 +1,7 @@
 // The groups and sections of the side menu of «Opciones».
 import { Flag, Layers, SlidersHorizontal, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 
 interface SettingsSection {
   label: string;

@@ -11,16 +11,16 @@ import {
   X,
 } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { Canonical } from '../catalog/Redirects';
 import type { Note } from '@qv/schema';
-import { ApiRequestError } from '../../lib/api';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Skeleton } from '../../ui/Loading';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { button, page, tapArea } from '../../ui/styles';
-import { Rail } from '../../ui/rail';
-import { NotFoundPage } from '../../ui/NotFoundPage';
+import { ApiRequestError } from '../../shared/lib/api';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Skeleton } from '../../shared/ui/Loading';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
+import { button, page, tapArea } from '../../shared/ui/styles';
+import { Rail } from '../../shared/ui/rail';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { locateNote, useNote, useCatalog } from '../catalog/queries';
 import type { NoteLocation } from '../catalog/queries';
 import { NoteContent } from './NoteContent';
@@ -38,7 +38,7 @@ import type { ReportCategory } from '@qv/schema';
 import { useCountOpen } from '../usage/count';
 import { rememberNote } from '../home/lastNote';
 import { useTip } from '../tips/useTip';
-import { useReadingFonts } from '../../lib/readingFonts';
+import { useReadingFonts } from '../../shared/lib/readingFonts';
 import { noteCrumbs } from './noteCrumbs';
 
 export function NotePage() {

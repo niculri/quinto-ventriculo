@@ -1,7 +1,7 @@
 // The user's practice test progress in the users database (round and cover choices per section, rounds and answers).
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
-import { toJson } from '../../../lib/json';
+import { toJson } from '../../../shared/lib/json';
 import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
 import type { SavedQuiz } from './model';

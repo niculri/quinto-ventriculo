@@ -1,10 +1,10 @@
 // The frame of «Opciones»: the menu of its sections by group (tabs on top on the phone) and the open section.
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
-import { paths } from '../../app/paths';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
+import { paths } from '../../shared/lib/paths';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { useSettingsGroups } from './useSettingsGroups';
-import { page } from '../../ui/styles';
+import { page } from '../../shared/ui/styles';
 
 /** On wide screens the site's menu (ui/AppNav.tsx) has the sections, so this one goes away. */
 export function SettingsLayout({ children }: { children: ReactNode }) {

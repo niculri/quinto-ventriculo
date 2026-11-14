@@ -4,7 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { databaseError } from '@qv/schema/database';
 import { ACCOUNT_RPC } from '@qv/schema/user';
-import { fromDatabase } from '../../../lib/json';
+import { fromDatabase } from '../../../shared/lib/json';
 import type { AccountRepository } from './port';
 import { AccountError, MESSAGES } from './model';
 

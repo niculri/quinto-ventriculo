@@ -13,7 +13,7 @@ import type {
   ReleaseText,
 } from '@qv/schema';
 import { useServices } from '../../app/services';
-import { ApiRequestError } from '../../lib/api';
+import { ApiRequestError } from '../../shared/lib/api';
 
 /** Every key starts with «release»: the draft preview shares them. */
 const releaseKeys = {

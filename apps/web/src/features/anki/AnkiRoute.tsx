@@ -3,15 +3,15 @@
 
 import { Navigate, useLocation, useParams, useSearchParams } from 'react-router';
 import type { ReactNode } from 'react';
-import { paths } from '../../app/paths';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { NotFoundPage } from '../../ui/NotFoundPage';
+import { paths } from '../../shared/lib/paths';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { Canonical } from '../catalog/Redirects';
 import { FinalReviewPage } from '../study/FinalReviewPage';
 import { StudyPage } from '../study/StudyPage';
 import { StudyFallback } from '../study/StudyFallback';
-import { answerScreenBack } from '../../ui/answerScreen';
+import { answerScreenBack } from '../../shared/ui/answerScreen';
 import { DeckPage } from './DeckPage';
 import { CardsPage } from '../cards/CardsPage';
 import { PracticePage } from '../cards/PracticePage';

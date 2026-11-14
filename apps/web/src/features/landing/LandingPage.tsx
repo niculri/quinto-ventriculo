@@ -13,16 +13,16 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Link, Navigate, useSearchParams } from 'react-router';
-import { paths } from '../../app/paths';
-import { Notice } from '../../ui/Notice';
-import { Loading } from '../../ui/Loading';
-import { button } from '../../ui/styles';
-import { Logo } from '../../ui/Logo';
+import { paths } from '../../shared/lib/paths';
+import { Notice } from '../../shared/ui/Notice';
+import { Loading } from '../../shared/ui/Loading';
+import { button } from '../../shared/ui/styles';
+import { Logo } from '../../shared/ui/Logo';
 import { HowToUse } from '../help/HowToUse';
 import { noticeText, noticeTitle } from '../session/notices';
 import { useSession } from '../session/context';
 import { SiteFooter } from '../../ui/SiteFooter';
-import { ContactLink, withContactLink } from '../../ui/ContactLink';
+import { ContactLink, withContactLink } from '../../shared/ui/ContactLink';
 import { safeDestination } from '../session/AuthCallbackPage';
 
 export function LandingPage() {

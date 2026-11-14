@@ -18,4 +18,4 @@ export class AccessError extends Error {
   }
 }
 
-export { normalizeEmail } from '../../../lib/email';
+export { normalizeEmail } from '../../../shared/lib/email';

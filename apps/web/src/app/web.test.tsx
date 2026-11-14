@@ -12,13 +12,13 @@ import { buildAnkiTree } from '../features/anki/tree';
 import { sanitizeInBrowser } from '../features/notes/NoteContent';
 import { DOMAIN_NOTICE, GOOGLE_NOTICE, INVITE_NOTICE } from '../features/session/notices';
 import { safeDestination } from '../features/session/AuthCallbackPage';
-import { RouteError } from '../ui/RouteError';
+import { RouteError } from '../shared/ui/RouteError';
 import { resultLink } from '../features/search/useSearch';
-import { paths } from './paths';
-import { initials } from '../ui/UserMenu';
+import { paths } from '../shared/lib/paths';
+import { initials } from '../shared/lib/initials';
 import { CONTACT_EMAIL } from '@qv/schema';
 import { CATALOG, DECK_PATH, NOTE, SESSION_ANA, fakeApi, renderApp } from '../test/render';
-import { ApiRequestError } from '../lib/api';
+import { ApiRequestError } from '../shared/lib/api';
 
 describe('access', () => {
   it('without a session, the landing page shows no material and offers Google sign-in', async () => {

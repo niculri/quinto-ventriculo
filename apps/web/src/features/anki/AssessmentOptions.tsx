@@ -20,10 +20,10 @@ import {
 import type { AssessmentView, PaceOption, StudyPlan } from '@qv/study';
 import { roughToday, useSaveAssessmentSetting } from '../study/queries';
 import type { AssessmentSetting } from '../study/repository';
-import { Skeleton } from '../../ui/Loading';
-import { Reserved } from '../../ui/Reserved';
-import { card } from '../../ui/styles';
-import { Switch } from '../../ui/Switch';
+import { Skeleton } from '../../shared/ui/Loading';
+import { Reserved } from '../../shared/ui/Reserved';
+import { card } from '../../shared/ui/styles';
+import { Switch } from '../../shared/ui/Switch';
 import { descendants } from './tree';
 import type { DeckNode } from './tree';
 

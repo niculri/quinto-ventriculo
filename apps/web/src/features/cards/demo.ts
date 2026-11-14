@@ -3,7 +3,7 @@
 
 import type { AnkiTreeDeck, CardDetail, CardIndex, CardIndexNote, Catalog } from '@qv/schema';
 import { CARD_INDEX_VERSION } from '@qv/schema';
-import type { ApiClient } from '../../lib/api';
+import type { ApiClient } from '../../shared/lib/api';
 import type { StoredCard, StudyRepository } from '../study/repository';
 
 const DEMO_PREFIX = 'demo-';

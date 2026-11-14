@@ -1,7 +1,7 @@
 // The notice shown when a page crashes, instead of React Router's own; for example, a part of the web that a new
 // version removed, which reloading fixes.
 import { useEffect } from 'react';
-import { paths } from '../app/paths';
+import { paths } from '../lib/paths';
 import { useRouteError } from 'react-router';
 import { Notice } from './Notice';
 import { button } from './styles';

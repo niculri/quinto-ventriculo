@@ -5,12 +5,12 @@ import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router';
 import { History, Play, Search } from 'lucide-react';
 import type { Counts } from '@qv/srs';
-import { paths } from '../../app/paths';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
-import { Skeleton } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Reserved } from '../../ui/Reserved';
-import { button, card, page } from '../../ui/styles';
+import { paths } from '../../shared/lib/paths';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
+import { Skeleton } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Reserved } from '../../shared/ui/Reserved';
+import { button, card, page } from '../../shared/ui/styles';
 import { useDeck } from '../decks/queries';
 import {
   catchUpText,

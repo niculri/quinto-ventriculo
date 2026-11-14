@@ -63,7 +63,7 @@
   },
   "apps/web/src/features/account/AccountGate.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines-per-function": {
       "count": 1
@@ -74,7 +74,7 @@
   },
   "apps/web/src/features/account/DeleteAccountDialog.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines-per-function": {
       "count": 1
@@ -89,11 +89,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/admin/AdminLayout.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
     }
   },
   "apps/web/src/features/admin/ReleasesPage.tsx": {
@@ -116,9 +111,6 @@
     }
   },
   "apps/web/src/features/admin/UsagePage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines": {
       "count": 1
     },
@@ -141,15 +133,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/sections.ts": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/anki/AnkiRoute.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -162,20 +146,12 @@
       "count": 1
     }
   },
-  "apps/web/src/features/anki/DeckPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/anki/DeckPresetDialog.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/web/src/features/anki/SimpleDeckTree.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     },
@@ -184,16 +160,13 @@
     }
   },
   "apps/web/src/features/anki/tree.ts": {
-    "boundaries/dependencies": {
-      "count": 2
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
   "apps/web/src/features/browse/BrowsePage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines": {
       "count": 1
@@ -235,9 +208,6 @@
     }
   },
   "apps/web/src/features/cards/CardsPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 2
-    },
     "max-lines": {
       "count": 1
     },
@@ -255,14 +225,9 @@
   },
   "apps/web/src/features/cards/LegacyBrowse.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/PracticePage.tsx": {
-    "boundaries/dependencies": {
       "count": 1
     }
   },
@@ -296,36 +261,15 @@
     }
   },
   "apps/web/src/features/catalog/AssessmentSections.tsx": {
-    "boundaries/dependencies": {
-      "count": 2
-    },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/catalog/CareerPage.tsx": {
-    "boundaries/dependencies": {
       "count": 1
     }
   },
   "apps/web/src/features/catalog/CoursePage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 2
     },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/catalog/Redirects.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/catalog/SemesterPage.tsx": {
-    "boundaries/dependencies": {
       "count": 1
     }
   },
@@ -358,14 +302,9 @@
       "count": 1
     }
   },
-  "apps/web/src/features/help/HelpPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/home/HomePage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines": {
       "count": 1
@@ -386,9 +325,6 @@
     "@typescript-eslint/no-misused-promises": {
       "count": 2
     },
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines": {
       "count": 1
     },
@@ -396,31 +332,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/legal/AboutPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/legal/LegalPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/legal/LicensesPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/legal/PrivacyPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/legal/TermsPage.tsx": {
-    "boundaries/dependencies": {
       "count": 1
     }
   },
@@ -430,9 +343,6 @@
     }
   },
   "apps/web/src/features/notes/NotePage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines": {
       "count": 1
     },
@@ -443,18 +353,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/notes/Practice.tsx": {
-    "boundaries/dependencies": {
-      "count": 2
-    }
-  },
   "apps/web/src/features/notes/articleHtml.ts": {
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/noteCrumbs.ts": {
-    "boundaries/dependencies": {
       "count": 1
     }
   },
@@ -484,9 +384,6 @@
   "apps/web/src/features/quiz/QuizPage.tsx": {
     "@typescript-eslint/no-floating-promises": {
       "count": 1
-    },
-    "boundaries/dependencies": {
-      "count": 2
     },
     "max-lines": {
       "count": 1
@@ -527,9 +424,6 @@
     }
   },
   "apps/web/src/features/reports/labels.ts": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -546,7 +440,7 @@
   },
   "apps/web/src/features/search/SearchPage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines-per-function": {
       "count": 1
@@ -560,7 +454,7 @@
       "count": 1
     },
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines-per-function": {
       "count": 1
@@ -568,27 +462,17 @@
   },
   "apps/web/src/features/search/useSearch.ts": {
     "boundaries/dependencies": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/session/AuthCallbackPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/session/ProtectedRoute.tsx": {
-    "boundaries/dependencies": {
       "count": 1
     }
   },
   "apps/web/src/features/session/context.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/web/src/features/settings/AccountSettingsPage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines-per-function": {
       "count": 1
@@ -596,7 +480,7 @@
   },
   "apps/web/src/features/settings/AnkiSettingsPage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines": {
       "count": 1
@@ -605,20 +489,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/settings/SettingsLayout.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/settings/sections.ts": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/stats/HeatmapCard.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "max-lines": {
       "count": 1
     },
@@ -646,12 +517,12 @@
   },
   "apps/web/src/features/study/DaySummary.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/web/src/features/study/FinalReviewPage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines": {
       "count": 1
@@ -665,7 +536,7 @@
   },
   "apps/web/src/features/study/StudyPage.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     },
     "max-lines": {
       "count": 1
@@ -678,9 +549,6 @@
     }
   },
   "apps/web/src/features/study/material.ts": {
-    "boundaries/dependencies": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -719,7 +587,7 @@
       "count": 1
     }
   },
-  "apps/web/src/lib/api.ts": {
+  "apps/web/src/shared/lib/api.ts": {
     "max-lines-per-function": {
       "count": 1
     },
@@ -729,7 +597,7 @@
   },
   "apps/web/src/ui/AppNav.tsx": {
     "boundaries/dependencies": {
-      "count": 7
+      "count": 6
     },
     "max-lines": {
       "count": 1
@@ -743,25 +611,15 @@
   },
   "apps/web/src/ui/AppShell.tsx": {
     "boundaries/dependencies": {
-      "count": 3
+      "count": 2
     },
     "max-lines-per-function": {
       "count": 1
     }
   },
-  "apps/web/src/ui/NotFoundPage.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/ui/RouteError.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
   "apps/web/src/ui/SiteFooter.tsx": {
     "boundaries/dependencies": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/web/src/ui/UserMenu.tsx": {
@@ -769,7 +627,7 @@
       "count": 3
     },
     "boundaries/dependencies": {
-      "count": 3
+      "count": 2
     }
   },
   "packages/anki-search/src/compile.ts": {

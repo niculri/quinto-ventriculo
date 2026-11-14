@@ -7,8 +7,8 @@ import {
   LEGAL_VERSIONS,
   REPORT_LIMITS,
 } from '@qv/schema';
-import { paths } from '../../app/paths';
-import { ContactLink } from '../../ui/ContactLink';
+import { paths } from '../../shared/lib/paths';
+import { ContactLink } from '../../shared/ui/ContactLink';
 import { LegalPage, Part } from './LegalPage';
 
 /** If the site changes what it keeps, who sees it or for how long, this text changes and LEGAL_VERSIONS.privacy goes up. */

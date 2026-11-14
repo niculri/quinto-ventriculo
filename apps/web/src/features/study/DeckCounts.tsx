@@ -12,7 +12,7 @@ import {
   totalCards,
 } from '@qv/study';
 import { useStudyData } from './queries';
-import { tapArea } from '../../ui/styles';
+import { tapArea } from '../../shared/ui/styles';
 
 export function useDeckCounts(deck: DeckDetail | undefined) {
   const study = useStudyData(deck);

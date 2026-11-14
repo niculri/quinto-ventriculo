@@ -2,19 +2,19 @@
 // column and the footer. Answering a test or studying a deck hides the menu and the column.
 import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { paths } from '../app/paths';
+import { paths } from '../shared/lib/paths';
 import { Menu, Search, X } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router';
 import { SearchPalette } from '../features/search/SearchPalette';
 import { AppNav } from './AppNav';
-import { FocusContext } from './focus';
-import { RailContext } from './rail';
-import { Logo } from './Logo';
+import { FocusContext } from '../shared/ui/focus';
+import { RailContext } from '../shared/ui/rail';
+import { Logo } from '../shared/ui/Logo';
 import { UserMenu } from './UserMenu';
 import { SiteFooter } from './SiteFooter';
-import { keys } from './keys';
+import { keys } from '../shared/ui/keys';
 import { usePreview } from '../features/preview/preview';
-import { isAnswerScreen } from './answerScreen';
+import { isAnswerScreen } from '../shared/ui/answerScreen';
 
 export function AppShell() {
   const [searching, setSearching] = useState(false);

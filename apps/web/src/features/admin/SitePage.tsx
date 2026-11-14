@@ -1,10 +1,10 @@
 // «Administración» → «Sitio»: the switch that hides the semesters without published material, at once.
 import { useId } from 'react';
-import { formatDateTime } from '../../lib/dates';
-import { Skeleton } from '../../ui/Loading';
-import { Reserved } from '../../ui/Reserved';
-import { Switch } from '../../ui/Switch';
-import { card } from '../../ui/styles';
+import { formatDateTime } from '../../shared/lib/dates';
+import { Skeleton } from '../../shared/ui/Loading';
+import { Reserved } from '../../shared/ui/Reserved';
+import { Switch } from '../../shared/ui/Switch';
+import { card } from '../../shared/ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
 import { useSetSiteSettings, useSiteSettings } from './queries';
 

@@ -2,7 +2,7 @@
 // due on the home page.
 import type { Database } from '@qv/db-types/users';
 import { STUDY_RPC } from '@qv/schema/user';
-import { fromDatabase } from '../../../lib/json';
+import { fromDatabase } from '../../../shared/lib/json';
 import { dayNumber } from '@qv/study';
 import type { HomeCounts } from './model';
 import type { StudyRepository } from './port';

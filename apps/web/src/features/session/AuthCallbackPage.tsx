@@ -1,8 +1,8 @@
 // Return from Google: waits while Supabase creates the session, then goes on to the saved destination or the notice.
 import { useEffect } from 'react';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { Navigate, useLocation } from 'react-router';
-import { Loading } from '../../ui/Loading';
+import { Loading } from '../../shared/ui/Loading';
 import { noticeCodeForError } from './notices';
 import { useSession } from './context';
 import { NEXT_KEY } from './service';

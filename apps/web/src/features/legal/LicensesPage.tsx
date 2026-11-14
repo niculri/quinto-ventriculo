@@ -1,8 +1,8 @@
 // The public /licenses page: the site's license and source, the projects it comes from, and third-party licenses.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { paths } from '../../app/paths';
-import { COPYRIGHT, SOURCE_CODE_URL } from '../../ui/credits';
+import { paths } from '../../shared/lib/paths';
+import { COPYRIGHT, SOURCE_CODE_URL } from '../../shared/ui/credits';
 import { LegalPage, Part } from './LegalPage';
 
 /** One line of `/third-party-licenses.json`, which the build generates from node_modules (apps/web/build/licenses.ts). */

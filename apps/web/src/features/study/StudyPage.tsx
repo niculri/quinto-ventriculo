@@ -20,20 +20,20 @@ import {
 } from 'lucide-react';
 import type { QueueEntry, Rating } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry, Notice } from '../../ui/Notice';
-import { BackButton } from '../../ui/BackButton';
-import { answerBar, button, studyScreen, tapArea } from '../../ui/styles';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry, Notice } from '../../shared/ui/Notice';
+import { BackButton } from '../../shared/ui/BackButton';
+import { answerBar, button, studyScreen, tapArea } from '../../shared/ui/styles';
 import { CardFrame, useDarkMode } from '../decks/CardFrame';
 import { cardQuery, useCard, useDeck } from '../decks/queries';
 import { deckTitle } from '../anki/DeckPage';
 import { ancestry, descendants, hasPage, studyBackLabel } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import type { CardKey, StudyPreferences } from './repository';
-import { ApiRequestError } from '../../lib/api';
-import { NotFoundPage } from '../../ui/NotFoundPage';
+import { ApiRequestError } from '../../shared/lib/api';
+import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import {
   cardKey,
   catchUpText,
@@ -49,10 +49,10 @@ import { DaySummary } from './DaySummary';
 import { useCardMaterial } from './material';
 import { MaterialRow } from './MaterialRow';
 import { StudyFallback } from './StudyFallback';
-import { MenuRoot } from '../../ui/MenuRoot';
+import { MenuRoot } from '../../shared/ui/MenuRoot';
 import { studyKeys, useSavePreferences, useStudyData } from './queries';
 import { StudySession } from './session';
-import { keys } from '../../ui/keys';
+import { keys } from '../../shared/ui/keys';
 import { ReportDialog } from '../reports/ReportDialog';
 import { cardTarget } from '../reports/targets';
 import { useCountOpen } from '../usage/count';

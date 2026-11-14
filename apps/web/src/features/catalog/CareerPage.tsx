@@ -1,12 +1,12 @@
 // «La carrera»: every semester, grouped by year, with its courses and how much material each has.
 import { ArrowRight, BookOpen } from 'lucide-react';
 import { Link } from 'react-router';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import type { Catalog, SemesterWithCourses } from '@qv/schema';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { Skeleton } from '../../ui/Loading';
-import { card, linkCard, page } from '../../ui/styles';
-import { Breadcrumbs } from '../../ui/Breadcrumbs';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { Skeleton } from '../../shared/ui/Loading';
+import { card, linkCard, page } from '../../shared/ui/styles';
+import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import {
   MORE_SEMESTERS_SOON,
   countDecks,

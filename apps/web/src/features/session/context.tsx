@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAllowedEmail } from '@qv/schema';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
 import { forgetAccounts } from '../account/remembered';
 import { DOMAIN_NOTICE } from './notices';

@@ -5,11 +5,11 @@ import type { RouteObject } from 'react-router';
 import { LandingPage } from '../features/landing/LandingPage';
 import { AuthCallbackPage } from '../features/session/AuthCallbackPage';
 import { ProtectedRoute } from '../features/session/ProtectedRoute';
-import { RouteError } from '../ui/RouteError';
-import { paths } from './paths';
+import { RouteError } from '../shared/ui/RouteError';
+import { paths } from '../shared/lib/paths';
 import { SETTINGS_GROUPS } from '../features/settings/sections';
 import { ADMIN_SECTIONS } from '../features/admin/sections';
-import { NotFoundPage } from '../ui/NotFoundPage';
+import { NotFoundPage } from '../shared/ui/NotFoundPage';
 import {
   LegacyCourseRedirect,
   LegacyDeckRedirect,

@@ -25,13 +25,13 @@ import type {
   ReviewCardOrder,
   ReviewMix,
 } from '@qv/srs';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { button, card } from '../../ui/styles';
-import { Select } from '../../ui/Select';
-import { Switch } from '../../ui/Switch';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { button, card } from '../../shared/ui/styles';
+import { Select } from '../../shared/ui/Select';
+import { Switch } from '../../shared/ui/Switch';
 import { presetParam } from '../anki/presets';
 import { hasPage, useAnkiTree } from '../anki/tree';
 import type { AnkiTree, CourseDeckNode, DeckNode } from '../anki/tree';

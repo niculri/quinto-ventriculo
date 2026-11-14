@@ -3,11 +3,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { paths } from '../../app/paths';
-import { BackButton } from '../../ui/BackButton';
-import { Loading } from '../../ui/Loading';
-import { ErrorWithRetry } from '../../ui/Notice';
-import { answerBar, button, studyScreen } from '../../ui/styles';
+import { paths } from '../../shared/lib/paths';
+import { BackButton } from '../../shared/ui/BackButton';
+import { Loading } from '../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../shared/ui/Notice';
+import { answerBar, button, studyScreen } from '../../shared/ui/styles';
 import { useAnkiTree } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import { usePracticeRecorder } from '../stats/practice';

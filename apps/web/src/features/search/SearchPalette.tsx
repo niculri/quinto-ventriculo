@@ -3,7 +3,7 @@ import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ArrowRight, FileText, LoaderCircle, Search } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
 import { countSearch } from '../usage/count';
 import { useCatalog } from '../catalog/queries';

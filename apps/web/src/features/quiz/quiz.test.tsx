@@ -3,7 +3,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { focusManager } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
-import { ApiRequestError } from '../../lib/api';
+import { ApiRequestError } from '../../shared/lib/api';
 import { fakeApi, renderApp } from '../../test/render';
 import { localQuizRepository } from './repository';
 import type { QuizRepository, QuizStep } from './repository';

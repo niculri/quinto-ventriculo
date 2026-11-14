@@ -3,7 +3,7 @@
 
 import type { ReactNode } from 'react';
 import type { CardOrigin } from '@qv/schema';
-import { Switch } from '../../ui/Switch';
+import { Switch } from '../../shared/ui/Switch';
 import { StatusDot } from './CardList';
 import { KIND_FILTERS, ORIGIN_FILTERS, STATE_FILTERS } from './model';
 import type { Facets, KindFilter, StateFilter } from './model';

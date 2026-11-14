@@ -5,8 +5,8 @@ import { API_PREFIX, API_ROUTES, PREVIEW_HEADER, PREVIEW_VALUE } from '@qv/schem
 import type { PublishRequest } from '@qv/schema';
 import type { ApiRouteName } from '@qv/schema/http';
 import { thumbUrl } from '../features/cards/queries';
-import { PREVIEW_HEADERS, createApiClient } from '../lib/api';
-import type { ApiClient } from '../lib/api';
+import { PREVIEW_HEADERS, createApiClient } from '../shared/lib/api';
+import type { ApiClient } from '../shared/lib/api';
 
 /** Routes no client of the web asks for, and who does. */
 const OTHER_CLIENTS: Partial<Record<ApiRouteName, string>> = {

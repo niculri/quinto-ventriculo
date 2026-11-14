@@ -5,10 +5,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
-import { paths } from '../../app/paths';
+import { paths } from '../../shared/lib/paths';
 import { useServices } from '../../app/services';
-import { formatDateTime } from '../../lib/dates';
-import { button } from '../../ui/styles';
+import { formatDateTime } from '../../shared/lib/dates';
+import { button } from '../../shared/ui/styles';
 import { useSession, useUser } from '../session/context';
 import { AccountError } from './repository';
 

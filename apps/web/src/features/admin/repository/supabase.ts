@@ -6,7 +6,7 @@ import { databaseError } from '@qv/schema/database';
 import type { DbErrorLike } from '@qv/schema/database';
 import { ACCESS_RPC } from '@qv/schema/user';
 import type { AccessReportRow } from '@qv/schema/user';
-import { fromDatabase } from '../../../lib/json';
+import { fromDatabase } from '../../../shared/lib/json';
 import type { AdminRepository } from './port';
 import { AccessError, MAX_EMAILS } from './model';
 import type { AccessReport } from './model';

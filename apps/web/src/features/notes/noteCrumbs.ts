@@ -1,7 +1,7 @@
 // A note's breadcrumbs, from «Inicio»: the same on the note and on its loading state, so they do not move.
 
-import { paths } from '../../app/paths';
-import type { Crumb } from '../../ui/Breadcrumbs';
+import { paths } from '../../shared/lib/paths';
+import type { Crumb } from '../../shared/ui/Breadcrumbs';
 import type { NoteLocation } from '../catalog/queries';
 
 export function noteCrumbs(location: NoteLocation | null, title: string): Crumb[] {

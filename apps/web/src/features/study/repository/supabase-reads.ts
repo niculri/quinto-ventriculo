@@ -1,7 +1,7 @@
 // The study adapter's reads of card states and of the review log, each row checked against its schema.
 import { databaseError } from '@qv/schema/database';
 import { AnswerTodayRow, CardLogRow, RatedInDeckRow, RatedRow, STUDY_RPC } from '@qv/schema/user';
-import { fromDatabase } from '../../../lib/json';
+import { fromDatabase } from '../../../shared/lib/json';
 import type { StudyRepository } from './port';
 import { chunks, fromRow } from './supabase-context';
 import type { StudyContext } from './supabase-context';

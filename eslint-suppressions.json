@@ -392,14 +392,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/home/counts.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/home/queries.ts": {
     "boundaries/dependencies": {
       "count": 1
@@ -724,21 +716,8 @@
       "count": 3
     }
   },
-  "apps/web/src/features/study/mastery.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/study/material.ts": {
     "boundaries/dependencies": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/pace.ts": {
-    "max-lines": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -759,11 +738,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/study/scheduler.ts": {
-    "max-lines": {
-      "count": 1
     }
   },
   "apps/web/src/features/study/session.ts": {
@@ -1000,6 +974,32 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/study/src/home-counts.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/study/src/mastery.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/study/src/pace.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/study/src/scheduler.ts": {
+    "max-lines": {
       "count": 1
     }
   }

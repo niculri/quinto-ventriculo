@@ -5,9 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { CATALOG, DECK } from '../../test/render';
 import { CardChangedError, defaultPreferences, localStudyRepository } from './repository';
 import type { ReviewInput, StoredCard, StudyRepository } from './repository';
-import { cardKey, treeDecks } from './scheduler';
-import { StudySession, blankRow } from './session';
-import { EMPTY_PLAN } from './simple';
+import { blankRow, cardKey, EMPTY_PLAN, treeDecks } from '@qv/study';
+import { StudySession } from './session';
 
 const NETWORK = () => new Error('No se pudo guardar tu respuesta: TypeError: Failed to fetch');
 

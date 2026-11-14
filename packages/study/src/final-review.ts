@@ -2,7 +2,7 @@
 // date. A round lives only in the page's memory: nothing here knows the repository.
 
 import { retrievability } from '@qv/srs';
-import type { CardRef, StoredCard } from './repository';
+import type { CardRef, StoredCard } from '@qv/schema/user';
 import { cardKey, configsFor, toRecord } from './scheduler';
 import type { StudyData } from './scheduler';
 import { ASSESSMENT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';

@@ -12,22 +12,22 @@ import { Skeleton } from '../../ui/Loading';
 import { button, card } from '../../ui/styles';
 import { usePreferences, useToday } from '../study/queries';
 import {
-  COLUMNS,
-  SHORT_MONTHS,
   answersText,
   cellLabel,
   cellValue,
+  COLUMNS,
   countsByDay,
   dateText,
   dueByDay,
   dueText,
   heatmapStats,
   isoOfDay,
+  SHORT_MONTHS,
   yearGrid,
   yearOf,
   yearRange,
-} from './heatmap';
-import type { CellValue, HeatmapData, HeatmapStats } from './heatmap';
+} from '@qv/study';
+import type { CellValue, HeatmapData, HeatmapStats } from '@qv/study';
 import { useHeatmapData } from './queries';
 
 const CELL = 12;

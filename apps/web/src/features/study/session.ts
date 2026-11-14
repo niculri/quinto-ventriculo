@@ -8,19 +8,35 @@ import {
   answerCard,
   retrievability,
   describeNextStates,
-  newCard,
   nextLearnMessage,
   schedulingStates,
 } from '@qv/srs';
-import type {
-  DeckConfig,
-  QueueEntry,
-  QueueUpdate,
-  Rating,
-  SchedulingStates,
-  StudyQueue,
-} from '@qv/srs';
+import type { DeckConfig, QueueEntry, QueueUpdate, Rating, StudyQueue } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
+import {
+  ASSESSMENT_DEPTH,
+  QUEUE_NAMES,
+  actionLabel,
+  ancestorName,
+  asNew,
+  assessmentView,
+  blankRow,
+  buildQueue,
+  cardKey,
+  configsFor,
+  decksGivingNew,
+  extrasOff,
+  isExtras,
+  isHidden,
+  rollProgress,
+  siblingsOf,
+  siblingsToBury,
+  subtree,
+  timingFor,
+  toRecord,
+  toStateFields,
+} from '@qv/study';
+import type { CongratsInfo, ExamNotes, HideAction, Shown, StudyData } from '@qv/study';
 import { CardChangedError } from './repository';
 import type {
   ActionName,
@@ -31,49 +47,6 @@ import type {
   StoredCard,
   StudyRepository,
 } from './repository';
-import {
-  QUEUE_NAMES,
-  buildQueue,
-  cardKey,
-  configsFor,
-  isHidden,
-  siblingsOf,
-  subtree,
-  siblingsToBury,
-  timingFor,
-  toRecord,
-  toStateFields,
-} from './scheduler';
-import type { StudyData } from './scheduler';
-import { assessmentView, rollProgress } from './pace';
-import type { CatchUp } from './pace';
-import { ASSESSMENT_DEPTH, ancestorName, decksGivingNew, extrasOff, isExtras } from './simple';
-
-const ACTION_LABELS: Record<ActionName, string> = {
-  answer: 'Responder tarjeta',
-  bury_card: 'Enterrar tarjeta',
-  bury_note: 'Enterrar nota',
-  suspend_card: 'Suspender tarjeta',
-  suspend_note: 'Suspender nota',
-  flag: 'Marcar tarjeta',
-  unbury: 'Desenterrar',
-  unsuspend: 'Quitar suspensión',
-  forget: 'Olvidar',
-};
-
-const SIMPLE_ACTION_LABELS: Partial<Record<ActionName, string>> = {
-  bury_card: 'Saltar por hoy',
-  bury_note: 'Saltar por hoy',
-  suspend_card: 'No mostrar más',
-  suspend_note: 'No mostrar más',
-  flag: 'Marcar para revisar',
-};
-
-export function actionLabel(action: ActionName, fullAnki: boolean): string {
-  return (!fullAnki && SIMPLE_ACTION_LABELS[action]) || ACTION_LABELS[action];
-}
-
-export type HideAction = 'bury_card' | 'bury_note' | 'suspend_card' | 'suspend_note';
 
 type HistoryItem =
   | {
@@ -91,58 +64,6 @@ type HistoryItem =
       before: Map<string, StoredCard | undefined>;
       stamps: Map<string, string | null>;
     };
-
-export interface Shown {
-  entry: QueueEntry;
-  states: SchedulingStates;
-  labels: [string, string, string, string];
-  shownAt: number;
-}
-
-export interface CongratsInfo {
-  learnMessage: string;
-  reviewLimitReached: boolean;
-  newLimitReached: boolean;
-  buried: boolean;
-  dueTomorrow: number;
-  inactiveNew: number;
-  nothingActive: boolean;
-  extrasOff: boolean;
-  exam: ExamNotes | null;
-}
-
-export interface ExamNotes {
-  computed: boolean;
-  finalReview: boolean;
-  lastNewDay: boolean;
-  roseTo: number | null;
-  catchUp: CatchUp | null;
-}
-
-export function blankRow(ref: CardRef): StoredCard {
-  return {
-    ...ref,
-    phase: 'new',
-    interday: false,
-    remainingSteps: 0,
-    due: null,
-    interval: 0,
-    stability: null,
-    difficulty: null,
-    reps: 0,
-    lapses: 0,
-    lastReview: null,
-    flag: 0,
-    suspended: false,
-    buriedUntil: null,
-    leech: false,
-    updatedAt: '',
-  };
-}
-
-function asNew(row: StoredCard | undefined) {
-  return { ...newCard(0), reps: row?.reps ?? 0, lapses: row?.lapses ?? 0 };
-}
 
 export class StudySession {
   shown: Shown | null = null;

@@ -7,9 +7,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
 import { cardShadowRoot } from '../decks/CardFrame';
-import { dateOfDay } from './pace';
+import { countsByDay, dateOfDay, heatmapStats } from '@qv/study';
 import { roughToday } from './queries';
-import { countsByDay, heatmapStats } from '../stats/heatmap';
 import { localStudyRepository } from './repository';
 import type { CardRef, StudyRepository } from './repository';
 

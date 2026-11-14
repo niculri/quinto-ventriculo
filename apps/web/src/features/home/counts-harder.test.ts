@@ -4,15 +4,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { dayStartsAt } from '@qv/srs';
 import type { AnkiTreeDeck, CardSummary } from '@qv/schema';
-import { deckCounts } from '../study/DeckCounts';
-import { masteryByDeck } from '../study/mastery';
+import {
+  blankRow,
+  cardKey,
+  decayByDeck,
+  deckCounts,
+  EMPTY_PLAN,
+  homeCourseCounts,
+  masteryByDeck,
+  timingFor,
+} from '@qv/study';
+import type { StudyData, TreeDeck } from '@qv/study';
 import { defaultPreferences, localStudyRepository } from '../study/repository';
 import type { AnswerToday, DeckProgress, StoredCard, UserPreset } from '../study/repository';
-import { blankRow } from '../study/session';
-import { cardKey, timingFor } from '../study/scheduler';
-import type { StudyData, TreeDeck } from '../study/scheduler';
-import { EMPTY_PLAN } from '../study/simple';
-import { decayByDeck, homeCourseCounts } from './counts';
 
 function random(seed: number) {
   let a = seed >>> 0;

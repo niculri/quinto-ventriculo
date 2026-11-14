@@ -12,17 +12,30 @@ import {
 } from '@qv/srs';
 import type { CardRecord, QueueEntry, Rating } from '@qv/srs';
 import type { CardSummary, DeckDetail } from '@qv/schema';
-import { deckCounts } from './DeckCounts';
-import { answerRound, isHard, revealCard, reviewPools, startRound } from './final-review';
-import { masteryByDeck, masteryPercent } from './mastery';
-import { REVIEW_AT_DAY, assessmentView, dateOfDay, dayOfDate } from './pace';
+import {
+  answerRound,
+  assessmentView,
+  blankRow,
+  cardKey,
+  configsFor,
+  dateOfDay,
+  dayOfDate,
+  deckCounts,
+  EMPTY_PLAN,
+  isHard,
+  masteryByDeck,
+  masteryPercent,
+  revealCard,
+  REVIEW_AT_DAY,
+  reviewPools,
+  startRound,
+  timingFor,
+  treeDecks,
+} from '@qv/study';
+import type { StudyData, StudyPlan } from '@qv/study';
 import { defaultPreferences, localStudyRepository } from './repository';
 import type { CardRef, DeckProgress, StoredCard, StudyRepository } from './repository';
-import { cardKey, configsFor, timingFor, treeDecks } from './scheduler';
-import type { StudyData } from './scheduler';
-import { StudySession, blankRow } from './session';
-import { EMPTY_PLAN } from './simple';
-import type { StudyPlan } from './simple';
+import { StudySession } from './session';
 
 const NOW = Date.parse('2026-11-01T15:00:00Z');
 const DAY = 86_400_000;

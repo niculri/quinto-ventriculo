@@ -4,8 +4,7 @@
 import type { CardIndexNote, CardOrigin } from '@qv/schema';
 import { ORIGIN_TAGS } from '@qv/schema';
 import type { CardRef, StoredCard } from '../study/repository';
-import { cardKey } from '../study/scheduler';
-import { apartSiblings, isHard } from '../study/final-review';
+import { apartSiblings, cardKey, isHard } from '@qv/study';
 
 export type CardStatus = 'new' | 'seen' | 'hard' | 'hidden';
 

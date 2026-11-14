@@ -1,9 +1,9 @@
 // The summary of «Listo por hoy»: today's answers in what was studied, how many were not «Otra vez», the cards
 // failed, and the streak of «Días de estudio».
 
-import { countsByDay, heatmapStats } from '../stats/heatmap';
-import type { HeatmapData } from '../stats/heatmap';
-import type { RatedAnswer } from './repository';
+import { countsByDay, heatmapStats } from './heatmap';
+import type { HeatmapData } from './heatmap';
+import type { RatedAnswer } from '@qv/schema/user';
 
 export interface DaySummary {
   answers: number;

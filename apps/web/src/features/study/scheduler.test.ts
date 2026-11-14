@@ -4,20 +4,20 @@ import { describe, expect, it } from 'vitest';
 import { defaultConfig, newCard } from '@qv/srs';
 import type { CardRecord } from '@qv/srs';
 import { CATALOG, DECK } from '../../test/render';
-import { blankRow } from './session';
-import { defaultPreferences } from './repository';
 import {
+  blankRow,
+  EMPTY_PLAN,
   presetChoices,
-  subtree,
-  treeDecks,
   presetOf,
   siblingsToBury,
   studiedToday,
+  subtree,
   toRecord,
   toStateFields,
-} from './scheduler';
-import type { StudyData } from './scheduler';
-import { EMPTY_PLAN } from './simple';
+  treeDecks,
+} from '@qv/study';
+import type { StudyData } from '@qv/study';
+import { defaultPreferences } from './repository';
 
 const prefs = defaultPreferences('America/Santiago');
 

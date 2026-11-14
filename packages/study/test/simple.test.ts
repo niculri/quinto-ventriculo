@@ -1,13 +1,13 @@
 // Tests the simple Anki: what is turned on, what the scheduler gets in simple and advanced mode, the load in minutes.
 
 import { describe, expect, it } from 'vitest';
-import type { CardSummary, DeckDetail } from '@qv/schema';
-import { deckCounts } from './DeckCounts';
-import { defaultPreferences } from './repository';
-import type { AnswerToday, StoredCard } from './repository';
-import { buildQueue, cardKey, configsFor, globalSettings } from './scheduler';
-import type { StudyData, TreeDeck } from './scheduler';
-import { blankRow } from './session';
+import type { CardSummary, DeckDetail } from '@qv/schema/anki';
+import { deckCounts } from '../src/deck-counts';
+import { defaultPreferences } from '../src/preferences';
+import type { AnswerToday, StoredCard } from '@qv/schema/user';
+import { buildQueue, cardKey, configsFor, globalSettings } from '../src/scheduler';
+import type { StudyData, TreeDeck } from '../src/scheduler';
+import { blankRow } from '../src/session';
 import {
   DEFAULT_NEW_PER_DAY,
   EMPTY_PLAN,
@@ -17,8 +17,8 @@ import {
   estimateMinutes,
   loadText,
   minutesText,
-} from './simple';
-import type { StudyPlan } from './simple';
+} from '../src/simple';
+import type { StudyPlan } from '../src/simple';
 
 const ROOT = '1';
 const COURSE = '3';

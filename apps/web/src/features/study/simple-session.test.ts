@@ -2,14 +2,11 @@
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema';
-import { deckCounts } from './DeckCounts';
+import { blankRow, cardKey, deckCounts, EMPTY_PLAN, extrasOff } from '@qv/study';
+import type { StudyData, StudyPlan, TreeDeck } from '@qv/study';
 import { defaultPreferences, localStudyRepository } from './repository';
 import type { AnswerToday, CardRef, StoredCard, StudyRepository } from './repository';
-import { cardKey } from './scheduler';
-import type { StudyData, TreeDeck } from './scheduler';
-import { StudySession, blankRow } from './session';
-import { EMPTY_PLAN, extrasOff } from './simple';
-import type { StudyPlan } from './simple';
+import { StudySession } from './session';
 
 const NOW = Date.parse('2026-10-31T15:00:00Z');
 const DAY = 86_400_000;

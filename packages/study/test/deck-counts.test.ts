@@ -1,14 +1,14 @@
 // Tests the deck list's counts over a tree like the published one, with the study queue's limits through it.
 
 import { describe, expect, it } from 'vitest';
-import type { CardSummary, DeckDetail } from '@qv/schema';
-import { deckCounts } from './DeckCounts';
-import { defaultPreferences } from './repository';
-import type { StoredCard } from './repository';
-import { blankRow } from './session';
-import { buildQueue, cardKey, queueCards } from './scheduler';
-import type { StudyData, TreeDeck } from './scheduler';
-import { EMPTY_PLAN } from './simple';
+import type { CardSummary, DeckDetail } from '@qv/schema/anki';
+import { deckCounts } from '../src/deck-counts';
+import { defaultPreferences } from '../src/preferences';
+import type { StoredCard } from '@qv/schema/user';
+import { blankRow } from '../src/session';
+import { buildQueue, cardKey, queueCards } from '../src/scheduler';
+import type { StudyData, TreeDeck } from '../src/scheduler';
+import { EMPTY_PLAN } from '../src/simple';
 
 function tree(): StudyData {
   const decks: TreeDeck[] = [];

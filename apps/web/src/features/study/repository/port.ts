@@ -1,5 +1,5 @@
 // The port of the user's study data: what the Supabase adapter and the in-memory repository both implement.
-import type { HeatmapData } from '../../stats/heatmap';
+import type { HeatmapData } from '@qv/study';
 import type {
   AnswerToday,
   AssessmentSetting,

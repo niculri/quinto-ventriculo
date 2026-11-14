@@ -9,9 +9,8 @@ import { DECK_PATH, fullAnkiStudy, renderApp } from '../../test/render';
 import { cardShadowRoot } from '../decks/CardFrame';
 import { failedOf } from '../cards/queries';
 import type { DayCards } from '../cards/queries';
-import { countsByDay, heatmapStats, isoOfDay } from '../stats/heatmap';
-import type { HeatmapData } from '../stats/heatmap';
-import { correctPercent, daySummary } from './day-summary';
+import { correctPercent, countsByDay, daySummary, heatmapStats, isoOfDay } from '@qv/study';
+import type { HeatmapData } from '@qv/study';
 import { browserTimeZone, defaultPreferences, localStudyRepository } from './repository';
 import type { StudyRepository } from './repository';
 

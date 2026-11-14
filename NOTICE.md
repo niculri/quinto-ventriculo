@@ -11,7 +11,8 @@ Partes del código están adaptadas de Anki (https://github.com/ankitects/anki),
 colaboradores, AGPL-3.0-or-later, y se modificaron para El Quinto Ventrículo en 2026: el planificador
 (`packages/srs`), la búsqueda (`packages/anki-search`), las plantillas, cloze e Image Occlusion
 (`packages/anki-render`, `apps/web/src/features/decks/`), la sesión de estudio
-(`apps/web/src/features/study/session.ts`) y la página de opciones de Anki. Cada archivo adaptado lo dice en su
+(`apps/web/src/features/study/session.ts` y
+`packages/study/src/session.ts`) y la página de opciones de Anki. Cada archivo adaptado lo dice en su
 encabezado (`SPDX-License-Identifier`). Algunos textos en español vienen de las traducciones de Anki, que según su
 LICENSE son una mezcla de BSD y dominio público.
 
@@ -56,6 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## Review Heatmap
 
 Los cálculos de «Días de estudio» (los tonos de cada día, el promedio diario, los días estudiados, las rachas y lo que
-hay por repasar cada día; en `apps/web/src/features/stats/heatmap.ts` y en `study_heatmap()` de la base de usuarios)
+hay por repasar cada día; en `packages/study/src/heatmap.ts` y en `study_heatmap()` de la base de usuarios)
 siguen las reglas del complemento «Review Heatmap» de Anki (https://github.com/glutanimate/review-heatmap,
 © glutanimate, AGPL-3.0), sin copiar su código.

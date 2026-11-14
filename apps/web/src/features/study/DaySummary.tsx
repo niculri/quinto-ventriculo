@@ -11,12 +11,10 @@ import { Skeleton } from '../../ui/Loading';
 import { ancestry, descendants } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import { scopeNodeOf, unitOf } from '../cards/scope';
-import { isoOfDay } from '../stats/heatmap';
+import { correctPercent, daySummary, isoOfDay, timingFor } from '@qv/study';
 import { heatmapKeys } from '../stats/queries';
-import { correctPercent, daySummary } from './day-summary';
 import { studyKeys } from './queries';
 import type { StudyPreferences } from './repository';
-import { timingFor } from './scheduler';
 
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;

@@ -3,8 +3,8 @@
 
 import { dayStartsAt, schedTiming } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
-import { defaultPreferences } from './repository';
-import type { DeckProgress } from './repository';
+import { defaultPreferences } from '../src/preferences';
+import type { DeckProgress } from '@qv/schema/user';
 import {
   LARGE_BACKLOG,
   LONGEST_CATCH_UP,
@@ -29,10 +29,10 @@ import {
   paceRose,
   planMinutes,
   rollProgress,
-} from './pace';
-import type { AssessmentFacts } from './pace';
-import { EMPTY_PLAN } from './simple';
-import type { StudyPlan } from './simple';
+} from '../src/pace';
+import type { AssessmentFacts } from '../src/pace';
+import { EMPTY_PLAN } from '../src/simple';
+import type { StudyPlan } from '../src/simple';
 
 const ASSESSMENT = '4';
 const L1 = '51';

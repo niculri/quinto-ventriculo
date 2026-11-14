@@ -13,7 +13,7 @@ import type { BrowseCard } from '../browse/data';
 import { CardViewer } from '../decks/CardViewer';
 import { useCardMaterial } from '../study/material';
 import { studyKeys } from '../study/queries';
-import { timingFor } from '../study/scheduler';
+import { timingFor } from '@qv/study';
 import type { StudyPreferences } from '../study/repository';
 import { ReportEntry } from '../study/StudyPage';
 import { MaterialLink } from '../study/MaterialRow';

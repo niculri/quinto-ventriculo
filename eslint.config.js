@@ -7,6 +7,7 @@ import boundaries from 'eslint-plugin-boundaries';
 import reactHooks from 'eslint-plugin-react-hooks';
 import sonarjs from 'eslint-plugin-sonarjs';
 import tseslint from 'typescript-eslint';
+import { domainPackages } from './eslint.domain-packages.js';
 
 // Files that the size and complexity rules do not apply to: tests, their fixtures and helpers, and scripts.
 const TESTS_AND_SCRIPTS = [
@@ -203,6 +204,7 @@ export default tseslint.config(
       ],
     },
   },
+  ...domainPackages,
   {
     // Layers of the web: shared (ui, lib) → features → app, each importing only from itself and the ones below. A file
     // at the root of src other than the entry point and Vite's types has no layer.

@@ -21,7 +21,7 @@ import type {
   SchedTiming,
   StudiedToday,
 } from '@qv/srs';
-import type { AnkiTreeDeck, AuthorPreset, DeckDetail } from '@qv/schema';
+import type { AnkiTreeDeck, AuthorPreset, DeckDetail } from '@qv/schema/anki';
 import type {
   AnswerToday,
   CardRef,
@@ -32,7 +32,7 @@ import type {
   StoredCard,
   StudyPreferences,
   UserPreset,
-} from './repository';
+} from '@qv/schema/user';
 import { assessmentPaces, assessmentsWithDeadline } from './pace';
 import { decksGivingNew, simpleConfigs } from './simple';
 import type { StudyPlan } from './simple';

@@ -23,13 +23,12 @@ import { AnkiArt, NotesArt, TestsArt } from './SectionArt';
 import { useDeck } from '../decks/queries';
 import { buildAnkiTree, courseDeck, descendants, hasPage } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
+import { activeUnits, assessmentView, UNIT_DEPTH } from '@qv/study';
+import type { StudyPlan } from '@qv/study';
 import { CountNumbers, DayLoad, useDeckCounts } from '../study/DeckCounts';
 import { MasteryMeter } from '../study/MasteryMeter';
 import { SimpleDeckTree } from '../anki/SimpleDeckTree';
-import { assessmentView } from '../study/pace';
 import { usePreferences, useStudyPlan, useToday } from '../study/queries';
-import { UNIT_DEPTH, activeUnits } from '../study/simple';
-import type { StudyPlan } from '../study/simple';
 import { Heatmap } from '../stats/HeatmapCard';
 
 export function CoursePage() {

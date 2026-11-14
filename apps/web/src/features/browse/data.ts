@@ -5,7 +5,7 @@ import type { SchedTiming } from '@qv/srs';
 import type { SearchCard } from '@qv/anki-search';
 import type { BrowseNote, CardKind, NoteTypeSummary } from '@qv/schema';
 import type { StoredCard, StudyPreferences } from '../study/repository';
-import { cardKey, isHidden, toRecord } from '../study/scheduler';
+import { cardKey, isHidden, toRecord } from '@qv/study';
 import type { DeckNode } from '../anki/tree';
 
 export interface BrowseCard extends SearchCard {

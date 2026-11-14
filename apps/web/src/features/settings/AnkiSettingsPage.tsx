@@ -38,8 +38,8 @@ import type { AnkiTree, CourseDeckNode, DeckNode } from '../anki/tree';
 import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../study/queries';
 import { defaultPreferences } from '../study/repository';
 import type { DeckSetting, StudyPreferences, UserPreset } from '../study/repository';
-import { presetChoices, presetOf, sameRef } from '../study/scheduler';
-import type { PresetChoice, PresetRef } from '../study/scheduler';
+import { presetChoices, presetOf, sameRef } from '@qv/study';
+import type { PresetChoice, PresetRef } from '@qv/study';
 import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';
 import { SettingsLayout } from './SettingsLayout';
 

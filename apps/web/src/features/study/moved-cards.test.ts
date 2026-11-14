@@ -2,15 +2,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dayStartsAt } from '@qv/srs';
 import type { AnkiTreeDeck, CardChanges, CardSummary, DeckDetail } from '@qv/schema';
-import { dropCurrent, startRound } from './final-review';
-import { assessmentView, dateOfDay } from './pace';
+import {
+  assessmentView,
+  cardKey,
+  dateOfDay,
+  dropCurrent,
+  EMPTY_PLAN,
+  startRound,
+  timingFor,
+  treeDecks,
+} from '@qv/study';
+import type { StudyData, StudyPlan } from '@qv/study';
 import { defaultPreferences, localStudyRepository, supabaseStudyRepository } from './repository';
 import type { CardChange, StudyRepository } from './repository';
-import { cardKey, timingFor, treeDecks } from './scheduler';
-import type { StudyData } from './scheduler';
 import { StudySession } from './session';
-import { EMPTY_PLAN } from './simple';
-import type { StudyPlan } from './simple';
 import { syncCards, withCardSync } from './sync';
 import type { CardChangeSource } from './sync';
 

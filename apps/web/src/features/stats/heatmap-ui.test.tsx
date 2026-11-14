@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fullAnkiStudy, renderApp } from '../../test/render';
 import type { StudyRepository } from '../study/repository';
 import { studyKeys } from '../study/queries';
-import { dayNumber } from './heatmap';
-import type { HeatmapData } from './heatmap';
+import { dayNumber } from '@qv/study';
+import type { HeatmapData } from '@qv/study';
 import { heatmapKeys } from './queries';
 
 const D = dayNumber;

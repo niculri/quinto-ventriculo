@@ -14,8 +14,8 @@ import {
   weekdayOf,
   yearGrid,
   yearRange,
-} from './heatmap';
-import type { HeatmapDay } from './heatmap';
+} from '../src/heatmap';
+import type { HeatmapDay } from '../src/heatmap';
 
 const D = dayNumber;
 const studied = (entries: [string, number][]) => new Map(entries.map(([d, n]) => [D(d), n]));

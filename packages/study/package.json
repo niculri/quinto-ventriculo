@@ -1,0 +1,19 @@
+{
+  "name": "@qv/study",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The study domain on top of @qv/srs (simple mode, assessment mode, the pace, the final review, mastery, counts and the heatmap), without React or network",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@qv/schema": "0.0.0",
+    "@qv/srs": "0.0.0"
+  }
+}

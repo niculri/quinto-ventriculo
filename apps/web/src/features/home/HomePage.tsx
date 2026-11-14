@@ -21,15 +21,12 @@ import { countDecks, countNotes, locateNote, materialLabel, useCatalog } from '.
 import { useDeck } from '../decks/queries';
 import { useUser } from '../session/context';
 import { Heatmap } from '../stats/HeatmapCard';
+import { activeUnits, homeCourseCounts, nearestExamText, totalCards } from '@qv/study';
+import type { HomeStudyBase, StudyPlan } from '@qv/study';
 import { DayLoad, useDeckCounts } from '../study/DeckCounts';
 import { MasteryMeter } from '../study/MasteryMeter';
-import { nearestExamText } from '../study/pace';
 import { usePreferences, useSavePreferences, useStudyPlan, useToday } from '../study/queries';
 import type { StudyPreferences } from '../study/repository';
-import { activeUnits, totalCards } from '../study/simple';
-import type { StudyPlan } from '../study/simple';
-import { homeCourseCounts } from './counts';
-import type { HomeStudyBase } from './counts';
 import { lastNote } from './lastNote';
 import { addCourse, listText, myCourses, removeCourse } from './myCourses';
 import type { MyCourses as MyCourseLists } from './myCourses';

@@ -23,9 +23,8 @@ import {
 } from './model';
 import { syntheticIndex, syntheticRows } from './demo';
 import { lectureOf } from './scope';
-import { cardKey } from '../study/scheduler';
+import { cardKey, isoOfDay } from '@qv/study';
 import { dayOf, dayStartsAt } from '@qv/srs';
-import { isoOfDay } from '../stats/heatmap';
 import { defaultPreferences } from '../study/repository';
 
 const PAGE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards';

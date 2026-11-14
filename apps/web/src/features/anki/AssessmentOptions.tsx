@@ -3,19 +3,21 @@
 
 import { useEffect, useId, useState } from 'react';
 import { X } from 'lucide-react';
-import { DEFAULT_NEW_PER_DAY, includesExtras, isExtras, minutesText } from '../study/simple';
-import type { StudyPlan } from '../study/simple';
 import {
-  DEFAULT_FINAL_REVIEW_DAYS,
-  FINAL_REVIEW_OPTIONS,
-  LONGEST_STATUS,
   dateOfDay,
   dayOfDate,
+  DEFAULT_FINAL_REVIEW_DAYS,
+  DEFAULT_NEW_PER_DAY,
+  FINAL_REVIEW_OPTIONS,
+  includesExtras,
   isExamDate,
+  isExtras,
   longDate,
+  LONGEST_STATUS,
+  minutesText,
   shortDate,
-} from '../study/pace';
-import type { AssessmentView, PaceOption } from '../study/pace';
+} from '@qv/study';
+import type { AssessmentView, PaceOption, StudyPlan } from '@qv/study';
 import { roughToday, useSaveAssessmentSetting } from '../study/queries';
 import type { AssessmentSetting } from '../study/repository';
 import { Skeleton } from '../../ui/Loading';

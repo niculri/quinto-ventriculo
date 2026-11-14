@@ -2,7 +2,7 @@
 // assessment's new cards a day and date), and the load texts; @qv/srs only sees ordinary limits.
 
 import type { Counts, DeckConfig } from '@qv/srs';
-import type { AssessmentSetting, DeckActivation } from './repository';
+import type { AssessmentSetting, DeckActivation } from '@qv/schema/user';
 
 export const DEFAULT_NEW_PER_DAY = 20;
 export const NO_LIMIT = 1_000_000;

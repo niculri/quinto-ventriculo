@@ -18,11 +18,8 @@ import {
   useUserPresets,
 } from '../study/queries';
 import type { HomeDeckCounts } from '../study/repository';
-import { treeDecks } from '../study/scheduler';
-import { activeUnits } from '../study/simple';
-import type { StudyPlan } from '../study/simple';
-import { decayByDeck, nextChangeAt } from './counts';
-import type { HomeStudyBase } from './counts';
+import { activeUnits, decayByDeck, nextChangeAt, treeDecks } from '@qv/study';
+import type { HomeStudyBase, StudyPlan } from '@qv/study';
 
 export function todayCourses(catalog: Catalog, plan: StudyPlan): CourseDeckNode[] {
   const tree = buildAnkiTree(catalog);

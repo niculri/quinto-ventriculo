@@ -9,11 +9,8 @@ import { useServices } from '../../app/services';
 import { browserTimeZone, defaultPreferences } from './repository';
 import type { AssessmentSetting, StudyPreferences } from './repository';
 import { useCatalog } from '../catalog/queries';
-import { assessmentView } from './pace';
-import type { AssessmentView } from './pace';
-import { cardKey, deckIds, timingFor, treeDecks } from './scheduler';
-import type { StudyData } from './scheduler';
-import type { StudyPlan } from './simple';
+import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
+import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
 
 export const studyKeys = {
   all: ['study'] as const,

@@ -29,7 +29,7 @@ import { Notice } from '../../ui/Notice';
 import { Switch } from '../../ui/Switch';
 import { button, card as cardStyle } from '../../ui/styles';
 import { hasPage } from '../anki/tree';
-import { FLAGS } from '../study/flags';
+import { actionLabel, cardKey, FLAGS, presetChoices, presetOf, timingFor } from '@qv/study';
 import { studyKeys, useNow } from '../study/queries';
 import type {
   CardRef,
@@ -40,8 +40,6 @@ import type {
 } from '../study/repository';
 import type { AuthorPreset, BrowseNote, NoteTypeSummary } from '@qv/schema';
 import type { AnkiTree } from '../anki/tree';
-import { cardKey, presetChoices, presetOf, timingFor } from '../study/scheduler';
-import { actionLabel } from '../study/session';
 import { CardViewer } from '../decks/CardViewer';
 import { CardPreview } from './CardPreview';
 import {

@@ -2,8 +2,8 @@
 
 import { fillParameters } from '@qv/srs';
 import type { Counts, DeckConfig, SchedTiming, StudiedToday } from '@qv/srs';
-import type { AnkiTreeDeck, CardSummary, DeckDetail } from '@qv/schema';
-import type { HomeCounts, HomeDeckCounts, StoredCard } from '../study/repository';
+import type { AnkiTreeDeck, CardSummary, DeckDetail } from '@qv/schema/anki';
+import type { HomeCounts, HomeDeckCounts, StoredCard } from '@qv/schema/user';
 import {
   buildQueue,
   cardKey,
@@ -13,9 +13,9 @@ import {
   subtree,
   timingFor,
   toRecord,
-} from '../study/scheduler';
-import type { StudyData, TreeDeck } from '../study/scheduler';
-import { ASSESSMENT_DEPTH, ancestorName, includesExtras, isExtras } from '../study/simple';
+} from './scheduler';
+import type { StudyData, TreeDeck } from './scheduler';
+import { ASSESSMENT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';
 
 const MAX_NEW_PER_DECK = 20_000;
 

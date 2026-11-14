@@ -13,8 +13,8 @@ import { Select } from '../../ui/Select';
 import { button } from '../../ui/styles';
 import { useCatalog } from '../catalog/queries';
 import { studyKeys, useDeckSettings, useUserPresets } from '../study/queries';
-import { presetChoices, presetOf } from '../study/scheduler';
-import type { PresetRef } from '../study/scheduler';
+import { presetChoices, presetOf } from '@qv/study';
+import type { PresetRef } from '@qv/study';
 import { presetParam } from './presets';
 import type { DeckNode } from './tree';
 

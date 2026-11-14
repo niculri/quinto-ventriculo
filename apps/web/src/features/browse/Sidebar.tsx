@@ -7,7 +7,7 @@ import { ChevronRight, Flag, Layers, ListChecks, NotebookTabs, Tag, Clock } from
 import { searchTerm } from '@qv/anki-search';
 import type { NoteTypeSummary } from '@qv/schema';
 import type { DeckNode } from '../anki/tree';
-import { FLAGS } from '../study/flags';
+import { FLAGS } from '@qv/study';
 
 // As in Anki, a click replaces the search; with Ctrl/⌘ it adds the term («y»), with Mayús it is an alternative
 // («o»), with Alt it negates it.

@@ -12,17 +12,21 @@ import { ErrorWithRetry } from '../../ui/Notice';
 import { Reserved } from '../../ui/Reserved';
 import { button, card, page } from '../../ui/styles';
 import { useDeck } from '../decks/queries';
+import {
+  catchUpText,
+  EMPTY_PLAN,
+  estimateMinutes,
+  HEAVY_LOAD_MINUTES,
+  LONGEST_CATCH_UP,
+} from '@qv/study';
+import type { AssessmentView, CatchUp, StudyPlan } from '@qv/study';
 import { DayLoad, useDeckCounts } from '../study/DeckCounts';
 import { MasteryMeter } from '../study/MasteryMeter';
-import { LONGEST_CATCH_UP, catchUpText } from '../study/pace';
-import type { AssessmentView, CatchUp } from '../study/pace';
 import { useAssessmentView, usePreferences, useStudyPlan } from '../study/queries';
-import { EMPTY_PLAN, HEAVY_LOAD_MINUTES, estimateMinutes } from '../study/simple';
 import { AssessmentOptions } from './AssessmentOptions';
 import { SimpleDeckTree, visibleChildren } from './SimpleDeckTree';
 import { ancestry, deckCrumbs } from './tree';
 import type { CourseDeckNode, DeckNode } from './tree';
-import type { StudyPlan } from '../study/simple';
 import { useCountOpen } from '../usage/count';
 
 export const deckTitle = (n: DeckNode) => (n.depth === 2 && n.course ? n.course.name : n.label);

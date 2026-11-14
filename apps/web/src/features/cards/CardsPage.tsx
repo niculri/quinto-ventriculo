@@ -27,7 +27,7 @@ import { deckCrumbs, useAnkiTree } from '../anki/tree';
 import type { AnkiTree, CourseDeckNode } from '../anki/tree';
 import { CardTable } from '../browse/BrowsePage';
 import { useCatalog } from '../catalog/queries';
-import { dateText } from '../stats/heatmap';
+import { dateText } from '@qv/study';
 import { useDeckSettings, useNow, useUserPresets } from '../study/queries';
 import { CardList, ListSkeleton, notesText } from './CardList';
 import { CardFilters } from './Filters';

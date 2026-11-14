@@ -34,6 +34,16 @@ import type { CourseDeckNode } from '../anki/tree';
 import type { CardKey, StudyPreferences } from './repository';
 import { ApiRequestError } from '../../lib/api';
 import { NotFoundPage } from '../../ui/NotFoundPage';
+import {
+  cardKey,
+  catchUpText,
+  estimateMinutes,
+  FLAGS,
+  HEAVY_LOAD_MINUTES,
+  minutesText,
+  totalCards,
+} from '@qv/study';
+import type { CongratsInfo, HideAction, StudyData } from '@qv/study';
 import { CountNumbers, DayLoad } from './DeckCounts';
 import { DaySummary } from './DaySummary';
 import { useCardMaterial } from './material';
@@ -41,13 +51,7 @@ import { MaterialRow } from './MaterialRow';
 import { StudyFallback } from './StudyFallback';
 import { MenuRoot } from '../../ui/MenuRoot';
 import { studyKeys, useSavePreferences, useStudyData } from './queries';
-import { catchUpText } from './pace';
-import { cardKey } from './scheduler';
-import type { StudyData } from './scheduler';
 import { StudySession } from './session';
-import { HEAVY_LOAD_MINUTES, estimateMinutes, minutesText, totalCards } from './simple';
-import { FLAGS } from './flags';
-import type { CongratsInfo, HideAction } from './session';
 import { keys } from '../../ui/keys';
 import { ReportDialog } from '../reports/ReportDialog';
 import { cardTarget } from '../reports/targets';

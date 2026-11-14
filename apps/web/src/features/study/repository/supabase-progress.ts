@@ -3,7 +3,7 @@
 import type { Database } from '@qv/db-types/users';
 import { STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../lib/json';
-import { dayNumber } from '../../stats/heatmap';
+import { dayNumber } from '@qv/study';
 import type { HomeCounts } from './model';
 import type { StudyRepository } from './port';
 import type { StudyContext } from './supabase-context';

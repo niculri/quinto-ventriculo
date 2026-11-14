@@ -3,7 +3,7 @@ import { dayOf } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
 import type { StudyRepository } from '../study/repository';
 import { browserTimeZone } from '../study/repository';
-import type { HeatmapData } from './heatmap';
+import type { HeatmapData } from '@qv/study';
 
 // For the e2e tests, `qv-demo-heatmap` in localStorage takes `empty`, `slow` (1.5 s late) and `error`, with commas.
 export function withDemoHistory(

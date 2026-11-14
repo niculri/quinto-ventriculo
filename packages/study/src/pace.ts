@@ -2,7 +2,7 @@
 // Pure functions; @qv/srs only gets another `newPerDay`.
 
 import { dayOf } from '@qv/srs';
-import type { AssessmentSetting, DeckProgress, StudyPreferences } from './repository';
+import type { AssessmentSetting, DeckProgress, StudyPreferences } from '@qv/schema/user';
 import {
   ANSWERS_PER_NEW_CARD,
   DEFAULT_ANSWER_MS,

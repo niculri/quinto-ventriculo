@@ -1,6 +1,6 @@
 // The study domain: card states, the review log, presets, preferences and settings (their types are the schemas of
 // @qv/schema/user), with their defaults, limits and errors, shared by the port, both repositories and the rest of the app.
-import type { StudyPreferences } from '@qv/schema/user';
+export { browserTimeZone, defaultPreferences } from '@qv/study';
 
 export type {
   ActionName,
@@ -26,31 +26,6 @@ export type {
   UndoResult,
   UserPreset,
 } from '@qv/schema/user';
-
-export function defaultPreferences(timeZone = browserTimeZone()): StudyPreferences {
-  return {
-    timeZone,
-    dayStartsAt: 4,
-    learnAheadMinutes: 20,
-    newCardsIgnoreReviewLimit: false,
-    applyAllParentLimits: false,
-    fullAnki: false,
-    fourButtons: false,
-    welcomeSeen: false,
-    semester: null,
-    addedCourses: [],
-    removedCourses: [],
-    dismissed: [],
-  };
-}
-
-export function browserTimeZone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Santiago';
-  } catch {
-    return 'America/Santiago';
-  }
-}
 
 export const PRACTICE_BATCH_MAX = 1000;
 export const PRACTICE_BATCH_DECKS = 100;

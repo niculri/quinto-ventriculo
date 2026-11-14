@@ -8,18 +8,18 @@ import { paths } from '../../app/paths';
 import { Skeleton } from '../../ui/Loading';
 import { button } from '../../ui/styles';
 import { Switch } from '../../ui/Switch';
-import { DayLoad } from '../study/DeckCounts';
-import { MasteryMeter } from '../study/MasteryMeter';
-import { usePreferences, useSetActivation } from '../study/queries';
 import {
-  EMPTY_PLAN,
-  UNIT_DEPTH,
   activeUnits,
+  EMPTY_PLAN,
   includesExtras,
   isExtras,
   totalCards,
-} from '../study/simple';
-import type { StudyPlan } from '../study/simple';
+  UNIT_DEPTH,
+} from '@qv/study';
+import type { StudyPlan } from '@qv/study';
+import { DayLoad } from '../study/DeckCounts';
+import { MasteryMeter } from '../study/MasteryMeter';
+import { usePreferences, useSetActivation } from '../study/queries';
 import { DeckPresetButton } from './DeckPresetDialog';
 import { useCollapsed } from './useCollapsed';
 import { ancestry, descendants } from './tree';

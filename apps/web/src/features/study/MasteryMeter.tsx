@@ -1,7 +1,7 @@
 // Dominio as a small bar and «62 %», always as wide, with what it means on hover or touch (also inside a link).
 
 import { useEffect, useRef, useState } from 'react';
-import { masteryPercent } from './mastery';
+import { masteryPercent } from '@qv/study';
 
 const EXPLAINED =
   'Dominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.';

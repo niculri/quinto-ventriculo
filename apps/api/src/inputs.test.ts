@@ -10,6 +10,13 @@ import { memoryRepository } from './repositories/memory';
 import { memorySiteSettings } from './repositories/memory-settings';
 import type { ContentRepository, ReleaseRepository } from './repository';
 
+/** The gzip header names the system that wrote it (byte 9), and the snapshot keeps the bytes: one value everywhere. */
+const GZIPPED_INDEX = (() => {
+  const bytes = new Uint8Array(gzipSync('{"cards":[]}'));
+  bytes[9] = 19;
+  return bytes;
+})();
+
 const NOW = 1_793_448_000;
 const USER = 'user-token';
 const ADMIN = 'admin-token';
@@ -108,8 +115,7 @@ beforeAll(() => {
     media: {
       get: async (key) => {
         seen(null, 'media.get', key);
-        if (key === INDEX_KEY)
-          return { body: new Uint8Array(gzipSync('{"cards":[]}')), contentType: 'x' };
+        if (key === INDEX_KEY) return { body: GZIPPED_INDEX, contentType: 'x' };
         return key === IMAGE ? { body: new Uint8Array([1]), contentType: 'image/webp' } : null;
       },
     },

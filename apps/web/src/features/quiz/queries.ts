@@ -1,9 +1,10 @@
 // Queries of a practice test: its detail, a section's questions and what the user has saved of it.
 import { useQuery } from '@tanstack/react-query';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
+import { useQuizRepository } from './api/context';
 
 export function useQuizDetail(id: string | null) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['quiz', id],
     queryFn: ({ signal }) => api.quiz(id!, signal),
@@ -14,7 +15,7 @@ export function useQuizDetail(id: string | null) {
 
 // Refetched before the signed photo URLs (at least one hour) expire, since a round can last longer.
 export function useQuizSection(id: string | null, sectionId: string | null) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['quiz-section', id, sectionId],
     queryFn: ({ signal }) => api.quizSection(id!, sectionId!, signal),
@@ -30,7 +31,7 @@ export const savedQuizKey = (quizId: string) => ['quiz-progress', quizId] as con
 
 // Read once: the page keeps the cache current as it saves.
 export function useSavedQuiz(quizId: string | null) {
-  const { quiz } = useServices();
+  const quiz = useQuizRepository();
   return useQuery({
     queryKey: savedQuizKey(quizId ?? ''),
     queryFn: () => quiz.load(quizId!),

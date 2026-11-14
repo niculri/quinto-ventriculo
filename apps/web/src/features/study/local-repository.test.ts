@@ -8,8 +8,8 @@ import {
   PRACTICE_BATCH_MAX,
   PRACTICE_DAY_MAX,
   PracticeRefusedError,
-} from './repository';
-import type { CardRef, CardStateFields, ReviewInput, StudyRepository } from './repository';
+} from './api/repository';
+import type { CardRef, CardStateFields, ReviewInput, StudyRepository } from './api/repository';
 
 const NOW = Date.parse('2026-03-10T15:00:00Z');
 const HOUR = 3_600_000;

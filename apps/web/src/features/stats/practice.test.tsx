@@ -5,8 +5,12 @@ import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { ServicesProvider } from '../../app/services';
 import type { Services } from '../../app/services';
-import { PRACTICE_DAY_MAX, PracticeRefusedError, localStudyRepository } from '../study/repository';
-import type { PracticeCount, StudyRepository } from '../study/repository';
+import {
+  PRACTICE_DAY_MAX,
+  PracticeRefusedError,
+  localStudyRepository,
+} from '../study/api/repository';
+import type { PracticeCount, StudyRepository } from '../study/api/repository';
 import { practiceBatches, usePracticeRecorder } from './practice';
 
 describe('the batches of practice', () => {

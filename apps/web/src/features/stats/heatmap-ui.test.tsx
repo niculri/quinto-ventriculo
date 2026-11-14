@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fullAnkiStudy, renderApp } from '../../test/render';
-import type { StudyRepository } from '../study/repository';
+import type { StudyRepository } from '../study/api/repository';
 import { studyKeys } from '../study/queries';
 import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';

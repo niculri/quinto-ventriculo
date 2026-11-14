@@ -2,7 +2,7 @@
 // Fire and forget: a failure does nothing, so counting never gets in the way of studying.
 import { useEffect, useRef } from 'react';
 import type { SearchContext, UsageOpenRequest } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 import type { ApiClient } from '../../shared/lib/api';
 
 const SAME_OPEN_MS = 10 * 60_000;
@@ -11,7 +11,7 @@ const lastOpen = new Map<string, number>();
 
 // Only the page that opens the piece calls this, not pages that merely read the same note, deck or test.
 export function useCountOpen(kind: 'note' | 'deck' | 'quiz', id: string | null) {
-  const { api } = useServices();
+  const api = useApi();
   const sent = useRef<string | null>(null);
   useEffect(() => {
     const key = `${kind}:${id}`;

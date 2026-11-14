@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { ArrowRight, FileText, LoaderCircle, Search } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 import { countSearch } from '../usage/count';
 import { useCatalog } from '../catalog/queries';
 import { Snippet } from './Snippet';
@@ -39,7 +39,7 @@ function PaletteContent({ close }: { close: () => void }) {
   const navigate = useNavigate();
   const catalog = useCatalog().data;
   const { pathname } = useLocation();
-  const { api } = useServices();
+  const api = useApi();
   const { results, active, isFetching, query } = useSearch(text, 8);
   const go = (to: string) => {
     countSearch(api, text, searchContext(pathname));

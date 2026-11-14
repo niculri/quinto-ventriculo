@@ -2,7 +2,7 @@
 
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { countDecks, countNotes, materialLabel } from '../catalog/queries';
-import type { StudyPreferences } from '../study/repository';
+import type { StudyPreferences } from '../study/api/repository';
 
 /** The database keeps at most this many in each list. */
 export const MAX_CHOSEN_COURSES = 100;

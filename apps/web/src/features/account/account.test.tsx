@@ -5,8 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CONTACT_EMAIL, DATA_CONTROLLER, LEGAL_VERSIONS } from '@qv/schema';
 import { ApiRequestError } from '../../shared/lib/api';
 import { SESSION_ANA, acceptedAccount, fakeApi, renderApp } from '../../test/render';
-import { localAccountRepository } from './repository';
-import type { AccountRepository } from './repository';
+import { localAccountRepository } from './api/repository';
+import type { AccountRepository } from './api/repository';
 
 const EMAIL = SESSION_ANA.user.email;
 const notAccepted = (initial: Parameters<typeof localAccountRepository>[0] = {}) =>
@@ -300,7 +300,7 @@ describe('«Datos de usuario»: download and delete', () => {
 
   it('what the database refuses is said (an administrator)', async () => {
     const account = acceptedAccount(EMAIL);
-    const { AccountError } = await import('./repository');
+    const { AccountError } = await import('./api/repository');
     vi.spyOn(account, 'requestDeletion').mockRejectedValue(
       new AccountError(
         'admin_account',
@@ -321,7 +321,7 @@ describe('«Datos de usuario»: download and delete', () => {
 
 describe('the database’s refusals', () => {
   it('turn into what the web says', async () => {
-    const { accountError } = await import('./repository');
+    const { accountError } = await import('./api/repository');
     expect(accountError({ message: 'email_mismatch' }).code).toBe('email_mismatch');
     expect(accountError({ message: 'session_closed' }).message).toMatch(/Tu sesión se cerró/);
     expect(accountError({ message: 'admin_account' }).code).toBe('admin_account');
@@ -331,7 +331,7 @@ describe('the database’s refusals', () => {
 
 describe('the repository of the users’ database', () => {
   it('enters with the versions of this bundle (a Worker rolled back does not ask again)', async () => {
-    const { supabaseAccountRepository } = await import('./repository');
+    const { supabaseAccountRepository } = await import('./api/repository');
     const rpc = vi.fn(async () => ({
       data: {
         accepted: { terms_version: '1', privacy_version: '1', accepted_at: '2026-11-08T12:00:00Z' },

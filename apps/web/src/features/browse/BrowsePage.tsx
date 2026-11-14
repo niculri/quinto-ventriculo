@@ -24,7 +24,7 @@ import {
 import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
 import type { SearchContext } from '@qv/anki-search';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import { Notice } from '../../shared/ui/Notice';
 import { Switch } from '../../shared/ui/Switch';
 import { button, card as cardStyle } from '../../shared/ui/styles';
@@ -37,7 +37,7 @@ import type {
   StoredCard,
   StudyPreferences,
   UserPreset,
-} from '../study/repository';
+} from '../study/api/repository';
 import type { AuthorPreset, BrowseNote, NoteTypeSummary } from '@qv/schema';
 import type { AnkiTree } from '../anki/tree';
 import { CardViewer } from '../decks/CardViewer';
@@ -133,7 +133,7 @@ export function CardTable({ sources }: { sources: TableSources }) {
       decayOf: (id: string) => decay.get(id) ?? 0.5,
     };
   }, [notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings]);
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';

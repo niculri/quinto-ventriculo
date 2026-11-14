@@ -17,7 +17,7 @@ import {
   treeDecks,
 } from '@qv/study';
 import type { StudyData } from '@qv/study';
-import { defaultPreferences } from './repository';
+import { defaultPreferences } from './api/repository';
 
 const prefs = defaultPreferences('America/Santiago');
 

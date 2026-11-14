@@ -1,7 +1,7 @@
 // Tests reading the progress of an assessment's decks in one call (card_states_of_decks()), and a page at a time
 // when the users' database does not have that function.
 import { describe, expect, it } from 'vitest';
-import { CARDS_OF_DECKS_MAX, supabaseStudyRepository } from './repository';
+import { CARDS_OF_DECKS_MAX, supabaseStudyRepository } from './api/repository';
 
 const row = (note_guid: string, deck_id: string) => ({
   note_guid,

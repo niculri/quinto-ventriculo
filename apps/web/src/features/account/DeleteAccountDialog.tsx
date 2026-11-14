@@ -6,14 +6,14 @@ import { X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useAccountRepository } from './api/context';
 import { formatDateTime } from '../../shared/lib/dates';
 import { button } from '../../shared/ui/styles';
 import { useSession, useUser } from '../session/context';
-import { AccountError } from './repository';
+import { AccountError } from './api/repository';
 
 export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { account } = useServices();
+  const account = useAccountRepository();
   const user = useUser();
   const { signOut } = useSession();
   const navigate = useNavigate();

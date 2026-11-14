@@ -27,8 +27,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los
-  `repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
-  `features/session/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/repositories/supabase/` que nombra
+  `api/repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
+  `features/session/api/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/repositories/supabase/` que nombra
   `SUPABASE_ADAPTERS` en `eslint.config.js` (no su `index.ts`) y `packages/importer/src/targets.ts`; un `import type`
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las

@@ -1,10 +1,11 @@
 // Data hooks for a deck from the API and for a card with its signed images.
 
 import { useQuery } from '@tanstack/react-query';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
+import type { ApiClient } from '../../shared/lib/api';
 
 export function useDeck(deckId: string, enabled = true) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['deck', deckId],
     queryFn: ({ signal }) => api.deck(deckId, signal),
@@ -13,11 +14,7 @@ export function useDeck(deckId: string, enabled = true) {
   });
 }
 
-export function cardQuery(
-  api: ReturnType<typeof useServices>['api'],
-  noteGuid: string,
-  ord: number,
-) {
+export function cardQuery(api: ApiClient, noteGuid: string, ord: number) {
   return {
     queryKey: ['card', noteGuid, ord],
     queryFn: ({ signal }: { signal: AbortSignal }) => api.card(noteGuid, ord, signal),
@@ -28,6 +25,6 @@ export function cardQuery(
 }
 
 export function useCard(noteGuid: string, ord: number) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery(cardQuery(api, noteGuid, ord));
 }

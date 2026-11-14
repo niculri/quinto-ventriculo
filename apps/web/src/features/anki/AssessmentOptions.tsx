@@ -19,7 +19,7 @@ import {
 } from '@qv/study';
 import type { AssessmentView, PaceOption, StudyPlan } from '@qv/study';
 import { roughToday, useSaveAssessmentSetting } from '../study/queries';
-import type { AssessmentSetting } from '../study/repository';
+import type { AssessmentSetting } from '../study/api/repository';
 import { Skeleton } from '../../shared/ui/Loading';
 import { Reserved } from '../../shared/ui/Reserved';
 import { card } from '../../shared/ui/styles';

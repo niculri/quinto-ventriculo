@@ -1,8 +1,8 @@
 // Tests the database rules that the local reports repository re-implements.
 import { describe, expect, it } from 'vitest';
 import { REPORT_LIMITS } from '@qv/schema';
-import { localReportsRepository, placeOf, REPORT_MESSAGES } from './repository';
-import type { NewReport } from './repository';
+import { localReportsRepository, placeOf, REPORT_MESSAGES } from './api/repository';
+import type { NewReport } from './api/repository';
 
 const NOW = Date.parse('2026-03-10T15:00:00Z');
 const DAY = 86_400_000;

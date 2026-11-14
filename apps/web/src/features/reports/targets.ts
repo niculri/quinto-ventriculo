@@ -1,5 +1,5 @@
 // Card report targets: building the 'guid:ord' id and splitting it back.
-import type { ReportTarget } from './repository';
+import type { ReportTarget } from './api/repository';
 
 export function cardTarget(card: {
   noteGuid: string;

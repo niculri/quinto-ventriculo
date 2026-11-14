@@ -15,8 +15,8 @@ import {
   timingFor,
 } from '@qv/study';
 import type { StudyData, TreeDeck } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from '../study/repository';
-import type { StoredCard } from '../study/repository';
+import { defaultPreferences, localStudyRepository } from '../study/api/repository';
+import type { StoredCard } from '../study/api/repository';
 
 /** A small deterministic generator (mulberry32). */
 function random(seed: number) {

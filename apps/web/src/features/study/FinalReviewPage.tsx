@@ -8,7 +8,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Flag, MessageSquareWarning, MoreHorizontal, PartyPopper } from 'lucide-react';
 import type { DeckDetail } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
+import { useStudyRepository } from './api/context';
 import { ApiRequestError } from '../../shared/lib/api';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
@@ -23,7 +24,7 @@ import { answerRound, cardKey, dropCurrent, revealCard, reviewPools, startRound 
 import type { Round, StudyData } from '@qv/study';
 import { useCardMaterial } from './material';
 import { studyKeys, useStudyData } from './queries';
-import type { CardKey, CardRef } from './repository';
+import type { CardKey, CardRef } from './api/repository';
 import { RATINGS, ReportEntry, StudyCard } from './StudyPage';
 import { MaterialRow } from './MaterialRow';
 import { StudyFallback } from './StudyFallback';
@@ -226,7 +227,7 @@ export function ReviewScreen({
   onAnswer: (deckId: string) => void;
 }) {
   const night = useDarkMode();
-  const { api } = useServices();
+  const api = useApi();
   const client = useQueryClient();
   const material = useCardMaterial(current.deckId);
   const { revealed } = round;
@@ -330,7 +331,7 @@ export function ReviewMenu({
   onMarked: (key: string, flag: number) => void;
   markable?: boolean;
 }) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const [reporting, setReporting] = useState<CardKey | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   useEffect(() => {

@@ -1,7 +1,7 @@
 // Spanish labels, links and plain-text forms of reports, shared by the student and admin pages.
 import type { ReportCategory, ReportKind, ResolutionStatus } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
-import type { MyReport, ReportGroup, ReportLocation, Resolution } from './repository';
+import type { MyReport, ReportGroup, ReportLocation, Resolution } from './api/repository';
 import { splitCardId } from './targets';
 
 export const CATEGORY_LABELS: Record<ReportCategory, string> = {

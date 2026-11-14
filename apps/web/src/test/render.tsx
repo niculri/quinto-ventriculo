@@ -1,11 +1,11 @@
 // Helpers of the web's tests: a made-up catalog with its note, decks, cards and test, fake services, and renderApp()
 // with the real routes.
-import { localAdminRepository } from '../features/admin/repository';
-import type { AdminRepository } from '../features/admin/repository';
-import { localAccountRepository } from '../features/account/repository';
-import { localReportsRepository } from '../features/reports/repository';
-import type { ReportsRepository } from '../features/reports/repository';
-import type { AccountRepository } from '../features/account/repository';
+import { localAdminRepository } from '../features/admin/api/repository';
+import type { AdminRepository } from '../features/admin/api/repository';
+import { localAccountRepository } from '../features/account/api/repository';
+import { localReportsRepository } from '../features/reports/api/repository';
+import type { ReportsRepository } from '../features/reports/api/repository';
+import type { AccountRepository } from '../features/account/api/repository';
 import { render } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { RouterProvider, createMemoryRouter } from 'react-router';
@@ -27,11 +27,11 @@ import { routes } from '../app/routes';
 import type { Services } from '../app/services';
 import { ApiRequestError } from '../shared/lib/api';
 import type { ApiClient } from '../shared/lib/api';
-import { localStudyRepository } from '../features/study/repository';
-import type { StudyRepository } from '../features/study/repository';
-import { localQuizRepository } from '../features/quiz/repository';
-import type { QuizRepository } from '../features/quiz/repository';
-import type { Session, SessionService } from '../features/session/service';
+import { localStudyRepository } from '../features/study/api/repository';
+import type { StudyRepository } from '../features/study/api/repository';
+import { localQuizRepository } from '../features/quiz/api/repository';
+import type { QuizRepository } from '../features/quiz/api/repository';
+import type { Session, SessionService } from '../features/session/api/service';
 
 export const SESSION_ANA: Session = {
   token: 't',

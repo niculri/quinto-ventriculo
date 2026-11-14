@@ -3,8 +3,8 @@ import { Fragment, useState } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApiRequestError } from '../shared/lib/api';
-import { PreviewSwitch } from '../features/preview/preview';
-import { SessionProvider } from '../features/session/context';
+import { PreviewSwitch } from './PreviewSwitch';
+import { SessionProvider } from './SessionProvider';
 import { ServicesProvider } from './services';
 import type { Services } from './services';
 

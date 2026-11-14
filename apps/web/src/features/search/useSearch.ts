@@ -4,7 +4,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
 import { locateNote } from '../catalog/queries';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -16,7 +16,7 @@ function useDebounced<T>(value: T, ms: number): T {
 }
 
 export function useSearch(query: string, limit = 20) {
-  const { api } = useServices();
+  const api = useApi();
   const q = useDebounced(query.trim(), 220);
   const active = q.length >= 2;
   const r = useQuery({

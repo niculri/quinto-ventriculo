@@ -8,7 +8,8 @@ import type { SearchContext } from '@qv/anki-search';
 import { dayOfStart, dayStartsAt } from '@qv/srs';
 import type { CardIndex, NoteTypeSummary } from '@qv/schema';
 import { apiPaths } from '@qv/schema/http';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
+import { useStudyRepository } from '../study/api/context';
 import { ApiRequestError } from '../../shared/lib/api';
 import type { AnkiTree } from '../anki/tree';
 import { buildBrowseCards, decayFromParams } from '../browse/data';
@@ -16,7 +17,7 @@ import type { BrowseCard } from '../browse/data';
 import { cardKey, dayNumber, presetChoices, presetOf, timingFor } from '@qv/study';
 import { heatmapKeys } from '../stats/queries';
 import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../study/queries';
-import type { StoredCard, StudyPreferences } from '../study/repository';
+import type { StoredCard, StudyPreferences } from '../study/api/repository';
 import { FAILED_DAYS, explorerNotes } from './model';
 import type { ExplorerNote } from './model';
 import { lectureOf } from './scope';
@@ -31,7 +32,7 @@ const cardsKeys = {
 
 /** An index does not change while its hash is the same (its file is named by its content). */
 function useCardIndexes(scope: CardsScope | null) {
-  const { api } = useServices();
+  const api = useApi();
   const refs = (scope?.assessments ?? []).flatMap((a) =>
     a.cardIndex ? [{ id: a.id, hash: a.cardIndex.hash }] : [],
   );
@@ -53,7 +54,7 @@ function useCardIndexes(scope: CardsScope | null) {
 }
 
 export function useThumbQuery() {
-  const { api } = useServices();
+  const api = useApi();
   const q = useQuery({
     queryKey: cardsKeys.thumbs,
     queryFn: ({ signal }) => api.thumbSignature(signal),
@@ -65,7 +66,7 @@ export function useThumbQuery() {
 export const thumbUrl = (thumb: string, query: string) => `${apiPaths.media(thumb)}?${query}`;
 
 function useScopeRows(scope: CardsScope | null) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   return useQuery({
     queryKey: studyKeys.cards(scope?.node.id ?? ''),
     queryFn: () => study.cards(scope!.deckIds),
@@ -75,7 +76,7 @@ function useScopeRows(scope: CardsScope | null) {
 }
 
 export function useFailed(prefs: StudyPreferences | undefined, nowMs: number) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const since = prefs ? timingFor(prefs, nowMs).nextDayAt - FAILED_DAYS * 86_400 : 0;
   return useQuery({
     queryKey: cardsKeys.failed(since),
@@ -171,7 +172,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
 }
 
 function useAuthorPresets() {
-  const { api } = useServices();
+  const api = useApi();
   const q = useQuery({
     queryKey: ['catalog'],
     queryFn: ({ signal }) => api.catalog(signal),
@@ -187,7 +188,7 @@ function uniqueTypes(indexes: readonly CardIndex[]): NoteTypeSummary[] {
 }
 
 export function useTextMatch(data: CardsData | undefined, query: string, tree: AnkiTree | null) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const parsed = useMemo(() => {
     if (!query.trim()) return { node: null, error: null };
     try {
@@ -276,7 +277,7 @@ export function useDayCards(
   data: CardsData | undefined,
   dayParam: string | null,
 ) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const day = dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayNumber(dayParam) : null;
   const prefs = data?.prefs;
   const today = prefs ? timingFor(prefs).today : null;

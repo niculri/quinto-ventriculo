@@ -37,7 +37,7 @@ import {
   toStateFields,
 } from '@qv/study';
 import type { CongratsInfo, ExamNotes, HideAction, Shown, StudyData } from '@qv/study';
-import { CardChangedError } from './repository';
+import { CardChangedError } from './api/repository';
 import type {
   ActionName,
   AnswerToday,
@@ -46,7 +46,7 @@ import type {
   ReviewInput,
   StoredCard,
   StudyRepository,
-} from './repository';
+} from './api/repository';
 
 type HistoryItem =
   | {

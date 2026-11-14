@@ -6,7 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { Settings, SlidersHorizontal, X } from 'lucide-react';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import { Skeleton } from '../../shared/ui/Loading';
 import { Notice } from '../../shared/ui/Notice';
 import { Select } from '../../shared/ui/Select';
@@ -50,7 +50,7 @@ export function DeckPresetButton({ node }: { node: DeckNode }) {
 
 function PresetChoice({ node }: { node: DeckNode }) {
   const id = useId();
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const catalog = useCatalog();
   const presets = useUserPresets();

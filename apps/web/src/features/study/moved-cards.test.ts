@@ -13,11 +13,15 @@ import {
   treeDecks,
 } from '@qv/study';
 import type { StudyData, StudyPlan } from '@qv/study';
-import { defaultPreferences, localStudyRepository, supabaseStudyRepository } from './repository';
-import type { CardChange, StudyRepository } from './repository';
+import {
+  defaultPreferences,
+  localStudyRepository,
+  supabaseStudyRepository,
+} from './api/repository';
+import type { CardChange, StudyRepository } from './api/repository';
 import { StudySession } from './session';
-import { syncCards, withCardSync } from './sync';
-import type { CardChangeSource } from './sync';
+import { syncCards, withCardSync } from './api/sync';
+import type { CardChangeSource } from './api/sync';
 
 const NOW = Date.parse('2026-11-01T15:00:00Z');
 const DAY = 86_400_000;

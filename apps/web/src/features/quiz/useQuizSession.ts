@@ -21,9 +21,9 @@ import {
 } from '@qv/quiz';
 import type { Preferences, QuestionInfo, Round } from '@qv/quiz';
 import type { QuizGroup, QuizQuestion, QuizSectionDetail } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useQuizRepository } from './api/context';
 import { savedQuizKey } from './queries';
-import type { AnswerInfo, RoundInfo, SavedQuiz, SavedSection } from './repository';
+import type { AnswerInfo, RoundInfo, SavedQuiz, SavedSection } from './api/repository';
 import { StepSaver } from './saver';
 
 export interface QuestionEntry {
@@ -76,7 +76,7 @@ export function useQuizSession(options: {
   topics?: readonly string[] | null;
 }) {
   const { quizId, section, saved, showCover, topics } = options;
-  const { quiz: repository } = useServices();
+  const repository = useQuizRepository();
   const queryClient = useQueryClient();
   const entries = useMemo(() => questionIndex(section), [section]);
   const infos = useMemo(

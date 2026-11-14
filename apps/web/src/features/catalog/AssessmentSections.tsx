@@ -23,7 +23,7 @@ import { useDeck } from '../decks/queries';
 import { KIND_NAMES } from '../notes/header';
 import { findPracticeDeck, practiceLink } from '../notes/Practice';
 import { useDeckCounts } from '../study/DeckCounts';
-import { Canonical } from './Redirects';
+import { Canonical } from '../../shared/ui/Canonical';
 import { findCourse, noteBlocks, useCatalog } from './queries';
 
 export const plural = (n: number, one: string, many: string) =>

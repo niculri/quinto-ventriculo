@@ -21,7 +21,8 @@ import {
 import type { QueueEntry, Rating } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
+import { useStudyRepository } from './api/context';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry, Notice } from '../../shared/ui/Notice';
 import { BackButton } from '../../shared/ui/BackButton';
@@ -31,7 +32,7 @@ import { cardQuery, useCard, useDeck } from '../decks/queries';
 import { deckTitle } from '../anki/DeckPage';
 import { ancestry, descendants, hasPage, studyBackLabel } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
-import type { CardKey, StudyPreferences } from './repository';
+import type { CardKey, StudyPreferences } from './api/repository';
 import { ApiRequestError } from '../../shared/lib/api';
 import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import {
@@ -135,7 +136,8 @@ function Reviewer({
   rootId: string;
   initial: StudyData;
 }) {
-  const { study, api } = useServices();
+  const study = useStudyRepository();
+  const api = useApi();
   const client = useQueryClient();
   const night = useDarkMode();
   const [session] = useState(

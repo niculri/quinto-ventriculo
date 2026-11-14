@@ -4,7 +4,7 @@ import type { ComponentType } from 'react';
 import type { RouteObject } from 'react-router';
 import { LandingPage } from '../features/landing/LandingPage';
 import { AuthCallbackPage } from '../features/session/AuthCallbackPage';
-import { ProtectedRoute } from '../features/session/ProtectedRoute';
+import { ProtectedRoute } from './ProtectedRoute';
 import { RouteError } from '../shared/ui/RouteError';
 import { paths } from '../shared/lib/paths';
 import { SETTINGS_GROUPS } from '../features/settings/sections';
@@ -15,7 +15,7 @@ import {
   LegacyDeckRedirect,
   LegacyNoteRedirect,
   SemesterAnkiRedirect,
-} from '../features/catalog/Redirects';
+} from './Redirects';
 
 function Root() {
   return (

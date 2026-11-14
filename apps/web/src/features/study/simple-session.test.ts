@@ -4,8 +4,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema';
 import { blankRow, cardKey, deckCounts, EMPTY_PLAN, extrasOff } from '@qv/study';
 import type { StudyData, StudyPlan, TreeDeck } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from './repository';
-import type { AnswerToday, CardRef, StoredCard, StudyRepository } from './repository';
+import { defaultPreferences, localStudyRepository } from './api/repository';
+import type { AnswerToday, CardRef, StoredCard, StudyRepository } from './api/repository';
 import { StudySession } from './session';
 
 const NOW = Date.parse('2026-10-31T15:00:00Z');

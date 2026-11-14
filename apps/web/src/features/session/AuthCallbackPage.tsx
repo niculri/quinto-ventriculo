@@ -5,7 +5,7 @@ import { Navigate, useLocation } from 'react-router';
 import { Loading } from '../../shared/ui/Loading';
 import { noticeCodeForError } from './notices';
 import { useSession } from './context';
-import { NEXT_KEY } from './service';
+import { NEXT_KEY } from './api/service';
 
 // Internal routes only (no open redirects); the browser strips tabs and newlines, so «/\t/x.site» would be «//x.site».
 export function safeDestination(destination: string | null | undefined): string {

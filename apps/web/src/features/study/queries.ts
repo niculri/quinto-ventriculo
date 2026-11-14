@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dayStartsAt, schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
-import { useServices } from '../../app/services';
-import { browserTimeZone, defaultPreferences } from './repository';
-import type { AssessmentSetting, StudyPreferences } from './repository';
+import { useStudyRepository } from './api/context';
+import { browserTimeZone, defaultPreferences } from './api/repository';
+import type { AssessmentSetting, StudyPreferences } from './api/repository';
 import { useCatalog } from '../catalog/queries';
 import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
@@ -28,7 +28,7 @@ export const studyKeys = {
 
 /** The user's preferences; the time zone follows the browser's (Anki uses the computer's). */
 export function usePreferences() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const query = useQuery({
     queryKey: studyKeys.preferences,
@@ -53,7 +53,7 @@ export function usePreferences() {
 }
 
 export function useSavePreferences() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   return useMutation({
     mutationFn: (p: StudyPreferences) => study.savePreferences(p),
@@ -65,7 +65,7 @@ export function useSavePreferences() {
 }
 
 export function useUserPresets() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   return useQuery({
     queryKey: studyKeys.presets,
     queryFn: () => study.presets(),
@@ -74,7 +74,7 @@ export function useUserPresets() {
 }
 
 export function useDeckSettings() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   return useQuery({
     queryKey: studyKeys.settings,
     queryFn: () => study.deckSettings(),
@@ -83,7 +83,7 @@ export function useDeckSettings() {
 }
 
 export function useStudyPlan() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   return useQuery({
     queryKey: studyKeys.plan,
     queryFn: async (): Promise<StudyPlan> => {
@@ -126,7 +126,7 @@ function usePlanChange<T>(
 }
 
 export function useSetActivation() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   return usePlanChange<{ deckId: string; active: boolean }>(
     ({ deckId, active }) => study.setDeckActivation(deckId, active),
     (plan, a) => ({
@@ -137,7 +137,7 @@ export function useSetActivation() {
 }
 
 export function useSaveAssessmentSetting() {
-  const { study } = useServices();
+  const study = useStudyRepository();
   return usePlanChange<AssessmentSetting>(
     (setting) => study.saveAssessmentSetting(setting),
     (plan, s) => ({
@@ -148,7 +148,7 @@ export function useSaveAssessmentSetting() {
 }
 
 export function useDeckProgress(prefs: StudyPreferences | undefined) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const today = useToday(prefs);
   return useQuery({
     queryKey: studyKeys.progress(today ?? -1),
@@ -205,7 +205,7 @@ export function useToday(prefs: StudyPreferences | undefined): number | null {
 }
 
 export function useAnswersToday(prefs: StudyPreferences | undefined) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const today = useToday(prefs);
   return useQuery({
     queryKey: studyKeys.answers(today ?? -1),
@@ -217,7 +217,7 @@ export function useAnswersToday(prefs: StudyPreferences | undefined) {
 }
 
 export function useStudyData(deck: DeckDetail | undefined) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const preferences = usePreferences();
   const prefs = preferences.prefs;
   const catalog = useCatalog();

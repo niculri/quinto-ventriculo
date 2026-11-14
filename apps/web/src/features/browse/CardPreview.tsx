@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Maximize2, MessageSquareWarning } from 'lucide-react';
 import { timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { button } from '../../shared/ui/styles';
@@ -14,7 +14,7 @@ import { useCard } from '../decks/queries';
 import { ReportDialog } from '../reports/ReportDialog';
 import { cardTarget } from '../reports/targets';
 import { studyKeys } from '../study/queries';
-import type { CardLogEntry } from '../study/repository';
+import type { CardLogEntry } from '../study/api/repository';
 import { cellText, recall, shortDate } from './data';
 import type { BrowseCard } from './data';
 
@@ -153,7 +153,7 @@ export function CardInfo({
   timing: SchedTiming;
   simple?: boolean;
 }) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const log = useQuery({
     queryKey: [...studyKeys.all, 'log', card.noteGuid, card.ord],
     queryFn: () => study.cardLog(card),

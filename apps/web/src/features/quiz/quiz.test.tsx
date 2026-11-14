@@ -5,8 +5,8 @@ import { focusManager } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiRequestError } from '../../shared/lib/api';
 import { fakeApi, renderApp } from '../../test/render';
-import { localQuizRepository } from './repository';
-import type { QuizRepository, QuizStep } from './repository';
+import { localQuizRepository } from './api/repository';
+import type { QuizRepository, QuizStep } from './api/repository';
 import { StepSaver } from './saver';
 
 const BASE = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica';

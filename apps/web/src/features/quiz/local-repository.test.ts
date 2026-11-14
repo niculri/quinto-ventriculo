@@ -1,7 +1,7 @@
 // Pins the rules the in-memory tests repository re-implements from save_quiz_progress() and quiz_rounds.
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { localQuizRepository, OPEN_ROUNDS } from './repository';
-import type { AnswerInfo, RoundInfo } from './repository';
+import { localQuizRepository, OPEN_ROUNDS } from './api/repository';
+import type { AnswerInfo, RoundInfo } from './api/repository';
 
 const info = (id: string, over: Partial<RoundInfo> = {}): RoundInfo => ({
   id,

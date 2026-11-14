@@ -9,7 +9,8 @@ import { useQuery } from '@tanstack/react-query';
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import type { Counts } from '@qv/srs';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useQuizRepository } from '../quiz/api/context';
+import type { QuizRepository } from '../quiz/api/repository';
 import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { Skeleton } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
@@ -26,8 +27,8 @@ import type { HomeStudyBase, StudyPlan } from '@qv/study';
 import { DayLoad, useDeckCounts } from '../study/DeckCounts';
 import { MasteryMeter } from '../study/MasteryMeter';
 import { usePreferences, useSavePreferences, useStudyPlan, useToday } from '../study/queries';
-import type { StudyPreferences } from '../study/repository';
-import { lastNote } from './lastNote';
+import type { StudyPreferences } from '../study/api/repository';
+import { lastNote } from '../notes/lastNote';
 import { addCourse, listText, myCourses, removeCourse } from './myCourses';
 import type { MyCourses as MyCourseLists } from './myCourses';
 import { todayCourses, useCountsTick, useHomeStudy } from './queries';
@@ -69,7 +70,7 @@ export function HomePage() {
 }
 
 function useOpenRounds() {
-  const { quiz } = useServices();
+  const quiz = useQuizRepository();
   return useQuery({
     queryKey: ['quiz-open-rounds'],
     queryFn: () => quiz.openRounds(),
@@ -126,7 +127,7 @@ function Sections({
   catalog: Catalog;
   prefs: StudyPreferences;
   plan: StudyPlan;
-  rounds: Awaited<ReturnType<ReturnType<typeof useServices>['quiz']['openRounds']>>;
+  rounds: Awaited<ReturnType<QuizRepository['openRounds']>>;
 }) {
   // What the student chooses shows at once, while it is saved.
   const save = useSavePreferences();

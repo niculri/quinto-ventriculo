@@ -1,6 +1,6 @@
 // Saves a test's steps in order and in the background: a move joins the step waiting of the same round (an answer is
 // never dropped), and after two retries it stops and keeps the steps for «Reintentar».
-import type { QuizRepository, QuizStep } from './repository';
+import type { QuizRepository, QuizStep } from './api/repository';
 
 export class StepSaver {
   private queue: QuizStep[] = [];

@@ -1,7 +1,7 @@
 // React Query hooks to send, list and resolve error reports.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useServices } from '../../app/services';
-import type { NewReport, ResolveInput } from './repository';
+import { useReportsRepository } from './api/context';
+import type { NewReport, ResolveInput } from './api/repository';
 
 // The draft preview (features/preview) shares these keys with the site.
 const reportKeys = {
@@ -10,7 +10,7 @@ const reportKeys = {
 };
 
 export function useSendReport() {
-  const { reports } = useServices();
+  const reports = useReportsRepository();
   const client = useQueryClient();
   return useMutation({
     mutationFn: (report: NewReport) => reports.send(report),
@@ -24,12 +24,12 @@ export function useSendReport() {
 }
 
 export function useMyReports() {
-  const { reports } = useServices();
+  const reports = useReportsRepository();
   return useQuery({ queryKey: reportKeys.mine, queryFn: () => reports.mine() });
 }
 
 export function useReportQueue() {
-  const { reports } = useServices();
+  const reports = useReportsRepository();
   return useQuery({ queryKey: reportKeys.queue, queryFn: () => reports.queue() });
 }
 
@@ -43,7 +43,7 @@ function useAfter() {
 }
 
 export function useResolveReports() {
-  const { reports } = useServices();
+  const reports = useReportsRepository();
   const after = useAfter();
   return useMutation({
     mutationFn: (input: ResolveInput) => reports.resolve(input),
@@ -52,7 +52,7 @@ export function useResolveReports() {
 }
 
 export function useReopenReports() {
-  const { reports } = useServices();
+  const reports = useReportsRepository();
   const after = useAfter();
   return useMutation({
     mutationFn: (resolutionId: string) => reports.reopen(resolutionId),
@@ -61,7 +61,7 @@ export function useReopenReports() {
 }
 
 export function useSetReportBlock() {
-  const { reports } = useServices();
+  const reports = useReportsRepository();
   const after = useAfter();
   return useMutation({
     mutationFn: ({ userId, blocked }: { userId: string; blocked: boolean }) =>

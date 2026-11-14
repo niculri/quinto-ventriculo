@@ -6,8 +6,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { CATALOG, CARD_INDEX, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
 import { ApiRequestError } from '../../shared/lib/api';
-import { localStudyRepository } from '../study/repository';
-import type { StoredCard, StudyRepository } from '../study/repository';
+import { localStudyRepository } from '../study/api/repository';
+import type { StoredCard, StudyRepository } from '../study/api/repository';
 import { buildAnkiTree } from '../anki/tree';
 import {
   NO_FILTERS,
@@ -25,7 +25,7 @@ import { syntheticIndex, syntheticRows } from './demo';
 import { lectureOf } from './scope';
 import { cardKey, isoOfDay } from '@qv/study';
 import { dayOf, dayStartsAt } from '@qv/srs';
-import { defaultPreferences } from '../study/repository';
+import { defaultPreferences } from '../study/api/repository';
 
 const PAGE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards';
 

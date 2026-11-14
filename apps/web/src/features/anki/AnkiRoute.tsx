@@ -7,7 +7,7 @@ import { paths } from '../../shared/lib/paths';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { NotFoundPage } from '../../shared/ui/NotFoundPage';
-import { Canonical } from '../catalog/Redirects';
+import { Canonical } from '../../shared/ui/Canonical';
 import { FinalReviewPage } from '../study/FinalReviewPage';
 import { StudyPage } from '../study/StudyPage';
 import { StudyFallback } from '../study/StudyFallback';

@@ -18,12 +18,14 @@ import {
   acceptedAccount,
 } from '../../test/render';
 import type { Services } from '../../app/services';
-import { localQuizRepository } from '../quiz/repository';
-import { localStudyRepository } from '../study/repository';
-import { PreviewSwitch, previewStudyRepository, usePreview } from '../preview/preview';
-import type { Preview, PreviewParts } from '../preview/preview';
-import { localAdminRepository } from './repository';
-import { localReportsRepository } from '../reports/repository';
+import { localQuizRepository } from '../quiz/api/repository';
+import { localStudyRepository } from '../study/api/repository';
+import { PreviewSwitch } from '../../app/PreviewSwitch';
+import { previewStudyRepository, usePreview } from '../preview/preview';
+import type { Preview } from '../preview/preview';
+import type { PreviewParts } from '../../app/PreviewSwitch';
+import { localAdminRepository } from './api/repository';
+import { localReportsRepository } from '../reports/api/repository';
 
 /** What the database gives for the e2e folder's draft (db/tests/release.test.ts writes it). */
 const SUMMARY = ReleaseSummary.parse(

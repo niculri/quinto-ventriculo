@@ -8,8 +8,8 @@ import { Select } from '../../shared/ui/Select';
 import { button } from '../../shared/ui/styles';
 import { CATEGORY_LABELS, codeWithVersion } from './labels';
 import { useSendReport } from './queries';
-import { ReportError } from './repository';
-import type { ReportTarget } from './repository';
+import { ReportError } from './api/repository';
+import type { ReportTarget } from './api/repository';
 
 const INTRO: Record<ReportKind, string> = {
   card: 'Cuéntanos qué está mal en esta tarjeta. Le llega al autor para corregirla.',

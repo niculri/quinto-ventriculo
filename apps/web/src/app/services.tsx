@@ -1,27 +1,39 @@
-// The web's external dependencies (session, API, repositories), for the demo or for Supabase; components ask for
-// them with useServices(), and tests swap them.
-import { createContext, useContext } from 'react';
+// The web's external dependencies (session, API, repositories), for the demo or for Supabase, composed and provided:
+// each feature reads its own with its hook (useStudyRepository(), useApi()…), and tests swap them.
 import type { ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { PREVIEW_HEADERS, createApiClient } from '../shared/lib/api';
 import type { ApiClient } from '../shared/lib/api';
-import { localStudyRepository, supabaseStudyRepository } from '../features/study/repository';
-import type { StudyRepository } from '../features/study/repository';
-import { withCardSync } from '../features/study/sync';
+import { localStudyRepository, supabaseStudyRepository } from '../features/study/api/repository';
+import type { StudyRepository } from '../features/study/api/repository';
+import { withCardSync } from '../features/study/api/sync';
 import { withDemoHistory } from '../features/stats/demo';
 import { withDemoCards } from '../features/cards/demo';
-import { localQuizRepository, supabaseQuizRepository } from '../features/quiz/repository';
-import type { QuizRepository } from '../features/quiz/repository';
-import { localAdminRepository, supabaseAdminRepository } from '../features/admin/repository';
-import type { AdminRepository } from '../features/admin/repository';
-import { localAccountRepository, supabaseAccountRepository } from '../features/account/repository';
-import { localReportsRepository, supabaseReportsRepository } from '../features/reports/repository';
-import type { ReportsRepository } from '../features/reports/repository';
-import type { AccountRepository } from '../features/account/repository';
-import { DEMO_EMAIL, demoSessionService } from '../features/session/demo';
-import { supabaseSessionService } from '../features/session/service';
-import type { SessionService } from '../features/session/service';
+import { localQuizRepository, supabaseQuizRepository } from '../features/quiz/api/repository';
+import type { QuizRepository } from '../features/quiz/api/repository';
+import { localAdminRepository, supabaseAdminRepository } from '../features/admin/api/repository';
+import type { AdminRepository } from '../features/admin/api/repository';
+import {
+  localAccountRepository,
+  supabaseAccountRepository,
+} from '../features/account/api/repository';
+import {
+  localReportsRepository,
+  supabaseReportsRepository,
+} from '../features/reports/api/repository';
+import type { ReportsRepository } from '../features/reports/api/repository';
+import type { AccountRepository } from '../features/account/api/repository';
+import { DEMO_EMAIL, demoSessionService } from '../features/session/api/demo';
+import { supabaseSessionService } from '../features/session/api/service';
+import type { SessionService } from '../features/session/api/service';
+import { SessionServiceContext } from '../features/session/api/context';
+import { ApiClientContext } from '../shared/hooks/useApi';
+import { StudyRepositoryContext } from '../features/study/api/context';
+import { QuizRepositoryContext } from '../features/quiz/api/context';
+import { AdminRepositoryContext } from '../features/admin/api/context';
+import { ReportsRepositoryContext } from '../features/reports/api/context';
+import { AccountRepositoryContext } from '../features/account/api/context';
 
 export interface Services {
   session: SessionService;
@@ -122,8 +134,6 @@ function demoData() {
 
 const userOf = (session: SessionService) => async () => (await session.current())?.user.id ?? null;
 
-const Context = createContext<Services | null>(null);
-
 export function ServicesProvider({
   services,
   children,
@@ -131,11 +141,21 @@ export function ServicesProvider({
   services: Services;
   children: ReactNode;
 }) {
-  return <Context value={services}>{children}</Context>;
-}
-
-export function useServices(): Services {
-  const s = useContext(Context);
-  if (!s) throw new Error('useServices outside <ServicesProvider>');
-  return s;
+  return (
+    <SessionServiceContext value={services.session}>
+      <ApiClientContext value={services.api}>
+        <StudyRepositoryContext value={services.study}>
+          <QuizRepositoryContext value={services.quiz}>
+            <AdminRepositoryContext value={services.admin}>
+              <ReportsRepositoryContext value={services.reports}>
+                <AccountRepositoryContext value={services.account}>
+                  {children}
+                </AccountRepositoryContext>
+              </ReportsRepositoryContext>
+            </AdminRepositoryContext>
+          </QuizRepositoryContext>
+        </StudyRepositoryContext>
+      </ApiClientContext>
+    </SessionServiceContext>
+  );
 }

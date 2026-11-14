@@ -1,11 +1,12 @@
 // The administration panel's queries and changes: admin role, site settings, access, usage and the unpublished log.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useServices } from '../../app/services';
-import type { RemoveResult, SetAdminResult } from './repository';
+import { useAdminRepository } from './api/context';
+import { useApi } from '../../shared/hooks/useApi';
+import type { RemoveResult, SetAdminResult } from './api/repository';
 
 /** Only shows or hides the panel: the database enforces who is an administrator. */
 export function useIsAdmin() {
-  const { admin } = useServices();
+  const admin = useAdminRepository();
   return useQuery({
     queryKey: ['is-admin'],
     queryFn: () => admin.isAdmin(),
@@ -18,7 +19,7 @@ export function useIsAdmin() {
 const SITE_SETTINGS = ['site-settings'] as const;
 
 export function useSiteSettings(enabled: boolean) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: SITE_SETTINGS,
     queryFn: ({ signal }) => api.siteSettings(signal),
@@ -28,7 +29,7 @@ export function useSiteSettings(enabled: boolean) {
 
 /** Then the catalog is fetched fresh, not from the browser's copy, so the change shows at once on this tab. */
 export function useSetSiteSettings() {
-  const { api } = useServices();
+  const api = useApi();
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: { hideEmptySemesters: boolean }) => api.setSiteSettings(body),
@@ -49,12 +50,12 @@ export function useSetSiteSettings() {
 const ACCESS = ['access-report'] as const;
 
 export function useAccessReport() {
-  const { admin } = useServices();
+  const admin = useAdminRepository();
   return useQuery({ queryKey: ACCESS, queryFn: () => admin.accessReport() });
 }
 
 export function useInvite() {
-  const { admin } = useServices();
+  const admin = useAdminRepository();
   const client = useQueryClient();
   return useMutation({
     mutationFn: (input: { emails: string[]; list: string; note: string | null }) =>
@@ -64,7 +65,7 @@ export function useInvite() {
 }
 
 export function useRemoveInvites() {
-  const { admin } = useServices();
+  const admin = useAdminRepository();
   const client = useQueryClient();
   return useMutation<RemoveResult, Error, { emails: string[] } | { list: string }>({
     mutationFn: (target) => admin.removeInvites(target),
@@ -73,7 +74,7 @@ export function useRemoveInvites() {
 }
 
 export function useSetAdmin() {
-  const { admin } = useServices();
+  const admin = useAdminRepository();
   const client = useQueryClient();
   return useMutation<SetAdminResult, Error, { email: string; admin: boolean }>({
     mutationFn: (input) => admin.setAdmin(input),
@@ -82,7 +83,7 @@ export function useSetAdmin() {
 }
 
 export function useUsageReport() {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['usage-report'],
     queryFn: ({ signal }) => api.usage(signal),
@@ -91,7 +92,7 @@ export function useUsageReport() {
 }
 
 export function useUnpublishedLog() {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['unpublished-log'],
     queryFn: ({ signal }) => api.unpublishedLog(signal),

@@ -1,5 +1,5 @@
 // What the study batteries share: answers to give both repositories, and what of their results only matches in shape.
-import type { CardRef, CardStateFields, ReviewInput } from '../features/study/repository';
+import type { CardRef, CardStateFields, ReviewInput } from '../features/study/api/repository';
 
 export const DECK = '1001';
 export const OTHER_DECK = '1002';

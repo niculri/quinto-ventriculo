@@ -6,7 +6,7 @@ import { withContactLink } from '../../shared/ui/ContactLink';
 import { Skeleton } from '../../shared/ui/Loading';
 import { card, page } from '../../shared/ui/styles';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 import { countSearch } from '../usage/count';
 import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { Snippet } from './Snippet';
@@ -17,7 +17,7 @@ export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const text = params.get('q') ?? '';
   const { results, active, isPending, isError, error, query } = useSearch(text, 50);
-  const { api } = useServices();
+  const api = useApi();
   // Counted once, on Enter or on opening a result, never each text while typing.
   const complete = () => countSearch(api, text, 'search');
   const groups = groupByNote(results);

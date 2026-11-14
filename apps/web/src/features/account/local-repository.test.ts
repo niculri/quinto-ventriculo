@@ -1,7 +1,7 @@
 // Tests that the in-memory account repository follows the users database's account rules.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
-import { AccountError, localAccountRepository } from './repository';
+import { AccountError, localAccountRepository } from './api/repository';
 
 const NOW = Date.parse('2026-03-10T15:00:00Z');
 const EMAIL = 'persona.prueba@ug.uchile.cl';

@@ -6,7 +6,7 @@ import { FEW } from '@qv/schema';
 import type { UsageFigures, UsageReport } from '@qv/schema';
 import { fakeApi, renderApp } from '../../test/render';
 import { searchContext } from '../search/useSearch';
-import { localAdminRepository } from './repository';
+import { localAdminRepository } from './api/repository';
 
 const admin = () => localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl' });
 

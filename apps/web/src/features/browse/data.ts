@@ -4,7 +4,7 @@ import { dayStartsAt, fillParameters, timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
 import type { SearchCard } from '@qv/anki-search';
 import type { BrowseNote, CardKind, NoteTypeSummary } from '@qv/schema';
-import type { StoredCard, StudyPreferences } from '../study/repository';
+import type { StoredCard, StudyPreferences } from '../study/api/repository';
 import { cardKey, isHidden, toRecord } from '@qv/study';
 import type { DeckNode } from '../anki/tree';
 

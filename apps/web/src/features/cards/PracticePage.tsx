@@ -15,7 +15,7 @@ import { ReviewMenu, ReviewScreen, RoundDone } from '../study/FinalReviewPage';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
 import { useNow } from '../study/queries';
-import type { CardRef } from '../study/repository';
+import type { CardRef } from '../study/api/repository';
 import { queryOf } from './CardsPage';
 import {
   NO_FILTERS,

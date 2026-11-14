@@ -16,7 +16,7 @@ import {
   studentStatus,
 } from './labels';
 import { useMyReports } from './queries';
-import type { MyReport } from './repository';
+import type { MyReport } from './api/repository';
 
 export function MyReportsPage() {
   const reports = useMyReports();

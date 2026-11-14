@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 import { MessageSquareWarning } from 'lucide-react';
 import { QUOTE_CONTEXT, QUOTE_MAX } from '@qv/schema';
-import type { ReportLocation } from '../reports/repository';
+import type { ReportLocation } from '../reports/api/repository';
 
 export function sectionAt(
   root: HTMLElement,

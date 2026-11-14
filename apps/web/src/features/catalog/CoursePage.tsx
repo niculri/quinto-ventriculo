@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { ArrowRight, ChevronRight, Layers, Search } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { assessmentAnchor, paths } from '../../shared/lib/paths';
-import { Canonical } from './Redirects';
+import { Canonical } from '../../shared/ui/Canonical';
 import type { Counts } from '@qv/srs';
 import type {
   AssessmentWithNotes,

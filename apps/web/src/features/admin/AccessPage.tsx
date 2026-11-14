@@ -11,7 +11,7 @@ import { Select } from '../../shared/ui/Select';
 import { button, card } from '../../shared/ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
 import { useAccessReport, useInvite, useRemoveInvites, useSetAdmin } from './queries';
-import { AccessError, MAX_EMAILS, normalizeEmail } from './repository';
+import { AccessError, MAX_EMAILS, normalizeEmail } from './api/repository';
 import type {
   AccessInvite,
   AccessReport,
@@ -19,7 +19,7 @@ import type {
   InviteResult,
   RemoveResult,
   SetAdminResult,
-} from './repository';
+} from './api/repository';
 
 /** `youAreOwner` comes with the report, so the site owner's buttons never appear after it. */
 export function AccessPage() {

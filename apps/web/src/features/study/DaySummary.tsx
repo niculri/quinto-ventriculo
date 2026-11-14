@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from './api/context';
 import { Skeleton } from '../../shared/ui/Loading';
 import { ancestry, descendants } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
@@ -14,7 +14,7 @@ import { scopeNodeOf, unitOf } from '../cards/scope';
 import { correctPercent, daySummary, isoOfDay, timingFor } from '@qv/study';
 import { heatmapKeys } from '../stats/queries';
 import { studyKeys } from './queries';
-import type { StudyPreferences } from './repository';
+import type { StudyPreferences } from './api/repository';
 
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;
@@ -29,7 +29,7 @@ export function DaySummary({
   prefs: StudyPreferences;
   saved: () => Promise<unknown>;
 }) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const [visit] = useState(() => ++visits);
   const query = useQuery({

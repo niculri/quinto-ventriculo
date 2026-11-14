@@ -6,7 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning, X } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import { button } from '../../shared/ui/styles';
 import { CardInfo } from '../browse/CardPreview';
 import type { BrowseCard } from '../browse/data';
@@ -14,7 +14,7 @@ import { CardViewer } from '../decks/CardViewer';
 import { useCardMaterial } from '../study/material';
 import { studyKeys } from '../study/queries';
 import { timingFor } from '@qv/study';
-import type { StudyPreferences } from '../study/repository';
+import type { StudyPreferences } from '../study/api/repository';
 import { ReportEntry } from '../study/StudyPage';
 import { MaterialLink } from '../study/MaterialRow';
 
@@ -70,7 +70,7 @@ function Actions({
   info: BrowseCard | undefined;
   prefs: StudyPreferences;
 }) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const material = useCardMaterial(card.deckId);
   const [flag, setFlag] = useState(info?.flag ?? 0);

@@ -33,8 +33,8 @@ import {
   treeDecks,
 } from '@qv/study';
 import type { StudyData, StudyPlan } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from './repository';
-import type { CardRef, DeckProgress, StoredCard, StudyRepository } from './repository';
+import { defaultPreferences, localStudyRepository } from './api/repository';
+import type { CardRef, DeckProgress, StoredCard, StudyRepository } from './api/repository';
 import { StudySession } from './session';
 
 const NOW = Date.parse('2026-11-01T15:00:00Z');

@@ -12,7 +12,8 @@ import type {
   ReleaseOverview,
   ReleaseText,
 } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useAdminRepository } from './api/context';
+import { useApi } from '../../shared/hooks/useApi';
 import { ApiRequestError } from '../../shared/lib/api';
 
 /** Every key starts with «release»: the draft preview shares them. */
@@ -31,7 +32,7 @@ const santiagoToday = (now = new Date()) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(now);
 
 export function useReleaseOverview(enabled: boolean) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: releaseKeys.overview,
     queryFn: ({ signal }) => api.releaseOverview(signal),
@@ -41,7 +42,7 @@ export function useReleaseOverview(enabled: boolean) {
 }
 
 function useReleasePhrases(fingerprint: string | undefined) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: releaseKeys.texts(fingerprint ?? ''),
     enabled: !!fingerprint,
@@ -60,7 +61,7 @@ function useReleasePhrases(fingerprint: string | undefined) {
 }
 
 function useMissingImages(fingerprint: string | undefined) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: releaseKeys.media(fingerprint ?? ''),
     enabled: !!fingerprint,
@@ -79,7 +80,7 @@ function useMissingImages(fingerprint: string | undefined) {
 }
 
 export function useReleaseImpact(overview: ReleaseOverview | undefined) {
-  const { admin } = useServices();
+  const admin = useAdminRepository();
   const ids = useMemo(
     () => [
       ...new Set(
@@ -128,7 +129,7 @@ export function useReleaseReview(overview: ReleaseOverview | undefined): {
 
 /** Shows the change at once and undoes it if saving fails; if the draft changed meanwhile, the summary is read again. */
 export function useSetReleaseMark(fingerprint: string | undefined, by: string) {
-  const { api } = useServices();
+  const api = useApi();
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ mark, checked }: { mark: ReleaseMarkId; checked: boolean }) =>
@@ -166,7 +167,7 @@ export function useReleaseItems<K extends 'card' | 'article' | 'question'>(
   assessment: string,
   kind: K,
 ) {
-  const { api } = useServices();
+  const api = useApi();
   return useInfiniteQuery({
     queryKey: releaseKeys.items(fingerprint, assessment, kind),
     initialPageParam: null as string | null,
@@ -182,7 +183,7 @@ export function useReleaseItems<K extends 'card' | 'article' | 'question'>(
 }
 
 export function useReleaseLog() {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: releaseKeys.log,
     queryFn: ({ signal }) => api.releaseLog(signal),
@@ -191,7 +192,7 @@ export function useReleaseLog() {
 }
 
 export function usePublishRelease() {
-  const { api } = useServices();
+  const api = useApi();
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ overview, review }: { overview: ReleaseOverview; review: ReviewList }) =>
@@ -209,7 +210,7 @@ export function usePublishRelease() {
 }
 
 export function useRevertRelease() {
-  const { api } = useServices();
+  const api = useApi();
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => api.revertRelease(id),

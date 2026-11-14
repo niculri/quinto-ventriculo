@@ -8,10 +8,10 @@ import type {
   NoteSummary,
   SemesterWithCourses,
 } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 
 export function useCatalog() {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['catalog'],
     queryFn: ({ signal }) => api.catalog(signal),
@@ -20,7 +20,7 @@ export function useCatalog() {
 }
 
 export function useNote(slug: string) {
-  const { api } = useServices();
+  const api = useApi();
   return useQuery({
     queryKey: ['note', slug],
     queryFn: ({ signal }) => api.note(slug, signal),

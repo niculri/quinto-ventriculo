@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import { buildAnkiTree, courseDeck, descendants } from '../anki/tree';
 import type { CourseDeckNode } from '../anki/tree';
 import {
@@ -17,7 +17,7 @@ import {
   useToday,
   useUserPresets,
 } from '../study/queries';
-import type { HomeDeckCounts } from '../study/repository';
+import type { HomeDeckCounts } from '../study/api/repository';
 import { activeUnits, decayByDeck, nextChangeAt, treeDecks } from '@qv/study';
 import type { HomeStudyBase, StudyPlan } from '@qv/study';
 
@@ -35,7 +35,7 @@ export function todayCourses(catalog: Catalog, plan: StudyPlan): CourseDeckNode[
 }
 
 export function useHomeStudy(catalog: Catalog | undefined, courses: readonly CourseDeckNode[]) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const preferences = usePreferences();
   const prefs = preferences.prefs;
   const today = useToday(prefs);

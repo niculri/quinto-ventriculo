@@ -26,7 +26,7 @@ import type {
   ReviewMix,
 } from '@qv/srs';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { button, card } from '../../shared/ui/styles';
@@ -36,8 +36,8 @@ import { presetParam } from '../anki/presets';
 import { hasPage, useAnkiTree } from '../anki/tree';
 import type { AnkiTree, CourseDeckNode, DeckNode } from '../anki/tree';
 import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../study/queries';
-import { defaultPreferences } from '../study/repository';
-import type { DeckSetting, StudyPreferences, UserPreset } from '../study/repository';
+import { defaultPreferences } from '../study/api/repository';
+import type { DeckSetting, StudyPreferences, UserPreset } from '../study/api/repository';
 import { presetChoices, presetOf, sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
 import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';
@@ -169,7 +169,7 @@ function OptionsForm({
   settings: DeckSetting[];
   prefs: StudyPreferences;
 }) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const [params, setParams] = useSearchParams();
   const choices = useMemo(() => presetChoices(authorPresets, presets), [authorPresets, presets]);

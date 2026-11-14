@@ -4,17 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { REPORT_LIMITS } from '@qv/schema';
 import { renderApp } from '../../test/render';
-import { localAdminRepository } from '../admin/repository';
+import { localAdminRepository } from '../admin/api/repository';
 import { readSelection, sectionAt } from '../notes/reporting';
 import { chatText, placeLink, quoteLink, sitePath, studentStatus } from './labels';
-import { REPORT_MESSAGES, localReportsRepository } from './repository';
+import { REPORT_MESSAGES, localReportsRepository } from './api/repository';
 import type {
   NewReport,
   ReportGroup,
   ReportQueue,
   ReportsRepository,
   ResolveInput,
-} from './repository';
+} from './api/repository';
 import { cardTarget, splitCardId } from './targets';
 
 const NOTE_PATH = '/semesters/2/courses/biologia-celular/notes/11-traduccion';

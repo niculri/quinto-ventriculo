@@ -2,11 +2,11 @@
 // headers and body), and what each method gives back: a change to an adapter must leave the snapshot as it is.
 import { createClient } from '@supabase/supabase-js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { supabaseAccountRepository } from '../features/account/repository';
-import { supabaseAdminRepository } from '../features/admin/repository';
-import { supabaseQuizRepository } from '../features/quiz/repository';
-import { supabaseReportsRepository } from '../features/reports/repository';
-import { supabaseStudyRepository } from '../features/study/repository';
+import { supabaseAccountRepository } from '../features/account/api/repository';
+import { supabaseAdminRepository } from '../features/admin/api/repository';
+import { supabaseQuizRepository } from '../features/quiz/api/repository';
+import { supabaseReportsRepository } from '../features/reports/api/repository';
+import { supabaseStudyRepository } from '../features/study/api/repository';
 
 const URL_ = 'https://users.example.test';
 const KEY = 'publishable-test-key';

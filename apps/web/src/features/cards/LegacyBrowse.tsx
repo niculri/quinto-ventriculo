@@ -5,7 +5,7 @@ import { Navigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { searchTerm } from '@qv/anki-search';
 import { paths } from '../../shared/lib/paths';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { hasPage, useAnkiTree } from '../anki/tree';
@@ -35,7 +35,7 @@ function cardsOf(node: CourseDeckNode, query: { q?: string; card?: string }) {
 export function LegacyBrowse() {
   const [params] = useSearchParams();
   const { catalog, tree } = useAnkiTree();
-  const { api } = useServices();
+  const api = useApi();
   const q = params.get('q') ?? '';
   const note = params.get('note');
   const ord = Number(params.get('ord') ?? '0');

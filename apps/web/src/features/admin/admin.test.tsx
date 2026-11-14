@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { SiteSettings, UnpublishedLog } from '@qv/schema';
 import { CATALOG, fakeApi, renderApp } from '../../test/render';
-import { AccessError, localAdminRepository } from './repository';
-import type { AccessInvite, AdminRepository } from './repository';
+import { AccessError, localAdminRepository } from './api/repository';
+import type { AccessInvite, AdminRepository } from './api/repository';
 import { readEmails } from './AccessPage';
-import { localReportsRepository } from '../reports/repository';
+import { localReportsRepository } from '../reports/api/repository';
 import { cardTarget } from '../reports/targets';
 
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>

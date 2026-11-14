@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { searchTerm } from '@qv/anki-search';
 import { DECK, renderApp, fullAnkiStudy } from '../../test/render';
-import type { StudyRepository } from '../study/repository';
+import type { StudyRepository } from '../study/api/repository';
 import { combineSearch } from './Sidebar';
 
 afterEach(() => localStorage.clear());

@@ -1,13 +1,13 @@
 // Records the practice answers of the final review for the heatmap, in batches the database takes.
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useServices } from '../../app/services';
+import { useStudyRepository } from '../study/api/context';
 import {
   PRACTICE_BATCH_DECKS,
   PRACTICE_BATCH_MAX,
   PracticeRefusedError,
-} from '../study/repository';
-import type { PracticeCount } from '../study/repository';
+} from '../study/api/repository';
+import type { PracticeCount } from '../study/api/repository';
 import { heatmapKeys } from './queries';
 
 const PRACTICE_BATCH = 10;
@@ -37,7 +37,7 @@ export function practiceBatches(counts: readonly PracticeCount[]): PracticeCount
 // A batch that fails for the network goes with the next one (up to one database batch); one the database refuses
 // is not sent again.
 export function usePracticeRecorder(batch = PRACTICE_BATCH) {
-  const { study } = useServices();
+  const study = useStudyRepository();
   const client = useQueryClient();
   const pending = useRef(new Map<string, number>());
   const size = useRef(0);

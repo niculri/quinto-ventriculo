@@ -6,7 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
-import { useServices } from '../../app/services';
+import { useApi } from '../../shared/hooks/useApi';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { Loading } from '../../shared/ui/Loading';
 import { button } from '../../shared/ui/styles';
@@ -30,7 +30,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
   const toggleAnswer = () => setAnswerOf((k) => (k === key ? null : key));
   const card = useCard(current.noteGuid, current.ord);
   const night = useDarkMode();
-  const { api } = useServices();
+  const api = useApi();
   const client = useQueryClient();
   const content = useRef<HTMLDivElement>(null);
 

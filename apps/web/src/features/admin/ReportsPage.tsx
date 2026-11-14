@@ -29,9 +29,9 @@ import {
   useResolveReports,
   useSetReportBlock,
 } from '../reports/queries';
-import { ReportError } from '../reports/repository';
+import { ReportError } from '../reports/api/repository';
 import { splitCardId } from '../reports/targets';
-import type { QueueReport, Reporter, ReportGroup } from '../reports/repository';
+import type { QueueReport, Reporter, ReportGroup } from '../reports/api/repository';
 import { AdminSectionTitle } from './AdminLayout';
 
 type Showing = 'open' | 'resolved';

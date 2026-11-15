@@ -73,15 +73,15 @@ export function UserMenu() {
             <ThemePicker />
           </div>
           <Menu.Separator className="my-1 h-px bg-border" />
-          <Menu.Item className={item} onSelect={() => navigate(paths.settings)}>
+          <Menu.Item className={item} onSelect={() => void navigate(paths.settings)}>
             <Settings className="size-4 text-muted" aria-hidden="true" /> {navStrings.settings}
           </Menu.Item>
           {isAdmin.data === true ? (
-            <Menu.Item className={item} onSelect={() => navigate(paths.admin)}>
+            <Menu.Item className={item} onSelect={() => void navigate(paths.admin)}>
               <ShieldCheck className="size-4 text-muted" aria-hidden="true" /> {navStrings.admin}
             </Menu.Item>
           ) : null}
-          <Menu.Item className={item} onSelect={() => navigate(paths.help)}>
+          <Menu.Item className={item} onSelect={() => void navigate(paths.help)}>
             <CircleHelp className="size-4 text-muted" aria-hidden="true" /> {navStrings.help}
           </Menu.Item>
           <Menu.Item

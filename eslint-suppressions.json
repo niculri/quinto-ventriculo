@@ -103,22 +103,6 @@
       "count": 36
     }
   },
-  "apps/web/src/features/nav/components/AppNav.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/nav/components/UserMenu.tsx": {
-    "@typescript-eslint/no-misused-promises": {
-      "count": 3
-    }
-  },
   "apps/web/src/features/progress/DeckCounts.tsx": {
     "qv/no-literal-text": {
       "count": 6

@@ -37,4 +37,3 @@ export function notesLine(a: AssessmentWithNotes): string {
 export function unitsOf(node: CourseDeckNode, plan: StudyPlan) {
   return { total: node.children.length, on: activeUnits(descendants(node), plan).size };
 }
-

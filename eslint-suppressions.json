@@ -138,45 +138,6 @@
       "count": 3
     }
   },
-  "apps/web/src/features/notes/NotePage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 12
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/Practice.tsx": {
-    "qv/no-literal-text": {
-      "count": 14
-    }
-  },
-  "apps/web/src/features/notes/Toc.tsx": {
-    "qv/no-literal-text": {
-      "count": 4
-    }
-  },
-  "apps/web/src/features/notes/articleHtml.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/placeThumbs.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/reporting.tsx": {
-    "qv/no-literal-text": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/progress/DeckCounts.tsx": {
     "qv/no-literal-text": {
       "count": 6

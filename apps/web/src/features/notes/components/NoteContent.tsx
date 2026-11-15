@@ -2,20 +2,11 @@
 
 import { useImperativeHandle, useMemo, useRef } from 'react';
 import type { KeyboardEvent, MouseEvent, Ref } from 'react';
-import DOMPurify from 'dompurify';
-import type { OpenImage } from '../../shared/ui/ImageViewer';
-import { sectionAt } from './reporting';
-import { useScrollableTables } from './useScrollableTables';
-import { prepareArticle } from './articleHtml';
-
-/** Defense in depth: the importer already sanitizes it, and it is the only HTML the web injects. */
-export function sanitizeInBrowser(html: string): string {
-  return DOMPurify.sanitize(html, {
-    USE_PROFILES: { html: true },
-    FORBID_TAGS: ['style', 'form', 'input', 'button', 'iframe', 'script'],
-    FORBID_ATTR: ['onerror', 'onload', 'onclick'],
-  });
-}
+import type { OpenImage } from '../../../shared/ui/ImageViewer';
+import { sectionAt } from '../model/selection';
+import { useScrollableTables } from '../hooks/useScrollableTables';
+import { prepareArticle } from '../model/articleHtml';
+import { sanitizeInBrowser } from '../model/sanitize';
 
 interface Props {
   html: string;

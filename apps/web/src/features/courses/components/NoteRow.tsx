@@ -6,8 +6,8 @@ import type { Counts } from '@qv/srs';
 import { paths } from '../../../shared/lib/paths';
 import type { CourseRef } from '../../../shared/lib/paths';
 import type { AnkiTree } from '../../catalog/model/tree';
-import { KIND_NAMES } from '../../notes/header';
-import { findPracticeDeck, practiceLink } from '../../notes/Practice';
+import { kindStrings } from '../../notes/kinds.strings';
+import { findPracticeDeck, practiceLink } from '../../notes/model/practice';
 import { noteLine } from '../model/noteLine';
 import { assessmentStrings as s } from '../assessment.strings';
 
@@ -40,7 +40,7 @@ export function NoteRow({
         className="flex min-w-0 flex-1 basis-full items-center gap-3 sm:basis-0"
       >
         <span className="w-9 flex-none text-center font-mono text-xs font-medium text-muted">
-          {note.header?.number ? <span className="sr-only">{KIND_NAMES[note.kind]} </span> : null}
+          {note.header?.number ? <span className="sr-only">{kindStrings[note.kind]} </span> : null}
           {number}
         </span>
         <span className="min-w-0 flex-1">

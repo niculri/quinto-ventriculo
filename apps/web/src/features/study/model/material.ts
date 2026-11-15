@@ -4,7 +4,7 @@ import type { Catalog, CourseWithAssessments, NoteSummary, QuizSummary } from '@
 import { paths } from '../../../shared/lib/paths';
 import { buildAnkiTree, descendants } from '../../catalog/model/tree';
 import type { AnkiTree, DeckNode } from '../../catalog/model/tree';
-import { findPracticeDeck, practiceLink } from '../../notes/Practice';
+import { findPracticeDeck, practiceLink } from '../../notes/model/practice';
 
 export interface CardMaterial {
   note: NoteSummary;

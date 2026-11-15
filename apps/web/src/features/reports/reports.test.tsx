@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { REPORT_LIMITS } from '@qv/schema';
 import { renderApp } from '../../test/render';
 import { localAdminRepository } from '../admin/api/repository';
-import { readSelection, sectionAt } from '../notes/reporting';
+import { readSelection, sectionAt } from '../notes/model/selection';
 import { chatText, placeLink, quoteLink, sitePath, studentStatus } from './labels';
 import { REPORT_MESSAGES, localReportsRepository } from './api/repository';
 import type {

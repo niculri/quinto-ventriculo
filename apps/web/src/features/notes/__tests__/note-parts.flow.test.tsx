@@ -23,8 +23,8 @@ describe('the header', () => {
       api: withNote({ sources: ['Diapositivas de la clase', 'Un libro de prueba'] }),
     });
     await screen.findByRole('heading', { level: 1, name: 'Traducción' });
-    const header = container.querySelector('article header')!;
-    const line = header.querySelector('p.mt-4')!;
+    const header = container.querySelector<HTMLElement>('article header')!;
+    const line = header.querySelector<HTMLElement>('p.mt-4')!;
     expect(textNodes(line)).toEqual([
       'Clase 11',
       '·',
@@ -52,7 +52,7 @@ describe('the header', () => {
       api: withNote({ header: undefined, code: undefined, version: undefined, sources: [] }),
     });
     await screen.findByRole('heading', { level: 1, name: 'Traducción' });
-    const header = container.querySelector('article header')!;
+    const header = container.querySelector<HTMLElement>('article header')!;
     expect(header.firstElementChild).toHaveTextContent(/^Clase$/);
     expect(within(header).getByText('AP-BC-C2-11')).not.toHaveAttribute('title');
     expect(within(header).queryByText('Fuentes del apunte')).toBeNull();

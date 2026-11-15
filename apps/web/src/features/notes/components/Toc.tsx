@@ -5,6 +5,10 @@ import { useEffect, useRef } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { TocEntry } from '@qv/schema';
+import { activeLevel2, groupByLevel2 } from '../model/toc';
+import { noteStrings } from '../strings';
+
+const s = noteStrings.toc;
 
 export function Toc({
   toc,
@@ -51,23 +55,21 @@ export function Toc({
 
   if (!toc.length) return null;
   return (
-    <nav aria-label="Índice del artículo">
+    <nav aria-label={s.label}>
       <button
         type="button"
         onClick={toTop}
         className="mb-3 inline-flex items-center gap-1.5 rounded-md py-1 text-[0.84rem] text-muted transition-colors hover:text-ink"
       >
         <ArrowUp className="size-3.5" aria-hidden="true" />
-        Volver al inicio
+        {s.top}
       </button>
-      <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">
-        En este artículo
-      </p>
+      <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">{s.heading}</p>
       {progress !== undefined ? (
         <div
           className="mb-3 h-1 overflow-hidden rounded-full bg-border"
           role="progressbar"
-          aria-label="Cuánto llevas leído"
+          aria-label={s.read}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(progress * 100)}
@@ -128,27 +130,4 @@ function TocLink({
       {entry.title}
     </a>
   );
-}
-
-function groupByLevel2(toc: TocEntry[]): { head: TocEntry; children: TocEntry[] }[] {
-  const groups: { head: TocEntry; children: TocEntry[] }[] = [];
-  for (const e of toc) {
-    const last = groups.at(-1);
-    if (e.level === 3 && last) last.children.push(e);
-    else groups.push({ head: e, children: [] });
-  }
-  return groups;
-}
-
-export function activeLevel2(toc: TocEntry[], active: string | null): string | null {
-  let h2: string | null = null;
-  for (const e of toc) {
-    if (e.level === 2) h2 = e.anchor;
-    if (e.anchor === active) return h2;
-  }
-  return null;
-}
-
-export function activeTitle(toc: TocEntry[], active: string | null): string | null {
-  return toc.find((e) => e.anchor === active)?.title ?? null;
 }

@@ -1,10 +1,6 @@
-// Reporting a passage of an article: where a selection is, the words around it, and the bar to report it.
-
-import { useEffect, useState } from 'react';
-import type { RefObject } from 'react';
-import { MessageSquareWarning } from 'lucide-react';
+// Where a selection in an article is: its section and the words around it, for reporting that passage.
 import { QUOTE_CONTEXT, QUOTE_MAX } from '@qv/schema';
-import type { ReportLocation } from '../reports/api/repository';
+import type { ReportLocation } from '@qv/schema/user';
 
 export function sectionAt(
   root: HTMLElement,
@@ -58,47 +54,4 @@ export function readSelection(root: HTMLElement): ReportLocation | null {
       ...(suffix.trim() ? { suffix } : {}),
     },
   };
-}
-
-/** On a phone the tap on the bar can clear the selection before its click arrives: the bar waits for that click. */
-const SELECTION_GRACE_MS = 400;
-
-export function useArticleSelection(root: RefObject<HTMLElement | null>, enabled: boolean) {
-  const [selected, setSelected] = useState<ReportLocation | null>(null);
-  useEffect(() => {
-    if (!enabled) return;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const read = () => (root.current ? readSelection(root.current) : null);
-    const update = () => {
-      clearTimeout(timer);
-      const now = read();
-      if (now) setSelected(now);
-      else timer = setTimeout(() => setSelected(null), SELECTION_GRACE_MS);
-    };
-    update();
-    document.addEventListener('selectionchange', update);
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener('selectionchange', update);
-      setSelected(null);
-    };
-  }, [root, enabled]);
-  return enabled ? selected : null;
-}
-
-/** Fixed at the bottom, not next to the selection, where the phone's handles and menu are. */
-export function SelectionReportBar({ onReport }: { onReport: () => void }) {
-  return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-      <button
-        type="button"
-        onPointerDown={(e) => e.preventDefault()}
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={onReport}
-        className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-base font-medium text-bg shadow-soft sm:text-sm"
-      >
-        <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar lo seleccionado
-      </button>
-    </div>
-  );
 }

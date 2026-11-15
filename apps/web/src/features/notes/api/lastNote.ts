@@ -1,5 +1,5 @@
 // The last note opened on this device, for «Seguir» on the home page: a convenience of the device, not reading progress.
-import { storageKeys } from '../../shared/lib/storage';
+import { storageKeys } from '../../../shared/lib/storage';
 
 const KEY = storageKeys.lastNote;
 

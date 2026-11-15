@@ -25,22 +25,27 @@ export function placeThumbs(root: DocumentFragment) {
     const at = flow(root).indexOf(figure);
     const size = measure(figure as HTMLElement);
     if (!missingFrom(blocks, at, size)) continue;
-
-    let start = at;
-    while (start > 0 && !blocks[start - 1]!.matches(HEADING)) start--;
-    let end = at;
-    while (end < blocks.length && !blocks[end]!.matches(HEADING)) end++;
-    const places = [];
-    for (let k = start; k <= end; k++) {
-      if (k !== at && !blocks[k]?.matches(START)) continue;
-      const far = Math.abs(k - at) * 2 + (k < at ? 1 : 0);
-      places.push({ k, missing: missingFrom(blocks, k, size), far });
-    }
-    places.sort((a, b) => a.far - b.far);
-    const best =
-      places.find((p) => !p.missing) ?? places.reduce((a, b) => (b.missing < a.missing ? b : a));
-    if (best.k !== at) blocks[best.k]!.before(figure);
+    const best = bestPlace(blocks, at, size);
+    if (best !== at) blocks[best]!.before(figure);
   }
+}
+
+/** Where in its section the thumbnail at `at` misses the least text: the nearest place without any missing. */
+function bestPlace(blocks: Element[], at: number, size: Size): number {
+  let start = at;
+  while (start > 0 && !blocks[start - 1]!.matches(HEADING)) start--;
+  let end = at;
+  while (end < blocks.length && !blocks[end]!.matches(HEADING)) end++;
+  const places = [];
+  for (let k = start; k <= end; k++) {
+    if (k !== at && !blocks[k]?.matches(START)) continue;
+    const far = Math.abs(k - at) * 2 + (k < at ? 1 : 0);
+    places.push({ k, missing: missingFrom(blocks, k, size), far });
+  }
+  places.sort((a, b) => a.far - b.far);
+  const best =
+    places.find((p) => !p.missing) ?? places.reduce((a, b) => (b.missing < a.missing ? b : a));
+  return best.k;
 }
 
 function flow(root: DocumentFragment): Element[] {

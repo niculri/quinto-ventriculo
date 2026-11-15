@@ -1,12 +1,13 @@
 // A note's breadcrumbs, from «Inicio»: the same on the note and on its loading state, so they do not move.
 
-import { paths } from '../../shared/lib/paths';
-import type { Crumb } from '../../shared/ui/Breadcrumbs';
-import type { NoteLocation } from '../catalog/model/catalog';
+import { paths } from '../../../shared/lib/paths';
+import type { Crumb } from '../../../shared/ui/Breadcrumbs';
+import type { NoteLocation } from '../../catalog/model/catalog';
+import { noteStrings } from '../strings';
 
 export function noteCrumbs(location: NoteLocation | null, title: string): Crumb[] {
   return [
-    { label: 'Inicio', to: paths.home },
+    { label: noteStrings.crumbs.home, to: paths.home },
     ...(location
       ? [
           { label: location.semester.name, to: paths.semester(location.semester.number) },
@@ -16,7 +17,7 @@ export function noteCrumbs(location: NoteLocation | null, title: string): Crumb[
             to: paths.assessment(location.course, location.assessment.id),
           },
           {
-            label: 'Apuntes',
+            label: noteStrings.crumbs.notes,
             to: paths.assessmentNotes(location.course, location.assessment.id),
           },
         ]

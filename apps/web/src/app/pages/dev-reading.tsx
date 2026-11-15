@@ -1,5 +1,5 @@
 // Development-only route: a made-up article with every block the converter makes, for looking at and the e2e tests.
-import { NoteView } from '../../features/notes/NotePage';
+import { NoteView } from '../../features/notes/components/NoteView';
 import { sampleNote } from '../../features/notes/sample/sample';
 import { useReadingFonts } from '../../shared/lib/readingFonts';
 

@@ -1,26 +1,21 @@
 // The texts of an article's header: the line under the title, its code with the version, and its dates.
 
 import type { Note, NoteHeader, NoteKind } from '@qv/schema';
-import { formatDate, formatDay } from '../../shared/lib/dates';
+import { formatDate, formatDay } from '../../../shared/lib/dates';
+import { kindStrings } from '../kinds.strings';
+import { noteStrings } from '../strings';
 
-export const KIND_NAMES: Record<NoteKind, string> = {
-  lecture: 'Clase',
-  seminar: 'Seminario',
-  practical: 'Práctico',
-  summary: 'Resumen',
-};
-
-/** «otoño» is the first semester of the year and «primavera» the second (Chile). */
-const TERMS = { autumn: 'otoño', spring: 'primavera' } as const;
+const s = noteStrings.header;
 
 function noteLabel(kind: NoteKind, header: NoteHeader): string | null {
-  if (header.baseFor) return `Apunte base para la clase ${header.baseFor} en adelante`;
-  if (header.number) return `${KIND_NAMES[kind]} ${header.number}`;
+  if (header.baseFor) return s.baseFor(header.baseFor);
+  if (header.number) return `${kindStrings[kind]} ${header.number}`;
   return null;
 }
 
+/** «otoño» is the first semester of the year and «primavera» the second (Chile). */
 function termLabel(header: NoteHeader): string {
-  return `Semestre de ${TERMS[header.term]} ${header.year}`;
+  return s.term(s.terms[header.term], header.year);
 }
 
 export function headerParts(kind: NoteKind, header: NoteHeader): string[] {
@@ -41,13 +36,12 @@ export function noteDates(
   note: Pick<Note, 'version' | 'publishedAt' | 'versionAt' | 'createdOn' | 'updatedAt'>,
 ): string[] {
   if (note.version && note.publishedAt) {
-    const dates = [`Creado el ${formatDate(note.publishedAt)}`];
-    if (note.version > 1 && note.versionAt)
-      dates.push(`Actualizado el ${formatDate(note.versionAt)}`);
+    const dates = [s.created(formatDate(note.publishedAt))];
+    if (note.version > 1 && note.versionAt) dates.push(s.updated(formatDate(note.versionAt)));
     return dates;
   }
   return [
-    ...(note.createdOn ? [`Creado el ${formatDay(note.createdOn)}`] : []),
-    `Actualizado el ${formatDate(note.updatedAt)}`,
+    ...(note.createdOn ? [s.created(formatDay(note.createdOn))] : []),
+    s.updated(formatDate(note.updatedAt)),
   ];
 }

@@ -4,6 +4,7 @@
 import { figureLayout, rowWidths, toRem } from './figures';
 import type { FigureSize } from './figures';
 import { placeThumbs } from './placeThumbs';
+import { noteStrings } from '../strings';
 
 /** What Inter's superscripts and subscripts (`sups`, `subs`) cover: the glyphs of ⁰–⁹ ⁺ ⁻ ₀–₉ ᵢ and more. */
 const OWN_GLYPHS = /^[a-z0-9()[\]=+−]+$/;
@@ -12,7 +13,15 @@ export function prepareArticle(html: string): string {
   const template = document.createElement('template');
   template.innerHTML = html;
   const root = template.content;
+  sizeFigures(root);
+  wrapTables(root);
+  placeThumbs(root);
+  markOwnGlyphs(root);
+  labelImages(root);
+  return template.innerHTML;
+}
 
+function sizeFigures(root: DocumentFragment) {
   for (const row of root.querySelectorAll('.figure-row')) {
     const figures = [...row.querySelectorAll<HTMLElement>(':scope > figure')];
     const widths = rowWidths(figures.map(sizeOf));
@@ -26,7 +35,9 @@ export function prepareArticle(html: string): string {
     figure.classList.add(layout.kind === 'wide' ? 'is-wide' : 'is-thumb');
     setWidth(figure, layout.width);
   }
+}
 
+function wrapTables(root: DocumentFragment) {
   for (const table of root.querySelectorAll('table')) {
     if (table.parentElement?.classList.contains('table-scroll')) continue;
     const wrapper = document.createElement('div');
@@ -34,24 +45,22 @@ export function prepareArticle(html: string): string {
     table.replaceWith(wrapper);
     wrapper.append(table);
   }
+}
 
-  placeThumbs(root);
-
+function markOwnGlyphs(root: DocumentFragment) {
   for (const script of root.querySelectorAll('sup, sub')) {
     if (!script.children.length && OWN_GLYPHS.test(script.textContent ?? '')) {
       script.classList.add('own-glyphs');
     }
   }
+}
 
+function labelImages(root: DocumentFragment) {
   for (const img of root.querySelectorAll('figure img')) {
     img.setAttribute('role', 'button');
     img.setAttribute('tabindex', '0');
-    img.setAttribute(
-      'aria-label',
-      `Ampliar la imagen${img.getAttribute('alt') ? `: ${img.getAttribute('alt')}` : ''}`,
-    );
+    img.setAttribute('aria-label', noteStrings.enlarge(img.getAttribute('alt')));
   }
-  return template.innerHTML;
 }
 
 function sizeOf(figure: HTMLElement): FigureSize {

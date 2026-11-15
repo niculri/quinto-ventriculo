@@ -1,11 +1,13 @@
-// Golden test: the shared HTML corpus (packages/html/test) through the note sanitizing in the browser, as recorded.
+// Golden test of sanitizeInBrowser: the shared HTML corpus (packages/html/test) through the note sanitizing in the browser, as recorded.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
-import { sanitizeInBrowser } from './NoteContent';
+import { sanitizeInBrowser } from '../sanitize';
 
 const read = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
-const corpus = read(join(import.meta.dirname, '../../../../../packages/html/test/corpus.json')) as {
+const corpus = read(
+  join(import.meta.dirname, '../../../../../../../packages/html/test/corpus.json'),
+) as {
   html: { id: string; html: string }[];
 };
 

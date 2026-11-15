@@ -4,7 +4,7 @@ import { ArrowRight, BookOpen, ListChecks } from 'lucide-react';
 import { Link } from 'react-router';
 import type { Catalog } from '@qv/schema';
 import { linkCard } from '../../../shared/ui/styles';
-import { lastNote } from '../../notes/lastNote';
+import { lastNote } from '../../notes/api/lastNote';
 import { followItems } from '../model/follow';
 import type { OpenRound } from '../model/follow';
 import { homeStrings as s } from '../strings';

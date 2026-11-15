@@ -1,0 +1,97 @@
+/* A question: its tags, the card, the statement, the prompt and its statements I, II, III. */
+.quiz .quizq {
+  padding-block: 20px 40px;
+}
+.quiz .meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.quiz .tag {
+  font-family: var(--fmono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--ac-b);
+  color: var(--ac);
+}
+.quiz .tag.t2 {
+  background: var(--surf2);
+  color: var(--mute);
+}
+.quiz .tag.tsec {
+  background: transparent;
+  border: 1.5px solid currentColor;
+  padding: 2px 8px;
+  color: var(--ac2);
+}
+.quiz .tag.tsec.s1 {
+  color: var(--ac);
+}
+.quiz .qcard {
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 18px;
+}
+/* Same size and color on purpose: the statement is needed to answer and must not look like a side note. */
+.quiz .enun,
+.quiz .preg {
+  color: var(--ink);
+  font-family: var(--fbody);
+  font-size: 17px;
+  line-height: 1.55;
+  letter-spacing: normal;
+  text-wrap: pretty;
+}
+.quiz .enun {
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+.quiz .preg {
+  font-weight: 550;
+  margin: 0;
+}
+.quiz .preg + .preg {
+  margin-top: 10px;
+}
+.quiz .afirm {
+  list-style: none;
+  margin: 12px 0 2px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.quiz .afirm li {
+  display: grid;
+  grid-template-columns: 2.6em minmax(0, 1fr);
+  align-items: baseline;
+}
+.quiz .afirm .rn {
+  font-weight: 600;
+  color: var(--ink2);
+  font-variant-numeric: tabular-nums;
+}
+.quiz .afirm + .preg,
+.quiz .afirm + .enun {
+  margin-top: 12px;
+}
+@media (max-width: 560px) {
+  .quiz .afirm {
+    font-size: 16px;
+  }
+}
+@media (max-width: 560px) {
+  .quiz .enun,
+  .quiz .preg {
+    font-size: 16px;
+  }
+}

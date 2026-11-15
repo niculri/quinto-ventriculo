@@ -1,0 +1,29 @@
+/* The «¿Reiniciar la ronda?» popup. */
+.quiz-dlg-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, #152230 40%, transparent);
+}
+.quiz .dlg {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 20px;
+}
+.quiz .dlg h2 {
+  font-size: 19px;
+}
+.quiz .dlg p {
+  margin: 8px 0 0;
+  color: var(--ink2);
+}
+.quiz .dlg .acciones {
+  margin-top: 18px;
+}

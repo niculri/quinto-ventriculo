@@ -1,0 +1,47 @@
+/* The test's own form controls and buttons. */
+.quiz fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.quiz .acciones {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.quiz .btn {
+  background: var(--ac);
+  color: var(--on-ac);
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.quiz .btn:hover {
+  filter: brightness(1.07);
+}
+.quiz .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+.quiz .btn2 {
+  background: var(--surf);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 600;
+}
+.quiz .btn2:hover {
+  border-color: var(--ac);
+}
+.quiz .nota {
+  font-size: 13.5px;
+  color: var(--mute);
+}

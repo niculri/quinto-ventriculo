@@ -1,0 +1,46 @@
+/* What every part of a test page shares: hidden, images, headings, the column, buttons and the focus. */
+.quiz [hidden] {
+  display: none !important;
+}
+.quiz img {
+  max-width: 100%;
+}
+.quiz h1,
+.quiz h2,
+.quiz h3 {
+  font-family: var(--fdisp);
+  font-weight: 600;
+  text-wrap: balance;
+  margin: 0;
+}
+.quiz .wrap {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding-inline: 8px;
+}
+.quiz .wrap.wide {
+  max-width: 55.5rem;
+  padding-inline: 16px;
+}
+@media (min-width: 640px) {
+  .quiz .wrap {
+    padding-inline: 16px;
+  }
+  .quiz .wrap.wide {
+    padding-inline: 20px;
+  }
+}
+.quiz button {
+  font-family: var(--fbody);
+  font-size: 15px;
+  cursor: pointer;
+}
+.quiz :focus-visible {
+  outline: 2.5px solid var(--ac);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* The question's text takes the focus only for screen readers. */
+.quiz .quizq [tabindex='-1']:focus-visible {
+  outline: none;
+}

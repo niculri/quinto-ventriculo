@@ -1,0 +1,23 @@
+/* Around the screens: the test's footer, the crumbs and the warning when saving fails. */
+.quiz .qz-foot {
+  padding-block: 6px 30px;
+  color: var(--mute);
+  font-size: 13px;
+  text-align: center;
+}
+.quiz .qz-crumbs {
+  padding-top: 20px;
+}
+.quiz .qz-warn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--mal-b);
+  color: var(--mal);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+}

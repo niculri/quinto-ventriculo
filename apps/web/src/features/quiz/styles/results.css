@@ -1,0 +1,136 @@
+/* A round's results: the score, its bar and the wrong answers. */
+.quiz .res {
+  padding-block: 28px 44px;
+}
+.quiz .res h1 {
+  font-size: clamp(26px, 6vw, 34px);
+  line-height: 1.1;
+}
+.quiz .marcador {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 20px 0 6px;
+}
+.quiz .mcell {
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  padding: 16px;
+  box-shadow: var(--sh);
+}
+.quiz .mcell .n {
+  font-family: var(--fdisp);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.quiz .mcell .l {
+  font-size: 13px;
+  color: var(--mute);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+.quiz .mcell.g .n {
+  color: var(--ok);
+}
+.quiz .mcell.r .n {
+  color: var(--mal);
+}
+.quiz .mcell.p .n {
+  color: var(--ac);
+}
+.quiz .barra {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--mal-l);
+  overflow: hidden;
+  display: flex;
+  margin-top: 14px;
+}
+.quiz .barra i {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+}
+.quiz .repaso {
+  margin-top: 30px;
+}
+.quiz .repaso h2 {
+  font-size: 17px;
+}
+.quiz .fallo {
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-left: 3px solid var(--mal);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 10px;
+}
+.quiz .fallo.limpio {
+  border-left-color: var(--ok);
+}
+.quiz .fallo .fq {
+  font-weight: 550;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.quiz .fallo .fctx {
+  font-weight: 400;
+  margin: 0 0 6px;
+}
+.quiz .fallo .afirm {
+  font-size: 14.5px;
+  gap: 4px;
+  margin: 6px 0;
+  font-weight: 400;
+}
+.quiz .fallo .fl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quiz .fallo .fl {
+  font-family: var(--fmono);
+  font-size: 12px;
+  color: var(--mute);
+  margin-bottom: 6px;
+}
+.quiz .fallo dl {
+  margin: 10px 0 0;
+  font-size: 14.5px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+}
+.quiz .fallo dt {
+  font-size: 12.5px;
+  color: var(--mute);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+.quiz .fallo dd {
+  margin: 0;
+  min-width: 0;
+}
+.quiz .fallo .cb {
+  color: var(--ok);
+  font-weight: 600;
+}
+.quiz .fallo .cm {
+  color: var(--mal);
+}
+.quiz .fexp {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--ink2);
+}
+.quiz .fallo .fx {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--ink2);
+}

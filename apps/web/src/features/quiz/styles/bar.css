@@ -1,0 +1,117 @@
+/* The bar over a question: back, the count, the score, «Reiniciar», «Terminar» and the progress. */
+.quiz .qz-bar {
+  position: sticky;
+  top: 4rem;
+  z-index: 30;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+/* On a phone, answering hides the app's bar. */
+@media (max-width: 639.98px) {
+  .quiz .qz-bar {
+    top: 0;
+  }
+}
+.quiz .hrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+}
+.quiz .qz-bar .hrow {
+  min-height: 52px;
+  padding-block: 8px;
+}
+@media (min-width: 640px) {
+  .quiz .qz-bar .hrow {
+    padding-top: 12px;
+  }
+}
+.quiz button.qz-back {
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.quiz .hgrow {
+  flex: 1;
+}
+.quiz .cont {
+  font-family: var(--fmono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.quiz .marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--fmono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.quiz .marca b {
+  font-weight: 600;
+}
+.quiz .marca .vb {
+  color: var(--ok);
+}
+.quiz .marca .vm {
+  color: var(--mal);
+}
+.quiz .hacc {
+  display: flex;
+  gap: 6px;
+}
+.quiz .hbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  padding: 5px 10px;
+  color: var(--ink2);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.quiz .hbtn:hover {
+  border-color: var(--ac);
+  color: var(--ac);
+}
+.quiz .hbtn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+@media (max-width: 560px) {
+  .quiz .hrow {
+    gap: 9px;
+  }
+  .quiz .hbtn {
+    padding: 6px 7px;
+  }
+  .quiz .hbtn span {
+    display: none;
+  }
+}
+.quiz .pb {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line2);
+  overflow: hidden;
+}
+.quiz .pb i {
+  display: block;
+  height: 100%;
+  background: var(--ac);
+  width: 0;
+  transition: width 0.25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .quiz .pb i {
+    transition: none;
+  }
+}

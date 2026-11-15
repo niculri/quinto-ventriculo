@@ -1,0 +1,108 @@
+/* A test's cover: kicker, title, notice, the tabs of its sections and the folded list. */
+.quiz .portada {
+  padding-block: 0 26px;
+}
+.quiz .kicker {
+  font-family: var(--fmono);
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ac);
+  margin: 0 0 10px;
+}
+.quiz .portada h1 {
+  font-family: var(--font-serif);
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.025em;
+}
+.quiz .lead {
+  color: var(--ink2);
+  margin: 12px 0 0;
+  max-width: 56ch;
+}
+.quiz .aviso {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--ac2-b);
+  border-radius: 10px;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+.quiz .tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 6px;
+  margin: 22px 0 0;
+  padding: 5px;
+  background: var(--surf2);
+  border: 1px solid var(--line2);
+  border-radius: 14px;
+}
+.quiz .tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 10px 13px;
+  color: var(--ink2);
+  min-width: 0;
+}
+.quiz .tab:hover {
+  color: var(--ink);
+}
+.quiz .tab[aria-selected='true'] {
+  background: var(--surf);
+  border-color: var(--ac);
+  color: var(--ink);
+  box-shadow: var(--sh);
+}
+.quiz .tab .tn {
+  font-family: var(--fdisp);
+  font-weight: 600;
+  font-size: 15.5px;
+  line-height: 1.2;
+}
+.quiz .tab .tc {
+  font-family: var(--fmono);
+  font-size: 12px;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+}
+.quiz .listado {
+  margin-top: 14px;
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14.5px;
+}
+.quiz .listado summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink);
+}
+.quiz .listado ul {
+  margin: 10px 0 2px;
+  padding-left: 20px;
+  color: var(--ink2);
+  list-style: disc;
+}
+.quiz .listado li {
+  margin: 4px 0;
+}
+.quiz .listado li.lsub {
+  list-style: none;
+  margin: 8px 0 8px -20px;
+}
+.quiz .listado li.lsub summary {
+  font-weight: 600;
+  color: var(--ink2);
+}
+.quiz .listado li.lsub ul {
+  margin-top: 6px;
+}

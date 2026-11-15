@@ -1,0 +1,127 @@
+/* A question's figures (inline SVG or a photo, alone or beside the alternatives) and its table. */
+.quiz .figura {
+  margin: 20px 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+.quiz .figura svg {
+  max-width: 100%;
+  height: auto;
+}
+.quiz .fcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+}
+.quiz .fsvg {
+  display: contents;
+}
+.quiz .fpie {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--mute);
+  font-style: italic;
+  text-align: center;
+  max-width: 48ch;
+}
+.quiz .fpie.todo {
+  max-width: none;
+}
+.quiz .figura:not(.lado) > .fpie.todo {
+  flex-basis: 100%;
+  margin-top: -6px;
+}
+.quiz .fimg {
+  display: block;
+  background: var(--papel);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  padding: 6px;
+  height: auto;
+  cursor: zoom-in;
+}
+.quiz .fbtn {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: 100%;
+  cursor: zoom-in;
+}
+.quiz .conlado {
+  display: grid;
+  grid-template-columns: minmax(0, var(--fw, 42%)) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 26px;
+}
+.quiz .conlado > .opts {
+  margin: 0;
+}
+.quiz .figura.lado {
+  margin: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.quiz .figura.lado .fimg,
+.quiz .figura.lado .fbtn {
+  width: 100%;
+  max-width: 100%;
+}
+.quiz .figura.lado .fcon {
+  width: 100%;
+}
+.quiz .figura.lado .zhint {
+  font-size: 12.5px;
+  color: var(--mute);
+}
+@media (max-width: 640px) {
+  .quiz .conlado {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.quiz .tablabox {
+  margin: 16px 0 4px;
+  overflow-x: auto;
+}
+.quiz table {
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+.quiz th,
+.quiz td {
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  text-align: center;
+}
+.quiz th {
+  background: var(--surf2);
+  font-family: var(--fbody);
+  font-weight: 600;
+  font-size: 13px;
+}
+.quiz td.hl,
+.quiz th.hl {
+  font-weight: 700;
+  color: var(--ac);
+  background: var(--ac-b);
+}
+.quiz th.vacia,
+.quiz td.vacia {
+  border: 0;
+  background: transparent;
+}
+.quiz .tcap {
+  font-size: 13px;
+  color: var(--mute);
+  text-align: center;
+  margin-bottom: 6px;
+}

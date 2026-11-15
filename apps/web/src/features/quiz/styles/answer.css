@@ -1,0 +1,156 @@
+/* After answering: the short answer, the explanation, the verdict, «Reportar error» and the footer with the keys. */
+.quiz .abierta {
+  margin-top: 16px;
+}
+.quiz .resp,
+.quiz .exp {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.quiz .resp {
+  background: var(--ac-b);
+  color: var(--ink);
+}
+.quiz .exp {
+  background: var(--surf2);
+  color: var(--ink2);
+}
+.quiz .rl {
+  font-family: var(--fmono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 4px;
+}
+.quiz .resp .rl {
+  color: var(--ac);
+}
+.quiz .autoev {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.quiz .bsi,
+.quiz .bno {
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 600;
+  border: 1.5px solid;
+}
+.quiz .bsi {
+  background: var(--ok-b);
+  color: var(--ok);
+  border-color: var(--ok-l);
+}
+.quiz .bno {
+  background: var(--mal-b);
+  color: var(--mal);
+  border-color: var(--mal-l);
+}
+.quiz .bsi:hover,
+.quiz .bno:hover {
+  filter: brightness(1.05);
+}
+
+.quiz .veredicto {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  font-family: var(--fdisp);
+  font-weight: 600;
+  font-size: 16px;
+}
+.quiz .vfila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.quiz .vfila .veredicto {
+  margin-top: 0;
+}
+.quiz .vfila .qz-report,
+.quiz .fallo .qz-report {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--mute);
+  font-family: var(--fbody, inherit);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.quiz .vfila .qz-report:hover,
+.quiz .fallo .qz-report:hover {
+  color: var(--ink);
+  border-color: var(--line);
+}
+.quiz .veredicto.bien {
+  color: var(--ok);
+}
+.quiz .veredicto.mal {
+  color: var(--mal);
+}
+.quiz .vi {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-size: 14px;
+  color: var(--surf);
+}
+.quiz .bien .vi {
+  background: var(--ok);
+}
+.quiz .mal .vi {
+  background: var(--mal);
+}
+.quiz .pie {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.quiz .pie .pacc {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+.quiz .pie .btn2:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.quiz .atajo {
+  font-size: 13px;
+  color: var(--mute);
+}
+.quiz .atajo kbd {
+  font-family: var(--fmono);
+  font-size: 11.5px;
+  background: var(--surf2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+@media (hover: none) {
+  .quiz .atajo {
+    display: none;
+  }
+}

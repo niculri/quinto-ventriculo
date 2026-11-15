@@ -3,9 +3,19 @@
 
 import { useEffect, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { dayStartsAt, schedTiming } from '@qv/srs';
+import { schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import { useStudyRepository } from './api/context';
+import {
+  answersTodayQuery,
+  deckProgressQuery,
+  deckSettingsQuery,
+  preferencesQuery,
+  studyCardsQuery,
+  studyKeys,
+  studyPlanQuery,
+  userPresetsQuery,
+} from './api/queries';
 import { browserTimeZone, defaultPreferences } from './api/repository';
 import type { AssessmentSetting, StudyPreferences } from './api/repository';
 import { useCatalog } from '../catalog/queries';
@@ -13,29 +23,14 @@ import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/stud
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
 import { useNow } from '../../shared/hooks/useNow';
 
-export const studyKeys = {
-  all: ['study'] as const,
-  preferences: ['study', 'preferences'] as const,
-  presets: ['study', 'presets'] as const,
-  settings: ['study', 'deck-settings'] as const,
-  plan: ['study', 'plan'] as const,
-  progress: (day: number) => ['study', 'progress', day] as const,
-  cards: (deckId: string) => ['study', 'cards', deckId] as const,
-  allCards: ['study', 'all-cards'] as const,
-  rated: (since: number) => ['study', 'rated', since] as const,
-  introduced: (since: number) => ['study', 'introduced', since] as const,
-  answers: (day: number) => ['study', 'answers', day] as const,
-};
+// The keys live with the reads (`api/queries.ts`); most features take them from here.
+export { studyKeys };
 
 /** The user's preferences; the time zone follows the browser's (Anki uses the computer's). */
 export function usePreferences() {
   const study = useStudyRepository();
   const client = useQueryClient();
-  const query = useQuery({
-    queryKey: studyKeys.preferences,
-    queryFn: () => study.preferences(),
-    staleTime: 10 * 60_000,
-  });
+  const query = useQuery(preferencesQuery(study));
   const zone = browserTimeZone();
   const prefs = useMemo<StudyPreferences | undefined>(
     () =>
@@ -60,44 +55,24 @@ export function useSavePreferences() {
     mutationFn: (p: StudyPreferences) => study.savePreferences(p),
     onSuccess: (_, p) => {
       client.setQueryData(studyKeys.preferences, p);
-      void client.invalidateQueries({ queryKey: ['study', 'answers'] });
+      void client.invalidateQueries({ queryKey: studyKeys.allAnswers });
     },
   });
 }
 
 export function useUserPresets() {
   const study = useStudyRepository();
-  return useQuery({
-    queryKey: studyKeys.presets,
-    queryFn: () => study.presets(),
-    staleTime: 60_000,
-  });
+  return useQuery(userPresetsQuery(study));
 }
 
 export function useDeckSettings() {
   const study = useStudyRepository();
-  return useQuery({
-    queryKey: studyKeys.settings,
-    queryFn: () => study.deckSettings(),
-    staleTime: 60_000,
-  });
+  return useQuery(deckSettingsQuery(study));
 }
 
 export function useStudyPlan() {
   const study = useStudyRepository();
-  return useQuery({
-    queryKey: studyKeys.plan,
-    queryFn: async (): Promise<StudyPlan> => {
-      const [activations, assessments, answeredDecks, medianAnswerMs] = await Promise.all([
-        study.deckActivations(),
-        study.assessmentSettings(),
-        study.answeredDecks(),
-        study.medianAnswerMs(),
-      ]);
-      return { activations, assessments, answeredDecks, medianAnswerMs };
-    },
-    staleTime: 30_000,
-  });
+  return useQuery(studyPlanQuery(study));
 }
 
 const PLAN_CHANGE = ['study', 'plan-change'] as const;
@@ -151,13 +126,7 @@ export function useSaveAssessmentSetting() {
 export function useDeckProgress(prefs: StudyPreferences | undefined) {
   const study = useStudyRepository();
   const today = useToday(prefs);
-  return useQuery({
-    queryKey: studyKeys.progress(today ?? -1),
-    queryFn: () =>
-      study.deckProgress(new Date(dayStartsAt(today!, prefs!.timeZone, prefs!.dayStartsAt) * 1000)),
-    enabled: today !== null && !!prefs,
-    staleTime: 30_000,
-  });
+  return useQuery(deckProgressQuery(study, today, prefs));
 }
 
 export function useAssessmentView(assessmentId: string | null): AssessmentView | null {
@@ -199,13 +168,7 @@ export function useToday(prefs: StudyPreferences | undefined): number | null {
 export function useAnswersToday(prefs: StudyPreferences | undefined) {
   const study = useStudyRepository();
   const today = useToday(prefs);
-  return useQuery({
-    queryKey: studyKeys.answers(today ?? -1),
-    queryFn: () =>
-      study.answersSince(new Date(dayStartsAt(today!, prefs!.timeZone, prefs!.dayStartsAt) * 1000)),
-    enabled: today !== null && !!prefs,
-    staleTime: 30_000,
-  });
+  return useQuery(answersTodayQuery(study, today, prefs));
 }
 
 export function useStudyData(deck: DeckDetail | undefined) {
@@ -218,12 +181,7 @@ export function useStudyData(deck: DeckDetail | undefined) {
     [catalog.data],
   );
   const ids = useMemo(() => (deck ? deckIds(deck) : []), [deck]);
-  const cards = useQuery({
-    queryKey: studyKeys.cards(deck?.id ?? ''),
-    queryFn: () => study.cards(ids),
-    enabled: !!deck,
-    staleTime: 30_000,
-  });
+  const cards = useQuery(studyCardsQuery(study, deck?.id ?? '', ids, !!deck));
   const answers = useAnswersToday(prefs);
   const presets = useUserPresets();
   const settings = useDeckSettings();

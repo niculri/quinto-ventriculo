@@ -82,7 +82,8 @@ export function StartForm({
           disabled={!chosen}
           className={`${button.base} ${button.primary} flex-1 py-3 text-base disabled:opacity-50 sm:flex-none sm:px-10`}
         >
-          <Play className="size-4" aria-hidden="true" /> {s.cover.start}
+          <Play className="size-4" aria-hidden="true" />
+          {` ${s.cover.start}`}
         </button>
         <span className="font-medium max-sm:basis-full">
           {chosen ? s.cover.total(chosen) : s.cover.chooseOne}

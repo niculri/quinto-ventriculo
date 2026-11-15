@@ -9,8 +9,7 @@ function Shortcuts({ choice, options }: { choice: boolean; options: number }) {
     <>
       <kbd>1</kbd>–<kbd>{options}</kbd>
       {k.answer}
-      <kbd>{keys('Enter')}</kbd>
-      {k.next}
+      <kbd>{keys('Enter')}</kbd> {k.next}
       <kbd>{k.skipKey}</kbd>
       {k.skip}
     </>
@@ -21,9 +20,8 @@ function Shortcuts({ choice, options }: { choice: boolean; options: number }) {
       <kbd>1</kbd>
       {k.knewIt}
       <kbd>2</kbd>
-      {k.didNot}
-      <kbd>{keys('Enter')}</kbd>
-      {k.next}
+      {k.didNot} <kbd>{keys('Enter')}</kbd>
+      {` ${k.next}`}
       <kbd>{k.skipKey}</kbd>
       {k.skip}
     </>

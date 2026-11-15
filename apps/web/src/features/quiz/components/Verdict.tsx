@@ -28,7 +28,8 @@ export function Verdict({
       </div>
       {verdict && onReport ? (
         <button type="button" className="qz-report" onClick={onReport}>
-          <MessageSquareWarning className="size-4" aria-hidden="true" /> {s.question.report}
+          <MessageSquareWarning className="size-4" aria-hidden="true" />
+          {` ${s.question.report}`}
         </button>
       ) : null}
     </div>

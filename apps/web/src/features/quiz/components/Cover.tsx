@@ -30,7 +30,10 @@ function CoverTitle({ quiz, heading }: { quiz: QuizDetail; heading: string | nul
           {quiz.title}
         </h1>
       )}
-      <p className="mt-1 text-[var(--muted)]">{s.cover.subtitle(total)}</p>
+      <p className="mt-1 text-[var(--muted)]">
+        {s.cover.subtitle}
+        {s.questions(total)}
+      </p>
     </>
   );
 }

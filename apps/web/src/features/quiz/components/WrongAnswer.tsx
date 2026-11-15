@@ -25,11 +25,13 @@ export function WrongAnswer({
       <div className="fl">
         <span>
           <Html html={e.group.name} />
-          {s.results.question(e.number)}
+          {s.results.question}
+          {e.number}
         </span>
         {onReport ? (
           <button type="button" className="qz-report" onClick={() => onReport(e)}>
-            <MessageSquareWarning className="size-4" aria-hidden="true" /> {s.question.report}
+            <MessageSquareWarning className="size-4" aria-hidden="true" />
+            {` ${s.question.report}`}
           </button>
         ) : null}
       </div>

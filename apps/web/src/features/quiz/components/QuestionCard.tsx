@@ -31,7 +31,8 @@ function QuestionMeta({
       ) : null}
       <Html className="tag" html={group.name} />
       <span className="tag t2">
-        {s.question.tag(number)}
+        {s.question.tag}
+        {number}
         {question.origin ? (
           <>
             {' · '}

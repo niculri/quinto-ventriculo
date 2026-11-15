@@ -66,7 +66,10 @@ export function Results({
             {' · '}
           </>
         ) : null}
-        {s.results.answered(result.answered, result.total)}
+        {result.answered}
+        {s.results.of}
+        {result.total}
+        {s.results.answered}
       </p>
       <h1 id="quiz-result">{resultTitle(result.percent)}</h1>
       <Scoreboard correct={result.correct} wrong={result.wrong} percent={result.percent} />
@@ -86,7 +89,10 @@ export function Results({
       <div className="repaso">
         {wrong.length ? (
           <>
-            <h2>{s.results.toReview(wrong.length)}</h2>
+            <h2>
+              {s.results.toReview}
+              {wrong.length})
+            </h2>
             {wrong.map((a) => {
               const e = entries.get(a.questionId);
               return e ? (

@@ -7,7 +7,7 @@ export const quizStrings = {
   crumbs: { home: 'Inicio', tests: 'Tests' },
   questions,
   cover: {
-    subtitle: (n: number) => `Test de práctica · ${questions(n)}`,
+    subtitle: 'Test de práctica · ',
     tabs: 'Secciones del test',
     resume: {
       region: 'Ronda a medias',
@@ -48,7 +48,7 @@ export const quizStrings = {
   },
   question: {
     region: 'Pregunta',
-    tag: (n: number) => `Pregunta ${n}`,
+    tag: 'Pregunta ',
     options: 'Alternativas',
     yoursRight: ' · tu respuesta, correcta',
     theRight: ' · la correcta',
@@ -71,13 +71,13 @@ export const quizStrings = {
   shortcuts: {
     title: 'Atajos: ',
     answer: ' responder · ',
-    next: ' siguiente · ',
+    next: 'siguiente · ',
     skip: ' saltar',
     skipKey: 'S',
     space: 'Espacio',
     reveal: ' ver respuesta · ',
     knewIt: ' la sabía · ',
-    didNot: ' no · ',
+    didNot: ' no ·',
   },
   verdict: {
     right: 'Correcta',
@@ -86,7 +86,8 @@ export const quizStrings = {
     review: 'Para repasar',
   },
   results: {
-    answered: (answered: number, total: number) => `${answered} de ${total} respondidas`,
+    of: ' de ',
+    answered: ' respondidas',
     right: 'buenas',
     wrong: 'malas',
     percent: 'correctas',
@@ -94,8 +95,8 @@ export const quizStrings = {
     repeatAll: 'Repetir todo',
     repeatWrong: 'Repetir solo las malas',
     home: 'Volver al inicio',
-    toReview: (n: number) => `Para repasar (${n})`,
-    question: (n: number) => ` · pregunta ${n}`,
+    toReview: 'Para repasar (',
+    question: ' · pregunta ',
     yours: 'Tu respuesta',
     correct: 'Correcta',
     answer: 'Respuesta',

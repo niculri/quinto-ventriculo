@@ -14,6 +14,8 @@ import { ChooseReview } from './ChooseReview';
 import { ReviewMenu } from './ReviewMenu';
 import { ReviewScreen } from './ReviewScreen';
 import { RoundDone } from './RoundDone';
+import { studyStrings } from '../strings';
+import { sharedStrings } from '../../../shared/strings';
 
 export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) {
   const [round, setRound] = useState<Round | null>(null);
@@ -34,9 +36,9 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
   }, [finished, flushPractice]);
 
   useEffect(() => {
-    document.title = `Repaso final de ${node.label} · El Quinto Ventrículo`;
+    document.title = sharedStrings.pageTitle(studyStrings.review.title(node.label));
     return () => {
-      document.title = 'El Quinto Ventrículo';
+      document.title = sharedStrings.siteName;
       // Only a mark can have changed something.
       if (marked.current) void client.invalidateQueries({ queryKey: studyKeys.all });
     };
@@ -48,7 +50,7 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
       <div className={`${answerBar} min-h-11 pb-2`}>
         <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
         <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
-          {left ? `Repaso final · quedan ${left.toLocaleString('es-CL')}` : 'Repaso final'}
+          {left ? studyStrings.review.left(left) : studyStrings.review.bar}
         </p>
         <div className="flex min-w-0 items-center justify-end">
           {round && round.queue[0] ? (

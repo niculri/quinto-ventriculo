@@ -37,6 +37,7 @@ import type {
 import { restore, snapshot } from '../model/history';
 import type { HistoryItem } from '../model/history';
 import { refreshStamps, saveAnswer, SaveQueue } from './saveQueue';
+import { studyStrings } from '../strings';
 
 export class StudySession {
   shown: Shown | null = null;
@@ -260,9 +261,7 @@ export class StudySession {
     // In simple mode a leech is only noted down: nothing is suspended by itself, and nothing to explain.
     if (result.leech && this.data.prefs.fullAnki) {
       this.setToast(
-        result.suspend
-          ? 'La tarjeta era una sanguijuela. Ha sido suspendida.'
-          : 'La tarjeta era una sanguijuela.',
+        result.suspend ? studyStrings.session.leechSuspended : studyStrings.session.leech,
       );
     }
     this.showNext();
@@ -299,15 +298,10 @@ export class StudySession {
     });
     this.setToast(
       this.data.prefs.fullAnki
-        ? {
-            bury_card: 'Tarjeta enterrada.',
-            bury_note: 'Nota enterrada.',
-            suspend_card: 'Tarjeta suspendida.',
-            suspend_note: 'La nota se ha suspendido.',
-          }[action]
+        ? studyStrings.session.hidden[action]
         : bury
-          ? 'Saltada por hoy.'
-          : 'Esta tarjeta no se mostrará más.',
+          ? studyStrings.session.skipped
+          : studyStrings.session.neverAgain,
     );
     this.rebuild();
     this.showNext();
@@ -360,12 +354,12 @@ export class StudySession {
           throw new CardChangedError();
         }
       });
-      this.setToast(`Deshecho: ${actionLabel(action, this.data.prefs.fullAnki)}`);
+      this.setToast(studyStrings.session.undone(actionLabel(action, this.data.prefs.fullAnki)));
       if (item.kind === 'action' && item.action === 'flag') this.changed();
       else this.showNext();
       return;
     }
-    this.setToast('No hay nada que deshacer');
+    this.setToast(studyStrings.session.nothingToUndo);
     this.changed();
   }
 

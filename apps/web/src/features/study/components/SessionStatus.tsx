@@ -1,4 +1,6 @@
 // What a screen reader hears with every card: «Tarjeta N de esta sesión», or its answer.
+import { studyStrings } from '../strings';
+
 export function SessionStatus({
   shown,
   revealed,
@@ -10,7 +12,7 @@ export function SessionStatus({
 }) {
   return (
     <p role="status" className="sr-only">
-      {shown ? `${revealed ? 'Respuesta de la tarjeta' : 'Tarjeta'} ${turn} de esta sesión` : ''}
+      {shown ? studyStrings.turn(revealed, turn) : ''}
     </p>
   );
 }

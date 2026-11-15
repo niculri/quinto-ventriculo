@@ -10,6 +10,8 @@ import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { LiveToast } from '../../../shared/ui/Toast';
 import { useTransient } from '../hooks/useTransient';
 import { MoreContent, MoreTrigger } from './MoreMenuParts';
+import { studyStrings } from '../strings';
+import { sharedStrings } from '../../../shared/strings';
 
 const REVIEW_FLAG = 1;
 
@@ -35,7 +37,7 @@ export function ReviewMenu({
     onMarked(key, next);
     void study.setFlag(current, next).catch(() => {
       onMarked(key, flag);
-      setMessage('No se pudo guardar la marca.');
+      setMessage(studyStrings.review.markNotSaved);
     });
   };
   return (
@@ -45,7 +47,7 @@ export function ReviewMenu({
           className="size-5 flex-none text-brand"
           style={{ fill: 'currentColor' }}
           role="img"
-          aria-label="Marcada para revisar"
+          aria-label={studyStrings.topBar.marked}
         />
       ) : (
         <span className="size-5 flex-none" aria-hidden="true" />
@@ -56,11 +58,12 @@ export function ReviewMenu({
           {markable ? (
             <Menu.Item className={item} onSelect={toggle}>
               <Flag className="size-4 text-muted" aria-hidden="true" />
-              {flag ? 'Quitar la marca' : 'Marcar para revisar'}
+              {flag ? studyStrings.menu.unmark : studyStrings.menu.mark}
             </Menu.Item>
           ) : null}
           <Menu.Item className={item} onSelect={() => setReporting(current)}>
-            <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" /> Reportar error
+            <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" />{' '}
+            {studyStrings.menu.report}
           </Menu.Item>
         </MoreContent>
       </MenuRoot>
@@ -71,7 +74,7 @@ export function ReviewMenu({
           onClose={() => setReporting(null)}
           onSent={() => {
             setReporting(null);
-            setMessage('Gracias: tu reporte le llegó al autor.');
+            setMessage(sharedStrings.reportThanks);
           }}
         />
       ) : null}

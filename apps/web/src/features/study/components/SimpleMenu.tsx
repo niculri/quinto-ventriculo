@@ -4,6 +4,7 @@ import { Flag, MessageSquareWarning, EyeOff, SkipForward } from 'lucide-react';
 import type { HideAction } from '@qv/study';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { MENU_ITEM, MoreContent, MoreTrigger, shortcut } from './MoreMenuParts';
+import { studyStrings } from '../strings';
 
 export function SimpleMenu({
   disabled,
@@ -23,7 +24,7 @@ export function SimpleMenu({
       <MoreTrigger />
       <MoreContent>
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={() => onHide('bury_note')}>
-          <SkipForward className="size-4 text-muted" aria-hidden="true" /> Saltar por hoy{' '}
+          <SkipForward className="size-4 text-muted" aria-hidden="true" /> {studyStrings.menu.skip}{' '}
           {shortcut('-')}
         </Menu.Item>
         <Menu.Item
@@ -31,15 +32,17 @@ export function SimpleMenu({
           disabled={disabled}
           onSelect={() => onHide('suspend_card')}
         >
-          <EyeOff className="size-4 text-muted" aria-hidden="true" /> No mostrar más {shortcut('@')}
+          <EyeOff className="size-4 text-muted" aria-hidden="true" /> {studyStrings.menu.never}{' '}
+          {shortcut('@')}
         </Menu.Item>
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={onMark}>
           <Flag className="size-4 text-muted" aria-hidden="true" />
-          {marked ? 'Quitar la marca' : 'Marcar para revisar'}
+          {marked ? studyStrings.menu.unmark : studyStrings.menu.mark}
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-border" />
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={onReport}>
-          <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" /> Reportar error
+          <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" />{' '}
+          {studyStrings.menu.report}
         </Menu.Item>
       </MoreContent>
     </MenuRoot>

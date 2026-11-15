@@ -3,6 +3,7 @@
 import { cardKey } from '@qv/study';
 import { CardChangedError } from '../../progress/api/repository';
 import type { ReviewInput, StudyRepository } from '../../progress/api/repository';
+import { studyStrings } from '../strings';
 
 export class SaveQueue {
   failure: string | null = null;
@@ -22,10 +23,10 @@ export class SaveQueue {
       .catch((e: unknown) => {
         this.failure =
           e instanceof CardChangedError
-            ? 'Esta tarjeta cambió en otra pestaña o dispositivo. Vuelve a cargar para seguir estudiando.'
+            ? studyStrings.session.changedElsewhere
             : e instanceof Error && e.message.startsWith('No se pudo')
               ? e.message
-              : 'No se pudo guardar tu avance. Revisa tu conexión y vuelve a cargar.';
+              : studyStrings.session.notSaved;
         this.onFailure();
       })
       .finally(() => {

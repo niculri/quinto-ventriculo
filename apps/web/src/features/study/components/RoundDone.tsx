@@ -3,14 +3,15 @@ import { Link } from 'react-router';
 import { PartyPopper } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
 import type { Round } from '@qv/study';
+import { studyStrings } from '../strings';
 
 export function RoundDone({
   round,
   deckPath,
   label,
   onAgain,
-  title = 'Terminaste el repaso',
-  againLabel = 'Otro repaso',
+  title = studyStrings.review.doneTitle,
+  againLabel = studyStrings.review.again,
 }: {
   round: Round;
   deckPath: string;
@@ -24,14 +25,12 @@ export function RoundDone({
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
       <h1 className="mt-4 font-serif text-2xl font-semibold">{title}</h1>
       <p className="mt-4 text-sm text-muted">
-        {round.total.toLocaleString('es-CL')} {round.total === 1 ? 'tarjeta' : 'tarjetas'}
-        {round.again > 0
-          ? ` · «Otra vez» ${round.again} ${round.again === 1 ? 'vez' : 'veces'}`
-          : ''}
+        {studyStrings.cards(round.total)}
+        {round.again > 0 ? studyStrings.review.againTimes(round.again) : ''}
       </p>
       <div className="mt-8 flex flex-col items-center gap-3">
         <Link to={deckPath} className={`${button.base} ${button.primary}`}>
-          Volver a {label}
+          {studyStrings.backTo(label)}
         </Link>
         <button type="button" onClick={onAgain} className={`${button.base} ${button.secondary}`}>
           {againLabel}

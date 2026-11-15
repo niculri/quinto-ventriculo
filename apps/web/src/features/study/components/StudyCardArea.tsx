@@ -7,6 +7,7 @@ import { MaterialRow } from './MaterialRow';
 import { MaterialTip } from './MaterialTip';
 import { StudyAnswers } from './StudyAnswers';
 import { StudyCard } from './StudyCard';
+import { studyStrings } from '../strings';
 
 export function StudyCardArea({
   session,
@@ -36,7 +37,7 @@ export function StudyCardArea({
           onMissing={() => session.skipMissing(shown.entry)}
         />
       </div>
-      <div className="py-3" aria-label="Responder" role="group">
+      <div className="py-3" aria-label={studyStrings.answer} role="group">
         <StudyAnswers
           session={session}
           shown={shown}

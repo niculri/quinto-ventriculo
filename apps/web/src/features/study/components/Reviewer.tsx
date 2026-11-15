@@ -29,6 +29,8 @@ import { StudyEnd } from './StudyEnd';
 import { HeavyDayNotice, SessionStopped } from './StudyNotices';
 import { StudyTopBar } from './StudyTopBar';
 import { Welcome } from './Welcome';
+import { studyStrings } from '../strings';
+import { sharedStrings } from '../../../shared/strings';
 
 export function Reviewer({
   node,
@@ -55,9 +57,9 @@ export function Reviewer({
   );
   const load = useOpeningLoad(session, full, initial.plan.medianAnswerMs);
   const report = useCardReport();
-  const message = toast ?? (report.sent ? 'Gracias: tu reporte le llegó al autor.' : null);
+  const message = toast ?? (report.sent ? sharedStrings.reportThanks : null);
 
-  useTitle(`Estudiar ${rootName}`);
+  useTitle(studyStrings.studyTitle(rootName));
   useSessionLifecycle(session);
   useStudyShortcuts(session, full, fourButtons);
 

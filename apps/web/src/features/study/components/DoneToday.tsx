@@ -8,6 +8,7 @@ import { ancestry, descendants, hasPage } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { catchUpText } from '@qv/study';
 import type { CongratsInfo } from '@qv/study';
+import { studyStrings } from '../strings';
 
 export function DoneToday({
   info,
@@ -29,19 +30,16 @@ export function DoneToday({
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
         <BookOpen className="size-10 text-brand" aria-hidden="true" />
-        <h1 className="mt-4 font-serif text-2xl font-semibold">Las extras están apagadas</h1>
+        <h1 className="mt-4 font-serif text-2xl font-semibold">{studyStrings.done.extrasTitle}</h1>
         <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
-          <p>
-            Son tarjetas con más detalle. Para estudiarlas, enciende «Incluir extras»
-            {assessment ? ` en ${assessment.label}` : ''}.
-          </p>
+          <p>{studyStrings.done.extrasText(assessment ? assessment.label : null)}</p>
           {tomorrow}
         </div>
         <Link
           to={assessment ? paths.deck(assessment.ref) : deckPath}
           className={`${button.base} ${button.primary} mt-8`}
         >
-          {assessment ? `Ir a ${assessment.label}` : 'Volver al mazo'}
+          {assessment ? studyStrings.done.goTo(assessment.label) : studyStrings.backToDeck}
         </Link>
       </div>
     );
@@ -50,17 +48,16 @@ export function DoneToday({
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
         <BookOpen className="size-10 text-brand" aria-hidden="true" />
-        <h1 className="mt-4 font-serif text-2xl font-semibold">Todavía no activas esta materia</h1>
+        <h1 className="mt-4 font-serif text-2xl font-semibold">
+          {studyStrings.done.inactiveTitle}
+        </h1>
         <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
-          <p>
-            Cada semana o clase parte desactivada. Activa lo que estás viendo en clases y empezarán
-            a salir sus tarjetas nuevas.
-          </p>
+          <p>{studyStrings.done.inactiveText}</p>
           {info.learnMessage ? <p>{info.learnMessage}</p> : null}
           {tomorrow}
         </div>
         <Link to={choosePath} className={`${button.base} ${button.primary} mt-8`}>
-          Elegir qué estudiar
+          {studyStrings.done.choose}
         </Link>
       </div>
     );
@@ -69,7 +66,7 @@ export function DoneToday({
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
-      <h1 className="mt-4 font-serif text-2xl font-semibold">Listo por hoy</h1>
+      <h1 className="mt-4 font-serif text-2xl font-semibold">{studyStrings.done.title}</h1>
       {summary}
       <DayDoneNotes
         info={info}
@@ -79,7 +76,7 @@ export function DoneToday({
       />
       <div className="mt-8 flex flex-col items-center gap-3">
         <Link to={deckPath} className={`${button.base} ${button.primary}`}>
-          Volver al mazo
+          {studyStrings.backToDeck}
         </Link>
         {reviews.map((a) => (
           <Link
@@ -87,9 +84,7 @@ export function DoneToday({
             to={paths.deckReview(a.ref)}
             className={`${button.base} ${button.secondary}`}
           >
-            {reviews.length > 1
-              ? `Repasar ${a.label}, sin cambiar fechas`
-              : 'Repasar igual, sin cambiar fechas'}
+            {studyStrings.done.review(reviews.length > 1 ? a.label : null)}
           </Link>
         ))}
       </div>
@@ -126,20 +121,16 @@ function DayDoneNotes({
   return (
     <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
       {info.learnMessage ? <p>{info.learnMessage}</p> : null}
-      {info.exam?.roseTo ? (
-        <p>Para llegar a la fecha, ahora son {info.exam.roseTo} al día.</p>
-      ) : null}
+      {info.exam?.roseTo ? <p>{studyStrings.done.roseTo(info.exam.roseTo)}</p> : null}
       {info.exam?.catchUp ? <p>{catchUpText(info.exam.catchUp)}</p> : null}
       <NewCardsNote info={info} assessment={assessment} />
-      {info.buried && !info.exam?.lastNewDay ? (
-        <p>Las tarjetas que saltaste y las de la misma nota que una de hoy salen desde mañana.</p>
-      ) : null}
+      {info.buried && !info.exam?.lastNewDay ? <p>{studyStrings.done.buried}</p> : null}
       {tomorrow}
       {info.inactiveNew > 0 ? (
         <p>
-          Hay más materia sin activar.{' '}
+          {studyStrings.done.inactiveNew}{' '}
           <Link to={choosePath} className="text-brand hover:underline">
-            Elegir qué estudiar
+            {studyStrings.done.choose}
           </Link>
         </p>
       ) : null}
@@ -156,14 +147,14 @@ function NewCardsNote({
   assessment: CourseDeckNode | undefined;
 }) {
   return info.newLimitReached && info.exam?.finalReview ? (
-    <p>Estás en los días de repaso final: no salen tarjetas nuevas.</p>
+    <p>{studyStrings.done.finalReviewDays}</p>
   ) : (info.newLimitReached || info.buried) && info.exam?.lastNewDay ? (
-    <p>Ya viste tus tarjetas nuevas de hoy. Mañana empieza el repaso final: no salen más.</p>
+    <p>{studyStrings.done.lastNewDay}</p>
   ) : info.newLimitReached && info.exam?.computed ? (
-    <p>Ya viste tus tarjetas nuevas de hoy. Mañana salen más.</p>
+    <p>{studyStrings.done.moreTomorrow}</p>
   ) : info.newLimitReached ? (
     <p>
-      Ya viste tus tarjetas nuevas de hoy. Mañana salen más
+      {studyStrings.done.moreTomorrowOr}
       <RaiseNumberLink assessment={assessment} />.
     </p>
   ) : null;
@@ -173,7 +164,7 @@ function NewCardsNote({
 function RaiseNumberLink({ assessment }: { assessment: CourseDeckNode | undefined }) {
   return assessment ? (
     <>
-      , o puedes subir el número en{' '}
+      {studyStrings.done.raiseIn}{' '}
       <Link to={paths.deck(assessment.ref)} className="text-brand hover:underline">
         {assessment.label}
       </Link>
@@ -182,9 +173,5 @@ function RaiseNumberLink({ assessment }: { assessment: CourseDeckNode | undefine
 }
 
 function TomorrowLine({ count }: { count: number }) {
-  return count ? (
-    <p>
-      Mañana: {count} {count === 1 ? 'tarjeta' : 'tarjetas'} de repaso.
-    </p>
-  ) : null;
+  return count ? <p>{studyStrings.done.tomorrow(count)}</p> : null;
 }

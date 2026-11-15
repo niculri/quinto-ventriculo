@@ -1,0 +1,140 @@
+// The texts of the study screens, their end screens and the final review.
+
+const cards = (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'tarjeta' : 'tarjetas'}`;
+
+export const studyStrings = {
+  preparingDeck: 'Preparando el mazo…',
+  preparingCards: 'Preparando tus tarjetas…',
+  loadingCard: 'Cargando la tarjeta…',
+  cardFront: 'Frente de la tarjeta',
+  cardBack: 'Reverso de la tarjeta',
+  answer: 'Responder',
+  showAnswer: 'Mostrar respuesta',
+  studyTitle: (deck: string) => `Estudiar ${deck}`,
+  ratings: { again: 'Otra vez', hard: 'Difícil', good: 'Bien', easy: 'Fácil' },
+  ratingLabel: (label: string, interval: string) => `${label} (${interval})`,
+  cards,
+  turn: (revealed: boolean, n: number) =>
+    `${revealed ? 'Respuesta de la tarjeta' : 'Tarjeta'} ${n} de esta sesión`,
+  backToDeck: 'Volver al mazo',
+  backTo: (label: string) => `Volver a ${label}`,
+  topBar: {
+    left: 'Tarjetas que quedan',
+    flag: (color: string) => `Marcador ${color.toLowerCase()}`,
+    marked: 'Marcada para revisar',
+    undo: 'Deshacer',
+    undoTitle: (keys: string) => `Deshacer (${keys})`,
+  },
+  menu: {
+    more: 'Más',
+    report: 'Reportar error',
+    undo: 'Deshacer',
+    buryCard: 'Enterrar tarjeta',
+    buryNote: 'Enterrar nota',
+    suspendCard: 'Suspender tarjeta',
+    suspendNote: 'Suspender nota',
+    flag: 'Marcar tarjeta',
+    options: 'Opciones',
+    skip: 'Saltar por hoy',
+    never: 'No mostrar más',
+    unmark: 'Quitar la marca',
+    mark: 'Marcar para revisar',
+  },
+  material: {
+    note: 'Ver apunte',
+    quiz: 'Preguntas',
+    tip: 'lleva al apunte del que sale esta tarjeta',
+    closeTip: 'Cerrar el consejo',
+  },
+  heavy: {
+    title: (cardCount: string, minutes: string) => `Hoy son ${cardCount} tarjetas, ${minutes}`,
+    text: 'Puedes parar cuando quieras: lo que no alcances sale mañana.',
+    goOn: 'Seguir',
+    stop: 'Parar por hoy',
+  },
+  stopped: {
+    title: 'Se detuvo la sesión',
+    reload: 'Volver a cargar',
+  },
+  welcome: {
+    title: 'Cómo se estudia aquí',
+    text: 'Intenta acordarte, muestra la respuesta y elige «Otra vez» si no te la sabías o «Bien» si te la sabías. Cada tarjeta vuelve justo cuando estás por olvidarla: unos minutos al día rinden más que una tarde antes de la prueba.',
+    ok: 'Entendido',
+  },
+  congrats: {
+    title: '¡Felicitaciones! Has finalizado este mazo por ahora.',
+    reviewLimit:
+      'Has alcanzado el límite actual de repasos, pero todavía hay tarjetas a la espera de ser repasadas. Para una memorización óptima, considera aumentar el límite diario en las opciones.',
+    newLimit:
+      'Hay más tarjetas nuevas disponibles, pero has alcanzado el límite diario. Puedes aumentar el límite en las opciones, pero ten en cuenta que cuantas más tarjetas nuevas introduzcas, más aumentará tu carga de trabajo a corto plazo.',
+    buried: 'Una o más tarjetas fueron enterradas y se mostrarán mañana.',
+    dueTomorrow: (n: number) => `Programadas para mañana: ${n}`,
+  },
+  done: {
+    extrasTitle: 'Las extras están apagadas',
+    extrasText: (assessment: string | null) =>
+      `Son tarjetas con más detalle. Para estudiarlas, enciende «Incluir extras»${assessment !== null ? ` en ${assessment}` : ''}.`,
+    goTo: (label: string) => `Ir a ${label}`,
+    inactiveTitle: 'Todavía no activas esta materia',
+    inactiveText:
+      'Cada semana o clase parte desactivada. Activa lo que estás viendo en clases y empezarán a salir sus tarjetas nuevas.',
+    choose: 'Elegir qué estudiar',
+    title: 'Listo por hoy',
+    review: (label: string | null) =>
+      label !== null ? `Repasar ${label}, sin cambiar fechas` : 'Repasar igual, sin cambiar fechas',
+    roseTo: (n: number) => `Para llegar a la fecha, ahora son ${n} al día.`,
+    finalReviewDays: 'Estás en los días de repaso final: no salen tarjetas nuevas.',
+    lastNewDay:
+      'Ya viste tus tarjetas nuevas de hoy. Mañana empieza el repaso final: no salen más.',
+    moreTomorrow: 'Ya viste tus tarjetas nuevas de hoy. Mañana salen más.',
+    moreTomorrowOr: 'Ya viste tus tarjetas nuevas de hoy. Mañana salen más',
+    raiseIn: ', o puedes subir el número en',
+    buried: 'Las tarjetas que saltaste y las de la misma nota que una de hoy salen desde mañana.',
+    inactiveNew: 'Hay más materia sin activar.',
+    tomorrow: (n: number) => `Mañana: ${n} ${n === 1 ? 'tarjeta' : 'tarjetas'} de repaso.`,
+  },
+  summary: {
+    region: 'Resumen de hoy',
+    answers: 'Respuestas hoy',
+    good: 'Bien',
+    streak: 'Racha actual',
+    days: (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'día' : 'días'}`,
+    course: (n: number) => `${n.toLocaleString('es-CL')} en el ramo`,
+    failed: 'Ver las que fallaste',
+    unread: 'No se pudo leer el resumen.',
+    retry: 'Reintentar',
+  },
+  session: {
+    leech: 'La tarjeta era una sanguijuela.',
+    leechSuspended: 'La tarjeta era una sanguijuela. Ha sido suspendida.',
+    hidden: {
+      bury_card: 'Tarjeta enterrada.',
+      bury_note: 'Nota enterrada.',
+      suspend_card: 'Tarjeta suspendida.',
+      suspend_note: 'La nota se ha suspendido.',
+    },
+    skipped: 'Saltada por hoy.',
+    neverAgain: 'Esta tarjeta no se mostrará más.',
+    undone: (action: string) => `Deshecho: ${action}`,
+    nothingToUndo: 'No hay nada que deshacer',
+    changedElsewhere:
+      'Esta tarjeta cambió en otra pestaña o dispositivo. Vuelve a cargar para seguir estudiando.',
+    notSaved: 'No se pudo guardar tu avance. Revisa tu conexión y vuelve a cargar.',
+  },
+  review: {
+    title: (label: string) => `Repaso final de ${label}`,
+    bar: 'Repaso final',
+    left: (n: number) => `Repaso final · quedan ${n.toLocaleString('es-CL')}`,
+    nothingSeen:
+      'Todavía no has visto tarjetas de este certamen. Cuando estudies algunas, podrás repasarlas aquí.',
+    noDates: 'Este repaso no cambia las fechas de tus tarjetas.',
+    allTitle: 'Todo lo visto',
+    allText: 'Parte por lo que estás más cerca de olvidar.',
+    hardTitle: 'Solo lo marcado y lo difícil',
+    hardText: 'Las que marcaste para revisar y las que has fallado varias veces.',
+    markNotSaved: 'No se pudo guardar la marca.',
+    doneTitle: 'Terminaste el repaso',
+    again: 'Otro repaso',
+    againTimes: (n: number) => ` · «Otra vez» ${n} ${n === 1 ? 'vez' : 'veces'}`,
+  },
+} as const;

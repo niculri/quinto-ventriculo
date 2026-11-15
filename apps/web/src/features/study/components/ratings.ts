@@ -1,9 +1,10 @@
 // The answer buttons of the study screens: their rating, label and color.
 import type { Rating } from '@qv/srs';
+import { studyStrings } from '../strings';
 
 export const RATINGS: { rating: Rating; label: string; className: string }[] = [
-  { rating: 1, label: 'Otra vez', className: 'text-[#c62828] dark:text-[#ff8a80]' },
-  { rating: 2, label: 'Difícil', className: 'text-muted' },
-  { rating: 3, label: 'Bien', className: 'text-[#2e7d32] dark:text-[#85d08a]' },
-  { rating: 4, label: 'Fácil', className: 'text-state-new' },
+  { rating: 1, label: studyStrings.ratings.again, className: 'text-[#c62828] dark:text-[#ff8a80]' },
+  { rating: 2, label: studyStrings.ratings.hard, className: 'text-muted' },
+  { rating: 3, label: studyStrings.ratings.good, className: 'text-[#2e7d32] dark:text-[#85d08a]' },
+  { rating: 4, label: studyStrings.ratings.easy, className: 'text-state-new' },
 ];

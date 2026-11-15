@@ -6,6 +6,7 @@ import { FLAGS } from '@qv/study';
 import type { HideAction } from '@qv/study';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { MENU_ITEM, MoreContent, MoreTrigger, shortcut } from './MoreMenuParts';
+import { studyStrings } from '../strings';
 
 export function MoreMenu({
   disabled,
@@ -31,38 +32,40 @@ export function MoreMenu({
       <MoreTrigger />
       <MoreContent>
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={onReport}>
-          <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" /> Reportar error
+          <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" />{' '}
+          {studyStrings.menu.report}
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-border" />
         <Menu.Item className={MENU_ITEM} disabled={!canUndo} onSelect={onUndo}>
-          <Undo2 className="size-4 text-muted" aria-hidden="true" /> Deshacer {shortcut('Ctrl+Z')}
+          <Undo2 className="size-4 text-muted" aria-hidden="true" /> {studyStrings.menu.undo}{' '}
+          {shortcut('Ctrl+Z')}
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-border" />
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={() => onBury('bury_card')}>
-          Enterrar tarjeta {shortcut('-')}
+          {studyStrings.menu.buryCard} {shortcut('-')}
         </Menu.Item>
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={() => onBury('bury_note')}>
-          Enterrar nota {shortcut('=')}
+          {studyStrings.menu.buryNote} {shortcut('=')}
         </Menu.Item>
         <Menu.Item
           className={MENU_ITEM}
           disabled={disabled}
           onSelect={() => onBury('suspend_card')}
         >
-          Suspender tarjeta {shortcut('@')}
+          {studyStrings.menu.suspendCard} {shortcut('@')}
         </Menu.Item>
         <Menu.Item
           className={MENU_ITEM}
           disabled={disabled}
           onSelect={() => onBury('suspend_note')}
         >
-          Suspender nota {shortcut('!')}
+          {studyStrings.menu.suspendNote} {shortcut('!')}
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-border" />
         <FlagsSubmenu disabled={disabled} currentFlag={currentFlag} onFlag={onFlag} />
         <Menu.Separator className="my-1 h-px bg-border" />
         <Menu.Item asChild className={MENU_ITEM}>
-          <Link to={optionsPath}>Opciones</Link>
+          <Link to={optionsPath}>{studyStrings.menu.options}</Link>
         </Menu.Item>
       </MoreContent>
     </MenuRoot>
@@ -81,7 +84,7 @@ function FlagsSubmenu({
   return (
     <Menu.Sub>
       <Menu.SubTrigger className={MENU_ITEM} disabled={disabled}>
-        <Flag className="size-4 text-muted" aria-hidden="true" /> Marcar tarjeta
+        <Flag className="size-4 text-muted" aria-hidden="true" /> {studyStrings.menu.flag}
       </Menu.SubTrigger>
       <Menu.Portal>
         <Menu.SubContent

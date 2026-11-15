@@ -3,6 +3,7 @@ import type { Shown } from '@qv/study';
 import { button } from '../../../shared/ui/styles';
 import type { StudySession } from '../api/StudySession';
 import { RATINGS } from './ratings';
+import { studyStrings } from '../strings';
 
 export function StudyAnswers({
   session,
@@ -32,7 +33,7 @@ export function StudyAnswers({
             type="button"
             onClick={() => session.answer(rating)}
             className={`${button.base} ${button.secondary} flex-col gap-0.5 px-1 py-2 ${barHeight}`}
-            aria-label={`${label} (${shown.labels[rating - 1]})`}
+            aria-label={studyStrings.ratingLabel(label, shown.labels[rating - 1]!)}
             disabled={failed}
           >
             <span className="text-xs text-muted tabular-nums">{shown.labels[rating - 1]}</span>
@@ -48,7 +49,7 @@ export function StudyAnswers({
         onClick={() => session.reveal()}
         className={`${button.base} ${button.primary} w-full py-3 text-base ${barHeight}`}
       >
-        Mostrar respuesta
+        {studyStrings.showAnswer}
       </button>
     </div>
   );

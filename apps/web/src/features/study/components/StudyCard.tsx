@@ -7,6 +7,7 @@ import { useCard } from '../../decks/queries';
 import type { CardKey } from '../../progress/api/repository';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { cardKey } from '@qv/study';
+import { studyStrings } from '../strings';
 
 export function StudyCard({
   entry,
@@ -25,10 +26,10 @@ export function StudyCard({
   useEffect(() => {
     if (missing) skip();
   }, [missing, entry.noteGuid, entry.ord]);
-  if (missing) return <Loading text="Cargando la tarjeta…" />;
+  if (missing) return <Loading text={studyStrings.loadingCard} />;
   if (card.isError)
     return <ErrorWithRetry error={card.error} onRetry={() => void card.refetch()} />;
-  if (!card.data) return <Loading text="Cargando la tarjeta…" />;
+  if (!card.data) return <Loading text={studyStrings.loadingCard} />;
   return (
     <CardFrame
       key={`${cardKey(entry)}/${revealed ? 'a' : 'q'}`}
@@ -37,7 +38,7 @@ export function StudyCard({
       ord={card.data.ord}
       night={night}
       occlusion={card.data.kind === 'occlusion'}
-      label={revealed ? 'Reverso de la tarjeta' : 'Frente de la tarjeta'}
+      label={revealed ? studyStrings.cardBack : studyStrings.cardFront}
       focusOnShow
     />
   );

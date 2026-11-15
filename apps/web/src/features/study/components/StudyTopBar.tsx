@@ -13,6 +13,7 @@ import { CountNumbers, DayLoad } from '../../progress/DeckCounts';
 import type { StudySession } from '../api/StudySession';
 import { MoreMenu } from './MoreMenu';
 import { SimpleMenu } from './SimpleMenu';
+import { studyStrings } from '../strings';
 
 /** «Marcar para revisar» is one flag; a card flagged otherwise in the full mode also counts as marked. */
 const REVIEW_FLAG = 1;
@@ -39,7 +40,11 @@ export function StudyTopBar({
   return (
     <div className={`${answerBar} pb-2`}>
       <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
-      <div className="flex min-w-0 justify-center" aria-label="Tarjetas que quedan" role="group">
+      <div
+        className="flex min-w-0 justify-center"
+        aria-label={studyStrings.topBar.left}
+        role="group"
+      >
         {full ? (
           <CountNumbers
             counts={counts}
@@ -92,14 +97,14 @@ function FlagMark({ full, flag }: { full: boolean; flag: number }) {
       className="size-5"
       style={{ color: flagInfo.color, fill: flagInfo.color }}
       role="img"
-      aria-label={`Marcador ${flagInfo.label.toLowerCase()}`}
+      aria-label={studyStrings.topBar.flag(flagInfo.label)}
     />
   ) : flag && !full ? (
     <Flag
       className="size-5 flex-none text-brand"
       style={{ fill: 'currentColor' }}
       role="img"
-      aria-label="Marcada para revisar"
+      aria-label={studyStrings.topBar.marked}
     />
   ) : full ? null : (
     // Its place stays: marking does not move what is on top.
@@ -118,11 +123,11 @@ function UndoButton({ session }: { session: StudySession }) {
         e.currentTarget.blur();
       }}
       className={`${button.base} ${button.ghost}`}
-      aria-label="Deshacer"
-      title={`Deshacer (${keys('Ctrl+Z')})`}
+      aria-label={studyStrings.topBar.undo}
+      title={studyStrings.topBar.undoTitle(keys('Ctrl+Z'))}
     >
       <Undo2 className="size-5 sm:size-4" aria-hidden="true" />
-      <span className="hidden sm:inline">Deshacer</span>
+      <span className="hidden sm:inline">{studyStrings.topBar.undo}</span>
     </button>
   );
 }

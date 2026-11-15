@@ -4,6 +4,7 @@ import type { Counts } from '@qv/srs';
 import { minutesText, totalCards } from '@qv/study';
 import { Notice } from '../../../shared/ui/Notice';
 import { button } from '../../../shared/ui/styles';
+import { studyStrings } from '../strings';
 
 export function HeavyDayNotice({
   opening,
@@ -19,20 +20,23 @@ export function HeavyDayNotice({
   return (
     <div className="pb-2">
       <Notice
-        title={`Hoy son ${totalCards(opening).toLocaleString('es-CL')} tarjetas, ${minutesText(minutes)}`}
+        title={studyStrings.heavy.title(
+          totalCards(opening).toLocaleString('es-CL'),
+          minutesText(minutes),
+        )}
         tone="info"
       >
-        <p>Puedes parar cuando quieras: lo que no alcances sale mañana.</p>
+        <p>{studyStrings.heavy.text}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={onGoOn}
             className={`${button.base} ${button.secondary} py-1.5`}
           >
-            Seguir
+            {studyStrings.heavy.goOn}
           </button>
           <Link to={deckPath} className={`${button.base} ${button.ghost} py-1.5`}>
-            Parar por hoy
+            {studyStrings.heavy.stop}
           </Link>
         </div>
       </Notice>
@@ -43,14 +47,14 @@ export function HeavyDayNotice({
 export function SessionStopped({ failure }: { failure: string }) {
   return (
     <div className="pb-2">
-      <Notice title="Se detuvo la sesión">
+      <Notice title={studyStrings.stopped.title}>
         <p>{failure}</p>
         <button
           type="button"
           className={`${button.base} ${button.secondary} mt-3`}
           onClick={() => window.location.reload()}
         >
-          Volver a cargar
+          {studyStrings.stopped.reload}
         </button>
       </Notice>
     </div>

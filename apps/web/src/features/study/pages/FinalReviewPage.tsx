@@ -17,6 +17,7 @@ import { studyKeys, useStudyData } from '../../progress/queries';
 import { StudyFallback } from '../components/StudyFallback';
 import { useCountOpen } from '../../usage/count';
 import { FinalReview } from '../components/FinalReview';
+import { studyStrings } from '../strings';
 
 export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
@@ -34,7 +35,7 @@ export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
   if (!deck.data) {
     return (
       <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
-        <Loading text="Preparando el mazo…" />
+        <Loading text={studyStrings.preparingDeck} />
       </StudyFallback>
     );
   }
@@ -61,7 +62,7 @@ function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDet
         {study.error && !data ? (
           <ErrorWithRetry error={study.error} onRetry={study.retry} />
         ) : (
-          <Loading text="Preparando tus tarjetas…" />
+          <Loading text={studyStrings.preparingCards} />
         )}
       </StudyFallback>
     );

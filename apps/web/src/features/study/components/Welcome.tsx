@@ -5,6 +5,7 @@ import { button } from '../../../shared/ui/styles';
 import type { StudyPreferences } from '../../progress/api/repository';
 import { useSavePreferences } from '../../progress/queries';
 import { BlurredBackdrop } from '../../../shared/ui/Dialog';
+import { studyStrings } from '../strings';
 
 export function Welcome({ prefs }: { prefs: StudyPreferences }) {
   const [open, setOpen] = useState(true);
@@ -23,16 +24,14 @@ export function Welcome({ prefs }: { prefs: StudyPreferences }) {
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <Dialog.Title className="font-serif text-xl font-semibold">
-            Cómo se estudia aquí
+            {studyStrings.welcome.title}
           </Dialog.Title>
           <Dialog.Description className="mt-3 text-sm text-muted">
-            Intenta acordarte, muestra la respuesta y elige «Otra vez» si no te la sabías o «Bien»
-            si te la sabías. Cada tarjeta vuelve justo cuando estás por olvidarla: unos minutos al
-            día rinden más que una tarde antes de la prueba.
+            {studyStrings.welcome.text}
           </Dialog.Description>
           <div className="mt-5 flex justify-end">
             <button type="button" onClick={close} className={`${button.base} ${button.primary}`}>
-              Entendido
+              {studyStrings.welcome.ok}
             </button>
           </div>
         </Dialog.Content>

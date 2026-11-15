@@ -631,11 +631,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/model/material.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/hooks/useImageZoom.ts": {
     "max-lines-per-function": {
       "count": 1

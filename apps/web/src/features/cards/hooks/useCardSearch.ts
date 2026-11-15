@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import type { SchedTiming } from '@qv/srs';
 import { SearchError } from '@qv/anki-search';
-import { buildBrowseCards, notesOf, sortCards } from '../model/browseCards';
+import { buildBrowseCards, notesOf } from '../model/browseCards';
+import { sortCards } from '../model/columns';
 import { matchCards, parseQuery, searchContext } from '../model/search';
 import type { TableData } from '../model/tableData';
 import type { ViewPrefs } from './useViewPrefs';

@@ -1,4 +1,4 @@
-// One-click filters over the browser's search (a card state, «Marcadas»), written into it in Anki's syntax.
+// One-click filters over the table's search (a card state, «Marcadas»), written into it in Anki's syntax.
 
 import { Fragment } from 'react';
 import { Flag } from 'lucide-react';

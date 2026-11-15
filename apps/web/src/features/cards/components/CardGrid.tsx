@@ -4,8 +4,9 @@
 import type { KeyboardEvent } from 'react';
 import type { SchedTiming } from '@qv/srs';
 import { card as cardStyle } from '../../../shared/ui/styles';
-import { COLUMNS } from '../model/browseCards';
-import type { BrowseCard, ColumnKey } from '../model/browseCards';
+import { COLUMNS } from '../model/columns';
+import type { BrowseCard } from '../model/browseCards';
+import type { ColumnKey } from '../model/columns';
 import { ROW, gridTarget, rowWindow } from '../model/grid';
 import { useGridScroll } from '../hooks/useGridScroll';
 import type { SelectKeys } from '../hooks/useSelection';

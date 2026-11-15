@@ -1,4 +1,4 @@
-// The browser's preview of the selected card (front or back) and Anki's «Información de la tarjeta».
+// The table's preview of the current card (front or back) and Anki's «Información de la tarjeta».
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -14,7 +14,7 @@ import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { useCard } from '../../decks/queries';
 import { ReportDialog } from '../../reports/ReportDialog';
 import { cardTarget } from '../../reports/targets';
-import { cellText, recall, shortDate } from '../model/browseCards';
+import { cellText, recall, shortDate } from '../model/columns';
 import { cardLogQuery } from '../api/queries';
 import { CardHistory } from './CardHistory';
 import type { BrowseCard } from '../model/browseCards';

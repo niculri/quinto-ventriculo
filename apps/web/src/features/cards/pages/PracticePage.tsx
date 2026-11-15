@@ -1,81 +1,32 @@
 // «Practicar estas»: a round with the cards the list found, on the final review's motor; it changes no date and each
 // answer counts as practice (`record_practice()`).
 
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
 import { BackButton } from '../../../shared/ui/BackButton';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { answerBar, button, studyScreen } from '../../../shared/ui/styles';
-import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
+import { answerBar, studyScreen } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { usePracticeRecorder } from '../../stats/practice';
-import { ReviewMenu, ReviewScreen, RoundDone } from '../../study';
-import { startRound } from '@qv/study';
-import type { Round } from '@qv/study';
-import { useNow } from '../../../shared/hooks/useNow';
-import type { CardRef } from '../../progress/api/repository';
 import { queryOf } from '../model/urlState';
-import { NO_FILTERS, applyFilters, parseKind, parseOrigins, parseState } from '../model/filters';
-import { groupNotes } from '../model/groups';
-import { practiceCards } from '../model/practice';
-import { searchQuery } from '../model/search';
-import { failedOf } from '../model/dayCards';
-import { useCardsData } from '../hooks/useCardsData';
-import { useDayCards } from '../hooks/useDayCards';
-import { useFailed } from '../hooks/useFailed';
-import { useTextMatch } from '../hooks/useTextMatch';
-import { cardsScope, unitDeckIds, unitNode } from '../../catalog/model/scope';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import { cardsStrings } from '../strings';
+import { usePracticeCards } from '../hooks/usePracticeCards';
+import { PracticeEmpty } from '../components/PracticeEmpty';
+import { PracticeRound } from '../components/PracticeRound';
 
 /** The filters are in the URL, so reloading starts the same round again. */
 export function PracticePage({ node }: { node: CourseDeckNode }) {
-  const { catalog, tree } = useAnkiTree();
-  const [params] = useSearchParams();
-  const scope = useMemo(
-    () => (catalog.data ? cardsScope(catalog.data, node) : null),
-    [catalog.data, node],
-  );
-  const now = useNow(60_000);
-  const cards = useCardsData(scope, tree, now);
-  const data = cards.data;
-  const failed = useFailed(data?.prefs, now);
-  const q = params.get('q') ?? '';
-  const text = useTextMatch(data, searchQuery(q, !!data?.prefs.fullAnki), tree);
-  const day = useDayCards(scope, data, params.get('day'));
-  const state = parseState(params.get('state'));
-  const queue = useMemo(() => {
-    const failedCards = failedOf(day.value, failed.data);
-    if (!data || !scope || !failedCards || text.waiting || day.waiting) return null;
-    const unit = unitNode(scope.node, params.get('unit') ?? '');
-    const { matched } = applyFilters(data.notes, {
-      ...NO_FILTERS,
-      unitDecks: unitDeckIds(unit),
-      text: text.keys,
-      day: day.value?.keys ?? null,
-      failed: failedCards,
-      state,
-      origins: parseOrigins(params.get('origin')),
-      kind: parseKind(params.get('kind')),
-    });
-    return practiceCards(groupNotes(matched), state);
-  }, [data, scope, failed.data, text, day, state, params]);
-
-  // The round starts from what the list had when it was opened: practicing changes nothing of it.
-  const [first, setFirst] = useState<CardRef[] | null>(null);
-  if (first === null && queue) setFirst(queue);
-
+  const { params, cards, first } = usePracticeCards(node);
   const back = paths.cards(node.ref, queryOf(params));
   useTitle(cardsStrings.practice.title);
 
   let body;
-  if (cards.error && !data) body = <ErrorWithRetry error={cards.error} onRetry={cards.retry} />;
-  else if (cards.missing || cards.changed) body = <Empty back={back} />;
+  if (cards.error && !cards.data)
+    body = <ErrorWithRetry error={cards.error} onRetry={cards.retry} />;
+  else if (cards.missing || cards.changed) body = <PracticeEmpty back={back} />;
   else if (!first) body = <Loading text={cardsStrings.practice.preparing} />;
-  else if (!first.length) body = <Empty back={back} />;
-  else body = <Practice cards={first} back={back} />;
+  else if (!first.length) body = <PracticeEmpty back={back} />;
+  else body = <PracticeRound cards={first} back={back} />;
   return (
     <div className={studyScreen}>
       {first && first.length ? (
@@ -97,68 +48,5 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
         </>
       )}
     </div>
-  );
-}
-
-function Empty({ back }: { back: string }) {
-  return (
-    <div className="mx-auto w-full max-w-xl flex-1 px-2 py-6">
-      <h1 className="font-serif text-2xl font-semibold">{cardsStrings.practice.nothing}</h1>
-      <p className="mt-2 text-muted">{cardsStrings.noMatch}</p>
-      <Link to={back} className={`${button.base} ${button.primary} mt-6`}>
-        {cardsStrings.practice.backToCards}
-      </Link>
-    </div>
-  );
-}
-
-function Practice({ cards, back }: { cards: CardRef[]; back: string }) {
-  const [round, setRound] = useState<Round>(() => startRound(cards));
-  const { add, flush } = usePracticeRecorder();
-  const finished = !round.queue[0];
-  useEffect(() => {
-    if (finished) flush();
-  }, [finished, flush]);
-  const current = round.queue[0];
-  return (
-    <>
-      <div className={`${answerBar} min-h-11 pb-2`}>
-        <BackButton to={back} label={cardsStrings.practice.back} className="justify-self-start" />
-        <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
-          {current ? (
-            <>
-              <span className="sm:hidden">{cardsStrings.practice.left(round.queue.length)}</span>
-              <span className="hidden sm:inline">
-                {cardsStrings.practice.leftLong(round.queue.length)}
-              </span>
-            </>
-          ) : (
-            cardsStrings.practice.title
-          )}
-        </p>
-        <div className="flex min-w-0 items-center justify-end">
-          {current ? (
-            <ReviewMenu current={current} flag={0} onMarked={() => {}} markable={false} />
-          ) : (
-            <span className="w-10" aria-hidden="true" />
-          )}
-        </div>
-      </div>
-      {current ? (
-        <>
-          <p className="sr-only">{cardsStrings.practice.noDates}</p>
-          <ReviewScreen round={round} current={current} onChange={setRound} onAnswer={add} />
-        </>
-      ) : (
-        <RoundDone
-          round={round}
-          deckPath={back}
-          label={cardsStrings.practice.doneLabel}
-          title={cardsStrings.practice.doneTitle}
-          againLabel={cardsStrings.practice.again}
-          onAgain={() => setRound(startRound(cards))}
-        />
-      )}
-    </>
   );
 }

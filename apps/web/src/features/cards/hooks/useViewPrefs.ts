@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { storageKeys } from '../../../shared/lib/storage';
-import { COLUMNS, DEFAULT_COLUMNS } from '../model/browseCards';
-import type { ColumnKey } from '../model/browseCards';
+import { COLUMNS, DEFAULT_COLUMNS } from '../model/columns';
+import type { ColumnKey } from '../model/columns';
 
 const PREFS_KEY = storageKeys.browserView;
 

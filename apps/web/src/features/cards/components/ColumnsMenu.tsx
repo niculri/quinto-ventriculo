@@ -2,7 +2,7 @@
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { Columns3 } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
-import { COLUMNS } from '../model/browseCards';
+import { COLUMNS } from '../model/columns';
 import type { ViewPrefs } from '../hooks/useViewPrefs';
 import { MENU_ITEM } from './menuItem';
 import { cardsStrings } from '../strings';

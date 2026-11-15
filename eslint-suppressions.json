@@ -69,6 +69,11 @@
       "count": 1
     }
   },
+  "apps/web/src/app/AppShell.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "apps/web/src/features/account/DeleteAccountDialog.tsx": {
     "max-lines-per-function": {
       "count": 1
@@ -280,6 +285,22 @@
       "count": 1
     }
   },
+  "apps/web/src/features/nav/components/AppNav.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/nav/components/UserMenu.tsx": {
+    "@typescript-eslint/no-misused-promises": {
+      "count": 3
+    }
+  },
   "apps/web/src/features/notes/NotePage.tsx": {
     "max-lines": {
       "count": 1
@@ -465,41 +486,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
-    }
-  },
-  "apps/web/src/ui/AppNav.tsx": {
-    "boundaries/dependencies": {
-      "count": 6
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/ui/AppShell.tsx": {
-    "boundaries/dependencies": {
-      "count": 2
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/ui/SiteFooter.tsx": {
-    "boundaries/dependencies": {
-      "count": 1
-    }
-  },
-  "apps/web/src/ui/UserMenu.tsx": {
-    "@typescript-eslint/no-misused-promises": {
-      "count": 3
-    },
-    "boundaries/dependencies": {
-      "count": 2
     }
   },
   "packages/anki-search/src/compile.ts": {

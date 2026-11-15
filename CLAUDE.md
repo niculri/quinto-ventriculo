@@ -20,14 +20,13 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `prompt` ni `confirm` del navegador.
 
 ## Arquitectura
-- **Capas, en un solo sentido.** En la web: `shared` (`shared/ui`, `shared/lib`, `shared/hooks`, y `ui/` mientras le
-  queden piezas que importan features) → features de datos (`catalog`, `progress`) → features de página → `app/`
-  (router, providers, guardas, redirecciones viejas y la composición de servicios). `shared` no importa features ni
-  `app`; una feature no importa `app`; una feature de datos no importa features de página. Cada feature que usa un
-  repositorio declara su puerto y su hook en `features/<x>/api/` (`useStudyRepository()`…); `app/services.tsx` solo
-  los compone y los provee. Dentro de una feature (cuando existan): `pages` → `components` → `hooks` → `api` →
-  `model`, nunca al revés. Una función vive en la capa más baja posible: si no usa React ni red, es dominio y va a
-  `model/` o a un paquete.
+- **Capas, en un solo sentido.** En la web: `shared` (`shared/ui`, `shared/lib`, `shared/hooks`) → features de
+  datos (`catalog`, `progress`) → features de página → `app/` (router, providers, guardas, redirecciones viejas, el
+  marco de la app y la composición de servicios). `shared` no importa features ni `app`; una feature no importa `app`;
+  una feature de datos no importa features de página. Cada feature que usa un repositorio declara su puerto y su hook
+  en `features/<x>/api/` (`useStudyRepository()`…); `app/services.tsx` solo los compone y los provee. Dentro de una
+  feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés. Una función vive en
+  la capa más baja posible: si no usa React ni red, es dominio y va a `model/` o a un paquete.
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los
@@ -50,7 +49,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   mezcla responsabilidades. Complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
   portado de Anki en un paquete que conserva la forma del original, y las páginas que son solo texto fijo.
 - **Sin ciclos de imports**, ni entre archivos ni entre las carpetas de primer nivel de la web (`features/<x>`, `app`,
-  `ui`, `shared/<x>`): `npm run deps` falla con un ciclo que no esté en `.import-cycles.json`, y también si ese
+  `shared/<x>`): `npm run deps` falla con un ciclo que no esté en `.import-cycles.json`, y también si ese
   archivo ganó ciclos respecto de `origin/main`. `npm run deps:baseline` lo rehace, pero solo sirve para sacar los
   ciclos que ya se rompieron: uno nuevo no se agrega, se rompe.
 - **Trinquete:** todas las reglas están en `error`; lo que ya las violaba está en `eslint-suppressions.json`. Por cada

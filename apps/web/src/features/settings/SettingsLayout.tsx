@@ -6,7 +6,7 @@ import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { useSettingsGroups } from './useSettingsGroups';
 import { page } from '../../shared/ui/styles';
 
-/** On wide screens the site's menu (ui/AppNav.tsx) has the sections, so this one goes away. */
+/** On wide screens the site's menu (features/nav/components/AppNav.tsx) has the sections, so this one goes away. */
 export function SettingsLayout({ children }: { children: ReactNode }) {
   const groups = useSettingsGroups();
   return (

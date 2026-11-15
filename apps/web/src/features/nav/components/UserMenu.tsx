@@ -1,14 +1,14 @@
 // The account menu of the top bar: theme, options, administration, help and signing out.
 import * as Menu from '@radix-ui/react-dropdown-menu';
-import { paths } from '../shared/lib/paths';
+import { paths } from '../../../shared/lib/paths';
 import { CircleHelp, LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
-import { useIsAdmin } from '../features/admin/queries';
-import { useSession, useUser } from '../features/session/context';
-import { ThemePicker } from '../shared/ui/ThemePicker';
-import { MenuRoot } from '../shared/ui/MenuRoot';
-import { isAnswerScreen } from '../shared/ui/answerScreen';
-import { initials } from '../shared/lib/initials';
+import { useIsAdmin } from '../../admin/queries';
+import { useSession, useUser } from '../../session/context';
+import { ThemePicker } from '../../../shared/ui/ThemePicker';
+import { MenuRoot } from '../../../shared/ui/MenuRoot';
+import { isAnswerScreen } from '../../../shared/ui/answerScreen';
+import { initials } from '../../../shared/lib/initials';
 
 function Avatar({
   name,

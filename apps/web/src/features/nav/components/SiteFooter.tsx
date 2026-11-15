@@ -3,10 +3,10 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { CONTACT_EMAIL } from '@qv/schema';
-import { paths } from '../shared/lib/paths';
-import { useSession } from '../features/session/context';
-import { LogoMark } from '../shared/ui/Logo';
-import { CREDITS, SOURCE_CODE_URL } from '../shared/ui/credits';
+import { paths } from '../../../shared/lib/paths';
+import { useSession } from '../../session/context';
+import { LogoMark } from '../../../shared/ui/Logo';
+import { CREDITS, SOURCE_CODE_URL } from '../../../shared/ui/credits';
 
 const SITE_LINE = 'Sitio de estudiantes, sin relación oficial con la Universidad de Chile';
 

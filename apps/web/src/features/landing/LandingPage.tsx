@@ -21,7 +21,7 @@ import { Logo } from '../../shared/ui/Logo';
 import { HowToUse } from '../help/HowToUse';
 import { noticeText, noticeTitle } from '../session/notices';
 import { useSession } from '../session/context';
-import { SiteFooter } from '../../ui/SiteFooter';
+import { SiteFooter } from '../nav/components/SiteFooter';
 import { ContactLink, withContactLink } from '../../shared/ui/ContactLink';
 import { safeDestination } from '../session/AuthCallbackPage';
 

@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
 import { formatDay } from '../../shared/lib/dates';
 import { Logo } from '../../shared/ui/Logo';
-import { SiteFooter } from '../../ui/SiteFooter';
+import { SiteFooter } from '../nav/components/SiteFooter';
 
 export function LegalPage({
   title,

@@ -2,7 +2,7 @@
 import { Navigate, useLocation } from 'react-router';
 import { paths } from '../shared/lib/paths';
 import { Loading } from '../shared/ui/Loading';
-import { AppShell } from '../ui/AppShell';
+import { AppShell } from './AppShell';
 import { AccountGate } from './AccountGate';
 import { useSession } from '../features/session/context';
 

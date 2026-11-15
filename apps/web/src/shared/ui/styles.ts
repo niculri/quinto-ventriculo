@@ -28,7 +28,7 @@ export const page = 'mx-auto w-full max-w-[55.5rem] px-4 pt-5 pb-10 sm:px-5';
 
 /**
  * The screens where one answers (studying, the final review, practicing): the window under the site's bar, as Anki's
- * reviewer. On a phone the bar goes away (ui/AppShell.tsx) and the card takes its height; the answers stay above the
+ * reviewer. On a phone the bar goes away (app/AppShell.tsx) and the card takes its height; the answers stay above the
  * iPhone's home indicator.
  */
 export const studyScreen =

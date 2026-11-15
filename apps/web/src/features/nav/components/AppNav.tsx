@@ -14,18 +14,13 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import type { Catalog, CourseWithAssessments, NoteSummary, SemesterWithCourses } from '@qv/schema';
-import { paths } from '../shared/lib/paths';
-import {
-  MORE_SEMESTERS_SOON,
-  locateNote,
-  noteBlocks,
-  useCatalog,
-} from '../features/catalog/queries';
-import { buildAnkiTree, courseDeck, hasPage } from '../features/catalog/model/tree';
-import type { AnkiTree, CourseDeckNode } from '../features/catalog/model/tree';
-import { useSettingsGroups } from '../features/settings/useSettingsGroups';
-import { useIsAdmin } from '../features/admin/queries';
-import { ADMIN_SECTIONS } from '../features/admin/sections';
+import { paths } from '../../../shared/lib/paths';
+import { MORE_SEMESTERS_SOON, locateNote, noteBlocks, useCatalog } from '../../catalog/queries';
+import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
+import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
+import { useSettingsGroups } from '../../settings/useSettingsGroups';
+import { useIsAdmin } from '../../admin/queries';
+import { ADMIN_SECTIONS } from '../../admin/sections';
 
 export interface Where {
   semester: number | null;

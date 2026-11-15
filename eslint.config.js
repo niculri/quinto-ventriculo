@@ -210,9 +210,8 @@ export default tseslint.config(
   },
   ...domainPackages,
   {
-    // Layers of the web: shared (shared/, and ui/ while it keeps pieces that import features) → data features → page
-    // features → app, each importing only from itself and the ones below. A file at the root of src other than the
-    // entry point and Vite's types has no layer.
+    // Layers of the web: shared → data features → page features → app, each importing only from itself and the ones
+    // below. A file at the root of src other than the entry point and Vite's types has no layer.
     files: ['apps/web/src/**/*.{ts,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', 'apps/web/src/test/**'],
     plugins: { boundaries },
@@ -220,7 +219,7 @@ export default tseslint.config(
       'import/resolver': { node: { extensions: ['.ts', '.tsx', '.js'] } },
       'boundaries/include': ['apps/web/src/**/*'],
       'boundaries/elements': [
-        { type: 'shared', pattern: 'apps/web/src/{ui,shared}' },
+        { type: 'shared', pattern: 'apps/web/src/shared' },
         {
           type: 'feature-part',
           pattern: 'apps/web/src/features/*/(api|model|hooks|components|pages)',
@@ -249,7 +248,7 @@ export default tseslint.config(
             {
               from: { element: { type: 'shared' } },
               disallow: { to: { element: { types: ['feature', 'feature-part', 'app'] } } },
-              message: 'shared (shared/, ui/) does not import a feature nor app.',
+              message: 'shared/ does not import a feature nor app.',
             },
             {
               from: { element: { types: ['feature', 'feature-part'] } },

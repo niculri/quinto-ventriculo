@@ -2,13 +2,11 @@
 
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { dayStartsAt } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
 import { useStudyRepository } from '../../progress/api/context';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import {
-  studyKeys,
   useAnswersToday,
   useDeckProgress,
   useDeckSettings,
@@ -18,8 +16,9 @@ import {
   useUserPresets,
 } from '../../progress/queries';
 import type { HomeDeckCounts } from '../../progress/api/repository';
-import { decayByDeck, treeDecks } from '@qv/study';
+import { treeDecks } from '@qv/study';
 import type { HomeStudyBase } from '@qv/study';
+import { homeCountsQuery } from '../api/queries';
 
 export function useHomeStudy(catalog: Catalog | undefined, courses: readonly CourseDeckNode[]) {
   const study = useStudyRepository();
@@ -56,16 +55,7 @@ export function useHomeStudy(catalog: Catalog | undefined, courses: readonly Cou
     [catalog, decks, prefs, plan.data, progress.data, answers.data, presets.data, settings.data],
   );
   const ids = useMemo(() => courses.flatMap((c) => descendants(c).map((d) => d.id)), [courses]);
-  const home = useQuery({
-    queryKey: [...studyKeys.all, 'home', today ?? -1, ids.join(',')] as const,
-    queryFn: async () => {
-      const until = new Date(dayStartsAt(today! + 1, prefs!.timeZone, prefs!.dayStartsAt) * 1000);
-      const r = await study.homeCounts(ids, until, decayByDeck(base!, ids));
-      return { truncated: r.truncated, decks: new Map(r.decks.map((d) => [d.deckId, d])) };
-    },
-    enabled: !!base && today !== null && ids.length > 0,
-    staleTime: 30_000,
-  });
+  const home = useQuery(homeCountsQuery(study, today, prefs, base, ids));
   const parts = [preferences, plan, progress, answers, presets, settings, home];
   return {
     base,

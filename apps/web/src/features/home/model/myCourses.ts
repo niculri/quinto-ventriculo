@@ -3,6 +3,7 @@
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { countDecks, countNotes, materialLabel } from '../../catalog/queries';
 import type { StudyPreferences } from '@qv/schema/user';
+import { homeStrings } from '../strings';
 
 /** The database keeps at most this many in each list. */
 export const MAX_CHOSEN_COURSES = 100;
@@ -70,6 +71,8 @@ export function removeCourse<T extends Choice>(prefs: T, id: string): T {
 export function listText(names: readonly string[]): string {
   if (names.length <= 1) return names[0] ?? '';
   const last = names.at(-1)!;
-  const and = /^h?[iíIÍ](?![aeiouáéíóú])/i.test(last) ? 'e' : 'y';
+  const and = /^h?[iíIÍ](?![aeiouáéíóú])/i.test(last)
+    ? homeStrings.mine.andBeforeI
+    : homeStrings.mine.and;
   return `${names.slice(0, -1).join(', ')} ${and} ${last}`;
 }

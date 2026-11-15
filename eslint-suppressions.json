@@ -124,20 +124,6 @@
       "count": 3
     }
   },
-  "apps/web/src/features/home/pages/HomePage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 36
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/landing/LandingPage.tsx": {
     "@typescript-eslint/no-misused-promises": {
       "count": 2
@@ -363,6 +349,11 @@
       "count": 4
     }
   },
+  "apps/web/src/features/stats/api/demo.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
   "apps/web/src/features/stats/components/Heatmap.tsx": {
     "max-lines": {
       "count": 1
@@ -373,11 +364,6 @@
     "qv/no-literal-text": {
       "count": 13
     },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/stats/api/demo.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     }

@@ -13,10 +13,10 @@ interface SessionValue {
   signOut(): Promise<void>;
 }
 
-export const Context = createContext<SessionValue | null>(null);
+export const SessionContext = createContext<SessionValue | null>(null);
 
 export function useSession(): SessionValue {
-  const v = useContext(Context);
+  const v = useContext(SessionContext);
   if (!v) throw new Error('useSession outside <SessionProvider>');
   return v;
 }

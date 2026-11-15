@@ -7,7 +7,7 @@ import { paths } from '../shared/lib/paths';
 import { useSessionService } from '../features/session/api/context';
 import { forgetAccounts } from '../features/account/api/remembered';
 import { DOMAIN_NOTICE } from '../features/session/model/notices';
-import { Context } from '../features/session/context';
+import { SessionContext } from '../features/session/context';
 import type { SessionState } from '../features/session/context';
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -47,5 +47,5 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [session, queryClient]);
 
   const value = useMemo(() => ({ state, signIn, signOut }), [state, signIn, signOut]);
-  return <Context value={value}>{children}</Context>;
+  return <SessionContext value={value}>{children}</SessionContext>;
 }

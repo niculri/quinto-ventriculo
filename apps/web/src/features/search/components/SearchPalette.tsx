@@ -1,8 +1,15 @@
 // Quick search (⌘K / Ctrl+K or «/»): results while typing, arrows to move and Enter to open.
+import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ArrowRight, LoaderCircle, Search } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router';
+import { paths } from '../../../shared/lib/paths';
+import { useApi } from '../../../shared/hooks/useApi';
 import { BlurredBackdrop } from '../../../shared/ui/Dialog';
-import { usePalette } from '../hooks/usePalette';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
+import { countSearch } from '../../usage/count';
+import { useSearch } from '../hooks/useSearch';
+import { resultLink, searchContext } from '../model/results';
 import { PaletteResults } from './PaletteResults';
 import { paletteStrings as s } from '../palette.strings';
 
@@ -30,10 +37,39 @@ export function SearchPalette({
 }
 
 function PaletteContent({ close }: { close: () => void }) {
-  const palette = usePalette(close);
-  const { text, type, selected, results, isFetching, typed, go, seeAll } = palette;
+  const [text, setText] = useState('');
+  const [selected, setSelected] = useState(0);
+  const navigate = useNavigate();
+  const catalog = useCatalog().data;
+  const { pathname } = useLocation();
+  const api = useApi();
+  const { results, active, isFetching, query } = useSearch(text, 8);
+  const go = (to: string) => {
+    countSearch(api, text, searchContext(pathname));
+    close();
+    void navigate(to);
+  };
+  const seeAll = paths.search(text);
+  const typed = text.trim().length >= 2;
+  // Not «nothing» while the debounced query has not caught up with the text.
+  const noResults = active && query === text.trim() && !isFetching && results.length === 0;
+
   return (
-    <div onKeyDown={palette.onKeyDown}>
+    <div
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setSelected((i) => Math.max(0, Math.min(i + 1, results.length - 1)));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setSelected((i) => Math.max(i - 1, 0));
+        } else if (e.key === 'Enter' && text.trim()) {
+          e.preventDefault();
+          const r = results[selected];
+          go(r ? resultLink(r, catalog) : seeAll);
+        }
+      }}
+    >
       <div className="flex items-center gap-3 border-b border-border px-4">
         {isFetching ? (
           <LoaderCircle className="size-5 animate-spin text-muted" aria-hidden="true" />
@@ -43,7 +79,10 @@ function PaletteContent({ close }: { close: () => void }) {
         <input
           autoFocus
           value={text}
-          onChange={(e) => type(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            setSelected(0);
+          }}
           placeholder={s.placeholder}
           aria-label={s.title}
           role="combobox"
@@ -59,7 +98,22 @@ function PaletteContent({ close }: { close: () => void }) {
       </div>
 
       <div className="max-h-[60vh] overflow-y-auto p-2">
-        <PaletteResults palette={palette} />
+        {!typed ? (
+          <p className="px-3 py-8 text-center text-sm text-muted">{s.twoLetters}</p>
+        ) : noResults ? (
+          <p className="px-3 py-8 text-center text-sm text-muted">
+            {s.nothingFor}
+            {query}
+            {s.nothingAfter}
+          </p>
+        ) : (
+          <PaletteResults
+            results={results}
+            selected={selected}
+            onSelect={setSelected}
+            onOpen={(r) => go(resultLink(r, catalog))}
+          />
+        )}
       </div>
 
       {typed ? (

@@ -1,22 +1,20 @@
-// The quick search's results: «two letters», «nothing for», or the list, with the selected one marked.
+// The quick search's list of results, with the selected one marked.
 import { FileText } from 'lucide-react';
-import type { usePalette } from '../hooks/usePalette';
-import { resultLink } from '../model/results';
+import type { SearchResult } from '@qv/schema';
 import { Snippet } from './Snippet';
 import { paletteStrings as s } from '../palette.strings';
 
-export function PaletteResults({ palette }: { palette: ReturnType<typeof usePalette> }) {
-  const { typed, noResults, query, results, selected, setSelected, go, catalog } = palette;
-  if (!typed) return <p className="px-3 py-8 text-center text-sm text-muted">{s.twoLetters}</p>;
-  if (noResults) {
-    return (
-      <p className="px-3 py-8 text-center text-sm text-muted">
-        {s.nothingFor}
-        {query}
-        {s.nothingAfter}
-      </p>
-    );
-  }
+export function PaletteResults({
+  results,
+  selected,
+  onSelect,
+  onOpen,
+}: {
+  results: SearchResult[];
+  selected: number;
+  onSelect: (i: number) => void;
+  onOpen: (r: SearchResult) => void;
+}) {
   return (
     <ul id="palette-results" role="listbox" aria-label={s.results}>
       {results.map((r, i) => (
@@ -25,8 +23,8 @@ export function PaletteResults({ palette }: { palette: ReturnType<typeof usePale
           id={`palette-result-${i}`}
           role="option"
           aria-selected={i === selected}
-          onMouseEnter={() => setSelected(i)}
-          onClick={() => go(resultLink(r, catalog))}
+          onMouseEnter={() => onSelect(i)}
+          onClick={() => onOpen(r)}
           className={`flex cursor-pointer gap-3 rounded-lg px-3 py-2.5 ${i === selected ? 'bg-surface-2' : ''}`}
         >
           <FileText className="mt-0.5 size-4 flex-none text-muted" aria-hidden="true" />

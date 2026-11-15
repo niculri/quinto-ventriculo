@@ -4,13 +4,13 @@ import type { ReactNode } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import type { Services } from './services';
 import { localQuizRepository } from '../features/quiz/api/repository';
-import { studyKeys } from '../features/progress/api/queries';
+import { studyKeys } from '../features/progress/queries';
 import {
-  Context,
-  SHARED,
+  PreviewContext,
+  sharedWithPreview,
   previewStudyRepository,
-  store,
-  stored,
+  storePreview,
+  storedPreview,
 } from '../features/preview/preview';
 import type { Preview } from '../features/preview/preview';
 
@@ -39,7 +39,7 @@ export function PreviewSwitch({
 }) {
   const available = !!services.previewApi;
   const [repos, setRepos] = useState<Pick<Services, 'study' | 'quiz'> | null>(() =>
-    available && stored() ? fresh(services) : null,
+    available && storedPreview() ? fresh(services) : null,
   );
 
   const previewServices = useMemo<Services | null>(
@@ -58,10 +58,12 @@ export function PreviewSwitch({
   const enter = useCallback(() => {
     if (!available) return;
     previewClient.clear();
-    for (const q of client.getQueryCache().findAll({ predicate: (q) => SHARED(q.queryKey) })) {
+    for (const q of client
+      .getQueryCache()
+      .findAll({ predicate: (q) => sharedWithPreview(q.queryKey) })) {
       if (q.state.data !== undefined) previewClient.setQueryData(q.queryKey, q.state.data);
     }
-    store(true);
+    storePreview(true);
     setRepos(fresh(services));
   }, [available, client, previewClient, services]);
 
@@ -70,14 +72,14 @@ export function PreviewSwitch({
     // the preferences are read again, since the preview may have changed them in memory only.
     for (const q of previewClient
       .getQueryCache()
-      .findAll({ predicate: (q) => SHARED(q.queryKey) })) {
+      .findAll({ predicate: (q) => sharedWithPreview(q.queryKey) })) {
       if (q.state.data === undefined) continue;
       if (q.queryKey[0] === 'release' || client.getQueryData(q.queryKey) === undefined) {
         client.setQueryData(q.queryKey, q.state.data);
       }
     }
     void client.invalidateQueries({ queryKey: studyKeys.preferences });
-    store(false);
+    storePreview(false);
     setRepos(null);
     previewClient.clear();
   }, [client, previewClient]);
@@ -113,12 +115,12 @@ export function PreviewSwitch({
     [previewServices, available, enter, exit],
   );
   return (
-    <Context value={value}>
+    <PreviewContext value={value}>
       {render(
         previewServices
           ? { services: previewServices, client: previewClient, site: 'preview' }
           : { services, client, site: 'published' },
       )}
-    </Context>
+    </PreviewContext>
   );
 }

@@ -5,7 +5,7 @@ import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
 import { useAssessmentView, useStudyPlan } from '../../progress/queries';
 import { ancestry } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { useCountOpen } from '../../usage/count';
+import { useCountOpen } from '../../usage/api/count';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import { useDeck } from './useDeck';
 

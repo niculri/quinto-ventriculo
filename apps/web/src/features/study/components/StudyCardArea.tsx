@@ -1,6 +1,6 @@
 // The card being studied and what is under it: its answers and, in the simple mode, «Ver apunte» and «Preguntas».
 import type { Shown } from '@qv/study';
-import type { useTip } from '../../tips/useTip';
+import type { useTip } from '../../tips/hooks/useTip';
 import type { StudySession } from '../api/StudySession';
 import type { CardMaterial } from '../model/material';
 import { MaterialRow } from './MaterialRow';

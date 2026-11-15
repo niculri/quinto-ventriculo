@@ -2,8 +2,8 @@
 // Fire and forget: a failure does nothing, so counting never gets in the way of studying.
 import { useEffect, useRef } from 'react';
 import type { SearchContext, UsageOpenRequest } from '@qv/schema';
-import { useApi } from '../../shared/hooks/useApi';
-import type { ApiClient } from '../../shared/lib/api';
+import { useApi } from '../../../shared/hooks/useApi';
+import type { ApiClient } from '../../../shared/lib/api';
 
 const SAME_OPEN_MS = 10 * 60_000;
 

@@ -8,7 +8,7 @@ import { paths } from '../../../shared/lib/paths';
 import { useReadingFonts } from '../../../shared/lib/readingFonts';
 import { findCourse } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
-import { useCountOpen } from '../../usage/count';
+import { useCountOpen } from '../../usage/api/count';
 import type { SavedQuiz } from '../api/repository';
 import { rememberedTab } from '../api/tab';
 import { lastUsedTab } from '../model/tab';

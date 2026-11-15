@@ -7,7 +7,7 @@ import { paths } from '../../../shared/lib/paths';
 import { useApi } from '../../../shared/hooks/useApi';
 import { BlurredBackdrop } from '../../../shared/ui/Dialog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
-import { countSearch } from '../../usage/count';
+import { countSearch } from '../../usage/api/count';
 import { useSearch } from '../hooks/useSearch';
 import { resultLink, searchContext } from '../model/results';
 import { PaletteResults } from './PaletteResults';

@@ -10,7 +10,7 @@ import { cardKey } from '@qv/study';
 import type { StudyData } from '@qv/study';
 import { DaySummary } from './DaySummary';
 import { useCardMaterial } from '../hooks/useCardMaterial';
-import { useTip } from '../../tips/useTip';
+import { useTip } from '../../tips/hooks/useTip';
 import { LiveToast } from '../../../shared/ui/Toast';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import {

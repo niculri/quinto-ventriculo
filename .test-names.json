@@ -24,7 +24,6 @@
   "apps/web/src/features/progress/api/repository/memory-contract-settings.test.ts",
   "apps/web/src/features/settings/kept-options.test.ts",
   "apps/web/src/features/study/scheduler.test.ts",
-  "apps/web/src/features/usage/count.test.tsx",
   "apps/web/src/third-party-licenses.test.ts",
   "db/tests/account.test.ts",
   "db/tests/admin-access.test.ts",

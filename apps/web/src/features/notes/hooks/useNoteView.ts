@@ -8,7 +8,7 @@ import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import type { NoteLocation } from '../../catalog/model/catalog';
 import type { ReportLocation, ReportTarget } from '../../reports/api/repository';
-import { useTip } from '../../tips/useTip';
+import { useTip } from '../../tips/hooks/useTip';
 import { rememberNote } from '../api/lastNote';
 import { anchorOf } from '../model/anchor';
 import { flashHeading } from '../model/flash';

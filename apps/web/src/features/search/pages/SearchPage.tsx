@@ -6,7 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import { useApi } from '../../../shared/hooks/useApi';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
-import { countSearch } from '../../usage/count';
+import { countSearch } from '../../usage/api/count';
 import { useSearch } from '../hooks/useSearch';
 import { groupByNote } from '../model/results';
 import { SearchResults } from '../components/SearchResults';

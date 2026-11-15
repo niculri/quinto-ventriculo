@@ -16,23 +16,23 @@ export interface Preview {
   exit(): void;
 }
 
-export const Context = createContext<Preview>({
+export const PreviewContext = createContext<Preview>({
   active: false,
   available: false,
   enter() {},
   exit() {},
 });
 
-export const usePreview = () => useContext(Context);
+export const usePreview = () => useContext(PreviewContext);
 
-export const stored = () => {
+export const storedPreview = () => {
   try {
     return window.sessionStorage.getItem(KEY) === 'draft';
   } catch {
     return false;
   }
 };
-export const store = (on: boolean) => {
+export const storePreview = (on: boolean) => {
   try {
     if (on) window.sessionStorage.setItem(KEY, 'draft');
     else window.sessionStorage.removeItem(KEY);
@@ -41,8 +41,11 @@ export const store = (on: boolean) => {
   }
 };
 
-/** The cache entries that are the same in the preview: the user, their preferences and the administration panel's. */
-export const SHARED = (key: readonly unknown[]) =>
+/**
+ * The cache entries that are the same in the preview: the user, their preferences and the administration panel's (their
+ * first elements are the admin and reports keys', written here so the startup does not load those pages' reads).
+ */
+export const sharedWithPreview = (key: readonly unknown[]) =>
   key[0] === 'is-admin' ||
   key[0] === 'release' ||
   key[0] === 'report-queue' ||

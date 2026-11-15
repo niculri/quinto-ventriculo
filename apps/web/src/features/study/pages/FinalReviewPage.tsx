@@ -16,7 +16,7 @@ import type { StudyData } from '@qv/study';
 import { studyKeys, useStudyData } from '../../progress/queries';
 import { StudyFallback } from '../components/StudyFallback';
 import { StudyLoading } from '../components/StudyLoading';
-import { useCountOpen } from '../../usage/count';
+import { useCountOpen } from '../../usage/api/count';
 import { FinalReview } from '../components/FinalReview';
 import { studyStrings } from '../strings';
 

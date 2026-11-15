@@ -8,7 +8,7 @@ import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { useReadingFonts } from '../../../shared/lib/readingFonts';
 import { locateNote } from '../../catalog/model/catalog';
 import { useCatalog, useNote } from '../../catalog/hooks/useCatalog';
-import { useCountOpen } from '../../usage/count';
+import { useCountOpen } from '../../usage/api/count';
 import { NoteView } from '../components/NoteView';
 import { NoteSkeleton } from '../components/NoteSkeleton';
 

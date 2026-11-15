@@ -42,6 +42,7 @@ import { useReadingFonts } from '../../shared/lib/readingFonts';
 import { noteCrumbs } from './noteCrumbs';
 import { StatusToast } from '../../shared/ui/Toast';
 import { useTitle } from '../../shared/hooks/useTitle';
+import { sharedStrings } from '../../shared/strings';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
@@ -270,9 +271,7 @@ export function NoteView({
       {selected && !reporting ? (
         <SelectionReportBar onReport={() => setReporting({ target: targetOf(selected) })} />
       ) : null}
-      {thanks && !selected ? (
-        <StatusToast>Gracias: tu reporte le llegó al autor.</StatusToast>
-      ) : null}
+      {thanks && !selected ? <StatusToast>{sharedStrings.reportThanks}</StatusToast> : null}
       <ReportDialog
         target={reporting?.target ?? null}
         {...(reporting?.category ? { category: reporting.category } : {})}

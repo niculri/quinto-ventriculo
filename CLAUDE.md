@@ -58,6 +58,12 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, y
   también si esa lista se alargó respecto de `origin/main`; `npm run test-names:baseline` la rehace, para sacar las que
   ya lo cumplen.
+- **Textos de la interfaz:** lo que lee una persona (texto en JSX, `aria-label`, `title`, `placeholder`, `alt`,
+  `label`…) sale del `strings.ts` de su feature (`features/<x>/strings.ts`, `app/strings.ts`) o, si es común, de
+  `shared/strings.ts` (un componente de `shared/ui` que no carga al inicio lleva el suyo, `X.strings.ts`, para no
+  sumarlo al arranque): un objeto `as const`, con funciones para lo que lleva números o nombres. Las pruebas siguen
+  buscando el texto literal. Lo impone `qv/no-literal-text`, salvo en las pruebas, las páginas de texto fijo y las
+  respuestas de las preguntas frecuentes.
 - **Trinquete:** todas las reglas están en `error`; lo que ya las violaba está en `eslint-suppressions.json`. Por cada
   regla, las supresiones de ese archivo más los `eslint-disable` en línea no pueden subir respecto de `origin/main`:
   `npm run suppressions` (en `npm run check`, la CI y el `pre-push`). Un `eslint-disable` que ya no silencia nada es
@@ -70,7 +76,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   por qué es así. Nada de historia (pasos, revisiones, fechas, quién lo pidió) ni comentarios que repiten el código.
 - `npm run knip` lista archivos, exports y dependencias sin uso, y falla si hay alguno (en `npm run check`, la CI y el
   `pre-push`); `npm run coverage`, la cobertura (sin umbral). Las reglas de comentarios son `qv/file-header` y
-  `qv/no-history-comments`, de `packages/eslint-plugin` (también leen CSS, YAML, shell y JSON con comentarios).
+  `qv/no-history-comments`, de `packages/eslint-plugin` (también leen CSS, YAML, shell y JSON con comentarios), junto
+  a `qv/no-cast-on-data` y `qv/no-literal-text`.
 
 ## Antes de subir un cambio
 `npm run typecheck`, `npm run lint`, `npm run format:check`, `npx vitest run` y `npm run e2e`. El hook `pre-push`

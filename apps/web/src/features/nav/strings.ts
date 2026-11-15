@@ -1,0 +1,25 @@
+// The interface text of the site's menu, the account menu and the footer.
+export const navStrings = {
+  menu: 'Menú del sitio',
+  home: 'Inicio',
+  notes: 'Apuntes',
+  tests: 'Tests',
+  anki: 'Anki',
+  admin: 'Administración',
+  settings: 'Opciones',
+  help: 'Ayuda',
+  signOut: 'Cerrar sesión',
+  account: 'Tu cuenta',
+  accountOf: (name: string) => `${name}, tu cuenta`,
+  footer: {
+    siteLine: 'Sitio de estudiantes, sin relación oficial con la Universidad de Chile',
+    aboutTheSite: 'Sobre el sitio',
+    about: 'Acerca de',
+    report: 'Reportar un problema',
+    legal: 'Textos legales',
+    privacy: 'Privacidad',
+    terms: 'Términos de uso',
+    licenses: 'Licencias',
+    source: 'Código fuente',
+  },
+} as const;

@@ -6,6 +6,8 @@ import { useRef, useState } from 'react';
 import { Maximize2, MessageSquareWarning, Minimize2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useImageZoom } from '../hooks/useImageZoom';
 import type { Size } from '../lib/zoom';
+import { sharedStrings } from '../strings';
+import { imageViewerStrings } from './ImageViewer.strings';
 
 export interface OpenImage {
   src: string;
@@ -70,10 +72,10 @@ function Viewer({
       onKeyDown={zoom.onKeyDown}
       className="fixed inset-0 z-50 flex touch-none flex-col bg-black pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-white outline-none"
     >
-      <Dialog.Title className="sr-only">{image.alt || 'Imagen ampliada'}</Dialog.Title>
+      <Dialog.Title className="sr-only">{image.alt || imageViewerStrings.title}</Dialog.Title>
       <div
         role="group"
-        aria-label="Zoom"
+        aria-label={imageViewerStrings.zoom}
         className="flex flex-none items-center justify-end gap-1 px-2 py-2"
       >
         <button
@@ -81,7 +83,7 @@ function Viewer({
           className={TOOL}
           onClick={zoom.zoomOut}
           aria-disabled={zoom.fitted}
-          aria-label="Alejar"
+          aria-label={imageViewerStrings.zoomOut}
         >
           <ZoomOut className="size-5" aria-hidden="true" />
         </button>
@@ -93,7 +95,7 @@ function Viewer({
           className={TOOL}
           onClick={zoom.zoomIn}
           aria-disabled={zoom.atMax}
-          aria-label="Acercar"
+          aria-label={imageViewerStrings.zoomIn}
         >
           <ZoomIn className="size-5" aria-hidden="true" />
         </button>
@@ -104,9 +106,9 @@ function Viewer({
           aria-label={
             zoom.fitted
               ? zoom.atNatural
-                ? 'Acercar al doble'
-                : 'Ver a tamaño real'
-              : 'Ajustar a la pantalla'
+                ? imageViewerStrings.double
+                : imageViewerStrings.natural
+              : imageViewerStrings.fit
           }
         >
           {zoom.fitted ? (
@@ -115,7 +117,11 @@ function Viewer({
             <Minimize2 className="size-5" aria-hidden="true" />
           )}
         </button>
-        <Dialog.Close ref={close} aria-label="Cerrar" className={`${TOOL} ml-2 bg-white/10`}>
+        <Dialog.Close
+          ref={close}
+          aria-label={sharedStrings.close}
+          className={`${TOOL} ml-2 bg-white/10`}
+        >
           <X className="size-5" aria-hidden="true" />
         </Dialog.Close>
       </div>
@@ -167,7 +173,8 @@ function Viewer({
               onClick={() => onReport(image)}
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm text-white hover:bg-white/20"
             >
-              <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar esta imagen
+              <MessageSquareWarning className="size-4" aria-hidden="true" />{' '}
+              {imageViewerStrings.report}
             </button>
           ) : null}
         </div>

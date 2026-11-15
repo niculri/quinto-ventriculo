@@ -9,6 +9,7 @@ import { ThemePicker } from '../../../shared/ui/ThemePicker';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { isAnswerScreen } from '../../../shared/ui/answerScreen';
 import { initials } from '../../../shared/lib/initials';
+import { navStrings } from '../strings';
 
 function Avatar({
   name,
@@ -48,7 +49,7 @@ export function UserMenu() {
   return (
     <MenuRoot closeOnly={isAnswerScreen(pathname)}>
       <Menu.Trigger
-        aria-label={user.name ? `${user.name}, tu cuenta` : 'Tu cuenta'}
+        aria-label={user.name ? navStrings.accountOf(user.name) : navStrings.account}
         className="flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5"
       >
         {user.name ? (
@@ -63,7 +64,9 @@ export function UserMenu() {
           className="z-50 w-64 rounded-xl border border-border bg-surface p-1.5 shadow-soft"
         >
           <div className="px-2.5 pt-1.5 pb-2.5">
-            <p className="truncate text-sm font-semibold text-ink">{user.name ?? 'Tu cuenta'}</p>
+            <p className="truncate text-sm font-semibold text-ink">
+              {user.name ?? navStrings.account}
+            </p>
             <p className="truncate text-xs text-muted">{user.email}</p>
           </div>
           <div className="px-2.5 pb-2">
@@ -71,21 +74,21 @@ export function UserMenu() {
           </div>
           <Menu.Separator className="my-1 h-px bg-border" />
           <Menu.Item className={item} onSelect={() => navigate(paths.settings)}>
-            <Settings className="size-4 text-muted" aria-hidden="true" /> Opciones
+            <Settings className="size-4 text-muted" aria-hidden="true" /> {navStrings.settings}
           </Menu.Item>
           {isAdmin.data === true ? (
             <Menu.Item className={item} onSelect={() => navigate(paths.admin)}>
-              <ShieldCheck className="size-4 text-muted" aria-hidden="true" /> Administración
+              <ShieldCheck className="size-4 text-muted" aria-hidden="true" /> {navStrings.admin}
             </Menu.Item>
           ) : null}
           <Menu.Item className={item} onSelect={() => navigate(paths.help)}>
-            <CircleHelp className="size-4 text-muted" aria-hidden="true" /> Ayuda
+            <CircleHelp className="size-4 text-muted" aria-hidden="true" /> {navStrings.help}
           </Menu.Item>
           <Menu.Item
             className={item}
             onSelect={() => void signOut().then(() => navigate(paths.landing()))}
           >
-            <LogOut className="size-4 text-muted" aria-hidden="true" /> Cerrar sesión
+            <LogOut className="size-4 text-muted" aria-hidden="true" /> {navStrings.signOut}
           </Menu.Item>
         </Menu.Content>
       </Menu.Portal>

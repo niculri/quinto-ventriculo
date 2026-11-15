@@ -31,6 +31,7 @@ import {
 } from '@qv/schema';
 import { PREVIEW_HEADER, PREVIEW_VALUE, apiPaths } from '@qv/schema/http';
 import type { PublishRequest, ReleaseMarkId, UsageOpenRequest } from '@qv/schema';
+import { sharedStrings } from '../strings';
 
 export class ApiRequestError extends Error {
   constructor(
@@ -82,11 +83,7 @@ export function createApiClient(
       });
     } catch (e) {
       if ((e as Error).name === 'AbortError') throw e;
-      throw new ApiRequestError(
-        0,
-        'offline',
-        'No hay conexión con el servidor. Revisa tu internet.',
-      );
+      throw new ApiRequestError(0, 'offline', sharedStrings.errors.offline);
     }
     const body: unknown = await r.json().catch(() => null);
     if (!r.ok) {
@@ -94,7 +91,7 @@ export function createApiClient(
       throw new ApiRequestError(
         r.status,
         e.success ? e.data.error : 'unknown',
-        e.success ? e.data.message : 'El servidor respondió con un error. Intenta de nuevo.',
+        e.success ? e.data.message : sharedStrings.errors.server,
       );
     }
     return schema.parse(body);

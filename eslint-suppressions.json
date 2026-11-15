@@ -65,6 +65,9 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 22
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -77,6 +80,9 @@
   "apps/web/src/features/account/DeleteAccountDialog.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 15
     }
   },
   "apps/web/src/features/admin/AccessPage.tsx": {
@@ -86,8 +92,16 @@
     "max-lines-per-function": {
       "count": 4
     },
+    "qv/no-literal-text": {
+      "count": 88
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
+    }
+  },
+  "apps/web/src/features/admin/AdminLayout.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/admin/ReleasesPage.tsx": {
@@ -96,6 +110,9 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 64
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -107,6 +124,19 @@
     },
     "max-lines-per-function": {
       "count": 3
+    },
+    "qv/no-literal-text": {
+      "count": 52
+    }
+  },
+  "apps/web/src/features/admin/SitePage.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/admin/UnpublishedPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 10
     }
   },
   "apps/web/src/features/admin/UsagePage.tsx": {
@@ -115,6 +145,9 @@
     },
     "max-lines-per-function": {
       "count": 2
+    },
+    "qv/no-literal-text": {
+      "count": 25
     }
   },
   "apps/web/src/features/admin/api/repository/memory.ts": {
@@ -131,13 +164,29 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 22
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/anki/DeckPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 15
+    }
+  },
+  "apps/web/src/features/anki/DeckPresetDialog.tsx": {
+    "qv/no-literal-text": {
+      "count": 9
     }
   },
   "apps/web/src/features/anki/SimpleDeckTree.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 4
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -150,6 +199,9 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/no-literal-text": {
+      "count": 47
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
@@ -157,11 +209,22 @@
   "apps/web/src/features/browse/CardPreview.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 19
+    }
+  },
+  "apps/web/src/features/browse/QuickFilters.tsx": {
+    "qv/no-literal-text": {
+      "count": 18
     }
   },
   "apps/web/src/features/browse/Sidebar.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 9
     }
   },
   "apps/web/src/features/browse/data.ts": {
@@ -176,6 +239,9 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 5
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -187,6 +253,9 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/no-literal-text": {
+      "count": 25
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -194,6 +263,9 @@
   "apps/web/src/features/cards/Filters.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 10
     }
   },
   "apps/web/src/features/cards/LegacyBrowse.tsx": {
@@ -201,9 +273,17 @@
       "count": 1
     }
   },
+  "apps/web/src/features/cards/PracticePage.tsx": {
+    "qv/no-literal-text": {
+      "count": 12
+    }
+  },
   "apps/web/src/features/cards/Viewer.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 16
     }
   },
   "apps/web/src/features/cards/demo.ts": {
@@ -230,21 +310,40 @@
     }
   },
   "apps/web/src/features/courses/AssessmentSections.tsx": {
+    "qv/no-literal-text": {
+      "count": 14
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/courses/CareerPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
     }
   },
   "apps/web/src/features/courses/CoursePage.tsx": {
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/no-literal-text": {
+      "count": 15
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/courses/SemesterPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/decks/CardViewer.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 11
     }
   },
   "apps/web/src/features/decks/occlusion.ts": {
@@ -265,6 +364,9 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 27
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -278,11 +380,22 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 31
+    }
+  },
+  "apps/web/src/features/legal/LegalPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/legal/LicensesPage.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 36
     }
   },
   "apps/web/src/features/nav/components/AppNav.tsx": {
@@ -308,8 +421,21 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 12
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/notes/Practice.tsx": {
+    "qv/no-literal-text": {
+      "count": 8
+    }
+  },
+  "apps/web/src/features/notes/Toc.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
     }
   },
   "apps/web/src/features/notes/articleHtml.ts": {
@@ -319,6 +445,16 @@
   },
   "apps/web/src/features/notes/placeThumbs.ts": {
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notes/reporting.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/progress/MasteryMeter.tsx": {
+    "qv/no-literal-text": {
       "count": 1
     }
   },
@@ -336,11 +472,22 @@
   "apps/web/src/features/quiz/Cover.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 17
+    }
+  },
+  "apps/web/src/features/quiz/Figures.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/quiz/QuestionCard.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 33
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -356,6 +503,9 @@
     "max-lines-per-function": {
       "count": 2
     },
+    "qv/no-literal-text": {
+      "count": 15
+    },
     "sonarjs/cognitive-complexity": {
       "count": 3
     }
@@ -363,6 +513,9 @@
   "apps/web/src/features/quiz/Results.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 16
     }
   },
   "apps/web/src/features/quiz/saver.ts": {
@@ -375,9 +528,17 @@
       "count": 1
     }
   },
+  "apps/web/src/features/reports/MyReportsPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
+    }
+  },
   "apps/web/src/features/reports/ReportDialog.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 11
     }
   },
   "apps/web/src/features/reports/api/repository/memory.ts": {
@@ -394,6 +555,9 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 13
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
@@ -404,11 +568,17 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 9
     }
   },
   "apps/web/src/features/settings/AccountSettingsPage.tsx": {
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 32
     }
   },
   "apps/web/src/features/settings/AnkiSettingsPage.tsx": {
@@ -417,6 +587,19 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 70
+    }
+  },
+  "apps/web/src/features/settings/PresetDialogs.tsx": {
+    "qv/no-literal-text": {
+      "count": 16
+    }
+  },
+  "apps/web/src/features/settings/SettingsLayout.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/stats/HeatmapCard.tsx": {
@@ -425,6 +608,9 @@
     },
     "max-lines-per-function": {
       "count": 2
+    },
+    "qv/no-literal-text": {
+      "count": 13
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -435,6 +621,11 @@
       "count": 1
     }
   },
+  "apps/web/src/features/study/DaySummary.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
+    }
+  },
   "apps/web/src/features/study/FinalReviewPage.tsx": {
     "max-lines": {
       "count": 1
@@ -442,8 +633,16 @@
     "max-lines-per-function": {
       "count": 1
     },
+    "qv/no-literal-text": {
+      "count": 20
+    },
     "sonarjs/cognitive-complexity": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/study/MaterialRow.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/study/StudyPage.tsx": {
@@ -452,6 +651,9 @@
     },
     "max-lines-per-function": {
       "count": 3
+    },
+    "qv/no-literal-text": {
+      "count": 71
     },
     "sonarjs/cognitive-complexity": {
       "count": 3

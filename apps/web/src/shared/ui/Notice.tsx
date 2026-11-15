@@ -4,10 +4,11 @@ import type { ReactNode } from 'react';
 import { ApiRequestError } from '../lib/api';
 import { withContactLink } from './ContactLink';
 import { button } from './styles';
+import { sharedStrings } from '../strings';
 
 export function errorMessage(e: unknown): string {
   if (e instanceof ApiRequestError) return e.message;
-  return 'Ocurrió un error inesperado. Recarga la página.';
+  return sharedStrings.errors.unexpected;
 }
 
 export function Notice({
@@ -43,14 +44,14 @@ export function Notice({
 export function ErrorWithRetry({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   return (
     <div className="mx-auto max-w-lg py-16">
-      <Notice title="No se pudo cargar">
+      <Notice title={sharedStrings.loadError.title}>
         <p>{withContactLink(errorMessage(error))}</p>
         <button
           type="button"
           onClick={onRetry}
           className={`${button.base} ${button.secondary} mt-3`}
         >
-          Reintentar
+          {sharedStrings.loadError.retry}
         </button>
       </Notice>
     </div>

@@ -2,6 +2,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { button } from './styles';
+import { sharedStrings } from '../strings';
 
 export function BlurredBackdrop() {
   return <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />;
@@ -11,7 +12,13 @@ export function DimBackdrop() {
   return <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />;
 }
 
-export function CloseX({ label = 'Cerrar', disabled }: { label?: string; disabled?: boolean }) {
+export function CloseX({
+  label = sharedStrings.close,
+  disabled,
+}: {
+  label?: string;
+  disabled?: boolean;
+}) {
   return (
     <Dialog.Close
       aria-label={label}
@@ -25,7 +32,7 @@ export function CloseX({ label = 'Cerrar', disabled }: { label?: string; disable
 
 export function GhostCloseX() {
   return (
-    <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label="Cerrar">
+    <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label={sharedStrings.close}>
       <X className="size-4" aria-hidden="true" />
     </Dialog.Close>
   );

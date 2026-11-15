@@ -1,5 +1,6 @@
 // The site's logo: a sagittal section of the brain with the «fifth ventricle» (cavum septi pellucidi) in the accent
 // color, the same drawing as public/icon.svg, and the site's name.
+import { sharedStrings } from '../strings';
 export function LogoMark({ className = 'size-8' }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
@@ -86,20 +87,20 @@ export function Logo({
       </span>
       <span className={compact ? 'max-sm:sr-only' : ''}>
         <span className="block font-serif text-[1.05rem] leading-none font-semibold tracking-tight text-ink">
-          El Quinto Ventrículo
+          {sharedStrings.siteName}
         </span>
         {tagline ? (
           // Drawn by CSS: the link already says where it goes, and the motto is not read on every page.
           <span className="mt-1 hidden lg:grid" aria-hidden="true">
             <span
-              data-text="El ventrículo que no aparece en el Netter."
+              data-text={sharedStrings.logo.motto}
               className={`col-start-1 row-start-1 font-serif text-[0.78rem] leading-none text-muted italic before:content-[attr(data-text)] ${
                 preview ? 'invisible' : ''
               }`}
             />
             {preview ? (
               <span
-                data-text="Vista previa del borrador"
+                data-text={sharedStrings.logo.preview}
                 className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-accent before:content-[attr(data-text)]"
               />
             ) : null}

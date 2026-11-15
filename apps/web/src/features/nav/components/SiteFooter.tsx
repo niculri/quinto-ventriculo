@@ -7,8 +7,8 @@ import { paths } from '../../../shared/lib/paths';
 import { useSession } from '../../session/context';
 import { LogoMark } from '../../../shared/ui/Logo';
 import { CREDITS, SOURCE_CODE_URL } from '../../../shared/ui/credits';
-
-const SITE_LINE = 'Sitio de estudiantes, sin relación oficial con la Universidad de Chile';
+import { navStrings } from '../strings';
+import { sharedStrings } from '../../../shared/strings';
 
 /** A footer link: at least 44 px tall on the phone, where it is touched (WCAG 2.5.5); a line of text on wider screens. */
 const linkClass = 'inline-flex min-h-11 items-center hover:text-ink sm:min-h-0';
@@ -37,54 +37,54 @@ export function SiteFooter({
         <div className="flex flex-wrap items-center gap-3">
           {landing ? <LogoMark className="size-6" /> : null}
           <p>
-            El Quinto Ventrículo · {SITE_LINE} · {CREDITS}
+            {sharedStrings.siteName} · {navStrings.footer.siteLine} · {CREDITS}
           </p>
         </div>
         <div className="flex flex-wrap justify-between gap-x-8 gap-y-1">
-          <nav aria-label="Sobre el sitio">
+          <nav aria-label={navStrings.footer.aboutTheSite}>
             <ul className="flex flex-wrap gap-x-4">
               {signedIn
                 ? item(
                     'help',
                     <Link to={paths.help} className={linkClass}>
-                      Ayuda
+                      {navStrings.help}
                     </Link>,
                   )
                 : null}
               {item(
                 'about',
                 <Link to={paths.about} className={linkClass}>
-                  Acerca de
+                  {navStrings.footer.about}
                 </Link>,
               )}
               {item(
                 'report',
                 <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
-                  Reportar un problema
+                  {navStrings.footer.report}
                 </a>,
               )}
             </ul>
           </nav>
-          <nav aria-label="Textos legales">
+          <nav aria-label={navStrings.footer.legal}>
             <ul className="flex flex-wrap gap-x-4">
               <li>
                 <Link to={paths.privacy} className={linkClass}>
-                  Privacidad
+                  {navStrings.footer.privacy}
                 </Link>
               </li>
               <li>
                 <Link to={paths.terms} className={linkClass}>
-                  Términos de uso
+                  {navStrings.footer.terms}
                 </Link>
               </li>
               <li>
                 <Link to={paths.licenses} className={linkClass}>
-                  Licencias
+                  {navStrings.footer.licenses}
                 </Link>
               </li>
               <li>
                 <a href={SOURCE_CODE_URL} className={linkClass}>
-                  Código fuente
+                  {navStrings.footer.source}
                 </a>
               </li>
             </ul>

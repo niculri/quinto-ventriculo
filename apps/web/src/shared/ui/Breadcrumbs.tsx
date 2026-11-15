@@ -1,6 +1,7 @@
 // The breadcrumbs above a page's title.
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
+import { sharedStrings } from '../strings';
 
 export interface Crumb {
   label: string;
@@ -9,7 +10,7 @@ export interface Crumb {
 
 export function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
-    <nav aria-label="Ruta" className="mb-4 text-sm text-muted">
+    <nav aria-label={sharedStrings.breadcrumbs} className="mb-4 text-sm text-muted">
       <ol className="flex flex-wrap items-center gap-1">
         {items.map((c, i) => (
           <li key={`${c.label}-${i}`} className="flex items-center gap-1">

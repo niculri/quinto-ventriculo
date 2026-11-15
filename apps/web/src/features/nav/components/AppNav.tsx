@@ -21,6 +21,7 @@ import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { useSettingsGroups } from '../../settings/useSettingsGroups';
 import { useIsAdmin } from '../../admin/queries';
 import { ADMIN_SECTIONS } from '../../admin/sections';
+import { navStrings } from '../strings';
 
 export interface Where {
   semester: number | null;
@@ -194,7 +195,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const tree = useMemo(() => (data ? buildAnkiTree(data) : null), [data]);
   const where = useMemo(() => locate(pathname, data, tree), [pathname, data, tree]);
   return (
-    <nav aria-label="Menú del sitio" className="text-[0.86rem] leading-snug">
+    <nav aria-label={navStrings.menu} className="text-[0.86rem] leading-snug">
       {/* What was opened or closed by hand is forgotten on going to another page. */}
       <NavTree
         key={pathname}
@@ -235,7 +236,7 @@ function NavTree({
           icon={<House className={icon} aria-hidden="true" />}
           {...link}
         >
-          Inicio
+          {navStrings.home}
         </NavLink>
       </li>
       {where.settings ? (
@@ -436,7 +437,7 @@ function AssessmentParts({
     <>
       {assessment.notes.length ? (
         <Branch
-          label="Apuntes"
+          label={navStrings.notes}
           icon={<BookOpen className={icon} aria-hidden="true" />}
           open={isOpen('notes')}
           inPath={where.tab === 'notes'}
@@ -472,12 +473,12 @@ function AssessmentParts({
             icon={<ListChecks className={icon} aria-hidden="true" />}
             onNavigate={onNavigate}
           >
-            Tests
+            {navStrings.tests}
           </NavLink>
         </li>
       ) : assessment.quizzes.length ? (
         <Branch
-          label="Tests"
+          label={navStrings.tests}
           icon={<ListChecks className={icon} aria-hidden="true" />}
           open={isOpen('tests')}
           inPath={where.tab === 'tests'}
@@ -505,7 +506,7 @@ function AssessmentParts({
             icon={<Layers className={icon} aria-hidden="true" />}
             onNavigate={onNavigate}
           >
-            Anki
+            {navStrings.anki}
           </NavLink>
         </li>
       ) : null}
@@ -519,7 +520,7 @@ function AdminBranch({ pathname, onNavigate }: { pathname: string; onNavigate?: 
   return (
     <li>
       <p className={`${row} font-medium text-ink`}>
-        <ShieldCheck className={icon} aria-hidden="true" /> Administración
+        <ShieldCheck className={icon} aria-hidden="true" /> {navStrings.admin}
       </p>
       <ul className="mt-1 space-y-0.5">
         {ADMIN_SECTIONS.map(({ label, to, icon: Icon }) => (
@@ -544,7 +545,7 @@ function SettingsBranch({ pathname, onNavigate }: { pathname: string; onNavigate
   return (
     <li>
       <p className={`${row} font-medium text-ink`}>
-        <Settings className={icon} aria-hidden="true" /> Opciones
+        <Settings className={icon} aria-hidden="true" /> {navStrings.settings}
       </p>
       {groups.map((g) => (
         <div key={g.title}>

@@ -33,6 +33,7 @@ import './quiz.css';
 import { useCountOpen } from '../usage/count';
 import { StatusToast } from '../../shared/ui/Toast';
 import { storageKeys } from '../../shared/lib/storage';
+import { sharedStrings } from '../../shared/strings';
 
 const tabKey = storageKeys.quizTab;
 function rememberTab(quizId: string, sectionId: string) {
@@ -486,7 +487,7 @@ function QuizScreen({
           setThanks(true);
         }}
       />
-      {thanks ? <StatusToast>Gracias: tu reporte le llegó al autor.</StatusToast> : null}
+      {thanks ? <StatusToast>{sharedStrings.reportThanks}</StatusToast> : null}
     </>
   );
 }

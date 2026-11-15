@@ -311,6 +311,13 @@ export default tseslint.config(
     },
   },
   {
+    // The text a person reads goes in a strings.ts; pages that are only fixed text, and the answers of the FAQ, are
+    // their own document.
+    files: ['apps/web/src/**/*.tsx'],
+    ignores: ['**/*.test.tsx', 'apps/web/src/test/**', ...FIXED_TEXT_PAGES],
+    rules: { 'qv/no-literal-text': ['error', { fixedText: ['Question'] }] },
+  },
+  {
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks },
     rules: reactHooks.configs.recommended.rules,

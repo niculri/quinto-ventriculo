@@ -16,6 +16,7 @@ import { keys } from '../shared/ui/keys';
 import { usePreview } from '../features/preview/preview';
 import { isAnswerScreen } from '../shared/ui/answerScreen';
 import { CloseX } from '../shared/ui/Dialog';
+import { appStrings } from './strings';
 
 export function AppShell() {
   const [searching, setSearching] = useState(false);
@@ -48,7 +49,7 @@ export function AppShell() {
         href="#content"
         className="sr-only z-50 rounded-md bg-brand px-3 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
       >
-        Saltar al contenido
+        {appStrings.skipToContent}
       </a>
       <header
         className={`sticky top-0 z-40 border-b border-border bg-chrome/85 backdrop-blur-md ${hideNav ? 'max-sm:hidden' : ''}`}
@@ -62,7 +63,7 @@ export function AppShell() {
               className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-accent"
             />
             <p role="status" className="sr-only">
-              Estás viendo el borrador, no lo publicado.
+              {appStrings.previewActive}
             </p>
           </>
         ) : null}
@@ -71,13 +72,13 @@ export function AppShell() {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              aria-label="Abrir el menú"
+              aria-label={appStrings.openMenu}
               className="-ml-1.5 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink lg:hidden"
             >
               <Menu className="size-5" aria-hidden="true" />
             </button>
           )}
-          <Link to={paths.home} className="rounded-md" aria-label="El Quinto Ventrículo, inicio">
+          <Link to={paths.home} className="rounded-md" aria-label={appStrings.homeLink}>
             <Logo compact tagline preview={preview.active} />
           </Link>
           <button
@@ -86,7 +87,7 @@ export function AppShell() {
             className="mx-auto flex h-10 w-full max-w-md min-w-0 items-center gap-2.5 rounded-lg border border-border bg-surface px-3 text-sm text-muted shadow-xs transition hover:border-border-strong"
           >
             <Search className="size-4" aria-hidden="true" />
-            <span className="flex-1 truncate text-left">Buscar en la página…</span>
+            <span className="flex-1 truncate text-left">{appStrings.search}</span>
             <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-sans text-[0.7rem] sm:block">
               {keys('Ctrl+K')}
             </kbd>
@@ -112,7 +113,7 @@ export function AppShell() {
               <Outlet />
             </main>
             {hideNav ? null : (
-              <aside aria-label="Columna derecha" className="hidden w-64 flex-none xl:block">
+              <aside aria-label={appStrings.rightColumn} className="hidden w-64 flex-none xl:block">
                 <div
                   ref={setRail}
                   data-toc-scroll
@@ -129,11 +130,11 @@ export function AppShell() {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px] lg:hidden" />
           <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] overflow-y-auto border-r border-border bg-bg py-4 pr-3 pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] shadow-soft lg:hidden">
             <div className="mb-3 flex items-center justify-between px-2.5">
-              <Dialog.Title className="text-sm font-semibold">Menú</Dialog.Title>
-              <CloseX label="Cerrar el menú" />
+              <Dialog.Title className="text-sm font-semibold">{appStrings.menu}</Dialog.Title>
+              <CloseX label={appStrings.closeMenu} />
             </div>
             <Dialog.Description className="sr-only">
-              Inicio, tu semestre, el ramo y sus apuntes, tests y mazos.
+              {appStrings.menuDescription}
             </Dialog.Description>
             <AppNav onNavigate={() => setMenuOpen(false)} />
           </Dialog.Content>

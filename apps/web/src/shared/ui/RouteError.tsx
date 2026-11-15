@@ -5,6 +5,7 @@ import { paths } from '../lib/paths';
 import { useRouteError } from 'react-router';
 import { Notice } from './Notice';
 import { button } from './styles';
+import { sharedStrings } from '../strings';
 
 export function RouteError() {
   const error = useRouteError();
@@ -13,18 +14,18 @@ export function RouteError() {
   }, [error]);
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
-      <Notice title="Algo salió mal">
-        <p>Recarga la página. Si sigue pasando, vuelve al inicio.</p>
+      <Notice title={sharedStrings.routeError.title}>
+        <p>{sharedStrings.routeError.body}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => window.location.reload()}
             className={`${button.base} ${button.secondary}`}
           >
-            Recargar
+            {sharedStrings.routeError.reload}
           </button>
           <a href={paths.home} className={`${button.base} ${button.ghost}`}>
-            Volver al inicio
+            {sharedStrings.backHome}
           </a>
         </div>
       </Notice>

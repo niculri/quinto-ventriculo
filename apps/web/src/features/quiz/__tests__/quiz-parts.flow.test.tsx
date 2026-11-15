@@ -659,6 +659,72 @@ describe('a question', () => {
     expect(misses[1]!.querySelector('dd.cb')).toHaveTextContent('Aquello');
     expect(misses[1]!.querySelector('.fx')).toHaveTextContent('Porque sí.');
   });
+
+  it('with the alternatives mixed, the verdict names the right one by its letter on screen', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.3);
+    const user = userEvent.setup();
+    renderApp(`${BASE}/pautas`);
+    await user.click(await screen.findByRole('switch', { name: 'Mezclar orden de alternativas' }));
+    await start();
+    await question('¿Qué muestra el gel?');
+    const shown = () =>
+      options()
+        .getAllByRole('button')
+        .map((b) => b.querySelector('.otx')!.textContent);
+    expect(shown()).toEqual(['Nada', 'Otra cosa', 'Splicing alternativo']);
+    await user.click(option(/Nada/));
+    expect(screen.getByRole('status')).toHaveTextContent('Incorrecta. La correcta es la C');
+    expect(option(/Splicing alternativo/)).toHaveTextContent('CSplicing alternativo · la correcta');
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
+    await question('¿Dónde se une TBP?');
+    expect(shown()).toEqual(['Al ribosoma', 'A la caja TATA']);
+    await user.click(option(/A la caja TATA/));
+    expect(screen.getByRole('status')).toHaveTextContent('Correcta');
+    expect(option(/A la caja TATA/)).toHaveTextContent('BA la caja TATA · tu respuesta, correcta');
+  });
+
+  it('a single figure with its caption keeps the caption under it', async () => {
+    const section: QuizSectionDetail = {
+      quizId: QUIZ.id,
+      sectionId: 'pautas',
+      groups: [
+        {
+          id: '01',
+          name: 'Transcripción',
+          questions: [
+            {
+              id: 'Q-1',
+              kind: 'choice',
+              prompt: '¿Y esta figura?',
+              options: ['Una', 'Otra'],
+              correct: 0,
+              figures: [
+                {
+                  kind: 'svg',
+                  svg: '<svg viewBox="0 0 4 4" role="img" aria-label="Esquema D"><rect width="4" height="4" fill="var(--g3)"/></svg>',
+                  caption: 'Su pie.',
+                },
+              ],
+              figureBeside: false,
+              fixedOrder: true,
+            },
+          ],
+        },
+      ],
+    };
+    const base = fakeApi();
+    const api = fakeApi({
+      quizSection: async (id, s, signal) =>
+        s === 'pautas' ? section : base.quizSection(id, s, signal),
+    });
+    renderApp(`${BASE}/pautas`, { api });
+    await start();
+    await question('¿Y esta figura?');
+    const caption = screen.getByText('Su pie.');
+    expect(caption).toHaveClass('fpie');
+    expect(caption).not.toHaveClass('todo');
+    expect(caption.closest('.fcon')!.firstElementChild).toHaveClass('fsvg');
+  });
 });
 
 describe('the results', () => {
@@ -705,6 +771,20 @@ describe('the results', () => {
     expect(await screen.findByRole('button', { name: 'Comenzar' })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Ronda a medias' })).toBeNull();
     expect(router.state.location.pathname).toBe(`${BASE}/pautas`);
+  });
+
+  it('«Repetir todo» mixes the questions again when the mode says so', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.3);
+    const user = userEvent.setup();
+    const { repo, steps } = recording();
+    renderApp(`${BASE}/pautas`, { quiz: repo });
+    await user.click(await screen.findByRole('switch', { name: 'Mezclar orden de preguntas' }));
+    await start();
+    await screen.findByRole('heading', { level: 2 });
+    await user.click(screen.getByRole('button', { name: 'Terminar ahora' }));
+    await user.click(await screen.findByRole('button', { name: 'Repetir todo' }));
+    await waitFor(() => expect(steps.at(-1)?.roundInfo?.origin).toBe('repeat_all'));
+    expect(steps.at(-1)!.roundInfo).toMatchObject({ shuffled: true, shuffleOptions: false });
   });
 });
 

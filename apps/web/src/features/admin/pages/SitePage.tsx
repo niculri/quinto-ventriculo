@@ -7,9 +7,9 @@ import { Switch } from '../../../shared/ui/Switch';
 import { card } from '../../../shared/ui/styles';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { useSetSiteSettings, useSiteSettings } from '../hooks/useSiteSettings';
-import { adminStrings } from '../strings';
+import { siteStrings } from '../site.strings';
 
-const s = adminStrings.site;
+const s = siteStrings;
 
 export function SitePage() {
   const id = useId();

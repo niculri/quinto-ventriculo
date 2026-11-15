@@ -21,7 +21,7 @@ import { Cover } from '../components/Cover';
 import { Html } from '../components/Figures';
 import { QuestionCard } from '../components/QuestionCard';
 import { Results } from '../components/Results';
-import { useQuizDetail, useQuizSection, useSavedQuiz } from '../api/queries';
+import { useQuizDetail, useQuizSection, useSavedQuiz } from '../hooks/useQuizData';
 import type { SavedQuiz } from '../api/repository';
 import { useQuizSession } from '../hooks/useQuizSession';
 import type { QuestionEntry } from '../hooks/useQuizSession';

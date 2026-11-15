@@ -1,23 +1,27 @@
-// Queries of a practice test: its detail, a section's questions and what the user has saved of it.
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../shared/hooks/useApi';
-import { useQuizRepository } from './context';
+// What a practice test page reads, with its keys: the test, a section's questions and what the user has saved of it.
+import { queryOptions } from '@tanstack/react-query';
+import type { ApiClient } from '../../../shared/lib/api';
+import type { QuizRepository } from './repository';
 
-export function useQuizDetail(id: string | null) {
-  const api = useApi();
-  return useQuery({
-    queryKey: ['quiz', id],
+export const quizKeys = {
+  detail: (id: string | null) => ['quiz', id] as const,
+  section: (id: string | null, sectionId: string | null) =>
+    ['quiz-section', id, sectionId] as const,
+  saved: (quizId: string) => ['quiz-progress', quizId] as const,
+};
+
+export const quizDetailQuery = (api: ApiClient, id: string | null) =>
+  queryOptions({
+    queryKey: quizKeys.detail(id),
     queryFn: ({ signal }) => api.quiz(id!, signal),
     enabled: !!id,
     staleTime: 5 * 60_000,
   });
-}
 
 // Refetched before the signed photo URLs (at least one hour) expire, since a round can last longer.
-export function useQuizSection(id: string | null, sectionId: string | null) {
-  const api = useApi();
-  return useQuery({
-    queryKey: ['quiz-section', id, sectionId],
+export const quizSectionQuery = (api: ApiClient, id: string | null, sectionId: string | null) =>
+  queryOptions({
+    queryKey: quizKeys.section(id, sectionId),
     queryFn: ({ signal }) => api.quizSection(id!, sectionId!, signal),
     enabled: !!id && !!sectionId,
     staleTime: 10 * 60_000,
@@ -25,18 +29,13 @@ export function useQuizSection(id: string | null, sectionId: string | null) {
     refetchInterval: 45 * 60_000,
     refetchOnWindowFocus: true,
   });
-}
-
-export const savedQuizKey = (quizId: string) => ['quiz-progress', quizId] as const;
 
 // Read once: the page keeps the cache current as it saves.
-export function useSavedQuiz(quizId: string | null) {
-  const quiz = useQuizRepository();
-  return useQuery({
-    queryKey: savedQuizKey(quizId ?? ''),
+export const savedQuizQuery = (quiz: QuizRepository, quizId: string | null) =>
+  queryOptions({
+    queryKey: quizKeys.saved(quizId ?? ''),
     queryFn: () => quiz.load(quizId!),
     enabled: !!quizId,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   });
-}

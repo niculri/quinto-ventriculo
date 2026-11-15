@@ -11,7 +11,7 @@ import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
 import { useCatalog } from '../catalog/queries';
 import type { NoteLocation } from '../catalog/queries';
 import { Html } from '../quiz/components/Figures';
-import { useQuizDetail } from '../quiz/api/queries';
+import { useQuizDetail } from '../quiz/hooks/useQuizData';
 
 export const PRACTICE_ANCHOR = 'ponte-a-prueba';
 

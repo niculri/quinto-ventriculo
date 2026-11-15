@@ -22,7 +22,7 @@ import {
 import type { Preferences, QuestionInfo, Round } from '@qv/quiz';
 import type { QuizGroup, QuizQuestion, QuizSectionDetail } from '@qv/schema';
 import { useQuizRepository } from '../api/context';
-import { savedQuizKey } from '../api/queries';
+import { quizKeys } from '../api/queries';
 import type { AnswerInfo, RoundInfo, SavedQuiz, SavedSection } from '../api/repository';
 import { StepSaver } from '../api/saver';
 
@@ -121,7 +121,7 @@ export function useQuizSession(options: {
         ...(round ? { roundInfo: roundInfo(round) } : {}),
         ...(extra.answer ? { answer: extra.answer } : {}),
       });
-      queryClient.setQueryData<SavedQuiz>(savedQuizKey(quizId), (old) => ({
+      queryClient.setQueryData<SavedQuiz>(quizKeys.saved(quizId), (old) => ({
         ...old,
         [section.sectionId]: {
           preferences: extra.preferences ?? old?.[section.sectionId]?.preferences ?? {},

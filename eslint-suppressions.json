@@ -349,25 +349,6 @@
       "count": 4
     }
   },
-  "apps/web/src/features/stats/api/demo.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/stats/components/Heatmap.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
-    "qv/no-literal-text": {
-      "count": 13
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/hooks/useImageZoom.ts": {
     "max-lines-per-function": {
       "count": 1

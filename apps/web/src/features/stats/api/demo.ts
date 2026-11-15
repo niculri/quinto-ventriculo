@@ -70,13 +70,8 @@ function randomOf(seed: number) {
   };
 }
 
-function inventedHistory(
-  today: number,
-  deckIds: string[],
-  only: ReadonlySet<string> | null,
-): HeatmapData {
-  const out: HeatmapData = { days: [], due: [] };
-  if (!deckIds.length) return out;
+function inventedPast(today: number, deckIds: string[], only: ReadonlySet<string> | null) {
+  const days: HeatmapData['days'] = [];
   for (let day = today - 420; day < today; day++) {
     const random = randomOf(day);
     const month = new Date(day * 86_400_000).getUTCMonth();
@@ -85,16 +80,30 @@ function inventedHistory(
     if (!recent && random() > (summer ? 0.15 : 0.7)) continue;
     const answers = Math.round(15 + random() ** 2 * (summer ? 80 : 420));
     const deck = deckIds[Math.floor(random() * deckIds.length)]!;
-    if (!only || only.has(deck)) out.days.push({ day, deckId: deck, answers, practice: 0 });
+    if (!only || only.has(deck)) days.push({ day, deckId: deck, answers, practice: 0 });
   }
+  return days;
+}
+
+function inventedDue(today: number, deckIds: string[], only: ReadonlySet<string> | null) {
+  const due: HeatmapData['due'] = [];
   for (let day = today; day <= today + 60; day++) {
     const random = randomOf(day + 7919);
     const deck = deckIds[Math.floor(random() * deckIds.length)]!;
     if (only && !only.has(deck)) continue;
     const cards = Math.round(160 * Math.exp(-(day - today) / 18) * (0.5 + random()));
-    if (cards > 0) out.due.push({ day, cards });
+    if (cards > 0) due.push({ day, cards });
   }
-  return out;
+  return due;
+}
+
+function inventedHistory(
+  today: number,
+  deckIds: string[],
+  only: ReadonlySet<string> | null,
+): HeatmapData {
+  if (!deckIds.length) return { days: [], due: [] };
+  return { days: inventedPast(today, deckIds, only), due: inventedDue(today, deckIds, only) };
 }
 
 function merge(a: HeatmapData, b: HeatmapData): HeatmapData {

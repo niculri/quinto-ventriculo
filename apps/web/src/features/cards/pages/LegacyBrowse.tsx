@@ -3,35 +3,13 @@
 
 import { Navigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { searchTerm } from '@qv/anki-search';
-import { paths } from '../../../shared/lib/paths';
 import { useApi } from '../../../shared/hooks/useApi';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { hasPage } from '../../catalog/model/tree';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
-import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
+import { deckOfSearch, legacyTarget } from '../model/legacy';
 import { cardParam } from '../model/urlState';
-import { scopeNodeOf, unitOf } from '../../catalog/model/scope';
-
-function deckOfSearch(tree: AnkiTree, q: string): { node: CourseDeckNode; rest: string } | null {
-  let best: { node: CourseDeckNode; rest: string; length: number } | null = null;
-  for (const n of tree.nodes) {
-    if (!hasPage(n)) continue;
-    const term = searchTerm('deck', n.name);
-    if (q !== term && !q.startsWith(`${term} `)) continue;
-    if (!best || term.length > best.length) {
-      best = { node: n, rest: q.slice(term.length).trim(), length: term.length };
-    }
-  }
-  return best && { node: best.node, rest: best.rest };
-}
-
-function cardsOf(node: CourseDeckNode, query: { q?: string; card?: string }) {
-  const scope = scopeNodeOf(node) ?? node;
-  const unit = scope === node ? null : unitOf(scope, node);
-  return paths.cards(scope.ref, { unit, q: query.q || null, card: query.card ?? null });
-}
+import { legacyCardQuery } from '../api/queries';
 
 export function LegacyBrowse() {
   const [params] = useSearchParams();
@@ -41,31 +19,12 @@ export function LegacyBrowse() {
   const note = params.get('note');
   const ord = Number(params.get('ord') ?? '0');
   const byDeck = tree ? deckOfSearch(tree, q) : null;
-  const card = useQuery({
-    queryKey: ['card', note, ord],
-    queryFn: ({ signal }) => api.card(note!, ord, signal),
-    enabled: !!note && !!tree && !byDeck,
-    retry: false,
-  });
+  const card = useQuery(legacyCardQuery(api, note, ord, !!note && !!tree && !byDeck));
   if (catalog.isError) {
     return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
   }
   if (!tree) return <Loading />;
   const open = note ? cardParam({ noteGuid: note, ord }) : undefined;
-  if (byDeck) {
-    return (
-      <Navigate
-        replace
-        to={cardsOf(byDeck.node, { q: byDeck.rest, ...(open ? { card: open } : {}) })}
-      />
-    );
-  }
-  if (note) {
-    if (card.isError) return <Navigate replace to={paths.home} />;
-    if (!card.data) return <Loading />;
-    const deck = tree.byId.get(card.data.deckId);
-    if (!deck || !hasPage(deck)) return <Navigate replace to={paths.home} />;
-    return <Navigate replace to={cardsOf(deck, open ? { card: open } : {})} />;
-  }
-  return <Navigate replace to={paths.home} />;
+  const to = legacyTarget({ tree, byDeck, note, open, card });
+  return to === null ? <Loading /> : <Navigate replace to={to} />;
 }

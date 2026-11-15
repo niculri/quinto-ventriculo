@@ -17,23 +17,15 @@ import type { Round } from '@qv/study';
 import { useNow } from '../../../shared/hooks/useNow';
 import type { CardRef } from '../../progress/api/repository';
 import { queryOf } from '../model/urlState';
-import {
-  NO_FILTERS,
-  applyFilters,
-  groupNotes,
-  parseKind,
-  parseOrigins,
-  parseState,
-  practiceCards,
-  searchQuery,
-} from '../model/explorer';
-import {
-  failedOf,
-  useCardsData,
-  useDayCards,
-  useFailed,
-  useTextMatch,
-} from '../hooks/useCardsData';
+import { NO_FILTERS, applyFilters, parseKind, parseOrigins, parseState } from '../model/filters';
+import { groupNotes } from '../model/groups';
+import { practiceCards } from '../model/practice';
+import { searchQuery } from '../model/search';
+import { failedOf } from '../model/dayCards';
+import { useCardsData } from '../hooks/useCardsData';
+import { useDayCards } from '../hooks/useDayCards';
+import { useFailed } from '../hooks/useFailed';
+import { useTextMatch } from '../hooks/useTextMatch';
 import { cardsScope, unitDeckIds, unitNode } from '../../catalog/model/scope';
 import { useTitle } from '../../../shared/hooks/useTitle';
 

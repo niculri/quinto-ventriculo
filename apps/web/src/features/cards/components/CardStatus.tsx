@@ -1,6 +1,7 @@
 // What the cards of a note are for the student: a dot per card (seen, new, hard, hidden), a flag if one is marked, and the same in words.
 import { Flag } from 'lucide-react';
-import type { CardStatus, ExplorerCard, Matched } from '../model/explorer';
+import type { CardStatus, ExplorerCard } from '../model/explorer';
+import type { Matched } from '../model/filters';
 
 const STATUS_WORDS: Record<CardStatus, [string, string]> = {
   new: ['sin ver', 'sin ver'],

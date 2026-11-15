@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { KeyboardEvent, RefObject } from 'react';
-import type { Matched } from '../model/explorer';
+import type { Matched } from '../model/filters';
 import { BAR } from '../model/list';
 import type { ListItem, ListMetrics } from '../model/list';
 

@@ -32,6 +32,74 @@ export function decayFromParams(params: readonly number[]): number {
   return fillParameters(params)[20]!;
 }
 
+interface CardSources {
+  rows: Map<string, StoredCard>;
+  decks: Map<string, DeckNode>;
+  prefs: StudyPreferences;
+  decayOf: DecayOf;
+  nowMs: number;
+}
+
+const TYPES = { new: 'new', learning: 'learn', review: 'review', relearning: 'relearn' } as const;
+
+function dueOf(record: ReturnType<typeof toRecord>, prefs: StudyPreferences): number | null {
+  if (record === null) return null;
+  return record.queue === 'learn'
+    ? record.due
+    : dayStartsAt(record.due, prefs.timeZone, prefs.dayStartsAt);
+}
+
+function browseCard(
+  note: BrowseNote,
+  index: number,
+  type: NoteTypeSummary | undefined,
+  c: BrowseNote['cards'][number],
+  { rows, decks, prefs, decayOf, nowMs }: CardSources,
+): BrowseCard {
+  const createdMs = note.createdAt ? Date.parse(note.createdAt) : null;
+  const key = cardKey({ noteGuid: note.guid, ord: c.ord });
+  const row = rows.get(key);
+  const record = toRecord(row, prefs);
+  const hidden = isHidden(row, nowMs);
+  const phase = record?.phase ?? 'new';
+  const queue: SearchCard['queue'] = row?.suspended
+    ? 'suspended'
+    : hidden
+      ? 'buried'
+      : (record?.queue ?? 'new');
+  const name = type?.templates[type.kind === 'cloze' ? 0 : c.ord] ?? '';
+  return {
+    key,
+    note,
+    noteType: type,
+    kind: kindOf(type),
+    deck: decks.get(c.deckId),
+    template: type?.kind === 'cloze' ? `${name} ${c.ord + 1}` : name,
+    position: index + 1,
+    row,
+    intraday: record?.queue === 'learn',
+    dueAt: dueOf(record, prefs),
+    noteGuid: note.guid,
+    ord: c.ord,
+    deckId: c.deckId,
+    noteTypeId: note.noteTypeId,
+    tags: note.tags,
+    fields: note.fields,
+    createdMs,
+    type: TYPES[phase],
+    queue,
+    due: record === null ? null : record.due,
+    interval: record?.interval ?? 0,
+    reps: row?.reps ?? 0,
+    lapses: row?.lapses ?? 0,
+    flag: row?.flag ?? 0,
+    stability: record?.stability ?? null,
+    difficulty: record?.difficulty ?? null,
+    lastReview: record?.lastReview ?? null,
+    decay: record?.stability ? decayOf(c.deckId) : null,
+  };
+}
+
 export function buildBrowseCards(
   notes: BrowseNote[],
   noteTypes: NoteTypeSummary[],
@@ -42,62 +110,10 @@ export function buildBrowseCards(
   nowMs: number,
 ): BrowseCard[] {
   const types = new Map(noteTypes.map((t) => [t.id, t]));
-  const out: BrowseCard[] = [];
-  notes.forEach((note, index) => {
-    const type = types.get(note.noteTypeId);
-    const createdMs = note.createdAt ? Date.parse(note.createdAt) : null;
-    for (const c of note.cards) {
-      const key = cardKey({ noteGuid: note.guid, ord: c.ord });
-      const row = rows.get(key);
-      const record = toRecord(row, prefs);
-      const hidden = isHidden(row, nowMs);
-      const phase = record?.phase ?? 'new';
-      const queue: SearchCard['queue'] = row?.suspended
-        ? 'suspended'
-        : hidden
-          ? 'buried'
-          : (record?.queue ?? 'new');
-      const name = type?.templates[type.kind === 'cloze' ? 0 : c.ord] ?? '';
-      out.push({
-        key,
-        note,
-        noteType: type,
-        kind: kindOf(type),
-        deck: decks.get(c.deckId),
-        template: type?.kind === 'cloze' ? `${name} ${c.ord + 1}` : name,
-        position: index + 1,
-        row,
-        intraday: record?.queue === 'learn',
-        dueAt:
-          record === null
-            ? null
-            : record.queue === 'learn'
-              ? record.due
-              : dayStartsAt(record.due, prefs.timeZone, prefs.dayStartsAt),
-        noteGuid: note.guid,
-        ord: c.ord,
-        deckId: c.deckId,
-        noteTypeId: note.noteTypeId,
-        tags: note.tags,
-        fields: note.fields,
-        createdMs,
-        type: ({ new: 'new', learning: 'learn', review: 'review', relearning: 'relearn' } as const)[
-          phase
-        ],
-        queue,
-        due: record === null ? null : record.due,
-        interval: record?.interval ?? 0,
-        reps: row?.reps ?? 0,
-        lapses: row?.lapses ?? 0,
-        flag: row?.flag ?? 0,
-        stability: record?.stability ?? null,
-        difficulty: record?.difficulty ?? null,
-        lastReview: record?.lastReview ?? null,
-        decay: record?.stability ? decayOf(c.deckId) : null,
-      });
-    }
-  });
-  return out;
+  const sources: CardSources = { rows, decks, prefs, decayOf, nowMs };
+  return notes.flatMap((note, index) =>
+    note.cards.map((c) => browseCard(note, index, types.get(note.noteTypeId), c, sources)),
+  );
 }
 
 export type ColumnKey =
@@ -157,36 +173,44 @@ export function recall(c: BrowseCard, timing: SchedTiming): number | null {
   return Math.pow(1 + (factor * days) / c.stability, -decay);
 }
 
+const codeText = (c: BrowseCard) =>
+  c.note.code ? `${c.note.code}${c.note.version ? `.${c.note.version}` : ''}` : '';
+
+function dueText(c: BrowseCard): string {
+  if (c.dueAt === null) return `Nueva #${c.position}`;
+  const at = new Date(c.dueAt * 1000);
+  return c.intraday ? `${SHORT_DATE.format(at)}, ${TIME.format(at)}` : SHORT_DATE.format(at);
+}
+
+function intervalText(c: BrowseCard): string {
+  if (c.type === 'new') return '(nueva)';
+  if (c.type === 'learn') return '(aprendiendo)';
+  return timeSpan(c.interval * 86_400);
+}
+
+const percent = (x: number | null) => (x === null ? '' : `${Math.round(x * 100)} %`);
+
 export function cellText(c: BrowseCard, column: ColumnKey, timing: SchedTiming): string {
   const wrap = (t: string) => (c.queue === 'suspended' || c.queue === 'buried' ? `(${t})` : t);
   switch (column) {
     case 'sortField':
       return c.note.sortField;
     case 'code':
-      return c.note.code ? `${c.note.code}${c.note.version ? `.${c.note.version}` : ''}` : '';
+      return codeText(c);
     case 'deck':
       return c.deck?.label ?? '';
     case 'card':
       return c.template;
-    case 'due': {
-      if (c.dueAt === null) return wrap(`Nueva #${c.position}`);
-      const at = new Date(c.dueAt * 1000);
-      return wrap(
-        c.intraday ? `${SHORT_DATE.format(at)}, ${TIME.format(at)}` : SHORT_DATE.format(at),
-      );
-    }
+    case 'due':
+      return wrap(dueText(c));
     case 'interval':
-      if (c.type === 'new') return '(nueva)';
-      if (c.type === 'learn') return '(aprendiendo)';
-      return timeSpan(c.interval * 86_400);
+      return intervalText(c);
     case 'difficulty':
-      return c.difficulty === null ? '' : `${Math.round(((c.difficulty - 1) / 9) * 100)} %`;
+      return c.difficulty === null ? '' : percent((c.difficulty - 1) / 9);
     case 'stability':
       return c.stability === null ? '' : timeSpan(c.stability * 86_400);
-    case 'retrievability': {
-      const r = recall(c, timing);
-      return r === null ? '' : `${Math.round(r * 100)} %`;
-    }
+    case 'retrievability':
+      return percent(recall(c, timing));
     case 'reps':
       return String(c.reps);
     case 'lapses':

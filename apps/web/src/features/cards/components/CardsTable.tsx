@@ -5,7 +5,7 @@ import { CardTable } from './CardTable';
 import { useCatalog } from '../../catalog/queries';
 import { useDeckSettings, useUserPresets } from '../../progress/queries';
 import { ListSkeleton } from './ListSkeleton';
-import type { CardsData } from '../hooks/useCardsData';
+import type { CardsData } from '../model/cardsData';
 import type { CardsScope } from '../../catalog/model/scope';
 
 export function CardsTable({

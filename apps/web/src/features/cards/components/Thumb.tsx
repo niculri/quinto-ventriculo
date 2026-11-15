@@ -1,6 +1,6 @@
 // An image's thumbnail in the cards page's list, or its icon while there is none.
 import { ImageIcon } from 'lucide-react';
-import { thumbUrl } from '../hooks/useCardsData';
+import { thumbUrl } from '../model/thumbs';
 
 export function Thumb({
   thumb,

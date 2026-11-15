@@ -4,7 +4,7 @@
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import type { AnkiTree } from '../../catalog/model/tree';
 import type { CardsScope } from '../../catalog/model/scope';
-import type { Matched } from '../model/explorer';
+import type { Matched } from '../model/filters';
 import { cardParam } from '../model/urlState';
 import { useCardsBody } from '../hooks/useCardsBody';
 import type { CardsBodyState } from '../hooks/useCardsBody';

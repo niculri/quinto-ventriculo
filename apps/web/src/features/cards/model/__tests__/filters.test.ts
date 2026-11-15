@@ -1,24 +1,18 @@
-// Tests the cards page's model: a cloze's holes, the plain search and the codes, the filters with their counts, the
-// groups of the list and the cards of «Practicar estas».
+// Tests the cards page's filters: each option counted with the others as they are, the groups they leave and how
+// fast they filter a large assessment.
 
 import { describe, expect, it } from 'vitest';
 import { CATALOG, CARD_INDEX } from '../../../../test/render';
 import type { StoredCard } from '../../../progress/api/repository';
 import { buildAnkiTree } from '../../../catalog/model/tree';
-import {
-  NO_FILTERS,
-  applyFilters,
-  clozeParts,
-  explorerNotes,
-  groupNotes,
-  noteByCode,
-  practiceCards,
-  searchQuery,
-} from '../explorer';
-import { listItems, listMetrics } from '../list';
-import { syntheticIndex, syntheticRows } from '../../api/demo';
 import { lectureOf } from '../../../catalog/model/scope';
 import { cardKey } from '@qv/study';
+import { syntheticIndex, syntheticRows } from '../../api/demo';
+import { explorerNotes } from '../explorer';
+import { NO_FILTERS, applyFilters } from '../filters';
+import { groupNotes } from '../groups';
+import { listItems, listMetrics } from '../list';
+import { practiceCards } from '../practice';
 
 function row(noteGuid: string, ord: number, deckId: string, patch: Partial<StoredCard> = {}) {
   return {
@@ -45,29 +39,6 @@ function row(noteGuid: string, ord: number, deckId: string, patch: Partial<Store
 }
 
 describe('the cards page’s model', () => {
-  it('reads a cloze’s holes, nested or cut at the row’s length', () => {
-    expect(clozeParts('A {{c1::uno {{c2::dos}} tres::pista}} y {{c3::cuatro')).toEqual([
-      { text: 'A ', hole: null },
-      { text: 'uno dos tres', hole: { hint: 'pista' } },
-      { text: ' y ', hole: null },
-      { text: 'cuatro', hole: { hint: null } },
-    ]);
-  });
-
-  it('a plain search is plain text; a code finds its note', () => {
-    expect(searchQuery('tag:x -y', false)).toBe('"tag\\:x" "-y"');
-    expect(searchQuery('tag:x -y', true)).toBe('tag:x -y');
-    const tree = buildAnkiTree(CATALOG);
-    const notes = explorerNotes(
-      [CARD_INDEX],
-      (id) => lectureOf(tree.byId.get(id))?.id ?? id,
-      new Map(),
-    );
-    expect(noteByCode(notes, 'PR-01-002.1')?.note.guid).toBe('cloze-1');
-    expect(noteByCode(notes, 't-pr-01-003')?.note.guid).toBe('oclusion-1');
-    expect(noteByCode(notes, 'vértebra')).toBeNull();
-  });
-
   it('counts each option with the others as they are, and groups the images of a lecture together', () => {
     const tree = buildAnkiTree(CATALOG);
     const rows = new Map(
@@ -109,18 +80,6 @@ describe('the cards page’s model', () => {
         'hidden',
       ),
     ).toHaveLength(1);
-  });
-
-  it('never two cards of a note in a row when practicing', () => {
-    const index = syntheticIndex('anatomia-1/certamen-1', CATALOG.anki.decks, 300);
-    const tree = buildAnkiTree(CATALOG);
-    const notes = explorerNotes([index], (id) => lectureOf(tree.byId.get(id))?.id ?? id, new Map());
-    const cards = practiceCards(groupNotes(applyFilters(notes, NO_FILTERS).matched), 'all');
-    expect(cards.length).toBe(index.notes.reduce((t, n) => t + n.cards.length, 0));
-    let together = 0;
-    for (let i = 1; i < cards.length; i++)
-      if (cards[i]!.noteGuid === cards[i - 1]!.noteGuid) together++;
-    expect(together).toBeLessThan(12);
   });
 
   it('filters 8,000 notes in less than 100 ms', () => {

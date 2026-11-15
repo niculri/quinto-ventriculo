@@ -3,7 +3,7 @@ import { CalendarDays, X } from 'lucide-react';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { Reserved } from '../../../shared/ui/Reserved';
 import { dateText } from '@qv/study';
-import type { DayCards } from '../hooks/useCardsData';
+import type { DayCards } from '../model/dayCards';
 
 export function DayLine({
   day,

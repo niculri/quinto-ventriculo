@@ -3,9 +3,9 @@
 
 import { useState } from 'react';
 import type { CardSummary } from '@qv/schema';
-import type { Lecture } from '../model/explorer';
+import type { Lecture } from '../model/groups';
 import { parseCardParam, summaryOf } from '../model/urlState';
-import type { CardsData } from './useCardsData';
+import type { CardsData } from '../model/cardsData';
 
 export function useViewerCards({
   params,

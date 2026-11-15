@@ -2,7 +2,8 @@
 // nothing moves while scrolling or filtering; the lecture and topic on top stay fixed under the site's bar.
 
 import { useMemo } from 'react';
-import type { Lecture, Matched } from '../model/explorer';
+import type { Lecture } from '../model/groups';
+import type { Matched } from '../model/filters';
 import { headingAt, itemAt, listItems, listMetrics } from '../model/list';
 import type { ListItem } from '../model/list';
 import { BAR } from '../model/list';

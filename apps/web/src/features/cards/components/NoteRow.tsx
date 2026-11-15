@@ -1,6 +1,6 @@
 // A note's row in the cards page's list: its question and answer (or a cloze's holes, or an image), and its cards.
-import { clozeParts } from '../model/explorer';
-import type { Matched } from '../model/explorer';
+import { clozeParts } from '../model/cloze';
+import type { Matched } from '../model/filters';
 import { Said } from './Said';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';

@@ -5,8 +5,8 @@ import type { CardOrigin } from '@qv/schema';
 import { Switch } from '../../../shared/ui/Switch';
 import { StatusDot } from './CardStatus';
 import { Choice, Section, count } from './FilterParts';
-import { KIND_FILTERS, ORIGIN_FILTERS, STATE_FILTERS } from '../model/explorer';
-import type { Facets, KindFilter, StateFilter } from '../model/explorer';
+import { KIND_FILTERS, ORIGIN_FILTERS, STATE_FILTERS } from '../model/filters';
+import type { Facets, KindFilter, StateFilter } from '../model/filters';
 
 export function CardFilters({
   facets,

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { API_PREFIX, API_ROUTES, PREVIEW_HEADER, PREVIEW_VALUE } from '@qv/schema/http';
 import type { PublishRequest } from '@qv/schema';
 import type { ApiRouteName } from '@qv/schema/http';
-import { thumbUrl } from '../features/cards/hooks/useCardsData';
+import { thumbUrl } from '../features/cards/model/thumbs';
 import { PREVIEW_HEADERS, createApiClient } from '../shared/lib/api';
 import type { ApiClient } from '../shared/lib/api';
 

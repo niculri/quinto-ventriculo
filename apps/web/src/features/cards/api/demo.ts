@@ -78,6 +78,83 @@ function decksOf(decks: readonly AnkiTreeDeck[], assessmentId: string) {
   }));
 }
 
+type Kind = CardIndexNote['kind'];
+type Pick = <T>(xs: readonly T[]) => T;
+
+const kindOf = (r: number): Kind =>
+  r < 0.58 ? 'basic' : r < 0.8 ? 'cloze' : r < 0.92 ? 'occlusion' : 'photo';
+
+function cardsOf(kind: Kind, deckOf: () => string, random: () => number) {
+  if (kind === 'cloze') return [0, 1].map((ord) => ({ ord, deckId: deckOf() }));
+  if (kind === 'occlusion') {
+    return Array.from({ length: 2 + Math.floor(random() * 10) }, (_, ord) => ({
+      ord,
+      deckId: deckOf(),
+    }));
+  }
+  return [{ ord: 0, deckId: deckOf() }];
+}
+
+function frontOf(kind: Kind, a: string, b: string, i: number, pick: Pick) {
+  if (kind === 'basic') return `¿Qué limita el ${a} ${b} número ${i + 1}?`;
+  if (kind === 'cloze') {
+    return `El ${a} {{c1::${b}}} se continúa con el {{c2::${pick(WORDS)}::estructura}} (${i + 1}).`;
+  }
+  if (kind === 'occlusion') return `Lámina de prueba ${i + 1}: ${a} ${b}`;
+  return `Preparado ${i + 1}`;
+}
+
+const backOf = (kind: Kind, a: string, b: string, pick: Pick) =>
+  kind === 'basic' ? `El ${pick(WORDS)} ${pick(SIDES)}` : kind === 'photo' ? `${a} ${b}` : '';
+
+function fieldsOf(kind: Kind, topic: string, front: string, back: string) {
+  if (kind === 'basic') return [topic, front, back];
+  if (kind === 'cloze') return [topic, front.replace(/\{\{c\d::|::estructura|\}\}/g, '')];
+  if (kind === 'occlusion') return [front, ''];
+  return [front, '', '', back];
+}
+
+function syntheticNote({
+  assessmentId,
+  i,
+  kind,
+  topic,
+  front,
+  back,
+  cards,
+  origin,
+}: {
+  assessmentId: string;
+  i: number;
+  kind: Kind;
+  topic: string;
+  front: string;
+  back: string;
+  cards: CardIndexNote['cards'];
+  origin: CardIndexNote['origin'];
+}): CardIndexNote {
+  const type = TYPES[['basic', 'cloze', 'occlusion', 'photo'].indexOf(kind)]!;
+  const fields = fieldsOf(kind, topic, front, back);
+  return {
+    guid: `${DEMO_PREFIX}${assessmentId}-${i}`,
+    noteTypeId: type.id,
+    tags: [...origin],
+    code: `T-DM-01-${String(i + 1).padStart(4, '0')}`,
+    version: 1,
+    createdAt: '2026-10-01T12:00:00.000Z',
+    fields,
+    sortField: fields[1] || fields[0]!,
+    cards,
+    kind,
+    topic: kind === 'basic' || kind === 'cloze' ? topic : front,
+    front,
+    back,
+    thumb: null,
+    labels: kind === 'occlusion' ? cards.length : 0,
+    origin,
+  };
+}
+
 export function syntheticIndex(
   assessmentId: string,
   decks: readonly AnkiTreeDeck[],
@@ -94,61 +171,17 @@ export function syntheticIndex(
   for (let i = 0; i < count; i++) {
     const lecture = lectures[Math.min(lectures.length - 1, Math.floor(i / perLecture))]!;
     if (i % 7 === 0) topic = `${pick(WORDS)} ${pick(SIDES)}`.replace(/^./, (c) => c.toUpperCase());
-    const r = random();
-    const kind = r < 0.58 ? 'basic' : r < 0.8 ? 'cloze' : r < 0.92 ? 'occlusion' : 'photo';
+    const kind = kindOf(random());
     const a = pick(WORDS);
     const b = pick(SIDES);
-    const code = `T-DM-01-${String(i + 1).padStart(4, '0')}`;
     const deckOf = () => (random() < 0.2 ? lecture.extras : lecture.id);
-    const cards =
-      kind === 'cloze'
-        ? [0, 1].map((ord) => ({ ord, deckId: deckOf() }))
-        : kind === 'occlusion'
-          ? Array.from({ length: 2 + Math.floor(random() * 10) }, (_, ord) => ({
-              ord,
-              deckId: deckOf(),
-            }))
-          : [{ ord: 0, deckId: deckOf() }];
-    const type = TYPES[['basic', 'cloze', 'occlusion', 'photo'].indexOf(kind)]!;
-    const front =
-      kind === 'basic'
-        ? `¿Qué limita el ${a} ${b} número ${i + 1}?`
-        : kind === 'cloze'
-          ? `El ${a} {{c1::${b}}} se continúa con el {{c2::${pick(WORDS)}::estructura}} (${i + 1}).`
-          : kind === 'occlusion'
-            ? `Lámina de prueba ${i + 1}: ${a} ${b}`
-            : `Preparado ${i + 1}`;
-    const back =
-      kind === 'basic' ? `El ${pick(WORDS)} ${pick(SIDES)}` : kind === 'photo' ? `${a} ${b}` : '';
+    const cards = cardsOf(kind, deckOf, random);
+    const front = frontOf(kind, a, b, i, pick);
+    const back = backOf(kind, a, b, pick);
     const origin = (['profe', 'control', 'clinica', 'complemento'] as const).filter(
       (_, k) => random() < [0.25, 0.04, 0.08, 0.2][k]!,
     );
-    const fields =
-      kind === 'basic'
-        ? [topic, front, back]
-        : kind === 'cloze'
-          ? [topic, front.replace(/\{\{c\d::|::estructura|\}\}/g, '')]
-          : kind === 'occlusion'
-            ? [front, '']
-            : [front, '', '', back];
-    notes.push({
-      guid: `${DEMO_PREFIX}${assessmentId}-${i}`,
-      noteTypeId: type.id,
-      tags: [...origin],
-      code,
-      version: 1,
-      createdAt: '2026-10-01T12:00:00.000Z',
-      fields,
-      sortField: fields[1] || fields[0]!,
-      cards,
-      kind,
-      topic: kind === 'basic' || kind === 'cloze' ? topic : front,
-      front,
-      back,
-      thumb: null,
-      labels: kind === 'occlusion' ? cards.length : 0,
-      origin,
-    });
+    notes.push(syntheticNote({ assessmentId, i, kind, topic, front, back, cards, origin }));
   }
   return {
     version: CARD_INDEX_VERSION,
@@ -166,6 +199,35 @@ export function syntheticIndex(
   };
 }
 
+function syntheticRow(
+  n: CardIndexNote,
+  c: CardIndexNote['cards'][number],
+  hard: boolean,
+  random: () => number,
+  nowMs: number,
+): StoredCard {
+  return {
+    noteGuid: n.guid,
+    ord: c.ord,
+    deckId: c.deckId,
+    phase: 'review',
+    interday: true,
+    remainingSteps: 0,
+    due: new Date(nowMs + Math.ceil(random() * 20) * 86_400_000).toISOString(),
+    interval: 5,
+    stability: hard ? 1.2 : 8,
+    difficulty: hard ? 9 : 5,
+    reps: hard ? 6 : 3,
+    lapses: hard ? 3 : 0,
+    lastReview: new Date(nowMs - 2 * 86_400_000).toISOString(),
+    flag: random() < 0.06 ? 1 : 0,
+    suspended: random() < 0.03,
+    buriedUntil: null,
+    leech: false,
+    updatedAt: new Date(nowMs).toISOString(),
+  };
+}
+
 export function syntheticRows(index: CardIndex, nowMs: number, seed = 11): StoredCard[] {
   const random = randomOf(seed);
   const out: StoredCard[] = [];
@@ -173,27 +235,7 @@ export function syntheticRows(index: CardIndex, nowMs: number, seed = 11): Store
     for (const c of n.cards) {
       const r = random();
       if (r > 0.45) continue;
-      const hard = r < 0.06;
-      out.push({
-        noteGuid: n.guid,
-        ord: c.ord,
-        deckId: c.deckId,
-        phase: 'review',
-        interday: true,
-        remainingSteps: 0,
-        due: new Date(nowMs + Math.ceil(random() * 20) * 86_400_000).toISOString(),
-        interval: 5,
-        stability: hard ? 1.2 : 8,
-        difficulty: hard ? 9 : 5,
-        reps: hard ? 6 : 3,
-        lapses: hard ? 3 : 0,
-        lastReview: new Date(nowMs - 2 * 86_400_000).toISOString(),
-        flag: random() < 0.06 ? 1 : 0,
-        suspended: random() < 0.03,
-        buriedUntil: null,
-        leech: false,
-        updatedAt: new Date(nowMs).toISOString(),
-      });
+      out.push(syntheticRow(n, c, r < 0.06, random, nowMs));
     }
   }
   return out;

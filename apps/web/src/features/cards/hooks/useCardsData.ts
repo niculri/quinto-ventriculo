@@ -1,48 +1,26 @@
-// Data hooks of the cards page: the card indexes, the student's rows, failed cards, text search and the cards
-// of a heatmap day.
+// The cards pages' data: the indexes of the scope's assessments, the student's rows, preferences and presets, built
+// into the list's notes and the table's cards (again every minute, as the due dates follow the time).
 
 import { useMemo } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
-import type { SearchContext } from '@qv/anki-search';
-import { dayOfStart, dayStartsAt } from '@qv/srs';
-import type { CardIndex, NoteTypeSummary } from '@qv/schema';
-import { apiPaths } from '@qv/schema/http';
 import { useApi } from '../../../shared/hooks/useApi';
-import { useStudyRepository } from '../../progress/api/context';
 import { ApiRequestError } from '../../../shared/lib/api';
+import { useStudyRepository } from '../../progress/api/context';
+import { useDeckSettings, usePreferences, useUserPresets } from '../../progress/queries';
+import { useCatalog } from '../../catalog/queries';
 import type { AnkiTree } from '../../catalog/model/tree';
-import { buildBrowseCards, decayFromParams } from '../model/browseCards';
-import type { BrowseCard } from '../model/browseCards';
-import { cardKey, dayNumber, presetChoices, presetOf, timingFor } from '@qv/study';
-import { heatmapKeys } from '../../stats/queries';
-import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../../progress/queries';
-import type { StoredCard, StudyPreferences } from '../../progress/api/repository';
-import { FAILED_DAYS, explorerNotes } from '../model/explorer';
-import type { ExplorerNote } from '../model/explorer';
-import { lectureOf } from '../../catalog/model/scope';
 import type { CardsScope } from '../../catalog/model/scope';
+import { cardsData } from '../model/cardsData';
+import type { CardsData } from '../model/cardsData';
+import { cardIndexQuery, scopeRowsQuery } from '../api/queries';
 
-const cardsKeys = {
-  index: (assessmentId: string, hash: string) => ['card-index', assessmentId, hash] as const,
-  thumbs: ['card-thumbs'] as const,
-  failed: (since: number) => [...studyKeys.all, 'failed', since] as const,
-  day: (scope: string, day: string) => [...studyKeys.all, 'cards-day', scope, day] as const,
-};
-
-/** An index does not change while its hash is the same (its file is named by its content). */
 function useCardIndexes(scope: CardsScope | null) {
   const api = useApi();
   const refs = (scope?.assessments ?? []).flatMap((a) =>
     a.cardIndex ? [{ id: a.id, hash: a.cardIndex.hash }] : [],
   );
   return useQueries({
-    queries: refs.map((r) => ({
-      queryKey: cardsKeys.index(r.id, r.hash),
-      queryFn: ({ signal }: { signal: AbortSignal }) => api.cardIndex(r.id, r.hash, signal),
-      staleTime: Infinity,
-      gcTime: 30 * 60_000,
-    })),
+    queries: refs.map((r) => cardIndexQuery(api, r)),
     combine: (results) => ({
       data: results.every((r) => r.data) ? results.map((r) => r.data!) : undefined,
       error: results.find((r) => r.error)?.error ?? null,
@@ -53,52 +31,9 @@ function useCardIndexes(scope: CardsScope | null) {
   });
 }
 
-export function useThumbQuery() {
-  const api = useApi();
-  const q = useQuery({
-    queryKey: cardsKeys.thumbs,
-    queryFn: ({ signal }) => api.thumbSignature(signal),
-    staleTime: 10 * 60_000,
-  });
-  return q.data?.query ?? null;
-}
-
-export const thumbUrl = (thumb: string, query: string) => `${apiPaths.media(thumb)}?${query}`;
-
 function useScopeRows(scope: CardsScope | null) {
   const study = useStudyRepository();
-  return useQuery({
-    queryKey: studyKeys.cards(scope?.node.id ?? ''),
-    queryFn: () => study.cards(scope!.deckIds),
-    enabled: !!scope,
-    staleTime: 30_000,
-  });
-}
-
-export function useFailed(prefs: StudyPreferences | undefined, nowMs: number) {
-  const study = useStudyRepository();
-  const since = prefs ? timingFor(prefs, nowMs).nextDayAt - FAILED_DAYS * 86_400 : 0;
-  return useQuery({
-    queryKey: cardsKeys.failed(since),
-    queryFn: async () =>
-      new Set(
-        (await study.ratedSince(new Date(since * 1000)))
-          .filter((a) => a.rating === 1)
-          .map((a) => cardKey(a)),
-      ),
-    enabled: !!prefs,
-    staleTime: 30_000,
-  });
-}
-
-export interface CardsData {
-  indexes: CardIndex[];
-  notes: ExplorerNote[];
-  cards: BrowseCard[];
-  byKey: Map<string, BrowseCard>;
-  noteTypes: NoteTypeSummary[];
-  rows: StoredCard[];
-  prefs: StudyPreferences;
+  return useQuery(scopeRowsQuery(study, scope));
 }
 
 export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, nowMs: number) {
@@ -107,7 +42,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
   const preferences = usePreferences();
   const presets = useUserPresets();
   const settings = useDeckSettings();
-  const authorPresets = useAuthorPresets();
+  const authorPresets = useCatalog().data?.anki.presets ?? [];
   // An assessment whose decks have no cards has no index, and is not missing one.
   const missing = !!scope && scope.assessments.some((a) => !a.cardIndex && a.cardCount > 0);
   const prefs = preferences.prefs;
@@ -121,39 +56,16 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     !!settings.data;
   const data = useMemo<CardsData | undefined>(() => {
     if (!ready) return undefined;
-    const choices = presetChoices(authorPresets, presets.data!);
-    const decay = new Map(
-      tree!.nodes.map((n) => [
-        n.id,
-        decayFromParams(presetOf(n.id, n.preset, choices, settings.data!).config.fsrsParams),
-      ]),
-    );
-    const byRow = new Map(rows.data!.map((r) => [cardKey(r), r]));
-    const list = indexes.data!;
-    const notes = explorerNotes(
-      list,
-      (deckId) => lectureOf(tree!.byId.get(deckId))?.id ?? deckId,
-      byRow,
-    );
-    const noteTypes = uniqueTypes(list);
-    const cards = buildBrowseCards(
-      list.flatMap((i) => i.notes),
-      noteTypes,
-      tree!.byId,
-      byRow,
-      prefs!,
-      (id) => decay.get(id) ?? 0.5,
-      nowMs,
-    );
-    return {
-      indexes: list,
-      notes,
-      cards,
-      byKey: new Map(cards.map((c) => [c.key, c])),
-      noteTypes,
+    return cardsData({
+      list: indexes.data!,
       rows: rows.data!,
       prefs: prefs!,
-    };
+      authorPresets,
+      presets: presets.data!,
+      settings: settings.data!,
+      tree: tree!,
+      nowMs,
+    });
     // `nowMs` changes every minute: the cards' due dates follow it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, indexes.data, rows.data, prefs, presets.data, settings.data, tree, nowMs]);
@@ -168,182 +80,5 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
       indexes.refetch();
       parts.forEach((p) => p.isError && void p.refetch());
     },
-  };
-}
-
-function useAuthorPresets() {
-  const api = useApi();
-  const q = useQuery({
-    queryKey: ['catalog'],
-    queryFn: ({ signal }) => api.catalog(signal),
-    staleTime: 5 * 60_000,
-  });
-  return q.data?.anki.presets ?? [];
-}
-
-function uniqueTypes(indexes: readonly CardIndex[]): NoteTypeSummary[] {
-  const out = new Map<string, NoteTypeSummary>();
-  for (const i of indexes) for (const t of i.noteTypes) out.set(t.id, t);
-  return [...out.values()];
-}
-
-export function useTextMatch(data: CardsData | undefined, query: string, tree: AnkiTree | null) {
-  const study = useStudyRepository();
-  const parsed = useMemo(() => {
-    if (!query.trim()) return { node: null, error: null };
-    try {
-      return { node: parseSearch(query), error: null };
-    } catch (e) {
-      return { node: null, error: e instanceof SearchError ? e.message : String(e) };
-    }
-  }, [query]);
-  const timing = data ? timingFor(data.prefs) : null;
-  const needs = parsed.node ? searchNeeds(parsed.node) : { ratedDays: null, introducedDays: null };
-  const ratedSince =
-    needs.ratedDays === null || !timing ? null : timing.nextDayAt - needs.ratedDays * 86_400;
-  const introducedSince =
-    needs.introducedDays === null || !timing
-      ? null
-      : timing.nextDayAt - needs.introducedDays * 86_400;
-  const rated = useQuery({
-    queryKey: studyKeys.rated(ratedSince ?? 0),
-    queryFn: () => study.ratedSince(new Date(ratedSince! * 1000)),
-    enabled: ratedSince !== null,
-    staleTime: 30_000,
-  });
-  const introduced = useQuery({
-    queryKey: studyKeys.introduced(introducedSince ?? 0),
-    queryFn: () => study.firstAnswersSince(new Date(introducedSince! * 1000)),
-    enabled: introducedSince !== null,
-    staleTime: 30_000,
-  });
-  const waiting =
-    (ratedSince !== null && !rated.data) || (introducedSince !== null && !introduced.data);
-  const result = useMemo(() => {
-    if (!parsed.node || !data || !tree || waiting) return { keys: null, error: parsed.error };
-    const ctx: SearchContext = {
-      decks: tree.nodes.map((n) => ({ id: n.id, name: n.name })),
-      noteTypes: data.noteTypes.map((t) => ({
-        id: t.id,
-        name: t.name,
-        kind: t.kind,
-        fields: t.fields,
-        templates: t.templates,
-      })),
-      timing: timingFor(data.prefs),
-      learnAheadSecs: data.prefs.learnAheadMinutes * 60,
-      ignoreAccents: true,
-      answers: (rated.data ?? []).map((a) => ({
-        noteGuid: a.noteGuid,
-        ord: a.ord,
-        rating: a.rating,
-        atMs: Date.parse(a.reviewedAt),
-      })),
-      firstAnswerMs: new Map(
-        (introduced.data ?? []).map((a) => [cardKey(a), Date.parse(a.at)] as const),
-      ),
-    };
-    try {
-      const match = compileSearch(parsed.node, ctx);
-      return { keys: new Set(data.cards.filter(match).map((c) => c.key)), error: null };
-    } catch (e) {
-      return { keys: new Set<string>(), error: e instanceof SearchError ? e.message : String(e) };
-    }
-  }, [parsed, data, tree, waiting, rated.data, introduced.data]);
-  return { ...result, waiting: !!parsed.node && waiting };
-}
-
-/** Now, for a burial («Saltar por hoy») that has not ended: its end is a day's start. */
-const nowOf = (prefs: StudyPreferences) => timingFor(prefs).now * 1000;
-
-export interface DayCards {
-  day: number;
-  kind: 'answered' | 'due';
-  keys: Set<string>;
-  answers: number;
-  failed: Set<string>;
-  practice: number;
-}
-
-export function failedOf(
-  day: DayCards | null,
-  recent: Set<string> | undefined,
-): Set<string> | undefined {
-  return day?.kind === 'answered' ? day.failed : recent;
-}
-
-export function useDayCards(
-  scope: CardsScope | null,
-  data: CardsData | undefined,
-  dayParam: string | null,
-) {
-  const study = useStudyRepository();
-  const day = dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayNumber(dayParam) : null;
-  const prefs = data?.prefs;
-  const today = prefs ? timingFor(prefs).today : null;
-  const heat = useQuery({
-    queryKey: heatmapKeys.scope('all'),
-    queryFn: () => study.heatmap(null),
-    enabled: day !== null && today !== null && day <= today,
-    staleTime: 5 * 60_000,
-  });
-  const answered = useQuery({
-    queryKey: cardsKeys.day(scope?.node.id ?? '', dayParam ?? ''),
-    queryFn: () =>
-      study.ratedBetween(
-        new Date(dayStartsAt(day!, prefs!.timeZone, prefs!.dayStartsAt) * 1000),
-        new Date(dayStartsAt(day! + 1, prefs!.timeZone, prefs!.dayStartsAt) * 1000),
-      ),
-    enabled: day !== null && !!prefs && today !== null && day <= today,
-    staleTime: 30_000,
-  });
-  const value = useMemo<DayCards | null>(() => {
-    if (day === null || !data || today === null) return null;
-    const inScope = new Set(data.cards.map((c) => c.key));
-    if (day <= today) {
-      if (!answered.data || !heat.data) return null;
-      const mine = answered.data.filter((a) => inScope.has(cardKey(a)));
-      const decks = new Set(scope?.deckIds ?? []);
-      const practice = heat.data.days.reduce(
-        (t, d) => (d.day === day && decks.has(d.deckId) ? t + d.practice : t),
-        0,
-      );
-      if (day < today || mine.length || practice) {
-        return {
-          day,
-          kind: 'answered',
-          keys: new Set(mine.map((a) => cardKey(a))),
-          answers: mine.length,
-          failed: new Set(mine.filter((a) => a.rating === 1).map((a) => cardKey(a))),
-          practice,
-        };
-      }
-    }
-    const keys = new Set<string>();
-    const nowMs = nowOf(data.prefs);
-    for (const r of data.rows) {
-      if (!r.interday || r.phase === 'new' || r.due === null || r.suspended || r.retiredAt)
-        continue;
-      if (r.buriedUntil !== null && Date.parse(r.buriedUntil) > nowMs) continue;
-      const key = cardKey(r);
-      if (!inScope.has(key)) continue;
-      if (
-        dayOfStart(Date.parse(r.due) / 1000, data.prefs.timeZone, data.prefs.dayStartsAt) === day
-      ) {
-        keys.add(key);
-      }
-    }
-    return { day, kind: 'due', keys, answers: 0, failed: new Set<string>(), practice: 0 };
-  }, [day, data, today, answered.data, heat.data, scope]);
-  const error = answered.error ?? heat.error;
-  return {
-    day,
-    value,
-    error,
-    retry: () => {
-      if (answered.isError) void answered.refetch();
-      if (heat.isError) void heat.refetch();
-    },
-    waiting: day !== null && !value && !error,
   };
 }

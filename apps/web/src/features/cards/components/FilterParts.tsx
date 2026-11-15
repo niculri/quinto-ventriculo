@@ -1,7 +1,7 @@
 // The pieces of the cards page's filters: a titled section, a radio option over its whole row, and an option's count.
 
 import type { ReactNode } from 'react';
-import type { Facets } from '../model/explorer';
+import type { Facets } from '../model/filters';
 
 export function count(facets: Facets | null, n: number | undefined, width = 'w-12') {
   return (

@@ -1,5 +1,5 @@
 // A photo's cell in the grid the cards page's list draws when a lecture's images are mostly photos.
-import type { Matched } from '../model/explorer';
+import type { Matched } from '../model/filters';
 import { Said } from './Said';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';

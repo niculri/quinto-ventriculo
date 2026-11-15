@@ -1,4 +1,5 @@
-// Anki's search over the cards: reading the text, the context it is matched in, and how the sidebar adds a term.
+// The cards' searches: Anki's (the text, the context it is matched in, a term the sidebar adds), the simple mode's
+// plain text, and a code that finds its note.
 
 import { SearchError, compileSearch, parseSearch } from '@qv/anki-search';
 import type { SearchContext, SearchNode } from '@qv/anki-search';
@@ -7,6 +8,7 @@ import type { NoteTypeSummary } from '@qv/schema';
 import type { RatedAnswer } from '@qv/schema/user';
 import { cardKey } from '@qv/study';
 import type { BrowseCard } from './browseCards';
+import type { ExplorerNote } from './explorer';
 
 export function parseQuery(query: string): { node: SearchNode | null; error: string | null } {
   try {
@@ -71,4 +73,39 @@ export function combineSearch(current: string, term: string, how: Combine, negat
   const base = current.trim();
   if (how === 'replace' || !base) return t;
   return how === 'and' ? `(${base}) ${t}` : `(${base}) OR ${t}`;
+}
+
+/** The keys of the cards the page's search box finds, or the error of a search these cards cannot run. */
+export function textKeys(
+  node: SearchNode,
+  ctx: SearchContext,
+  cards: readonly BrowseCard[],
+): { keys: Set<string>; error: string | null } {
+  try {
+    const match = compileSearch(node, ctx);
+    return { keys: new Set(cards.filter(match).map((c) => c.key)), error: null };
+  } catch (e) {
+    return { keys: new Set<string>(), error: e instanceof SearchError ? e.message : String(e) };
+  }
+}
+
+const CODE = /^(?:t-)?([a-z0-9]+(?:-[a-z0-9]+){2,})(?:\.\d+)?$/i;
+
+const bareCode = (code: string) => code.replace(/^t-/i, '').toUpperCase();
+
+export function noteByCode(notes: readonly ExplorerNote[], text: string): ExplorerNote | null {
+  const m = CODE.exec(text.trim());
+  if (!m) return null;
+  const wanted = m[1]!.toUpperCase();
+  return notes.find((n) => n.note.code !== null && bareCode(n.note.code) === wanted) ?? null;
+}
+
+/** In the simple mode every word is plain text: no `tag:`, `-`, `*`, `_` or quotes with a meaning. */
+export function searchQuery(text: string, syntax: boolean): string {
+  const t = text.trim();
+  if (syntax || !t) return t;
+  return t
+    .split(/\s+/)
+    .map((w) => `"${w.replace(/[\\*_:"]/g, (c) => `\\${c}`)}"`)
+    .join(' ');
 }

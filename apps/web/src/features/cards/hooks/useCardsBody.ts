@@ -8,27 +8,18 @@ import { useNow } from '../../../shared/hooks/useNow';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { lectureTitle, unitDeckIds, unitNode } from '../../catalog/model/scope';
 import type { CardsScope } from '../../catalog/model/scope';
-import {
-  NO_FILTERS,
-  applyFilters,
-  groupNotes,
-  noteByCode,
-  parseKind,
-  parseOrigins,
-  parseState,
-  practiceCards,
-  searchQuery,
-} from '../model/explorer';
-import type { Filters } from '../model/explorer';
+import { NO_FILTERS, applyFilters, parseKind, parseOrigins, parseState } from '../model/filters';
+import { groupNotes } from '../model/groups';
+import { noteByCode, searchQuery } from '../model/search';
+import { practiceCards } from '../model/practice';
+import type { Filters } from '../model/filters';
 import { cardParam } from '../model/urlState';
-import {
-  failedOf,
-  useCardsData,
-  useDayCards,
-  useFailed,
-  useTextMatch,
-  useThumbQuery,
-} from './useCardsData';
+import { failedOf } from '../model/dayCards';
+import { useCardsData } from './useCardsData';
+import { useDayCards } from './useDayCards';
+import { useFailed } from './useFailed';
+import { useTextMatch } from './useTextMatch';
+import { useThumbQuery } from './useThumbQuery';
 import { useHideAnswers } from './useHideAnswers';
 
 export function useCardsBody(scope: CardsScope, tree: AnkiTree) {

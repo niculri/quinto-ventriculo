@@ -192,11 +192,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/api/demo.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 2
-    }
-  },
   "apps/web/src/features/cards/components/BrowseSidebar.tsx": {
     "qv/no-literal-text": {
       "count": 20
@@ -322,34 +317,9 @@
       "count": 9
     }
   },
-  "apps/web/src/features/cards/hooks/useCardsData.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/model/browseCards.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/cards/model/explorer.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 3
-    }
-  },
-  "apps/web/src/features/cards/model/list.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/cards/pages/CardsPage.tsx": {
     "qv/no-literal-text": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/cards/pages/LegacyBrowse.tsx": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
     }
   },
   "apps/web/src/features/cards/pages/PracticePage.tsx": {

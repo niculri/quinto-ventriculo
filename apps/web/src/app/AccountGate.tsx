@@ -20,6 +20,7 @@ import { AccountError } from '../features/account/api/repository';
 import type { AccountState } from '../features/account/api/repository';
 import { rememberAccount } from '../features/account/remembered';
 import { accountKey, acceptedNow, useAccount } from '../features/account/useAccount';
+import { BlurredBackdrop } from '../shared/ui/Dialog';
 
 export function AccountGate({ children }: { children: ReactNode }) {
   const account = useAccountRepository();
@@ -231,7 +232,7 @@ function GateDialog({ title, children }: { title: string; children: ReactNode })
   return (
     <Dialog.Root open>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
+        <BlurredBackdrop />
         <Dialog.Content
           onEscapeKeyDown={(e) => e.preventDefault()}
           onPointerDownOutside={(e) => e.preventDefault()}

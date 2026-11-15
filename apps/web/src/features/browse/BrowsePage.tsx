@@ -19,7 +19,6 @@ import {
   Search,
   Shovel,
   Undo2,
-  X,
 } from 'lucide-react';
 import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
 import type { SearchContext } from '@qv/anki-search';
@@ -58,6 +57,8 @@ import type { Combine } from './Sidebar';
 import { keys } from '../../shared/ui/keys';
 import { Rail } from '../../shared/ui/rail';
 import type { DeckNode } from '../catalog/model/tree';
+import { DimBackdrop, GhostCloseX } from '../../shared/ui/Dialog';
+import { LiveToast } from '../../shared/ui/Toast';
 
 const ROW = 34;
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */
@@ -670,13 +671,11 @@ export function CardTable({ sources }: { sources: TableSources }) {
 
       <Dialog.Root open={filters} onOpenChange={setFilters}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+          <DimBackdrop />
           <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[85vw] max-w-sm overflow-y-auto bg-surface p-4 shadow-soft">
             <div className="mb-3 flex items-center justify-between">
               <Dialog.Title className="font-semibold">Barra lateral</Dialog.Title>
-              <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label="Cerrar">
-                <X className="size-4" aria-hidden="true" />
-              </Dialog.Close>
+              <GhostCloseX />
             </div>
             <Dialog.Description className="sr-only">
               Mazos, tipos de nota, etiquetas, estados y banderas para buscar.
@@ -712,14 +711,7 @@ export function CardTable({ sources }: { sources: TableSources }) {
         onForget={forget}
       />
 
-      <div
-        aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-8 z-40 flex justify-center px-4"
-      >
-        {toast ? (
-          <p className="rounded-lg bg-ink px-4 py-2 text-sm text-bg shadow-soft">{toast}</p>
-        ) : null}
-      </div>
+      <LiveToast message={toast} low />
     </div>
   );
 }
@@ -989,7 +981,7 @@ function ForgetDialog({
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onCancel()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-surface p-5 shadow-soft">
           <Dialog.Title className="text-lg font-semibold">Olvidar</Dialog.Title>
           <Dialog.Description className="mt-2 text-sm text-muted">

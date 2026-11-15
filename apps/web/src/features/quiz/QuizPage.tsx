@@ -15,8 +15,8 @@ import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { Canonical } from '../../shared/ui/Canonical';
 import { findCourse, useCatalog } from '../catalog/queries';
-import { ImageViewer } from '../viewer/ImageViewer';
-import type { OpenImage } from '../viewer/ImageViewer';
+import { ImageViewer } from '../../shared/ui/ImageViewer';
+import type { OpenImage } from '../../shared/ui/ImageViewer';
 import { Cover } from './Cover';
 import { Html } from './Figures';
 import { QuestionCard } from './QuestionCard';
@@ -31,6 +31,7 @@ import { useFocusMode } from '../../shared/ui/focus';
 import { useReadingFonts } from '../../shared/lib/readingFonts';
 import './quiz.css';
 import { useCountOpen } from '../usage/count';
+import { StatusToast } from '../../shared/ui/Toast';
 
 const tabKey = (quizId: string) => `qv-quiz-tab:${quizId}`;
 function rememberTab(quizId: string, sectionId: string) {
@@ -484,16 +485,7 @@ function QuizScreen({
           setThanks(true);
         }}
       />
-      {thanks ? (
-        <div
-          role="status"
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-        >
-          <p className="rounded-lg bg-ink px-4 py-2 text-sm text-bg shadow-soft">
-            Gracias: tu reporte le llegó al autor.
-          </p>
-        </div>
-      ) : null}
+      {thanks ? <StatusToast>Gracias: tu reporte le llegó al autor.</StatusToast> : null}
     </>
   );
 }

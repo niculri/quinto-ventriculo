@@ -4,8 +4,8 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useRef, useState } from 'react';
 import { Maximize2, MessageSquareWarning, Minimize2, X, ZoomIn, ZoomOut } from 'lucide-react';
-import { useImageZoom } from './useImageZoom';
-import type { Size } from './zoom';
+import { useImageZoom } from '../hooks/useImageZoom';
+import type { Size } from '../lib/zoom';
 
 export interface OpenImage {
   src: string;

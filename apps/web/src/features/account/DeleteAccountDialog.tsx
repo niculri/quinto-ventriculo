@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
@@ -11,6 +10,7 @@ import { formatDateTime } from '../../shared/lib/dates';
 import { button } from '../../shared/ui/styles';
 import { useSession, useUser } from '../session/context';
 import { AccountError } from './api/repository';
+import { BlurredBackdrop, CloseX } from '../../shared/ui/Dialog';
 
 export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const account = useAccountRepository();
@@ -41,7 +41,7 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
   return (
     <Dialog.Root open={open} onOpenChange={(o) => (o ? null : close())}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
+        <BlurredBackdrop />
         <Dialog.Content
           {...(done || busy
             ? {
@@ -77,13 +77,7 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
                 <Dialog.Title className="font-serif text-xl font-semibold">
                   Eliminar mi cuenta
                 </Dialog.Title>
-                <Dialog.Close
-                  aria-label="Cerrar"
-                  disabled={busy}
-                  className="rounded-md p-1 text-muted hover:bg-surface-2 hover:text-ink"
-                >
-                  <X className="size-4" aria-hidden="true" />
-                </Dialog.Close>
+                <CloseX disabled={busy} />
               </div>
               <Dialog.Description asChild>
                 <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">

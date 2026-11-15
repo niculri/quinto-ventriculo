@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { paths } from '../shared/lib/paths';
-import { Menu, Search, X } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router';
 import { SearchPalette } from '../features/search/SearchPalette';
 import { AppNav } from '../features/nav/components/AppNav';
@@ -15,6 +15,7 @@ import { SiteFooter } from '../features/nav/components/SiteFooter';
 import { keys } from '../shared/ui/keys';
 import { usePreview } from '../features/preview/preview';
 import { isAnswerScreen } from '../shared/ui/answerScreen';
+import { CloseX } from '../shared/ui/Dialog';
 
 export function AppShell() {
   const [searching, setSearching] = useState(false);
@@ -129,12 +130,7 @@ export function AppShell() {
           <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] overflow-y-auto border-r border-border bg-bg py-4 pr-3 pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] shadow-soft lg:hidden">
             <div className="mb-3 flex items-center justify-between px-2.5">
               <Dialog.Title className="text-sm font-semibold">Menú</Dialog.Title>
-              <Dialog.Close
-                aria-label="Cerrar el menú"
-                className="rounded-md p-1 text-muted hover:bg-surface-2 hover:text-ink"
-              >
-                <X className="size-4" aria-hidden="true" />
-              </Dialog.Close>
+              <CloseX label="Cerrar el menú" />
             </div>
             <Dialog.Description className="sr-only">
               Inicio, tu semestre, el ramo y sus apuntes, tests y mazos.

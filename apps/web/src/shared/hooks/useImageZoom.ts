@@ -11,8 +11,8 @@ import {
   pinch,
   toggledScale,
   zoomAt,
-} from './zoom';
-import type { Point, Size, View } from './zoom';
+} from '../lib/zoom';
+import type { Point, Size, View } from '../lib/zoom';
 
 const STEP = 1.5;
 const TAP_MOVE = 10;

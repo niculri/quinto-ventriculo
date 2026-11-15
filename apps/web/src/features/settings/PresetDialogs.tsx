@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, Pencil, X } from 'lucide-react';
 import { button, card } from '../../shared/ui/styles';
+import { DimBackdrop } from '../../shared/ui/Dialog';
 
 const frame =
   'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface p-5 shadow-soft';
@@ -39,7 +40,7 @@ export function PresetNameDialog({
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onCancel()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content className={frame} aria-describedby={undefined}>
           <Dialog.Title className="font-semibold">{title}</Dialog.Title>
           <form onSubmit={submit} className="mt-3">
@@ -94,7 +95,7 @@ export function RemovePresetDialog({
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onCancel()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content className={frame}>
           <Dialog.Title className="font-semibold">¿Remover {name}?</Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-muted">

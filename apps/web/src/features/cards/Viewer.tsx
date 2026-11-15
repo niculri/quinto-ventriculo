@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
-import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning, X } from 'lucide-react';
+import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
 import { useStudyRepository } from '../progress/api/context';
 import { button } from '../../shared/ui/styles';
@@ -17,6 +17,7 @@ import { timingFor } from '@qv/study';
 import type { StudyPreferences } from '../progress/api/repository';
 import { ReportEntry } from '../study/StudyPage';
 import { MaterialLink } from '../study/MaterialRow';
+import { GhostCloseX } from '../../shared/ui/Dialog';
 
 const REVIEW_FLAG = 1;
 
@@ -194,9 +195,7 @@ function Actions({
                 <Dialog.Title className="text-lg font-semibold">
                   Historial de la tarjeta
                 </Dialog.Title>
-                <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label="Cerrar">
-                  <X className="size-4" aria-hidden="true" />
-                </Dialog.Close>
+                <GhostCloseX />
               </div>
               <Dialog.Description className="sr-only">
                 Cuándo la estudiaste y qué respondiste.

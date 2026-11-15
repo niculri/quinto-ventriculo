@@ -28,9 +28,9 @@ import { Toc, activeTitle } from './Toc';
 import { KIND_NAMES, headerParts, noteDates, versionedCode } from './header';
 import { PRACTICE_ANCHOR, Practice, usePractice } from './Practice';
 import { useActiveSection } from './useActiveSection';
-import { ImageViewer } from '../viewer/ImageViewer';
+import { ImageViewer } from '../../shared/ui/ImageViewer';
 import { flashHeading } from './flash';
-import type { OpenImage } from '../viewer/ImageViewer';
+import type { OpenImage } from '../../shared/ui/ImageViewer';
 import { SelectionReportBar, useArticleSelection } from './reporting';
 import { ReportDialog } from '../reports/ReportDialog';
 import type { ReportLocation, ReportTarget } from '../reports/api/repository';
@@ -40,6 +40,7 @@ import { rememberNote } from './lastNote';
 import { useTip } from '../tips/useTip';
 import { useReadingFonts } from '../../shared/lib/readingFonts';
 import { noteCrumbs } from './noteCrumbs';
+import { StatusToast } from '../../shared/ui/Toast';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
@@ -274,14 +275,7 @@ export function NoteView({
         <SelectionReportBar onReport={() => setReporting({ target: targetOf(selected) })} />
       ) : null}
       {thanks && !selected ? (
-        <div
-          role="status"
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-        >
-          <p className="rounded-lg bg-ink px-4 py-2 text-sm text-bg shadow-soft">
-            Gracias: tu reporte le llegó al autor.
-          </p>
-        </div>
+        <StatusToast>Gracias: tu reporte le llegó al autor.</StatusToast>
       ) : null}
       <ReportDialog
         target={reporting?.target ?? null}

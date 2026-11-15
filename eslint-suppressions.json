@@ -470,12 +470,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/viewer/ImageViewer.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/viewer/useImageZoom.ts": {
+  "apps/web/src/shared/hooks/useImageZoom.ts": {
     "max-lines-per-function": {
       "count": 1
     }
@@ -485,6 +480,11 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/shared/ui/ImageViewer.tsx": {
+    "max-lines-per-function": {
       "count": 1
     }
   },

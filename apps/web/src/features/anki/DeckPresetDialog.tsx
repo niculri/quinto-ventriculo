@@ -17,6 +17,7 @@ import { presetChoices, presetOf } from '@qv/study';
 import type { PresetRef } from '@qv/study';
 import { presetParam } from '../progress/presets';
 import type { DeckNode } from '../catalog/model/tree';
+import { DimBackdrop } from '../../shared/ui/Dialog';
 
 export function DeckPresetButton({ node }: { node: DeckNode }) {
   const [open, setOpen] = useState(false);
@@ -30,7 +31,7 @@ export function DeckPresetButton({ node }: { node: DeckNode }) {
         <Settings className="size-4" aria-hidden="true" />
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface p-5 shadow-soft">
           <div className="flex items-start justify-between gap-3">
             <Dialog.Title className="font-semibold">Configuración de {node.label}</Dialog.Title>

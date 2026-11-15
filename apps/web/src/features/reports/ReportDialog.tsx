@@ -1,7 +1,6 @@
 // «Reportar error» popup for a card, a note or a quiz question: category, comment and send.
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
 import { CATEGORIES_OF, REPORT_COMMENT_MAX } from '@qv/schema';
 import type { ReportCategory, ReportKind } from '@qv/schema';
 import { Select } from '../../shared/ui/Select';
@@ -10,6 +9,7 @@ import { CATEGORY_LABELS, codeWithVersion } from './labels';
 import { useSendReport } from './queries';
 import { ReportError } from './api/repository';
 import type { ReportTarget } from './api/repository';
+import { BlurredBackdrop, CloseX } from '../../shared/ui/Dialog';
 
 const INTRO: Record<ReportKind, string> = {
   card: 'Cuéntanos qué está mal en esta tarjeta. Le llega al autor para corregirla.',
@@ -50,16 +50,11 @@ export function ReportDialog({
   return (
     <Dialog.Root open={target !== null} onOpenChange={(open) => (open ? null : close())}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
+        <BlurredBackdrop />
         <Dialog.Content className="fixed top-[8vh] left-1/2 z-50 max-h-[88dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:top-[12vh]">
           <div className="flex items-start justify-between gap-3">
             <Dialog.Title className="font-serif text-xl font-semibold">Reportar error</Dialog.Title>
-            <Dialog.Close
-              aria-label="Cerrar"
-              className="rounded-md p-1 text-muted hover:bg-surface-2 hover:text-ink"
-            >
-              <X className="size-4" aria-hidden="true" />
-            </Dialog.Close>
+            <CloseX />
           </div>
           <Dialog.Description className="mt-1 text-sm text-muted">
             {target ? INTRO[target.kind] : null}

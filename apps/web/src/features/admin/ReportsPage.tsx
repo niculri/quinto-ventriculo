@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Ban, Check, ClipboardCopy, ExternalLink, RotateCcw, X } from 'lucide-react';
+import { Ban, Check, ClipboardCopy, ExternalLink, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router';
 import { RESOLUTION_NOTE_MAX, RESOLUTION_STATUSES } from '@qv/schema';
 import type { ReportCategory, ResolutionStatus } from '@qv/schema';
@@ -33,6 +33,7 @@ import { ReportError } from '../reports/api/repository';
 import { splitCardId } from '../reports/targets';
 import type { QueueReport, Reporter, ReportGroup } from '../reports/api/repository';
 import { AdminSectionTitle } from './AdminLayout';
+import { BlurredBackdrop, CloseX } from '../../shared/ui/Dialog';
 
 type Showing = 'open' | 'resolved';
 
@@ -423,20 +424,14 @@ function PanelDialog({
   return (
     <Dialog.Root open onOpenChange={(open) => (open || busy ? null : onClose())}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
+        <BlurredBackdrop />
         <Dialog.Content
           aria-describedby={undefined}
           className="fixed top-[10vh] left-1/2 z-50 max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-2xl"
         >
           <div className="flex items-start justify-between gap-3">
             <Dialog.Title className="font-serif text-xl font-semibold">{title}</Dialog.Title>
-            <Dialog.Close
-              aria-label="Cerrar"
-              disabled={busy}
-              className="rounded-md p-1 text-muted hover:bg-surface-2 hover:text-ink"
-            >
-              <X className="size-4" aria-hidden="true" />
-            </Dialog.Close>
+            <CloseX disabled={busy} />
           </div>
           {children}
         </Dialog.Content>

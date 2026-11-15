@@ -9,6 +9,7 @@ import { countSearch } from '../usage/count';
 import { useCatalog } from '../catalog/queries';
 import { Snippet } from './Snippet';
 import { resultLink, searchContext, useSearch } from './useSearch';
+import { BlurredBackdrop } from '../../shared/ui/Dialog';
 
 export function SearchPalette({
   open,
@@ -20,7 +21,7 @@ export function SearchPalette({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
+        <BlurredBackdrop />
         <Dialog.Content
           aria-describedby={undefined}
           className="fixed top-[10vh] left-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl"

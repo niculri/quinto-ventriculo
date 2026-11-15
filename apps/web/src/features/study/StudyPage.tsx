@@ -58,6 +58,8 @@ import { ReportDialog } from '../reports/ReportDialog';
 import { cardTarget } from '../reports/targets';
 import { useCountOpen } from '../usage/count';
 import { useTip } from '../tips/useTip';
+import { BlurredBackdrop } from '../../shared/ui/Dialog';
+import { LiveToast } from '../../shared/ui/Toast';
 
 export function StudyPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
@@ -471,14 +473,7 @@ function Reviewer({
           ? `${revealed ? 'Respuesta de la tarjeta' : 'Tarjeta'} ${turn.n} de esta sesión`
           : ''}
       </p>
-      <div
-        aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-4"
-      >
-        {message ? (
-          <p className="rounded-lg bg-ink px-4 py-2 text-sm text-bg shadow-soft">{message}</p>
-        ) : null}
-      </div>
+      <LiveToast message={message} />
 
       {!full && !initial.prefs.welcomeSeen && shown ? <Welcome prefs={initial.prefs} /> : null}
 
@@ -715,7 +710,7 @@ function Welcome({ prefs }: { prefs: StudyPreferences }) {
   return (
     <Dialog.Root open={open} onOpenChange={(o) => (o ? null : close())}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />
+        <BlurredBackdrop />
         <Dialog.Content
           className="fixed top-4 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 flex-col rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:top-[16vh]"
           // Focus does not go to a button behind: space and Enter have to show the answer.

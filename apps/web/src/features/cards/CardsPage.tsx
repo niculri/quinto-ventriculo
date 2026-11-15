@@ -64,6 +64,7 @@ import {
 import type { CardsScope } from '../catalog/model/scope';
 import { CardsViewer } from './Viewer';
 import type { ExplorerCard, ExplorerNote } from './model';
+import { GhostCloseX } from '../../shared/ui/Dialog';
 
 const summaryOf = (n: ExplorerNote, c: ExplorerCard): CardSummary => ({
   noteGuid: c.noteGuid,
@@ -386,9 +387,7 @@ function Body({ scope, tree }: { scope: CardsScope; tree: AnkiTree }) {
               <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[min(22rem,88vw)] overflow-y-auto border-l border-border bg-surface p-4 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-soft xl:hidden">
                 <div className="mb-4 flex items-center justify-between">
                   <Dialog.Title className="font-semibold">Filtros</Dialog.Title>
-                  <Dialog.Close className={`${button.base} ${button.ghost}`} aria-label="Cerrar">
-                    <X className="size-4" aria-hidden="true" />
-                  </Dialog.Close>
+                  <GhostCloseX />
                 </div>
                 <Dialog.Description className="sr-only">
                   Estado, origen y tipo de las tarjetas de la lista.

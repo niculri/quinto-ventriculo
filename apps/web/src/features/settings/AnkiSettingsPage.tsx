@@ -9,15 +9,8 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import { Check, CircleDot, RotateCcw, Settings2 } from 'lucide-react';
-import {
-  CONFIG_RANGES,
-  DEFAULT_CONFIG,
-  DEFAULT_PARAMETERS,
-  defaultConfig,
-  stepsToString,
-  stringToSteps,
-} from '@qv/srs';
+import { Check, CircleDot, Settings2 } from 'lucide-react';
+import { CONFIG_RANGES, DEFAULT_CONFIG, DEFAULT_PARAMETERS, defaultConfig } from '@qv/srs';
 import type {
   DeckConfig,
   NewCardGatherPriority,
@@ -31,7 +24,10 @@ import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { button, card } from '../../shared/ui/styles';
 import { Select } from '../../shared/ui/Select';
-import { Switch } from '../../shared/ui/Switch';
+import { NumberRow } from '../../shared/ui/form/NumberRow';
+import { SelectRow } from '../../shared/ui/form/SelectRow';
+import { StepsRow } from '../../shared/ui/form/StepsRow';
+import { SwitchRow } from '../../shared/ui/form/SwitchRow';
 import { presetParam } from '../progress/presets';
 import { hasPage } from '../catalog/model/tree';
 import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
@@ -770,199 +766,6 @@ function Warning({ children }: { children: ReactNode }) {
     <p role="note" className="py-2 text-sm text-[#b45309] dark:text-[#f2b67a]">
       {children}
     </p>
-  );
-}
-
-function Revert<T>({
-  value,
-  fallback,
-  onChange,
-}: {
-  value: T;
-  fallback: T;
-  onChange: (v: T) => void;
-}) {
-  if (JSON.stringify(value) === JSON.stringify(fallback)) return <span className="size-7" />;
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(fallback)}
-      className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
-      title="Restaure esta configuración a su valor predeterminado."
-      aria-label="Restablecer el valor predeterminado"
-    >
-      <RotateCcw className="size-4" aria-hidden="true" />
-    </button>
-  );
-}
-
-function Row({
-  label,
-  id,
-  help,
-  children,
-}: {
-  label: string;
-  id: string;
-  help?: string | undefined;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
-      <div className="min-w-0 flex-1 basis-56">
-        <label htmlFor={id} className="text-sm font-medium">
-          {label}
-        </label>
-        {help ? <p className="mt-0.5 text-xs text-muted">{help}</p> : null}
-      </div>
-      <div className="flex items-center gap-1">{children}</div>
-    </div>
-  );
-}
-
-function NumberRow({
-  label,
-  value,
-  range: [min, max],
-  fallback,
-  step = 1,
-  unit,
-  help,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  range: readonly [number, number];
-  fallback: number;
-  step?: number;
-  unit?: string;
-  help?: string;
-  onChange: (v: number) => void;
-}) {
-  const id = useId();
-  const [text, setText] = useState(String(value));
-  const [shown, setShown] = useState(value);
-  if (shown !== value) {
-    setShown(value);
-    setText(String(value));
-  }
-  const commit = () => {
-    const n = Number(text.replace(',', '.'));
-    const valid = Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : value;
-    const rounded = step < 1 ? Math.round(valid / step) * step : Math.round(valid);
-    const fixed = Number(rounded.toFixed(4));
-    setText(String(fixed));
-    if (fixed !== value) onChange(fixed);
-  };
-  return (
-    <Row label={label} id={id} help={help}>
-      <input
-        id={id}
-        type="number"
-        inputMode={step < 1 ? 'decimal' : 'numeric'}
-        min={min}
-        max={max}
-        step={step}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => e.key === 'Enter' && commit()}
-        className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-right text-sm tabular-nums"
-      />
-      {unit ? <span className="w-8 text-sm text-muted">{unit}</span> : null}
-      <Revert value={value} fallback={fallback} onChange={onChange} />
-    </Row>
-  );
-}
-
-function SelectRow<T extends string>({
-  label,
-  value,
-  fallback,
-  choices,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  fallback: T;
-  choices: readonly (readonly [T, string])[];
-  onChange: (v: T) => void;
-}) {
-  const id = useId();
-  return (
-    <Row label={label} id={id}>
-      <Select
-        id={id}
-        label={label}
-        value={value}
-        options={choices.map(([v, text]) => ({ value: v, label: text }))}
-        onChange={onChange}
-        className="w-64 max-w-full sm:w-72"
-      />
-      <Revert value={value} fallback={fallback} onChange={onChange} />
-    </Row>
-  );
-}
-
-function SwitchRow({
-  label,
-  value,
-  fallback,
-  help,
-  disabled = false,
-  onChange,
-}: {
-  label: string;
-  value: boolean;
-  fallback: boolean;
-  help?: string;
-  disabled?: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const id = useId();
-  return (
-    <Row label={label} id={id} help={help}>
-      <Switch id={id} label={label} checked={value} disabled={disabled} onChange={onChange} />
-      <Revert value={value} fallback={fallback} onChange={onChange} />
-    </Row>
-  );
-}
-
-function StepsRow({
-  label,
-  value,
-  fallback,
-  onChange,
-}: {
-  label: string;
-  value: number[];
-  fallback: readonly number[];
-  onChange: (v: number[]) => void;
-}) {
-  const id = useId();
-  const [text, setText] = useState(stepsToString(value));
-  const [shown, setShown] = useState(value);
-  if (shown !== value) {
-    setShown(value);
-    setText(stepsToString(value));
-  }
-  const commit = () => {
-    const steps = stringToSteps(text);
-    setText(stepsToString(steps));
-    if (stepsToString(steps) !== stepsToString(value)) onChange(steps);
-  };
-  return (
-    <Row label={label} id={id} help="Separados por espacios: 1m 10m 1h 1d.">
-      <input
-        id={id}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => e.key === 'Enter' && commit()}
-        className="w-40 rounded-lg border border-border bg-surface px-3 py-2 text-sm"
-      />
-      <Revert value={value} fallback={[...fallback]} onChange={onChange} />
-    </Row>
   );
 }
 

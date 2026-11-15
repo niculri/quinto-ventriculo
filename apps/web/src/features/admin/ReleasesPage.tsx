@@ -35,6 +35,7 @@ import {
   useRevertRelease,
   useSetReleaseMark,
 } from './releaseQueries';
+import { DimBackdrop } from '../../shared/ui/Dialog';
 
 export function ReleasesPage() {
   return (
@@ -776,7 +777,7 @@ function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={(o) => (busy ? undefined : onOpenChange(o))}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content
           role="alertdialog"
           onEscapeKeyDown={(e) => busy && e.preventDefault()}

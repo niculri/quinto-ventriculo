@@ -11,8 +11,9 @@ Partes del código están adaptadas de Anki (https://github.com/ankitects/anki),
 AGPL-3.0-or-later, y se modificaron para El Quinto Ventrículo en 2026: el planificador (`packages/srs`, salvo
 `packages/srs/src/queue/siblings.ts`, que es propio), la búsqueda (`packages/anki-search`), las plantillas, cloze e
 Image Occlusion (`packages/anki-render`, `apps/web/src/features/decks/`), la sesión de estudio
-(`apps/web/src/features/study/session.ts` y `packages/study/src/session.ts`) y la página de opciones de Anki. Cada
-archivo adaptado lo dice en su encabezado (`SPDX-License-Identifier`). Algunos textos en español vienen de las
+(`apps/web/src/features/study/session.ts` y `packages/study/src/session.ts`) y la página de opciones de Anki, con sus
+filas de formulario (`apps/web/src/shared/ui/form/`). Cada archivo adaptado lo dice en su encabezado
+(`SPDX-License-Identifier`). Algunos textos en español vienen de las
 traducciones de Anki, que según su LICENSE son una mezcla de BSD y dominio público.
 
 ## FSRS

@@ -20,6 +20,7 @@ import type {
   RemoveResult,
   SetAdminResult,
 } from './api/repository';
+import { DimBackdrop } from '../../shared/ui/Dialog';
 
 /** `youAreOwner` comes with the report, so the site owner's buttons never appear after it. */
 export function AccessPage() {
@@ -459,7 +460,7 @@ function Shell({
   return (
     <Dialog.Root open={open} onOpenChange={(o) => (o || busy ? undefined : onClose())}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content
           onEscapeKeyDown={(e) => busy && e.preventDefault()}
           onPointerDownOutside={(e) => busy && e.preventDefault()}

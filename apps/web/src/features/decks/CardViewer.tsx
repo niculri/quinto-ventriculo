@@ -13,6 +13,7 @@ import { button } from '../../shared/ui/styles';
 import { CardFrame, useDarkMode } from './CardFrame';
 import { KIND_LABELS, cardLabel } from './labels';
 import { cardQuery, useCard } from './queries';
+import { DimBackdrop } from '../../shared/ui/Dialog';
 
 interface Props {
   cards: CardSummary[];
@@ -70,7 +71,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
   return (
     <Dialog.Root open onOpenChange={(open) => (open ? null : onClose())}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <DimBackdrop />
         <Dialog.Content
           aria-describedby={undefined}
           ref={content}

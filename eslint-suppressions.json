@@ -93,7 +93,7 @@
       "count": 4
     },
     "qv/no-literal-text": {
-      "count": 88
+      "count": 102
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
@@ -101,7 +101,7 @@
   },
   "apps/web/src/features/admin/AdminLayout.tsx": {
     "qv/no-literal-text": {
-      "count": 2
+      "count": 4
     }
   },
   "apps/web/src/features/admin/ReleasesPage.tsx": {
@@ -112,7 +112,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 64
+      "count": 100
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -126,12 +126,12 @@
       "count": 3
     },
     "qv/no-literal-text": {
-      "count": 52
+      "count": 54
     }
   },
   "apps/web/src/features/admin/SitePage.tsx": {
     "qv/no-literal-text": {
-      "count": 2
+      "count": 3
     }
   },
   "apps/web/src/features/admin/UnpublishedPage.tsx": {
@@ -147,7 +147,7 @@
       "count": 2
     },
     "qv/no-literal-text": {
-      "count": 25
+      "count": 56
     }
   },
   "apps/web/src/features/admin/api/repository/memory.ts": {
@@ -186,7 +186,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 4
+      "count": 8
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -200,7 +200,7 @@
       "count": 2
     },
     "qv/no-literal-text": {
-      "count": 47
+      "count": 48
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
@@ -211,7 +211,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 19
+      "count": 21
     }
   },
   "apps/web/src/features/browse/QuickFilters.tsx": {
@@ -224,7 +224,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 9
+      "count": 20
     }
   },
   "apps/web/src/features/browse/data.ts": {
@@ -254,7 +254,7 @@
       "count": 2
     },
     "qv/no-literal-text": {
-      "count": 25
+      "count": 27
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -275,7 +275,7 @@
   },
   "apps/web/src/features/cards/PracticePage.tsx": {
     "qv/no-literal-text": {
-      "count": 12
+      "count": 14
     }
   },
   "apps/web/src/features/cards/Viewer.tsx": {
@@ -311,7 +311,7 @@
   },
   "apps/web/src/features/courses/AssessmentSections.tsx": {
     "qv/no-literal-text": {
-      "count": 14
+      "count": 17
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -319,7 +319,7 @@
   },
   "apps/web/src/features/courses/CareerPage.tsx": {
     "qv/no-literal-text": {
-      "count": 6
+      "count": 8
     }
   },
   "apps/web/src/features/courses/CoursePage.tsx": {
@@ -327,7 +327,7 @@
       "count": 2
     },
     "qv/no-literal-text": {
-      "count": 15
+      "count": 24
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -335,7 +335,7 @@
   },
   "apps/web/src/features/courses/SemesterPage.tsx": {
     "qv/no-literal-text": {
-      "count": 2
+      "count": 3
     }
   },
   "apps/web/src/features/decks/CardViewer.tsx": {
@@ -343,7 +343,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 11
+      "count": 12
     }
   },
   "apps/web/src/features/decks/occlusion.ts": {
@@ -365,7 +365,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 27
+      "count": 36
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -430,7 +430,7 @@
   },
   "apps/web/src/features/notes/Practice.tsx": {
     "qv/no-literal-text": {
-      "count": 8
+      "count": 14
     }
   },
   "apps/web/src/features/notes/Toc.tsx": {
@@ -451,6 +451,11 @@
   "apps/web/src/features/notes/reporting.tsx": {
     "qv/no-literal-text": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/progress/DeckCounts.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
     }
   },
   "apps/web/src/features/progress/MasteryMeter.tsx": {
@@ -474,7 +479,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 17
+      "count": 25
     }
   },
   "apps/web/src/features/quiz/Figures.tsx": {
@@ -504,7 +509,7 @@
       "count": 2
     },
     "qv/no-literal-text": {
-      "count": 15
+      "count": 18
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
@@ -556,7 +561,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 13
+      "count": 15
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -571,6 +576,11 @@
     },
     "qv/no-literal-text": {
       "count": 9
+    }
+  },
+  "apps/web/src/features/session/AuthCallbackPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
     }
   },
   "apps/web/src/features/settings/AccountSettingsPage.tsx": {
@@ -589,7 +599,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 70
+      "count": 85
     }
   },
   "apps/web/src/features/settings/PresetDialogs.tsx": {
@@ -599,7 +609,7 @@
   },
   "apps/web/src/features/settings/SettingsLayout.tsx": {
     "qv/no-literal-text": {
-      "count": 2
+      "count": 4
     }
   },
   "apps/web/src/features/stats/HeatmapCard.tsx": {
@@ -634,7 +644,7 @@
       "count": 1
     },
     "qv/no-literal-text": {
-      "count": 20
+      "count": 26
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
@@ -653,7 +663,7 @@
       "count": 3
     },
     "qv/no-literal-text": {
-      "count": 71
+      "count": 75
     },
     "sonarjs/cognitive-complexity": {
       "count": 3

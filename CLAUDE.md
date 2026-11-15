@@ -63,7 +63,9 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `shared/strings.ts` (un componente de `shared/ui` que no carga al inicio lleva el suyo, `X.strings.ts`, para no
   sumarlo al arranque): un objeto `as const`, con funciones para lo que lleva números o nombres. Las pruebas siguen
   buscando el texto literal. Lo impone `qv/no-literal-text`, salvo en las pruebas, las páginas de texto fijo y las
-  respuestas de las preguntas frecuentes.
+  respuestas de las preguntas frecuentes de la portada: ve también las props de texto de los componentes, las listas
+  de textos (`columns`, `items`…), los argumentos de `plural` y lo que se lee como texto en los argumentos de otra
+  función que se renderiza; las listas viven en `LITERAL_TEXT` de `eslint.config.js`.
 - **Trinquete:** todas las reglas están en `error`; lo que ya las violaba está en `eslint-suppressions.json`. Por cada
   regla, las supresiones de ese archivo más los `eslint-disable` en línea no pueden subir respecto de `origin/main`:
   `npm run suppressions` (en `npm run check`, la CI y el `pre-push`). Un `eslint-disable` que ya no silencia nada es

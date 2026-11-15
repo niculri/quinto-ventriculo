@@ -51,6 +51,31 @@ const FIXED_TEXT_PAGES = [
   'apps/web/src/features/help/HelpPage.tsx',
 ];
 
+// What qv/no-literal-text reads as text besides the HTML and ARIA text attributes: the text props of the web's
+// components (not `name`, which is also a form control's name), the props that take a list of texts (with the keys of
+// their items that are text), the functions whose arguments are all text, and those whose are never (keys, locales).
+const LITERAL_TEXT = {
+  componentTextProps: [
+    'againLabel',
+    'busyLabel',
+    'confirm',
+    'empty',
+    'heading',
+    'help',
+    'longest',
+    'message',
+    'sectionLabel',
+    'sectionName',
+    'text',
+    'unit',
+    'why',
+  ],
+  listProps: ['choices', 'columns', 'items', 'lines', 'options'],
+  textKeys: ['description', 'help', 'label', 'text', 'title'],
+  textFunctions: ['plural'],
+  ignoreFunctions: ['keys', 'shortcut', 'toLocaleString'],
+};
+
 // OTHER_FILES are linted only for their comments, with the qv/comments language.
 const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];
 const OTHER_FILES = ['**/*.css', '**/*.{yml,yaml}', '**/*.sh', '**/*.jsonc', '.githooks/pre-push'];
@@ -311,11 +336,15 @@ export default tseslint.config(
     },
   },
   {
-    // The text a person reads goes in a strings.ts; pages that are only fixed text, and the answers of the FAQ, are
-    // their own document.
+    // The text a person reads goes in a strings.ts; pages that are only fixed text are their own document.
     files: ['apps/web/src/**/*.tsx'],
     ignores: ['**/*.test.tsx', 'apps/web/src/test/**', ...FIXED_TEXT_PAGES],
-    rules: { 'qv/no-literal-text': ['error', { fixedText: ['Question'] }] },
+    rules: { 'qv/no-literal-text': ['error', LITERAL_TEXT] },
+  },
+  {
+    // The answers of the landing page's FAQ are fixed text too.
+    files: ['apps/web/src/features/landing/LandingPage.tsx'],
+    rules: { 'qv/no-literal-text': ['error', { ...LITERAL_TEXT, fixedText: ['Question'] }] },
   },
   {
     files: ['apps/web/**/*.{ts,tsx}'],

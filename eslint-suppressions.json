@@ -192,34 +192,12 @@
       "count": 1
     }
   },
-  "apps/web/src/features/browse/BrowsePage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
-    "qv/no-literal-text": {
-      "count": 48
-    },
+  "apps/web/src/features/cards/api/demo.ts": {
     "sonarjs/cognitive-complexity": {
-      "count": 3
+      "count": 2
     }
   },
-  "apps/web/src/features/browse/CardPreview.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 21
-    }
-  },
-  "apps/web/src/features/browse/QuickFilters.tsx": {
-    "qv/no-literal-text": {
-      "count": 18
-    }
-  },
-  "apps/web/src/features/browse/Sidebar.tsx": {
+  "apps/web/src/features/cards/components/BrowseSidebar.tsx": {
     "max-lines-per-function": {
       "count": 1
     },
@@ -227,12 +205,15 @@
       "count": 20
     }
   },
-  "apps/web/src/features/browse/data.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 2
+  "apps/web/src/features/cards/components/CardFilters.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 10
     }
   },
-  "apps/web/src/features/cards/CardList.tsx": {
+  "apps/web/src/features/cards/components/CardList.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -246,7 +227,60 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/CardsPage.tsx": {
+  "apps/web/src/features/cards/components/CardPreview.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 21
+    }
+  },
+  "apps/web/src/features/cards/components/CardTable.tsx": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "qv/no-literal-text": {
+      "count": 48
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/cards/components/CardsViewer.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 16
+    }
+  },
+  "apps/web/src/features/cards/components/QuickFilters.tsx": {
+    "qv/no-literal-text": {
+      "count": 18
+    }
+  },
+  "apps/web/src/features/cards/hooks/useCardsData.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/model/browseCards.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/cards/model/explorer.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/cards/pages/CardsPage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -260,48 +294,14 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/Filters.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 10
-    }
-  },
-  "apps/web/src/features/cards/LegacyBrowse.tsx": {
+  "apps/web/src/features/cards/pages/LegacyBrowse.tsx": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
-  "apps/web/src/features/cards/PracticePage.tsx": {
+  "apps/web/src/features/cards/pages/PracticePage.tsx": {
     "qv/no-literal-text": {
       "count": 14
-    }
-  },
-  "apps/web/src/features/cards/Viewer.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 16
-    }
-  },
-  "apps/web/src/features/cards/demo.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/cards/model.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 4
-    }
-  },
-  "apps/web/src/features/cards/queries.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
     }
   },
   "apps/web/src/features/catalog/model/tree.ts": {

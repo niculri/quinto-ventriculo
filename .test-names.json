@@ -24,8 +24,6 @@
   "apps/web/src/features/admin/local-repository.test.ts",
   "apps/web/src/features/admin/releases.test.tsx",
   "apps/web/src/features/admin/usage.test.tsx",
-  "apps/web/src/features/browse/browse.test.tsx",
-  "apps/web/src/features/cards/cards.test.tsx",
   "apps/web/src/features/catalog/model/tree.test.ts",
   "apps/web/src/features/decks/decks.test.tsx",
   "apps/web/src/features/decks/sanitize-golden.test.ts",

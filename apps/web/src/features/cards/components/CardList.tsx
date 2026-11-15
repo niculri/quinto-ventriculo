@@ -4,11 +4,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { Flag, ImageIcon } from 'lucide-react';
-import { Skeleton } from '../../shared/ui/Loading';
-import { clozeParts, headingAt, itemAt, listItems, listMetrics } from './model';
-import type { CardStatus, ExplorerCard, Lecture, ListItem, Matched } from './model';
-import { thumbUrl } from './queries';
-import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { clozeParts, headingAt, itemAt, listItems, listMetrics } from '../model/explorer';
+import type { CardStatus, ExplorerCard, Lecture, ListItem, Matched } from '../model/explorer';
+import { thumbUrl } from '../hooks/useCardsData';
+import { useMediaQuery } from '../../../shared/hooks/useMediaQuery';
 
 const BAR = 64;
 const OVERSCAN = 600;

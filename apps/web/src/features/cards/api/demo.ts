@@ -3,9 +3,9 @@
 
 import type { AnkiTreeDeck, CardDetail, CardIndex, CardIndexNote, Catalog } from '@qv/schema';
 import { CARD_INDEX_VERSION } from '@qv/schema';
-import type { ApiClient } from '../../shared/lib/api';
-import type { StoredCard, StudyRepository } from '../progress/api/repository';
-import { storageKeys } from '../../shared/lib/storage';
+import type { ApiClient } from '../../../shared/lib/api';
+import type { StoredCard, StudyRepository } from '../../progress/api/repository';
+import { storageKeys } from '../../../shared/lib/storage';
 
 const DEMO_PREFIX = 'demo-';
 

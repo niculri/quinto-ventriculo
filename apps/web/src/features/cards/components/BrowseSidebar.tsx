@@ -6,7 +6,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import { ChevronRight, Flag, Layers, ListChecks, NotebookTabs, Tag, Clock } from 'lucide-react';
 import { searchTerm } from '@qv/anki-search';
 import type { NoteTypeSummary } from '@qv/schema';
-import type { DeckNode } from '../catalog/model/tree';
+import type { DeckNode } from '../../catalog/model/tree';
 import { FLAGS } from '@qv/study';
 
 // As in Anki, a click replaces the search; with Ctrl/⌘ it adds the term («y»), with Mayús it is an alternative

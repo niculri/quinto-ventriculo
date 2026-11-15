@@ -6,16 +6,16 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
-import { useStudyRepository } from '../progress/api/context';
-import { button } from '../../shared/ui/styles';
-import { CardInfo } from '../browse/CardPreview';
-import type { BrowseCard } from '../browse/data';
-import { CardViewer } from '../decks/CardViewer';
-import { MaterialLink, ReportEntry, useCardMaterial } from '../study';
-import { studyKeys } from '../progress/queries';
+import { useStudyRepository } from '../../progress/api/context';
+import { button } from '../../../shared/ui/styles';
+import { CardInfo } from './CardPreview';
+import type { BrowseCard } from '../model/browseCards';
+import { CardViewer } from '../../decks/CardViewer';
+import { MaterialLink, ReportEntry, useCardMaterial } from '../../study';
+import { studyKeys } from '../../progress/queries';
 import { timingFor } from '@qv/study';
-import type { StudyPreferences } from '../progress/api/repository';
-import { GhostCloseX } from '../../shared/ui/Dialog';
+import type { StudyPreferences } from '../../progress/api/repository';
+import { GhostCloseX } from '../../../shared/ui/Dialog';
 
 const REVIEW_FLAG = 1;
 

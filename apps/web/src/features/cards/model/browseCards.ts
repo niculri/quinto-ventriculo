@@ -4,9 +4,9 @@ import { dayStartsAt, fillParameters, timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
 import type { SearchCard } from '@qv/anki-search';
 import type { BrowseNote, CardKind, NoteTypeSummary } from '@qv/schema';
-import type { StoredCard, StudyPreferences } from '../progress/api/repository';
+import type { StoredCard, StudyPreferences } from '@qv/schema/user';
 import { cardKey, isHidden, toRecord } from '@qv/study';
-import type { DeckNode } from '../catalog/model/tree';
+import type { DeckNode } from '../../catalog/model/tree';
 
 export interface BrowseCard extends SearchCard {
   key: string;

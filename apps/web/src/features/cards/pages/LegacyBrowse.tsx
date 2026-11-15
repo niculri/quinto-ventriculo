@@ -4,15 +4,15 @@
 import { Navigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { searchTerm } from '@qv/anki-search';
-import { paths } from '../../shared/lib/paths';
-import { useApi } from '../../shared/hooks/useApi';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { hasPage } from '../catalog/model/tree';
-import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
-import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
+import { paths } from '../../../shared/lib/paths';
+import { useApi } from '../../../shared/hooks/useApi';
+import { Loading } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { hasPage } from '../../catalog/model/tree';
+import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
+import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { cardParam } from './CardsPage';
-import { scopeNodeOf, unitOf } from '../catalog/model/scope';
+import { scopeNodeOf, unitOf } from '../../catalog/model/scope';
 
 function deckOfSearch(tree: AnkiTree, q: string): { node: CourseDeckNode; rest: string } | null {
   let best: { node: CourseDeckNode; rest: string; length: number } | null = null;

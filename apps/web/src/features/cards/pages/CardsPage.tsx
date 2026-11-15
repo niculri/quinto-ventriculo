@@ -14,25 +14,25 @@ import {
   X,
 } from 'lucide-react';
 import type { CardOrigin, CardSummary } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import type { CardsQuery } from '../../shared/lib/paths';
-import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import { Skeleton } from '../../shared/ui/Loading';
-import { ErrorWithRetry, Notice } from '../../shared/ui/Notice';
-import { Rail } from '../../shared/ui/rail';
-import { Reserved } from '../../shared/ui/Reserved';
-import { Select } from '../../shared/ui/Select';
-import { button, page } from '../../shared/ui/styles';
-import { deckCrumbs } from '../catalog/model/tree';
-import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
-import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
-import { CardTable } from '../browse/BrowsePage';
-import { useCatalog } from '../catalog/queries';
+import { paths } from '../../../shared/lib/paths';
+import type { CardsQuery } from '../../../shared/lib/paths';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { ErrorWithRetry, Notice } from '../../../shared/ui/Notice';
+import { Rail } from '../../../shared/ui/rail';
+import { Reserved } from '../../../shared/ui/Reserved';
+import { Select } from '../../../shared/ui/Select';
+import { button, page } from '../../../shared/ui/styles';
+import { deckCrumbs } from '../../catalog/model/tree';
+import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
+import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
+import { CardTable } from '../components/CardTable';
+import { useCatalog } from '../../catalog/queries';
 import { dateText } from '@qv/study';
-import { useDeckSettings, useUserPresets } from '../progress/queries';
-import { useNow } from '../../shared/hooks/useNow';
-import { CardList, ListSkeleton, notesText } from './CardList';
-import { CardFilters } from './Filters';
+import { useDeckSettings, useUserPresets } from '../../progress/queries';
+import { useNow } from '../../../shared/hooks/useNow';
+import { CardList, ListSkeleton, notesText } from '../components/CardList';
+import { CardFilters } from '../components/CardFilters';
 import {
   NO_FILTERS,
   applyFilters,
@@ -44,8 +44,8 @@ import {
   parseState,
   practiceCards,
   searchQuery,
-} from './model';
-import type { Filters, KindFilter, Matched, StateFilter } from './model';
+} from '../model/explorer';
+import type { Filters, KindFilter, Matched, StateFilter } from '../model/explorer';
 import {
   failedOf,
   useCardsData,
@@ -53,21 +53,21 @@ import {
   useFailed,
   useTextMatch,
   useThumbQuery,
-} from './queries';
-import type { CardsData, DayCards } from './queries';
+} from '../hooks/useCardsData';
+import type { CardsData, DayCards } from '../hooks/useCardsData';
 import {
   cardsScope,
   lectureTitle,
   unitDeckIds,
   unitNode,
   unitOptions,
-} from '../catalog/model/scope';
-import type { CardsScope } from '../catalog/model/scope';
-import { CardsViewer } from './Viewer';
-import type { ExplorerCard, ExplorerNote } from './model';
-import { GhostCloseX } from '../../shared/ui/Dialog';
-import { storageKeys } from '../../shared/lib/storage';
-import { useTitle } from '../../shared/hooks/useTitle';
+} from '../../catalog/model/scope';
+import type { CardsScope } from '../../catalog/model/scope';
+import { CardsViewer } from '../components/CardsViewer';
+import type { ExplorerCard, ExplorerNote } from '../model/explorer';
+import { GhostCloseX } from '../../../shared/ui/Dialog';
+import { storageKeys } from '../../../shared/lib/storage';
+import { useTitle } from '../../../shared/hooks/useTitle';
 
 const summaryOf = (n: ExplorerNote, c: ExplorerCard): CardSummary => ({
   noteGuid: c.noteGuid,

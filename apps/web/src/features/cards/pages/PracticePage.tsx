@@ -3,19 +3,19 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { paths } from '../../shared/lib/paths';
-import { BackButton } from '../../shared/ui/BackButton';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { answerBar, button, studyScreen } from '../../shared/ui/styles';
-import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
-import type { CourseDeckNode } from '../catalog/model/tree';
-import { usePracticeRecorder } from '../stats/practice';
-import { ReviewMenu, ReviewScreen, RoundDone } from '../study';
+import { paths } from '../../../shared/lib/paths';
+import { BackButton } from '../../../shared/ui/BackButton';
+import { Loading } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { answerBar, button, studyScreen } from '../../../shared/ui/styles';
+import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
+import type { CourseDeckNode } from '../../catalog/model/tree';
+import { usePracticeRecorder } from '../../stats/practice';
+import { ReviewMenu, ReviewScreen, RoundDone } from '../../study';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
-import { useNow } from '../../shared/hooks/useNow';
-import type { CardRef } from '../progress/api/repository';
+import { useNow } from '../../../shared/hooks/useNow';
+import type { CardRef } from '../../progress/api/repository';
 import { queryOf } from './CardsPage';
 import {
   NO_FILTERS,
@@ -26,10 +26,16 @@ import {
   parseState,
   practiceCards,
   searchQuery,
-} from './model';
-import { failedOf, useCardsData, useDayCards, useFailed, useTextMatch } from './queries';
-import { cardsScope, unitDeckIds, unitNode } from '../catalog/model/scope';
-import { useTitle } from '../../shared/hooks/useTitle';
+} from '../model/explorer';
+import {
+  failedOf,
+  useCardsData,
+  useDayCards,
+  useFailed,
+  useTextMatch,
+} from '../hooks/useCardsData';
+import { cardsScope, unitDeckIds, unitNode } from '../../catalog/model/scope';
+import { useTitle } from '../../../shared/hooks/useTitle';
 
 /** The filters are in the URL, so reloading starts the same round again. */
 export function PracticePage({ node }: { node: CourseDeckNode }) {

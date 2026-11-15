@@ -5,19 +5,19 @@ import { useQuery } from '@tanstack/react-query';
 import { Maximize2, MessageSquareWarning } from 'lucide-react';
 import { timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
-import { useStudyRepository } from '../progress/api/context';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { button } from '../../shared/ui/styles';
-import { CardFrame } from '../decks/CardFrame';
-import { useDarkMode } from '../../shared/hooks/useDarkMode';
-import { useCard } from '../decks/queries';
-import { ReportDialog } from '../reports/ReportDialog';
-import { cardTarget } from '../reports/targets';
-import { studyKeys } from '../progress/queries';
-import type { CardLogEntry } from '../progress/api/repository';
-import { cellText, recall, shortDate } from './data';
-import type { BrowseCard } from './data';
+import { useStudyRepository } from '../../progress/api/context';
+import { Loading } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { button } from '../../../shared/ui/styles';
+import { CardFrame } from '../../decks/CardFrame';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
+import { useCard } from '../../decks/queries';
+import { ReportDialog } from '../../reports/ReportDialog';
+import { cardTarget } from '../../reports/targets';
+import { studyKeys } from '../../progress/queries';
+import type { CardLogEntry } from '../../progress/api/repository';
+import { cellText, recall, shortDate } from '../model/browseCards';
+import type { BrowseCard } from '../model/browseCards';
 
 export function CardPreview({
   card,

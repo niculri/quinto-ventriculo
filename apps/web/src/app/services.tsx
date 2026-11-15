@@ -9,7 +9,7 @@ import { localStudyRepository, supabaseStudyRepository } from '../features/progr
 import type { StudyRepository } from '../features/progress/api/repository';
 import { withCardSync } from '../features/progress/api/sync';
 import { withDemoHistory } from '../features/stats/demo';
-import { withDemoCards } from '../features/cards/demo';
+import { withDemoCards } from '../features/cards/api/demo';
 import { localQuizRepository, supabaseQuizRepository } from '../features/quiz/api/repository';
 import type { QuizRepository } from '../features/quiz/api/repository';
 import { localAdminRepository, supabaseAdminRepository } from '../features/admin/api/repository';

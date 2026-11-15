@@ -8,20 +8,20 @@ import type { SearchContext } from '@qv/anki-search';
 import { dayOfStart, dayStartsAt } from '@qv/srs';
 import type { CardIndex, NoteTypeSummary } from '@qv/schema';
 import { apiPaths } from '@qv/schema/http';
-import { useApi } from '../../shared/hooks/useApi';
-import { useStudyRepository } from '../progress/api/context';
-import { ApiRequestError } from '../../shared/lib/api';
-import type { AnkiTree } from '../catalog/model/tree';
-import { buildBrowseCards, decayFromParams } from '../browse/data';
-import type { BrowseCard } from '../browse/data';
+import { useApi } from '../../../shared/hooks/useApi';
+import { useStudyRepository } from '../../progress/api/context';
+import { ApiRequestError } from '../../../shared/lib/api';
+import type { AnkiTree } from '../../catalog/model/tree';
+import { buildBrowseCards, decayFromParams } from '../model/browseCards';
+import type { BrowseCard } from '../model/browseCards';
 import { cardKey, dayNumber, presetChoices, presetOf, timingFor } from '@qv/study';
-import { heatmapKeys } from '../stats/queries';
-import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../progress/queries';
-import type { StoredCard, StudyPreferences } from '../progress/api/repository';
-import { FAILED_DAYS, explorerNotes } from './model';
-import type { ExplorerNote } from './model';
-import { lectureOf } from '../catalog/model/scope';
-import type { CardsScope } from '../catalog/model/scope';
+import { heatmapKeys } from '../../stats/queries';
+import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../../progress/queries';
+import type { StoredCard, StudyPreferences } from '../../progress/api/repository';
+import { FAILED_DAYS, explorerNotes } from '../model/explorer';
+import type { ExplorerNote } from '../model/explorer';
+import { lectureOf } from '../../catalog/model/scope';
+import type { CardsScope } from '../../catalog/model/scope';
 
 const cardsKeys = {
   index: (assessmentId: string, hash: string) => ['card-index', assessmentId, hash] as const,

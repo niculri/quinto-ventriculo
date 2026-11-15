@@ -22,25 +22,25 @@ import {
 } from 'lucide-react';
 import { SearchError, compileSearch, parseSearch, searchNeeds } from '@qv/anki-search';
 import type { SearchContext } from '@qv/anki-search';
-import { paths } from '../../shared/lib/paths';
-import { useStudyRepository } from '../progress/api/context';
-import { Notice } from '../../shared/ui/Notice';
-import { Switch } from '../../shared/ui/Switch';
-import { button, card as cardStyle } from '../../shared/ui/styles';
-import { hasPage } from '../catalog/model/tree';
+import { paths } from '../../../shared/lib/paths';
+import { useStudyRepository } from '../../progress/api/context';
+import { Notice } from '../../../shared/ui/Notice';
+import { Switch } from '../../../shared/ui/Switch';
+import { button, card as cardStyle } from '../../../shared/ui/styles';
+import { hasPage } from '../../catalog/model/tree';
 import { actionLabel, cardKey, FLAGS, presetChoices, presetOf, timingFor } from '@qv/study';
-import { studyKeys } from '../progress/queries';
-import { useNow } from '../../shared/hooks/useNow';
+import { studyKeys } from '../../progress/queries';
+import { useNow } from '../../../shared/hooks/useNow';
 import type {
   CardRef,
   DeckSetting,
   StoredCard,
   StudyPreferences,
   UserPreset,
-} from '../progress/api/repository';
+} from '../../progress/api/repository';
 import type { AuthorPreset, BrowseNote, NoteTypeSummary } from '@qv/schema';
-import type { AnkiTree } from '../catalog/model/tree';
-import { CardViewer } from '../decks/CardViewer';
+import type { AnkiTree } from '../../catalog/model/tree';
+import { CardViewer } from '../../decks/CardViewer';
 import { CardPreview } from './CardPreview';
 import {
   COLUMNS,
@@ -50,17 +50,17 @@ import {
   decayFromParams,
   notesOf,
   sortCards,
-} from './data';
-import type { BrowseCard, ColumnKey } from './data';
-import { BrowseSidebar, combineSearch } from './Sidebar';
+} from '../model/browseCards';
+import type { BrowseCard, ColumnKey } from '../model/browseCards';
+import { BrowseSidebar, combineSearch } from './BrowseSidebar';
 import { QuickFilters } from './QuickFilters';
-import type { Combine } from './Sidebar';
-import { keys } from '../../shared/ui/keys';
-import { Rail } from '../../shared/ui/rail';
-import type { DeckNode } from '../catalog/model/tree';
-import { DimBackdrop, GhostCloseX } from '../../shared/ui/Dialog';
-import { LiveToast } from '../../shared/ui/Toast';
-import { storageKeys } from '../../shared/lib/storage';
+import type { Combine } from './BrowseSidebar';
+import { keys } from '../../../shared/ui/keys';
+import { Rail } from '../../../shared/ui/rail';
+import type { DeckNode } from '../../catalog/model/tree';
+import { DimBackdrop, GhostCloseX } from '../../../shared/ui/Dialog';
+import { LiveToast } from '../../../shared/ui/Toast';
+import { storageKeys } from '../../../shared/lib/storage';
 
 const ROW = 34;
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */

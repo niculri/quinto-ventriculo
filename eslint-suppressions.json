@@ -639,25 +639,22 @@
       "count": 1
     }
   },
+  "apps/web/src/features/study/components/ChooseReview.tsx": {
+    "qv/no-literal-text": {
+      "count": 10
+    }
+  },
+  "apps/web/src/features/study/components/Congrats.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
+    }
+  },
   "apps/web/src/features/study/components/DaySummary.tsx": {
     "qv/no-literal-text": {
       "count": 4
     }
   },
-  "apps/web/src/features/study/components/MaterialRow.tsx": {
-    "qv/no-literal-text": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/study/model/material.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/pages/FinalReviewPage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
+  "apps/web/src/features/study/components/DoneToday.tsx": {
     "max-lines-per-function": {
       "count": 1
     },
@@ -668,18 +665,87 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/pages/StudyPage.tsx": {
+  "apps/web/src/features/study/components/FinalReview.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/components/MaterialRow.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/components/MoreMenu.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 10
+    }
+  },
+  "apps/web/src/features/study/components/ReviewMenu.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
+    }
+  },
+  "apps/web/src/features/study/components/ReviewScreen.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "qv/no-literal-text": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/components/Reviewer.tsx": {
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 3
+      "count": 1
     },
     "qv/no-literal-text": {
-      "count": 75
+      "count": 17
     },
     "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/components/RoundDone.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/study/components/SimpleMenu.tsx": {
+    "qv/no-literal-text": {
+      "count": 7
+    }
+  },
+  "apps/web/src/features/study/components/StudyCard.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/study/components/Welcome.tsx": {
+    "qv/no-literal-text": {
       "count": 3
+    }
+  },
+  "apps/web/src/features/study/model/material.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/pages/FinalReviewPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/pages/StudyPage.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/shared/hooks/useImageZoom.ts": {

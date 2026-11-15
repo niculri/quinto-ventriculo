@@ -10,7 +10,7 @@ import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { Canonical } from '../../shared/ui/Canonical';
 import { FinalReviewPage } from '../study/pages/FinalReviewPage';
 import { StudyPage } from '../study/pages/StudyPage';
-import { StudyFallback } from '../study/components/StudyFallback';
+import { StudyFallback } from '../study';
 import { answerScreenBack } from '../../shared/ui/answerScreen';
 import { DeckPage } from './DeckPage';
 import { CardsPage } from '../cards/CardsPage';

@@ -18,28 +18,28 @@ import type {
   ReviewCardOrder,
   ReviewMix,
 } from '@qv/srs';
-import { paths } from '../../shared/lib/paths';
-import { useStudyRepository } from '../progress/api/context';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { button, card } from '../../shared/ui/styles';
-import { Select } from '../../shared/ui/Select';
-import { NumberRow } from '../../shared/ui/form/NumberRow';
-import { SelectRow } from '../../shared/ui/form/SelectRow';
-import { StepsRow } from '../../shared/ui/form/StepsRow';
-import { SwitchRow } from '../../shared/ui/form/SwitchRow';
-import { presetParam } from '../progress/presets';
-import { hasPage } from '../catalog/model/tree';
-import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
-import type { AnkiTree, CourseDeckNode, DeckNode } from '../catalog/model/tree';
-import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../progress/queries';
-import { defaultPreferences } from '../progress/api/repository';
-import type { DeckSetting, StudyPreferences, UserPreset } from '../progress/api/repository';
+import { paths } from '../../../shared/lib/paths';
+import { useStudyRepository } from '../../progress/api/context';
+import { Loading } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { button, card } from '../../../shared/ui/styles';
+import { Select } from '../../../shared/ui/Select';
+import { NumberRow } from '../../../shared/ui/form/NumberRow';
+import { SelectRow } from '../../../shared/ui/form/SelectRow';
+import { StepsRow } from '../../../shared/ui/form/StepsRow';
+import { SwitchRow } from '../../../shared/ui/form/SwitchRow';
+import { presetParam } from '../../progress/presets';
+import { hasPage } from '../../catalog/model/tree';
+import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
+import type { AnkiTree, CourseDeckNode, DeckNode } from '../../catalog/model/tree';
+import { studyKeys, useDeckSettings, usePreferences, useUserPresets } from '../../progress/queries';
+import { defaultPreferences } from '../../progress/api/repository';
+import type { DeckSetting, StudyPreferences, UserPreset } from '../../progress/api/repository';
 import { presetChoices, presetOf, sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
-import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';
-import { SettingsLayout } from './SettingsLayout';
-import { useTitle } from '../../shared/hooks/useTitle';
+import { PresetNameDialog, PresetNameField, RemovePresetDialog } from '../components/PresetDialogs';
+import { SettingsLayout } from '../../settings/SettingsLayout';
+import { useTitle } from '../../../shared/hooks/useTitle';
 
 type Mode = 'general' | 'decks';
 

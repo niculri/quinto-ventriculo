@@ -3,22 +3,22 @@
 
 import { Navigate, useLocation, useParams, useSearchParams } from 'react-router';
 import type { ReactNode } from 'react';
-import { paths } from '../../shared/lib/paths';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { NotFoundPage } from '../../shared/ui/NotFoundPage';
-import { Canonical } from '../../shared/ui/Canonical';
-import { FinalReviewPage } from '../study/pages/FinalReviewPage';
-import { StudyPage } from '../study/pages/StudyPage';
-import { StudyFallback } from '../study';
-import { answerScreenBack } from '../../shared/ui/answerScreen';
-import { DeckPage } from './DeckPage';
-import { CardsPage } from '../cards/pages/CardsPage';
-import { PracticePage } from '../cards/pages/PracticePage';
-import { scopeNodeOf, unitOf } from '../catalog/model/scope';
-import { resolveCourseDeck } from '../catalog/model/tree';
-import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
-import type { CourseDeckNode, DeckScreen } from '../catalog/model/tree';
+import { paths } from '../shared/lib/paths';
+import { Loading } from '../shared/ui/Loading';
+import { ErrorWithRetry } from '../shared/ui/Notice';
+import { NotFoundPage } from '../shared/ui/NotFoundPage';
+import { Canonical } from '../shared/ui/Canonical';
+import { FinalReviewPage } from '../features/study/pages/FinalReviewPage';
+import { StudyPage } from '../features/study/pages/StudyPage';
+import { StudyFallback } from '../features/study';
+import { answerScreenBack } from '../shared/ui/answerScreen';
+import { DeckPage } from '../features/decks/pages/DeckPage';
+import { CardsPage } from '../features/cards/pages/CardsPage';
+import { PracticePage } from '../features/cards/pages/PracticePage';
+import { scopeNodeOf, unitOf } from '../features/catalog/model/scope';
+import { resolveCourseDeck } from '../features/catalog/model/tree';
+import { useAnkiTree } from '../features/catalog/hooks/useAnkiTree';
+import type { CourseDeckNode, DeckScreen } from '../features/catalog/model/tree';
 
 export function AnkiRoute() {
   const params = useParams();

@@ -5,7 +5,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { DECK_PATH, fullAnkiStudy, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/CardFrame';
+import { cardShadowRoot } from '../../decks/components/CardFrame';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { StudyRepository } from '../../progress/api/repository';
 

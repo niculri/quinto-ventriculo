@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/CardFrame';
+import { cardShadowRoot } from '../../decks/components/CardFrame';
 import { countsByDay, dateOfDay, heatmapStats } from '@qv/study';
 import { roughToday } from '../../progress/queries';
 import { localStudyRepository } from '../../progress/api/repository';

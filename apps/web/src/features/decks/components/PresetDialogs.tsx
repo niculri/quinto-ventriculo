@@ -3,8 +3,8 @@ import { useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, Pencil, X } from 'lucide-react';
-import { button, card } from '../../shared/ui/styles';
-import { DimBackdrop } from '../../shared/ui/Dialog';
+import { button, card } from '../../../shared/ui/styles';
+import { DimBackdrop } from '../../../shared/ui/Dialog';
 
 const frame =
   'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface p-5 shadow-soft';

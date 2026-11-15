@@ -6,7 +6,7 @@ import type { StudyData } from '@qv/study';
 import { useApi } from '../../../shared/hooks/useApi';
 import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
-import { cardQuery } from '../../decks/queries';
+import { cardQuery } from '../../decks/api/queries';
 import { StudySession } from '../api/StudySession';
 
 export function useStudySession(initial: StudyData, rootId: string) {

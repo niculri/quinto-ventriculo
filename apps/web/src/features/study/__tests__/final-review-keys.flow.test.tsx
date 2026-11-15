@@ -5,7 +5,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { DECK, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/CardFrame';
+import { cardShadowRoot } from '../../decks/components/CardFrame';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { CardRef, StudyRepository } from '../../progress/api/repository';
 

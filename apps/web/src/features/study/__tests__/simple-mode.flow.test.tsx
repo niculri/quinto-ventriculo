@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { CATALOG, DECK_PATH, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/CardFrame';
+import { cardShadowRoot } from '../../decks/components/CardFrame';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { StudyRepository } from '../../progress/api/repository';
 

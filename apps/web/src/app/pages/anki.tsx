@@ -1,4 +1,4 @@
 // Route module for a course's deck pages and their study.
-import { AnkiRoute } from '../../features/anki/AnkiRoute';
+import { AnkiRoute } from '../AnkiRoute';
 
 export default AnkiRoute;

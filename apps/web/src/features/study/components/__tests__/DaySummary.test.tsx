@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { dayOf, dayStartsAt } from '@qv/srs';
 import { DECK_PATH, fullAnkiStudy, renderApp } from '../../../../test/render';
-import { cardShadowRoot } from '../../../decks/CardFrame';
+import { cardShadowRoot } from '../../../decks/components/CardFrame';
 import { failedOf } from '../../../cards/model/dayCards';
 import type { DayCards } from '../../../cards/model/dayCards';
 import { correctPercent, countsByDay, daySummary, heatmapStats, isoOfDay } from '@qv/study';

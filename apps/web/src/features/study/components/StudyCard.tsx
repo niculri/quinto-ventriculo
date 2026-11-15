@@ -2,8 +2,8 @@
 import { useEffect, useEffectEvent } from 'react';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { CardFrame } from '../../decks/CardFrame';
-import { useCard } from '../../decks/queries';
+import { CardFrame } from '../../decks/components/CardFrame';
+import { useCard } from '../../decks/api/queries';
 import type { CardKey } from '../../progress/api/repository';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { cardKey } from '@qv/study';

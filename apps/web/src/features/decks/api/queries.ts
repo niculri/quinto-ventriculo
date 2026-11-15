@@ -1,8 +1,8 @@
 // Data hooks for a deck from the API and for a card with its signed images.
 
 import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../shared/hooks/useApi';
-import type { ApiClient } from '../../shared/lib/api';
+import { useApi } from '../../../shared/hooks/useApi';
+import type { ApiClient } from '../../../shared/lib/api';
 
 export function useDeck(deckId: string, enabled = true) {
   const api = useApi();

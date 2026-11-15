@@ -4,10 +4,10 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { ChevronRight, Play } from 'lucide-react';
 import type { Counts } from '@qv/srs';
-import { paths } from '../../shared/lib/paths';
-import { Skeleton } from '../../shared/ui/Loading';
-import { button } from '../../shared/ui/styles';
-import { Switch } from '../../shared/ui/Switch';
+import { paths } from '../../../shared/lib/paths';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { button } from '../../../shared/ui/styles';
+import { Switch } from '../../../shared/ui/Switch';
 import {
   activeUnits,
   EMPTY_PLAN,
@@ -17,13 +17,13 @@ import {
   UNIT_DEPTH,
 } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
-import { DayLoad } from '../progress/DeckCounts';
-import { MasteryMeter } from '../progress/MasteryMeter';
-import { usePreferences, useSetActivation } from '../progress/queries';
+import { DayLoad } from '../../progress/DeckCounts';
+import { MasteryMeter } from '../../progress/MasteryMeter';
+import { usePreferences, useSetActivation } from '../../progress/queries';
 import { DeckPresetButton } from './DeckPresetDialog';
-import { useCollapsed } from './useCollapsed';
-import { ancestry, descendants } from '../catalog/model/tree';
-import type { CourseDeckNode, DeckNode } from '../catalog/model/tree';
+import { useCollapsed } from '../hooks/useCollapsed';
+import { ancestry, descendants } from '../../catalog/model/tree';
+import type { CourseDeckNode, DeckNode } from '../../catalog/model/tree';
 
 function assessmentOf(node: DeckNode): DeckNode | null {
   return ancestry(node).find((n) => n.depth === 3) ?? null;

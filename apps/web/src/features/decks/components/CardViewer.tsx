@@ -6,15 +6,15 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
-import { useApi } from '../../shared/hooks/useApi';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { Loading } from '../../shared/ui/Loading';
-import { button } from '../../shared/ui/styles';
+import { useApi } from '../../../shared/hooks/useApi';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { Loading } from '../../../shared/ui/Loading';
+import { button } from '../../../shared/ui/styles';
 import { CardFrame } from './CardFrame';
-import { useDarkMode } from '../../shared/hooks/useDarkMode';
-import { KIND_LABELS, cardLabel } from './labels';
-import { cardQuery, useCard } from './queries';
-import { DimBackdrop } from '../../shared/ui/Dialog';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
+import { KIND_LABELS, cardLabel } from '../model/labels';
+import { cardQuery, useCard } from '../api/queries';
+import { DimBackdrop } from '../../../shared/ui/Dialog';
 
 interface Props {
   cards: CardSummary[];

@@ -25,8 +25,6 @@
   "apps/web/src/features/admin/releases.test.tsx",
   "apps/web/src/features/admin/usage.test.tsx",
   "apps/web/src/features/catalog/model/tree.test.ts",
-  "apps/web/src/features/decks/decks.test.tsx",
-  "apps/web/src/features/decks/sanitize-golden.test.ts",
   "apps/web/src/features/home/counts-harder.test.ts",
   "apps/web/src/features/home/counts.test.ts",
   "apps/web/src/features/home/myCourses.test.ts",

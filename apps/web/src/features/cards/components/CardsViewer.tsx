@@ -6,7 +6,7 @@ import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning } fro
 import type { CardSummary } from '@qv/schema';
 import { button } from '../../../shared/ui/styles';
 import type { BrowseCard } from '../model/browseCards';
-import { CardViewer } from '../../decks/CardViewer';
+import { CardViewer } from '../../decks/components/CardViewer';
 import { MaterialLink, ReportEntry, useCardMaterial } from '../../study';
 import { useViewerActions } from '../hooks/useViewerActions';
 import { HistoryDialog } from './HistoryDialog';

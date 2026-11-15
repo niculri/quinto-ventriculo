@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
 import { button } from '../../../shared/ui/styles';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
-import { cardQuery } from '../../decks/queries';
+import { cardQuery } from '../../decks/api/queries';
 import { answerRound, dropCurrent, revealCard } from '@qv/study';
 import type { Round } from '@qv/study';
 import { useCardMaterial } from '../hooks/useCardMaterial';

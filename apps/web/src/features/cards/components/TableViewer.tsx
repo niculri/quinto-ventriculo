@@ -1,7 +1,7 @@
 // The table's big viewer (`open=1` in the URL): the cards of the table in its order, from the current one.
 
 import type { SetURLSearchParams } from 'react-router';
-import { CardViewer } from '../../decks/CardViewer';
+import { CardViewer } from '../../decks/components/CardViewer';
 import { viewerSummaries } from '../model/browseCards';
 import type { BrowseCard } from '../model/browseCards';
 

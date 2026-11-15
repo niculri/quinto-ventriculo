@@ -4,13 +4,13 @@
 import { Link, Navigate } from 'react-router';
 import { History, Play, Search } from 'lucide-react';
 import type { Counts } from '@qv/srs';
-import { paths } from '../../shared/lib/paths';
-import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import { Skeleton } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { Reserved } from '../../shared/ui/Reserved';
-import { button, card, page } from '../../shared/ui/styles';
-import { useDeck } from '../decks/queries';
+import { paths } from '../../../shared/lib/paths';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { Reserved } from '../../../shared/ui/Reserved';
+import { button, card, page } from '../../../shared/ui/styles';
+import { useDeck } from '../api/queries';
 import {
   catchUpText,
   EMPTY_PLAN,
@@ -19,15 +19,15 @@ import {
   LONGEST_CATCH_UP,
 } from '@qv/study';
 import type { AssessmentView, CatchUp, StudyPlan } from '@qv/study';
-import { DayLoad, useDeckCounts } from '../progress/DeckCounts';
-import { MasteryMeter } from '../progress/MasteryMeter';
-import { useAssessmentView, usePreferences, useStudyPlan } from '../progress/queries';
-import { AssessmentOptions } from './AssessmentOptions';
-import { SimpleDeckTree, visibleChildren } from './SimpleDeckTree';
-import { ancestry, deckCrumbs, deckTitle } from '../catalog/model/tree';
-import type { CourseDeckNode } from '../catalog/model/tree';
-import { useCountOpen } from '../usage/count';
-import { useTitle } from '../../shared/hooks/useTitle';
+import { DayLoad, useDeckCounts } from '../../progress/DeckCounts';
+import { MasteryMeter } from '../../progress/MasteryMeter';
+import { useAssessmentView, usePreferences, useStudyPlan } from '../../progress/queries';
+import { AssessmentOptions } from '../components/AssessmentOptions';
+import { SimpleDeckTree, visibleChildren } from '../components/SimpleDeckTree';
+import { ancestry, deckCrumbs, deckTitle } from '../../catalog/model/tree';
+import type { CourseDeckNode } from '../../catalog/model/tree';
+import { useCountOpen } from '../../usage/count';
+import { useTitle } from '../../../shared/hooks/useTitle';
 
 export function DeckPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);

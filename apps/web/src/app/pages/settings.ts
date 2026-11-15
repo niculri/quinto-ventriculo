@@ -1,2 +1,2 @@
 // Route module for the general Anki settings page.
-export { AnkiGeneralSettingsPage as default } from '../../features/settings/AnkiSettingsPage';
+export { AnkiGeneralSettingsPage as default } from '../../features/decks/pages/AnkiSettingsPage';

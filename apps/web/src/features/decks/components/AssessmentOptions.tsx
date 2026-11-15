@@ -18,15 +18,15 @@ import {
   shortDate,
 } from '@qv/study';
 import type { AssessmentView, PaceOption, StudyPlan } from '@qv/study';
-import { roughToday, useSaveAssessmentSetting } from '../progress/queries';
-import type { AssessmentSetting } from '../progress/api/repository';
-import { Skeleton } from '../../shared/ui/Loading';
-import { Reserved } from '../../shared/ui/Reserved';
-import { card } from '../../shared/ui/styles';
-import { Switch } from '../../shared/ui/Switch';
-import { descendants } from '../catalog/model/tree';
-import type { DeckNode } from '../catalog/model/tree';
-import { storageKeys } from '../../shared/lib/storage';
+import { roughToday, useSaveAssessmentSetting } from '../../progress/queries';
+import type { AssessmentSetting } from '../../progress/api/repository';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { Reserved } from '../../../shared/ui/Reserved';
+import { card } from '../../../shared/ui/styles';
+import { Switch } from '../../../shared/ui/Switch';
+import { descendants } from '../../catalog/model/tree';
+import type { DeckNode } from '../../catalog/model/tree';
+import { storageKeys } from '../../../shared/lib/storage';
 
 const MAX_NEW_PER_DAY = 9999;
 

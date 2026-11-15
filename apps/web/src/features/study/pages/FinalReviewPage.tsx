@@ -11,7 +11,7 @@ import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { useDeck } from '../../decks/queries';
+import { useDeck } from '../../decks/api/queries';
 import type { StudyData } from '@qv/study';
 import { studyKeys, useStudyData } from '../../progress/queries';
 import { StudyFallback } from '../components/StudyFallback';

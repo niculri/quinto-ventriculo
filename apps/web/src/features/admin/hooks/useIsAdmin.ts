@@ -1,7 +1,7 @@
 // Whether whoever looks is an administrator: it only shows or hides the panel and its menu entries.
 import { useQuery } from '@tanstack/react-query';
 import { useAdminRepository } from '../api/context';
-import { isAdminQuery } from '../api/queries';
+import { isAdminQuery } from '../api/isAdmin';
 
 export function useIsAdmin() {
   const admin = useAdminRepository();

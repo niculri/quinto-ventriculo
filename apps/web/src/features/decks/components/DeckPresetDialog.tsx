@@ -3,21 +3,17 @@
 import { useId, useState } from 'react';
 import { Link } from 'react-router';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useQueryClient } from '@tanstack/react-query';
 import { Settings, SlidersHorizontal, X } from 'lucide-react';
 import { paths } from '../../../shared/lib/paths';
-import { useStudyRepository } from '../../progress/api/context';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { Notice } from '../../../shared/ui/Notice';
 import { Select } from '../../../shared/ui/Select';
 import { button } from '../../../shared/ui/styles';
-import { useCatalog } from '../../catalog/queries';
-import { studyKeys, useDeckSettings, useUserPresets } from '../../progress/queries';
-import { presetChoices, presetOf } from '@qv/study';
-import type { PresetRef } from '@qv/study';
 import { presetParam } from '../../progress/presets';
 import type { DeckNode } from '../../catalog/model/tree';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
+import { useDeckPreset } from '../hooks/useDeckPreset';
+import { refKey } from '../model/presets';
 
 export function DeckPresetButton({ node }: { node: DeckNode }) {
   const [open, setOpen] = useState(false);
@@ -51,41 +47,9 @@ export function DeckPresetButton({ node }: { node: DeckNode }) {
 
 function PresetChoice({ node }: { node: DeckNode }) {
   const id = useId();
-  const study = useStudyRepository();
-  const client = useQueryClient();
-  const catalog = useCatalog();
-  const presets = useUserPresets();
-  const settings = useDeckSettings();
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  if (!catalog.data || !presets.data || !settings.data) {
-    return <Skeleton className="mt-4 h-20 w-full" />;
-  }
-  const choices = presetChoices(catalog.data.anki.presets, presets.data);
-  const current = presetOf(node.id, node.preset, choices, settings.data);
-  const key = (r: PresetRef) => (r.kind === 'author' ? `author:${r.name}` : `user:${r.id}`);
-
-  const choose = async (value: string) => {
-    const choice = choices.find((c) => key(c.ref) === value);
-    if (!choice) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await study.setDeckPreset(
-        node.id,
-        choice.ref.kind === 'user'
-          ? { presetId: choice.ref.id }
-          : choice.ref.name === node.preset
-            ? null
-            : { authorPreset: choice.ref.name },
-      );
-      await client.invalidateQueries({ queryKey: studyKeys.all });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo guardar.');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const preset = useDeckPreset(node);
+  if (!preset) return <Skeleton className="mt-4 h-20 w-full" />;
+  const { choices, current, error, saving, choose } = preset;
 
   return (
     <>
@@ -96,10 +60,10 @@ function PresetChoice({ node }: { node: DeckNode }) {
         id={id}
         modal
         label="Configuración de este mazo"
-        value={key(current.ref)}
+        value={refKey(current.ref)}
         disabled={saving}
         options={choices.map((c) => ({
-          value: key(c.ref),
+          value: refKey(c.ref),
           label: `${c.name}${c.ref.kind === 'author' ? (c.row ? ' (del autor, cambiada)' : ' (del autor)') : ''}`,
         }))}
         onChange={(v) => void choose(v)}

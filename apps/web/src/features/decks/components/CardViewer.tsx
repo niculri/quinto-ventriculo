@@ -13,8 +13,10 @@ import { button } from '../../../shared/ui/styles';
 import { CardFrame } from './CardFrame';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { KIND_LABELS, cardLabel } from '../model/labels';
-import { cardQuery, useCard } from '../api/queries';
+import { cardQuery } from '../api/queries';
+import { useCard } from '../hooks/useCard';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
+import { viewerKeyDown } from './viewerKeys';
 
 interface Props {
   cards: CardSummary[];
@@ -46,28 +48,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
     if (i >= 0 && i < cards.length) onIndexChange(i);
   };
 
-  const onKeyDown = (e: KeyboardEvent) => {
-    // From inside the card's shadow root the target is its host: the element is the first of the path
-    // (the «toggle» button of an occlusion, a hint link).
-    const origin = e.nativeEvent.composedPath()[0] ?? e.target;
-    const activates =
-      origin instanceof Element &&
-      origin.matches('button, a[href], summary, input, select, textarea');
-    if (activates && (e.key === ' ' || e.key === 'Enter')) return;
-    if (
-      origin instanceof Element &&
-      (origin.closest('input, textarea, select, [contenteditable]') ||
-        (origin.getRootNode() === document &&
-          origin.closest('[role="dialog"]') !== content.current))
-    ) {
-      return;
-    }
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      toggleAnswer();
-    } else if (e.key === 'ArrowRight') go(1);
-    else if (e.key === 'ArrowLeft') go(-1);
-  };
+  const onKeyDown = (e: KeyboardEvent) => viewerKeyDown(e, content.current, toggleAnswer, go);
 
   return (
     <Dialog.Root open onOpenChange={(open) => (open ? null : onClose())}>
@@ -86,22 +67,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
           onKeyDown={onKeyDown}
           className="fixed inset-0 z-50 flex flex-col bg-surface sm:inset-x-auto sm:top-[3dvh] sm:left-1/2 sm:h-[94dvh] sm:w-[min(58rem,94vw)] sm:-translate-x-1/2 sm:overflow-hidden sm:rounded-2xl sm:border sm:border-border sm:shadow-soft"
         >
-          <header className="flex items-center gap-3 border-b border-border px-4 py-3">
-            <div className="min-w-0 flex-1">
-              <Dialog.Title className="truncate text-sm font-semibold">
-                {cardLabel(current)}
-              </Dialog.Title>
-              <p className="text-xs text-muted">
-                {KIND_LABELS[current.kind]} · {index + 1} de {cards.length}
-              </p>
-            </div>
-            <Dialog.Close
-              aria-label="Cerrar"
-              className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
-            >
-              <X className="size-5" aria-hidden="true" />
-            </Dialog.Close>
-          </header>
+          <ViewerHeader current={current} index={index} total={cards.length} />
 
           <div className="min-h-0 flex-1 overflow-y-auto" data-testid="card-scroll">
             {card.isError ? (
@@ -121,36 +87,15 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
             )}
           </div>
 
-          <footer className="flex items-center gap-2 border-t border-border px-3 py-3 sm:px-4">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              disabled={index === 0}
-              className={`${button.base} ${button.ghost}`}
-              aria-label="Tarjeta anterior"
-            >
-              <ChevronLeft className="size-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Anterior</span>
-            </button>
-            <button
-              type="button"
-              onClick={toggleAnswer}
-              className={`${button.base} ${button.primary} flex-1`}
-              disabled={!card.data}
-            >
-              {showAnswer ? 'Ver el frente' : 'Mostrar respuesta'}
-            </button>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              disabled={index === cards.length - 1}
-              className={`${button.base} ${button.ghost}`}
-              aria-label="Tarjeta siguiente"
-            >
-              <span className="hidden sm:inline">Siguiente</span>
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </button>
-          </footer>
+          <ViewerFooter
+            onPrevious={() => go(-1)}
+            onNext={() => go(1)}
+            onToggle={toggleAnswer}
+            first={index === 0}
+            last={index === cards.length - 1}
+            ready={!!card.data}
+            showAnswer={showAnswer}
+          />
           {actions ? (
             <div
               role="toolbar"
@@ -163,5 +108,83 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function ViewerHeader({
+  current,
+  index,
+  total,
+}: {
+  current: CardSummary;
+  index: number;
+  total: number;
+}) {
+  return (
+    <header className="flex items-center gap-3 border-b border-border px-4 py-3">
+      <div className="min-w-0 flex-1">
+        <Dialog.Title className="truncate text-sm font-semibold">{cardLabel(current)}</Dialog.Title>
+        <p className="text-xs text-muted">
+          {KIND_LABELS[current.kind]} · {index + 1} de {total}
+        </p>
+      </div>
+      <Dialog.Close
+        aria-label="Cerrar"
+        className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
+      >
+        <X className="size-5" aria-hidden="true" />
+      </Dialog.Close>
+    </header>
+  );
+}
+
+function ViewerFooter({
+  onPrevious,
+  onNext,
+  onToggle,
+  first,
+  last,
+  ready,
+  showAnswer,
+}: {
+  onPrevious: () => void;
+  onNext: () => void;
+  onToggle: () => void;
+  first: boolean;
+  last: boolean;
+  ready: boolean;
+  showAnswer: boolean;
+}) {
+  return (
+    <footer className="flex items-center gap-2 border-t border-border px-3 py-3 sm:px-4">
+      <button
+        type="button"
+        onClick={onPrevious}
+        disabled={first}
+        className={`${button.base} ${button.ghost}`}
+        aria-label="Tarjeta anterior"
+      >
+        <ChevronLeft className="size-4" aria-hidden="true" />
+        <span className="hidden sm:inline">Anterior</span>
+      </button>
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`${button.base} ${button.primary} flex-1`}
+        disabled={!ready}
+      >
+        {showAnswer ? 'Ver el frente' : 'Mostrar respuesta'}
+      </button>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={last}
+        className={`${button.base} ${button.ghost}`}
+        aria-label="Tarjeta siguiente"
+      >
+        <span className="hidden sm:inline">Siguiente</span>
+        <ChevronRight className="size-4" aria-hidden="true" />
+      </button>
+    </footer>
   );
 }

@@ -13,7 +13,7 @@ import { Select } from '../../shared/ui/Select';
 import { Switch } from '../../shared/ui/Switch';
 import { button, card } from '../../shared/ui/styles';
 import { locateNote, useCatalog } from '../catalog/queries';
-import { useCard } from '../decks/api/queries';
+import { useCard } from '../decks/hooks/useCard';
 import {
   CATEGORY_LABELS,
   KIND_LABELS,

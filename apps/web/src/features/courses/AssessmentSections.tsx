@@ -19,7 +19,7 @@ import { button, card, page } from '../../shared/ui/styles';
 import { formatDate } from '../../shared/lib/dates';
 import { buildAnkiTree, courseDeck } from '../catalog/model/tree';
 import type { AnkiTree } from '../catalog/model/tree';
-import { useDeck } from '../decks/api/queries';
+import { useDeck } from '../decks/hooks/useDeck';
 import { KIND_NAMES } from '../notes/header';
 import { findPracticeDeck, practiceLink } from '../notes/Practice';
 import { useDeckCounts } from '../progress/DeckCounts';

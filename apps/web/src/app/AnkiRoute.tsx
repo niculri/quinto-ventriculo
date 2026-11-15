@@ -49,6 +49,10 @@ export function AnkiRoute() {
     search.get('subdeck'),
   );
 
+  return routeOf(resolved, search);
+}
+
+function routeOf(resolved: ReturnType<typeof resolveCourseDeck>, search: URLSearchParams) {
   switch (resolved.kind) {
     case 'missing':
       return <NotFoundPage />;
@@ -57,29 +61,29 @@ export function AnkiRoute() {
     case 'legacy':
       return <Navigate to={legacyTarget(resolved.node, resolved.what, search)} replace />;
     case 'deck':
-      if (resolved.screen === 'cards' || resolved.screen === 'practice') {
-        if (resolved.node.depth > 3) {
-          return <Navigate to={screenPath(resolved.node, resolved.screen, search)} replace />;
-        }
-        return resolved.screen === 'cards' ? (
-          <CardsPage key={resolved.node.id} node={resolved.node} />
-        ) : (
-          <PracticePage key={resolved.node.id} node={resolved.node} />
-        );
-      }
-      if (resolved.screen === 'review') {
-        return resolved.node.depth === 3 ? (
-          <FinalReviewPage key={resolved.node.id} node={resolved.node} />
-        ) : (
-          <NotFoundPage />
-        );
-      }
-      return resolved.screen === 'study' ? (
-        <StudyPage key={resolved.node.id} node={resolved.node} />
-      ) : (
-        <DeckPage key={resolved.node.id} node={resolved.node} />
-      );
+      return deckScreen(resolved.node, resolved.screen, search);
   }
+}
+
+function deckScreen(node: CourseDeckNode, screen: DeckScreen, search: URLSearchParams) {
+  if (screen === 'cards' || screen === 'practice') {
+    if (node.depth > 3) {
+      return <Navigate to={screenPath(node, screen, search)} replace />;
+    }
+    return screen === 'cards' ? (
+      <CardsPage key={node.id} node={node} />
+    ) : (
+      <PracticePage key={node.id} node={node} />
+    );
+  }
+  if (screen === 'review') {
+    return node.depth === 3 ? <FinalReviewPage key={node.id} node={node} /> : <NotFoundPage />;
+  }
+  return screen === 'study' ? (
+    <StudyPage key={node.id} node={node} />
+  ) : (
+    <DeckPage key={node.id} node={node} />
+  );
 }
 
 function screenPath(node: CourseDeckNode, screen: DeckScreen, search: URLSearchParams): string {

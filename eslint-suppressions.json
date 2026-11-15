@@ -72,11 +72,6 @@
       "count": 1
     }
   },
-  "apps/web/src/app/AnkiRoute.tsx": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/app/AppShell.tsx": {
     "max-lines-per-function": {
       "count": 1
@@ -195,22 +190,18 @@
     }
   },
   "apps/web/src/features/decks/components/AssessmentOptions.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
-      "count": 22
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
+      "count": 14
     }
   },
   "apps/web/src/features/decks/components/CardViewer.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
       "count": 12
+    }
+  },
+  "apps/web/src/features/decks/components/DeckHeader.tsx": {
+    "qv/no-literal-text": {
+      "count": 7
     }
   },
   "apps/web/src/features/decks/components/DeckPresetDialog.tsx": {
@@ -218,47 +209,79 @@
       "count": 9
     }
   },
-  "apps/web/src/features/decks/components/PresetDialogs.tsx": {
+  "apps/web/src/features/decks/components/DeckStudyPanel.tsx": {
+    "qv/no-literal-text": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/decks/components/DeckTreeRow.tsx": {
+    "qv/no-literal-text": {
+      "count": 7
+    }
+  },
+  "apps/web/src/features/decks/components/FinalDaysChoice.tsx": {
+    "qv/no-literal-text": {
+      "count": 8
+    }
+  },
+  "apps/web/src/features/decks/components/FinalReviewLink.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/decks/components/SimpleDeckTree.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/components/SimpleDetails.tsx": {
+    "qv/no-literal-text": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/decks/components/options/AnkiOptions.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/decks/components/options/DeckOptionSections.tsx": {
+    "qv/no-literal-text": {
+      "count": 37
+    }
+  },
+  "apps/web/src/features/decks/components/options/DeckOptions.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
+    }
+  },
+  "apps/web/src/features/decks/components/options/DecksUsing.tsx": {
+    "qv/no-literal-text": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/decks/components/options/GeneralOptions.tsx": {
+    "qv/no-literal-text": {
+      "count": 22
+    }
+  },
+  "apps/web/src/features/decks/components/options/OptionsParts.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/decks/components/options/ParamsRow.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
+    }
+  },
+  "apps/web/src/features/decks/components/options/PresetDialogs.tsx": {
     "qv/no-literal-text": {
       "count": 16
     }
   },
-  "apps/web/src/features/decks/components/SimpleDeckTree.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
+  "apps/web/src/features/decks/components/options/PresetMenu.tsx": {
     "qv/no-literal-text": {
-      "count": 8
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/components/occlusion.ts": {
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/pages/AnkiSettingsPage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 85
-    }
-  },
-  "apps/web/src/features/decks/pages/DeckPage.tsx": {
-    "qv/no-literal-text": {
-      "count": 15
+      "count": 6
     }
   },
   "apps/web/src/features/home/HomePage.tsx": {

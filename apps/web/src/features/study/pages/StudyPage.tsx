@@ -6,7 +6,7 @@ import type { DeckDetail } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { useDeck } from '../../decks/api/queries';
+import { useDeck } from '../../decks/hooks/useDeck';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { ApiRequestError } from '../../../shared/lib/api';

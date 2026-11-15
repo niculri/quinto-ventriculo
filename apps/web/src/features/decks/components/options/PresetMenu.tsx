@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
+// AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
+// Spanish texts from Anki's translations (BSD-3-Clause and public domain, as Anki's LICENSE says).
+
+// The actions of the chosen preset, as Anki's menu: add, clone, remove, reset, and back to the author's.
+import * as Menu from '@radix-ui/react-dropdown-menu';
+import { Settings2 } from 'lucide-react';
+import { defaultConfig } from '@qv/srs';
+import { button } from '../../../../shared/ui/styles';
+import type { usePresetDrafts } from '../../hooks/usePresetDrafts';
+
+const menuItem =
+  'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:cursor-default data-[disabled]:opacity-50 data-[highlighted]:bg-surface-2';
+
+export function PresetMenu({ f }: { f: ReturnType<typeof usePresetDrafts> }) {
+  const { choice, config, set, setNaming, setRemoving, backToAuthor } = f;
+  return (
+    <Menu.Root modal={false}>
+      <Menu.Trigger
+        className={`${button.base} ${button.secondary}`}
+        aria-label="Acciones de la configuración"
+      >
+        <Settings2 className="size-4" aria-hidden="true" />
+      </Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Content
+          align="end"
+          sideOffset={6}
+          className="z-50 w-72 rounded-xl border border-border bg-surface p-1.5 shadow-soft"
+        >
+          <Menu.Item
+            className={menuItem}
+            onSelect={() =>
+              setNaming({ title: 'Agregar configuración', initial: '', from: defaultConfig() })
+            }
+          >
+            Agregar configuración
+          </Menu.Item>
+          <Menu.Item
+            className={menuItem}
+            onSelect={() =>
+              setNaming({
+                title: 'Clonar configuración',
+                initial: `Copia de ${choice.name}`,
+                from: config,
+              })
+            }
+          >
+            Clonar configuración
+          </Menu.Item>
+          <Menu.Item
+            className={menuItem}
+            disabled={choice.ref.kind !== 'user'}
+            onSelect={() => setRemoving(true)}
+          >
+            Remover configuración
+          </Menu.Item>
+          <Menu.Separator className="my-1 h-px bg-border" />
+          <Menu.Item className={menuItem} onSelect={() => set(defaultConfig())}>
+            Restablecer los valores predeterminados de Anki
+          </Menu.Item>
+          {choice.ref.kind === 'author' && choice.row ? (
+            <Menu.Item className={menuItem} onSelect={backToAuthor}>
+              Volver a la configuración del autor
+            </Menu.Item>
+          ) : null}
+        </Menu.Content>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}

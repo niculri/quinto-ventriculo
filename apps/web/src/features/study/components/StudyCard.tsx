@@ -3,7 +3,7 @@ import { useEffect, useEffectEvent } from 'react';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { CardFrame } from '../../decks/components/CardFrame';
-import { useCard } from '../../decks/api/queries';
+import { useCard } from '../../decks/hooks/useCard';
 import type { CardKey } from '../../progress/api/repository';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { cardKey } from '@qv/study';

@@ -19,7 +19,7 @@ import { button, card, linkCard, page } from '../../shared/ui/styles';
 import { buildAnkiTree, courseDeck, descendants } from '../catalog/model/tree';
 import type { CourseDeckNode } from '../catalog/model/tree';
 import { countDecks, countNotes, locateNote, materialLabel, useCatalog } from '../catalog/queries';
-import { useDeck } from '../decks/api/queries';
+import { useDeck } from '../decks/hooks/useDeck';
 import { useUser } from '../session/context';
 import { Heatmap } from '../stats/HeatmapCard';
 import { activeUnits, homeCourseCounts, nearestExamText, totalCards } from '@qv/study';

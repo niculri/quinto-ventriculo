@@ -4,72 +4,44 @@
 
 // A study session of a deck (Anki's reviewer): the queue, answers applied at once and saved in order in the
 // background, and undo back to the start of the session; the page subscribes with useSyncExternalStore.
-import {
-  answerCard,
-  retrievability,
-  describeNextStates,
-  nextLearnMessage,
-  schedulingStates,
-} from '@qv/srs';
-import type { DeckConfig, QueueEntry, QueueUpdate, Rating, StudyQueue } from '@qv/srs';
+import { answerCard, retrievability, describeNextStates, schedulingStates } from '@qv/srs';
+import type { DeckConfig, QueueEntry, Rating, StudyQueue } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import {
-  ASSESSMENT_DEPTH,
   QUEUE_NAMES,
   actionLabel,
-  ancestorName,
+  answeredTodayIn,
   asNew,
-  assessmentView,
   blankRow,
   buildQueue,
   cardKey,
   configsFor,
-  decksGivingNew,
-  extrasOff,
-  isExtras,
-  isHidden,
+  congratsInfo,
+  hasSeenAssessment,
   rollProgress,
   siblingsOf,
   siblingsToBury,
-  subtree,
   timingFor,
   toRecord,
   toStateFields,
 } from '@qv/study';
-import type { CongratsInfo, ExamNotes, HideAction, Shown, StudyData } from '@qv/study';
+import type { CongratsInfo, HideAction, Shown, StudyData } from '@qv/study';
 import { CardChangedError } from '../../progress/api/repository';
 import type {
-  ActionName,
   AnswerToday,
   CardKey,
   CardRef,
-  ReviewInput,
   StoredCard,
   StudyRepository,
 } from '../../progress/api/repository';
-
-type HistoryItem =
-  | {
-      kind: 'answer';
-      card: CardRef;
-      before: Map<string, StoredCard | undefined>;
-      stamps: Map<string, string | null>;
-      update: QueueUpdate;
-      answer: AnswerToday;
-    }
-  | {
-      kind: 'action';
-      action: ActionName;
-      card: CardRef;
-      before: Map<string, StoredCard | undefined>;
-      stamps: Map<string, string | null>;
-    };
+import { restore, snapshot } from '../model/history';
+import type { HistoryItem } from '../model/history';
+import { refreshStamps, saveAnswer, SaveQueue } from './saveQueue';
 
 export class StudySession {
   shown: Shown | null = null;
   revealed = false;
   toast: string | null = null;
-  failure: string | null = null;
   now = Date.now();
 
   private data: StudyData;
@@ -77,8 +49,7 @@ export class StudySession {
   private configs: Map<string, DeckConfig>;
   private history: HistoryItem[] = [];
   private stamps: Map<string, string | null>;
-  private chain: Promise<unknown> = Promise.resolve();
-  pending = 0;
+  private saves = new SaveQueue(() => this.changed());
   private listeners = new Set<() => void>();
   private version = 0;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -98,6 +69,14 @@ export class StudySession {
 
   get deck(): DeckDetail {
     return this.data.deck;
+  }
+
+  get failure(): string | null {
+    return this.saves.failure;
+  }
+
+  get pending(): number {
+    return this.saves.pending;
   }
 
   subscribe = (listener: () => void) => {
@@ -121,7 +100,7 @@ export class StudySession {
   }
 
   saved(): Promise<unknown> {
-    return this.chain;
+    return this.saves.saved();
   }
 
   private setToast(text: string) {
@@ -194,70 +173,6 @@ export class StudySession {
     this.changed();
   }
 
-  // In order; after a failure what was waiting behind is not written (it was computed on top of the failed one).
-  private enqueue(write: () => Promise<unknown>) {
-    this.pending++;
-    this.chain = this.chain
-      .then(() => (this.failure ? undefined : write()))
-      .catch((e: unknown) => {
-        this.failure =
-          e instanceof CardChangedError
-            ? 'Esta tarjeta cambió en otra pestaña o dispositivo. Vuelve a cargar para seguir estudiando.'
-            : e instanceof Error && e.message.startsWith('No se pudo')
-              ? e.message
-              : 'No se pudo guardar tu avance. Revisa tu conexión y vuelve a cargar.';
-        this.changed();
-      })
-      .finally(() => {
-        this.pending--;
-      });
-  }
-
-  // A retry cannot save an answer twice: the database takes it only if the card is as it was shown, and finding it
-  // changed by this very answer counts as saved.
-  private async saveAnswer(input: ReviewInput, key: string): Promise<void> {
-    for (let attempt = 0; ; attempt++) {
-      try {
-        const saved = await this.repository.recordReview(input);
-        this.stamps.set(key, saved.updatedAt);
-        return;
-      } catch (e) {
-        if (attempt > 0 && e instanceof CardChangedError) {
-          const rows = await this.repository.cards([input.card.deckId]);
-          const row = rows.find((r) => cardKey(r) === key);
-          if (row && row.lastReview === input.state.lastReview && row.reps === input.state.reps) {
-            this.stamps.set(key, row.updatedAt);
-            return;
-          }
-        }
-        const delay = this.retryDelaysMs[attempt];
-        if (e instanceof CardChangedError || delay === undefined) throw e;
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      }
-    }
-  }
-
-  private snapshot(refs: CardRef[]) {
-    const before = new Map<string, StoredCard | undefined>();
-    const stamps = new Map<string, string | null>();
-    for (const r of refs) {
-      before.set(cardKey(r), this.data.rows.get(cardKey(r)));
-      stamps.set(cardKey(r), this.stamps.get(cardKey(r)) ?? null);
-    }
-    return { before, stamps };
-  }
-
-  private restore(item: {
-    before: Map<string, StoredCard | undefined>;
-    stamps: Map<string, string | null>;
-  }) {
-    for (const [k, row] of item.before) {
-      if (row) this.data.rows.set(k, row);
-      else this.data.rows.delete(k);
-    }
-    for (const [k, stamp] of item.stamps) this.stamps.set(k, stamp);
-  }
-
   private currentRef(): CardRef | null {
     if (!this.shown) return null;
     const { noteGuid, ord, deckId } = this.shown.entry;
@@ -289,7 +204,7 @@ export class StudySession {
     const result = answerCard(ref, record, rating, config, timing, {}, states);
     const bury = siblingsToBury(this.data, ref, record.queue, config, now);
     const buriedUntil = new Date(timing.nextDayAt * 1000).toISOString();
-    const { before, stamps } = this.snapshot([ref, ...bury]);
+    const { before, stamps } = snapshot(this.data.rows, this.stamps, [ref, ...bury]);
 
     const fields = toStateFields(result.card, this.data.prefs, {
       suspended: (prev?.suspended ?? false) || result.suspend,
@@ -313,8 +228,11 @@ export class StudySession {
 
     // Anki caps the time on a card to the preset's maximum.
     const durationMs = Math.round(Math.min(now - shownAt, config.capAnswerTimeToSecs * 1000));
-    this.enqueue(async () => {
-      await this.saveAnswer(
+    this.saves.enqueue(async () => {
+      await saveAnswer(
+        this.repository,
+        this.stamps,
+        this.retryDelaysMs,
         {
           card: ref,
           expectedUpdatedAt: this.stamps.get(key) ?? null,
@@ -332,7 +250,12 @@ export class StudySession {
         },
         key,
       );
-      if (bury.length) await this.refreshStamps(bury.map((b) => b.deckId));
+      if (bury.length)
+        await refreshStamps(
+          this.repository,
+          this.stamps,
+          bury.map((b) => b.deckId),
+        );
     });
     // In simple mode a leech is only noted down: nothing is suspended by itself, and nothing to explain.
     if (result.leech && this.data.prefs.fullAnki) {
@@ -345,11 +268,6 @@ export class StudySession {
     this.showNext();
   }
 
-  private async refreshStamps(deckIds: string[]) {
-    const fresh = await this.repository.cards([...new Set(deckIds)]);
-    for (const r of fresh) this.stamps.set(cardKey(r), r.updatedAt);
-  }
-
   hide(action: HideAction) {
     const ref = this.currentRef();
     if (!ref || this.failure) return;
@@ -359,7 +277,7 @@ export class StudySession {
     // Anki does not bury a suspended card.
     const targets = bury ? cards.filter((c) => !this.row(c)?.suspended) : cards;
     const until = new Date(timingFor(this.data.prefs).nextDayAt * 1000);
-    const { before, stamps } = this.snapshot(targets);
+    const { before, stamps } = snapshot(this.data.rows, this.stamps, targets);
     for (const c of targets) {
       const row = this.row(c) ?? blankRow(c);
       this.data.rows.set(
@@ -370,10 +288,14 @@ export class StudySession {
       );
     }
     this.history.push({ kind: 'action', action, card: ref, before, stamps });
-    this.enqueue(async () => {
+    this.saves.enqueue(async () => {
       if (bury) await this.repository.bury(targets, until, note);
       else await this.repository.suspend(targets, note);
-      await this.refreshStamps(targets.map((t) => t.deckId));
+      await refreshStamps(
+        this.repository,
+        this.stamps,
+        targets.map((t) => t.deckId),
+      );
     });
     this.setToast(
       this.data.prefs.fullAnki
@@ -396,12 +318,12 @@ export class StudySession {
     if (!ref || this.failure) return;
     const row = this.row(ref) ?? blankRow(ref);
     const next = row.flag === value ? 0 : value;
-    const { before, stamps } = this.snapshot([ref]);
+    const { before, stamps } = snapshot(this.data.rows, this.stamps, [ref]);
     this.data.rows.set(cardKey(ref), { ...row, flag: next });
     this.history.push({ kind: 'action', action: 'flag', card: ref, before, stamps });
-    this.enqueue(async () => {
+    this.saves.enqueue(async () => {
       await this.repository.setFlag(ref, next);
-      await this.refreshStamps([ref.deckId]);
+      await refreshStamps(this.repository, this.stamps, [ref.deckId]);
     });
     this.changed();
   }
@@ -416,7 +338,7 @@ export class StudySession {
     if (this.failure) return;
     const item = this.history.pop();
     if (item) {
-      this.restore(item);
+      restore(this.data.rows, this.stamps, item);
       if (item.kind === 'answer') {
         this.queue.undo(item.update);
         const i = this.data.answers.lastIndexOf(item.answer);
@@ -426,7 +348,7 @@ export class StudySession {
         this.queue.moveToFront(item.card);
       }
       const action = item.kind === 'answer' ? 'answer' : item.action;
-      this.enqueue(async () => {
+      this.saves.enqueue(async () => {
         const undone = await this.repository.undo();
         // The database undoes the user's last action: if it was not this one (another tab or device did
         // something after it), what is shown here is no longer what is saved.
@@ -449,91 +371,14 @@ export class StudySession {
 
   /** What the congratulations screen says (congrats.rs). */
   congrats(): CongratsInfo {
-    const timing = timingFor(this.data.prefs, this.now);
-    const decks = subtree(this.data.decks, this.rootId);
-    const active = new Set(decks.map((d) => d.id));
-    const extras = new Set(decks.filter((d) => isExtras(d.name)).map((d) => d.id));
-    const givingNew = decksGivingNew(this.data.decks, this.data.plan);
-    let learnCount = 0;
-    let nextLearn: number | null = null;
-    const info = {
-      reviewLimitReached: false,
-      newLimitReached: false,
-      buried: false,
-      dueTomorrow: 0,
-      inactiveNew: 0,
-    };
-    let anyActive = false;
-    for (const c of this.data.deck.cards) {
-      if (!active.has(c.deckId)) continue;
-      if (givingNew.has(c.deckId) && !extras.has(c.deckId)) anyActive = true;
-      const row = this.row(c);
-      if (row?.suspended) continue;
-      if (isHidden(row, this.now)) {
-        info.buried = true;
-        continue;
-      }
-      const record = toRecord(row, this.data.prefs);
-      if (!record) {
-        if (!givingNew || givingNew.has(c.deckId)) info.newLimitReached = true;
-        else if (!extras.has(c.deckId)) info.inactiveNew++;
-      } else if (record.queue === 'learn') {
-        learnCount++;
-        nextLearn = nextLearn === null ? record.due : Math.min(nextLearn, record.due);
-      } else if (record.due <= timing.today) info.reviewLimitReached = true;
-      else if (record.due === timing.today + 1) info.dueTomorrow++;
-    }
-    // Anki: the next learning card, counted to when it enters the learn-ahead limit (at least a minute).
-    const secs =
-      nextLearn === null
-        ? 86_400
-        : Math.max(60, nextLearn - this.queue.learnAheadSecs - timing.now);
-    return {
-      ...info,
-      nothingActive: !anyActive,
-      extrasOff: !!givingNew && extrasOff(this.data.decks, this.data.plan, this.rootId),
-      learnMessage: nextLearnMessage(secs, learnCount),
-      exam: givingNew ? this.examNotes(timing.today) : null,
-    };
-  }
-
-  // What was due in this session's decks is gone by the end; the assessment's other decks are as when it opened.
-  private examNotes(today: number): ExamNotes | null {
-    const root = this.data.decks.find((d) => d.id === this.rootId);
-    const name = root ? ancestorName(root.name, ASSESSMENT_DEPTH) : null;
-    const assessmentId = this.data.decks.find((d) => d.name === name)?.id;
-    if (!assessmentId) return null;
-    const here = new Set(subtree(this.data.decks, this.rootId).map((d) => d.id));
-    const view = assessmentView({
-      decks: this.data.decks,
-      plan: this.data.plan,
-      progress: (this.data.progress ?? []).map((p) =>
-        here.has(p.deckId) ? { ...p, overdue: 0 } : p,
-      ),
-      assessmentId,
-      today,
-      prefs: this.data.prefs,
-    });
-    return {
-      computed: view.pace.kind === 'computed',
-      finalReview: view.pace.kind === 'final-review',
-      lastNewDay: view.lastNewDay,
-      roseTo: view.rose ? view.pace.newPerDay : null,
-      catchUp: view.catchUp,
-    };
+    return congratsInfo(this.data, this.rootId, this.now, this.queue.learnAheadSecs);
   }
 
   answeredToday(deckIds: ReadonlySet<string>): boolean {
-    return this.data.answers.some((a) => deckIds.has(a.deckId));
+    return answeredTodayIn(this.data, deckIds);
   }
 
   hasSeen(assessmentId: string): boolean {
-    const root = this.data.decks.find((d) => d.id === assessmentId);
-    if (!root) return false;
-    const inside = new Set(subtree(this.data.decks, assessmentId).map((d) => d.id));
-    return (
-      (this.data.progress ?? []).some((p) => inside.has(p.deckId) && p.seen > 0) ||
-      this.data.answers.some((a) => inside.has(a.deckId))
-    );
+    return hasSeenAssessment(this.data, assessmentId);
   }
 }

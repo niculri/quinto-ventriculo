@@ -59,6 +59,7 @@ export type { PresetChoice, PresetRef, StudyData, TreeDeck } from './scheduler';
 export { browserTimeZone, defaultPreferences } from './preferences';
 export { actionLabel, asNew, blankRow } from './session';
 export type { CongratsInfo, ExamNotes, HideAction, Shown } from './session';
+export { answeredTodayIn, congratsInfo, hasSeenAssessment } from './congrats';
 export { deckCounts, nextCountChange } from './deck-counts';
 export { masteryByDeck, masteryPercent } from './mastery';
 export {

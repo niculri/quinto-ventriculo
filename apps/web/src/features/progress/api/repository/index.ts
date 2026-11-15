@@ -9,7 +9,6 @@ export {
   PracticeRefusedError,
 } from './model';
 export type {
-  ActionName,
   AnswerToday,
   AssessmentSetting,
   CardChange,

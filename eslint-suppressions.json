@@ -631,14 +631,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/api/StudySession.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/study/components/ChooseReview.tsx": {
     "qv/no-literal-text": {
       "count": 10
@@ -898,6 +890,11 @@
     }
   },
   "packages/schema/src/importer/taxonomy.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/study/src/congrats.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     }

@@ -15,6 +15,7 @@ import { useDeck } from '../../decks/hooks/useDeck';
 import type { StudyData } from '@qv/study';
 import { studyKeys, useStudyData } from '../../progress/queries';
 import { StudyFallback } from '../components/StudyFallback';
+import { StudyLoading } from '../components/StudyLoading';
 import { useCountOpen } from '../../usage/count';
 import { FinalReview } from '../components/FinalReview';
 import { studyStrings } from '../strings';
@@ -32,13 +33,7 @@ export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
       </StudyFallback>
     );
   }
-  if (!deck.data) {
-    return (
-      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
-        <Loading text={studyStrings.preparingDeck} />
-      </StudyFallback>
-    );
-  }
+  if (!deck.data) return <StudyLoading node={node} />;
   return <FinalReviewLoader node={node} deck={deck.data} />;
 }
 

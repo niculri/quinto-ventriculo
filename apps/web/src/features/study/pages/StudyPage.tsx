@@ -13,6 +13,7 @@ import { ApiRequestError } from '../../../shared/lib/api';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import type { StudyData } from '@qv/study';
 import { StudyFallback } from '../components/StudyFallback';
+import { StudyLoading } from '../components/StudyLoading';
 import { useStudyData } from '../../progress/queries';
 import { useCountOpen } from '../../usage/count';
 import { Reviewer } from '../components/Reviewer';
@@ -31,13 +32,7 @@ export function StudyPage({ node }: { node: CourseDeckNode }) {
       </StudyFallback>
     );
   }
-  if (!deck.data) {
-    return (
-      <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
-        <Loading text={studyStrings.preparingDeck} />
-      </StudyFallback>
-    );
-  }
+  if (!deck.data) return <StudyLoading node={node} />;
   return <StudyLoader node={node} deck={deck.data} rootId={node.id} />;
 }
 

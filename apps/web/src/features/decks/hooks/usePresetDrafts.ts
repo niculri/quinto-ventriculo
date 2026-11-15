@@ -15,8 +15,8 @@ import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { studyKeys } from '../../progress/queries';
 import type { DeckSetting, StudyPreferences, UserPreset } from '../../progress/api/repository';
 import { useTitle } from '../../../shared/hooks/useTitle';
-import { savePresetDrafts } from '../api/savePresets';
-import { isDirty, prefsChanged } from '../model/presetDrafts';
+import { savePresetDraft } from '../api/savePresets';
+import { changedDrafts, isDirty, prefsChanged } from '../model/presetDrafts';
 import { initialRef, refKey } from '../model/presets';
 import { usePresetActions } from './usePresetActions';
 import { optionsStrings as o } from '../options.strings';
@@ -81,7 +81,10 @@ export function usePresetDrafts(d: OptionsData) {
     state.setSaving(true);
     setError(null);
     try {
-      await savePresetDrafts(study, drafts, choices);
+      // Each save awaited here, not inside a helper: with nothing to save, the preferences go in this same click.
+      for (const [c, draft] of changedDrafts(drafts, choices)) {
+        await savePresetDraft(study, c, draft);
+      }
       if (prefsChanged(prefs, d.prefs)) await study.savePreferences(prefs);
       await refresh();
       setDrafts(new Map());

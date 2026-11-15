@@ -1,4 +1,5 @@
-// Tests what «Configuración de mazos» and «Anki general» say, section by section, and their less used paths.
+// Tests what «Configuración de mazos» and «Anki general» say, section by section, their less used paths, and that
+// «Guardar» calls the repository in the click itself.
 
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -202,5 +203,41 @@ describe('«Anki general», what it says', () => {
     expect(status()).toBe(' Sin guardar');
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     await waitFor(() => expect(status()).toBe(' Guardado'));
+  });
+});
+
+describe('«Guardar» of the Anki options', () => {
+  const saveDisabled = () =>
+    screen.getByRole('button', { name: 'Guardar' }).hasAttribute('disabled');
+
+  it('«Anki general» saves the preferences in the same click, before the page shows it is saving', async () => {
+    const study = fullAnkiStudy();
+    const save = study.savePreferences.bind(study);
+    const disabledAtCall: boolean[] = [];
+    study.savePreferences = (p) => {
+      disabledAtCall.push(saveDisabled());
+      return save(p);
+    };
+    renderApp('/settings/anki', { study });
+    await screen.findByRole('heading', { level: 2, name: 'Anki general' });
+    await userEvent.click(screen.getByRole('switch', { name: 'Mostrar los 4 botones' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() => expect(disabledAtCall).toEqual([false]));
+  });
+
+  it('«Configuración de mazos» saves the preset in the same click, before the page shows it is saving', async () => {
+    const study = fullAnkiStudy();
+    const save = study.savePreset.bind(study);
+    const disabledAtCall: boolean[] = [];
+    study.savePreset = (p) => {
+      disabledAtCall.push(saveDisabled());
+      return save(p);
+    };
+    renderApp('/settings/deck-options?preset=Default', { study });
+    const perDay = await screen.findByLabelText('Tarjetas nuevas/día');
+    await userEvent.clear(perDay);
+    await userEvent.type(perDay, '30{Enter}');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() => expect(disabledAtCall).toEqual([false]));
   });
 });

@@ -1,14 +1,15 @@
 // A semester's page: its courses, linked when they have material.
 import { ArrowRight } from 'lucide-react';
 import { Link, useParams } from 'react-router';
-import { paths } from '../../shared/lib/paths';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { Loading } from '../../shared/ui/Loading';
-import { card, linkCard, page } from '../../shared/ui/styles';
-import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import { NotFoundPage } from '../../shared/ui/NotFoundPage';
-import { countDecks, countNotes, materialLabel } from '../catalog/model/catalog';
-import { useCatalog } from '../catalog/hooks/useCatalog';
+import { paths } from '../../../shared/lib/paths';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { Loading } from '../../../shared/ui/Loading';
+import { card, linkCard, page } from '../../../shared/ui/styles';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
+import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
+import { semesterStrings as s } from '../semester.strings';
 
 export function SemesterPage() {
   const { number } = useParams();
@@ -21,10 +22,10 @@ export function SemesterPage() {
 
   return (
     <div className={page}>
-      <Breadcrumbs items={[{ label: 'Inicio', to: paths.home }, { label: semester.name }]} />
+      <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: semester.name }]} />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{semester.name}</h1>
       {semester.courses.length === 0 ? (
-        <p className="mt-6 text-muted">Todavía no hay ramos de este semestre.</p>
+        <p className="mt-6 text-muted">{s.empty}</p>
       ) : (
         <ul className="mt-8 grid gap-4 sm:grid-cols-2">
           {semester.courses.map((c) => {
@@ -40,7 +41,7 @@ export function SemesterPage() {
                 <span className="mt-1 block text-sm text-muted">
                   {material
                     ? `${material} · ${c.assessments.map((a) => a.name).join(', ')}`
-                    : 'Próximamente'}
+                    : s.soon}
                 </span>
               </>
             );

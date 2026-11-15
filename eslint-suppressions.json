@@ -95,35 +95,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/courses/AssessmentSections.tsx": {
-    "qv/no-literal-text": {
-      "count": 17
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/courses/CareerPage.tsx": {
-    "qv/no-literal-text": {
-      "count": 8
-    }
-  },
-  "apps/web/src/features/courses/CoursePage.tsx": {
-    "max-lines-per-function": {
-      "count": 2
-    },
-    "qv/no-literal-text": {
-      "count": 24
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/courses/SemesterPage.tsx": {
-    "qv/no-literal-text": {
-      "count": 3
-    }
-  },
   "apps/web/src/features/landing/LandingPage.tsx": {
     "@typescript-eslint/no-misused-promises": {
       "count": 2

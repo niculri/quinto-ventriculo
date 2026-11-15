@@ -90,28 +90,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/pages/ReportsPage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    },
-    "qv/no-literal-text": {
-      "count": 54
-    }
-  },
-  "apps/web/src/features/admin/pages/UsagePage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
-    "qv/no-literal-text": {
-      "count": 56
-    }
-  },
   "apps/web/src/features/catalog/model/tree.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1

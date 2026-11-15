@@ -1,37 +1,13 @@
 // The public /licenses page: the site's license and source, the projects it comes from, and third-party licenses.
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { paths } from '../../shared/lib/paths';
-import { COPYRIGHT, SOURCE_CODE_URL } from '../../shared/ui/credits';
-import { LegalPage, Part } from './LegalPage';
-
-/** One line of `/third-party-licenses.json`, which the build generates from node_modules (apps/web/build/licenses.ts). */
-interface ThirdParty {
-  name: string;
-  version: string;
-  license: string;
-  repository: string | null;
-  usedBy: ('web' | 'server')[];
-}
+import { paths } from '../../../shared/lib/paths';
+import { COPYRIGHT, SOURCE_CODE_URL } from '../../../shared/ui/credits';
+import { LegalPage, Part } from '../components/LegalPage';
+import { PackageList } from '../components/PackageList';
 
 const link = 'text-brand underline underline-offset-2';
 
 export function LicensesPage() {
-  const [packages, setPackages] = useState<ThirdParty[] | 'loading' | 'error'>('loading');
-  useEffect(() => {
-    let live = true;
-    fetch('/third-party-licenses.json')
-      .then((r) => {
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json() as Promise<ThirdParty[]>;
-      })
-      .then((list) => live && setPackages(list))
-      .catch(() => live && setPackages('error'));
-    return () => {
-      live = false;
-    };
-  }, []);
-
   return (
     <LegalPage title="Licencias">
       <p>
@@ -123,37 +99,7 @@ export function LicensesPage() {
           </a>
           .
         </p>
-        {packages === 'loading' ? (
-          <p className="text-muted">Cargando la lista…</p>
-        ) : packages === 'error' ? (
-          <p className="text-muted">
-            No se pudo cargar la lista. El texto completo está en third-party-licenses.txt.
-          </p>
-        ) : (
-          <ul className="!list-none !pl-0 text-sm" aria-label="Paquetes de terceros">
-            {packages.map((p) => (
-              <li
-                key={`${p.name}@${p.version}`}
-                className="flex flex-wrap justify-between gap-x-4 border-b border-border py-1.5"
-              >
-                <span>
-                  {p.repository ? (
-                    <a href={p.repository} className="hover:underline">
-                      {p.name}
-                    </a>
-                  ) : (
-                    p.name
-                  )}{' '}
-                  <span className="text-muted">{p.version}</span>
-                </span>
-                <span className="text-muted">
-                  {p.license} ·{' '}
-                  {p.usedBy.map((u) => (u === 'web' ? 'web' : 'servidor')).join(' y ')}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <PackageList />
       </Part>
     </LegalPage>
   );

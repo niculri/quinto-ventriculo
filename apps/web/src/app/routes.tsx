@@ -41,28 +41,28 @@ export const routes: RouteObject[] = [
       {
         path: 'privacy',
         lazy: page(
-          () => import('../features/legal/PrivacyPage'),
+          () => import('../features/legal/pages/PrivacyPage'),
           (m) => m.PrivacyPage,
         ),
       },
       {
         path: 'terms',
         lazy: page(
-          () => import('../features/legal/TermsPage'),
+          () => import('../features/legal/pages/TermsPage'),
           (m) => m.TermsPage,
         ),
       },
       {
         path: 'licenses',
         lazy: page(
-          () => import('../features/legal/LicensesPage'),
+          () => import('../features/legal/pages/LicensesPage'),
           (m) => m.LicensesPage,
         ),
       },
       {
         path: 'about',
         lazy: page(
-          () => import('../features/legal/AboutPage'),
+          () => import('../features/legal/pages/AboutPage'),
           (m) => m.AboutPage,
         ),
       },
@@ -246,7 +246,7 @@ export const routes: RouteObject[] = [
           {
             path: 'help',
             lazy: page(
-              () => import('../features/help/HelpPage'),
+              () => import('../features/help/pages/HelpPage'),
               (m) => m.HelpPage,
             ),
           },

@@ -45,10 +45,11 @@ const PORTED_FROM_ANKI = [
   ),
 ];
 const FIXED_TEXT_PAGES = [
-  'apps/web/src/features/legal/AboutPage.tsx',
-  'apps/web/src/features/legal/PrivacyPage.tsx',
-  'apps/web/src/features/legal/TermsPage.tsx',
-  'apps/web/src/features/help/HelpPage.tsx',
+  'apps/web/src/features/legal/pages/AboutPage.tsx',
+  'apps/web/src/features/legal/pages/LicensesPage.tsx',
+  'apps/web/src/features/legal/pages/PrivacyPage.tsx',
+  'apps/web/src/features/legal/pages/TermsPage.tsx',
+  'apps/web/src/features/help/pages/HelpPage.tsx',
 ];
 
 // What qv/no-literal-text reads as text besides the HTML and ARIA text attributes: the text props of the web's

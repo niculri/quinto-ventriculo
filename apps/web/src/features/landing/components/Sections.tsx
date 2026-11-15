@@ -8,7 +8,7 @@ import {
   Pin,
   ScrollText,
 } from 'lucide-react';
-import { HowToUse } from '../../help/HowToUse';
+import { HowToUse } from '../../help/components/HowToUse';
 import { Feature } from './Feature';
 import { landingStrings as s } from '../strings';
 

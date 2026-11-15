@@ -1,5 +1,5 @@
 // The three steps to use the site, shown on the public landing page and on the help page.
-import { keys } from '../../shared/ui/keys';
+import { keys } from '../../../shared/ui/keys';
 const STEPS = [
   {
     title: 'Entra con tu cuenta de la U',

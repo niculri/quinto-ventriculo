@@ -71,19 +71,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/legal/LegalPage.tsx": {
-    "qv/no-literal-text": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/legal/LicensesPage.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 36
-    }
-  },
   "apps/web/src/features/progress/api/repository/memory.ts": {
     "max-lines": {
       "count": 1

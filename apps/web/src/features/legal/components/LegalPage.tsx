@@ -1,11 +1,12 @@
 // The frame of the public pages /privacy, /terms, /licenses and /about, with or without a session.
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
-import { paths } from '../../shared/lib/paths';
-import { formatDay } from '../../shared/lib/dates';
-import { Logo } from '../../shared/ui/Logo';
-import { SiteFooter } from '../nav/components/SiteFooter';
-import { useTitle } from '../../shared/hooks/useTitle';
+import { paths } from '../../../shared/lib/paths';
+import { formatDay } from '../../../shared/lib/dates';
+import { Logo } from '../../../shared/ui/Logo';
+import { SiteFooter } from '../../nav/components/SiteFooter';
+import { legalStrings as s } from '../strings';
+import { useTitle } from '../../../shared/hooks/useTitle';
 
 export function LegalPage({
   title,
@@ -24,11 +25,7 @@ export function LegalPage({
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-border bg-chrome">
         <div className="mx-auto flex h-16 max-w-[90rem] items-center px-4 sm:px-6">
-          <Link
-            to={paths.landing()}
-            className="rounded-md"
-            aria-label="El Quinto Ventrículo, portada"
-          >
+          <Link to={paths.landing()} className="rounded-md" aria-label={s.home}>
             <Logo />
           </Link>
         </div>
@@ -37,7 +34,8 @@ export function LegalPage({
         <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
         {version && date ? (
           <p className="mt-2 text-sm text-muted">
-            Versión {version} · {formatDay(date)}
+            {s.version}
+            {version} · {formatDay(date)}
           </p>
         ) : null}
         <div className="mt-8 space-y-8 leading-relaxed text-ink">{children}</div>

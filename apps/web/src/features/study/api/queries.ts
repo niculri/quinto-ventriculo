@@ -6,7 +6,7 @@ import { daySummary, timingFor } from '@qv/study';
 import { ancestry, descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import { heatmapKeys } from '../../stats/api/queries';
 
 const studyScreenKeys = {

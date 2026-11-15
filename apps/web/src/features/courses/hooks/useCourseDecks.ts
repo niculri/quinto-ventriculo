@@ -3,7 +3,7 @@ import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { buildAnkiTree, courseDeck } from '../../catalog/model/tree';
 import { useDeck } from '../../decks/hooks/useDeck';
 import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
-import { usePreferences, useStudyPlan, useToday } from '../../progress/hooks/useStudy';
+import { usePreferences, useStudyPlan, useToday } from '../../progress/queries';
 
 export function useCourseDecks(catalog: Catalog, course: CourseWithAssessments) {
   const tree = buildAnkiTree(catalog);

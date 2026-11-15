@@ -2,7 +2,7 @@
 // goes instead (its assessment's page: there is nothing more inside it).
 
 import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
-import { useAssessmentView, useStudyPlan } from '../../progress/hooks/useStudy';
+import { useAssessmentView, useStudyPlan } from '../../progress/queries';
 import { ancestry } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useCountOpen } from '../../usage/count';

@@ -9,7 +9,7 @@ import { paths } from '../../../../shared/lib/paths';
 import { Loading } from '../../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../../shared/ui/Notice';
 import { useAnkiTree } from '../../../catalog/hooks/useAnkiTree';
-import { useDeckSettings, usePreferences, useUserPresets } from '../../../progress/hooks/useStudy';
+import { useDeckSettings, usePreferences, useUserPresets } from '../../../progress/queries';
 import { SettingsLayout } from '../../../settings/components/SettingsLayout';
 import { usePresetDrafts } from '../../hooks/usePresetDrafts';
 import type { OptionsData, OptionsMode } from '../../hooks/usePresetDrafts';

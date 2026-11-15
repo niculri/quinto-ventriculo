@@ -11,7 +11,7 @@ import { useStudyRepository } from '../../progress/api/context';
 import { presetParam } from '../../progress/model/presets';
 import { hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import type { DeckSetting, StudyPreferences, UserPreset } from '../../progress/api/repository';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import { savePresetDraft } from '../api/savePresets';

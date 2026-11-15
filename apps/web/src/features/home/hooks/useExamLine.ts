@@ -3,7 +3,7 @@
 import type { HomeStudyBase } from '@qv/study';
 import { nearestExamText } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { usePreferences, useToday } from '../../progress/hooks/useStudy';
+import { usePreferences, useToday } from '../../progress/queries';
 
 export function useExamLine(node: CourseDeckNode, base: HomeStudyBase | null) {
   const { prefs } = usePreferences();

@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from 'react';
 import { countsByDay, dueByDay, heatmapStats, yearOf, yearRange } from '@qv/study';
-import { usePreferences, useToday } from '../../progress/hooks/useStudy';
+import { usePreferences, useToday } from '../../progress/queries';
 import { useHeatmapData } from './useHeatmapData';
 
 export function useHeatmap(scope: string, deckIds: string[] | null) {

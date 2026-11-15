@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { StudyData } from '@qv/study';
 import { useApi } from '../../../shared/hooks/useApi';
 import { useStudyRepository } from '../../progress/api/context';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import { cardQuery } from '../../decks/api/queries';
 import { StudySession } from '../api/StudySession';
 

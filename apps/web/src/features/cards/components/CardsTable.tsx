@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { CardTable } from './CardTable';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
-import { useDeckSettings, useUserPresets } from '../../progress/hooks/useStudy';
+import { useDeckSettings, useUserPresets } from '../../progress/queries';
 import { ListSkeleton } from './ListSkeleton';
 import type { CardsData } from '../model/cardsData';
 import type { CardsScope } from '../../catalog/model/scope';

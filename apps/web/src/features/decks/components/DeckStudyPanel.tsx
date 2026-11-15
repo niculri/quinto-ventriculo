@@ -10,7 +10,7 @@ import type { AssessmentView } from '@qv/study';
 import { DayLoad } from '../../progress/components/DeckCounts';
 import type { useDeckCounts } from '../../progress/hooks/useDeckCounts';
 import { MasteryMeter } from '../../progress/components/MasteryMeter';
-import { usePreferences, useStudyPlan } from '../../progress/hooks/useStudy';
+import { usePreferences, useStudyPlan } from '../../progress/queries';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { FinalReviewLink } from './FinalReviewLink';
 import { SimpleDetails } from './SimpleDetails';

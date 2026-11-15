@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { actionLabel } from '@qv/study';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import type { CardWrite } from '../api/cardWrites';
 import { useCardWrite, useUndoWrite } from './useCardWrites';
 import { cardsStrings } from '../strings';

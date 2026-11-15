@@ -5,7 +5,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fullAnkiStudy, renderApp } from '../../../test/render';
 import type { StudyRepository } from '../../progress/api/repository';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
 import { heatmapKeys } from '../api/queries';

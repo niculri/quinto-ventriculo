@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
-import { useStudyRepository } from '../api/context';
+import { useStudyRepository } from './api/context';
 import {
   answersTodayQuery,
   deckProgressQuery,
@@ -15,18 +15,18 @@ import {
   studyKeys,
   studyPlanQuery,
   userPresetsQuery,
-} from '../api/queries';
-import { browserTimeZone, defaultPreferences } from '../api/repository';
-import type { AssessmentSetting, StudyPreferences } from '../api/repository';
-import { useCatalog } from '../../catalog/hooks/useCatalog';
+} from './api/queries';
+import { browserTimeZone, defaultPreferences } from './api/repository';
+import type { AssessmentSetting, StudyPreferences } from './api/repository';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
-import { useNow } from '../../../shared/hooks/useNow';
+import { useNow } from '../../shared/hooks/useNow';
 
-/**
- * The user's preferences; the time zone follows the browser's (Anki uses the computer's). The site's menu reads them at
- * startup: these hooks stay in one module, so the study code they use stays in the startup as before.
- */
+// The keys live with the reads (`api/queries.ts`); most features take them from here.
+export { studyKeys };
+
+/** The user's preferences; the time zone follows the browser's (Anki uses the computer's). */
 export function usePreferences() {
   const study = useStudyRepository();
   const client = useQueryClient();

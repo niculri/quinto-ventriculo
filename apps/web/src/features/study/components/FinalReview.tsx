@@ -8,7 +8,7 @@ import type { CourseDeckNode } from '../../catalog/model/tree';
 import { BackButton } from '../../../shared/ui/BackButton';
 import { cardKey, reviewPools, startRound } from '@qv/study';
 import type { Round, StudyData } from '@qv/study';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import { usePracticeRecorder } from '../../stats/hooks/usePracticeRecorder';
 import { ChooseReview } from './ChooseReview';
 import { ReviewMenu } from './ReviewMenu';

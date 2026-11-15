@@ -1,5 +1,5 @@
 // The groups of «Opciones» this user sees: the advanced Anki sections only with «Modo avanzado».
-import { usePreferences } from '../../progress/hooks/useStudy';
+import { usePreferences } from '../../progress/queries';
 import { SETTINGS_GROUPS } from '../sections';
 import type { SettingsGroup } from '../sections';
 

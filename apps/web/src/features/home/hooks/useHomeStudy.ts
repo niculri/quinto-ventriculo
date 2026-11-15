@@ -14,7 +14,7 @@ import {
   useStudyPlan,
   useToday,
   useUserPresets,
-} from '../../progress/hooks/useStudy';
+} from '../../progress/queries';
 import type { HomeDeckCounts } from '../../progress/api/repository';
 import { treeDecks } from '@qv/study';
 import type { HomeStudyBase } from '@qv/study';

@@ -6,7 +6,7 @@ import { dayStartsAt } from '@qv/srs';
 import { cardKey } from '@qv/study';
 import type { ApiClient } from '../../../shared/lib/api';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
-import { studyKeys } from '../../progress/api/queries';
+import { studyKeys } from '../../progress/queries';
 import { heatmapKeys } from '../../stats/api/queries';
 import type { CardsScope } from '../../catalog/model/scope';
 

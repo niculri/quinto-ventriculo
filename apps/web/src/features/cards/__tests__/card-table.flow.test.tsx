@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { searchTerm } from '@qv/anki-search';
 import { DECK, renderApp, fullAnkiStudy } from '../../../test/render';
 import type { StudyRepository } from '../../progress/api/repository';
-import { combineSearch } from '../components/BrowseSidebar';
+import { combineSearch } from '../model/search';
 
 afterEach(() => localStorage.clear());
 

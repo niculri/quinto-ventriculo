@@ -11,12 +11,11 @@ import {
   clozeParts,
   explorerNotes,
   groupNotes,
-  listItems,
-  listMetrics,
   noteByCode,
   practiceCards,
   searchQuery,
 } from '../explorer';
+import { listItems, listMetrics } from '../list';
 import { syntheticIndex, syntheticRows } from '../../api/demo';
 import { lectureOf } from '../../../catalog/model/scope';
 import { cardKey } from '@qv/study';

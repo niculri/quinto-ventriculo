@@ -21,3 +21,11 @@ export const introducedQuery = (study: StudyRepository, since: number | null) =>
     enabled: since !== null,
     staleTime: 30_000,
   });
+
+/** A card's history, for its information. */
+export const cardLogQuery = (study: StudyRepository, card: { noteGuid: string; ord: number }) =>
+  queryOptions({
+    queryKey: [...studyKeys.all, 'log', card.noteGuid, card.ord] as const,
+    queryFn: () => study.cardLog(card),
+    staleTime: 30_000,
+  });

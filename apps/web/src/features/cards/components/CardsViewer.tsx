@@ -1,23 +1,16 @@
 // The cards page's viewer: a card of the list as it is studied (front, then back; ← → through the list) and a line
 // with what can be done with it.
 
-import { useEffect, useState } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { BookOpen, EyeOff, Flag, History, ListChecks, MessageSquareWarning } from 'lucide-react';
 import type { CardSummary } from '@qv/schema';
-import { useStudyRepository } from '../../progress/api/context';
 import { button } from '../../../shared/ui/styles';
-import { CardInfo } from './CardPreview';
 import type { BrowseCard } from '../model/browseCards';
 import { CardViewer } from '../../decks/CardViewer';
 import { MaterialLink, ReportEntry, useCardMaterial } from '../../study';
-import { studyKeys } from '../../progress/queries';
-import { timingFor } from '@qv/study';
+import { useViewerActions } from '../hooks/useViewerActions';
+import { HistoryDialog } from './HistoryDialog';
 import type { StudyPreferences } from '../../progress/api/repository';
-import { GhostCloseX } from '../../../shared/ui/Dialog';
-
-const REVIEW_FLAG = 1;
 
 export function CardsViewer({
   cards,
@@ -69,53 +62,11 @@ function Actions({
   info: BrowseCard | undefined;
   prefs: StudyPreferences;
 }) {
-  const study = useStudyRepository();
-  const client = useQueryClient();
   const material = useCardMaterial(card.deckId);
-  const [flag, setFlag] = useState(info?.flag ?? 0);
-  const [hidden, setHidden] = useState(info?.queue === 'suspended');
-  const [busy, setBusy] = useState(false);
+  const { ref, flag, hidden, busy, message, setMessage, toggleFlag, toggleHidden } =
+    useViewerActions(card, info);
   const [reporting, setReporting] = useState(false);
   const [history, setHistory] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  useEffect(() => {
-    if (!message) return;
-    const id = setTimeout(() => setMessage(null), 3000);
-    return () => clearTimeout(id);
-  }, [message]);
-  const ref = { noteGuid: card.noteGuid, ord: card.ord, deckId: card.deckId };
-  const run = async (what: () => Promise<unknown>, done: string, undo: () => void) => {
-    setBusy(true);
-    try {
-      await what();
-      setMessage(done);
-      await client.invalidateQueries({ queryKey: studyKeys.all });
-    } catch {
-      undo();
-      setMessage('No se pudo guardar. Intenta de nuevo.');
-    } finally {
-      setBusy(false);
-    }
-  };
-  const toggleFlag = () => {
-    const before = flag;
-    const next = flag ? 0 : REVIEW_FLAG;
-    setFlag(next);
-    void run(
-      () => study.setFlag(ref, next),
-      next ? 'Marcada para revisar' : 'Sin marca',
-      () => setFlag(before),
-    );
-  };
-  const toggleHidden = () => {
-    const before = hidden;
-    setHidden(!hidden);
-    void run(
-      () => (before ? study.unsuspend([ref]) : study.suspend([ref], false)),
-      before ? 'Se mostrará de nuevo' : 'No se mostrará más',
-      () => setHidden(before),
-    );
-  };
   return (
     <>
       <button
@@ -147,20 +98,7 @@ function Actions({
         <MessageSquareWarning className="size-4" aria-hidden="true" />
         <Label>Reportar error</Label>
       </button>
-      {material ? (
-        <span className={`${ACTION} hover:bg-transparent`}>
-          <MaterialLink href={material.notePath}>
-            <BookOpen className="size-4" aria-hidden="true" /> Ver apunte
-          </MaterialLink>
-        </span>
-      ) : null}
-      {material?.quizPath ? (
-        <span className={`${ACTION} hover:bg-transparent`}>
-          <MaterialLink href={material.quizPath}>
-            <ListChecks className="size-4" aria-hidden="true" /> Preguntas
-          </MaterialLink>
-        </span>
-      ) : null}
+      <MaterialLinks material={material} />
       <button
         type="button"
         onClick={() => setHistory(true)}
@@ -185,23 +123,28 @@ function Actions({
         />
       ) : null}
       {info ? (
-        <Dialog.Root open={history} onOpenChange={setHistory}>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40" />
-            <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] max-h-[85dvh] w-[min(94vw,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-surface p-5 shadow-soft">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <Dialog.Title className="text-lg font-semibold">
-                  Historial de la tarjeta
-                </Dialog.Title>
-                <GhostCloseX />
-              </div>
-              <Dialog.Description className="sr-only">
-                Cuándo la estudiaste y qué respondiste.
-              </Dialog.Description>
-              <CardInfo card={info} timing={timingFor(prefs)} simple={!prefs.fullAnki} />
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
+        <HistoryDialog open={history} onOpenChange={setHistory} info={info} prefs={prefs} />
+      ) : null}
+    </>
+  );
+}
+
+function MaterialLinks({ material }: { material: ReturnType<typeof useCardMaterial> }) {
+  return (
+    <>
+      {material ? (
+        <span className={`${ACTION} hover:bg-transparent`}>
+          <MaterialLink href={material.notePath}>
+            <BookOpen className="size-4" aria-hidden="true" /> Ver apunte
+          </MaterialLink>
+        </span>
+      ) : null}
+      {material?.quizPath ? (
+        <span className={`${ACTION} hover:bg-transparent`}>
+          <MaterialLink href={material.quizPath}>
+            <ListChecks className="size-4" aria-hidden="true" /> Preguntas
+          </MaterialLink>
+        </span>
       ) : null}
     </>
   );

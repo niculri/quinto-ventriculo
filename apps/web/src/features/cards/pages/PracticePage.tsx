@@ -16,7 +16,7 @@ import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
 import { useNow } from '../../../shared/hooks/useNow';
 import type { CardRef } from '../../progress/api/repository';
-import { queryOf } from './CardsPage';
+import { queryOf } from '../model/urlState';
 import {
   NO_FILTERS,
   applyFilters,

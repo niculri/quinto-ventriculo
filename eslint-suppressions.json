@@ -198,17 +198,11 @@
     }
   },
   "apps/web/src/features/cards/components/BrowseSidebar.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
       "count": 20
     }
   },
   "apps/web/src/features/cards/components/CardFilters.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
       "count": 10
     }
@@ -218,26 +212,19 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/components/CardList.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
+  "apps/web/src/features/cards/components/CardHistory.tsx": {
     "qv/no-literal-text": {
-      "count": 5
-    },
-    "sonarjs/cognitive-complexity": {
+      "count": 10
+    }
+  },
+  "apps/web/src/features/cards/components/CardList.tsx": {
+    "qv/no-literal-text": {
       "count": 1
     }
   },
   "apps/web/src/features/cards/components/CardPreview.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
-      "count": 21
+      "count": 11
     }
   },
   "apps/web/src/features/cards/components/CardTable.tsx": {
@@ -245,17 +232,39 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/components/CardsViewer.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
+  "apps/web/src/features/cards/components/CardsControls.tsx": {
     "qv/no-literal-text": {
-      "count": 16
+      "count": 10
+    }
+  },
+  "apps/web/src/features/cards/components/CardsFiltersPanel.tsx": {
+    "qv/no-literal-text": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/cards/components/CardsListView.tsx": {
+    "qv/no-literal-text": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/cards/components/CardsNotices.tsx": {
+    "qv/no-literal-text": {
+      "count": 5
+    }
+  },
+  "apps/web/src/features/cards/components/CardsViewer.tsx": {
+    "qv/no-literal-text": {
+      "count": 14
     }
   },
   "apps/web/src/features/cards/components/ColumnsMenu.tsx": {
     "qv/no-literal-text": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/cards/components/DayLine.tsx": {
+    "qv/no-literal-text": {
+      "count": 3
     }
   },
   "apps/web/src/features/cards/components/FlagMenu.tsx": {
@@ -266,6 +275,21 @@
   "apps/web/src/features/cards/components/ForgetDialog.tsx": {
     "qv/no-literal-text": {
       "count": 11
+    }
+  },
+  "apps/web/src/features/cards/components/HistoryDialog.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/cards/components/NoteRow.tsx": {
+    "qv/no-literal-text": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/cards/components/PhotoCell.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
     }
   },
   "apps/web/src/features/cards/components/QuickFilters.tsx": {
@@ -309,25 +333,18 @@
     }
   },
   "apps/web/src/features/cards/model/explorer.ts": {
-    "max-lines": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
-      "count": 4
+      "count": 3
+    }
+  },
+  "apps/web/src/features/cards/model/list.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
     }
   },
   "apps/web/src/features/cards/pages/CardsPage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
     "qv/no-literal-text": {
-      "count": 27
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
+      "count": 2
     }
   },
   "apps/web/src/features/cards/pages/LegacyBrowse.tsx": {

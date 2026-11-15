@@ -11,7 +11,7 @@ import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { hasPage } from '../../catalog/model/tree';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
-import { cardParam } from './CardsPage';
+import { cardParam } from '../model/urlState';
 import { scopeNodeOf, unitOf } from '../../catalog/model/scope';
 
 function deckOfSearch(tree: AnkiTree, q: string): { node: CourseDeckNode; rest: string } | null {

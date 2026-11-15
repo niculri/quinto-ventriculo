@@ -8,17 +8,10 @@ import { searchTerm } from '@qv/anki-search';
 import type { NoteTypeSummary } from '@qv/schema';
 import type { DeckNode } from '../../catalog/model/tree';
 import { FLAGS } from '@qv/study';
+import type { Combine } from '../model/search';
 
-// As in Anki, a click replaces the search; with Ctrl/⌘ it adds the term («y»), with Mayús it is an alternative
-// («o»), with Alt it negates it.
-export type Combine = 'replace' | 'and' | 'or';
-
-export function combineSearch(current: string, term: string, how: Combine, negate: boolean) {
-  const t = negate ? `-${term}` : term;
-  const base = current.trim();
-  if (how === 'replace' || !base) return t;
-  return how === 'and' ? `(${base}) ${t}` : `(${base}) OR ${t}`;
-}
+type Click = (term: string) => (e: MouseEvent) => void;
+type Item = (label: ReactNode, term: string, key?: string) => ReactNode;
 
 export function BrowseSidebar({
   courses,
@@ -33,11 +26,11 @@ export function BrowseSidebar({
   full: boolean;
   onSearch: (term: string, how: Combine, negate: boolean) => void;
 }) {
-  const click = (term: string) => (e: MouseEvent) => {
+  const click: Click = (term) => (e) => {
     e.preventDefault();
     onSearch(term, e.shiftKey ? 'or' : e.ctrlKey || e.metaKey ? 'and' : 'replace', e.altKey);
   };
-  const item = (label: ReactNode, term: string, key = term) => (
+  const item: Item = (label, term, key = term) => (
     <li key={key}>
       <button
         type="button"
@@ -66,66 +59,82 @@ export function BrowseSidebar({
           />
         ))}
       </Group>
-      {full ? (
-        <Group icon={<NotebookTabs className="size-4" aria-hidden="true" />} title="Tipos de nota">
-          {noteTypes.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                onClick={click(searchTerm('note', t.name))}
-                className="w-full truncate rounded-md px-2 py-1 text-left text-sm text-ink hover:bg-surface-2"
-              >
-                {t.name}
-              </button>
-              {t.templates.length > 1 || t.kind === 'normal' ? (
-                <ul className="ml-4">
-                  {t.templates.map((name, i) =>
-                    item(
-                      <span className="truncate text-muted">{name}</span>,
-                      `${searchTerm('note', t.name)} ${searchTerm('card', String(i + 1))}`,
-                    ),
-                  )}
-                </ul>
-              ) : null}
-            </li>
-          ))}
-        </Group>
-      ) : null}
+      {full ? <NoteTypesGroup noteTypes={noteTypes} click={click} item={item} /> : null}
       <Group icon={<Tag className="size-4" aria-hidden="true" />} title="Etiquetas">
         {item(<span className="text-muted">Sin etiquetas</span>, 'tag:none')}
         <TagItems tags={tags} click={click} />
       </Group>
-      {full ? (
-        <>
-          <Group
-            icon={<ListChecks className="size-4" aria-hidden="true" />}
-            title="Estado de la tarjeta"
-          >
-            {item('Nuevas', 'is:new')}
-            {item('Aprendiendo', 'is:learn')}
-            {item('A repasar', 'is:review')}
-            {item('Suspendidas', 'is:suspended')}
-            {item('Enterradas', 'is:buried')}
-          </Group>
-          <Group icon={<Flag className="size-4" aria-hidden="true" />} title="Banderas">
-            {FLAGS.map((f) =>
-              item(
-                <>
-                  <Flag
-                    className="size-3.5 flex-none"
-                    style={{ color: f.color, fill: f.color }}
-                    aria-hidden="true"
-                  />
-                  {f.label}
-                </>,
-                `flag:${f.flag}`,
-              ),
-            )}
-            {item(<span className="text-muted">Sin bandera</span>, 'flag:0')}
-          </Group>
-        </>
-      ) : null}
+      {full ? <StateAndFlagGroups item={item} /> : null}
     </nav>
+  );
+}
+
+function NoteTypesGroup({
+  noteTypes,
+  click,
+  item,
+}: {
+  noteTypes: NoteTypeSummary[];
+  click: Click;
+  item: Item;
+}) {
+  return (
+    <Group icon={<NotebookTabs className="size-4" aria-hidden="true" />} title="Tipos de nota">
+      {noteTypes.map((t) => (
+        <li key={t.id}>
+          <button
+            type="button"
+            onClick={click(searchTerm('note', t.name))}
+            className="w-full truncate rounded-md px-2 py-1 text-left text-sm text-ink hover:bg-surface-2"
+          >
+            {t.name}
+          </button>
+          {t.templates.length > 1 || t.kind === 'normal' ? (
+            <ul className="ml-4">
+              {t.templates.map((name, i) =>
+                item(
+                  <span className="truncate text-muted">{name}</span>,
+                  `${searchTerm('note', t.name)} ${searchTerm('card', String(i + 1))}`,
+                ),
+              )}
+            </ul>
+          ) : null}
+        </li>
+      ))}
+    </Group>
+  );
+}
+
+function StateAndFlagGroups({ item }: { item: Item }) {
+  return (
+    <>
+      <Group
+        icon={<ListChecks className="size-4" aria-hidden="true" />}
+        title="Estado de la tarjeta"
+      >
+        {item('Nuevas', 'is:new')}
+        {item('Aprendiendo', 'is:learn')}
+        {item('A repasar', 'is:review')}
+        {item('Suspendidas', 'is:suspended')}
+        {item('Enterradas', 'is:buried')}
+      </Group>
+      <Group icon={<Flag className="size-4" aria-hidden="true" />} title="Banderas">
+        {FLAGS.map((f) =>
+          item(
+            <>
+              <Flag
+                className="size-3.5 flex-none"
+                style={{ color: f.color, fill: f.color }}
+                aria-hidden="true"
+              />
+              {f.label}
+            </>,
+            `flag:${f.flag}`,
+          ),
+        )}
+        {item(<span className="text-muted">Sin bandera</span>, 'flag:0')}
+      </Group>
+    </>
   );
 }
 
@@ -147,15 +156,7 @@ function Group({ icon, title, children }: { icon: ReactNode; title: string; chil
 
 const countNodes = (n: DeckNode): number => 1 + n.children.reduce((t, c) => t + countNodes(c), 0);
 
-function DeckItems({
-  node,
-  click,
-  small,
-}: {
-  node: DeckNode;
-  click: (term: string) => (e: MouseEvent) => void;
-  small: boolean;
-}) {
+function DeckItems({ node, click, small }: { node: DeckNode; click: Click; small: boolean }) {
   const [open, setOpen] = useState(small || node.depth < 3);
   return (
     <li>
@@ -202,13 +203,7 @@ interface TagNode {
   children: Map<string, TagNode>;
 }
 
-function TagItems({
-  tags,
-  click,
-}: {
-  tags: string[];
-  click: (term: string) => (e: MouseEvent) => void;
-}) {
+function TagItems({ tags, click }: { tags: string[]; click: Click }) {
   const root: TagNode = { name: '', full: '', children: new Map() };
   for (const t of tags) {
     let n = root;

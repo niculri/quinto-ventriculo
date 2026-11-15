@@ -274,6 +274,37 @@ describe('«Seguir»', () => {
     await screen.findByRole('region', { name: 'Hoy' });
     expect(screen.queryByRole('region', { name: 'Seguir' })).toBeNull();
   });
+
+  it('two tests at most, or only the first beside the last note', async () => {
+    const quiz = localQuizRepository(null);
+    quiz.openRounds = async () =>
+      ['pautas', 'nuevas', 'otras'].map((sectionId, i) => ({
+        quizId: 'practica-biocel',
+        sectionId,
+        answered: i + 1,
+        questionCount: 4,
+        updatedAt: '2026-11-09T12:00:00.000Z',
+      }));
+    const { unmount } = renderApp('/home', { quiz });
+    const follow = await screen.findByRole('region', { name: 'Seguir' });
+    expect(text(follow)).toBe(
+      'SeguirPráctica de BiocelTest a medias · 1 de 4Práctica de BiocelTest a medias · 2 de 4',
+    );
+    expect(
+      within(follow)
+        .getAllByRole('link')
+        .map((a) => a.getAttribute('href')),
+    ).toEqual([
+      '/semesters/2/courses/biologia-celular/tests/certamen-2/practica/pautas',
+      '/semesters/2/courses/biologia-celular/tests/certamen-2/practica/nuevas',
+    ]);
+    unmount();
+    window.localStorage.setItem('qv-last-note', '11-traduccion');
+    renderApp('/home', { quiz });
+    expect(text(await screen.findByRole('region', { name: 'Seguir' }))).toBe(
+      'SeguirPráctica de BiocelTest a medias · 1 de 4TraducciónÚltimo apunte que abriste · Biología celular',
+    );
+  });
 });
 
 describe('«Tus ramos»', () => {

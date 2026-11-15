@@ -7,7 +7,7 @@ import { useStudyRepository } from '../../progress/api/context';
 import type { StudyRepository } from '../../progress/api/repository';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { studyKeys } from '../../progress/api/queries';
-import { useDeckSettings, useUserPresets } from '../../progress/hooks/useStudySettings';
+import { useDeckSettings, useUserPresets } from '../../progress/hooks/useStudy';
 import type { DeckNode } from '../../catalog/model/tree';
 import { refKey } from '../model/presets';
 import { presetsStrings as p } from '../presets.strings';

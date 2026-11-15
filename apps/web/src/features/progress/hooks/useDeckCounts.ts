@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { DeckDetail } from '@qv/schema';
 import { deckCounts, masteryByDeck, nextCountChange } from '@qv/study';
-import { useStudyData } from './useStudyData';
+import { useStudyData } from './useStudy';
 
 export function useDeckCounts(deck: DeckDetail | undefined) {
   const study = useStudyData(deck);

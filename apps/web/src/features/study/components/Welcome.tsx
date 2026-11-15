@@ -3,7 +3,7 @@ import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { button } from '../../../shared/ui/styles';
 import type { StudyPreferences } from '../../progress/api/repository';
-import { useSavePreferences } from '../../progress/hooks/usePreferences';
+import { useSavePreferences } from '../../progress/hooks/useStudy';
 import { BlurredBackdrop } from '../../../shared/ui/Dialog';
 import { studyStrings } from '../strings';
 

@@ -6,11 +6,15 @@ import type { Catalog } from '@qv/schema';
 import { useStudyRepository } from '../../progress/api/context';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { useAnswersToday, useDeckProgress } from '../../progress/hooks/useDeckProgress';
-import { useDeckSettings, useUserPresets } from '../../progress/hooks/useStudySettings';
-import { usePreferences } from '../../progress/hooks/usePreferences';
-import { useStudyPlan } from '../../progress/hooks/useStudyPlan';
-import { useToday } from '../../progress/hooks/useToday';
+import {
+  useAnswersToday,
+  useDeckProgress,
+  useDeckSettings,
+  usePreferences,
+  useStudyPlan,
+  useToday,
+  useUserPresets,
+} from '../../progress/hooks/useStudy';
 import type { HomeDeckCounts } from '../../progress/api/repository';
 import { treeDecks } from '@qv/study';
 import type { HomeStudyBase } from '@qv/study';

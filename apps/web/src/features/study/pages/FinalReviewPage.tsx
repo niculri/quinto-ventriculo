@@ -14,7 +14,7 @@ import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useDeck } from '../../decks/hooks/useDeck';
 import type { StudyData } from '@qv/study';
 import { studyKeys } from '../../progress/api/queries';
-import { useStudyData } from '../../progress/hooks/useStudyData';
+import { useStudyData } from '../../progress/hooks/useStudy';
 import { StudyFallback } from '../components/StudyFallback';
 import { StudyLoading } from '../components/StudyLoading';
 import { useCountOpen } from '../../usage/count';

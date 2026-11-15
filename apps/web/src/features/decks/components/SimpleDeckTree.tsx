@@ -3,8 +3,7 @@
 import type { Counts } from '@qv/srs';
 import { activeUnits, EMPTY_PLAN } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
-import { usePreferences } from '../../progress/hooks/usePreferences';
-import { useSetActivation } from '../../progress/hooks/useStudyPlan';
+import { usePreferences, useSetActivation } from '../../progress/hooks/useStudy';
 import { useCollapsed } from '../hooks/useCollapsed';
 import { allNodes, treeRows } from '../model/deckTree';
 import { DeckTreeRow } from './DeckTreeRow';

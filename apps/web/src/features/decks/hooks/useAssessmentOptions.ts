@@ -4,8 +4,7 @@
 import { useEffect, useId, useState } from 'react';
 import { dayOfDate, DEFAULT_NEW_PER_DAY, includesExtras, isExtras } from '@qv/study';
 import type { AssessmentView, StudyPlan } from '@qv/study';
-import { roughToday } from '../../progress/hooks/useToday';
-import { useSaveAssessmentSetting } from '../../progress/hooks/useStudyPlan';
+import { roughToday, useSaveAssessmentSetting } from '../../progress/hooks/useStudy';
 import type { AssessmentSetting } from '../../progress/api/repository';
 import { descendants } from '../../catalog/model/tree';
 import type { DeckNode } from '../../catalog/model/tree';

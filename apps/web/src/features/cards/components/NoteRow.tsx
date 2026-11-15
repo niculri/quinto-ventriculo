@@ -4,6 +4,7 @@ import type { Matched } from '../model/filters';
 import { Said } from './Said';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';
+import { cardsStrings } from '../strings';
 
 function ClozeText({ text, hide }: { text: string; hide: boolean }) {
   return (
@@ -17,7 +18,7 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
             {p.hole.hint ?? (
               <>
                 <span aria-hidden="true">…</span>
-                <Said>hueco</Said>
+                <Said>{cardsStrings.list.hole}</Said>
               </>
             )}
             ]
@@ -31,8 +32,6 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
     </>
   );
 }
-
-const labelsText = (n: number) => `${n} ${n === 1 ? 'rótulo' : 'rótulos'}`;
 
 const ROW_BUTTON =
   'flex h-full w-full items-center gap-3 border-b border-border/70 px-2 text-left outline-none hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset';
@@ -110,14 +109,14 @@ function RowBody({
       <Thumb thumb={n.thumb} thumbs={thumbs} blur={hideAnswers && n.kind === 'occlusion'} />
       <span className="min-w-0 flex-1">
         <span className="line-clamp-2 text-sm">
-          {n.kind === 'photo' ? <Said>Foto: </Said> : null}
-          {n.front || n.topic || 'Imagen'}
+          {n.kind === 'photo' ? <Said>{cardsStrings.list.photoOf}</Said> : null}
+          {n.front || n.topic || cardsStrings.list.image}
         </span>
         <span className="mt-0.5 block text-xs text-muted">
           {n.kind === 'occlusion' ? (
             <>
               <Said> — </Said>
-              {labelsText(n.labels)}
+              {cardsStrings.list.labels(n.labels)}
             </>
           ) : hideAnswers || !n.back ? (
             <Hidden />

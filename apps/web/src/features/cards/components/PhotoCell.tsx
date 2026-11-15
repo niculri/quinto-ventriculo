@@ -4,6 +4,7 @@ import { Said } from './Said';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';
 import { Hidden } from './NoteRow';
+import { cardsStrings } from '../strings';
 
 export function PhotoCell({
   m,
@@ -35,7 +36,7 @@ export function PhotoCell({
         </span>
       </span>
       <span className="mt-1 block h-5 truncate text-xs">
-        <Said>Foto</Said>
+        <Said>{cardsStrings.list.photo}</Said>
         {hideAnswers || !n.back ? (
           <Hidden />
         ) : (

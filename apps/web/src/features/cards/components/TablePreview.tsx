@@ -5,6 +5,7 @@ import { card as cardStyle } from '../../../shared/ui/styles';
 import type { BrowseCard, BrowseNoteRow } from '../model/browseCards';
 import type { ViewPrefs } from '../hooks/useViewPrefs';
 import { CardPreview } from './CardPreview';
+import { cardsStrings } from '../strings';
 
 export function TablePreview({
   current,
@@ -18,7 +19,7 @@ export function TablePreview({
   onEnlarge: () => void;
 }) {
   return (
-    <aside aria-label="Vista previa" className={`${cardStyle} mt-4 min-w-0 p-4`}>
+    <aside aria-label={cardsStrings.preview.label} className={`${cardStyle} mt-4 min-w-0 p-4`}>
       {current ? (
         <CardPreview
           onEnlarge={onEnlarge}
@@ -27,7 +28,7 @@ export function TablePreview({
           timing={timing}
         />
       ) : (
-        <p className="text-sm text-muted">Elige una tarjeta para verla.</p>
+        <p className="text-sm text-muted">{cardsStrings.preview.choose}</p>
       )}
     </aside>
   );

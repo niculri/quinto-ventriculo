@@ -1,7 +1,7 @@
 // The cards page's scope (a course or an assessment) and its units, the weeks and lectures it can be narrowed to.
 
 import type { AssessmentWithNotes, Catalog } from '@qv/schema';
-import type { SelectOption } from '../../../shared/ui/Select';
+import { catalogStrings } from '../strings';
 import { descendants, hasPage } from './tree';
 import type { CourseDeckNode, DeckNode } from './tree';
 
@@ -36,7 +36,7 @@ export function lectureOf(node: DeckNode | undefined): DeckNode | undefined {
 }
 
 export function lectureTitle(scope: DeckNode, lecture: DeckNode | undefined): string {
-  if (!lecture) return 'Otras tarjetas';
+  if (!lecture) return catalogStrings.otherCards;
   const parts: string[] = [];
   for (let n: DeckNode | null = lecture; n && n !== scope && n.depth > scope.depth; n = n.parent) {
     parts.unshift(n.label);
@@ -47,9 +47,18 @@ export function lectureTitle(scope: DeckNode, lecture: DeckNode | undefined): st
 const isExtras = (n: DeckNode) => n.label === 'Extras';
 const withCards = (n: DeckNode) => n.cardCount > 0 && !isExtras(n);
 
-export function unitOptions(scope: DeckNode, current = ''): SelectOption<string>[] {
-  const out: SelectOption<string>[] = [
-    { value: '', label: scope.depth === 2 ? 'Todo el ramo' : 'Todo el certamen' },
+/** A unit of the cards page's list of weeks and lectures. */
+export interface UnitOption {
+  value: string;
+  label: string;
+}
+
+export function unitOptions(scope: DeckNode, current = ''): UnitOption[] {
+  const out: UnitOption[] = [
+    {
+      value: '',
+      label: scope.depth === 2 ? catalogStrings.wholeCourse : catalogStrings.wholeAssessment,
+    },
   ];
   for (const child of scope.children.filter(withCards)) {
     out.push({ value: child.slug, label: child.label });

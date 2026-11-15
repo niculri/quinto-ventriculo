@@ -7,6 +7,7 @@ import type { CardSummary } from '@qv/schema';
 import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
 import type { BrowseCard } from '../model/browseCards';
+import { cardsStrings } from '../strings';
 
 const REVIEW_FLAG = 1;
 
@@ -31,7 +32,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch {
       undo();
-      setMessage('No se pudo guardar. Intenta de nuevo.');
+      setMessage(cardsStrings.viewer.saveFailed);
     } finally {
       setBusy(false);
     }
@@ -42,7 +43,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     setFlag(next);
     void run(
       () => study.setFlag(ref, next),
-      next ? 'Marcada para revisar' : 'Sin marca',
+      next ? cardsStrings.viewer.markedForReview : cardsStrings.viewer.noMark,
       () => setFlag(before),
     );
   };
@@ -51,7 +52,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     setHidden(!hidden);
     void run(
       () => (before ? study.unsuspend([ref]) : study.suspend([ref], false)),
-      before ? 'Se mostrará de nuevo' : 'No se mostrará más',
+      before ? cardsStrings.viewer.shownAgain : cardsStrings.viewer.hidden,
       () => setHidden(before),
     );
   };

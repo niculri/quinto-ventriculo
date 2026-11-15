@@ -7,6 +7,7 @@ import { StatusDot } from './CardStatus';
 import { Choice, Section, count } from './FilterParts';
 import { KIND_FILTERS, ORIGIN_FILTERS, STATE_FILTERS } from '../model/filters';
 import type { Facets, KindFilter, StateFilter } from '../model/filters';
+import { cardsStrings } from '../strings';
 
 export function CardFilters({
   facets,
@@ -36,10 +37,14 @@ export function CardFilters({
 }) {
   return (
     <div className="space-y-5 text-sm">
-      <Section title="Mostrar">
+      <Section title={cardsStrings.filters.show}>
         <label className="flex items-center gap-3 py-1">
-          <span className="flex-1">Ocultar respuestas</span>
-          <Switch label="Ocultar respuestas" checked={hideAnswers} onChange={onHideAnswers} />
+          <span className="flex-1">{cardsStrings.filters.hideAnswers}</span>
+          <Switch
+            label={cardsStrings.filters.hideAnswers}
+            checked={hideAnswers}
+            onChange={onHideAnswers}
+          />
         </label>
       </Section>
       <StateFilters
@@ -70,8 +75,8 @@ function StateFilters({
   idPrefix: string;
 }) {
   return (
-    <Section title="Estado">
-      <div role="radiogroup" aria-label="Estado" className="space-y-0.5">
+    <Section title={cardsStrings.filters.state}>
+      <div role="radiogroup" aria-label={cardsStrings.filters.state} className="space-y-0.5">
         {STATE_FILTERS.map((s) => {
           const n = facets?.state[s.value];
           const disabled = !!facets && n === 0 && s.value !== state;
@@ -83,7 +88,7 @@ function StateFilters({
               disabled={disabled}
               onChange={() => onState(s.value)}
             >
-              {s.value === 'failed' && failedThatDay ? 'Falladas ese día' : s.label}
+              {s.value === 'failed' && failedThatDay ? cardsStrings.filters.failedThatDay : s.label}
               {count(facets, n)}
             </Choice>
           );
@@ -103,7 +108,7 @@ function OriginFilters({
   onOrigin: (o: CardOrigin, on: boolean) => void;
 }) {
   return (
-    <Section title="Origen">
+    <Section title={cardsStrings.filters.origin}>
       <ul className="space-y-0.5">
         {ORIGIN_FILTERS.map((o) => {
           const n = facets?.origin[o.value];
@@ -143,8 +148,8 @@ function KindFilters({
   idPrefix: string;
 }) {
   return (
-    <Section title="Tipo">
-      <div role="radiogroup" aria-label="Tipo" className="space-y-0.5">
+    <Section title={cardsStrings.filters.kind}>
+      <div role="radiogroup" aria-label={cardsStrings.filters.kind} className="space-y-0.5">
         {KIND_FILTERS.map((k) => {
           const n = facets?.kind[k.value];
           const disabled = !!facets && n === 0 && k.value !== kind;
@@ -168,21 +173,14 @@ function KindFilters({
 
 function Legend() {
   return (
-    <Section title="Cada punto es una tarjeta">
+    <Section title={cardsStrings.filters.legend}>
       <ul className="space-y-1.5 text-xs text-muted">
-        {(
-          [
-            ['new', 'Sin ver'],
-            ['seen', 'Vista'],
-            ['hard', 'Me cuesta'],
-            ['hidden', 'Oculta'],
-          ] as const
-        ).map(([s, label]) => (
+        {(['new', 'seen', 'hard', 'hidden'] as const).map((s) => (
           <li key={s} className="flex items-center gap-2">
             <span className="flex w-3 justify-center">
               <StatusDot status={s} />
             </span>
-            {label}
+            {cardsStrings.filters.dots[s]}
           </li>
         ))}
       </ul>

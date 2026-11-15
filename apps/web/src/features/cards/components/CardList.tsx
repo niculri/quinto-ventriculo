@@ -12,6 +12,7 @@ import { useListViewport } from '../hooks/useListViewport';
 import { useReveal } from '../hooks/useReveal';
 import { NoteRow } from './NoteRow';
 import { PhotoCell } from './PhotoCell';
+import { cardsStrings } from '../strings';
 
 const OVERSCAN = 600;
 
@@ -47,7 +48,7 @@ export function CardList({
   return (
     <section
       ref={box}
-      aria-label="Tarjetas"
+      aria-label={cardsStrings.list.label}
       onKeyDown={onKeyDown}
       className="relative mt-2"
       style={{ height: total }}
@@ -115,7 +116,9 @@ function Item({
           <span className="min-w-0 truncate font-serif text-lg font-semibold">
             {lectureTitle(it.lectureId)}
           </span>
-          <span className="flex-none text-sm text-muted tabular-nums">{notesText(it.notes)}</span>
+          <span className="flex-none text-sm text-muted tabular-nums">
+            {cardsStrings.notes(it.notes)}
+          </span>
         </h2>
       );
     case 'topic':
@@ -158,6 +161,3 @@ function Item({
       );
   }
 }
-
-export const notesText = (n: number) =>
-  `${n.toLocaleString('es-CL')} ${n === 1 ? 'nota' : 'notas'}`;

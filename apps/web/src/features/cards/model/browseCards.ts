@@ -7,6 +7,7 @@ import type { BrowseNote, CardKind, NoteTypeSummary } from '@qv/schema';
 import type { StoredCard, StudyPreferences } from '@qv/schema/user';
 import { cardKey, isHidden, toRecord } from '@qv/study';
 import type { DeckNode } from '../../catalog/model/tree';
+import { cardsStrings } from '../strings';
 
 export interface BrowseCard extends SearchCard {
   key: string;
@@ -133,25 +134,54 @@ export type ColumnKey =
   | 'tags';
 
 export const COLUMNS: { key: ColumnKey; label: string; width: string; numeric?: boolean }[] = [
-  { key: 'sortField', label: 'Campo de orden', width: 'minmax(12rem, 3fr)' },
-  { key: 'code', label: 'Código', width: 'minmax(8rem, 1.2fr)' },
-  { key: 'deck', label: 'Mazo', width: 'minmax(8rem, 1.4fr)' },
-  { key: 'card', label: 'Tarjeta', width: 'minmax(6rem, 0.9fr)' },
-  { key: 'due', label: 'Vencimiento', width: 'minmax(7rem, 1fr)' },
-  { key: 'interval', label: 'Intervalo', width: 'minmax(5rem, 0.8fr)', numeric: true },
-  { key: 'difficulty', label: 'Dificultad', width: 'minmax(5rem, 0.7fr)', numeric: true },
-  { key: 'stability', label: 'Estabilidad', width: 'minmax(5rem, 0.8fr)', numeric: true },
+  {
+    key: 'sortField',
+    label: cardsStrings.table.columnNames.sortField,
+    width: 'minmax(12rem, 3fr)',
+  },
+  { key: 'code', label: cardsStrings.table.columnNames.code, width: 'minmax(8rem, 1.2fr)' },
+  { key: 'deck', label: cardsStrings.table.columnNames.deck, width: 'minmax(8rem, 1.4fr)' },
+  { key: 'card', label: cardsStrings.table.columnNames.card, width: 'minmax(6rem, 0.9fr)' },
+  { key: 'due', label: cardsStrings.table.columnNames.due, width: 'minmax(7rem, 1fr)' },
+  {
+    key: 'interval',
+    label: cardsStrings.table.columnNames.interval,
+    width: 'minmax(5rem, 0.8fr)',
+    numeric: true,
+  },
+  {
+    key: 'difficulty',
+    label: cardsStrings.table.columnNames.difficulty,
+    width: 'minmax(5rem, 0.7fr)',
+    numeric: true,
+  },
+  {
+    key: 'stability',
+    label: cardsStrings.table.columnNames.stability,
+    width: 'minmax(5rem, 0.8fr)',
+    numeric: true,
+  },
   {
     key: 'retrievability',
-    label: 'Recuperabilidad',
+    label: cardsStrings.table.columnNames.retrievability,
     width: 'minmax(6rem, 0.8fr)',
     numeric: true,
   },
-  { key: 'reps', label: 'Repasos', width: 'minmax(4rem, 0.6fr)', numeric: true },
-  { key: 'lapses', label: 'Olvidos', width: 'minmax(4rem, 0.6fr)', numeric: true },
-  { key: 'created', label: 'Creada', width: 'minmax(6rem, 0.9fr)' },
-  { key: 'noteType', label: 'Tipo de nota', width: 'minmax(7rem, 1fr)' },
-  { key: 'tags', label: 'Etiquetas', width: 'minmax(7rem, 1.2fr)' },
+  {
+    key: 'reps',
+    label: cardsStrings.table.columnNames.reps,
+    width: 'minmax(4rem, 0.6fr)',
+    numeric: true,
+  },
+  {
+    key: 'lapses',
+    label: cardsStrings.table.columnNames.lapses,
+    width: 'minmax(4rem, 0.6fr)',
+    numeric: true,
+  },
+  { key: 'created', label: cardsStrings.table.columnNames.created, width: 'minmax(6rem, 0.9fr)' },
+  { key: 'noteType', label: cardsStrings.table.columnNames.noteType, width: 'minmax(7rem, 1fr)' },
+  { key: 'tags', label: cardsStrings.table.columnNames.tags, width: 'minmax(7rem, 1.2fr)' },
 ];
 
 export const DEFAULT_COLUMNS: ColumnKey[] = ['sortField', 'code', 'card', 'due', 'deck'];
@@ -177,14 +207,14 @@ const codeText = (c: BrowseCard) =>
   c.note.code ? `${c.note.code}${c.note.version ? `.${c.note.version}` : ''}` : '';
 
 function dueText(c: BrowseCard): string {
-  if (c.dueAt === null) return `Nueva #${c.position}`;
+  if (c.dueAt === null) return cardsStrings.table.newCard(c.position);
   const at = new Date(c.dueAt * 1000);
   return c.intraday ? `${SHORT_DATE.format(at)}, ${TIME.format(at)}` : SHORT_DATE.format(at);
 }
 
 function intervalText(c: BrowseCard): string {
-  if (c.type === 'new') return '(nueva)';
-  if (c.type === 'learn') return '(aprendiendo)';
+  if (c.type === 'new') return cardsStrings.table.newInterval;
+  if (c.type === 'learn') return cardsStrings.table.learning;
   return timeSpan(c.interval * 86_400);
 }
 
@@ -298,7 +328,7 @@ export function notesOf(cards: BrowseCard[]): BrowseNoteRow[] {
       ...first,
       key: `note:${first.noteGuid}`,
       cards: list,
-      template: `${list.length} ${list.length === 1 ? 'tarjeta' : 'tarjetas'}`,
+      template: cardsStrings.table.cardsOfNote(list.length),
       reps: list.reduce((t, c) => t + c.reps, 0),
       lapses: list.reduce((t, c) => t + c.lapses, 0),
       interval: Math.round(avg(list.map((c) => (c.type === 'new' ? null : c.interval))) ?? 0),

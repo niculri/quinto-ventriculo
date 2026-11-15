@@ -1,15 +1,17 @@
 // One-click filters over the browser's search (a card state, «Marcadas»), written into it in Anki's syntax.
 
+import { Fragment } from 'react';
 import { Flag } from 'lucide-react';
+import { cardsStrings } from '../strings';
 
 const STATES = [
   // Not «Para hoy»: `is:due` has no new cards, and on the deck pages «62 para hoy» counts them.
-  { label: 'A repasar hoy', term: 'is:due' },
-  { label: 'Nuevas', term: 'is:new' },
-  { label: 'Aprendiendo', term: 'is:learn' },
-  { label: 'En repaso', term: 'is:review' },
-  { label: 'Saltadas', term: 'is:buried' },
-  { label: 'Ocultas', term: 'is:suspended' },
+  { label: cardsStrings.quick.states.due, term: 'is:due' },
+  { label: cardsStrings.quick.states.new, term: 'is:new' },
+  { label: cardsStrings.quick.states.learn, term: 'is:learn' },
+  { label: cardsStrings.quick.states.review, term: 'is:review' },
+  { label: cardsStrings.quick.states.buried, term: 'is:buried' },
+  { label: cardsStrings.quick.states.suspended, term: 'is:suspended' },
 ] as const;
 
 const MARKED = '-flag:0';
@@ -42,7 +44,7 @@ export function QuickFilters({
   const marked = has(query, MARKED);
   return (
     <div className="mt-3">
-      <div role="group" aria-label="Filtros rápidos" className="flex flex-wrap gap-1.5">
+      <div role="group" aria-label={cardsStrings.quick.label} className="flex flex-wrap gap-1.5">
         {STATES.map((s) => (
           <button
             key={s.term}
@@ -60,17 +62,19 @@ export function QuickFilters({
           onClick={() => onSearch(marked ? without(query, MARKED) : `${query} ${MARKED}`)}
           className={chip(marked)}
         >
-          <Flag className="size-3" aria-hidden="true" /> Marcadas
+          <Flag className="size-3" aria-hidden="true" /> {cardsStrings.quick.marked}
         </button>
       </div>
       <details className="mt-2 text-xs text-muted">
-        <summary className="cursor-pointer hover:text-ink">Búsqueda avanzada</summary>
+        <summary className="cursor-pointer hover:text-ink">{cardsStrings.quick.advanced}</summary>
         <p className="mt-1.5 max-w-2xl leading-relaxed">
-          El buscador entiende la sintaxis de Anki. Por ejemplo: <code>vértebra atlas</code> (las
-          dos palabras), <code>&quot;arco del atlas&quot;</code> (la frase), <code>-axis</code> (sin
-          esa palabra), <code>tag:profe</code>, <code>deck:&quot;…&quot;</code>, <code>is:due</code>
-          , <code>rated:7:1</code> (las que fallaste en 7 días), <code>prop:lapses&gt;3</code> y{' '}
-          <code>A OR B</code>.
+          {cardsStrings.quick.help}
+          {cardsStrings.quick.examples.map(([code, after]) => (
+            <Fragment key={code}>
+              <code>{code}</code>
+              {after}
+            </Fragment>
+          ))}
         </p>
       </details>
     </div>

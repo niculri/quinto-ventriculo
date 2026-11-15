@@ -5,8 +5,9 @@ import { timeSpan } from '@qv/srs';
 import type { CardLogEntry } from '../../progress/api/repository';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { cardsStrings } from '../strings';
 
-const RATING = ['Otra vez', 'Difícil', 'Bien', 'Fácil'];
+const RATING = cardsStrings.info.ratings;
 const RATING_COLORS = [
   'text-[#c62828] dark:text-[#ff8a80]',
   'text-muted',
@@ -23,15 +24,15 @@ const DATE_TIME = new Intl.DateTimeFormat('es-CL', {
 
 /** Anki's revlog type of an answer: by the card's phase when it was answered. */
 function kindOf(e: CardLogEntry): string {
-  if (e.action === 'forget') return 'Manual';
+  if (e.action === 'forget') return cardsStrings.info.kinds.manual;
   switch (e.phaseBefore) {
     case 'new':
     case 'learning':
-      return 'Aprendizaje';
+      return cardsStrings.info.kinds.learning;
     case 'review':
-      return 'Repaso';
+      return cardsStrings.info.kinds.review;
     case 'relearning':
-      return 'Reaprendizaje';
+      return cardsStrings.info.kinds.relearning;
   }
 }
 
@@ -44,24 +45,24 @@ export function CardHistory({
 }) {
   return (
     <>
-      <h4 className="mt-4 mb-1 font-semibold">Historial</h4>
+      <h4 className="mt-4 mb-1 font-semibold">{cardsStrings.info.history}</h4>
       {log.isError ? (
         <ErrorWithRetry error={log.error} onRetry={() => void log.refetch()} />
       ) : !log.data ? (
-        <Loading text="Cargando el historial…" />
+        <Loading text={cardsStrings.info.loadingHistory} />
       ) : answers.length === 0 ? (
-        <p className="text-muted">Todavía no la has estudiado.</p>
+        <p className="text-muted">{cardsStrings.info.notStudied}</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-xs" aria-label="Historial de repasos">
+          <table className="w-full text-xs" aria-label={cardsStrings.info.historyTable}>
             <thead>
               <tr className="text-left text-muted">
-                <th className="py-1 pr-2 font-medium">Fecha</th>
-                <th className="py-1 pr-2 font-medium">Tipo</th>
-                <th className="py-1 pr-2 font-medium">Botón</th>
-                <th className="py-1 pr-2 font-medium">Intervalo</th>
-                <th className="py-1 pr-2 font-medium">Estabilidad</th>
-                <th className="py-1 font-medium">Tiempo</th>
+                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.date}</th>
+                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.kind}</th>
+                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.button}</th>
+                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.interval}</th>
+                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.stability}</th>
+                <th className="py-1 font-medium">{cardsStrings.info.columns.time}</th>
               </tr>
             </thead>
             <tbody>
@@ -74,18 +75,18 @@ export function CardHistory({
                   <td
                     className={`py-1 pr-2 font-medium ${e.rating ? RATING_COLORS[e.rating - 1] : ''}`}
                   >
-                    {e.rating ? RATING[e.rating - 1] : '—'}
+                    {e.rating ? RATING[e.rating - 1] : cardsStrings.info.none}
                   </td>
                   <td className="py-1 pr-2">
                     {e.interval === null
-                      ? '—'
+                      ? cardsStrings.info.none
                       : timeSpan(e.interval < 0 ? -e.interval : e.interval * 86_400)}
                   </td>
                   <td className="py-1 pr-2">
-                    {e.stability === null ? '—' : timeSpan(e.stability * 86_400)}
+                    {e.stability === null ? cardsStrings.info.none : timeSpan(e.stability * 86_400)}
                   </td>
                   <td className="py-1">
-                    {e.durationMs === null ? '—' : timeSpan(e.durationMs / 1000)}
+                    {e.durationMs === null ? cardsStrings.info.none : timeSpan(e.durationMs / 1000)}
                   </td>
                 </tr>
               ))}

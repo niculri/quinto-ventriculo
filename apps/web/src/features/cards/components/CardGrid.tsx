@@ -11,6 +11,7 @@ import { useGridScroll } from '../hooks/useGridScroll';
 import type { SelectKeys } from '../hooks/useSelection';
 import type { ViewPrefs } from '../hooks/useViewPrefs';
 import { GridHeader, GridRow } from './GridRow';
+import { cardsStrings } from '../strings';
 
 export function CardGrid({
   list,
@@ -69,7 +70,7 @@ export function CardGrid({
       <div style={{ minWidth: `${defs.length * 7}rem` }}>
         <GridHeader defs={defs} template={template} sort={sort} onSort={onSort} />
         {list.length === 0 ? (
-          <p className="p-6 text-center text-muted">Ninguna tarjeta coincide con la búsqueda.</p>
+          <p className="p-6 text-center text-muted">{cardsStrings.table.noMatch}</p>
         ) : (
           <div style={{ height: list.length * ROW, position: 'relative' }}>
             {list.slice(first, last).map((c, i) => (

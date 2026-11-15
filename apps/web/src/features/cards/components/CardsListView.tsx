@@ -13,10 +13,9 @@ import type { Matched } from '../model/filters';
 import { queryOf } from '../model/urlState';
 import { failedOf } from '../model/dayCards';
 import type { CardsBodyState } from '../hooks/useCardsBody';
-import { CardList, notesText } from './CardList';
+import { CardList } from './CardList';
 import { ListSkeleton } from './ListSkeleton';
-
-const cardsText = (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'tarjeta' : 'tarjetas'}`;
+import { cardsStrings } from '../strings';
 
 export function CardsListView({
   b,
@@ -41,7 +40,10 @@ export function CardsListView({
           {shown === null ? (
             <Skeleton className="h-4 w-40" />
           ) : (
-            `${notesText(shown.matched.length)} · ${cardsText(cardCount(shown.matched))}`
+            cardsStrings.page.found(
+              cardsStrings.notes(shown.matched.length),
+              cardsStrings.cards(cardCount(shown.matched)),
+            )
           )}
         </div>
         {b.practice.length && !waiting ? (
@@ -49,28 +51,26 @@ export function CardsListView({
             to={paths.cardsPractice(scope.node.ref, queryOf(b.params))}
             className={`${button.base} ${button.primary} h-10 flex-none py-0`}
           >
-            <Dumbbell className="size-4" aria-hidden="true" /> Practicar estas
+            <Dumbbell className="size-4" aria-hidden="true" /> {cardsStrings.page.practice}
           </Link>
         ) : (
           <span
             aria-disabled="true"
             className={`${button.base} ${button.primary} h-10 flex-none py-0 opacity-50`}
           >
-            <Dumbbell className="size-4" aria-hidden="true" /> Practicar estas
+            <Dumbbell className="size-4" aria-hidden="true" /> {cardsStrings.page.practice}
           </span>
         )}
       </div>
       {text.error ? (
         <div className="mt-2">
-          <Notice title="No se entiende la búsqueda">{text.error}</Notice>
+          <Notice title={cardsStrings.badSearch}>{text.error}</Notice>
         </div>
       ) : null}
       {shown === null ? (
         <ListSkeleton />
       ) : shown.matched.length === 0 ? (
-        <p className="mt-8 text-center text-sm text-muted">
-          Ninguna tarjeta coincide con estos filtros.
-        </p>
+        <p className="mt-8 text-center text-sm text-muted">{cardsStrings.noMatch}</p>
       ) : (
         <CardList
           lectures={b.lectures}

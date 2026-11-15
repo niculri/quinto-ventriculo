@@ -5,6 +5,7 @@ import { button } from '../../../shared/ui/styles';
 import { COLUMNS } from '../model/browseCards';
 import type { ViewPrefs } from '../hooks/useViewPrefs';
 import { MENU_ITEM } from './menuItem';
+import { cardsStrings } from '../strings';
 
 export function ColumnsMenu({
   view,
@@ -17,7 +18,7 @@ export function ColumnsMenu({
     <Menu.Root modal={false}>
       <Menu.Trigger className={`${button.base} ${button.secondary} px-3 py-1.5`}>
         <Columns3 className="size-4" aria-hidden="true" />
-        <span className="max-sm:sr-only">Columnas</span>
+        <span className="max-sm:sr-only">{cardsStrings.table.columns}</span>
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Content

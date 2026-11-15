@@ -4,32 +4,33 @@
 import type { CardOrigin } from '@qv/schema';
 import { ORIGIN_TAGS } from '@qv/schema';
 import type { ExplorerCard, ExplorerNote } from './explorer';
+import { cardsStrings } from '../strings';
 
 export type StateFilter = 'all' | 'new' | 'seen' | 'hard' | 'failed' | 'marked' | 'hidden';
 
 export type KindFilter = 'all' | 'text' | 'image';
 
 export const STATE_FILTERS: { value: StateFilter; label: string }[] = [
-  { value: 'all', label: 'Todas' },
-  { value: 'new', label: 'Sin ver' },
-  { value: 'seen', label: 'Vistas' },
-  { value: 'hard', label: 'Me cuestan' },
-  { value: 'failed', label: 'Falladas hace poco' },
-  { value: 'marked', label: 'Marcadas' },
-  { value: 'hidden', label: 'Ocultas' },
+  { value: 'all', label: cardsStrings.filters.states.all },
+  { value: 'new', label: cardsStrings.filters.states.new },
+  { value: 'seen', label: cardsStrings.filters.states.seen },
+  { value: 'hard', label: cardsStrings.filters.states.hard },
+  { value: 'failed', label: cardsStrings.filters.states.failed },
+  { value: 'marked', label: cardsStrings.filters.states.marked },
+  { value: 'hidden', label: cardsStrings.filters.states.hidden },
 ];
 
 export const ORIGIN_FILTERS: { value: CardOrigin; label: string }[] = [
-  { value: 'profe', label: 'Lo recalcó el profe' },
-  { value: 'control', label: 'Salió en un control' },
-  { value: 'clinica', label: 'Clínica' },
-  { value: 'complemento', label: 'Del libro' },
+  { value: 'profe', label: cardsStrings.filters.origins.profe },
+  { value: 'control', label: cardsStrings.filters.origins.control },
+  { value: 'clinica', label: cardsStrings.filters.origins.clinica },
+  { value: 'complemento', label: cardsStrings.filters.origins.complemento },
 ];
 
 export const KIND_FILTERS: { value: KindFilter; label: string }[] = [
-  { value: 'all', label: 'Todas' },
-  { value: 'text', label: 'Texto' },
-  { value: 'image', label: 'Imagen' },
+  { value: 'all', label: cardsStrings.filters.kinds.all },
+  { value: 'text', label: cardsStrings.filters.kinds.text },
+  { value: 'image', label: cardsStrings.filters.kinds.image },
 ];
 
 export const FAILED_DAYS = 7;

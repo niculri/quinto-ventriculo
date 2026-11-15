@@ -3,12 +3,13 @@
 
 import { Notice } from '../../../shared/ui/Notice';
 import { button } from '../../../shared/ui/styles';
+import { cardsStrings } from '../strings';
 
 export function CardsMissing() {
   return (
     <div className="mt-6">
-      <Notice title="Todavía no se pueden explorar estas tarjetas" tone="info">
-        Sus tarjetas se estudian desde la página del mazo.
+      <Notice title={cardsStrings.page.missingTitle} tone="info">
+        {cardsStrings.page.missingBody}
       </Notice>
     </div>
   );
@@ -17,14 +18,14 @@ export function CardsMissing() {
 export function CardsChanged() {
   return (
     <div className="mt-6">
-      <Notice title="Las tarjetas cambiaron" tone="info">
-        <p>Las tarjetas se actualizaron mientras tenías abierta esta página.</p>
+      <Notice title={cardsStrings.page.changedTitle} tone="info">
+        <p>{cardsStrings.page.changedBody}</p>
         <button
           type="button"
           onClick={() => window.location.reload()}
           className={`${button.base} ${button.secondary} mt-3`}
         >
-          Recargar
+          {cardsStrings.page.reload}
         </button>
       </Notice>
     </div>

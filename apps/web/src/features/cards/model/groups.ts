@@ -1,6 +1,7 @@
 // The cards page's list in groups: by lecture, then by topic, with a lecture's images together.
 
 import type { Matched } from './filters';
+import { cardsStrings } from '../strings';
 
 interface Group {
   key: string;
@@ -17,7 +18,7 @@ export interface Lecture {
 }
 
 /** The images of a lecture go in one group: their «Encabezado» is a title per figure, not a topic. */
-const IMAGES_TITLE = 'Imágenes';
+const IMAGES_TITLE = cardsStrings.list.images;
 
 const GRID_SHARE = 0.8;
 

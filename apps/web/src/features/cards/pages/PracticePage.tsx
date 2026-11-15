@@ -28,6 +28,7 @@ import { useFailed } from '../hooks/useFailed';
 import { useTextMatch } from '../hooks/useTextMatch';
 import { cardsScope, unitDeckIds, unitNode } from '../../catalog/model/scope';
 import { useTitle } from '../../../shared/hooks/useTitle';
+import { cardsStrings } from '../strings';
 
 /** The filters are in the URL, so reloading starts the same round again. */
 export function PracticePage({ node }: { node: CourseDeckNode }) {
@@ -67,12 +68,12 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
   if (first === null && queue) setFirst(queue);
 
   const back = paths.cards(node.ref, queryOf(params));
-  useTitle('Practicar');
+  useTitle(cardsStrings.practice.title);
 
   let body;
   if (cards.error && !data) body = <ErrorWithRetry error={cards.error} onRetry={cards.retry} />;
   else if (cards.missing || cards.changed) body = <Empty back={back} />;
-  else if (!first) body = <Loading text="Preparando las tarjetas…" />;
+  else if (!first) body = <Loading text={cardsStrings.practice.preparing} />;
   else if (!first.length) body = <Empty back={back} />;
   else body = <Practice cards={first} back={back} />;
   return (
@@ -82,8 +83,14 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
       ) : (
         <>
           <div className={`${answerBar} min-h-11 pb-2`}>
-            <BackButton to={back} label="Tarjetas" className="justify-self-start" />
-            <p className="text-center text-sm font-medium sm:text-base">Practicar</p>
+            <BackButton
+              to={back}
+              label={cardsStrings.practice.back}
+              className="justify-self-start"
+            />
+            <p className="text-center text-sm font-medium sm:text-base">
+              {cardsStrings.practice.title}
+            </p>
             <span />
           </div>
           {body}
@@ -96,10 +103,10 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
 function Empty({ back }: { back: string }) {
   return (
     <div className="mx-auto w-full max-w-xl flex-1 px-2 py-6">
-      <h1 className="font-serif text-2xl font-semibold">Nada que practicar</h1>
-      <p className="mt-2 text-muted">Ninguna tarjeta coincide con estos filtros.</p>
+      <h1 className="font-serif text-2xl font-semibold">{cardsStrings.practice.nothing}</h1>
+      <p className="mt-2 text-muted">{cardsStrings.noMatch}</p>
       <Link to={back} className={`${button.base} ${button.primary} mt-6`}>
-        Volver a las tarjetas
+        {cardsStrings.practice.backToCards}
       </Link>
     </div>
   );
@@ -116,17 +123,17 @@ function Practice({ cards, back }: { cards: CardRef[]; back: string }) {
   return (
     <>
       <div className={`${answerBar} min-h-11 pb-2`}>
-        <BackButton to={back} label="Tarjetas" className="justify-self-start" />
+        <BackButton to={back} label={cardsStrings.practice.back} className="justify-self-start" />
         <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
           {current ? (
             <>
-              <span className="sm:hidden">Quedan {round.queue.length.toLocaleString('es-CL')}</span>
+              <span className="sm:hidden">{cardsStrings.practice.left(round.queue.length)}</span>
               <span className="hidden sm:inline">
-                Practicar · quedan {round.queue.length.toLocaleString('es-CL')}
+                {cardsStrings.practice.leftLong(round.queue.length)}
               </span>
             </>
           ) : (
-            'Practicar'
+            cardsStrings.practice.title
           )}
         </p>
         <div className="flex min-w-0 items-center justify-end">
@@ -139,16 +146,16 @@ function Practice({ cards, back }: { cards: CardRef[]; back: string }) {
       </div>
       {current ? (
         <>
-          <p className="sr-only">Esta práctica no cambia las fechas de tus tarjetas.</p>
+          <p className="sr-only">{cardsStrings.practice.noDates}</p>
           <ReviewScreen round={round} current={current} onChange={setRound} onAnswer={add} />
         </>
       ) : (
         <RoundDone
           round={round}
           deckPath={back}
-          label="las tarjetas"
-          title="Terminaste la práctica"
-          againLabel="Practicar de nuevo"
+          label={cardsStrings.practice.doneLabel}
+          title={cardsStrings.practice.doneTitle}
+          againLabel={cardsStrings.practice.again}
           onAgain={() => setRound(startRound(cards))}
         />
       )}

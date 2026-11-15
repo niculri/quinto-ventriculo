@@ -11,6 +11,8 @@ import { MaterialLink, ReportEntry, useCardMaterial } from '../../study';
 import { useViewerActions } from '../hooks/useViewerActions';
 import { HistoryDialog } from './HistoryDialog';
 import type { StudyPreferences } from '../../progress/api/repository';
+import { sharedStrings } from '../../../shared/strings';
+import { cardsStrings } from '../strings';
 
 export function CardsViewer({
   cards,
@@ -74,29 +76,29 @@ function Actions({
         onClick={toggleFlag}
         disabled={busy}
         className={ACTION}
-        aria-label={flag ? 'Quitar la marca' : 'Marcar'}
+        aria-label={flag ? cardsStrings.unmark : cardsStrings.viewer.mark}
       >
         <Flag className={`size-4 ${flag ? 'fill-current text-brand' : ''}`} aria-hidden="true" />
-        <Label>{flag ? 'Quitar la marca' : 'Marcar'}</Label>
+        <Label>{flag ? cardsStrings.unmark : cardsStrings.viewer.mark}</Label>
       </button>
       <button
         type="button"
         onClick={toggleHidden}
         disabled={busy}
         className={ACTION}
-        aria-label={hidden ? 'Volver a mostrar' : 'No mostrar más'}
+        aria-label={hidden ? cardsStrings.hideAgain : cardsStrings.hideForever}
       >
         <EyeOff className="size-4" aria-hidden="true" />
-        <Label>{hidden ? 'Volver a mostrar' : 'No mostrar más'}</Label>
+        <Label>{hidden ? cardsStrings.hideAgain : cardsStrings.hideForever}</Label>
       </button>
       <button
         type="button"
         onClick={() => setReporting(true)}
         className={ACTION}
-        aria-label="Reportar error"
+        aria-label={cardsStrings.reportError}
       >
         <MessageSquareWarning className="size-4" aria-hidden="true" />
-        <Label>Reportar error</Label>
+        <Label>{cardsStrings.reportError}</Label>
       </button>
       <MaterialLinks material={material} />
       <button
@@ -104,10 +106,10 @@ function Actions({
         onClick={() => setHistory(true)}
         disabled={!info}
         className={ACTION}
-        aria-label="Historial"
+        aria-label={cardsStrings.viewer.history}
       >
         <History className="size-4" aria-hidden="true" />
-        <Label>Historial</Label>
+        <Label>{cardsStrings.viewer.history}</Label>
       </button>
       <span aria-live="polite" className="ml-auto flex-none pr-1 text-xs text-muted">
         {message ?? ''}
@@ -118,7 +120,7 @@ function Actions({
           onClose={() => setReporting(false)}
           onSent={() => {
             setReporting(false);
-            setMessage('Gracias: tu reporte le llegó al autor.');
+            setMessage(sharedStrings.reportThanks);
           }}
         />
       ) : null}
@@ -135,14 +137,14 @@ function MaterialLinks({ material }: { material: ReturnType<typeof useCardMateri
       {material ? (
         <span className={`${ACTION} hover:bg-transparent`}>
           <MaterialLink href={material.notePath}>
-            <BookOpen className="size-4" aria-hidden="true" /> Ver apunte
+            <BookOpen className="size-4" aria-hidden="true" /> {cardsStrings.viewer.note}
           </MaterialLink>
         </span>
       ) : null}
       {material?.quizPath ? (
         <span className={`${ACTION} hover:bg-transparent`}>
           <MaterialLink href={material.quizPath}>
-            <ListChecks className="size-4" aria-hidden="true" /> Preguntas
+            <ListChecks className="size-4" aria-hidden="true" /> {cardsStrings.viewer.questions}
           </MaterialLink>
         </span>
       ) : null}

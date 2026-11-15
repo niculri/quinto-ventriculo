@@ -11,6 +11,7 @@ import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import { cardsScope } from '../../catalog/model/scope';
 import { CardsBody } from '../components/CardsBody';
 import { CardsBodySkeleton } from '../components/CardsBodySkeleton';
+import { cardsStrings } from '../strings';
 
 export function CardsPage({ node }: { node: CourseDeckNode }) {
   const { catalog, tree } = useAnkiTree();
@@ -19,11 +20,13 @@ export function CardsPage({ node }: { node: CourseDeckNode }) {
     [catalog.data, node],
   );
   const title = node.depth === 2 && node.course ? node.course.name : node.label;
-  useTitle(`Tarjetas de ${title}`);
+  useTitle(cardsStrings.pageTitle(title));
   return (
     <div className={page}>
-      <Breadcrumbs items={deckCrumbs(node, { label: 'Tarjetas' })} />
-      <h1 className="font-serif text-3xl font-semibold tracking-tight">Tarjetas de {title}</h1>
+      <Breadcrumbs items={deckCrumbs(node, { label: cardsStrings.crumb })} />
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">
+        {cardsStrings.pageTitle(title)}
+      </h1>
       {scope && tree ? (
         <CardsBody key={node.id} scope={scope} tree={tree} />
       ) : (

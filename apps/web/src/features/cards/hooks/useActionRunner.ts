@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { actionLabel } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
+import { cardsStrings } from '../strings';
 
 export function useActionRunner(full: boolean) {
   const study = useStudyRepository();
@@ -22,7 +23,7 @@ export function useActionRunner(full: boolean) {
       await client.invalidateQueries({ queryKey: studyKeys.all });
       setToast(what);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'No se pudo hacer.');
+      setProblem(e instanceof Error ? e.message : cardsStrings.toasts.failed);
     } finally {
       setBusy(false);
     }
@@ -34,9 +35,13 @@ export function useActionRunner(full: boolean) {
       try {
         const done = await study.undo();
         await client.invalidateQueries({ queryKey: studyKeys.all });
-        setToast(done ? `Deshecho: ${actionLabel(done.action, full)}` : 'No hay nada que deshacer');
+        setToast(
+          done
+            ? cardsStrings.toasts.undone(actionLabel(done.action, full))
+            : cardsStrings.toasts.nothingToUndo,
+        );
       } catch (e) {
-        setProblem(e instanceof Error ? e.message : 'No se pudo deshacer.');
+        setProblem(e instanceof Error ? e.message : cardsStrings.toasts.undoFailed);
       } finally {
         setBusy(false);
       }

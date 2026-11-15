@@ -12,6 +12,7 @@ import { SidebarDialog } from './SidebarDialog';
 import { TableMain } from './TableMain';
 import { TablePreview } from './TablePreview';
 import { TableViewer } from './TableViewer';
+import { cardsStrings } from '../strings';
 
 export function CardTable({ sources }: { sources: TableSources }) {
   const t = useCardTable(sources);
@@ -31,7 +32,7 @@ export function CardTable({ sources }: { sources: TableSources }) {
   return (
     <div className="mt-4 min-w-0">
       <Rail>
-        <aside aria-label="Barra lateral" className="text-sm">
+        <aside aria-label={cardsStrings.table.sidebar} className="text-sm">
           {sidebar}
         </aside>
       </Rail>

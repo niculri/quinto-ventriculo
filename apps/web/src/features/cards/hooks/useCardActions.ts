@@ -5,6 +5,7 @@ import type { SchedTiming } from '@qv/srs';
 import type { CardRef } from '@qv/schema/user';
 import { useStudyRepository } from '../../progress/api/context';
 import type { BrowseCard } from '../model/browseCards';
+import { cardsStrings } from '../strings';
 
 const refs = (cs: BrowseCard[]): CardRef[] =>
   cs.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
@@ -28,11 +29,11 @@ export function useCardActions({
     const cs = chosen();
     if (!cs.length) return;
     if (focus?.queue === 'suspended') {
-      void act(full ? 'Se quitó la suspensión' : 'Se mostrarán de nuevo', () =>
+      void act(cardsStrings.toasts.unsuspended(full), () =>
         study.unsuspend(refs(cs.filter((c) => c.queue === 'suspended'))),
       );
     } else {
-      void act(full ? 'Suspendidas' : 'No se mostrarán más', () =>
+      void act(cardsStrings.toasts.suspended(full), () =>
         study.suspend(refs(cs.filter((c) => c.queue !== 'suspended')), false),
       );
     }
@@ -41,23 +42,21 @@ export function useCardActions({
     const cs = chosen();
     if (!cs.length) return;
     if (focus?.queue === 'buried') {
-      void act(full ? 'Desenterradas' : 'Vuelven hoy', () =>
+      void act(cardsStrings.toasts.unburied(full), () =>
         study.unbury(refs(cs.filter((c) => c.queue === 'buried'))),
       );
     } else {
       const until = new Date(timing.nextDayAt * 1000);
       const toBury = cs.filter((c) => c.queue !== 'buried' && c.queue !== 'suspended');
       if (!toBury.length) return;
-      void act(full ? 'Enterradas hasta mañana' : 'Saltadas por hoy', () =>
-        study.bury(refs(toBury), until, false),
-      );
+      void act(cardsStrings.toasts.buried(full), () => study.bury(refs(toBury), until, false));
     }
   };
   const flag = (n: number) => {
     const cs = chosen();
     if (!cs.length) return;
     const value = focus?.flag === n ? 0 : n;
-    void act(value ? 'Marcadas' : full ? 'Sin bandera' : 'Sin marca', () =>
+    void act(value ? cardsStrings.toasts.flagged : cardsStrings.toasts.unflagged(full), () =>
       study.setFlags(refs(cs), value),
     );
   };
@@ -65,7 +64,7 @@ export function useCardActions({
     const cs = chosen().filter((c) => c.row);
     setForgetting(false);
     if (!cs.length) return;
-    void act('Olvidadas: vuelven a ser nuevas', () => study.forget(refs(cs), reset));
+    void act(cardsStrings.toasts.forgotten, () => study.forget(refs(cs), reset));
   };
   return { forgetting, setForgetting, toggleSuspend, toggleBury, flag, forget };
 }

@@ -1,14 +1,11 @@
-// What the cards of a note are for the student: a dot per card (seen, new, hard, hidden), a flag if one is marked, and the same in words.
+// What the cards of a note are for the student: a dot per card (seen, new, hard, hidden), a flag if one is marked,
+// and the same in words.
 import { Flag } from 'lucide-react';
 import type { CardStatus, ExplorerCard } from '../model/explorer';
 import type { Matched } from '../model/filters';
+import { cardsStrings } from '../strings';
 
-const STATUS_WORDS: Record<CardStatus, [string, string]> = {
-  new: ['sin ver', 'sin ver'],
-  seen: ['vista', 'vistas'],
-  hard: ['me cuesta', 'me cuestan'],
-  hidden: ['oculta', 'ocultas'],
-};
+const STATUS_WORDS = cardsStrings.list.status;
 
 export function statusText(cards: readonly ExplorerCard[]): string {
   const by = new Map<CardStatus, number>();
@@ -17,8 +14,8 @@ export function statusText(cards: readonly ExplorerCard[]): string {
     .filter((s) => by.get(s))
     .map((s) => `${by.get(s)} ${STATUS_WORDS[s][by.get(s)! === 1 ? 0 : 1]}`);
   const marked = cards.filter((c) => c.marked).length;
-  if (marked) parts.push(`${marked} ${marked === 1 ? 'marcada' : 'marcadas'}`);
-  return `${cards.length} ${cards.length === 1 ? 'tarjeta' : 'tarjetas'}: ${parts.join(', ')}`;
+  if (marked) parts.push(cardsStrings.list.marked(marked));
+  return cardsStrings.list.statusLine(cards.length, parts);
 }
 
 export function StatusDot({ status }: { status: CardStatus }) {

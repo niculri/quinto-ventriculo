@@ -9,6 +9,7 @@ import type { NoteTypeSummary } from '@qv/schema';
 import type { DeckNode } from '../../catalog/model/tree';
 import { FLAGS } from '@qv/study';
 import type { Combine } from '../model/search';
+import { cardsStrings } from '../strings';
 
 type Click = (term: string) => (e: MouseEvent) => void;
 type Item = (label: ReactNode, term: string, key?: string) => ReactNode;
@@ -43,13 +44,19 @@ export function BrowseSidebar({
   );
 
   return (
-    <nav aria-label="Barra lateral del explorador" className="space-y-1 text-sm">
-      <Group icon={<Clock className="size-4" aria-hidden="true" />} title="Hoy">
-        {item('Estudiadas hoy', 'rated:1')}
-        {item('Olvidadas hoy', 'rated:1:1')}
-        {item(full ? 'Para hoy' : 'A repasar hoy', 'is:due')}
+    <nav aria-label={cardsStrings.table.sidebarNav} className="space-y-1 text-sm">
+      <Group
+        icon={<Clock className="size-4" aria-hidden="true" />}
+        title={cardsStrings.sidebar.today}
+      >
+        {item(cardsStrings.sidebar.studiedToday, 'rated:1')}
+        {item(cardsStrings.sidebar.failedToday, 'rated:1:1')}
+        {item(cardsStrings.sidebar.dueToday(full), 'is:due')}
       </Group>
-      <Group icon={<Layers className="size-4" aria-hidden="true" />} title="Mazos">
+      <Group
+        icon={<Layers className="size-4" aria-hidden="true" />}
+        title={cardsStrings.sidebar.decks}
+      >
         {courses.map((c) => (
           <DeckItems
             key={c.id}
@@ -60,8 +67,8 @@ export function BrowseSidebar({
         ))}
       </Group>
       {full ? <NoteTypesGroup noteTypes={noteTypes} click={click} item={item} /> : null}
-      <Group icon={<Tag className="size-4" aria-hidden="true" />} title="Etiquetas">
-        {item(<span className="text-muted">Sin etiquetas</span>, 'tag:none')}
+      <Group icon={<Tag className="size-4" aria-hidden="true" />} title={cardsStrings.sidebar.tags}>
+        {item(<span className="text-muted">{cardsStrings.sidebar.noTags}</span>, 'tag:none')}
         <TagItems tags={tags} click={click} />
       </Group>
       {full ? <StateAndFlagGroups item={item} /> : null}
@@ -79,7 +86,10 @@ function NoteTypesGroup({
   item: Item;
 }) {
   return (
-    <Group icon={<NotebookTabs className="size-4" aria-hidden="true" />} title="Tipos de nota">
+    <Group
+      icon={<NotebookTabs className="size-4" aria-hidden="true" />}
+      title={cardsStrings.sidebar.noteTypes}
+    >
       {noteTypes.map((t) => (
         <li key={t.id}>
           <button
@@ -110,15 +120,18 @@ function StateAndFlagGroups({ item }: { item: Item }) {
     <>
       <Group
         icon={<ListChecks className="size-4" aria-hidden="true" />}
-        title="Estado de la tarjeta"
+        title={cardsStrings.sidebar.states}
       >
-        {item('Nuevas', 'is:new')}
-        {item('Aprendiendo', 'is:learn')}
-        {item('A repasar', 'is:review')}
-        {item('Suspendidas', 'is:suspended')}
-        {item('Enterradas', 'is:buried')}
+        {item(cardsStrings.sidebar.newCards, 'is:new')}
+        {item(cardsStrings.sidebar.learning, 'is:learn')}
+        {item(cardsStrings.sidebar.review, 'is:review')}
+        {item(cardsStrings.sidebar.suspended, 'is:suspended')}
+        {item(cardsStrings.sidebar.buried, 'is:buried')}
       </Group>
-      <Group icon={<Flag className="size-4" aria-hidden="true" />} title="Banderas">
+      <Group
+        icon={<Flag className="size-4" aria-hidden="true" />}
+        title={cardsStrings.sidebar.flags}
+      >
         {FLAGS.map((f) =>
           item(
             <>
@@ -132,7 +145,7 @@ function StateAndFlagGroups({ item }: { item: Item }) {
             `flag:${f.flag}`,
           ),
         )}
-        {item(<span className="text-muted">Sin bandera</span>, 'flag:0')}
+        {item(<span className="text-muted">{cardsStrings.sidebar.noFlag}</span>, 'flag:0')}
       </Group>
     </>
   );
@@ -166,7 +179,7 @@ function DeckItems({ node, click, small }: { node: DeckNode; click: Click; small
             type="button"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
-            aria-label={`${open ? 'Plegar' : 'Desplegar'} ${node.label}`}
+            aria-label={cardsStrings.sidebar.fold(open, node.label)}
             className="-my-0.5 -ml-1 flex size-6 flex-none items-center justify-center rounded pl-1 text-muted hover:text-ink"
           >
             <ChevronRight

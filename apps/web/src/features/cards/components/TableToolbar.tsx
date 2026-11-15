@@ -11,20 +11,10 @@ import type { ViewPrefs } from '../hooks/useViewPrefs';
 import { ActionButton } from './ActionButton';
 import { ColumnsMenu } from './ColumnsMenu';
 import { FlagMenu } from './FlagMenu';
+import { cardsStrings } from '../strings';
 
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */
 const REVIEW_FLAG = 1;
-
-const suspendLabel = (suspended: boolean, full: boolean) =>
-  suspended
-    ? full
-      ? 'Quitar suspensión'
-      : 'Volver a mostrar'
-    : full
-      ? 'Suspender'
-      : 'No mostrar más';
-const buryLabel = (buried: boolean, full: boolean) =>
-  buried ? (full ? 'Desenterrar' : 'Mostrar hoy') : full ? 'Enterrar' : 'Saltar por hoy';
 
 export interface ToolbarActions {
   toggleSuspend: () => void;
@@ -55,7 +45,11 @@ export function TableToolbar({
 }) {
   const off = busy || !count;
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2" role="toolbar" aria-label="Acciones">
+    <div
+      className="mt-3 flex flex-wrap items-center gap-2"
+      role="toolbar"
+      aria-label={cardsStrings.table.actions}
+    >
       {full ? <ModeSwitch mode={view.mode} onMode={onMode} /> : null}
       <ColumnsMenu view={view} setView={setView} />
       <span className="mx-1 h-6 w-px bg-border" aria-hidden="true" />
@@ -63,14 +57,14 @@ export function TableToolbar({
         onClick={actions.toggleSuspend}
         disabled={off}
         icon={<Ban className="size-4" aria-hidden="true" />}
-        label={suspendLabel(focus?.queue === 'suspended', full)}
+        label={cardsStrings.table.suspend(focus?.queue === 'suspended', full)}
         shortcut="Ctrl+J"
       />
       <ActionButton
         onClick={actions.toggleBury}
         disabled={off}
         icon={<Shovel className="size-4" aria-hidden="true" />}
-        label={buryLabel(focus?.queue === 'buried', full)}
+        label={cardsStrings.table.bury(focus?.queue === 'buried', full)}
         shortcut="Ctrl+Mayús+J"
       />
       {full ? null : (
@@ -78,7 +72,7 @@ export function TableToolbar({
           onClick={() => actions.flag(focus?.flag || REVIEW_FLAG)}
           disabled={off}
           icon={<Flag className="size-4" aria-hidden="true" />}
-          label={focus?.flag ? 'Quitar la marca' : 'Marcar para revisar'}
+          label={focus?.flag ? cardsStrings.unmark : cardsStrings.table.markForReview}
         />
       )}
       {full ? <FlagMenu disabled={off} current={focus?.flag} onFlag={actions.flag} /> : null}
@@ -87,7 +81,7 @@ export function TableToolbar({
           onClick={actions.askForget}
           disabled={off}
           icon={<RotateCcw className="size-4" aria-hidden="true" />}
-          label="Olvidar…"
+          label={cardsStrings.table.forget}
           shortcut="Ctrl+Alt+N"
         />
       ) : null}
@@ -97,14 +91,14 @@ export function TableToolbar({
           className={`${button.base} ${button.secondary} px-3 py-1.5`}
         >
           <Layers className="size-4" aria-hidden="true" />
-          <span className="max-sm:sr-only">Ir al mazo</span>
+          <span className="max-sm:sr-only">{cardsStrings.table.toDeck}</span>
         </Link>
       ) : null}
       <ActionButton
         onClick={actions.undo}
         disabled={busy}
         icon={<Undo2 className="size-4" aria-hidden="true" />}
-        label="Deshacer"
+        label={cardsStrings.table.undo}
         shortcut="Ctrl+Z"
       />
     </div>
@@ -119,7 +113,11 @@ function ModeSwitch({
   onMode: (mode: ViewPrefs['mode']) => void;
 }) {
   return (
-    <div role="group" aria-label="Mostrar" className="flex rounded-lg border border-border">
+    <div
+      role="group"
+      aria-label={cardsStrings.table.show}
+      className="flex rounded-lg border border-border"
+    >
       {(['cards', 'notes'] as const).map((m) => (
         <button
           key={m}
@@ -128,7 +126,7 @@ function ModeSwitch({
           onClick={() => onMode(m)}
           className={`px-3 py-1.5 text-sm ${mode === m ? 'bg-brand-soft text-brand' : 'text-muted hover:bg-surface-2'}`}
         >
-          {m === 'cards' ? 'Tarjetas' : 'Notas'}
+          {cardsStrings.table[m]}
         </button>
       ))}
     </div>

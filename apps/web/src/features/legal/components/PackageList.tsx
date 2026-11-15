@@ -27,7 +27,8 @@ export function PackageList() {
             <span className="text-muted">{p.version}</span>
           </span>
           <span className="text-muted">
-            {p.license} · {p.usedBy.map((u) => (u === 'web' ? s.web : s.server)).join(s.and)}
+            {p.license}
+            {' ·'} {p.usedBy.map((u) => (u === 'web' ? s.web : s.server)).join(s.and)}
           </span>
         </li>
       ))}

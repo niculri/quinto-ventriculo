@@ -3,7 +3,7 @@ import { MessageSquareWarning } from 'lucide-react';
 import { resultTitle, score, wrongAnswers } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import { Html, TextWithStatements } from './Figures';
-import type { QuestionEntry } from './useQuizSession';
+import type { QuestionEntry } from '../hooks/useQuizSession';
 
 export function Results({
   round,

@@ -21,10 +21,10 @@ import {
 } from '@qv/quiz';
 import type { Preferences, QuestionInfo, Round } from '@qv/quiz';
 import type { QuizGroup, QuizQuestion, QuizSectionDetail } from '@qv/schema';
-import { useQuizRepository } from './api/context';
-import { savedQuizKey } from './queries';
-import type { AnswerInfo, RoundInfo, SavedQuiz, SavedSection } from './api/repository';
-import { StepSaver } from './saver';
+import { useQuizRepository } from '../api/context';
+import { savedQuizKey } from '../api/queries';
+import type { AnswerInfo, RoundInfo, SavedQuiz, SavedSection } from '../api/repository';
+import { StepSaver } from '../api/saver';
 
 export interface QuestionEntry {
   question: QuizQuestion;

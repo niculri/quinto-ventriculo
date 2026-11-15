@@ -1,7 +1,7 @@
 // Pins the rules the in-memory tests repository re-implements from save_quiz_progress() and quiz_rounds.
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { localQuizRepository, OPEN_ROUNDS } from './api/repository';
-import type { AnswerInfo, RoundInfo } from './api/repository';
+import { localQuizRepository, OPEN_ROUNDS } from '..';
+import type { AnswerInfo, RoundInfo } from '..';
 
 const info = (id: string, over: Partial<RoundInfo> = {}): RoundInfo => ({
   id,
@@ -115,5 +115,77 @@ describe('«Seguir» on the home page (openRounds)', () => {
       answer: answer('r2', 0, '2026-03-10T11:00:00.000Z'),
     });
     expect((await repo.openRounds()).map((r) => r.quizId)).toEqual(['early', 'late']);
+  });
+});
+
+function memoryStorage(): Storage {
+  const m = new Map<string, string>();
+  return {
+    get length() {
+      return m.size;
+    },
+    clear: () => m.clear(),
+    getItem: (k) => m.get(k) ?? null,
+    key: (i) => [...m.keys()][i] ?? null,
+    removeItem: (k) => void m.delete(k),
+    setItem: (k, v) => void m.set(k, String(v)),
+  };
+}
+
+describe('the demo repository', () => {
+  it('as the database: an answer once, the replaced round abandoned, the finished one finished', async () => {
+    const storage = memoryStorage();
+    const repo = localQuizRepository(storage);
+    const info = (id: string, finished = false) => ({
+      id,
+      origin: 'cover' as const,
+      questionCount: 1,
+      shuffled: false,
+      shuffleOptions: false,
+      startedAt: '',
+      finished,
+    });
+    const answer = {
+      roundId: 'r1',
+      questionId: 'a',
+      position: 0,
+      chosen: 0,
+      correct: true,
+      answeredAt: '',
+    };
+    await repo.save({
+      quizId: 'q',
+      sectionId: 's',
+      preferences: { groups: ['01'] },
+      round: { id: 'r1' },
+      roundInfo: info('r1'),
+    });
+    await repo.save({
+      quizId: 'q',
+      sectionId: 's',
+      round: { id: 'r1' },
+      roundInfo: info('r1'),
+      answer,
+    });
+    await repo.save({
+      quizId: 'q',
+      sectionId: 's',
+      round: { id: 'r1' },
+      roundInfo: info('r1'),
+      answer,
+    });
+    await repo.save({ quizId: 'q', sectionId: 's', round: { id: 'r2' }, roundInfo: info('r2') });
+    const data = JSON.parse(storage.getItem('qv-demo-quiz')!) as {
+      rounds: { id: string; status: string }[];
+      answers: unknown[];
+    };
+    expect(data.rounds.map((r) => [r.id, r.status])).toEqual([
+      ['r1', 'abandoned'],
+      ['r2', 'active'],
+    ]);
+    expect(data.answers).toHaveLength(1);
+    const back = await repo.load('q');
+    expect(back.s).toMatchObject({ preferences: { groups: ['01'] }, round: { id: 'r2' } });
+    expect(await repo.load('otro')).toEqual({});
   });
 });

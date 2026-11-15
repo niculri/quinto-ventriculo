@@ -3,7 +3,7 @@ import { ROUND_ORIGINS } from '@qv/quiz';
 import type { RoundOrigin } from '@qv/quiz';
 import { RoundOrigin as RoundOriginSchema } from '@qv/schema/user';
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type { RoundInfo } from './model';
+import type { RoundInfo } from '../model';
 
 describe('the origin of a round', () => {
   it('is the same in @qv/quiz and in the saved progress', () => {

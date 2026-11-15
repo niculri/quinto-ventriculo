@@ -1,7 +1,7 @@
 // Queries of a practice test: its detail, a section's questions and what the user has saved of it.
 import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../shared/hooks/useApi';
-import { useQuizRepository } from './api/context';
+import { useApi } from '../../../shared/hooks/useApi';
+import { useQuizRepository } from './context';
 
 export function useQuizDetail(id: string | null) {
   const api = useApi();

@@ -1,13 +1,12 @@
-// Tests of the practice test pages: the cover, rounds, reloads, saving the steps and the demo repository.
+// Tests of the practice test pages: the course's lists, the cover, rounds, reloads and not found.
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { focusManager } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
-import { ApiRequestError } from '../../shared/lib/api';
-import { fakeApi, renderApp } from '../../test/render';
-import { localQuizRepository } from './api/repository';
-import type { QuizRepository, QuizStep } from './api/repository';
-import { StepSaver } from './saver';
+import { ApiRequestError } from '../../../shared/lib/api';
+import { fakeApi, renderApp } from '../../../test/render';
+import { localQuizRepository } from '../api/repository';
+import type { QuizRepository, QuizStep } from '../api/repository';
 
 const BASE = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica';
 
@@ -328,139 +327,5 @@ describe('a practice test', () => {
     expect(
       await screen.findByRole('heading', { name: /no aparece ni en el Netter/ }),
     ).toBeInTheDocument();
-  });
-});
-
-describe('saving the steps', () => {
-  it('in order; a move joins the step waiting, an answer is never dropped', async () => {
-    const saved: QuizStep[] = [];
-    let release: () => void = () => {};
-    const gate = new Promise<void>((r) => (release = r));
-    const saver = new StepSaver({
-      load: async () => ({}),
-      openRounds: async () => [],
-      save: async (s) => {
-        if (!saved.length) await gate;
-        saved.push(s);
-      },
-    });
-    const info = {
-      id: 'r1',
-      origin: 'cover' as const,
-      questionCount: 2,
-      shuffled: false,
-      shuffleOptions: false,
-      startedAt: '',
-      finished: false,
-    };
-    const step = (round: unknown, extra: Partial<QuizStep> = {}): QuizStep => ({
-      quizId: 'q',
-      sectionId: 's',
-      round,
-      roundInfo: info,
-      ...extra,
-    });
-    const answer = {
-      roundId: 'r1',
-      questionId: 'a',
-      position: 0,
-      chosen: 0,
-      correct: true,
-      answeredAt: '',
-    };
-    saver.push(step(1));
-    saver.push(step(2, { answer }));
-    saver.push(step(3));
-    saver.push(step(4, { answer: { ...answer, position: 1 } }));
-    expect(saver.pending).toBe(3);
-    release();
-    await saver.flush();
-    expect(saved.map((s) => [s.round, s.answer?.position ?? null])).toEqual([
-      [1, null],
-      [3, 0],
-      [4, 1],
-    ]);
-  });
-
-  it('retries, then stops and keeps the step for «Reintentar»', async () => {
-    let fail = 3;
-    const saved: unknown[] = [];
-    const saver = new StepSaver(
-      {
-        load: async () => ({}),
-        openRounds: async () => [],
-        save: async (s) => {
-          if (fail-- > 0) throw new Error('sin conexión');
-          saved.push(s.round);
-        },
-      },
-      [1, 1],
-    );
-    saver.push({ quizId: 'q', sectionId: 's', round: 'x' });
-    await saver.flush();
-    expect(saver.failed?.message).toBe('sin conexión');
-    expect(saver.pending).toBe(1);
-    saver.retry();
-    await saver.flush();
-    expect(saver.failed).toBeNull();
-    expect(saved).toEqual(['x']);
-  });
-});
-
-describe('the demo repository', () => {
-  it('as the database: an answer once, the replaced round abandoned, the finished one finished', async () => {
-    const storage = memoryStorage();
-    const repo = localQuizRepository(storage);
-    const info = (id: string, finished = false) => ({
-      id,
-      origin: 'cover' as const,
-      questionCount: 1,
-      shuffled: false,
-      shuffleOptions: false,
-      startedAt: '',
-      finished,
-    });
-    const answer = {
-      roundId: 'r1',
-      questionId: 'a',
-      position: 0,
-      chosen: 0,
-      correct: true,
-      answeredAt: '',
-    };
-    await repo.save({
-      quizId: 'q',
-      sectionId: 's',
-      preferences: { groups: ['01'] },
-      round: { id: 'r1' },
-      roundInfo: info('r1'),
-    });
-    await repo.save({
-      quizId: 'q',
-      sectionId: 's',
-      round: { id: 'r1' },
-      roundInfo: info('r1'),
-      answer,
-    });
-    await repo.save({
-      quizId: 'q',
-      sectionId: 's',
-      round: { id: 'r1' },
-      roundInfo: info('r1'),
-      answer,
-    });
-    await repo.save({ quizId: 'q', sectionId: 's', round: { id: 'r2' }, roundInfo: info('r2') });
-    const data = JSON.parse(storage.getItem('qv-demo-quiz')!) as {
-      rounds: { id: string; status: string }[];
-      answers: unknown[];
-    };
-    expect(data.rounds.map((r) => [r.id, r.status])).toEqual([
-      ['r1', 'abandoned'],
-      ['r2', 'active'],
-    ]);
-    expect(data.answers).toHaveLength(1);
-    const back = await repo.load('q');
-    expect(back.s).toMatchObject({ preferences: { groups: ['01'] }, round: { id: 'r2' } });
-    expect(await repo.load('otro')).toEqual({});
   });
 });

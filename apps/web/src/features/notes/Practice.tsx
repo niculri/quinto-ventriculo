@@ -10,8 +10,8 @@ import { buildAnkiTree, hasPage } from '../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
 import { useCatalog } from '../catalog/queries';
 import type { NoteLocation } from '../catalog/queries';
-import { Html } from '../quiz/Figures';
-import { useQuizDetail } from '../quiz/queries';
+import { Html } from '../quiz/components/Figures';
+import { useQuizDetail } from '../quiz/api/queries';
 
 export const PRACTICE_ANCHOR = 'ponte-a-prueba';
 

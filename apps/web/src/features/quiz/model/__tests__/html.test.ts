@@ -1,6 +1,9 @@
-// Tests of the browser-side sanitizing of a test's texts and SVG figures.
+// Tests of the browser-side sanitizing of a test's texts and SVG figures, and the golden test with the shared HTML corpus
+// (packages/html/test) as recorded.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { cleanSvg, cleanText } from './html';
+import { cleanSvg, cleanText } from '../html';
 
 describe('the texts and figures of a test, sanitized again in the browser', () => {
   it('a text keeps only bold, italics, superscripts, subscripts and line breaks', () => {
@@ -39,4 +42,19 @@ describe('the texts and figures of a test, sanitized again in the browser', () =
       '<svg><rect width="1"></rect><rect width="2"></rect><rect width="3"></rect></svg>',
     );
   });
+});
+
+const read = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
+const corpus = read(
+  join(import.meta.dirname, '../../../../../../../packages/html/test/corpus.json'),
+) as {
+  html: { id: string; html: string }[];
+};
+const each = (f: (html: string) => string) =>
+  Object.fromEntries(corpus.html.map((c) => [c.id, f(c.html)]));
+
+it("a test's texts and SVG figures sanitized again in the browser give what they gave", () => {
+  expect({ text: each(cleanText), svg: each(cleanSvg) }).toEqual(
+    read(join(import.meta.dirname, 'sanitize-golden.json')),
+  );
 });

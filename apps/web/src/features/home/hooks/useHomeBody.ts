@@ -3,7 +3,8 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Catalog } from '@qv/schema';
-import { usePreferences, useStudyPlan } from '../../progress/queries';
+import { usePreferences } from '../../progress/hooks/usePreferences';
+import { useStudyPlan } from '../../progress/hooks/useStudyPlan';
 import { saveHeight, savedHeight } from '../api/height';
 import { useOpenRounds } from './useOpenRounds';
 

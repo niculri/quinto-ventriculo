@@ -12,7 +12,7 @@ import {
   LONGEST_STATUS,
 } from '@qv/study';
 import type { AssessmentView, StudyPlan } from '@qv/study';
-import { roughToday } from '../../progress/queries';
+import { roughToday } from '../../progress/hooks/useToday';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { Reserved } from '../../../shared/ui/Reserved';
 import { card } from '../../../shared/ui/styles';

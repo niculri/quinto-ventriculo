@@ -7,7 +7,7 @@ import { activeUnits } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { buildAnkiTree, courseDeck } from '../../catalog/model/tree';
 import { paths } from '../../../shared/lib/paths';
-import { useSavePreferences } from '../../progress/queries';
+import { useSavePreferences } from '../../progress/hooks/usePreferences';
 import type { StudyPreferences } from '../../progress/api/repository';
 import { showFirstSteps } from '../model/firstSteps';
 import { myCourses } from '../model/myCourses';

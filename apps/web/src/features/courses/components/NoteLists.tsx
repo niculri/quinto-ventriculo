@@ -7,7 +7,7 @@ import { courseDeck } from '../../catalog/model/tree';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { noteBlocks } from '../../catalog/model/catalog';
 import { useDeck } from '../../decks/hooks/useDeck';
-import { useDeckCounts } from '../../progress/DeckCounts';
+import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
 import { NoteRow } from './NoteRow';
 import { assessmentStrings as s } from '../assessment.strings';
 

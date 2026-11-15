@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import type { Services } from './services';
 import { localQuizRepository } from '../features/quiz/api/repository';
-import { studyKeys } from '../features/progress/queries';
+import { studyKeys } from '../features/progress/api/queries';
 import {
   Context,
   SHARED,

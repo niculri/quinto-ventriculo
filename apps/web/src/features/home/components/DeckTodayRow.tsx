@@ -3,7 +3,7 @@
 import type { HomeStudyBase } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useDeck } from '../../decks/hooks/useDeck';
-import { useDeckCounts } from '../../progress/DeckCounts';
+import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
 import { TodayRow } from './TodayRow';
 
 export function DeckTodayRow({ node, base }: { node: CourseDeckNode; base: HomeStudyBase }) {

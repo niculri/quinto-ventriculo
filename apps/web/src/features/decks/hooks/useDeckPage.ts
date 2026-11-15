@@ -1,8 +1,9 @@
 // What a deck's page reads: the deck, the plan, its counts and its assessment's view; and where a week or a lecture
 // goes instead (its assessment's page: there is nothing more inside it).
 
-import { useDeckCounts } from '../../progress/DeckCounts';
-import { useAssessmentView, useStudyPlan } from '../../progress/queries';
+import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
+import { useAssessmentView } from '../../progress/hooks/useDeckProgress';
+import { useStudyPlan } from '../../progress/hooks/useStudyPlan';
 import { ancestry } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useCountOpen } from '../../usage/count';

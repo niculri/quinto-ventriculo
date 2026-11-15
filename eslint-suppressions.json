@@ -103,16 +103,6 @@
       "count": 36
     }
   },
-  "apps/web/src/features/progress/DeckCounts.tsx": {
-    "qv/no-literal-text": {
-      "count": 6
-    }
-  },
-  "apps/web/src/features/progress/MasteryMeter.tsx": {
-    "qv/no-literal-text": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/progress/api/repository/memory.ts": {
     "max-lines": {
       "count": 1

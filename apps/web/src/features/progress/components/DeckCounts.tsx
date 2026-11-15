@@ -1,46 +1,17 @@
-// What is left today in each deck of a tree, as Anki's deck list counts it, and the lines that show it.
+// The lines that show what is left today in a deck: the load in minutes (with its breakdown) and the three counts.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { Counts } from '@qv/srs';
-import type { DeckDetail } from '@qv/schema';
-import {
-  breakdownText,
-  deckCounts,
-  loadText,
-  masteryByDeck,
-  nextCountChange,
-  totalCards,
-} from '@qv/study';
-import { useStudyData } from './queries';
-import { tapArea } from '../../shared/ui/styles';
-
-export function useDeckCounts(deck: DeckDetail | undefined) {
-  const study = useStudyData(deck);
-  // Computed when something changed or a card came due, not every minute.
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    if (!study.data) return;
-    const at = nextCountChange(study.data);
-    if (at === null) return;
-    const id = setTimeout(() => setTick((t) => t + 1), Math.min(at - Date.now() + 50, 2 ** 31 - 1));
-    return () => clearTimeout(id);
-  }, [study.data, tick]);
-  const counts = useMemo(() => {
-    void tick;
-    return study.data ? deckCounts(study.data) : undefined;
-  }, [study.data, tick]);
-  const mastery = useMemo(() => {
-    void tick;
-    return study.data ? masteryByDeck(study.data) : undefined;
-  }, [study.data, tick]);
-  return { ...study, counts, mastery };
-}
+import { breakdownText, loadText, totalCards } from '@qv/study';
+import { tapArea } from '../../../shared/ui/styles';
+import { useOutsideClose } from '../hooks/useOutsideClose';
+import { progressStrings as s } from '../strings';
 
 export function DayLoad({
   counts,
   medianAnswerMs,
   detail = false,
-  empty = 'Nada para hoy',
+  empty = s.nothingToday,
   className = '',
 }: {
   counts: Counts;
@@ -72,16 +43,7 @@ function LoadWithBreakdown({
   className: string;
 }) {
   const [open, setOpen] = useState(false);
-  const box = useRef<HTMLSpanElement>(null);
-  // A touch elsewhere closes it (a phone does not focus a button, so it never gets a blur).
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: PointerEvent) => {
-      if (!box.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('pointerdown', close);
-    return () => document.removeEventListener('pointerdown', close);
-  }, [open]);
+  const box = useOutsideClose(open, setOpen);
   const row = (label: string, value: number, color: string) => (
     <span className="flex justify-between gap-4">
       <span className={color}>{label}</span>
@@ -102,9 +64,9 @@ function LoadWithBreakdown({
         role="status"
         className={`absolute top-full right-0 z-30 mt-1 w-44 flex-col gap-1 rounded-lg border border-border bg-surface p-2.5 text-left text-xs font-normal text-ink shadow-soft group-hover:flex ${open ? 'flex' : 'hidden'}`}
       >
-        {row('Nuevas', counts.new, 'text-state-new')}
-        {row('Aprendiendo', counts.learning, 'text-state-learn')}
-        {row('A repasar', counts.review, 'text-state-review')}
+        {row(s.new, counts.new, 'text-state-new')}
+        {row(s.learning, counts.learning, 'text-state-learn')}
+        {row(s.review, counts.review, 'text-state-review')}
       </span>
     </span>
   );
@@ -129,21 +91,24 @@ export function CountNumbers({
       className={`${color} tabular-nums ${current === kind ? 'underline decoration-2 underline-offset-4' : ''}`}
       title={label}
     >
-      <span className="sr-only">{label}: </span>
+      <span className="sr-only">
+        {label}
+        {s.labelOf}
+      </span>
       {value}
     </span>
   );
   return (
     <span className={`items-center gap-1.5 font-semibold ${className || 'inline-flex'}`}>
-      {part('new', counts.new, 'text-state-new', 'Nuevas')}
+      {part('new', counts.new, 'text-state-new', s.new)}
       <span className="text-muted" aria-hidden="true">
         +
       </span>
-      {part('learning', counts.learning, 'text-state-learn', 'Aprendiendo')}
+      {part('learning', counts.learning, 'text-state-learn', s.learning)}
       <span className="text-muted" aria-hidden="true">
         +
       </span>
-      {part('review', counts.review, 'text-state-review', 'A repasar')}
+      {part('review', counts.review, 'text-state-review', s.review)}
     </span>
   );
 }

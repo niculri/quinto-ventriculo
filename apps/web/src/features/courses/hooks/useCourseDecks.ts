@@ -2,8 +2,10 @@
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { buildAnkiTree, courseDeck } from '../../catalog/model/tree';
 import { useDeck } from '../../decks/hooks/useDeck';
-import { useDeckCounts } from '../../progress/DeckCounts';
-import { usePreferences, useStudyPlan, useToday } from '../../progress/queries';
+import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
+import { usePreferences } from '../../progress/hooks/usePreferences';
+import { useStudyPlan } from '../../progress/hooks/useStudyPlan';
+import { useToday } from '../../progress/hooks/useToday';
 
 export function useCourseDecks(catalog: Catalog, course: CourseWithAssessments) {
   const tree = buildAnkiTree(catalog);

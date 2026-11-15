@@ -14,7 +14,7 @@ import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import type { StudyData } from '@qv/study';
 import { StudyFallback } from '../components/StudyFallback';
 import { StudyLoading } from '../components/StudyLoading';
-import { useStudyData } from '../../progress/queries';
+import { useStudyData } from '../../progress/hooks/useStudyData';
 import { useCountOpen } from '../../usage/count';
 import { Reviewer } from '../components/Reviewer';
 import { studyStrings } from '../strings';

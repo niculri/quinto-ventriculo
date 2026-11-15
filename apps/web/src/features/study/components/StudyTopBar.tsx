@@ -9,7 +9,7 @@ import { answerBar, button } from '../../../shared/ui/styles';
 import { keys } from '../../../shared/ui/keys';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { CountNumbers, DayLoad } from '../../progress/DeckCounts';
+import { CountNumbers, DayLoad } from '../../progress/components/DeckCounts';
 import type { StudySession } from '../api/StudySession';
 import { MoreMenu } from './MoreMenu';
 import { SimpleMenu } from './SimpleMenu';

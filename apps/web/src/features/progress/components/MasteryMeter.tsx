@@ -1,10 +1,11 @@
 // Dominio as a small bar and «62 %», always as wide, with what it means on hover or touch (also inside a link).
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { masteryPercent } from '@qv/study';
+import { useOutsideClose } from '../hooks/useOutsideClose';
+import { progressStrings } from '../strings';
 
-const EXPLAINED =
-  'Dominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.';
+const s = progressStrings.mastery;
 
 export function MasteryMeter({
   value,
@@ -16,15 +17,7 @@ export function MasteryMeter({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const box = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: PointerEvent) => {
-      if (!box.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('pointerdown', close);
-    return () => document.removeEventListener('pointerdown', close);
-  }, [open]);
+  const box = useOutsideClose(open, setOpen);
   const percent = masteryPercent(value);
   const place =
     align === 'above'
@@ -50,13 +43,15 @@ export function MasteryMeter({
         <span className="block h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
       </span>
       <span className="w-9 flex-none text-left text-xs font-normal text-muted tabular-nums">
-        {percent} %<span className="sr-only"> de dominio</span>
+        {percent}
+        {s.percent}
+        <span className="sr-only">{s.of}</span>
       </span>
       <span
         role="tooltip"
         className={`absolute ${place} z-30 w-56 rounded-lg border border-border bg-surface p-2.5 text-left text-xs font-normal text-ink shadow-soft group-hover/mastery:block ${open ? 'block' : 'hidden'}`}
       >
-        {EXPLAINED}
+        {s.explained}
       </span>
     </span>
   );

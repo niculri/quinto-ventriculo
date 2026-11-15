@@ -9,7 +9,7 @@ import { Skeleton } from '../../../shared/ui/Loading';
 import { Notice } from '../../../shared/ui/Notice';
 import { Select } from '../../../shared/ui/Select';
 import { button } from '../../../shared/ui/styles';
-import { presetParam } from '../../progress/presets';
+import { presetParam } from '../../progress/model/presets';
 import type { DeckNode } from '../../catalog/model/tree';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
 import { useDeckPreset } from '../hooks/useDeckPreset';

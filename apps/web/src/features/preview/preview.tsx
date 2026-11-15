@@ -3,7 +3,7 @@
 import { createContext, useContext } from 'react';
 import { localStudyRepository } from '../progress/api/repository';
 import type { StudyRepository } from '../progress/api/repository';
-import { studyKeys } from '../progress/queries';
+import { studyKeys } from '../progress/api/queries';
 import { storageKeys } from '../../shared/lib/storage';
 
 /** In sessionStorage: a reload stays in the preview; another tab does not start in it. */

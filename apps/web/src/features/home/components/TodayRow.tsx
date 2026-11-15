@@ -10,8 +10,8 @@ import { Skeleton } from '../../../shared/ui/Loading';
 import { button } from '../../../shared/ui/styles';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { DayLoad } from '../../progress/DeckCounts';
-import { MasteryMeter } from '../../progress/MasteryMeter';
+import { DayLoad } from '../../progress/components/DeckCounts';
+import { MasteryMeter } from '../../progress/components/MasteryMeter';
 import { useExamLine } from '../hooks/useExamLine';
 import { homeStrings as s } from '../strings';
 

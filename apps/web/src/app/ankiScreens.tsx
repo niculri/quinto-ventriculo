@@ -2,12 +2,19 @@
 // browser is idle, so moving between them rarely waits.
 
 import { use, useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { useIsFetching } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { CourseDeckNode, DeckScreen } from '../features/catalog/model/tree';
 
 type ScreenProps = { node: CourseDeckNode };
 type Render = (props: ScreenProps) => ReactNode;
+type Chunk = Promise<Render> & {
+  status?: 'fulfilled' | 'rejected';
+  value?: Render;
+  reason?: unknown;
+  visit?: string;
+};
 
 interface LazyScreen {
   Component: (props: ScreenProps) => ReactNode;
@@ -16,29 +23,34 @@ interface LazyScreen {
 
 /**
  * Not `React.lazy`: that one suspends on its first render even when its chunk is already here, and a boundary that
- * shows its fallback keeps it about 300 ms. Here the promise carries `status` and `value` once settled, which is
- * what `use()` reads to hand the value back without suspending.
+ * shows its fallback keeps it about 300 ms. Here the promise carries `status` and `value` (or `reason`) once settled,
+ * which is what `use()` reads to hand the value back (or throw) without suspending. A chunk that did not arrive is
+ * asked for again by a preload or by the next visit (a new location key), never by the visit that saw it fail: that
+ * one gets the same rejected promise and shows the route's error, instead of asking for it again and again.
  */
-function lazyScreen(load: () => Promise<Render>): LazyScreen {
-  let pending: Promise<Render> | undefined;
-  const preload = () => {
-    if (pending) return pending;
-    const p: Promise<Render> & { status?: 'fulfilled'; value?: Render } = load().then(
+export function lazyScreen(load: () => Promise<Render>): LazyScreen {
+  let last: Chunk | undefined;
+  const start = (visit?: string) => {
+    const p: Chunk = load().then(
       (render) => {
         p.status = 'fulfilled';
         p.value = render;
         return render;
       },
       (e: unknown) => {
-        // A failed fetch is not kept: the next render or preload asks again.
-        pending = undefined;
+        p.status = 'rejected';
+        p.reason = e;
         throw e;
       },
     );
-    pending = p;
+    p.visit = visit;
+    last = p;
     return p;
   };
-  return { Component: (props) => use(preload())(props), preload };
+  const preload = () => (last && last.status !== 'rejected' ? last : start());
+  const read = (visit: string): Promise<Render> =>
+    last && (last.status !== 'rejected' || last.visit === visit) ? last : start(visit);
+  return { Component: (props) => use(read(useLocation().key))(props), preload };
 }
 
 export const ankiScreens: Record<DeckScreen, LazyScreen> = {

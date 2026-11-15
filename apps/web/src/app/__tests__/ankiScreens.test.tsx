@@ -1,10 +1,17 @@
-// Tests ankiScreens: which screen a URL is for, and that the other screens are fetched once, when nothing else loads.
-import { act, render, waitFor } from '@testing-library/react';
+// Tests ankiScreens: which screen a URL is for, that the other screens are fetched once, when nothing else loads, and
+// what a screen whose chunk does not arrive does.
+import { Suspense } from 'react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { RouterProvider, createMemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ankiScreens, screenOfPath, WarmScreens } from '../ankiScreens';
+import { CATALOG } from '../../test/render';
+import { buildAnkiTree, hasPage } from '../../features/catalog/model/tree';
+import type { CourseDeckNode } from '../../features/catalog/model/tree';
+import { ankiScreens, lazyScreen, screenOfPath, WarmScreens } from '../ankiScreens';
 
 const DECK = '/semesters/1/courses/anatomia-1/anki/certamen-1';
+const NODE = buildAnkiTree(CATALOG).nodes.find((n): n is CourseDeckNode => hasPage(n))!;
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -54,5 +61,43 @@ describe('WarmScreens', () => {
     render(warm());
     expect(idle).toHaveLength(1);
     expect(preloads.map((p) => p.mock.calls.length)).toEqual([1, 1, 1, 1, 1]);
+  });
+});
+
+describe('lazyScreen', () => {
+  it('a chunk that does not arrive is the route’s error, asked for once per visit, and again on the next one', async () => {
+    let fetches = 0;
+    let arrives = false;
+    const lazy = lazyScreen(() => {
+      fetches++;
+      return arrives ? Promise.resolve(() => <p>Pantalla</p>) : Promise.reject(new Error('chunk'));
+    });
+    await lazy.preload().catch(() => undefined);
+    const router = createMemoryRouter(
+      [
+        {
+          path: '*',
+          element: (
+            <Suspense fallback={<p>Cargando…</p>}>
+              <lazy.Component node={NODE} />
+            </Suspense>
+          ),
+          errorElement: <p>Algo salió mal</p>,
+        },
+      ],
+      { initialEntries: ['/a'] },
+    );
+    await act(async () => {
+      render(<RouterProvider router={router} />);
+    });
+
+    expect(await screen.findByText('Algo salió mal')).toBeInTheDocument();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(fetches).toBe(2);
+
+    arrives = true;
+    await act(() => router.navigate('/b'));
+    expect(await screen.findByText('Pantalla')).toBeInTheDocument();
+    expect(fetches).toBe(3);
   });
 });

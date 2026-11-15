@@ -4,17 +4,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { dayStartsAt } from '@qv/srs';
 import { paths } from '../../../shared/lib/paths';
 import { useStudyRepository } from '../../progress/api/context';
 import { Skeleton } from '../../../shared/ui/Loading';
-import { ancestry, descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { scopeNodeOf, unitOf } from '../../catalog/model/scope';
-import { correctPercent, daySummary, isoOfDay, timingFor } from '@qv/study';
-import { heatmapKeys } from '../../stats/queries';
-import { studyKeys } from '../../progress/queries';
+import { correctPercent, isoOfDay } from '@qv/study';
 import type { StudyPreferences } from '../../progress/api/repository';
+import { daySummaryQuery } from '../api/queries';
 
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;
@@ -32,31 +29,7 @@ export function DaySummary({
   const study = useStudyRepository();
   const client = useQueryClient();
   const [visit] = useState(() => ++visits);
-  const query = useQuery({
-    queryKey: [...studyKeys.all, 'day-summary', node.id, visit],
-    queryFn: async () => {
-      // A failed save stops the session and says so: the summary shows what the database has.
-      await saved().catch(() => undefined);
-      const { today } = timingFor(prefs);
-      const from = new Date(dayStartsAt(today, prefs.timeZone, prefs.dayStartsAt) * 1000);
-      const to = new Date(dayStartsAt(today + 1, prefs.timeZone, prefs.dayStartsAt) * 1000);
-      const [answers, heat] = await Promise.all([
-        study.ratedBetween(from, to),
-        // The home page's own reading, read again: it already has today's answers.
-        client.fetchQuery({
-          queryKey: heatmapKeys.scope('all'),
-          queryFn: () => study.heatmap(null),
-          staleTime: 0,
-        }),
-      ]);
-      const decks = new Set(descendants(node).map((n) => n.id));
-      const course = ancestry(node).find((n) => n.depth === 2) ?? null;
-      const courseDecks = course ? new Set(descendants(course).map((n) => n.id)) : null;
-      return { today, summary: daySummary(answers, decks, heat, today, courseDecks) };
-    },
-    gcTime: 0,
-    staleTime: Infinity,
-  });
+  const query = useQuery(daySummaryQuery({ study, client, node, prefs, saved, visit }));
 
   const data = query.data;
   const summary = data?.summary;

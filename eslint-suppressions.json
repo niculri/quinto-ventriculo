@@ -61,11 +61,6 @@
       "count": 1
     }
   },
-  "apps/web/src/app/AppShell.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/admin/api/repository/memory.ts": {
     "max-lines-per-function": {
       "count": 1

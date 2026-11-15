@@ -90,25 +90,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/pages/AccessPage.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 4
-    },
-    "qv/no-literal-text": {
-      "count": 102
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 3
-    }
-  },
-  "apps/web/src/features/admin/pages/AdminLayout.tsx": {
-    "qv/no-literal-text": {
-      "count": 4
-    }
-  },
   "apps/web/src/features/admin/pages/ReleasesPage.tsx": {
     "max-lines": {
       "count": 1
@@ -132,16 +113,6 @@
     },
     "qv/no-literal-text": {
       "count": 54
-    }
-  },
-  "apps/web/src/features/admin/pages/SitePage.tsx": {
-    "qv/no-literal-text": {
-      "count": 3
-    }
-  },
-  "apps/web/src/features/admin/pages/UnpublishedPage.tsx": {
-    "qv/no-literal-text": {
-      "count": 10
     }
   },
   "apps/web/src/features/admin/pages/UsagePage.tsx": {

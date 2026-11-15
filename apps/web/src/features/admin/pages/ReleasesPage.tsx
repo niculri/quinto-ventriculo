@@ -24,7 +24,7 @@ import { button, card } from '../../../shared/ui/styles';
 import { usePreview } from '../../preview/preview';
 import { useCatalog } from '../../catalog/queries';
 import { useUser } from '../../session/context';
-import { AdminSectionTitle } from './AdminLayout';
+import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import {
   usePublishRelease,
   useReleaseImpact,

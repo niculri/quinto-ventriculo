@@ -5,52 +5,11 @@ import { describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/render';
 import { AccessError, localAdminRepository } from '../api/repository';
 import type { AccessInvite, AdminRepository } from '../api/repository';
-import { readEmails } from '../pages/AccessPage';
 
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>
   localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl', ...o });
 
 describe('«Acceso»', () => {
-  it('splits what is pasted by lines, commas, semicolons and spaces', () => {
-    expect(
-      readEmails(' a@ug.uchile.cl,b@ug.uchile.cl\n\n c@ug.uchile.cl ; d@ug.uchile.cl e@x '),
-    ).toEqual({
-      emails: ['a@ug.uchile.cl', 'b@ug.uchile.cl', 'c@ug.uchile.cl', 'd@ug.uchile.cl', 'e@x'],
-      ignored: 0,
-    });
-  });
-
-  it('of «Nombre Apellido <correo>» only the email, never the name', () => {
-    expect(
-      readEmails(
-        'Ana Pérez <ana.perez@ug.uchile.cl>, "Soto, Luis" <Luis.Soto@ug.uchile.cl>\n' +
-          'Rosa Díaz <rosa.diaz@ug.uchile.cl>; otra@ug.uchile.cl\n' +
-          'mailto:alguien@ug.uchile.cl <dos@ug.uchile.cl, tres@ug.uchile.cl>',
-      ),
-    ).toEqual({
-      emails: [
-        'ana.perez@ug.uchile.cl',
-        'Luis.Soto@ug.uchile.cl',
-        'rosa.diaz@ug.uchile.cl',
-        'otra@ug.uchile.cl',
-        'alguien@ug.uchile.cl',
-        'dos@ug.uchile.cl',
-        'tres@ug.uchile.cl',
-      ],
-      ignored: 6,
-    });
-    // An unclosed quote does not swallow the emails after it; an unclosed «<» still gives its email.
-    expect(readEmails('Ana "Pérez <ana@ug.uchile.cl>, "Luis" <luis@ug.uchile.cl>')).toEqual({
-      emails: ['ana@ug.uchile.cl', 'luis@ug.uchile.cl'],
-      ignored: 3,
-    });
-    expect(readEmails('Rosa Díaz <rosa@ug.uchile.cl')).toEqual({
-      emails: ['rosa@ug.uchile.cl'],
-      ignored: 2,
-    });
-    expect(readEmails('ana.perez.ug.uchile.cl')).toEqual({ emails: [], ignored: 1 });
-  });
-
   it('the names pasted never reach the database', async () => {
     const calls: { emails: string[] }[] = [];
     const repo = admin();

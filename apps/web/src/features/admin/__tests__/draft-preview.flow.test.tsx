@@ -1,10 +1,34 @@
 // Tests the preview of the draft from «Publicaciones»: the site read with the preview API, and how it is left.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ReleaseSummary } from '@qv/schema';
+import type { ReleaseOverview } from '@qv/schema';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
-import { OVERVIEW, SUMMARY, adminApi } from './release-fixtures';
+
+/** What the database gives for the e2e folder's draft (db/tests/release.test.ts writes it). */
+const SUMMARY = ReleaseSummary.parse(
+  JSON.parse(
+    readFileSync(join(import.meta.dirname, '../../../../e2e/content/release/summary.json'), 'utf8'),
+  ),
+);
+const OVERVIEW: ReleaseOverview = {
+  supportedSchemaVersion: 1,
+  summary: SUMMARY,
+  browseIndexes: [],
+};
+
+const adminApi = (changes: Parameters<typeof fakeApi>[0] = {}) =>
+  fakeApi({
+    releaseOverview: async () => OVERVIEW,
+    releaseTexts: async () => ({ items: [], next: null }),
+    releaseMedia: async () => ({ checked: [], missing: [], next: null }),
+    releaseLog: async () => ({ releases: [] }),
+    ...changes,
+  });
 
 afterEach(() => window.sessionStorage.clear());
 

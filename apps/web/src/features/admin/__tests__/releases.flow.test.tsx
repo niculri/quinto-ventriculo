@@ -1,12 +1,35 @@
 // Tests «Publicaciones»: the review list, what changes, the marks by hand, publishing and undoing, without network.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ReleaseSummary } from '@qv/schema';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiRequestError } from '../../../shared/lib/api';
 import type { ReleaseOverview } from '@qv/schema';
-import { renderApp } from '../../../test/render';
+import { fakeApi, renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
-import { SUMMARY, adminApi } from './release-fixtures';
+
+/** What the database gives for the e2e folder's draft (db/tests/release.test.ts writes it). */
+const SUMMARY = ReleaseSummary.parse(
+  JSON.parse(
+    readFileSync(join(import.meta.dirname, '../../../../e2e/content/release/summary.json'), 'utf8'),
+  ),
+);
+const OVERVIEW: ReleaseOverview = {
+  supportedSchemaVersion: 1,
+  summary: SUMMARY,
+  browseIndexes: [],
+};
+
+const adminApi = (changes: Parameters<typeof fakeApi>[0] = {}) =>
+  fakeApi({
+    releaseOverview: async () => OVERVIEW,
+    releaseTexts: async () => ({ items: [], next: null }),
+    releaseMedia: async () => ({ checked: [], missing: [], next: null }),
+    releaseLog: async () => ({ releases: [] }),
+    ...changes,
+  });
 
 afterEach(() => window.sessionStorage.clear());
 

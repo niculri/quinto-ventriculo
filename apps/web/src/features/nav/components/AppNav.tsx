@@ -19,8 +19,7 @@ import { MORE_SEMESTERS_SOON, locateNote, noteBlocks, useCatalog } from '../../c
 import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { useSettingsGroups } from '../../settings/useSettingsGroups';
-import { useIsAdmin } from '../../admin/queries';
-import { ADMIN_SECTIONS } from '../../admin/sections';
+import { ADMIN_SECTIONS, useIsAdmin } from '../../admin';
 import { navStrings } from '../strings';
 
 export interface Where {

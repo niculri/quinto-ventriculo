@@ -32,7 +32,7 @@ import {
 import { ReportError } from '../../reports/api/repository';
 import { splitCardId } from '../../reports/targets';
 import type { QueueReport, Reporter, ReportGroup } from '../../reports/api/repository';
-import { AdminSectionTitle } from './AdminLayout';
+import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { BlurredBackdrop, CloseX } from '../../../shared/ui/Dialog';
 
 type Showing = 'open' | 'resolved';

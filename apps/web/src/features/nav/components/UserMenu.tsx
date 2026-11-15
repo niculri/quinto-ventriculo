@@ -3,7 +3,7 @@ import * as Menu from '@radix-ui/react-dropdown-menu';
 import { paths } from '../../../shared/lib/paths';
 import { CircleHelp, LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
-import { useIsAdmin } from '../../admin/queries';
+import { useIsAdmin } from '../../admin';
 import { useSession, useUser } from '../../session/context';
 import { ThemePicker } from '../../../shared/ui/ThemePicker';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';

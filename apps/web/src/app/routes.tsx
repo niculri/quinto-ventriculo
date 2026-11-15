@@ -8,7 +8,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { RouteError } from '../shared/ui/RouteError';
 import { paths } from '../shared/lib/paths';
 import { SETTINGS_GROUPS } from '../features/settings/sections';
-import { ADMIN_SECTIONS } from '../features/admin/sections';
+import { ADMIN_SECTIONS } from '../features/admin';
 import { NotFoundPage } from '../shared/ui/NotFoundPage';
 import {
   LegacyCourseRedirect,

@@ -1,9 +1,42 @@
 // A finished round's results: score, the repeat buttons and the wrong answers with the correct one.
-import { MessageSquareWarning } from 'lucide-react';
 import { resultTitle, score, wrongAnswers } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
-import { Html, TextWithStatements } from './Figures';
-import type { QuestionEntry } from '../hooks/useQuizSession';
+import type { QuestionEntry } from '../model/entries';
+import { quizStrings as s } from '../strings';
+import { Html } from './Html';
+import { WrongAnswer } from './WrongAnswer';
+
+function Scoreboard({
+  correct,
+  wrong,
+  percent,
+}: {
+  correct: number;
+  wrong: number;
+  percent: number;
+}) {
+  return (
+    <>
+      <div className="marcador">
+        <div className="mcell g">
+          <div className="n">{correct}</div>
+          <div className="l">{s.results.right}</div>
+        </div>
+        <div className="mcell r">
+          <div className="n">{wrong}</div>
+          <div className="l">{s.results.wrong}</div>
+        </div>
+        <div className="mcell p">
+          <div className="n">{percent}%</div>
+          <div className="l">{s.results.percent}</div>
+        </div>
+      </div>
+      <div className="barra" role="img" aria-label={s.results.bar(percent)}>
+        <i style={{ width: `${percent}%` }} />
+      </div>
+    </>
+  );
+}
 
 export function Results({
   round,
@@ -22,7 +55,7 @@ export function Results({
   onHome: () => void;
   onReport?: (entry: QuestionEntry) => void;
 }) {
-  const s = score(round);
+  const result = score(round);
   const wrong = wrongAnswers(round);
   return (
     <section className="wrap wide res" aria-labelledby="quiz-result">
@@ -33,103 +66,37 @@ export function Results({
             {' · '}
           </>
         ) : null}
-        {s.answered} de {s.total} respondidas
+        {s.results.answered(result.answered, result.total)}
       </p>
-      <h1 id="quiz-result">{resultTitle(s.percent)}</h1>
-      <div className="marcador">
-        <div className="mcell g">
-          <div className="n">{s.correct}</div>
-          <div className="l">buenas</div>
-        </div>
-        <div className="mcell r">
-          <div className="n">{s.wrong}</div>
-          <div className="l">malas</div>
-        </div>
-        <div className="mcell p">
-          <div className="n">{s.percent}%</div>
-          <div className="l">correctas</div>
-        </div>
-      </div>
-      <div className="barra" role="img" aria-label={`${s.percent} % de respuestas correctas`}>
-        <i style={{ width: `${s.percent}%` }} />
-      </div>
+      <h1 id="quiz-result">{resultTitle(result.percent)}</h1>
+      <Scoreboard correct={result.correct} wrong={result.wrong} percent={result.percent} />
       <div className="acciones">
         <button type="button" className="btn" onClick={onRepeatAll}>
-          Repetir todo
+          {s.results.repeatAll}
         </button>
         {wrong.length ? (
           <button type="button" className="btn2" onClick={onRepeatWrong}>
-            Repetir solo las malas
+            {s.results.repeatWrong}
           </button>
         ) : null}
         <button type="button" className="btn2" onClick={onHome}>
-          Volver al inicio
+          {s.results.home}
         </button>
       </div>
       <div className="repaso">
         {wrong.length ? (
           <>
-            <h2>Para repasar ({wrong.length})</h2>
+            <h2>{s.results.toReview(wrong.length)}</h2>
             {wrong.map((a) => {
               const e = entries.get(a.questionId);
-              if (!e) return null;
-              const q = e.question;
-              const why = (i: number) =>
-                q.kind === 'choice' && q.optionExplanations?.[i] ? (
-                  <Html className="fexp" html={q.optionExplanations[i]!} />
-                ) : null;
-              return (
-                <div key={a.position} className="fallo">
-                  <div className="fl">
-                    <span>
-                      <Html html={e.group.name} /> · pregunta {e.number}
-                    </span>
-                    {onReport ? (
-                      <button type="button" className="qz-report" onClick={() => onReport(e)}>
-                        <MessageSquareWarning className="size-4" aria-hidden="true" /> Reportar
-                        error
-                      </button>
-                    ) : null}
-                  </div>
-                  <div className="fq">
-                    {q.context ? (
-                      <TextWithStatements as="p" className="fctx" html={q.context} />
-                    ) : null}
-                    <TextWithStatements as="div" className="fpr" html={q.prompt} />
-                  </div>
-                  <dl>
-                    {q.kind === 'choice' ? (
-                      <>
-                        <dt>Tu respuesta</dt>
-                        <dd className="cm">
-                          <Html html={q.options[a.chosen ?? 0]!} />
-                          {why(a.chosen ?? 0)}
-                        </dd>
-                        <dt>Correcta</dt>
-                        <dd className="cb">
-                          <Html html={q.options[q.correct]!} />
-                          {why(q.correct)}
-                        </dd>
-                      </>
-                    ) : (
-                      <>
-                        <dt>Respuesta</dt>
-                        <Html as="dd" className="cb" html={q.answer} />
-                      </>
-                    )}
-                  </dl>
-                  {q.explanation ? (
-                    <div className="fx">
-                      <Html html={q.explanation} />
-                    </div>
-                  ) : null}
-                </div>
-              );
+              return e ? (
+                <WrongAnswer key={a.position} entry={e} chosen={a.chosen} onReport={onReport} />
+              ) : null;
             })}
           </>
         ) : (
           <div className="fallo limpio">
-            <div className="fq">Sin errores. Todas las respuestas fueron correctas.</div>
+            <div className="fq">{s.results.clean}</div>
           </div>
         )}
       </div>

@@ -232,60 +232,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/quiz/components/Cover.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 25
-    }
-  },
-  "apps/web/src/features/quiz/components/Figures.tsx": {
-    "qv/no-literal-text": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/quiz/components/QuestionCard.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 33
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/quiz/components/Results.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 16
-    }
-  },
-  "apps/web/src/features/quiz/hooks/useQuizSession.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/quiz/pages/QuizPage.tsx": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
-    "qv/no-literal-text": {
-      "count": 18
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 3
-    }
-  },
   "apps/web/src/features/reports/MyReportsPage.tsx": {
     "qv/no-literal-text": {
       "count": 4

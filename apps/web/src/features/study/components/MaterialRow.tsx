@@ -3,7 +3,7 @@
 
 import type { ReactNode } from 'react';
 import { BookOpen, ListChecks } from 'lucide-react';
-import type { CardMaterial } from './material';
+import type { CardMaterial } from '../model/material';
 
 const ROW_LINK =
   'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 hover:bg-surface-2 hover:text-ink';

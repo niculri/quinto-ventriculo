@@ -5,16 +5,16 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
-import { paths } from '../../shared/lib/paths';
-import { useStudyRepository } from '../progress/api/context';
-import { Skeleton } from '../../shared/ui/Loading';
-import { ancestry, descendants } from '../catalog/model/tree';
-import type { CourseDeckNode } from '../catalog/model/tree';
-import { scopeNodeOf, unitOf } from '../catalog/model/scope';
+import { paths } from '../../../shared/lib/paths';
+import { useStudyRepository } from '../../progress/api/context';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { ancestry, descendants } from '../../catalog/model/tree';
+import type { CourseDeckNode } from '../../catalog/model/tree';
+import { scopeNodeOf, unitOf } from '../../catalog/model/scope';
 import { correctPercent, daySummary, isoOfDay, timingFor } from '@qv/study';
-import { heatmapKeys } from '../stats/queries';
-import { studyKeys } from '../progress/queries';
-import type { StudyPreferences } from '../progress/api/repository';
+import { heatmapKeys } from '../../stats/queries';
+import { studyKeys } from '../../progress/queries';
+import type { StudyPreferences } from '../../progress/api/repository';
 
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;

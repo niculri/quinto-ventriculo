@@ -17,11 +17,11 @@ import {
   defaultPreferences,
   localStudyRepository,
   supabaseStudyRepository,
-} from '../progress/api/repository';
-import type { CardChange, StudyRepository } from '../progress/api/repository';
-import { StudySession } from './session';
-import { syncCards, withCardSync } from '../progress/api/sync';
-import type { CardChangeSource } from '../progress/api/sync';
+} from '../../progress/api/repository';
+import type { CardChange, StudyRepository } from '../../progress/api/repository';
+import { StudySession } from '../api/StudySession';
+import { syncCards, withCardSync } from '../../progress/api/sync';
+import type { CardChangeSource } from '../../progress/api/sync';
 
 const NOW = Date.parse('2026-11-01T15:00:00Z');
 const DAY = 86_400_000;

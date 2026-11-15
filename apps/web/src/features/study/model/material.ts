@@ -1,11 +1,9 @@
 // Where a card's material is: the article (and its test) of the deck the card is in.
 
-import { useMemo } from 'react';
 import type { Catalog, NoteSummary, QuizSummary } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import { buildAnkiTree, descendants } from '../catalog/model/tree';
-import { useCatalog } from '../catalog/queries';
-import { findPracticeDeck, practiceLink } from '../notes/Practice';
+import { paths } from '../../../shared/lib/paths';
+import { buildAnkiTree, descendants } from '../../catalog/model/tree';
+import { findPracticeDeck, practiceLink } from '../../notes/Practice';
 
 export interface CardMaterial {
   note: NoteSummary;
@@ -38,10 +36,4 @@ export function materialByDeck(catalog: Catalog): Map<string, CardMaterial> {
     }
   }
   return out;
-}
-
-export function useCardMaterial(deckId: string | undefined): CardMaterial | null {
-  const catalog = useCatalog();
-  const map = useMemo(() => (catalog.data ? materialByDeck(catalog.data) : null), [catalog.data]);
-  return (deckId && map?.get(deckId)) || null;
 }

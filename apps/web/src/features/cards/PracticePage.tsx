@@ -11,7 +11,7 @@ import { answerBar, button, studyScreen } from '../../shared/ui/styles';
 import { useAnkiTree } from '../catalog/hooks/useAnkiTree';
 import type { CourseDeckNode } from '../catalog/model/tree';
 import { usePracticeRecorder } from '../stats/practice';
-import { ReviewMenu, ReviewScreen, RoundDone } from '../study/FinalReviewPage';
+import { ReviewMenu, ReviewScreen, RoundDone } from '../study/pages/FinalReviewPage';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
 import { useNow } from '../../shared/hooks/useNow';

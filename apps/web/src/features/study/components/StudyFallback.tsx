@@ -2,8 +2,8 @@
 // has it.
 
 import type { ReactNode } from 'react';
-import { BackButton } from '../../shared/ui/BackButton';
-import { answerBar, studyScreen } from '../../shared/ui/styles';
+import { BackButton } from '../../../shared/ui/BackButton';
+import { answerBar, studyScreen } from '../../../shared/ui/styles';
 
 export function StudyFallback({
   back,

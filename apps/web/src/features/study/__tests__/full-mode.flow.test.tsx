@@ -3,10 +3,10 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, expect, it } from 'vitest';
-import { DECK_PATH, renderApp, fullAnkiStudy } from '../../test/render';
-import { cardShadowRoot } from '../decks/CardFrame';
+import { DECK_PATH, renderApp, fullAnkiStudy } from '../../../test/render';
+import { cardShadowRoot } from '../../decks/CardFrame';
 import { DEFAULT_PARAMETERS, defaultConfig } from '@qv/srs';
-import type { StudyRepository } from '../progress/api/repository';
+import type { StudyRepository } from '../../progress/api/repository';
 
 async function cardText(label: RegExp) {
   const region = await screen.findByRole('region', { name: label });

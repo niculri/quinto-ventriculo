@@ -5,12 +5,12 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Catalog } from '@qv/schema';
-import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../test/render';
-import { cardShadowRoot } from '../decks/CardFrame';
+import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
+import { cardShadowRoot } from '../../decks/CardFrame';
 import { countsByDay, dateOfDay, heatmapStats } from '@qv/study';
-import { roughToday } from '../progress/queries';
-import { localStudyRepository } from '../progress/api/repository';
-import type { CardRef, StudyRepository } from '../progress/api/repository';
+import { roughToday } from '../../progress/queries';
+import { localStudyRepository } from '../../progress/api/repository';
+import type { CardRef, StudyRepository } from '../../progress/api/repository';
 
 const WEEK_ID = '5';
 const ASSESSMENT_ID = '4';

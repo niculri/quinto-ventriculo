@@ -2,8 +2,8 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Catalog, NotePractice } from '@qv/schema';
-import { CATALOG } from '../../test/render';
-import { materialByDeck } from './material';
+import { CATALOG } from '../../../../test/render';
+import { materialByDeck } from '../material';
 
 function catalog(practice: NotePractice | undefined): Catalog {
   const copy = structuredClone(CATALOG);

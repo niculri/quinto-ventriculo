@@ -631,12 +631,30 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/DaySummary.tsx": {
+  "apps/web/src/features/study/api/StudySession.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/components/DaySummary.tsx": {
     "qv/no-literal-text": {
       "count": 4
     }
   },
-  "apps/web/src/features/study/FinalReviewPage.tsx": {
+  "apps/web/src/features/study/components/MaterialRow.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/model/material.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/pages/FinalReviewPage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -650,12 +668,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/MaterialRow.tsx": {
-    "qv/no-literal-text": {
-      "count": 2
-    }
-  },
-  "apps/web/src/features/study/StudyPage.tsx": {
+  "apps/web/src/features/study/pages/StudyPage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -667,19 +680,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/study/material.ts": {
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/session.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
     }
   },
   "apps/web/src/shared/hooks/useImageZoom.ts": {

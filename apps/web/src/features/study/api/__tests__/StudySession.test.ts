@@ -2,15 +2,15 @@
 
 import { DEFAULT_PARAMETERS, retrievability } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
-import { CATALOG, DECK } from '../../test/render';
+import { CATALOG, DECK } from '../../../../test/render';
 import {
   CardChangedError,
   defaultPreferences,
   localStudyRepository,
-} from '../progress/api/repository';
-import type { ReviewInput, StoredCard, StudyRepository } from '../progress/api/repository';
+} from '../../../progress/api/repository';
+import type { ReviewInput, StoredCard, StudyRepository } from '../../../progress/api/repository';
 import { blankRow, cardKey, EMPTY_PLAN, treeDecks } from '@qv/study';
-import { StudySession } from './session';
+import { StudySession } from '../StudySession';
 
 const NETWORK = () => new Error('No se pudo guardar tu respuesta: TypeError: Failed to fetch');
 

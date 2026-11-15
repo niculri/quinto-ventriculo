@@ -11,12 +11,12 @@ import { button } from '../../shared/ui/styles';
 import { CardInfo } from '../browse/CardPreview';
 import type { BrowseCard } from '../browse/data';
 import { CardViewer } from '../decks/CardViewer';
-import { useCardMaterial } from '../study/material';
+import { useCardMaterial } from '../study/hooks/useCardMaterial';
 import { studyKeys } from '../progress/queries';
 import { timingFor } from '@qv/study';
 import type { StudyPreferences } from '../progress/api/repository';
-import { ReportEntry } from '../study/StudyPage';
-import { MaterialLink } from '../study/MaterialRow';
+import { ReportEntry } from '../study/pages/StudyPage';
+import { MaterialLink } from '../study/components/MaterialRow';
 import { GhostCloseX } from '../../shared/ui/Dialog';
 
 const REVIEW_FLAG = 1;

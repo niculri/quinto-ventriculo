@@ -4,9 +4,14 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema';
 import { blankRow, cardKey, deckCounts, EMPTY_PLAN, extrasOff } from '@qv/study';
 import type { StudyData, StudyPlan, TreeDeck } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from '../progress/api/repository';
-import type { AnswerToday, CardRef, StoredCard, StudyRepository } from '../progress/api/repository';
-import { StudySession } from './session';
+import { defaultPreferences, localStudyRepository } from '../../progress/api/repository';
+import type {
+  AnswerToday,
+  CardRef,
+  StoredCard,
+  StudyRepository,
+} from '../../progress/api/repository';
+import { StudySession } from '../api/StudySession';
 
 const NOW = Date.parse('2026-10-31T15:00:00Z');
 const DAY = 86_400_000;

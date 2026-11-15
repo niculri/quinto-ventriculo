@@ -5,18 +5,18 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { dayOf, dayStartsAt } from '@qv/srs';
-import { DECK_PATH, fullAnkiStudy, renderApp } from '../../test/render';
-import { cardShadowRoot } from '../decks/CardFrame';
-import { failedOf } from '../cards/queries';
-import type { DayCards } from '../cards/queries';
+import { DECK_PATH, fullAnkiStudy, renderApp } from '../../../../test/render';
+import { cardShadowRoot } from '../../../decks/CardFrame';
+import { failedOf } from '../../../cards/queries';
+import type { DayCards } from '../../../cards/queries';
 import { correctPercent, countsByDay, daySummary, heatmapStats, isoOfDay } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
 import {
   browserTimeZone,
   defaultPreferences,
   localStudyRepository,
-} from '../progress/api/repository';
-import type { StudyRepository } from '../progress/api/repository';
+} from '../../../progress/api/repository';
+import type { StudyRepository } from '../../../progress/api/repository';
 
 const WEEK_ID = '5';
 const ASSESSMENT_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1';

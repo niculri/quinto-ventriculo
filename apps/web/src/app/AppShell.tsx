@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { SearchPalette } from '../features/search/components/SearchPalette';
-import { AppNav, SiteFooter } from '../features/nav';
+import { AppNav } from '../features/nav/components/AppNav';
+import { SiteFooter } from '../features/nav/components/SiteFooter';
 import { FocusContext } from '../shared/ui/focus';
 import { RailContext } from '../shared/ui/rail';
 import { usePreview } from '../features/preview/preview';

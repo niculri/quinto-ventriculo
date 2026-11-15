@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
 import { Logo } from '../../shared/ui/Logo';
 import { keys } from '../../shared/ui/keys';
-import { UserMenu } from '../../features/nav';
+import { UserMenu } from '../../features/nav/components/UserMenu';
 import { appStrings } from '../strings';
 
 export function TopBar({

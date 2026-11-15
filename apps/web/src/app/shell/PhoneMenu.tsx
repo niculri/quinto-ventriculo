@@ -1,7 +1,7 @@
 // The site's menu as a drawer on narrow screens.
 import * as Dialog from '@radix-ui/react-dialog';
 import { CloseX } from '../../shared/ui/Dialog';
-import { AppNav } from '../../features/nav';
+import { AppNav } from '../../features/nav/components/AppNav';
 import { appStrings } from '../strings';
 
 export function PhoneMenu({

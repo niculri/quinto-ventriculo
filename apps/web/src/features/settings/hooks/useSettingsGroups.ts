@@ -1,7 +1,7 @@
 // The groups of «Opciones» this user sees: the advanced Anki sections only with «Modo avanzado».
-import { usePreferences } from '../progress/queries';
-import { SETTINGS_GROUPS } from './sections';
-import type { SettingsGroup } from './sections';
+import { usePreferences } from '../../progress/queries';
+import { SETTINGS_GROUPS } from '../sections';
+import type { SettingsGroup } from '../sections';
 
 export function useSettingsGroups(): readonly SettingsGroup[] {
   const { prefs } = usePreferences();

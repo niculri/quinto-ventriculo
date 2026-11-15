@@ -4,13 +4,16 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { ACCOUNT_DELETION_DAYS } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import { useAccountRepository } from './api/context';
-import { formatDateTime } from '../../shared/lib/dates';
-import { button } from '../../shared/ui/styles';
-import { useSession, useUser } from '../session/context';
-import { AccountError } from './api/repository';
-import { BlurredBackdrop, CloseX } from '../../shared/ui/Dialog';
+import { paths } from '../../../shared/lib/paths';
+import { formatDateTime } from '../../../shared/lib/dates';
+import { button } from '../../../shared/ui/styles';
+import { BlurredBackdrop, CloseX } from '../../../shared/ui/Dialog';
+import { useSession, useUser } from '../../session/context';
+import { useAccountRepository } from '../api/context';
+import { AccountError } from '../api/repository';
+import { accountStrings } from '../strings';
+
+const s = accountStrings.deletion;
 
 export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const account = useAccountRepository();
@@ -52,48 +55,14 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
           className="fixed top-[12vh] left-1/2 z-50 max-h-[80dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:p-6"
         >
           {done ? (
-            <>
-              <Dialog.Title className="font-serif text-xl font-semibold">
-                Pediste eliminar tu cuenta
-              </Dialog.Title>
-              <Dialog.Description className="mt-2 text-sm leading-relaxed text-muted">
-                Se cerraron tus sesiones en todos tus dispositivos. Tu cuenta se borrará el{' '}
-                <strong className="text-ink">{formatDateTime(done.deleteAfter)}</strong> (a lo más
-                una hora después). Si vuelves a entrar antes, se cancela y todo sigue como estaba.
-              </Dialog.Description>
-              <div className="mt-6 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => void leave()}
-                  className={`${button.base} ${button.primary}`}
-                >
-                  Entendido
-                </button>
-              </div>
-            </>
+            <Requested deleteAfter={done.deleteAfter} onLeave={() => void leave()} />
           ) : (
             <>
               <div className="flex items-start justify-between gap-3">
-                <Dialog.Title className="font-serif text-xl font-semibold">
-                  Eliminar mi cuenta
-                </Dialog.Title>
+                <Dialog.Title className="font-serif text-xl font-semibold">{s.title}</Dialog.Title>
                 <CloseX disabled={busy} />
               </div>
-              <Dialog.Description asChild>
-                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">
-                  <li>Se cierran tus sesiones en todos tus dispositivos.</li>
-                  <li>
-                    En {ACCOUNT_DELETION_DAYS} días se borra todo lo tuyo: tu cuenta, tu avance de
-                    tarjetas, tus tests, tus opciones y tu invitación. Tus reportes de errores
-                    quedan, sin tu nombre ni tu correo.
-                  </li>
-                  <li>Si vuelves a entrar antes, se cancela y todo sigue como estaba.</li>
-                  <li>
-                    Después no se puede recuperar: si quieres guardar tu avance, descarga antes tus
-                    datos.
-                  </li>
-                </ul>
-              </Dialog.Description>
+              <WhatHappens />
               <form
                 className="mt-5"
                 onSubmit={(e) => {
@@ -101,23 +70,10 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
                   if (matches && !request.isPending) request.mutate();
                 }}
               >
-                <label htmlFor="delete-email" className="text-sm font-medium">
-                  Para confirmar, escribe tu correo ({user.email})
-                </label>
-                <input
-                  id="delete-email"
-                  type="email"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink sm:text-sm"
-                />
+                <ConfirmEmail email={email} setEmail={setEmail} account={user.email} />
                 {request.isError ? (
                   <p role="alert" className="mt-2 text-sm text-state-learn">
-                    {request.error instanceof AccountError
-                      ? request.error.message
-                      : 'No se pudo pedir. Revisa tu conexión e intenta de nuevo.'}
+                    {request.error instanceof AccountError ? request.error.message : s.failed}
                   </p>
                 ) : null}
                 <div className="mt-5 flex justify-end gap-2">
@@ -127,14 +83,14 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
                     disabled={busy}
                     className={`${button.base} ${button.secondary}`}
                   >
-                    Cancelar
+                    {s.cancel}
                   </button>
                   <button
                     type="submit"
                     disabled={!matches || request.isPending}
                     className={`${button.base} ${button.danger}`}
                   >
-                    {request.isPending ? 'Pidiendo…' : 'Eliminar mi cuenta'}
+                    {request.isPending ? s.asking : s.delete}
                   </button>
                 </div>
               </form>
@@ -143,5 +99,67 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function WhatHappens() {
+  return (
+    <Dialog.Description asChild>
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">
+        <li>{s.sessions}</li>
+        <li>
+          {s.inDays}
+          {ACCOUNT_DELETION_DAYS}
+          {s.days}
+        </li>
+        <li>{s.before}</li>
+        <li>{s.after}</li>
+      </ul>
+    </Dialog.Description>
+  );
+}
+
+function Requested({ deleteAfter, onLeave }: { deleteAfter: string; onLeave: () => void }) {
+  return (
+    <>
+      <Dialog.Title className="font-serif text-xl font-semibold">{s.doneTitle}</Dialog.Title>
+      <Dialog.Description className="mt-2 text-sm leading-relaxed text-muted">
+        {s.doneBefore} <strong className="text-ink">{formatDateTime(deleteAfter)}</strong>
+        {s.doneAfter}
+      </Dialog.Description>
+      <div className="mt-6 flex justify-end">
+        <button type="button" onClick={onLeave} className={`${button.base} ${button.primary}`}>
+          {s.understood}
+        </button>
+      </div>
+    </>
+  );
+}
+
+function ConfirmEmail({
+  email,
+  setEmail,
+  account,
+}: {
+  email: string;
+  setEmail: (email: string) => void;
+  account: string;
+}) {
+  return (
+    <>
+      <label htmlFor="delete-email" className="text-sm font-medium">
+        {s.confirm}
+        {account})
+      </label>
+      <input
+        id="delete-email"
+        type="email"
+        autoComplete="off"
+        spellCheck={false}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink sm:text-sm"
+      />
+    </>
   );
 }

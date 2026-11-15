@@ -20,7 +20,7 @@ import { locateNote, noteBlocks } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
-import { useSettingsGroups } from '../../settings/useSettingsGroups';
+import { useSettingsGroups } from '../../settings/hooks/useSettingsGroups';
 import { ADMIN_SECTIONS, useIsAdmin } from '../../admin';
 import { navStrings } from '../strings';
 

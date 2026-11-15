@@ -2,6 +2,7 @@
 import { Flag, Layers, SlidersHorizontal, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../shared/lib/paths';
+import { sectionsStrings as s } from './sections.strings';
 
 interface SettingsSection {
   label: string;
@@ -18,18 +19,18 @@ export interface SettingsGroup {
 /** `/settings` opens the first section. */
 export const SETTINGS_GROUPS = [
   {
-    title: 'Cuenta',
+    title: s.account,
     sections: [
-      { label: 'Datos de usuario', to: paths.accountSettings, icon: UserRound },
-      { label: 'Mis reportes', to: paths.myReports, icon: Flag },
+      { label: s.user, to: paths.accountSettings, icon: UserRound },
+      { label: s.reports, to: paths.myReports, icon: Flag },
     ],
   },
   {
-    title: 'Anki',
+    title: s.anki,
     sections: [
-      { label: 'General', to: paths.ankiSettings, icon: Layers },
+      { label: s.general, to: paths.ankiSettings, icon: Layers },
       {
-        label: 'Configuración de mazos',
+        label: s.deckOptions,
         to: paths.deckOptions(),
         icon: SlidersHorizontal,
         fullAnkiOnly: true,

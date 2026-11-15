@@ -61,28 +61,9 @@
       "count": 1
     }
   },
-  "apps/web/src/app/AccountGate.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 22
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/web/src/app/AppShell.tsx": {
     "max-lines-per-function": {
       "count": 1
-    }
-  },
-  "apps/web/src/features/account/DeleteAccountDialog.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 15
     }
   },
   "apps/web/src/features/admin/api/repository/memory.ts": {
@@ -212,19 +193,6 @@
   "apps/web/src/features/session/AuthCallbackPage.tsx": {
     "qv/no-literal-text": {
       "count": 1
-    }
-  },
-  "apps/web/src/features/settings/AccountSettingsPage.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 32
-    }
-  },
-  "apps/web/src/features/settings/SettingsLayout.tsx": {
-    "qv/no-literal-text": {
-      "count": 4
     }
   },
   "apps/web/src/shared/hooks/useImageZoom.ts": {

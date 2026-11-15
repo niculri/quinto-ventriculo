@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { isAllowedEmail } from '@qv/schema';
 import { paths } from '../shared/lib/paths';
 import { useSessionService } from '../features/session/api/context';
-import { forgetAccounts } from '../features/account/remembered';
+import { forgetAccounts } from '../features/account/api/remembered';
 import { DOMAIN_NOTICE } from '../features/session/notices';
 import { Context } from '../features/session/context';
 import type { SessionState } from '../features/session/context';

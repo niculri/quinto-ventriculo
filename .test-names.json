@@ -17,8 +17,6 @@
   "apps/web/src/app/supabase-calls.test.ts",
   "apps/web/src/app/web.test.tsx",
   "apps/web/src/creator-photo.test.ts",
-  "apps/web/src/features/account/account.test.tsx",
-  "apps/web/src/features/account/local-repository.test.ts",
   "apps/web/src/features/progress/api/repository/cards-of-decks.test.ts",
   "apps/web/src/features/progress/api/repository/local-repository.test.ts",
   "apps/web/src/features/progress/api/repository/memory-contract-cards.test.ts",

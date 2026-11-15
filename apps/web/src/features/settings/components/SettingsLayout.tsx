@@ -1,23 +1,21 @@
 // The frame of «Opciones»: the menu of its sections by group (tabs on top on the phone) and the open section.
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
-import { paths } from '../../shared/lib/paths';
-import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import { useSettingsGroups } from './useSettingsGroups';
-import { page } from '../../shared/ui/styles';
+import { paths } from '../../../shared/lib/paths';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { useSettingsGroups } from '../hooks/useSettingsGroups';
+import { page } from '../../../shared/ui/styles';
+import { settingsStrings as s } from '../strings';
 
 /** On wide screens the site's menu (features/nav/components/AppNav.tsx) has the sections, so this one goes away. */
 export function SettingsLayout({ children }: { children: ReactNode }) {
   const groups = useSettingsGroups();
   return (
     <div className={page}>
-      <Breadcrumbs items={[{ label: 'Inicio', to: paths.home }, { label: 'Opciones' }]} />
-      <h1 className="font-serif text-3xl font-semibold tracking-tight">Opciones</h1>
+      <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: s.title }]} />
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">{s.title}</h1>
       <div className="mt-6 flex flex-col gap-6 md:flex-row md:gap-10">
-        <nav
-          aria-label="Secciones de las opciones"
-          className="min-w-0 md:w-56 md:flex-none lg:hidden"
-        >
+        <nav aria-label={s.sections} className="min-w-0 md:w-56 md:flex-none lg:hidden">
           <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 md:sticky md:top-24 md:mx-0 md:flex-col md:items-stretch md:gap-0 md:overflow-visible md:px-0 md:pb-0">
             {groups.map((group, i) => (
               <div

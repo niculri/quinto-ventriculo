@@ -4,7 +4,7 @@ import { formatDateTime } from '../../shared/lib/dates';
 import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { card } from '../../shared/ui/styles';
-import { SettingsLayout } from '../settings/SettingsLayout';
+import { SettingsLayout } from '../settings/components/SettingsLayout';
 import {
   CATEGORY_LABELS,
   KIND_LABELS,

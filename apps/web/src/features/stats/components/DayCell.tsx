@@ -1,4 +1,4 @@
-// A day of the heatmap grid: its color, its name for a screen reader, today's ring and the roving tab stop.
+// A day of the heatmap grid: its color, its name for a screen reader, today's mark and the roving tab stop.
 
 import { cellLabel, dateText } from '@qv/study';
 import type { CellValue } from '@qv/study';

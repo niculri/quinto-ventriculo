@@ -213,6 +213,11 @@
       "count": 10
     }
   },
+  "apps/web/src/features/cards/components/CardGrid.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
   "apps/web/src/features/cards/components/CardList.tsx": {
     "max-lines": {
       "count": 1
@@ -236,17 +241,8 @@
     }
   },
   "apps/web/src/features/cards/components/CardTable.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
     "qv/no-literal-text": {
-      "count": 48
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 3
+      "count": 1
     }
   },
   "apps/web/src/features/cards/components/CardsViewer.tsx": {
@@ -257,9 +253,49 @@
       "count": 16
     }
   },
+  "apps/web/src/features/cards/components/ColumnsMenu.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/components/FlagMenu.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/cards/components/ForgetDialog.tsx": {
+    "qv/no-literal-text": {
+      "count": 11
+    }
+  },
   "apps/web/src/features/cards/components/QuickFilters.tsx": {
     "qv/no-literal-text": {
       "count": 18
+    }
+  },
+  "apps/web/src/features/cards/components/SidebarDialog.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/cards/components/TableMain.tsx": {
+    "qv/no-literal-text": {
+      "count": 5
+    }
+  },
+  "apps/web/src/features/cards/components/TablePreview.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/cards/components/TableSearch.tsx": {
+    "qv/no-literal-text": {
+      "count": 7
+    }
+  },
+  "apps/web/src/features/cards/components/TableToolbar.tsx": {
+    "qv/no-literal-text": {
+      "count": 9
     }
   },
   "apps/web/src/features/cards/hooks/useCardsData.ts": {

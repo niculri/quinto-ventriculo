@@ -285,3 +285,19 @@ export function notesOf(cards: BrowseCard[]): BrowseNoteRow[] {
     };
   });
 }
+
+/** The cards of the table's rows: in «Notas», every card of each note. */
+export const cardsOfRows = (rows: BrowseCard[], mode: 'cards' | 'notes'): BrowseCard[] =>
+  mode === 'notes' ? rows.flatMap((n) => (n as BrowseNoteRow).cards) : rows;
+
+/** What the big viewer shows of the table's rows: every card, in the table's order. */
+export const viewerSummaries = (cards: BrowseCard[]) =>
+  cards.map((c) => ({
+    noteGuid: c.noteGuid,
+    ord: c.ord,
+    deckId: c.deckId,
+    code: c.note.code,
+    version: c.note.version,
+    kind: c.kind,
+    text: c.note.sortField,
+  }));

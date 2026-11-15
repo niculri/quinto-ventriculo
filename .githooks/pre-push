@@ -23,7 +23,7 @@ fi
 # Every commit of the push (refs on the standard input) against the private repository's forbidden patterns, if any.
 node .githooks/forbidden.mjs "$1" || exit 1
 
-echo "pre-push: tipos, lint, supresiones, ciclos, código sin uso, formato y Vitest (en una emergencia, git push --no-verify lo salta)…"
+echo "pre-push: tipos, lint, supresiones, ciclos, nombres de pruebas, código sin uso, formato y Vitest (en una emergencia, git push --no-verify lo salta)…"
 fail() {
   echo "" >&2
   echo "pre-push: falló «$1». El push se canceló: arréglalo y vuelve a hacer push." >&2
@@ -33,6 +33,7 @@ npm run --silent typecheck || fail "npm run typecheck"
 npm run --silent lint || fail "npm run lint"
 npm run --silent suppressions || fail "npm run suppressions (las supresiones de ESLint subieron)"
 npm run --silent deps || fail "npm run deps (un ciclo de imports nuevo)"
+npm run --silent test-names || fail "npm run test-names (una prueba que no sigue la regla de nombres)"
 npm run --silent knip || fail "npm run knip (archivos, exports o dependencias sin uso)"
 npm run --silent format:check || fail "npm run format:check"
 npm test --silent || fail "npm test (Vitest)"

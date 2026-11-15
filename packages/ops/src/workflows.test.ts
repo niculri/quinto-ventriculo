@@ -77,6 +77,18 @@ describe('GitHub workflows', () => {
     expect(hook).toContain('npm run --silent knip');
   });
 
+  it('the test names check runs in npm run check, in the CI against the base and in the pre-push hook', () => {
+    const hook = readFileSync(join(repositoryRoot(), '.githooks', 'pre-push'), 'utf8');
+    const scripts = (
+      JSON.parse(readFileSync(join(repositoryRoot(), 'package.json'), 'utf8')) as {
+        scripts: Record<string, string>;
+      }
+    ).scripts;
+    expect(scripts.check).toContain('npm run test-names');
+    expect(ci).toContain('npm run --silent test-names -- --base "$base"');
+    expect(hook).toContain('npm run --silent test-names');
+  });
+
   it("Chromium's end to end tests run in parallel parts that together run every spec", () => {
     const shards = /shard: \[([\d, ]+)\]/
       .exec(ci)?.[1]

@@ -10,7 +10,7 @@ import {
   pinch,
   toggledScale,
   zoomAt,
-} from './zoom';
+} from '../zoom';
 
 const plate = { width: 2000, height: 1500 };
 const phone = { width: 375, height: 600 };

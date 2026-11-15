@@ -52,6 +52,12 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `shared/<x>`): `npm run deps` falla con un ciclo que no esté en `.import-cycles.json`, y también si ese
   archivo ganó ciclos respecto de `origin/main`. `npm run deps:baseline` lo rehace, pero solo sirve para sacar los
   ciclos que ya se rompieron: uno nuevo no se agrega, se rompe.
+- **Nombres de las pruebas:** una prueba se llama como el archivo que prueba y va en `__tests__/` junto a él
+  (`shared/ui/Toast.tsx` → `shared/ui/__tests__/Toast.test.tsx`); la que recorre un flujo entero de una feature,
+  `features/<x>/__tests__/<flujo>.flow.test.tsx`, y una batería de contrato, `*-contract.test.ts`. `npm run test-names`
+  (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, y
+  también si esa lista se alargó respecto de `origin/main`; `npm run test-names:baseline` la rehace, para sacar las que
+  ya lo cumplen.
 - **Trinquete:** todas las reglas están en `error`; lo que ya las violaba está en `eslint-suppressions.json`. Por cada
   regla, las supresiones de ese archivo más los `eslint-disable` en línea no pueden subir respecto de `origin/main`:
   `npm run suppressions` (en `npm run check`, la CI y el `pre-push`). Un `eslint-disable` que ya no silencia nada es
@@ -68,7 +74,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 
 ## Antes de subir un cambio
 `npm run typecheck`, `npm run lint`, `npm run format:check`, `npx vitest run` y `npm run e2e`. El hook `pre-push`
-corre los cuatro primeros, más `npm run suppressions`, `npm run deps` y `npm run knip` (`npm run check` corre los
-mismos). En el clon del dueño (`git config qv.requirePrivate true`) exige además las pruebas del material real
-(`QV_REQUIRE_PRIVATE=1`), y si el privado tiene `tests/prohibidos.txt`, detiene el push que traiga uno de esos
-patrones en cualquiera de sus commits (`.githooks/forbidden.mjs`). No uses `--no-verify` para saltarlo.
+corre los cuatro primeros, más `npm run suppressions`, `npm run deps`, `npm run test-names` y `npm run knip` (`npm run
+check` corre los mismos). En el clon del dueño (`git config qv.requirePrivate true`) exige además las pruebas del
+material real (`QV_REQUIRE_PRIVATE=1`), y si el privado tiene `tests/prohibidos.txt`, detiene el push que traiga uno de
+esos patrones en cualquiera de sus commits (`.githooks/forbidden.mjs`). No uses `--no-verify` para saltarlo.

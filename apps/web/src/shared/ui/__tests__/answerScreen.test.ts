@@ -1,6 +1,6 @@
 // Tests of which screens are answer screens and where their «Volver» goes.
 import { describe, expect, it } from 'vitest';
-import { answerScreenBack, isAnswerScreen } from './answerScreen';
+import { answerScreenBack, isAnswerScreen } from '../answerScreen';
 
 const DECK = '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana/mazo';
 

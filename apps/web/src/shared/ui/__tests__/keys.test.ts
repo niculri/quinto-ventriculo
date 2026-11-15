@@ -1,6 +1,6 @@
 // Tests of how shortcuts are written on each system.
 import { describe, expect, it } from 'vitest';
-import { formatKeys } from './keys';
+import { formatKeys } from '../keys';
 
 describe('shortcuts as the system writes them', () => {
   it('on Windows and Linux they stay as written', () => {

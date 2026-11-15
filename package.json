@@ -22,6 +22,8 @@
     "suppressions": "tsx packages/ops/src/suppressions-cli.ts",
     "deps": "tsx packages/ops/src/cycles-cli.ts",
     "deps:baseline": "tsx packages/ops/src/cycles-cli.ts --write-baseline",
+    "test-names": "tsx packages/ops/src/test-names-cli.ts",
+    "test-names:baseline": "tsx packages/ops/src/test-names-cli.ts --write-baseline",
     "knip": "knip",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -32,7 +34,7 @@
     "import": "npm run import -w @qv/importer --",
     "unpublish": "npm run unpublish -w @qv/importer --",
     "db:types": "tsx db/scripts/db-types.ts",
-    "check": "npm run typecheck && npm run lint && npm run suppressions && npm run deps && npm run knip && npm run format:check && npm test",
+    "check": "npm run typecheck && npm run lint && npm run suppressions && npm run deps && npm run test-names && npm run knip && npm run format:check && npm test",
     "deploy": "tsx packages/ops/src/deploy-cli.ts",
     "smoke": "tsx packages/ops/src/smoke-cli.ts",
     "prepare": "sh .githooks/install.sh"

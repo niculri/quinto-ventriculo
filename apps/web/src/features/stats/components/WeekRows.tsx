@@ -1,9 +1,11 @@
-// The seven rows of the heatmap grid, Monday to Sunday: the weekday's label and a cell for each week of the year.
+// The seven rows of the heatmap grid, Monday to Sunday: the weekday's label and a cell for each week of the year, with
+// its color, its name for a screen reader, today's mark and the roving tab stop.
 
+import { cellLabel, dateText } from '@qv/study';
 import type { CellValue, yearGrid } from '@qv/study';
 import { CELL, GAP, LABELS } from '../model/layout';
 import { statsStrings as s } from '../strings';
-import { DayCell } from './DayCell';
+import { shade } from '../model/shade';
 
 export function WeekRows({
   grid,
@@ -42,24 +44,36 @@ export function WeekRows({
           </th>
           {grid.columns.map((week, c) => {
             const day = week[row]!;
-            return day === null ? (
+            if (day === null) {
+              return (
+                <td
+                  key={c}
+                  aria-hidden="true"
+                  className="p-0"
+                  style={{ width: CELL, height: CELL }}
+                />
+              );
+            }
+            const cell = valueOf(day);
+            const isToday = day === today;
+            return (
               <td
                 key={c}
-                aria-hidden="true"
-                className="p-0"
-                style={{ width: CELL, height: CELL }}
-              />
-            ) : (
-              <DayCell
-                key={c}
-                day={day}
-                cell={valueOf(day)}
-                today={today}
-                ready={ready}
-                current={day === current}
+                role="gridcell"
+                data-day={day}
+                tabIndex={day === current ? 0 : -1}
+                aria-label={cell && today !== null ? cellLabel(day, cell, today) : dateText(day)}
+                aria-current={isToday ? 'date' : undefined}
                 onClick={() => onClick(day)}
-                onHover={() => onHover(day)}
+                onMouseEnter={() => onHover(day)}
                 onFocus={() => onFocus(day)}
+                className={`p-0 ${ready ? '' : 'animate-pulse'} cursor-pointer rounded-[2px] focus-visible:outline-offset-1`}
+                style={{
+                  width: CELL,
+                  height: CELL,
+                  background: shade(cell),
+                  boxShadow: isToday ? '0 0 0 1.5px var(--ink)' : undefined,
+                }}
               />
             );
           })}

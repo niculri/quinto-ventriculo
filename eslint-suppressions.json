@@ -85,7 +85,12 @@
       "count": 15
     }
   },
-  "apps/web/src/features/admin/AccessPage.tsx": {
+  "apps/web/src/features/admin/api/repository/memory.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/admin/pages/AccessPage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -99,12 +104,12 @@
       "count": 3
     }
   },
-  "apps/web/src/features/admin/AdminLayout.tsx": {
+  "apps/web/src/features/admin/pages/AdminLayout.tsx": {
     "qv/no-literal-text": {
       "count": 4
     }
   },
-  "apps/web/src/features/admin/ReleasesPage.tsx": {
+  "apps/web/src/features/admin/pages/ReleasesPage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -118,7 +123,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/ReportsPage.tsx": {
+  "apps/web/src/features/admin/pages/ReportsPage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -129,17 +134,17 @@
       "count": 54
     }
   },
-  "apps/web/src/features/admin/SitePage.tsx": {
+  "apps/web/src/features/admin/pages/SitePage.tsx": {
     "qv/no-literal-text": {
       "count": 3
     }
   },
-  "apps/web/src/features/admin/UnpublishedPage.tsx": {
+  "apps/web/src/features/admin/pages/UnpublishedPage.tsx": {
     "qv/no-literal-text": {
       "count": 10
     }
   },
-  "apps/web/src/features/admin/UsagePage.tsx": {
+  "apps/web/src/features/admin/pages/UsagePage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -148,11 +153,6 @@
     },
     "qv/no-literal-text": {
       "count": 56
-    }
-  },
-  "apps/web/src/features/admin/api/repository/memory.ts": {
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "apps/web/src/features/catalog/model/tree.ts": {

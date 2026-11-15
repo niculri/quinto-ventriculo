@@ -12,17 +12,17 @@ import type {
   UsageOpenFigures,
   UsageReport,
 } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import { formatDateTime } from '../../shared/lib/dates';
-import { Skeleton } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { Reserved } from '../../shared/ui/Reserved';
-import { Select } from '../../shared/ui/Select';
-import { card } from '../../shared/ui/styles';
-import { buildAnkiTree, hasPage } from '../catalog/model/tree';
-import { findCourse, locateNote, useCatalog } from '../catalog/queries';
+import { paths } from '../../../shared/lib/paths';
+import { formatDateTime } from '../../../shared/lib/dates';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { Reserved } from '../../../shared/ui/Reserved';
+import { Select } from '../../../shared/ui/Select';
+import { card } from '../../../shared/ui/styles';
+import { buildAnkiTree, hasPage } from '../../catalog/model/tree';
+import { findCourse, locateNote, useCatalog } from '../../catalog/queries';
 import { AdminSectionTitle } from './AdminLayout';
-import { useUsageReport } from './queries';
+import { useUsageReport } from '../queries';
 
 /** The visits and the pages are in Cloudflare Web Analytics; `:account` opens the viewer's own account. */
 const WEB_ANALYTICS_URL = 'https://dash.cloudflare.com/?to=/:account/web-analytics';

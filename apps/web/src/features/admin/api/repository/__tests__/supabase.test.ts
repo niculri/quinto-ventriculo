@@ -2,7 +2,7 @@
 // page's names for the answers and the refusals in Spanish.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
-import { AccessError, supabaseAdminRepository } from './api/repository';
+import { AccessError, supabaseAdminRepository } from '..';
 
 type Rpc = (fn: string, args?: unknown) => Promise<{ data: unknown; error: unknown }>;
 

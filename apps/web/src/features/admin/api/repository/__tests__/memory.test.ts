@@ -1,8 +1,8 @@
 // Tests that the in-memory administration repository follows invite_emails(), remove_invites() and admin_set_admin()
 // («Differs» marks where not).
 import { describe, expect, it } from 'vitest';
-import { localAdminRepository, MAX_EMAILS } from './api/repository';
-import type { AccessInvite } from './api/repository';
+import { localAdminRepository, MAX_EMAILS } from '..';
+import type { AccessInvite } from '..';
 
 const person = (email: string, list: string, admin = false): AccessInvite => ({
   email,

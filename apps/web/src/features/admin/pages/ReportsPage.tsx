@@ -6,14 +6,14 @@ import { Ban, Check, ClipboardCopy, ExternalLink, RotateCcw } from 'lucide-react
 import { Link } from 'react-router';
 import { RESOLUTION_NOTE_MAX, RESOLUTION_STATUSES } from '@qv/schema';
 import type { ReportCategory, ResolutionStatus } from '@qv/schema';
-import { formatDateTime } from '../../shared/lib/dates';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { Select } from '../../shared/ui/Select';
-import { Switch } from '../../shared/ui/Switch';
-import { button, card } from '../../shared/ui/styles';
-import { locateNote, useCatalog } from '../catalog/queries';
-import { useCard } from '../decks/hooks/useCard';
+import { formatDateTime } from '../../../shared/lib/dates';
+import { Loading } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { Select } from '../../../shared/ui/Select';
+import { Switch } from '../../../shared/ui/Switch';
+import { button, card } from '../../../shared/ui/styles';
+import { locateNote, useCatalog } from '../../catalog/queries';
+import { useCard } from '../../decks/hooks/useCard';
 import {
   CATEGORY_LABELS,
   KIND_LABELS,
@@ -22,18 +22,18 @@ import {
   codeWithVersion,
   placeLabel,
   placeLink,
-} from '../reports/labels';
+} from '../../reports/labels';
 import {
   useReopenReports,
   useReportQueue,
   useResolveReports,
   useSetReportBlock,
-} from '../reports/queries';
-import { ReportError } from '../reports/api/repository';
-import { splitCardId } from '../reports/targets';
-import type { QueueReport, Reporter, ReportGroup } from '../reports/api/repository';
+} from '../../reports/queries';
+import { ReportError } from '../../reports/api/repository';
+import { splitCardId } from '../../reports/targets';
+import type { QueueReport, Reporter, ReportGroup } from '../../reports/api/repository';
 import { AdminSectionTitle } from './AdminLayout';
-import { BlurredBackdrop, CloseX } from '../../shared/ui/Dialog';
+import { BlurredBackdrop, CloseX } from '../../../shared/ui/Dialog';
 
 type Showing = 'open' | 'resolved';
 

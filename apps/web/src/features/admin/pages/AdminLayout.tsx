@@ -1,14 +1,14 @@
 // «Administración»: the menu of its sections and the open one, only for administrators.
 import type { ReactNode } from 'react';
 import { NavLink, Outlet } from 'react-router';
-import { paths } from '../../shared/lib/paths';
-import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import { Loading } from '../../shared/ui/Loading';
-import { NotFoundPage } from '../../shared/ui/NotFoundPage';
-import { page } from '../../shared/ui/styles';
-import { useIsAdmin } from './queries';
-import { ADMIN_SECTIONS } from './sections';
-import { useTitle } from '../../shared/hooks/useTitle';
+import { paths } from '../../../shared/lib/paths';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { Loading } from '../../../shared/ui/Loading';
+import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
+import { page } from '../../../shared/ui/styles';
+import { useIsAdmin } from '../queries';
+import { ADMIN_SECTIONS } from '../sections';
+import { useTitle } from '../../../shared/hooks/useTitle';
 
 /** Stays mounted while the sections change, so the breadcrumbs, the title and the menu do not move. */
 export function AdminLayout() {

@@ -3,15 +3,15 @@ import { useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ShieldCheck, ShieldMinus, TriangleAlert, UserMinus, UserPlus, Users } from 'lucide-react';
-import { formatDate, formatDateTime } from '../../shared/lib/dates';
-import { Loading } from '../../shared/ui/Loading';
-import { Notice } from '../../shared/ui/Notice';
-import { Reserved } from '../../shared/ui/Reserved';
-import { Select } from '../../shared/ui/Select';
-import { button, card } from '../../shared/ui/styles';
+import { formatDate, formatDateTime } from '../../../shared/lib/dates';
+import { Loading } from '../../../shared/ui/Loading';
+import { Notice } from '../../../shared/ui/Notice';
+import { Reserved } from '../../../shared/ui/Reserved';
+import { Select } from '../../../shared/ui/Select';
+import { button, card } from '../../../shared/ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
-import { useAccessReport, useInvite, useRemoveInvites, useSetAdmin } from './queries';
-import { AccessError, MAX_EMAILS, normalizeEmail } from './api/repository';
+import { useAccessReport, useInvite, useRemoveInvites, useSetAdmin } from '../queries';
+import { AccessError, MAX_EMAILS, normalizeEmail } from '../api/repository';
 import type {
   AccessInvite,
   AccessReport,
@@ -19,8 +19,8 @@ import type {
   InviteResult,
   RemoveResult,
   SetAdminResult,
-} from './api/repository';
-import { DimBackdrop } from '../../shared/ui/Dialog';
+} from '../api/repository';
+import { DimBackdrop } from '../../../shared/ui/Dialog';
 
 /** `youAreOwner` comes with the report, so the site owner's buttons never appear after it. */
 export function AccessPage() {

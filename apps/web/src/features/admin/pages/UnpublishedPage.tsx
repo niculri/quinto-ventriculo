@@ -1,11 +1,11 @@
 // «Administración» → «Fuera del sitio»: the record of what `npm run unpublish` took off the site, only to look at.
 import type { UnpublishedEntry, UnpublishedKind } from '@qv/schema';
-import { formatDateTime } from '../../shared/lib/dates';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { card } from '../../shared/ui/styles';
+import { formatDateTime } from '../../../shared/lib/dates';
+import { Loading } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { card } from '../../../shared/ui/styles';
 import { AdminSectionTitle } from './AdminLayout';
-import { useUnpublishedLog } from './queries';
+import { useUnpublishedLog } from '../queries';
 
 export function UnpublishedPage() {
   const log = useUnpublishedLog();

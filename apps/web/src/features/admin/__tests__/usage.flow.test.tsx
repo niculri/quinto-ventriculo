@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { FEW } from '@qv/schema';
 import type { UsageFigures, UsageReport } from '@qv/schema';
-import { fakeApi, renderApp } from '../../test/render';
-import { searchContext } from '../search/useSearch';
-import { localAdminRepository } from './api/repository';
+import { fakeApi, renderApp } from '../../../test/render';
+import { searchContext } from '../../search/useSearch';
+import { localAdminRepository } from '../api/repository';
 
 const admin = () => localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl' });
 

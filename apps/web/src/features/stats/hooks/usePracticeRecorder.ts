@@ -1,5 +1,5 @@
 // Records the practice answers of the final review for the heatmap, in batches the database takes (by hand, not with
-// `useMutation`: `mutate()` would call the repository a microtask later, and on `pagehide` the page may be gone).
+// `useMutation`: `mutate()` would move each call a microtask later, after the rest of the event or cleanup that flushes).
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useStudyRepository } from '../../progress/api/context';

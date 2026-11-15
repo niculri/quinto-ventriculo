@@ -9,7 +9,7 @@ import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
 
 const D = dayNumber;
-// A Tuesday of November, at noon in Santiago: its study day is 10-11-2026 in any time zone.
+// A Tuesday of November, at noon in Santiago: its study day is 10-11-2026 from 11 hours behind UTC to 12 ahead.
 const NOW = new Date('2026-11-10T12:00:00-03:00');
 const TODAY = D('2026-11-10');
 
@@ -74,7 +74,7 @@ describe('the grid', () => {
     expect(cell(/\(hoy\)/)).toHaveAttribute('aria-current', 'date');
   });
 
-  it('a custom title, on a course’s page', async () => {
+  it('on a course’s page, the same title', async () => {
     renderApp('/semesters/1/courses/anatomia-1', { study: withHeatmap(async () => DATA) });
     await grid();
     expect(screen.getByRole('heading', { name: 'Días de estudio' })).toBeInTheDocument();

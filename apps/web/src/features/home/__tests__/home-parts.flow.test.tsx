@@ -8,7 +8,7 @@ import { localStudyRepository } from '../../progress/api/repository';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
 import { localQuizRepository } from '../../quiz/api/repository';
 
-// A Tuesday of November, at noon in Santiago: the same study day in any time zone.
+// A Tuesday of November, at noon in Santiago: the same study day from 11 hours behind UTC to 12 ahead.
 const NOW = new Date('2026-11-10T12:00:00-03:00');
 
 beforeEach(() => {

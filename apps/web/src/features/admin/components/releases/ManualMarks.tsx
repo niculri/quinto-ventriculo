@@ -1,0 +1,52 @@
+// The marks by hand of this draft: each switch moves at once and the mark is saved in the background (if that fails,
+// it goes back).
+import { useState } from 'react';
+import type { ReviewList } from '@qv/release-review';
+import { Reserved } from '../../../../shared/ui/Reserved';
+import { Switch } from '../../../../shared/ui/Switch';
+import { card } from '../../../../shared/ui/styles';
+import { useUser } from '../../../session/context';
+import { useSetReleaseMark } from '../../hooks/useReleaseChanges';
+import { releasesStrings } from '../../releases.strings';
+
+const s = releasesStrings.marks;
+
+export function ManualMarks({ review, fingerprint }: { review: ReviewList; fingerprint: string }) {
+  const user = useUser();
+  const mark = useSetReleaseMark(fingerprint, user.email);
+  const [shown, setShown] = useState<Partial<Record<string, boolean>>>({});
+  return (
+    <>
+      <ul className={`${card} mt-2 divide-y divide-border`}>
+        {review.manual.map((m) => (
+          <li key={m.mark} className="flex items-center gap-3 px-4 py-3 sm:px-5">
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium text-ink">{m.label}</span>
+              <Reserved longest={s.longest} className="text-xs text-muted">
+                {m.checkedBy ? s.by(m.checkedBy) : s.none}
+              </Reserved>
+            </span>
+            <Switch
+              label={m.label}
+              checked={shown[m.mark] ?? m.checked}
+              onChange={(checked) => {
+                setShown((v) => ({ ...v, [m.mark]: checked }));
+                mark.mutate(
+                  { mark: m.mark, checked },
+                  { onSettled: () => setShown(({ [m.mark]: _, ...rest }) => rest) },
+                );
+              }}
+            />
+          </li>
+        ))}
+      </ul>
+      {mark.isError ? (
+        <p role="alert" className="mt-2 text-sm text-state-learn">
+          {mark.error instanceof Error && 'status' in mark.error && mark.error.status === 409
+            ? s.changed
+            : s.failed}
+        </p>
+      ) : null}
+    </>
+  );
+}

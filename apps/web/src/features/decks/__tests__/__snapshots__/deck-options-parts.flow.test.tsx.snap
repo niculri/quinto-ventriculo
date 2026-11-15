@@ -12,7 +12,7 @@ exports[`«Anki general», what it says > while it loads it says so; then where 
   ],
   [
     "Avanzado",
-    "AvanzadoLímite del estudio por adelantadoSi no queda nada más, las tarjetas de aprendizaje que vencen dentro de este tiempo se muestran antes.minLas tarjetas nuevas ignoran el límite de revisiónLímites empiezan desde arribaAl estudiar un mazo, también cuentan los límites de los mazos de arriba (el certamen, el ramo…).Zona horaria: America/Santiago (la de tu navegador).",
+    "AvanzadoLímite del estudio por adelantadoSi no queda nada más, las tarjetas de aprendizaje que vencen dentro de este tiempo se muestran antes.minLas tarjetas nuevas ignoran el límite de revisiónLímites empiezan desde arribaAl estudiar un mazo, también cuentan los límites de los mazos de arriba (el certamen, el ramo…).Zona horaria: <zone> (la de tu navegador).",
   ],
 ]
 `;

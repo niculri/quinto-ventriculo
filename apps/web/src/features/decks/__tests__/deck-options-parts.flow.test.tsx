@@ -189,7 +189,11 @@ describe('«Anki general», what it says', () => {
       'href',
       '/settings/deck-options',
     );
-    expect(sectionTexts()).toMatchSnapshot();
+    // The zone is the machine's: the snapshot keeps a placeholder, so that it holds anywhere.
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    expect(
+      sectionTexts().map(([label, text]) => [label, text?.replace(zone, '<zone>')]),
+    ).toMatchSnapshot();
   });
 
   it('a change says it is not saved, and after saving, that it is', async () => {

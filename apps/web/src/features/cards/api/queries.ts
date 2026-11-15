@@ -9,6 +9,7 @@ import type { StudyPreferences, StudyRepository } from '../../progress/api/repos
 import { studyKeys } from '../../progress/queries';
 import { heatmapKeys } from '../../stats/api/queries';
 import type { CardsScope } from '../../catalog/model/scope';
+import { deckKeys } from '../../decks/api/queries';
 
 const cardsKeys = {
   index: (assessmentId: string, hash: string) => ['card-index', assessmentId, hash] as const,
@@ -16,8 +17,6 @@ const cardsKeys = {
   failed: (since: number) => [...studyKeys.all, 'failed', since] as const,
   day: (scope: string, day: string) => [...studyKeys.all, 'cards-day', scope, day] as const,
   log: (noteGuid: string, ord: number) => [...studyKeys.all, 'log', noteGuid, ord] as const,
-  /** The key the decks' pages read a card with: the old browser shares its cache. */
-  card: (noteGuid: string | null, ord: number) => ['card', noteGuid, ord] as const,
 };
 
 /** An index does not change while its hash is the same (its file is named by its content). */
@@ -128,7 +127,7 @@ export const legacyCardQuery = (
   enabled: boolean,
 ) =>
   queryOptions({
-    queryKey: cardsKeys.card(note, ord),
+    queryKey: deckKeys.card(note, ord),
     queryFn: ({ signal }) => api.card(note!, ord, signal),
     enabled,
     retry: false,

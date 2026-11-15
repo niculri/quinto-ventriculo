@@ -9,7 +9,7 @@ import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { rememberTab } from '../api/tab';
 import type { SavedQuiz } from '../api/repository';
 import type { QuestionEntry } from '../model/entries';
-import { reportTarget } from './reportTarget';
+import { reportTarget } from '../api/reportTarget';
 import { useQuizSession } from './useQuizSession';
 import { useQuizShortcuts } from './useQuizShortcuts';
 

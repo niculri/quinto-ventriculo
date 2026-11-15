@@ -17,7 +17,6 @@ interface HeatmapProps {
   catalog: Catalog;
   groupBy: GroupBy;
   courseId?: string;
-  title?: string;
   className?: string;
 }
 
@@ -27,7 +26,6 @@ export function Heatmap({
   catalog,
   groupBy,
   courseId,
-  title = s.title,
   className = '',
 }: HeatmapProps) {
   const headingId = useId();
@@ -40,7 +38,7 @@ export function Heatmap({
       {/* One line of a fixed height: a web font arriving late cannot wrap the title and move the grid. */}
       <div className="flex h-9 items-center justify-between gap-2">
         <h2 id={headingId} className="min-w-0 truncate font-serif text-lg font-semibold sm:text-xl">
-          {title}
+          {s.title}
         </h2>
         <YearNav year={year} thisYear={thisYear} range={range} onChoose={setChosen} />
       </div>

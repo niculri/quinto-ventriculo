@@ -16,10 +16,9 @@ import {
 } from '@qv/quiz';
 import type { Preferences, QuestionInfo, Round } from '@qv/quiz';
 import type { QuizSectionDetail } from '@qv/schema';
-import type { AnswerInfo } from '../api/repository';
-import type { StepSaver } from '../api/saver';
-import { answerStep } from '../model/entries';
-import type { QuestionEntry } from '../model/entries';
+import type { AnswerInfo } from '@qv/schema/user';
+import { answerStep } from './entries';
+import type { QuestionEntry } from './entries';
 
 export type Commit = (
   round: Round | null,
@@ -33,7 +32,7 @@ export function roundActions(o: {
   infos: Map<string, QuestionInfo>;
   shuffle: boolean;
   round: Round | null;
-  saver: StepSaver;
+  saver: { retry(): void };
   groups: QuizSectionDetail['groups'];
 }) {
   const { commit, current, infos, shuffle, round, saver, groups } = o;

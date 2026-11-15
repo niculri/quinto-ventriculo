@@ -22,7 +22,6 @@
   "apps/web/src/features/progress/api/repository/memory-contract-cards.test.ts",
   "apps/web/src/features/progress/api/repository/memory-contract-days.test.ts",
   "apps/web/src/features/progress/api/repository/memory-contract-settings.test.ts",
-  "apps/web/src/features/settings/kept-options.test.ts",
   "apps/web/src/features/study/scheduler.test.ts",
   "apps/web/src/third-party-licenses.test.ts",
   "db/tests/account.test.ts",

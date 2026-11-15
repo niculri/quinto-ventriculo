@@ -8,7 +8,7 @@ import { useQuizRepository } from '../api/context';
 import { quizKeys } from '../api/queries';
 import type { AnswerInfo, SavedQuiz, SavedSection } from '../api/repository';
 import { questionIndex, roundInfo } from '../model/entries';
-import { roundActions } from './roundActions';
+import { roundActions } from '../model/roundActions';
 import { useStepSaver } from './useStepSaver';
 
 export function useQuizSession(options: {

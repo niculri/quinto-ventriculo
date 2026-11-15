@@ -5,7 +5,7 @@ import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { keyAction } from '../model/keys';
 import type { QuizKeyAction } from '../model/keys';
 import type { QuestionEntry } from '../model/entries';
-import type { RoundActions } from './roundActions';
+import type { RoundActions } from '../model/roundActions';
 
 export function useQuizShortcuts(o: {
   zoom: OpenImage | null;

@@ -3,9 +3,10 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { ApiClient } from '../../../shared/lib/api';
 
-const deckKeys = {
+/** The cards pages read a card with the same key: the old browser shares its cache. */
+export const deckKeys = {
   deck: (deckId: string) => ['deck', deckId] as const,
-  card: (noteGuid: string, ord: number) => ['card', noteGuid, ord] as const,
+  card: (noteGuid: string | null, ord: number) => ['card', noteGuid, ord] as const,
 };
 
 export const deckQuery = (api: ApiClient, deckId: string, enabled: boolean) =>

@@ -8,7 +8,7 @@ import {
   parseConfig,
   schedTiming,
   schedulingStates,
-} from '@qv/srs';
+} from '..';
 
 describe('a preset saved with what «Opciones» no longer shows', () => {
   const custom = Array.from({ length: 21 }, (_, i) =>

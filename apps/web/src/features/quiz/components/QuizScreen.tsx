@@ -12,7 +12,7 @@ import { sharedStrings } from '../../../shared/strings';
 import { ReportDialog } from '../../reports/components/ReportDialog';
 import type { ReportTarget } from '../../reports/api/repository';
 import type { SavedQuiz } from '../api/repository';
-import type { RoundActions } from '../hooks/roundActions';
+import type { RoundActions } from '../model/roundActions';
 import { useQuizScreen } from '../hooks/useQuizScreen';
 import type { QuestionEntry } from '../model/entries';
 import { quizStrings as s } from '../strings';

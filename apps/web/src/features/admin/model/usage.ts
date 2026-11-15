@@ -5,7 +5,7 @@ import type { Catalog, UsageCount, UsageFigures, UsageOpenFigures, UsageReport }
 import { paths } from '../../../shared/lib/paths';
 import type { buildAnkiTree } from '../../catalog/model/tree';
 import { hasPage } from '../../catalog/model/tree';
-import { locateNote } from '../../catalog/queries';
+import { locateNote } from '../../catalog/model/catalog';
 import { usageStrings } from '../usage.strings';
 
 const s = usageStrings;

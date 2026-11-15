@@ -6,7 +6,7 @@ import { paths } from '../../../../shared/lib/paths';
 import { Skeleton } from '../../../../shared/ui/Loading';
 import { card } from '../../../../shared/ui/styles';
 import { buildAnkiTree } from '../../../catalog/model/tree';
-import { findCourse } from '../../../catalog/queries';
+import { findCourse } from '../../../catalog/model/catalog';
 import { deckNamed, figure, noteNamed, quizNamed } from '../../model/usage';
 import { usageStrings } from '../../usage.strings';
 import { Pairs, UsageTable } from './UsageTable';

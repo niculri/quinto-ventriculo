@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { paths } from '../../shared/lib/paths';
 import { useApi } from '../../shared/hooks/useApi';
 import { countSearch } from '../usage/count';
-import { useCatalog } from '../catalog/queries';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 import { Snippet } from './Snippet';
 import { resultLink, searchContext, useSearch } from './useSearch';
 import { BlurredBackdrop } from '../../shared/ui/Dialog';

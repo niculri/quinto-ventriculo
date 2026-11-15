@@ -8,8 +8,8 @@ import { paths } from '../../shared/lib/paths';
 import type { CourseRef } from '../../shared/lib/paths';
 import { buildAnkiTree, hasPage } from '../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
-import { useCatalog } from '../catalog/queries';
-import type { NoteLocation } from '../catalog/queries';
+import { useCatalog } from '../catalog/hooks/useCatalog';
+import type { NoteLocation } from '../catalog/model/catalog';
 import { Html } from '../quiz/components/Html';
 import { useQuizDetail } from '../quiz/hooks/useQuizData';
 

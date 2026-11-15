@@ -2,7 +2,7 @@
 
 import { paths } from '../../shared/lib/paths';
 import type { Crumb } from '../../shared/ui/Breadcrumbs';
-import type { NoteLocation } from '../catalog/queries';
+import type { NoteLocation } from '../catalog/model/catalog';
 
 export function noteCrumbs(location: NoteLocation | null, title: string): Crumb[] {
   return [

@@ -1,5 +1,4 @@
-// The catalog query and the helpers that find notes, courses and decks in it.
-import { useQuery } from '@tanstack/react-query';
+// Finding notes, courses and decks in the catalog, and counting its material.
 import type {
   AssessmentWithNotes,
   Catalog,
@@ -8,27 +7,7 @@ import type {
   NoteSummary,
   SemesterWithCourses,
 } from '@qv/schema';
-import { useApi } from '../../shared/hooks/useApi';
-
-export function useCatalog() {
-  const api = useApi();
-  return useQuery({
-    queryKey: ['catalog'],
-    queryFn: ({ signal }) => api.catalog(signal),
-    staleTime: 5 * 60_000,
-  });
-}
-
-export function useNote(slug: string) {
-  const api = useApi();
-  return useQuery({
-    queryKey: ['note', slug],
-    queryFn: ({ signal }) => api.note(slug, signal),
-    // Image URLs last at least one hour; 10 minutes so that a piece taken off the site stops showing soon.
-    staleTime: 10 * 60_000,
-    gcTime: 45 * 60_000,
-  });
-}
+import { catalogStrings as s } from '../strings';
 
 export interface NoteLocation {
   semester: SemesterWithCourses;
@@ -89,25 +68,18 @@ export function countDecks(catalog: Catalog, courseId: string, assessmentId?: st
 }
 
 export function materialLabel(notes: number, decks: number): string {
-  return [
-    notes ? `${notes} ${notes === 1 ? 'apunte' : 'apuntes'}` : '',
-    decks ? `${decks} ${decks === 1 ? 'mazo' : 'mazos'}` : '',
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  return [notes ? s.notes(notes) : '', decks ? s.decks(decks) : ''].filter(Boolean).join(' · ');
 }
 
 export function yearOfSemester(number: number): number {
   return Math.ceil(number / 2);
 }
 
-export const MORE_SEMESTERS_SOON = 'Los próximos semestres vienen pronto.';
-
 const KIND_BLOCKS: { kind: NoteKind; title: string }[] = [
-  { kind: 'lecture', title: 'Clases' },
-  { kind: 'seminar', title: 'Seminarios' },
-  { kind: 'practical', title: 'Prácticos' },
-  { kind: 'summary', title: 'Resúmenes' },
+  { kind: 'lecture', title: s.blocks.lecture },
+  { kind: 'seminar', title: s.blocks.seminar },
+  { kind: 'practical', title: s.blocks.practical },
+  { kind: 'summary', title: s.blocks.summary },
 ];
 
 /** First the groups (weeks), in the order of their first note; then the notes without a group, by kind. */

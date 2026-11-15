@@ -15,7 +15,9 @@ import {
 import { Link, useLocation } from 'react-router';
 import type { Catalog, CourseWithAssessments, NoteSummary, SemesterWithCourses } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
-import { MORE_SEMESTERS_SOON, locateNote, noteBlocks, useCatalog } from '../../catalog/queries';
+import { catalogStrings } from '../../catalog/strings';
+import { locateNote, noteBlocks } from '../../catalog/model/catalog';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { useSettingsGroups } from '../../settings/useSettingsGroups';
@@ -265,7 +267,7 @@ function NavTree({
             </li>
           ))}
           {catalog?.hiddenSemesters ? (
-            <li className="px-2.5 py-1.5 text-xs text-muted">{MORE_SEMESTERS_SOON}</li>
+            <li className="px-2.5 py-1.5 text-xs text-muted">{catalogStrings.moreSemestersSoon}</li>
           ) : null}
         </>
       )}

@@ -1,6 +1,6 @@
 // The catalog and its deck tree, built once per catalog.
 import { useMemo } from 'react';
-import { useCatalog } from '../queries';
+import { useCatalog } from './useCatalog';
 import { buildAnkiTree } from '../model/tree';
 
 export function useAnkiTree() {

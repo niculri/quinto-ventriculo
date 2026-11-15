@@ -24,7 +24,8 @@ import { KIND_NAMES } from '../notes/header';
 import { findPracticeDeck, practiceLink } from '../notes/Practice';
 import { useDeckCounts } from '../progress/DeckCounts';
 import { Canonical } from '../../shared/ui/Canonical';
-import { findCourse, noteBlocks, useCatalog } from '../catalog/queries';
+import { findCourse, noteBlocks } from '../catalog/model/catalog';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 
 export const plural = (n: number, one: string, many: string) =>
   `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;

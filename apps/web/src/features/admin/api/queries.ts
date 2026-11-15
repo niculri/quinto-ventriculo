@@ -2,6 +2,7 @@
 // admin role is in `isAdmin.ts`).
 import { queryOptions } from '@tanstack/react-query';
 import type { ApiClient } from '../../../shared/lib/api';
+import { catalogKeys } from '../../catalog/api/queries';
 import { isAdminKey } from './isAdmin';
 import type { AdminRepository } from './repository';
 
@@ -12,8 +13,8 @@ export const adminKeys = {
   access: ['access-report'] as const,
   usage: ['usage-report'] as const,
   unpublished: ['unpublished-log'] as const,
-  /** The catalog's own key (`catalog/queries`): after a change of the site settings it is read again. */
-  catalog: ['catalog'] as const,
+  /** After a change of the site settings the catalog is read again. */
+  catalog: catalogKeys.catalog,
 };
 
 export const siteSettingsQuery = (api: ApiClient, enabled: boolean) =>

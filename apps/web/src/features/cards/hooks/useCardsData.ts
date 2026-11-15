@@ -7,7 +7,7 @@ import { useApi } from '../../../shared/hooks/useApi';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { useStudyRepository } from '../../progress/api/context';
 import { useDeckSettings, usePreferences, useUserPresets } from '../../progress/queries';
-import { useCatalog } from '../../catalog/queries';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
 import type { AnkiTree } from '../../catalog/model/tree';
 import type { CardsScope } from '../../catalog/model/scope';
 import { cardsData } from '../model/cardsData';

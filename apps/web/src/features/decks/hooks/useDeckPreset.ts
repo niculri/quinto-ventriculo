@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { presetChoices, presetOf } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
 import type { StudyRepository } from '../../progress/api/repository';
-import { useCatalog } from '../../catalog/queries';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { studyKeys, useDeckSettings, useUserPresets } from '../../progress/queries';
 import type { DeckNode } from '../../catalog/model/tree';
 import { refKey } from '../model/presets';

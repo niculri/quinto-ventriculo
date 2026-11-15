@@ -10,7 +10,7 @@ import { useApi } from '../../shared/hooks/useApi';
 import { countSearch } from '../usage/count';
 import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { Snippet } from './Snippet';
-import { useCatalog } from '../catalog/queries';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 import { groupByNote, resultLink, useSearch } from './useSearch';
 
 export function SearchPage() {

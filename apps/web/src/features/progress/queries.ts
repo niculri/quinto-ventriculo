@@ -18,7 +18,7 @@ import {
 } from './api/queries';
 import { browserTimeZone, defaultPreferences } from './api/repository';
 import type { AssessmentSetting, StudyPreferences } from './api/repository';
-import { useCatalog } from '../catalog/queries';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
 import { useNow } from '../../shared/hooks/useNow';

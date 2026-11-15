@@ -7,14 +7,9 @@ import { ErrorWithRetry } from '../../shared/ui/Notice';
 import { Skeleton } from '../../shared/ui/Loading';
 import { card, linkCard, page } from '../../shared/ui/styles';
 import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import {
-  MORE_SEMESTERS_SOON,
-  countDecks,
-  countNotes,
-  materialLabel,
-  useCatalog,
-  yearOfSemester,
-} from '../catalog/queries';
+import { catalogStrings } from '../catalog/strings';
+import { countDecks, countNotes, materialLabel, yearOfSemester } from '../catalog/model/catalog';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 
 const YEARS = ['Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo'];
 
@@ -63,7 +58,9 @@ function Semesters({ catalog }: { catalog: Catalog }) {
           </div>
         ))}
       </div>
-      {catalog.hiddenSemesters ? <p className="mt-8 text-muted">{MORE_SEMESTERS_SOON}</p> : null}
+      {catalog.hiddenSemesters ? (
+        <p className="mt-8 text-muted">{catalogStrings.moreSemestersSoon}</p>
+      ) : null}
     </section>
   );
 }

@@ -19,7 +19,6 @@
   "apps/web/src/creator-photo.test.ts",
   "apps/web/src/features/account/account.test.tsx",
   "apps/web/src/features/account/local-repository.test.ts",
-  "apps/web/src/features/catalog/model/tree.test.ts",
   "apps/web/src/features/notes/articleHtml.test.ts",
   "apps/web/src/features/notes/sanitize-golden.test.ts",
   "apps/web/src/features/progress/api/repository/cards-of-decks.test.ts",

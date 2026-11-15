@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { linkCard } from '../../../shared/ui/styles';
-import { countDecks, countNotes, materialLabel } from '../../catalog/queries';
+import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 
 export function CourseCard({
   catalog,

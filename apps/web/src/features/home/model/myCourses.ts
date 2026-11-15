@@ -1,7 +1,7 @@
 // «Tus ramos» on the home page: which courses the student sees, and adding or taking out a course.
 
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
-import { countDecks, countNotes, materialLabel } from '../../catalog/queries';
+import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 import type { StudyPreferences } from '@qv/schema/user';
 import { homeStrings } from '../strings';
 

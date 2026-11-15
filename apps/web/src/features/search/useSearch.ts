@@ -2,7 +2,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
-import { locateNote } from '../catalog/queries';
+import { locateNote } from '../catalog/model/catalog';
 import { useApi } from '../../shared/hooks/useApi';
 import { useDebounced } from '../../shared/hooks/useDebounced';
 

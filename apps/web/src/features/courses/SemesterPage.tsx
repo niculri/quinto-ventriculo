@@ -7,7 +7,8 @@ import { Loading } from '../../shared/ui/Loading';
 import { card, linkCard, page } from '../../shared/ui/styles';
 import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
 import { NotFoundPage } from '../../shared/ui/NotFoundPage';
-import { countDecks, countNotes, materialLabel, useCatalog } from '../catalog/queries';
+import { countDecks, countNotes, materialLabel } from '../catalog/model/catalog';
+import { useCatalog } from '../catalog/hooks/useCatalog';
 
 export function SemesterPage() {
   const { number } = useParams();

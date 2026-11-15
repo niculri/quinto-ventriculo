@@ -2,7 +2,7 @@
 
 import type { Catalog } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
-import { locateNote } from '../../catalog/queries';
+import { locateNote } from '../../catalog/model/catalog';
 import { homeStrings as s } from '../strings';
 
 export interface OpenRound {

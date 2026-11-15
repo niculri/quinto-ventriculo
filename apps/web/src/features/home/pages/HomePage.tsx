@@ -4,7 +4,7 @@
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { page } from '../../../shared/ui/styles';
-import { useCatalog } from '../../catalog/queries';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { useUser } from '../../session/context';
 import { HomeBody } from '../components/HomeBody';
 import { homeStrings as s } from '../strings';

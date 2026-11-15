@@ -5,7 +5,8 @@ import type { ReactNode } from 'react';
 import { Check, RotateCcw } from 'lucide-react';
 import { formatDateTime } from '../../../../shared/lib/dates';
 import { button, card } from '../../../../shared/ui/styles';
-import { locateNote, useCatalog } from '../../../catalog/queries';
+import { locateNote } from '../../../catalog/model/catalog';
+import { useCatalog } from '../../../catalog/hooks/useCatalog';
 import { useCard } from '../../../decks/hooks/useCard';
 import {
   CATEGORY_LABELS,

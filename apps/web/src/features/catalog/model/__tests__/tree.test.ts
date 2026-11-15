@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { AnkiTreeDeck, Catalog } from '@qv/schema';
-import { buildAnkiTree } from './tree';
+import { buildAnkiTree } from '../tree';
 
 const WEEK = 'R::1° Semestre::Anatomía::Certamen 2::S4';
 const IMAGES = `${WEEK}::06 - Imagenología`;

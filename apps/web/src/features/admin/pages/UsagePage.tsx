@@ -1,7 +1,7 @@
 // «Administración» → «Uso»: how much the site is used, in figures of 5 students or more, never who.
 import { ExternalLink } from 'lucide-react';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { useCatalog } from '../../catalog/queries';
+import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { UsageChart } from '../components/usage/UsageChart';
 import { DetailsLoading, UsageDetails } from '../components/usage/UsageDetails';

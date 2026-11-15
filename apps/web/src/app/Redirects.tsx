@@ -5,7 +5,8 @@ import { ErrorWithRetry } from '../shared/ui/Notice';
 import { Loading } from '../shared/ui/Loading';
 import { NotFoundPage } from '../shared/ui/NotFoundPage';
 import { buildAnkiTree, descendants, hasPage } from '../features/catalog/model/tree';
-import { findCourse, locateNote, useCatalog } from '../features/catalog/queries';
+import { findCourse, locateNote } from '../features/catalog/model/catalog';
+import { useCatalog } from '../features/catalog/hooks/useCatalog';
 import { Canonical } from '../shared/ui/Canonical';
 
 function LegacyRedirect({

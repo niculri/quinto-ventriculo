@@ -16,21 +16,29 @@ interface LazyScreen {
 
 /**
  * Not `React.lazy`: that one suspends on its first render even when its chunk is already here, and a boundary that
- * shows its fallback keeps it about 300 ms; this one renders at once once its chunk has arrived.
+ * shows its fallback keeps it about 300 ms. Here the promise carries `status` and `value` once settled, which is
+ * what `use()` reads to hand the value back without suspending.
  */
 function lazyScreen(load: () => Promise<Render>): LazyScreen {
-  let loaded: Render | undefined;
   let pending: Promise<Render> | undefined;
-  const preload = () =>
-    (pending ??= load().then(
-      (render) => (loaded = render),
+  const preload = () => {
+    if (pending) return pending;
+    const p: Promise<Render> & { status?: 'fulfilled'; value?: Render } = load().then(
+      (render) => {
+        p.status = 'fulfilled';
+        p.value = render;
+        return render;
+      },
       (e: unknown) => {
         // A failed fetch is not kept: the next render or preload asks again.
         pending = undefined;
         throw e;
       },
-    ));
-  return { Component: (props) => (loaded ?? use(preload()))(props), preload };
+    );
+    pending = p;
+    return p;
+  };
+  return { Component: (props) => use(preload())(props), preload };
 }
 
 export const ankiScreens: Record<DeckScreen, LazyScreen> = {

@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`a deck’s page, what it says > the options of an assessment and the rows of its decks, with their texts 1`] = `"Tarjetas nuevas por díaEn todo Certamen 1, sumando lo que tengas activado. Si no lo cambias, son 20.En todo Certamen 1, sumando lo que tengas activado. Si no lo cambias, son 20.Fecha de la pruebaOpcional: pon la tuya.Incluir extrasTarjetas con más detalle de lo que tengas activado, por si te sobra tiempo."`;
+
+exports[`a deck’s page, what it says > the options of an assessment and the rows of its decks, with their texts 2`] = `
+[
+  "S1 - Semana de prueba3 para hoy · ~2 minNuevas3Aprendiendo0A repasar00 % de dominioDominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.3 para hoy · ~2 minNuevas3Aprendiendo0A repasar00 % de dominioDominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.",
+  "Mazo de prueba3 para hoy · ~2 minNuevas3Aprendiendo0A repasar03 para hoy · ~2 minNuevas3Aprendiendo0A repasar0",
+]
+`;

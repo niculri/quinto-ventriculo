@@ -1,0 +1,111 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`«Anki general», what it says > while it loads it says so; then where the options of each deck are, and the time zone 1`] = `
+[
+  [
+    "Modo avanzado",
+    "Modo avanzadoLas páginas de los mazos no cambian: agrega opciones, como una configuración para cada mazo, las banderas y la tabla de tarjetas con la búsqueda de Anki.",
+  ],
+  [
+    "General",
+    "GeneralMostrar los 4 botonesAgrega «Difícil» y «Fácil» a «Otra vez» y «Bien» al responder.El siguiente día empieza a lasSi estudias de madrugada, lo que respondas antes de esta hora cuenta para el día anterior.h",
+  ],
+  [
+    "Avanzado",
+    "AvanzadoLímite del estudio por adelantadoSi no queda nada más, las tarjetas de aprendizaje que vencen dentro de este tiempo se muestran antes.minLas tarjetas nuevas ignoran el límite de revisiónLímites empiezan desde arribaAl estudiar un mazo, también cuentan los límites de los mazos de arriba (el certamen, el ramo…).Zona horaria: America/Santiago (la de tu navegador).",
+  ],
+]
+`;
+
+exports[`«Configuración de mazos», what it says > the intro, the note on sharing, the author’s name and every section with its rows 1`] = `
+[
+  [
+    "Mazos que la usan",
+    "La usan 4 mazos1° Semestre › 🦴 Anatomía I1° Semestre › 🦴 Anatomía I › Certamen 11° Semestre › 🦴 Anatomía I › Certamen 1 › S1 - Semana de prueba1° Semestre › 🦴 Anatomía I › Certamen 1 › S1 - Semana de prueba › Mazo de prueba",
+  ],
+  [
+    "Límites diarios",
+    "Límites diariosTarjetas nuevas/díaCuántas tarjetas nuevas se introducen como máximo en un día. Los submazos suman en el mazo de arriba.Repasos máximos/díaAgregando 20 nuevas tarjetas cada día, su límite de revisión debe ser por lo menos 200.",
+  ],
+  [
+    "Tarjetas nuevas",
+    "Tarjetas nuevasPasos en la etapa de aprendizajeSeparados por espacios: 1m 10m 1h 1d.",
+  ],
+  [
+    "Olvidos",
+    "OlvidosPasos de reaprendizajeSeparados por espacios: 1m 10m 1h 1d.Umbral para olvidadasCuántas veces hay que presionar «Otra vez» en una tarjeta de repaso para que quede marcada como sanguijuela.Acción para olvidadasSuspender tarjeta",
+  ],
+  [
+    "Orden de visualización",
+    "Orden de visualizaciónNuevo orden de recolección de tarjetasMazoNuevo orden de clasificación de tarjetasPlantilla de tarjetaNuevos/revisiones (orden de estudio)Mezclar con las tarjetas para revisarAprendizaje entre días/revisiones (orden de estudio)Mezclar con las tarjetas para revisarRevisar orden de clasificaciónFecha de revisión, luego aleatorio",
+  ],
+  [
+    "FSRS",
+    "FSRSRetención deseadaLa probabilidad de recordar una tarjeta cuando le toca el repaso. Más alta: más repasos.Parámetros FSRS0.212, 1.2931, 2.3065, 8.2956, 6.4133, 0.8334, 3.0194, 0.001, 1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629, 1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542Los predeterminados de FSRS-6, que usa esta configuración. El sitio los muestra, pero no deja cambiarlos: el manual de Anki pide no editarlos a mano ni copiarlos de otra persona, porque salen del historial de cada uno.",
+  ],
+  [
+    "Enterrar",
+    "EnterrarEnterrar tarjetas hermanas nuevas (de la nota) hasta el día siguiente.Enterrar tarjetas hermanas (de la nota).Enterrar a las tarjetas hermanas (de la nota) de aprendizaje entre días.",
+  ],
+  [
+    "Temporizador",
+    "TemporizadorTiempo máximo de respuesta en segundosEl tiempo que se guarda de cada respuesta no pasa de este máximo.",
+  ],
+  [
+    "Avanzado",
+    "AvanzadoIntervalo máximoEn días: ninguna tarjeta se programa más lejos.",
+  ],
+]
+`;
+
+exports[`«Configuración de mazos», what it says > the lists say what Anki says, in its order 1`] = `
+{
+  "Acción para olvidadas: Suspender tarjeta": [
+    "Suspender tarjeta",
+    "Solo etiquetar",
+  ],
+  "Aprendizaje entre días/revisiones (orden de estudio): Mezclar con las tarjetas para revisar": [
+    "Mezclar con las tarjetas para revisar",
+    "Mostrar después de las tarjetas para revisar",
+    "Mostrar antes de las tarjetas para revisar",
+  ],
+  "Configuración: Default (del autor)": [
+    "Default (del autor)",
+    "Extras (del autor)",
+  ],
+  "Nuevo orden de clasificación de tarjetas: Plantilla de tarjeta": [
+    "Plantilla de tarjeta",
+    "Orden de recolección",
+    "Plantilla de tarjeta, luego aleatoria",
+    "Nota aleatoria, luego plantilla de tarjeta",
+    "Aleatorio",
+  ],
+  "Nuevo orden de recolección de tarjetas: Mazo": [
+    "Mazo",
+    "Mazo, luego notas aleatorias",
+    "Posición ascendente",
+    "Posición descendente",
+    "Notas aleatorias",
+    "Tarjeta aleatoria",
+  ],
+  "Nuevos/revisiones (orden de estudio): Mezclar con las tarjetas para revisar": [
+    "Mezclar con las tarjetas para revisar",
+    "Mostrar después de las tarjetas para revisar",
+    "Mostrar antes de las tarjetas para revisar",
+  ],
+  "Revisar orden de clasificación: Fecha de revisión, luego aleatorio": [
+    "Fecha de revisión, luego aleatorio",
+    "Fecha de revisión, luego mazo",
+    "Mazo, luego fecha de revisión",
+    "Intervalos ascendentes",
+    "Intervalos descendentes",
+    "Tarjetas difíciles primero",
+    "Tarjetas fáciles primero",
+    "Recordabilidad ascendente",
+    "Recordabilidad descendente",
+    "Aleatorio",
+    "Orden añadido",
+    "Últimas añadidas primero",
+  ],
+}
+`;

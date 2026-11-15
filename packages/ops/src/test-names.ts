@@ -44,8 +44,9 @@ export interface TestNamesResult {
   lines: string[];
 }
 
-// Every test breaking the rule has to be in the list, and the list cannot be longer than the base's: a test moved
-// without following the rule keeps its place in the list, a new one cannot take one.
+// The list is exactly the tests that break the rule (an entry that follows it or is gone is an error too, so it can
+// never be traded for a new one), and it cannot be longer than the base's: a test moved without following the rule
+// keeps its place, a new one cannot take one.
 export function checkTestNames(
   breaking: readonly string[],
   listed: readonly string[],
@@ -65,6 +66,14 @@ export function checkTestNames(
         '(X.ts → __tests__/X.test.ts); un flujo, __tests__/*.flow.test.tsx; un contrato, *-contract.test.ts.',
     );
   }
+  if (stale.length > 0) {
+    ok = false;
+    lines.push(
+      `${TEST_NAMES_FILE} trae ${stale.length} que ya cumplen la regla o no existen:`,
+      ...stale.map((f) => `  ${f}`),
+      'Sácalas con npm run test-names:baseline.',
+    );
+  }
   if (atBase !== null && listed.length > atBase.length) {
     ok = false;
     lines.push(
@@ -72,13 +81,6 @@ export function checkTestNames(
         'la lista solo baja.',
     );
   }
-  if (ok) {
-    lines.push(
-      `Nombres de pruebas: ${breaking.length} en la lista de excepciones` +
-        (stale.length
-          ? `; ${stale.length} ya la cumplen o no existen: npm run test-names:baseline las saca.`
-          : '.'),
-    );
-  }
+  if (ok) lines.push(`Nombres de pruebas: ${breaking.length} en la lista de excepciones.`);
   return { ok, lines };
 }

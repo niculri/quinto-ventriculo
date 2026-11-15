@@ -55,9 +55,9 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Nombres de las pruebas:** una prueba se llama como el archivo que prueba y va en `__tests__/` junto a él
   (`shared/ui/Toast.tsx` → `shared/ui/__tests__/Toast.test.tsx`); la que recorre un flujo entero de una feature,
   `features/<x>/__tests__/<flujo>.flow.test.tsx`, y una batería de contrato, `*-contract.test.ts`. `npm run test-names`
-  (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, y
-  también si esa lista se alargó respecto de `origin/main`; `npm run test-names:baseline` la rehace, para sacar las que
-  ya lo cumplen.
+  (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, con
+  una entrada de esa lista que ya lo cumple o no existe, y si la lista se alargó respecto de `origin/main`; `npm run
+  test-names:baseline` la rehace, para sacar las que ya lo cumplen.
 - **Textos de la interfaz:** lo que lee una persona (texto en JSX, `aria-label`, `title`, `placeholder`, `alt`,
   `label`…) sale del `strings.ts` de su feature (`features/<x>/strings.ts`, `app/strings.ts`) o, si es común, de
   `shared/strings.ts` (un componente de `shared/ui` que no carga al inicio lleva el suyo, `X.strings.ts`, para no

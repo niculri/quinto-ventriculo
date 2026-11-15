@@ -57,15 +57,22 @@ describe('the test names rule', () => {
 });
 
 describe('the list of exceptions', () => {
-  it('passes when every test breaking the rule is listed', () => {
+  it('passes when the list is exactly the tests breaking the rule', () => {
+    const r = checkTestNames(['a.test.ts'], ['a.test.ts'], ['a.test.ts', 'gone.test.ts'], 'main');
+    expect(r.ok).toBe(true);
+    expect(r.lines.join('\n')).toContain('1 en la lista de excepciones');
+  });
+
+  it('fails on an entry that already follows the rule or no longer exists', () => {
     const r = checkTestNames(
       ['a.test.ts'],
       ['a.test.ts', 'gone.test.ts'],
       ['a.test.ts', 'gone.test.ts'],
       'main',
     );
-    expect(r.ok).toBe(true);
-    expect(r.lines.join('\n')).toContain('1 ya la cumplen o no existen');
+    expect(r.ok).toBe(false);
+    expect(r.lines.join('\n')).toContain('gone.test.ts');
+    expect(r.lines.join('\n')).toContain('npm run test-names:baseline');
   });
 
   it('fails on a test breaking the rule that is not listed', () => {

@@ -1,7 +1,7 @@
 // A note's row in the cards page's list: its question and answer (or a cloze's holes, or an image), and its cards.
 import { clozeParts } from '../model/cloze';
 import type { Matched } from '../model/filters';
-import { Said } from './Said';
+import { SrOnly } from './SrOnly';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';
 import { cardsStrings } from '../strings';
@@ -18,7 +18,7 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
             {p.hole.hint ?? (
               <>
                 <span aria-hidden="true">…</span>
-                <Said>{cardsStrings.list.hole}</Said>
+                <SrOnly>{cardsStrings.list.hole}</SrOnly>
               </>
             )}
             ]
@@ -55,13 +55,13 @@ export function NoteRow({
   return (
     <button type="button" data-position={position} onClick={() => onOpen(m)} className={ROW_BUTTON}>
       <RowBody note={n} hideAnswers={hideAnswers} thumbs={thumbs} wide={wide} />
-      <Said> — {statusText(m.cards)}</Said>
+      <SrOnly> — {statusText(m.cards)}</SrOnly>
       <Dots m={m} />
     </button>
   );
 }
 
-export function Hidden() {
+export function HiddenAnswer() {
   return (
     <span className="inline-block h-3 w-16 rounded bg-surface-2 align-middle" aria-hidden="true" />
   );
@@ -86,10 +86,10 @@ function RowBody({
         <span className="line-clamp-2 text-sm">{n.front}</span>
         <span className="line-clamp-2 text-sm text-muted">
           {hideAnswers || !n.back ? (
-            <Hidden />
+            <HiddenAnswer />
           ) : (
             <>
-              <Said> — </Said>
+              <SrOnly> — </SrOnly>
               {n.back}
             </>
           )}
@@ -109,20 +109,20 @@ function RowBody({
       <Thumb thumb={n.thumb} thumbs={thumbs} blur={hideAnswers && n.kind === 'occlusion'} />
       <span className="min-w-0 flex-1">
         <span className="line-clamp-2 text-sm">
-          {n.kind === 'photo' ? <Said>{cardsStrings.list.photoOf}</Said> : null}
+          {n.kind === 'photo' ? <SrOnly>{cardsStrings.list.photoOf}</SrOnly> : null}
           {n.front || n.topic || cardsStrings.list.image}
         </span>
         <span className="mt-0.5 block text-xs text-muted">
           {n.kind === 'occlusion' ? (
             <>
-              <Said> — </Said>
+              <SrOnly> — </SrOnly>
               {cardsStrings.list.labels(n.labels)}
             </>
           ) : hideAnswers || !n.back ? (
-            <Hidden />
+            <HiddenAnswer />
           ) : (
             <>
-              <Said> — </Said>
+              <SrOnly> — </SrOnly>
               {n.back}
             </>
           )}

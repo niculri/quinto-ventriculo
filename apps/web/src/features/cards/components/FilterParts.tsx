@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import type { Facets } from '../model/filters';
 
-export function count(facets: Facets | null, n: number | undefined, width = 'w-12') {
+export function facetCount(facets: Facets | null, n: number | undefined, width = 'w-12') {
   return (
     <span className={`ml-auto ${width} flex-none text-right text-xs text-muted tabular-nums`}>
       {facets && n !== undefined ? n.toLocaleString('es-CL') : ''}
@@ -11,7 +11,7 @@ export function count(facets: Facets | null, n: number | undefined, width = 'w-1
   );
 }
 
-export function Section({ title, children }: { title: string; children: ReactNode }) {
+export function FilterSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
       <h2 className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">{title}</h2>
@@ -20,7 +20,7 @@ export function Section({ title, children }: { title: string; children: ReactNod
   );
 }
 
-export function Choice({
+export function FilterChoice({
   name,
   checked,
   disabled,

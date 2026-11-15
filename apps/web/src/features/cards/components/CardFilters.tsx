@@ -4,7 +4,7 @@
 import type { CardOrigin } from '@qv/schema';
 import { Switch } from '../../../shared/ui/Switch';
 import { StatusDot } from './CardStatus';
-import { Choice, Section, count } from './FilterParts';
+import { FilterChoice, FilterSection, facetCount } from './FilterParts';
 import { KIND_FILTERS, ORIGIN_FILTERS, STATE_FILTERS } from '../model/filters';
 import type { Facets, KindFilter, StateFilter } from '../model/filters';
 import { cardsStrings } from '../strings';
@@ -37,7 +37,7 @@ export function CardFilters({
 }) {
   return (
     <div className="space-y-5 text-sm">
-      <Section title={cardsStrings.filters.show}>
+      <FilterSection title={cardsStrings.filters.show}>
         <label className="flex items-center gap-3 py-1">
           <span className="flex-1">{cardsStrings.filters.hideAnswers}</span>
           <Switch
@@ -46,7 +46,7 @@ export function CardFilters({
             onChange={onHideAnswers}
           />
         </label>
-      </Section>
+      </FilterSection>
       <StateFilters
         facets={facets}
         state={state}
@@ -75,13 +75,13 @@ function StateFilters({
   idPrefix: string;
 }) {
   return (
-    <Section title={cardsStrings.filters.state}>
+    <FilterSection title={cardsStrings.filters.state}>
       <div role="radiogroup" aria-label={cardsStrings.filters.state} className="space-y-0.5">
         {STATE_FILTERS.map((s) => {
           const n = facets?.state[s.value];
           const disabled = !!facets && n === 0 && s.value !== state;
           return (
-            <Choice
+            <FilterChoice
               key={s.value}
               name={`${idPrefix}-state`}
               checked={state === s.value}
@@ -89,12 +89,12 @@ function StateFilters({
               onChange={() => onState(s.value)}
             >
               {s.value === 'failed' && failedThatDay ? cardsStrings.filters.failedThatDay : s.label}
-              {count(facets, n)}
-            </Choice>
+              {facetCount(facets, n)}
+            </FilterChoice>
           );
         })}
       </div>
-    </Section>
+    </FilterSection>
   );
 }
 
@@ -108,7 +108,7 @@ function OriginFilters({
   onOrigin: (o: CardOrigin, on: boolean) => void;
 }) {
   return (
-    <Section title={cardsStrings.filters.origin}>
+    <FilterSection title={cardsStrings.filters.origin}>
       <ul className="space-y-0.5">
         {ORIGIN_FILTERS.map((o) => {
           const n = facets?.origin[o.value];
@@ -120,7 +120,7 @@ function OriginFilters({
                 className={`flex items-center gap-2 rounded-md py-1.5 pl-2 ${disabled ? 'opacity-50' : ''}`}
               >
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
-                {count(facets, n, 'w-9')}
+                {facetCount(facets, n, 'w-9')}
                 <Switch
                   label={o.label}
                   checked={on}
@@ -132,7 +132,7 @@ function OriginFilters({
           );
         })}
       </ul>
-    </Section>
+    </FilterSection>
   );
 }
 
@@ -148,13 +148,13 @@ function KindFilters({
   idPrefix: string;
 }) {
   return (
-    <Section title={cardsStrings.filters.kind}>
+    <FilterSection title={cardsStrings.filters.kind}>
       <div role="radiogroup" aria-label={cardsStrings.filters.kind} className="space-y-0.5">
         {KIND_FILTERS.map((k) => {
           const n = facets?.kind[k.value];
           const disabled = !!facets && n === 0 && k.value !== kind;
           return (
-            <Choice
+            <FilterChoice
               key={k.value}
               name={`${idPrefix}-kind`}
               checked={kind === k.value}
@@ -162,18 +162,18 @@ function KindFilters({
               onChange={() => onKind(k.value)}
             >
               {k.label}
-              {count(facets, n)}
-            </Choice>
+              {facetCount(facets, n)}
+            </FilterChoice>
           );
         })}
       </div>
-    </Section>
+    </FilterSection>
   );
 }
 
 function Legend() {
   return (
-    <Section title={cardsStrings.filters.legend}>
+    <FilterSection title={cardsStrings.filters.legend}>
       <ul className="space-y-1.5 text-xs text-muted">
         {(['new', 'seen', 'hard', 'hidden'] as const).map((s) => (
           <li key={s} className="flex items-center gap-2">
@@ -184,6 +184,6 @@ function Legend() {
           </li>
         ))}
       </ul>
-    </Section>
+    </FilterSection>
   );
 }

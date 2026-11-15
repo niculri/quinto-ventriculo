@@ -1,9 +1,9 @@
 // A photo's cell in the grid the cards page's list draws when a lecture's images are mostly photos.
 import type { Matched } from '../model/filters';
-import { Said } from './Said';
+import { SrOnly } from './SrOnly';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';
-import { Hidden } from './NoteRow';
+import { HiddenAnswer } from './NoteRow';
 import { cardsStrings } from '../strings';
 
 export function PhotoCell({
@@ -36,16 +36,16 @@ export function PhotoCell({
         </span>
       </span>
       <span className="mt-1 block h-5 truncate text-xs">
-        <Said>{cardsStrings.list.photo}</Said>
+        <SrOnly>{cardsStrings.list.photo}</SrOnly>
         {hideAnswers || !n.back ? (
-          <Hidden />
+          <HiddenAnswer />
         ) : (
           <>
-            <Said>: </Said>
+            <SrOnly>: </SrOnly>
             {n.back}
           </>
         )}
-        <Said> — {statusText(m.cards)}</Said>
+        <SrOnly> — {statusText(m.cards)}</SrOnly>
       </span>
     </button>
   );

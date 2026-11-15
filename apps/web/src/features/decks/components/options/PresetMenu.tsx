@@ -9,6 +9,7 @@ import { Settings2 } from 'lucide-react';
 import { defaultConfig } from '@qv/srs';
 import { button } from '../../../../shared/ui/styles';
 import type { usePresetDrafts } from '../../hooks/usePresetDrafts';
+import { optionsStrings as o } from '../../options.strings';
 
 const menuItem =
   'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:cursor-default data-[disabled]:opacity-50 data-[highlighted]:bg-surface-2';
@@ -17,10 +18,7 @@ export function PresetMenu({ f }: { f: ReturnType<typeof usePresetDrafts> }) {
   const { choice, config, set, setNaming, setRemoving, backToAuthor } = f;
   return (
     <Menu.Root modal={false}>
-      <Menu.Trigger
-        className={`${button.base} ${button.secondary}`}
-        aria-label="Acciones de la configuración"
-      >
+      <Menu.Trigger className={`${button.base} ${button.secondary}`} aria-label={o.decks.actions}>
         <Settings2 className="size-4" aria-hidden="true" />
       </Menu.Trigger>
       <Menu.Portal>
@@ -31,38 +29,36 @@ export function PresetMenu({ f }: { f: ReturnType<typeof usePresetDrafts> }) {
         >
           <Menu.Item
             className={menuItem}
-            onSelect={() =>
-              setNaming({ title: 'Agregar configuración', initial: '', from: defaultConfig() })
-            }
+            onSelect={() => setNaming({ title: o.decks.add, initial: '', from: defaultConfig() })}
           >
-            Agregar configuración
+            {o.decks.add}
           </Menu.Item>
           <Menu.Item
             className={menuItem}
             onSelect={() =>
               setNaming({
-                title: 'Clonar configuración',
-                initial: `Copia de ${choice.name}`,
+                title: o.decks.clone,
+                initial: o.decks.cloneName(choice.name),
                 from: config,
               })
             }
           >
-            Clonar configuración
+            {o.decks.clone}
           </Menu.Item>
           <Menu.Item
             className={menuItem}
             disabled={choice.ref.kind !== 'user'}
             onSelect={() => setRemoving(true)}
           >
-            Remover configuración
+            {o.decks.remove}
           </Menu.Item>
           <Menu.Separator className="my-1 h-px bg-border" />
           <Menu.Item className={menuItem} onSelect={() => set(defaultConfig())}>
-            Restablecer los valores predeterminados de Anki
+            {o.decks.reset}
           </Menu.Item>
           {choice.ref.kind === 'author' && choice.row ? (
             <Menu.Item className={menuItem} onSelect={backToAuthor}>
-              Volver a la configuración del autor
+              {o.decks.backToAuthor}
             </Menu.Item>
           ) : null}
         </Menu.Content>

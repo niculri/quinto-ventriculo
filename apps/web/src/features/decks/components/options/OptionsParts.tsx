@@ -2,6 +2,7 @@
 import type { ReactNode } from 'react';
 import { Check, CircleDot } from 'lucide-react';
 import { button, card } from '../../../../shared/ui/styles';
+import { optionsStrings as o } from '../../options.strings';
 
 export function SaveControls({
   dirty,
@@ -19,11 +20,11 @@ export function SaveControls({
       <span role="status" className="inline-flex w-24 justify-end text-xs font-medium">
         {dirty ? (
           <span className="inline-flex items-center gap-1 text-state-learn">
-            <CircleDot className="size-3.5" aria-hidden="true" /> Sin guardar
+            <CircleDot className="size-3.5" aria-hidden="true" /> {o.unsaved}
           </span>
         ) : saved ? (
           <span className="inline-flex items-center gap-1 text-muted">
-            <Check className="size-3.5" aria-hidden="true" /> Guardado
+            <Check className="size-3.5" aria-hidden="true" /> {o.saved}
           </span>
         ) : null}
       </span>
@@ -33,7 +34,7 @@ export function SaveControls({
         disabled={saving || !dirty}
         className={`${button.base} ${button.primary} disabled:opacity-50`}
       >
-        Guardar
+        {o.save}
       </button>
     </div>
   );
@@ -42,7 +43,7 @@ export function SaveControls({
 export function SaveFailure({ error }: { error: string | null }) {
   return error ? (
     <p role="alert" className="mt-3 text-sm text-state-learn">
-      No se pudo guardar: {error}
+      {o.saveFailed(error)}
     </p>
   ) : null;
 }

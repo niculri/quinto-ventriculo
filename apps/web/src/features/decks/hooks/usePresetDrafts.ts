@@ -19,6 +19,8 @@ import { savePresetDrafts } from '../api/savePresets';
 import { isDirty, prefsChanged } from '../model/presetDrafts';
 import { initialRef, refKey } from '../model/presets';
 import { usePresetActions } from './usePresetActions';
+import { optionsStrings as o } from '../options.strings';
+import { presetsStrings as p } from '../presets.strings';
 
 export type OptionsMode = 'general' | 'decks';
 
@@ -55,7 +57,7 @@ export function usePresetDrafts(d: OptionsData) {
 
   useSelectedInUrl(d.mode, presetParam(choice.ref), params, setParams);
 
-  useTitle(d.mode === 'general' ? 'Anki general' : 'Configuración de mazos');
+  useTitle(d.mode === 'general' ? o.generalTitle : o.decksTitle);
 
   // The decks above the courses (the root, the semesters) are not studied on the web.
   const users = d.tree.nodes.filter(
@@ -70,7 +72,7 @@ export function usePresetDrafts(d: OptionsData) {
       await what();
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo guardar.');
+      setError(e instanceof Error ? e.message : p.notSaved);
     }
   };
   const actions = usePresetActions({ choices, choice, setSelected, setDrafts, run });
@@ -85,7 +87,7 @@ export function usePresetDrafts(d: OptionsData) {
       setDrafts(new Map());
       setSaved(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo guardar.');
+      setError(e instanceof Error ? e.message : p.notSaved);
     } finally {
       state.setSaving(false);
     }

@@ -9,6 +9,7 @@ import DOMPurify from 'dompurify';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
+import { decksStrings as s } from '../strings';
 
 // Anki's reviewer base styles (reviewer.scss, webview.css, image-occlusion/review.scss). What scrolls stays outside
 // the shadow root: Radix's scroll lock only sees an event's host there, and would cancel the scroll.
@@ -141,11 +142,11 @@ function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
   if (target?.closest('#image-occlusion-container')) {
     const src = occlusionSnapshot(root);
     const alt = root.querySelector<HTMLImageElement>('#image-occlusion-container img')?.alt;
-    return src ? { src, alt: alt || 'Imagen de la tarjeta', caption: '' } : null;
+    return src ? { src, alt: alt || s.frame.image, caption: '' } : null;
   }
   const img = target?.closest('img');
   if (!(img instanceof HTMLImageElement)) return null;
-  return { src: img.currentSrc || img.src, alt: img.alt || 'Imagen de la tarjeta', caption: '' };
+  return { src: img.currentSrc || img.src, alt: img.alt || s.frame.image, caption: '' };
 }
 
 export function cardShadowRoot(region: Element): ShadowRoot | null {

@@ -8,13 +8,14 @@ import { useCollapsed } from '../hooks/useCollapsed';
 import { allNodes, treeRows } from '../model/deckTree';
 import { DeckTreeRow } from './DeckTreeRow';
 import type { CourseDeckNode } from '../../catalog/model/tree';
+import { decksStrings as s } from '../strings';
 
 export function SimpleDeckTree({
   root,
   counts,
   plan,
   mastery,
-  label = 'Mazos',
+  label = s.tree.label,
   upTo,
 }: {
   root: CourseDeckNode;
@@ -53,7 +54,7 @@ export function SimpleDeckTree({
       </ul>
       {activate.isError ? (
         <p role="alert" className="mt-2 text-sm text-state-learn">
-          No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.
+          {s.tree.failed}
         </p>
       ) : null}
     </>

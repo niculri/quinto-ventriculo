@@ -14,6 +14,7 @@ import type { DeckNode } from '../../catalog/model/tree';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
 import { useDeckPreset } from '../hooks/useDeckPreset';
 import { refKey } from '../model/presets';
+import { presetsStrings as p } from '../presets.strings';
 
 export function DeckPresetButton({ node }: { node: DeckNode }) {
   const [open, setOpen] = useState(false);
@@ -21,8 +22,8 @@ export function DeckPresetButton({ node }: { node: DeckNode }) {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
         className={`${button.base} ${button.ghost} flex-none px-2`}
-        aria-label={`Configuración de ${node.label}`}
-        title="Configuración del mazo"
+        aria-label={p.deckPreset.open(node.label)}
+        title={p.deckPreset.openTitle}
       >
         <Settings className="size-4" aria-hidden="true" />
       </Dialog.Trigger>
@@ -30,13 +31,16 @@ export function DeckPresetButton({ node }: { node: DeckNode }) {
         <DimBackdrop />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface p-5 shadow-soft">
           <div className="flex items-start justify-between gap-3">
-            <Dialog.Title className="font-semibold">Configuración de {node.label}</Dialog.Title>
-            <Dialog.Close className={`${button.base} ${button.ghost} px-2`} aria-label="Cerrar">
+            <Dialog.Title className="font-semibold">{p.deckPreset.title(node.label)}</Dialog.Title>
+            <Dialog.Close
+              className={`${button.base} ${button.ghost} px-2`}
+              aria-label={p.deckPreset.close}
+            >
               <X className="size-4" aria-hidden="true" />
             </Dialog.Close>
           </div>
           <Dialog.Description className="mt-1 text-xs text-muted">
-            Una configuración se comparte: cambiarla cambia todos los mazos que la usan.
+            {p.deckPreset.shared}
           </Dialog.Description>
           {open ? <PresetChoice node={node} /> : null}
         </Dialog.Content>
@@ -54,17 +58,17 @@ function PresetChoice({ node }: { node: DeckNode }) {
   return (
     <>
       <label htmlFor={id} className="mt-4 block text-sm font-medium">
-        Configuración de este mazo
+        {p.deckPreset.choice}
       </label>
       <Select
         id={id}
         modal
-        label="Configuración de este mazo"
+        label={p.deckPreset.choice}
         value={refKey(current.ref)}
         disabled={saving}
         options={choices.map((c) => ({
           value: refKey(c.ref),
-          label: `${c.name}${c.ref.kind === 'author' ? (c.row ? ' (del autor, cambiada)' : ' (del autor)') : ''}`,
+          label: p.presetName(c.name, c.ref.kind === 'author', !!c.row),
         }))}
         onChange={(v) => void choose(v)}
         className="mt-1 w-full"
@@ -73,11 +77,11 @@ function PresetChoice({ node }: { node: DeckNode }) {
         to={paths.deckOptions({ preset: presetParam(current.ref) })}
         className={`${button.base} ${button.secondary} mt-4 w-full`}
       >
-        <SlidersHorizontal className="size-4" aria-hidden="true" /> Editar o crear configuraciones
+        <SlidersHorizontal className="size-4" aria-hidden="true" /> {p.deckPreset.edit}
       </Link>
       {error ? (
         <div className="mt-3">
-          <Notice title="No se pudo cambiar">{error}</Notice>
+          <Notice title={p.deckPreset.failed}>{error}</Notice>
         </div>
       ) : null}
     </>

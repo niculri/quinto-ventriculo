@@ -9,6 +9,7 @@ import type { PresetChoice, PresetRef } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
 import { nameProblem } from '../model/presetDrafts';
 import { refKey } from '../model/presets';
+import { optionsStrings as o } from '../options.strings';
 
 interface Naming {
   title: string;
@@ -33,11 +34,7 @@ export function usePresetActions({
   const [naming, setNaming] = useState<Naming | null>(null);
   const [removing, setRemoving] = useState(false);
   const problemText = (p: 'empty' | 'taken' | null) =>
-    p === 'empty'
-      ? 'Ponle un nombre.'
-      : p === 'taken'
-        ? 'Ya hay una configuración con ese nombre.'
-        : null;
+    p === 'empty' ? o.names.empty : p === 'taken' ? o.names.taken : null;
   const checkName = (name: string) =>
     problemText(nameProblem(name, choices, (c) => !sameRef(c.ref, choice.ref)));
   const checkNewName = (name: string) => problemText(nameProblem(name, choices, () => true));

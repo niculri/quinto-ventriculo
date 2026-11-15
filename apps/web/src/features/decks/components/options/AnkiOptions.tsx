@@ -15,6 +15,7 @@ import { usePresetDrafts } from '../../hooks/usePresetDrafts';
 import type { OptionsData, OptionsMode } from '../../hooks/usePresetDrafts';
 import { DeckOptions } from './DeckOptions';
 import { GeneralOptions } from './GeneralOptions';
+import { optionsStrings as o } from '../../options.strings';
 
 export function AnkiOptions({ mode }: { mode: OptionsMode }) {
   const { catalog, tree } = useAnkiTree();
@@ -39,7 +40,7 @@ export function AnkiOptions({ mode }: { mode: OptionsMode }) {
   if (!catalog.data || !tree || !presets.data || !settings.data || !preferences.prefs) {
     return (
       <SettingsLayout>
-        <Loading text="Cargando las opciones…" />
+        <Loading text={o.loading} />
       </SettingsLayout>
     );
   }

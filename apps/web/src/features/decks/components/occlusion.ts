@@ -7,6 +7,7 @@
 
 import { canvasPixelSize, shapeProperties } from '../model/shapes';
 import { drawShapes } from '../model/drawShapes';
+import { decksStrings as s } from '../strings';
 
 /** Anki's `setupImageOcclusion`: sizes the canvas, draws, and wires «toggle» and the M key; returns a cleanup. */
 export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
@@ -15,7 +16,7 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
   const image = root.querySelector<HTMLImageElement>('#image-occlusion-container img');
   if (!container || !canvas) return () => {};
   if (!image) {
-    container.textContent = 'No hay ninguna imagen que mostrar.';
+    container.textContent = s.frame.noImage;
     return () => {};
   }
   let hidden = false;

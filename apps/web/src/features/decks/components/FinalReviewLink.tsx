@@ -6,6 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import { button } from '../../../shared/ui/styles';
 import type { AssessmentView } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
+import { decksStrings as s } from '../strings';
 
 export function FinalReviewLink({
   node,
@@ -21,7 +22,7 @@ export function FinalReviewLink({
   } order-2 sm:order-4 sm:ml-auto`;
   const content = (
     <>
-      <History className="size-4" aria-hidden="true" /> Repaso final
+      <History className="size-4" aria-hidden="true" /> {s.panel.finalReview}
     </>
   );
   return view && view.facts.seen > 0 ? (
@@ -29,12 +30,7 @@ export function FinalReviewLink({
       {content}
     </Link>
   ) : (
-    <button
-      type="button"
-      disabled
-      className={className}
-      title="Se activa cuando hayas visto tarjetas"
-    >
+    <button type="button" disabled className={className} title={s.panel.finalReviewWaits}>
       {content}
     </button>
   );

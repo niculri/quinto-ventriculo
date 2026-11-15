@@ -15,6 +15,8 @@ import { DecksUsing } from './DecksUsing';
 import { SaveControls, SaveFailure } from './OptionsParts';
 import { PresetMenu } from './PresetMenu';
 import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';
+import { optionsStrings as o } from '../../options.strings';
+import { presetsStrings as p } from '../../presets.strings';
 
 type Form = ReturnType<typeof usePresetDrafts>;
 
@@ -22,15 +24,14 @@ export function DeckOptions({ f }: { f: Form }) {
   const { choice, naming, removing, users } = f;
   return (
     <div>
-      <h2 className="font-serif text-2xl font-semibold tracking-tight">Configuración de mazos</h2>
+      <h2 className="font-serif text-2xl font-semibold tracking-tight">{o.decksTitle}</h2>
       <p className="mt-1 text-sm text-muted">
-        Cada configuración agrupa las opciones de un tipo de mazo, como en Anki. Lo que vale para
-        todos los mazos está en{' '}
+        {o.decks.intro}{' '}
         <Link
           to={paths.ankiSettings}
           className="font-medium text-brand underline-offset-2 hover:underline"
         >
-          Anki general
+          {o.generalTitle}
         </Link>
         .
       </p>
@@ -61,10 +62,7 @@ export function DeckOptions({ f }: { f: Form }) {
           onConfirm={f.removePreset}
         />
       ) : null}
-      <p className="mt-2 text-xs text-muted">
-        Una configuración se comparte: cambiarla cambia todos los mazos que la usan, como en Anki.
-        Qué configuración usa cada mazo se elige con el botón de configuración de ese mazo.
-      </p>
+      <p className="mt-2 text-xs text-muted">{o.decks.shared}</p>
 
       <DecksUsing decks={users} />
 
@@ -78,13 +76,13 @@ function PresetBar({ f }: { f: Form }) {
   return (
     <div className={`${card} sticky top-20 z-10 mt-6 flex flex-wrap items-center gap-3 p-3`}>
       <div className="flex w-full min-w-0 items-center gap-2 text-sm sm:w-auto sm:flex-1">
-        <span className="font-medium">Configuración</span>
+        <span className="font-medium">{o.decks.preset}</span>
         <Select
-          label="Configuración"
+          label={o.decks.preset}
           value={refKey(choice.ref)}
           options={choices.map((c) => ({
             value: refKey(c.ref),
-            label: `${c.name}${c.ref.kind === 'author' ? (c.row ? ' (del autor, cambiada)' : ' (del autor)') : ''}`,
+            label: p.presetName(c.name, c.ref.kind === 'author', !!c.row),
           }))}
           onChange={(v) => f.setSelected(choices.find((c) => refKey(c.ref) === v)!.ref)}
           className="flex-1"

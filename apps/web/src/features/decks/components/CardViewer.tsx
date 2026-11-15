@@ -12,11 +12,12 @@ import { Loading } from '../../../shared/ui/Loading';
 import { button } from '../../../shared/ui/styles';
 import { CardFrame } from './CardFrame';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
-import { KIND_LABELS, cardLabel } from '../model/labels';
+import { cardLabel } from '../model/labels';
 import { cardQuery } from '../api/queries';
 import { useCard } from '../hooks/useCard';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
 import { viewerKeyDown } from './viewerKeys';
+import { decksStrings as s } from '../strings';
 
 interface Props {
   cards: CardSummary[];
@@ -73,7 +74,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
             {card.isError ? (
               <ErrorWithRetry error={card.error} onRetry={() => void card.refetch()} />
             ) : !card.data ? (
-              <Loading text="Cargando la tarjeta…" />
+              <Loading text={s.viewer.loading} />
             ) : (
               <CardFrame
                 key={`${key}/${showAnswer ? 'a' : 'q'}`}
@@ -82,7 +83,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
                 ord={card.data.ord}
                 night={night}
                 occlusion={card.data.kind === 'occlusion'}
-                label={showAnswer ? 'Reverso de la tarjeta' : 'Frente de la tarjeta'}
+                label={showAnswer ? s.viewer.back : s.viewer.front}
               />
             )}
           </div>
@@ -99,7 +100,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
           {actions ? (
             <div
               role="toolbar"
-              aria-label="Acciones de la tarjeta"
+              aria-label={s.viewer.actions}
               className="flex h-12 flex-none items-center gap-1 overflow-x-auto border-t border-border px-2 sm:px-3"
             >
               {actions}
@@ -125,11 +126,11 @@ function ViewerHeader({
       <div className="min-w-0 flex-1">
         <Dialog.Title className="truncate text-sm font-semibold">{cardLabel(current)}</Dialog.Title>
         <p className="text-xs text-muted">
-          {KIND_LABELS[current.kind]} · {index + 1} de {total}
+          {s.viewer.place(s.kinds[current.kind], index + 1, total)}
         </p>
       </div>
       <Dialog.Close
-        aria-label="Cerrar"
+        aria-label={s.viewer.close}
         className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
       >
         <X className="size-5" aria-hidden="true" />
@@ -162,10 +163,10 @@ function ViewerFooter({
         onClick={onPrevious}
         disabled={first}
         className={`${button.base} ${button.ghost}`}
-        aria-label="Tarjeta anterior"
+        aria-label={s.viewer.previous}
       >
         <ChevronLeft className="size-4" aria-hidden="true" />
-        <span className="hidden sm:inline">Anterior</span>
+        <span className="hidden sm:inline">{s.viewer.previousShort}</span>
       </button>
       <button
         type="button"
@@ -173,16 +174,16 @@ function ViewerFooter({
         className={`${button.base} ${button.primary} flex-1`}
         disabled={!ready}
       >
-        {showAnswer ? 'Ver el frente' : 'Mostrar respuesta'}
+        {showAnswer ? s.viewer.showFront : s.viewer.showAnswer}
       </button>
       <button
         type="button"
         onClick={onNext}
         disabled={last}
         className={`${button.base} ${button.ghost}`}
-        aria-label="Tarjeta siguiente"
+        aria-label={s.viewer.next}
       >
-        <span className="hidden sm:inline">Siguiente</span>
+        <span className="hidden sm:inline">{s.viewer.nextShort}</span>
         <ChevronRight className="size-4" aria-hidden="true" />
       </button>
     </footer>

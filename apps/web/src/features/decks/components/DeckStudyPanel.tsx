@@ -14,6 +14,7 @@ import { usePreferences, useStudyPlan } from '../../progress/queries';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { FinalReviewLink } from './FinalReviewLink';
 import { SimpleDetails } from './SimpleDetails';
+import { decksStrings as s } from '../strings';
 
 /** While the preferences load it is already the simple view, so a student never sees Anki's table flash by. */
 export function DeckStudyPanel({
@@ -30,7 +31,7 @@ export function DeckStudyPanel({
   const plan = useStudyPlan();
   const own = counts?.get(node.id);
   return (
-    <section aria-label="Estudiar" className={`${card} mt-6 p-4 sm:p-6`}>
+    <section aria-label={s.panel.study} className={`${card} mt-6 p-4 sm:p-6`}>
       {error ? (
         <ErrorWithRetry error={error} onRetry={retry} />
       ) : (
@@ -40,10 +41,10 @@ export function DeckStudyPanel({
               to={paths.deckStudy(node.ref)}
               className={`${button.base} ${button.primary} order-1 flex-1 py-3 text-base sm:flex-none sm:px-10`}
             >
-              <Play className="size-4" aria-hidden="true" /> Estudiar
+              <Play className="size-4" aria-hidden="true" /> {s.panel.study}
             </Link>
             <div
-              aria-label="Para hoy"
+              aria-label={s.panel.today}
               role="group"
               className="order-3 flex items-center gap-2 font-medium max-sm:basis-full sm:order-2 sm:min-w-[13.5rem]"
             >

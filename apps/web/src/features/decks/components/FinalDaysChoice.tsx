@@ -2,6 +2,7 @@
 
 import type { PaceOption } from '@qv/study';
 import { minutesText, shortDate } from '@qv/study';
+import { decksStrings as s } from '../strings';
 
 export function FinalDaysChoice({
   days,
@@ -20,7 +21,7 @@ export function FinalDaysChoice({
   group: string;
   onChoose: () => void;
 }) {
-  const label = days === 1 ? '1 día' : `${days} días`;
+  const label = s.finalDay.days(days);
   const number = option?.newPerDay ?? null;
   return (
     <label
@@ -34,7 +35,7 @@ export function FinalDaysChoice({
         checked={checked}
         disabled={disabled}
         onChange={onChoose}
-        aria-label={`${label} solo para repasar: ${name}`}
+        aria-label={s.finalDay.label(label, name)}
         className="peer absolute inset-0 cursor-pointer opacity-0 disabled:cursor-default"
       />
       <span className="block text-sm font-medium">
@@ -45,14 +46,14 @@ export function FinalDaysChoice({
       <span className="block text-xs text-muted max-[359px]:text-[0.6875rem]">
         {option?.lastNewDate ? (
           <>
-            <span className="hidden sm:inline">Nuevas hasta el </span>
-            <span className="sm:hidden">Hasta </span>
+            <span className="hidden sm:inline">{s.finalDay.newUntilWide}</span>
+            <span className="sm:hidden">{s.finalDay.newUntilNarrow}</span>
             {shortDate(option.lastNewDate)}
           </>
         ) : number === null ? (
           '—'
         ) : (
-          'Sin nuevas'
+          s.finalDay.noNew
         )}
       </span>
       <span className="block text-xs text-muted tabular-nums max-[359px]:text-[0.6875rem]">
@@ -61,7 +62,8 @@ export function FinalDaysChoice({
         ) : (
           <>
             {number.toLocaleString('es-CL')}
-            <span className="hidden sm:inline"> {number === 1 ? 'nueva' : 'nuevas'}</span> al día
+            <span className="hidden sm:inline"> {s.finalDay.new(number)}</span>
+            {s.finalDay.aDay}
           </>
         )}
       </span>
@@ -71,7 +73,7 @@ export function FinalDaysChoice({
         ) : (
           <>
             {minutesText(option.minutes)}
-            <span className="hidden sm:inline"> al día</span>
+            <span className="hidden sm:inline">{s.finalDay.aDay}</span>
           </>
         )}
       </span>

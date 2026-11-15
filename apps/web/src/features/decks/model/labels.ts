@@ -1,15 +1,12 @@
-// Spanish names of the card kinds and the label of a card with its code.
+// The label of a card with its code: «T-PR-01-002.1 · hueco 1».
 
-import type { CardKind, CardSummary } from '@qv/schema';
-
-export const KIND_LABELS: Record<CardKind, string> = {
-  basic: 'Básica',
-  cloze: 'Cloze',
-  occlusion: 'Oclusión',
-};
+import type { CardSummary } from '@qv/schema';
+import { decksStrings as s } from '../strings';
 
 export function cardLabel(card: Pick<CardSummary, 'code' | 'version' | 'kind' | 'ord'>): string {
-  const code = card.code ? `${card.code}${card.version ? `.${card.version}` : ''}` : 'Sin código';
-  if (card.kind !== 'basic') return `${code} · hueco ${card.ord + 1}`;
-  return card.ord ? `${code} · tarjeta ${card.ord + 1}` : code;
+  const code = card.code
+    ? `${card.code}${card.version ? `.${card.version}` : ''}`
+    : s.cardLabel.noCode;
+  if (card.kind !== 'basic') return s.cardLabel.gap(code, card.ord + 1);
+  return card.ord ? s.cardLabel.card(code, card.ord + 1) : code;
 }

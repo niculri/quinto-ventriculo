@@ -17,6 +17,7 @@ import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { isOn, visibleChildren } from '../model/deckTree';
 import { DeckPresetButton } from './DeckPresetDialog';
+import { decksStrings as s } from '../strings';
 
 export interface DeckTreeRowProps {
   deck: CourseDeckNode;
@@ -78,7 +79,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
         {unit && !p.plan ? <Skeleton className="h-6 w-10 rounded-full" /> : null}
         {unit && p.plan ? (
           <Switch
-            label={`Activar ${d.label}`}
+            label={s.tree.turnOn(d.label)}
             checked={p.active.has(d.id)}
             onChange={p.onActivate}
           />
@@ -87,8 +88,8 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
       <Link
         to={paths.deckStudy(d.ref)}
         className={`${button.base} ${button.ghost} flex-none px-2`}
-        aria-label={`Estudiar ${d.label}`}
-        title="Estudiar"
+        aria-label={s.tree.study(d.label)}
+        title={s.tree.studyTitle}
       >
         <Play className="size-4" aria-hidden="true" />
       </Link>
@@ -111,7 +112,7 @@ function FoldButton({
       type="button"
       onClick={onToggle}
       aria-expanded={open}
-      aria-label={`${open ? 'Plegar' : 'Desplegar'} ${label}`}
+      aria-label={s.tree.fold(open, label)}
       className="flex size-6 flex-none items-center justify-center rounded text-muted hover:bg-surface-2 hover:text-ink"
     >
       <ChevronRight
@@ -136,7 +137,7 @@ function RowLoad({
       counts={counts}
       medianAnswerMs={medianAnswerMs}
       detail
-      empty={nothingOn ? 'Sin activar' : 'Listo por hoy'}
+      empty={nothingOn ? s.tree.nothingOn : s.tree.done}
       className={nothingOn && totalCards(counts) === 0 ? 'text-muted' : ''}
     />
   ) : (

@@ -10,14 +10,31 @@ import { NumberRow } from '../../../../shared/ui/form/NumberRow';
 import { SelectRow } from '../../../../shared/ui/form/SelectRow';
 import { StepsRow } from '../../../../shared/ui/form/StepsRow';
 import { SwitchRow } from '../../../../shared/ui/form/SwitchRow';
-import { GATHER, MIX, REVIEW, SORT } from '../../model/optionChoices';
+import {
+  GATHER_ORDER,
+  LEECH_ORDER,
+  MIX_ORDER,
+  REVIEW_ORDER,
+  SORT_ORDER,
+} from '../../model/optionChoices';
 import { OptionsSection as Section, Warning } from './OptionsParts';
 import { ParamsRow } from './ParamsRow';
+import { optionsStrings } from '../../options.strings';
 
 interface Props {
   config: DeckConfig;
   set: (patch: Partial<DeckConfig>) => void;
 }
+
+const o = optionsStrings;
+const t = o.sections;
+const labelled = <T extends string>(order: readonly T[], labels: Record<T, string>) =>
+  order.map((v) => [v, labels[v]] as const);
+const LEECH = labelled(LEECH_ORDER, o.leech);
+const GATHER = labelled(GATHER_ORDER, o.gather);
+const SORT = labelled(SORT_ORDER, o.sort);
+const REVIEW = labelled(REVIEW_ORDER, o.review);
+const MIX = labelled(MIX_ORDER, o.mix);
 
 const steps = (s: number[]) => s.length > 0 && s.at(-1)! >= 1440;
 
@@ -38,17 +55,17 @@ export function DeckOptionSections(p: Props) {
 
 function DailyLimits({ config, set }: Props) {
   return (
-    <Section title="Límites diarios">
+    <Section title={t.daily}>
       <NumberRow
-        label="Tarjetas nuevas/día"
+        label={t.newPerDay}
         value={config.newPerDay}
         range={CONFIG_RANGES.newPerDay}
         fallback={DEFAULT_CONFIG.newPerDay}
         onChange={(v) => set({ newPerDay: v })}
-        help="Cuántas tarjetas nuevas se introducen como máximo en un día. Los submazos suman en el mazo de arriba."
+        help={t.newPerDayHelp}
       />
       <NumberRow
-        label="Repasos máximos/día"
+        label={t.reviewsPerDay}
         value={config.reviewsPerDay}
         range={CONFIG_RANGES.reviewsPerDay}
         fallback={DEFAULT_CONFIG.reviewsPerDay}
@@ -56,8 +73,7 @@ function DailyLimits({ config, set }: Props) {
       />
       {Math.min(9999, config.newPerDay * 10) > config.reviewsPerDay ? (
         <Warning>
-          Agregando {config.newPerDay} nuevas tarjetas cada día, su límite de revisión debe ser por
-          lo menos {Math.min(9999, config.newPerDay * 10)}.
+          {t.reviewsTooLow(config.newPerDay, Math.min(9999, config.newPerDay * 10))}
         </Warning>
       ) : null}
     </Section>
@@ -66,48 +82,41 @@ function DailyLimits({ config, set }: Props) {
 
 function NewCards({ config, set }: Props) {
   return (
-    <Section title="Tarjetas nuevas">
+    <Section title={t.newCards}>
       <StepsRow
-        label="Pasos en la etapa de aprendizaje"
+        label={t.learnSteps}
         value={config.learnSteps}
         fallback={DEFAULT_CONFIG.learnSteps}
         onChange={(v) => set({ learnSteps: v })}
       />
-      {steps(config.learnSteps) ? (
-        <Warning>Cuando el FSRS está activado, no se recomiendan pasos de 1 día o más.</Warning>
-      ) : null}
+      {steps(config.learnSteps) ? <Warning>{t.longSteps}</Warning> : null}
     </Section>
   );
 }
 
 function Lapses({ config, set }: Props) {
   return (
-    <Section title="Olvidos">
+    <Section title={t.lapses}>
       <StepsRow
-        label="Pasos de reaprendizaje"
+        label={t.relearnSteps}
         value={config.relearnSteps}
         fallback={DEFAULT_CONFIG.relearnSteps}
         onChange={(v) => set({ relearnSteps: v })}
       />
-      {steps(config.relearnSteps) ? (
-        <Warning>Cuando el FSRS está activado, no se recomiendan pasos de 1 día o más.</Warning>
-      ) : null}
+      {steps(config.relearnSteps) ? <Warning>{t.longSteps}</Warning> : null}
       <NumberRow
-        label="Umbral para olvidadas"
+        label={t.leechThreshold}
         value={config.leechThreshold}
         range={CONFIG_RANGES.leechThreshold}
         fallback={DEFAULT_CONFIG.leechThreshold}
         onChange={(v) => set({ leechThreshold: v })}
-        help="Cuántas veces hay que presionar «Otra vez» en una tarjeta de repaso para que quede marcada como sanguijuela."
+        help={t.leechThresholdHelp}
       />
       <SelectRow
-        label="Acción para olvidadas"
+        label={t.leechAction}
         value={config.leechAction}
         fallback={DEFAULT_CONFIG.leechAction}
-        choices={[
-          ['suspend', 'Suspender tarjeta'],
-          ['tagOnly', 'Solo etiquetar'],
-        ]}
+        choices={LEECH}
         onChange={(v) => set({ leechAction: v })}
       />
     </Section>
@@ -116,37 +125,37 @@ function Lapses({ config, set }: Props) {
 
 function DisplayOrder({ config, set }: Props) {
   return (
-    <Section title="Orden de visualización">
+    <Section title={t.order}>
       <SelectRow
-        label="Nuevo orden de recolección de tarjetas"
+        label={t.gather}
         value={config.newCardGatherPriority}
         fallback={DEFAULT_CONFIG.newCardGatherPriority}
         choices={GATHER}
         onChange={(v) => set({ newCardGatherPriority: v })}
       />
       <SelectRow
-        label="Nuevo orden de clasificación de tarjetas"
+        label={t.sort}
         value={config.newCardSortOrder}
         fallback={DEFAULT_CONFIG.newCardSortOrder}
         choices={SORT}
         onChange={(v) => set({ newCardSortOrder: v })}
       />
       <SelectRow
-        label="Nuevos/revisiones (orden de estudio)"
+        label={t.newMix}
         value={config.newMix}
         fallback={DEFAULT_CONFIG.newMix}
         choices={MIX}
         onChange={(v) => set({ newMix: v })}
       />
       <SelectRow
-        label="Aprendizaje entre días/revisiones (orden de estudio)"
+        label={t.interdayMix}
         value={config.interdayLearningMix}
         fallback={DEFAULT_CONFIG.interdayLearningMix}
         choices={MIX}
         onChange={(v) => set({ interdayLearningMix: v })}
       />
       <SelectRow
-        label="Revisar orden de clasificación"
+        label={t.reviewOrder}
         value={config.reviewOrder}
         fallback={DEFAULT_CONFIG.reviewOrder}
         choices={REVIEW}
@@ -158,15 +167,15 @@ function DisplayOrder({ config, set }: Props) {
 
 function Fsrs({ config, set }: Props) {
   return (
-    <Section title="FSRS">
+    <Section title={t.fsrs}>
       <NumberRow
-        label="Retención deseada"
+        label={t.retention}
         value={config.desiredRetention}
         range={CONFIG_RANGES.desiredRetention}
         fallback={DEFAULT_CONFIG.desiredRetention}
         step={0.01}
         onChange={(v) => set({ desiredRetention: v })}
-        help="La probabilidad de recordar una tarjeta cuando le toca el repaso. Más alta: más repasos."
+        help={t.retentionHelp}
       />
       <ParamsRow value={config.fsrsParams} />
     </Section>
@@ -175,21 +184,21 @@ function Fsrs({ config, set }: Props) {
 
 function Burying({ config, set }: Props) {
   return (
-    <Section title="Enterrar">
+    <Section title={t.burying}>
       <SwitchRow
-        label="Enterrar tarjetas hermanas nuevas (de la nota) hasta el día siguiente."
+        label={t.buryNew}
         value={config.buryNew}
         fallback={DEFAULT_CONFIG.buryNew}
         onChange={(v) => set({ buryNew: v })}
       />
       <SwitchRow
-        label="Enterrar tarjetas hermanas (de la nota)."
+        label={t.buryReviews}
         value={config.buryReviews}
         fallback={DEFAULT_CONFIG.buryReviews}
         onChange={(v) => set({ buryReviews: v })}
       />
       <SwitchRow
-        label="Enterrar a las tarjetas hermanas (de la nota) de aprendizaje entre días."
+        label={t.buryInterday}
         value={config.buryInterdayLearning}
         fallback={DEFAULT_CONFIG.buryInterdayLearning}
         onChange={(v) => set({ buryInterdayLearning: v })}
@@ -200,14 +209,14 @@ function Burying({ config, set }: Props) {
 
 function Timer({ config, set }: Props) {
   return (
-    <Section title="Temporizador">
+    <Section title={t.timer}>
       <NumberRow
-        label="Tiempo máximo de respuesta en segundos"
+        label={t.answerTime}
         value={config.capAnswerTimeToSecs}
         range={CONFIG_RANGES.capAnswerTimeToSecs}
         fallback={DEFAULT_CONFIG.capAnswerTimeToSecs}
         onChange={(v) => set({ capAnswerTimeToSecs: v })}
-        help="El tiempo que se guarda de cada respuesta no pasa de este máximo."
+        help={t.answerTimeHelp}
       />
     </Section>
   );
@@ -215,18 +224,16 @@ function Timer({ config, set }: Props) {
 
 function Advanced({ config, set }: Props) {
   return (
-    <Section title="Avanzado">
+    <Section title={t.advanced}>
       <NumberRow
-        label="Intervalo máximo"
+        label={t.maxInterval}
         value={config.maximumReviewInterval}
         range={CONFIG_RANGES.maximumReviewInterval}
         fallback={DEFAULT_CONFIG.maximumReviewInterval}
         onChange={(v) => set({ maximumReviewInterval: v })}
-        help="En días: ninguna tarjeta se programa más lejos."
+        help={t.maxIntervalHelp}
       />
-      {config.maximumReviewInterval < 180 ? (
-        <Warning>Un intervalo máximo de menos de 6 meses no es recomendable.</Warning>
-      ) : null}
+      {config.maximumReviewInterval < 180 ? <Warning>{t.shortInterval}</Warning> : null}
     </Section>
   );
 }

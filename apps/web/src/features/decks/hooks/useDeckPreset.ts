@@ -9,6 +9,7 @@ import { useCatalog } from '../../catalog/queries';
 import { studyKeys, useDeckSettings, useUserPresets } from '../../progress/queries';
 import type { DeckNode } from '../../catalog/model/tree';
 import { refKey } from '../model/presets';
+import { presetsStrings as p } from '../presets.strings';
 
 export function useDeckPreset(node: DeckNode) {
   const study = useStudyRepository();
@@ -38,7 +39,7 @@ export function useDeckPreset(node: DeckNode) {
       );
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo guardar.');
+      setError(e instanceof Error ? e.message : p.notSaved);
     } finally {
       setSaving(false);
     }

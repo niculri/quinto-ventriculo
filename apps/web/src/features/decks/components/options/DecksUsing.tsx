@@ -3,16 +3,13 @@ import { Link } from 'react-router';
 import { paths } from '../../../../shared/lib/paths';
 import { card } from '../../../../shared/ui/styles';
 import type { CourseDeckNode, DeckNode } from '../../../catalog/model/tree';
+import { optionsStrings as o } from '../../options.strings';
 
 export function DecksUsing({ decks }: { decks: CourseDeckNode[] }) {
   const path = (n: DeckNode) => n.name.split('::').slice(1).join(' › ');
   return (
-    <section aria-label="Mazos que la usan" className={`${card} mt-6 px-4 py-3 sm:px-6`}>
-      <h3 className="text-sm font-semibold">
-        {decks.length
-          ? `La usan ${decks.length} ${decks.length === 1 ? 'mazo' : 'mazos'}`
-          : 'Ningún mazo la usa'}
-      </h3>
+    <section aria-label={o.decks.using} className={`${card} mt-6 px-4 py-3 sm:px-6`}>
+      <h3 className="text-sm font-semibold">{o.decks.usedBy(decks.length)}</h3>
       {decks.length ? (
         <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto text-sm">
           {decks.map((n) => (

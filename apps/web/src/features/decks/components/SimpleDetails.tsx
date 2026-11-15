@@ -13,6 +13,7 @@ import type { CatchUp, StudyPlan } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { visibleChildren } from '../model/deckTree';
 import { SimpleDeckTree } from './SimpleDeckTree';
+import { decksStrings as s } from '../strings';
 
 export function SimpleDetails({
   node,
@@ -38,7 +39,7 @@ export function SimpleDetails({
             {catchUpText(catchUp)}
           </p>
         ) : (
-          <p>Activa lo que estás viendo en clases: cada semana o clase parte desactivada.</p>
+          <p>{s.panel.turnOn}</p>
         )}
       </Reserved>
       {visibleChildren(node, known).length ? (
@@ -48,7 +49,7 @@ export function SimpleDetails({
             counts={counts}
             plan={plan}
             mastery={mastery}
-            label="Submazos"
+            label={s.panel.subdecks}
           />
         </div>
       ) : null}
@@ -56,7 +57,7 @@ export function SimpleDetails({
         className={`mt-3 text-sm text-muted ${minutes >= HEAVY_LOAD_MINUTES ? '' : 'invisible'}`}
         aria-hidden={minutes < HEAVY_LOAD_MINUTES}
       >
-        Es bastante para un día. Puedes parar cuando quieras: lo que no alcances sale mañana.
+        {s.panel.heavy}
       </p>
     </>
   );

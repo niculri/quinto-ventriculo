@@ -8,31 +8,39 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import type { Counts } from '@qv/srs';
-import { paths } from '../../shared/lib/paths';
-import { useQuizRepository } from '../quiz/api/context';
-import type { QuizRepository } from '../quiz/api/repository';
-import { Breadcrumbs } from '../../shared/ui/Breadcrumbs';
-import { Skeleton } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { Select } from '../../shared/ui/Select';
-import { button, card, linkCard, page } from '../../shared/ui/styles';
-import { buildAnkiTree, courseDeck, descendants } from '../catalog/model/tree';
-import type { CourseDeckNode } from '../catalog/model/tree';
-import { countDecks, countNotes, locateNote, materialLabel, useCatalog } from '../catalog/queries';
-import { useDeck } from '../decks/hooks/useDeck';
-import { useUser } from '../session/context';
-import { Heatmap } from '../stats/HeatmapCard';
+import { paths } from '../../../shared/lib/paths';
+import { useQuizRepository } from '../../quiz/api/context';
+import type { QuizRepository } from '../../quiz/api/repository';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { Select } from '../../../shared/ui/Select';
+import { button, card, linkCard, page } from '../../../shared/ui/styles';
+import { buildAnkiTree, courseDeck, descendants } from '../../catalog/model/tree';
+import type { CourseDeckNode } from '../../catalog/model/tree';
+import {
+  countDecks,
+  countNotes,
+  locateNote,
+  materialLabel,
+  useCatalog,
+} from '../../catalog/queries';
+import { useDeck } from '../../decks/hooks/useDeck';
+import { useUser } from '../../session/context';
+import { Heatmap } from '../../stats/components/Heatmap';
 import { activeUnits, homeCourseCounts, nearestExamText, totalCards } from '@qv/study';
 import type { HomeStudyBase, StudyPlan } from '@qv/study';
-import { DayLoad, useDeckCounts } from '../progress/DeckCounts';
-import { MasteryMeter } from '../progress/MasteryMeter';
-import { usePreferences, useSavePreferences, useStudyPlan, useToday } from '../progress/queries';
-import type { StudyPreferences } from '../progress/api/repository';
-import { lastNote } from '../notes/lastNote';
-import { addCourse, listText, myCourses, removeCourse } from './myCourses';
-import type { MyCourses as MyCourseLists } from './myCourses';
-import { todayCourses, useCountsTick, useHomeStudy } from './queries';
-import { storageKeys } from '../../shared/lib/storage';
+import { DayLoad, useDeckCounts } from '../../progress/DeckCounts';
+import { MasteryMeter } from '../../progress/MasteryMeter';
+import { usePreferences, useSavePreferences, useStudyPlan, useToday } from '../../progress/queries';
+import type { StudyPreferences } from '../../progress/api/repository';
+import { lastNote } from '../../notes/lastNote';
+import { addCourse, listText, myCourses, removeCourse } from '../model/myCourses';
+import type { MyCourses as MyCourseLists } from '../model/myCourses';
+import { todayCourses } from '../model/todayCourses';
+import { useCountsTick } from '../hooks/useCountsTick';
+import { useHomeStudy } from '../hooks/useHomeStudy';
+import { storageKeys } from '../../../shared/lib/storage';
 
 const HEIGHT_KEY = storageKeys.homeHeight;
 const DEFAULT_HEIGHT = 1100;

@@ -9,7 +9,7 @@ import { BackButton } from '../../../shared/ui/BackButton';
 import { cardKey, reviewPools, startRound } from '@qv/study';
 import type { Round, StudyData } from '@qv/study';
 import { studyKeys } from '../../progress/queries';
-import { usePracticeRecorder } from '../../stats/practice';
+import { usePracticeRecorder } from '../../stats/hooks/usePracticeRecorder';
 import { ChooseReview } from './ChooseReview';
 import { ReviewMenu } from './ReviewMenu';
 import { ReviewScreen } from './ReviewScreen';

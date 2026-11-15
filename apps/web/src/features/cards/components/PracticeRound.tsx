@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { BackButton } from '../../../shared/ui/BackButton';
 import { answerBar } from '../../../shared/ui/styles';
-import { usePracticeRecorder } from '../../stats/practice';
+import { usePracticeRecorder } from '../../stats/hooks/usePracticeRecorder';
 import { ReviewMenu, ReviewScreen, RoundDone } from '../../study';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';

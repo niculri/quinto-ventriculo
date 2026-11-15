@@ -8,7 +8,7 @@ import type { ApiClient } from '../shared/lib/api';
 import { localStudyRepository, supabaseStudyRepository } from '../features/progress/api/repository';
 import type { StudyRepository } from '../features/progress/api/repository';
 import { withCardSync } from '../features/progress/api/sync';
-import { withDemoHistory } from '../features/stats/demo';
+import { withDemoHistory } from '../features/stats/api/demo';
 import { withDemoCards } from '../features/cards';
 import { localQuizRepository, supabaseQuizRepository } from '../features/quiz/api/repository';
 import type { QuizRepository } from '../features/quiz/api/repository';

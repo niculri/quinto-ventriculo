@@ -15,8 +15,8 @@ import {
   timingFor,
 } from '@qv/study';
 import type { StudyData, TreeDeck } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from '../progress/api/repository';
-import type { StoredCard } from '../progress/api/repository';
+import { defaultPreferences, localStudyRepository } from '../../progress/api/repository';
+import type { StoredCard } from '../../progress/api/repository';
 
 /** A small deterministic generator (mulberry32). */
 function random(seed: number) {
@@ -37,7 +37,7 @@ const COURSE = '3';
 
 function scenario(seed: number) {
   const rnd = random(seed);
-  const pick = <T>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)]!;
+  const pick = <T,>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)]!;
   const decks: TreeDeck[] = [];
   const add = (id: string, name: string, parentId: string | null, preset = 'Default') =>
     decks.push({ id, name, label: name.split('::').at(-1)!, parentId, authorPreset: preset });

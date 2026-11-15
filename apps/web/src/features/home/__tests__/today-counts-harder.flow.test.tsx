@@ -15,8 +15,13 @@ import {
   timingFor,
 } from '@qv/study';
 import type { StudyData, TreeDeck } from '@qv/study';
-import { defaultPreferences, localStudyRepository } from '../progress/api/repository';
-import type { AnswerToday, DeckProgress, StoredCard, UserPreset } from '../progress/api/repository';
+import { defaultPreferences, localStudyRepository } from '../../progress/api/repository';
+import type {
+  AnswerToday,
+  DeckProgress,
+  StoredCard,
+  UserPreset,
+} from '../../progress/api/repository';
 
 function random(seed: number) {
   let a = seed >>> 0;
@@ -55,7 +60,7 @@ const REVIEW = [
 
 function scenario(seed: number, mode: 'any' | 'simple' | 'advanced' = 'any') {
   const rnd = random(seed);
-  const pick = <T>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)]!;
+  const pick = <T,>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)]!;
   const decks: TreeDeck[] = [];
   const add = (id: string, name: string, parentId: string | null, preset = 'Default') =>
     decks.push({ id, name, label: name.split('::').at(-1)!, parentId, authorPreset: preset });

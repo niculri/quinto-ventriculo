@@ -3,12 +3,12 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fullAnkiStudy, renderApp } from '../../test/render';
-import type { StudyRepository } from '../progress/api/repository';
-import { studyKeys } from '../progress/queries';
+import { fullAnkiStudy, renderApp } from '../../../test/render';
+import type { StudyRepository } from '../../progress/api/repository';
+import { studyKeys } from '../../progress/queries';
 import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
-import { heatmapKeys } from './queries';
+import { heatmapKeys } from '../api/queries';
 
 const D = dayNumber;
 // A Tuesday of November, at noon in Santiago: its study day is 10-11-2026.

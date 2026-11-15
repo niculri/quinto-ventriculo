@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
-import { MAX_CHOSEN_COURSES, addCourse, listText, myCourses, removeCourse } from './myCourses';
+import { MAX_CHOSEN_COURSES, addCourse, listText, myCourses, removeCourse } from '../myCourses';
 
 function course(id: string, semester: number, material: boolean): CourseWithAssessments {
   return {

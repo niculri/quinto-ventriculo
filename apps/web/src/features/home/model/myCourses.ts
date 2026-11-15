@@ -1,8 +1,8 @@
 // «Tus ramos» on the home page: which courses the student sees, and adding or taking out a course.
 
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
-import { countDecks, countNotes, materialLabel } from '../catalog/queries';
-import type { StudyPreferences } from '../progress/api/repository';
+import { countDecks, countNotes, materialLabel } from '../../catalog/queries';
+import type { StudyPreferences } from '@qv/schema/user';
 
 /** The database keeps at most this many in each list. */
 export const MAX_CHOSEN_COURSES = 100;

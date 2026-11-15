@@ -124,7 +124,7 @@
       "count": 3
     }
   },
-  "apps/web/src/features/home/HomePage.tsx": {
+  "apps/web/src/features/home/pages/HomePage.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -363,7 +363,7 @@
       "count": 4
     }
   },
-  "apps/web/src/features/stats/HeatmapCard.tsx": {
+  "apps/web/src/features/stats/components/Heatmap.tsx": {
     "max-lines": {
       "count": 1
     },
@@ -377,7 +377,7 @@
       "count": 1
     }
   },
-  "apps/web/src/features/stats/demo.ts": {
+  "apps/web/src/features/stats/api/demo.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     }

@@ -1,12 +1,12 @@
-// Data hooks of «Hoy» on the home page: which courses it lists, what it counts with, and when to count again.
+// What «Hoy» on the home page counts with: the study data of the courses it lists and their counts.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
 import type { Catalog } from '@qv/schema';
-import { useStudyRepository } from '../progress/api/context';
-import { buildAnkiTree, courseDeck, descendants } from '../catalog/model/tree';
-import type { CourseDeckNode } from '../catalog/model/tree';
+import { useStudyRepository } from '../../progress/api/context';
+import { descendants } from '../../catalog/model/tree';
+import type { CourseDeckNode } from '../../catalog/model/tree';
 import {
   studyKeys,
   useAnswersToday,
@@ -16,23 +16,10 @@ import {
   useStudyPlan,
   useToday,
   useUserPresets,
-} from '../progress/queries';
-import type { HomeDeckCounts } from '../progress/api/repository';
-import { activeUnits, decayByDeck, nextChangeAt, treeDecks } from '@qv/study';
-import type { HomeStudyBase, StudyPlan } from '@qv/study';
-
-export function todayCourses(catalog: Catalog, plan: StudyPlan): CourseDeckNode[] {
-  const tree = buildAnkiTree(catalog);
-  const answered = new Set(plan.answeredDecks);
-  return catalog.semesters
-    .flatMap((s) => s.courses)
-    .map((c) => courseDeck(tree, c.id))
-    .filter((n): n is CourseDeckNode => n !== null)
-    .filter((n) => {
-      const below = descendants(n);
-      return activeUnits(below, plan).size > 0 || below.some((d) => answered.has(d.id));
-    });
-}
+} from '../../progress/queries';
+import type { HomeDeckCounts } from '../../progress/api/repository';
+import { decayByDeck, treeDecks } from '@qv/study';
+import type { HomeStudyBase } from '@qv/study';
 
 export function useHomeStudy(catalog: Catalog | undefined, courses: readonly CourseDeckNode[]) {
   const study = useStudyRepository();
@@ -89,20 +76,3 @@ export function useHomeStudy(catalog: Catalog | undefined, courses: readonly Cou
 }
 
 const EMPTY = { truncated: false, decks: new Map<string, HomeDeckCounts>() };
-
-/** Changes when the counts can change by themselves, so they are computed again then and not every minute. */
-export function useCountsTick(
-  home: ReadonlyMap<string, HomeDeckCounts> | null,
-  learnAheadMinutes: number | undefined,
-) {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    if (!home || learnAheadMinutes === undefined) return;
-    const at = nextChangeAt(home, learnAheadMinutes);
-    if (at === null) return;
-    // setTimeout takes at most ~24 days; the day changes before that.
-    const id = setTimeout(() => setTick((t) => t + 1), Math.min(at - Date.now() + 50, 2 ** 31 - 1));
-    return () => clearTimeout(id);
-  }, [home, learnAheadMinutes, tick]);
-  return tick;
-}

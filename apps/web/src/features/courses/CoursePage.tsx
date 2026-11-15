@@ -29,7 +29,7 @@ import type { StudyPlan } from '@qv/study';
 import { CountNumbers, DayLoad, useDeckCounts } from '../progress/DeckCounts';
 import { MasteryMeter } from '../progress/MasteryMeter';
 import { usePreferences, useStudyPlan, useToday } from '../progress/queries';
-import { Heatmap } from '../stats/HeatmapCard';
+import { Heatmap } from '../stats/components/Heatmap';
 
 export function CoursePage() {
   const { courseId = '', number = '' } = useParams();

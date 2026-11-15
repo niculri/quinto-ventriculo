@@ -5,12 +5,12 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router';
 import { ChevronLeft, ChevronRight, Circle, Layers, X } from 'lucide-react';
 import type { Catalog } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import { buildAnkiTree, courseDeck, hasPage } from '../catalog/model/tree';
-import type { CourseDeckNode, DeckNode } from '../catalog/model/tree';
-import { Skeleton } from '../../shared/ui/Loading';
-import { button, card } from '../../shared/ui/styles';
-import { usePreferences, useToday } from '../progress/queries';
+import { paths } from '../../../shared/lib/paths';
+import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
+import type { CourseDeckNode, DeckNode } from '../../catalog/model/tree';
+import { Skeleton } from '../../../shared/ui/Loading';
+import { button, card } from '../../../shared/ui/styles';
+import { usePreferences, useToday } from '../../progress/queries';
 import {
   answersText,
   cellLabel,
@@ -28,7 +28,7 @@ import {
   yearRange,
 } from '@qv/study';
 import type { CellValue, HeatmapData, HeatmapStats } from '@qv/study';
-import { useHeatmapData } from './queries';
+import { useHeatmapData } from '../hooks/useHeatmapData';
 
 const CELL = 12;
 const GAP = 2;

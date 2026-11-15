@@ -1,40 +1,24 @@
-// Tests the practice recorder: batches within the database's caps, retries and refusals.
+// Tests the practice recorder: retries and refusals.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { ServicesProvider } from '../../app/services';
-import type { Services } from '../../app/services';
 import {
   PRACTICE_DAY_MAX,
   PracticeRefusedError,
   localStudyRepository,
-} from '../progress/api/repository';
-import type { PracticeCount, StudyRepository } from '../progress/api/repository';
-import { practiceBatches, usePracticeRecorder } from './practice';
-
-describe('the batches of practice', () => {
-  it('never pass the database’s caps: 1,000 answers and 100 decks', () => {
-    expect(practiceBatches([])).toEqual([]);
-    expect(practiceBatches([{ deckId: '1', n: 3 }])).toEqual([[{ deckId: '1', n: 3 }]]);
-    const big = practiceBatches([
-      { deckId: '1', n: 1500 },
-      { deckId: '2', n: 700 },
-    ]);
-    expect(big.map((b) => b.reduce((t, c) => t + c.n, 0))).toEqual([1000, 1000, 200]);
-    expect(big.flat().reduce((t, c) => t + c.n, 0)).toBe(2200);
-    const many = practiceBatches(Array.from({ length: 250 }, (_, i) => ({ deckId: `${i}`, n: 1 })));
-    expect(many.map((b) => b.length)).toEqual([100, 100, 50]);
-  });
-});
+} from '../../../progress/api/repository';
+import type { PracticeCount, StudyRepository } from '../../../progress/api/repository';
+import { StudyRepositoryContext } from '../../../progress/api/context';
+import { usePracticeRecorder } from '../usePracticeRecorder';
 
 function recorder(recordPractice: (counts: PracticeCount[]) => Promise<void>) {
-  const services = { study: { recordPractice } as unknown as StudyRepository } as Services;
+  const study = { recordPractice } as unknown as StudyRepository;
   const client = new QueryClient();
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <ServicesProvider services={services}>
+    <StudyRepositoryContext value={study}>
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
-    </ServicesProvider>
+    </StudyRepositoryContext>
   );
   return renderHook(() => usePracticeRecorder(2), { wrapper });
 }

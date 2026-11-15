@@ -1,38 +1,16 @@
 // Records the practice answers of the final review for the heatmap, in batches the database takes.
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useStudyRepository } from '../progress/api/context';
+import { useStudyRepository } from '../../progress/api/context';
 import {
   PRACTICE_BATCH_DECKS,
   PRACTICE_BATCH_MAX,
   PracticeRefusedError,
-} from '../progress/api/repository';
-import type { PracticeCount } from '../progress/api/repository';
-import { heatmapKeys } from './queries';
+} from '../../progress/api/repository';
+import { heatmapKeys } from '../api/queries';
+import { practiceBatches } from '../api/practiceBatches';
 
 const PRACTICE_BATCH = 10;
-
-export function practiceBatches(counts: readonly PracticeCount[]): PracticeCount[][] {
-  const out: PracticeCount[][] = [];
-  let batch: PracticeCount[] = [];
-  let size = 0;
-  for (const { deckId, n: all } of counts) {
-    let n = all;
-    while (n > 0) {
-      if (size === PRACTICE_BATCH_MAX || batch.length === PRACTICE_BATCH_DECKS) {
-        out.push(batch);
-        batch = [];
-        size = 0;
-      }
-      const part = Math.min(n, PRACTICE_BATCH_MAX - size);
-      batch.push({ deckId, n: part });
-      size += part;
-      n -= part;
-    }
-  }
-  if (batch.length) out.push(batch);
-  return out;
-}
 
 // A batch that fails for the network goes with the next one (up to one database batch); one the database refuses
 // is not sent again.

@@ -8,16 +8,15 @@ const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs'];
 
 const isTestFile = (path: string) => TEST.test(path);
 
-const isFlowOrContract = (path: string) =>
-  path.endsWith('.flow.test.tsx') || path.endsWith('-contract.test.ts');
-
-// `dir/__tests__/X.test.ts(x)` follows the rule when `dir/X` exists with one of the source extensions.
-// Flows (*.flow.test.tsx) and contract batteries (*-contract.test.ts) are named after what they cover.
+// `dir/__tests__/X.test.ts(x)` follows the rule when `dir/X` exists with one of the source extensions. A flow
+// (`__tests__/*.flow.test.tsx`) is named after what it covers; a contract battery (*-contract.test.ts) stays next to
+// what it checks.
 export function followsRule(path: string, exists: (path: string) => boolean): boolean {
-  if (isFlowOrContract(path)) return true;
+  if (path.endsWith('-contract.test.ts')) return true;
   const parts = path.split('/');
   const name = parts.pop()!;
   if (parts.pop() !== '__tests__') return false;
+  if (name.endsWith('.flow.test.tsx')) return true;
   const base = [...parts, name.replace(TEST, '')].join('/');
   return SOURCE_EXTENSIONS.some((ext) => exists(base + ext));
 }
@@ -63,7 +62,7 @@ export function checkTestNames(
       `Pruebas que no siguen la regla de nombres (${unlisted.length}):`,
       ...unlisted.map((f) => `  ${f}`),
       'Una prueba se llama como el archivo que prueba y va en __tests__/ junto a él ' +
-        '(X.ts → __tests__/X.test.ts); un flujo, *.flow.test.tsx; un contrato, *-contract.test.ts.',
+        '(X.ts → __tests__/X.test.ts); un flujo, __tests__/*.flow.test.tsx; un contrato, *-contract.test.ts.',
     );
   }
   if (atBase !== null && listed.length > atBase.length) {

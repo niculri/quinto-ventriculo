@@ -34,6 +34,7 @@ describe('the test names rule', () => {
     expect(followsRule('apps/web/src/features/study/__tests__/review.flow.test.tsx', exists)).toBe(
       true,
     );
+    expect(followsRule('apps/web/src/features/study/review.flow.test.tsx', exists)).toBe(false);
     expect(
       followsRule('apps/web/src/features/x/api/repository/memory-contract.test.ts', exists),
     ).toBe(true);

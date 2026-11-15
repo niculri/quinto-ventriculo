@@ -168,28 +168,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/search/SearchPage.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 15
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/search/SearchPalette.tsx": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 9
-    }
-  },
   "apps/web/src/features/session/AuthCallbackPage.tsx": {
     "qv/no-literal-text": {
       "count": 1

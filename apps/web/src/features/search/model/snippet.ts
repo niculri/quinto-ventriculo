@@ -1,4 +1,4 @@
-// A search result's snippet, with its matches highlighted.
+// A search result's snippet in parts, with its matches marked.
 import { HIGHLIGHT_END, HIGHLIGHT_START } from '@qv/schema';
 
 /** Turns «text ⟦match⟧ text» into <mark>, without innerHTML (the snippet is plain text). */
@@ -21,14 +21,4 @@ export function snippetParts(snippet: string): { text: string; highlighted: bool
     rest = rest.slice(f + HIGHLIGHT_END.length);
   }
   return parts;
-}
-
-export function Snippet({ text }: { text: string }) {
-  return (
-    <>
-      {snippetParts(text).map((p, i) =>
-        p.highlighted ? <mark key={i}>{p.text}</mark> : <span key={i}>{p.text}</span>,
-      )}
-    </>
-  );
 }

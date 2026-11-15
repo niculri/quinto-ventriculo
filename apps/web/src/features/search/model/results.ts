@@ -1,24 +1,7 @@
-// The search query while typing, and helpers to group, link and classify its results.
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+// A search's results grouped by note, the link of each one, and where a search was made from.
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import { locateNote } from '../catalog/model/catalog';
-import { useApi } from '../../shared/hooks/useApi';
-import { useDebounced } from '../../shared/hooks/useDebounced';
-
-export function useSearch(query: string, limit = 20) {
-  const api = useApi();
-  const q = useDebounced(query.trim(), 220);
-  const active = q.length >= 2;
-  const r = useQuery({
-    queryKey: ['search', q, limit],
-    queryFn: ({ signal }) => api.search(q, limit, signal),
-    enabled: active,
-    placeholderData: keepPreviousData,
-    staleTime: 5 * 60_000,
-  });
-  return { ...r, active, query: q, results: active ? (r.data?.results ?? []) : [] };
-}
+import { paths } from '../../../shared/lib/paths';
+import { locateNote } from '../../catalog/model/catalog';
 
 export interface ResultGroup {
   noteId: string;

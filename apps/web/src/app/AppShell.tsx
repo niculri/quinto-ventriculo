@@ -5,7 +5,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { paths } from '../shared/lib/paths';
 import { Menu, Search } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router';
-import { SearchPalette } from '../features/search/SearchPalette';
+import { SearchPalette } from '../features/search/components/SearchPalette';
 import { AppNav } from '../features/nav/components/AppNav';
 import { FocusContext } from '../shared/ui/focus';
 import { RailContext } from '../shared/ui/rail';

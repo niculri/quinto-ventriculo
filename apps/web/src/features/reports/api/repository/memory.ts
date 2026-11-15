@@ -5,6 +5,7 @@ import type { ReportsRepository } from './port';
 import { REPORT_MESSAGES, ReportError } from './model';
 import type { NewReport, Reporter, ReportGroup, Resolution } from './model';
 import { cleanLocation, placeOf, trimSpaces } from './memory-place';
+import { storageKeys } from '../../../../shared/lib/storage';
 
 export { placeOf } from './memory-place';
 
@@ -34,7 +35,7 @@ export function localReportsRepository(
   options: { storage?: Storage | null; admin?: boolean; email?: string; now?: () => Date } = {},
 ): ReportsRepository {
   const storage = options.storage ?? null;
-  const KEY = 'qv-demo-content-reports';
+  const KEY = storageKeys.demo.contentReports;
   const now = options.now ?? (() => new Date());
   let memory: Stored = { reports: [], resolutions: [], blocked: false };
   const read = (): Stored => {

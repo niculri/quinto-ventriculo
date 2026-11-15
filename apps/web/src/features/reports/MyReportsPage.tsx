@@ -1,5 +1,4 @@
 // «Mis reportes» settings page: the student's own reports and what happened with each one.
-import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { formatDateTime } from '../../shared/lib/dates';
 import { Loading } from '../../shared/ui/Loading';
@@ -17,15 +16,11 @@ import {
 } from './labels';
 import { useMyReports } from './queries';
 import type { MyReport } from './api/repository';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 export function MyReportsPage() {
   const reports = useMyReports();
-  useEffect(() => {
-    document.title = 'Mis reportes · El Quinto Ventrículo';
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, []);
+  useTitle('Mis reportes');
   return (
     <SettingsLayout>
       <h2 className="font-serif text-2xl font-semibold tracking-tight">Mis reportes</h2>

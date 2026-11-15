@@ -1,5 +1,6 @@
 // Fake session of the demo mode: only the demo API that Vite mounts accepts its token; the Worker rejects it.
 import type { Session, SessionService } from './service';
+import { storageKeys } from '../../../shared/lib/storage';
 
 export const DEMO_EMAIL = 'demo@ug.uchile.cl';
 
@@ -15,7 +16,7 @@ const DEMO_SESSION: Session = {
   },
 };
 
-const KEY = 'qv-demo-session';
+const KEY = storageKeys.demo.session;
 
 export function demoSessionService(): SessionService {
   const listeners = new Set<(s: Session | null) => void>();

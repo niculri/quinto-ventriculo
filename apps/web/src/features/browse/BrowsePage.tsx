@@ -29,7 +29,8 @@ import { Switch } from '../../shared/ui/Switch';
 import { button, card as cardStyle } from '../../shared/ui/styles';
 import { hasPage } from '../catalog/model/tree';
 import { actionLabel, cardKey, FLAGS, presetChoices, presetOf, timingFor } from '@qv/study';
-import { studyKeys, useNow } from '../progress/queries';
+import { studyKeys } from '../progress/queries';
+import { useNow } from '../../shared/hooks/useNow';
 import type {
   CardRef,
   DeckSetting,
@@ -59,11 +60,12 @@ import { Rail } from '../../shared/ui/rail';
 import type { DeckNode } from '../catalog/model/tree';
 import { DimBackdrop, GhostCloseX } from '../../shared/ui/Dialog';
 import { LiveToast } from '../../shared/ui/Toast';
+import { storageKeys } from '../../shared/lib/storage';
 
 const ROW = 34;
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */
 const REVIEW_FLAG = 1;
-const PREFS_KEY = 'qv-browse';
+const PREFS_KEY = storageKeys.browserView;
 
 interface ViewPrefs {
   mode: 'cards' | 'notes';

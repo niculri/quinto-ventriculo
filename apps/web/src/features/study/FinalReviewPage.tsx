@@ -18,7 +18,7 @@ import { answerBar, button, card, studyScreen } from '../../shared/ui/styles';
 import { studyBackLabel } from '../catalog/model/tree';
 import type { CourseDeckNode } from '../catalog/model/tree';
 import { BackButton } from '../../shared/ui/BackButton';
-import { useDarkMode } from '../decks/CardFrame';
+import { useDarkMode } from '../../shared/hooks/useDarkMode';
 import { cardQuery, useDeck } from '../decks/queries';
 import { answerRound, cardKey, dropCurrent, revealCard, reviewPools, startRound } from '@qv/study';
 import type { Round, StudyData } from '@qv/study';

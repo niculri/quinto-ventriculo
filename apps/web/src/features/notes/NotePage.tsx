@@ -41,6 +41,7 @@ import { useTip } from '../tips/useTip';
 import { useReadingFonts } from '../../shared/lib/readingFonts';
 import { noteCrumbs } from './noteCrumbs';
 import { StatusToast } from '../../shared/ui/Toast';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 export function NotePage() {
   const { noteSlug: slug = '', number = '', courseId = '' } = useParams();
@@ -114,12 +115,7 @@ export function NoteView({
   }, [note.slug, remember]);
   const tip = useTip('tip-search', progress >= 0.95);
 
-  useEffect(() => {
-    document.title = `${note.title} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [note.title]);
+  useTitle(note.title);
 
   useEffect(() => {
     if (!hash) return;

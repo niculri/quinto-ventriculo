@@ -1,11 +1,11 @@
 // The frame of the public pages /privacy, /terms, /licenses and /about, with or without a session.
-import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
 import { formatDay } from '../../shared/lib/dates';
 import { Logo } from '../../shared/ui/Logo';
 import { SiteFooter } from '../nav/components/SiteFooter';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 export function LegalPage({
   title,
@@ -18,12 +18,7 @@ export function LegalPage({
   date?: string;
   children: ReactNode;
 }) {
-  useEffect(() => {
-    document.title = `${title} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [title]);
+  useTitle(title);
 
   return (
     <div className="flex min-h-dvh flex-col">

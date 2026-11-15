@@ -1,8 +1,9 @@
 // The decks the user folded in the deck list (as Anki's «+»/«−»), remembered in this browser.
 
 import { useState } from 'react';
+import { storageKeys } from '../../shared/lib/storage';
 
-const KEY = 'qv-anki-collapsed';
+const KEY = storageKeys.collapsedDecks;
 
 function readCollapsed(): Set<string> {
   try {

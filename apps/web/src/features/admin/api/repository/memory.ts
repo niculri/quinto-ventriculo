@@ -2,6 +2,7 @@
 import type { AdminRepository } from './port';
 import { AccessError, MAX_EMAILS, normalizeEmail } from './model';
 import type { AccessInvite, AccessReport, InviteResult } from './model';
+import { storageKeys } from '../../../../shared/lib/storage';
 
 const DEMO_INVITES: AccessInvite[] = [
   invite('demo@ug.uchile.cl', 'Equipo', true, true),
@@ -39,7 +40,7 @@ export function localAdminRepository(
   } = {},
 ): AdminRepository {
   const storage = options.storage ?? null;
-  const ACCESS = 'qv-demo-access';
+  const ACCESS = storageKeys.demo.access;
   let invites: AccessInvite[] = options.invites ?? DEMO_INVITES;
   try {
     const kept = storage?.getItem(ACCESS);

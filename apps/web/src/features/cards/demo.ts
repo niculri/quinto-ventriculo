@@ -5,6 +5,7 @@ import type { AnkiTreeDeck, CardDetail, CardIndex, CardIndexNote, Catalog } from
 import { CARD_INDEX_VERSION } from '@qv/schema';
 import type { ApiClient } from '../../shared/lib/api';
 import type { StoredCard, StudyRepository } from '../progress/api/repository';
+import { storageKeys } from '../../shared/lib/storage';
 
 const DEMO_PREFIX = 'demo-';
 
@@ -199,7 +200,7 @@ export function syntheticRows(index: CardIndex, nowMs: number, seed = 11): Store
 }
 
 function demoCardCount(storage: Storage | null = safeStorage()): number | null {
-  const n = Number(storage?.getItem('qv-demo-cards') ?? '');
+  const n = Number(storage?.getItem(storageKeys.demo.cards) ?? '');
   return Number.isInteger(n) && n > 0 ? Math.min(n, 20_000) : null;
 }
 

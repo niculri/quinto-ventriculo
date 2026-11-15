@@ -1,7 +1,7 @@
 // Data hooks for studying: preferences, the simple plan and its changes, deck progress, an assessment's view,
 // today's answers and everything a deck's queue needs.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dayStartsAt, schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
@@ -11,6 +11,7 @@ import type { AssessmentSetting, StudyPreferences } from './api/repository';
 import { useCatalog } from '../catalog/queries';
 import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
+import { useNow } from '../../shared/hooks/useNow';
 
 export const studyKeys = {
   all: ['study'] as const,
@@ -188,15 +189,6 @@ export function useAssessmentView(assessmentId: string | null): AssessmentView |
 /** Today's day number before the preferences arrive, with the usual rollover: what a date field can start from. */
 export function roughToday(): number {
   return schedTiming(Date.now() / 1000, browserTimeZone(), defaultPreferences().dayStartsAt).today;
-}
-
-export function useNow(periodMs = 60_000): number {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), periodMs);
-    return () => clearInterval(id);
-  }, [periodMs]);
-  return now;
 }
 
 export function useToday(prefs: StudyPreferences | undefined): number | null {

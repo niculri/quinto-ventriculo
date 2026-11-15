@@ -4,6 +4,7 @@ import type { Catalog } from '@qv/schema';
 import type { StudyRepository } from '../progress/api/repository';
 import { browserTimeZone } from '../progress/api/repository';
 import type { HeatmapData } from '@qv/study';
+import { storageKeys } from '../../shared/lib/storage';
 
 // For the e2e tests, `qv-demo-heatmap` in localStorage takes `empty`, `slow` (1.5 s late) and `error`, with commas.
 export function withDemoHistory(
@@ -49,7 +50,9 @@ export function withDemoHistory(
 
 function demoFlags(): string[] {
   try {
-    return (window.localStorage.getItem('qv-demo-heatmap') ?? '').split(',').map((s) => s.trim());
+    return (window.localStorage.getItem(storageKeys.demo.heatmap) ?? '')
+      .split(',')
+      .map((s) => s.trim());
   } catch {
     return [];
   }

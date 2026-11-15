@@ -1,7 +1,6 @@
 // A deck's page below a course (an assessment, a week, a deck): its options, «Estudiar» with the load, its
 // subdecks and the way to the final review.
 
-import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router';
 import { History, Play, Search } from 'lucide-react';
 import type { Counts } from '@qv/srs';
@@ -28,6 +27,7 @@ import { SimpleDeckTree, visibleChildren } from './SimpleDeckTree';
 import { ancestry, deckCrumbs, deckTitle } from '../catalog/model/tree';
 import type { CourseDeckNode } from '../catalog/model/tree';
 import { useCountOpen } from '../usage/count';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 export function DeckPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
@@ -36,12 +36,7 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
   const study = useDeckCounts(deck.data);
   const view = useAssessmentView(node.depth === 3 ? node.id : null);
 
-  useEffect(() => {
-    document.title = `${node.label} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [node.label]);
+  useTitle(node.label);
 
   // A week or a lecture is chosen on its assessment's page: there is nothing more inside it.
   const assessment = node.depth > 3 ? ancestry(node).find((n) => n.depth === 3) : null;

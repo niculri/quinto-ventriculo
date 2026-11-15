@@ -32,8 +32,9 @@ import { lastNote } from '../notes/lastNote';
 import { addCourse, listText, myCourses, removeCourse } from './myCourses';
 import type { MyCourses as MyCourseLists } from './myCourses';
 import { todayCourses, useCountsTick, useHomeStudy } from './queries';
+import { storageKeys } from '../../shared/lib/storage';
 
-const HEIGHT_KEY = 'qv-home-height';
+const HEIGHT_KEY = storageKeys.homeHeight;
 const DEFAULT_HEIGHT = 1100;
 const FIRST_STEPS = 'first-steps';
 

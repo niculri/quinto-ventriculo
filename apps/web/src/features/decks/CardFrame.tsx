@@ -4,7 +4,7 @@
 
 // A side of a card as Anki's reviewer shows it: sanitized, in a Shadow DOM with the note type's CSS on Anki's base
 // styles, with occlusions, hint links and tap to zoom.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
 import { ImageViewer } from '../../shared/ui/ImageViewer';
@@ -150,16 +150,4 @@ function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
 
 export function cardShadowRoot(region: Element): ShadowRoot | null {
   return region.querySelector('.qv-card')?.shadowRoot ?? null;
-}
-
-export function useDarkMode(): boolean {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
-  useEffect(() => {
-    const read = () => setDark(document.documentElement.classList.contains('dark'));
-    const observer = new MutationObserver(read);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    read();
-    return () => observer.disconnect();
-  }, []);
-  return dark;
 }

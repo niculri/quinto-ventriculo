@@ -1,0 +1,27 @@
+// Every key the web keeps in localStorage or sessionStorage. The values are what browsers already hold: never rename one.
+export const storageKeys = {
+  theme: 'qv-theme',
+  signInNext: 'qv-next',
+  preview: 'qv-preview',
+  lastNote: 'qv-last-note',
+  tipThisVisit: 'qv-tip',
+  tipsShown: 'qv-tips-shown',
+  browserView: 'qv-browse',
+  cardsHideAnswers: 'qv-cards-hide-answers',
+  collapsedDecks: 'qv-anki-collapsed',
+  homeHeight: 'qv-home-height',
+  examDateHint: (nodeId: string) => `qv-exam-date:${nodeId}`,
+  quizTab: (quizId: string) => `qv-quiz-tab:${quizId}`,
+  demo: {
+    prefix: 'qv-demo-',
+    session: 'qv-demo-session',
+    role: 'qv-demo-role',
+    study: 'qv-demo-study',
+    quiz: 'qv-demo-quiz',
+    account: 'qv-demo-account',
+    access: 'qv-demo-access',
+    contentReports: 'qv-demo-content-reports',
+    cards: 'qv-demo-cards',
+    heatmap: 'qv-demo-heatmap',
+  },
+} as const;

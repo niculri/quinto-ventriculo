@@ -32,8 +32,9 @@ import { useReadingFonts } from '../../shared/lib/readingFonts';
 import './quiz.css';
 import { useCountOpen } from '../usage/count';
 import { StatusToast } from '../../shared/ui/Toast';
+import { storageKeys } from '../../shared/lib/storage';
 
-const tabKey = (quizId: string) => `qv-quiz-tab:${quizId}`;
+const tabKey = storageKeys.quizTab;
 function rememberTab(quizId: string, sectionId: string) {
   try {
     localStorage.setItem(tabKey(quizId), sectionId);

@@ -1,5 +1,4 @@
 // «Administración»: the menu of its sections and the open one, only for administrators.
-import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { paths } from '../../shared/lib/paths';
@@ -9,6 +8,7 @@ import { NotFoundPage } from '../../shared/ui/NotFoundPage';
 import { page } from '../../shared/ui/styles';
 import { useIsAdmin } from './queries';
 import { ADMIN_SECTIONS } from './sections';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 /** Stays mounted while the sections change, so the breadcrumbs, the title and the menu do not move. */
 export function AdminLayout() {
@@ -53,12 +53,7 @@ export function AdminLayout() {
 
 /** A section's title (the page's second level) and the tab's title while it is open. */
 export function AdminSectionTitle({ title, children }: { title: string; children?: ReactNode }) {
-  useEffect(() => {
-    document.title = `${title} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [title]);
+  useTitle(title);
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="font-serif text-2xl font-semibold">{title}</h2>

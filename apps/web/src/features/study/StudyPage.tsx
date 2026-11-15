@@ -27,7 +27,8 @@ import { Loading } from '../../shared/ui/Loading';
 import { ErrorWithRetry, Notice } from '../../shared/ui/Notice';
 import { BackButton } from '../../shared/ui/BackButton';
 import { answerBar, button, studyScreen, tapArea } from '../../shared/ui/styles';
-import { CardFrame, useDarkMode } from '../decks/CardFrame';
+import { CardFrame } from '../decks/CardFrame';
+import { useDarkMode } from '../../shared/hooks/useDarkMode';
 import { cardQuery, useCard, useDeck } from '../decks/queries';
 import { deckTitle } from '../catalog/model/tree';
 import { ancestry, descendants, hasPage, studyBackLabel } from '../catalog/model/tree';
@@ -60,6 +61,7 @@ import { useCountOpen } from '../usage/count';
 import { useTip } from '../tips/useTip';
 import { BlurredBackdrop } from '../../shared/ui/Dialog';
 import { LiveToast } from '../../shared/ui/Toast';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 export function StudyPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
@@ -173,12 +175,7 @@ function Reviewer({
   }, [sent]);
   const message = toast ?? (sent ? 'Gracias: tu reporte le llegó al autor.' : null);
 
-  useEffect(() => {
-    document.title = `Estudiar ${rootName} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [rootName]);
+  useTitle(`Estudiar ${rootName}`);
 
   useEffect(() => {
     session.showNext();

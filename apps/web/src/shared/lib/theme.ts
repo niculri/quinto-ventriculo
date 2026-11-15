@@ -1,8 +1,9 @@
 // The light, dark or system theme: saved in localStorage and applied as the `dark` class on <html>, with the same rule
 // as public/theme.js.
+import { storageKeys } from './storage';
 export type Theme = 'system' | 'light' | 'dark';
 
-const KEY = 'qv-theme';
+const KEY = storageKeys.theme;
 
 export function readTheme(): Theme {
   try {

@@ -2,6 +2,7 @@
 import type { Session as SupabaseSession, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { ALLOWED_DOMAIN } from '@qv/schema';
+import { storageKeys } from '../../../shared/lib/storage';
 
 export interface SessionUser {
   id: string;
@@ -24,7 +25,7 @@ export interface SessionService {
   signOut(): Promise<void>;
 }
 
-export const NEXT_KEY = 'qv-next';
+export const NEXT_KEY = storageKeys.signInNext;
 
 function toSession(s: SupabaseSession | null): Session | null {
   if (!s) return null;

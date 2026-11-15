@@ -34,6 +34,7 @@ import { QuizRepositoryContext } from '../features/quiz/api/context';
 import { AdminRepositoryContext } from '../features/admin/api/context';
 import { ReportsRepositoryContext } from '../features/reports/api/context';
 import { AccountRepositoryContext } from '../features/account/api/context';
+import { storageKeys } from '../shared/lib/storage';
 
 export interface Services {
   session: SessionService;
@@ -112,7 +113,7 @@ export function createServices(): Services {
 
 function demoRole(): string | null {
   try {
-    return window.localStorage.getItem('qv-demo-role');
+    return window.localStorage.getItem(storageKeys.demo.role);
   } catch {
     return null;
   }
@@ -122,7 +123,7 @@ function demoData() {
   const data: Record<string, unknown> = {};
   for (let i = 0; i < window.localStorage.length; i++) {
     const key = window.localStorage.key(i);
-    if (!key?.startsWith('qv-demo-') || key === 'qv-demo-session') continue;
+    if (!key?.startsWith(storageKeys.demo.prefix) || key === storageKeys.demo.session) continue;
     try {
       data[key] = JSON.parse(window.localStorage.getItem(key) ?? 'null');
     } catch {

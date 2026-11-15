@@ -1,5 +1,5 @@
 // «Opciones» → «Datos de usuario»: the account as Google gives it, the terms accepted, download, deletion and sign-out.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Download, LogOut, Trash2 } from 'lucide-react';
@@ -14,6 +14,7 @@ import { DeleteAccountDialog } from '../account/DeleteAccountDialog';
 import { saveFile } from '../account/download';
 import { useSession, useUser } from '../session/context';
 import { SettingsLayout } from './SettingsLayout';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 export function AccountSettingsPage() {
   const user = useUser();
@@ -37,12 +38,7 @@ export function AccountSettingsPage() {
     }
   };
 
-  useEffect(() => {
-    document.title = 'Datos de usuario · El Quinto Ventrículo';
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, []);
+  useTitle('Datos de usuario');
 
   const leave = async () => {
     setLeaving(true);

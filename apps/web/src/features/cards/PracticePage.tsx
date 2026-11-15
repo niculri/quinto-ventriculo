@@ -14,7 +14,7 @@ import { usePracticeRecorder } from '../stats/practice';
 import { ReviewMenu, ReviewScreen, RoundDone } from '../study/FinalReviewPage';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
-import { useNow } from '../progress/queries';
+import { useNow } from '../../shared/hooks/useNow';
 import type { CardRef } from '../progress/api/repository';
 import { queryOf } from './CardsPage';
 import {
@@ -29,6 +29,7 @@ import {
 } from './model';
 import { failedOf, useCardsData, useDayCards, useFailed, useTextMatch } from './queries';
 import { cardsScope, unitDeckIds, unitNode } from '../catalog/model/scope';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 /** The filters are in the URL, so reloading starts the same round again. */
 export function PracticePage({ node }: { node: CourseDeckNode }) {
@@ -68,12 +69,7 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
   if (first === null && queue) setFirst(queue);
 
   const back = paths.cards(node.ref, queryOf(params));
-  useEffect(() => {
-    document.title = 'Practicar · El Quinto Ventrículo';
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, []);
+  useTitle('Practicar');
 
   let body;
   if (cards.error && !data) body = <ErrorWithRetry error={cards.error} onRetry={cards.retry} />;

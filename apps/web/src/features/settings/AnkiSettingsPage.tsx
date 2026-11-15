@@ -39,6 +39,7 @@ import { presetChoices, presetOf, sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
 import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';
 import { SettingsLayout } from './SettingsLayout';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 type Mode = 'general' | 'decks';
 
@@ -201,12 +202,7 @@ function OptionsForm({
     setParams(next, { replace: true });
   }, [mode, param, params, setParams]);
 
-  useEffect(() => {
-    document.title = `${mode === 'general' ? 'Anki general' : 'Configuración de mazos'} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [mode]);
+  useTitle(mode === 'general' ? 'Anki general' : 'Configuración de mazos');
 
   // The decks above the courses (the root, the semesters) are not studied on the web.
   const users = tree.nodes.filter(

@@ -2,6 +2,7 @@
 import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
 import type { AnswerInfo, QuizStep, RoundInfo, SavedQuiz } from './model';
+import { storageKeys } from '../../../../shared/lib/storage';
 
 interface LocalData {
   progress: Record<string, SavedQuiz>;
@@ -45,7 +46,7 @@ function safeLocalStorage(): Storage | null {
 }
 
 export function localQuizRepository(storage: Storage | null = safeLocalStorage()): QuizRepository {
-  const KEY = 'qv-demo-quiz';
+  const KEY = storageKeys.demo.quiz;
   let memory: LocalData = { progress: {}, rounds: [], answers: [] };
   const read = (): LocalData => {
     if (!storage) return structuredClone(memory);

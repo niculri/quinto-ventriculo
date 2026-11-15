@@ -8,24 +8,10 @@ import { Skeleton } from '../../shared/ui/Loading';
 import { clozeParts, headingAt, itemAt, listItems, listMetrics } from './model';
 import type { CardStatus, ExplorerCard, Lecture, ListItem, Matched } from './model';
 import { thumbUrl } from './queries';
+import { useMediaQuery } from '../../shared/hooks/useMediaQuery';
 
 const BAR = 64;
 const OVERSCAN = 600;
-
-function useWide(): boolean {
-  const query = '(min-width: 640px)';
-  const [wide, setWide] = useState(() =>
-    typeof window === 'undefined' || !window.matchMedia ? true : window.matchMedia(query).matches,
-  );
-  useEffect(() => {
-    if (!window.matchMedia) return;
-    const m = window.matchMedia(query);
-    const on = () => setWide(m.matches);
-    m.addEventListener('change', on);
-    return () => m.removeEventListener('change', on);
-  }, []);
-  return wide;
-}
 
 export interface ListProps {
   lectures: Lecture[];
@@ -45,7 +31,7 @@ export function CardList({
   reveal,
 }: ListProps) {
   const box = useRef<HTMLElement>(null);
-  const wide = useWide();
+  const wide = useMediaQuery('(min-width: 640px)', true);
   const [width, setWidth] = useState(0);
   const [view, setView] = useState({ top: 0, height: 800 });
 

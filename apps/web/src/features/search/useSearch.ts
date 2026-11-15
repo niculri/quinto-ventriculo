@@ -1,19 +1,10 @@
 // The search query while typing, and helpers to group, link and classify its results.
-import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
 import { paths } from '../../shared/lib/paths';
 import { locateNote } from '../catalog/queries';
 import { useApi } from '../../shared/hooks/useApi';
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), ms);
-    return () => clearTimeout(t);
-  }, [value, ms]);
-  return debounced;
-}
+import { useDebounced } from '../../shared/hooks/useDebounced';
 
 export function useSearch(query: string, limit = 20) {
   const api = useApi();

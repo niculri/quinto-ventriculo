@@ -26,6 +26,7 @@ import { card } from '../../shared/ui/styles';
 import { Switch } from '../../shared/ui/Switch';
 import { descendants } from '../catalog/model/tree';
 import type { DeckNode } from '../catalog/model/tree';
+import { storageKeys } from '../../shared/lib/storage';
 
 const MAX_NEW_PER_DAY = 9999;
 
@@ -83,7 +84,7 @@ export function AssessmentOptions({
   };
 
   // While it loads, what this browser remembers: a student with a date does not see the page jump every time.
-  const hintKey = `qv-exam-date:${node.id}`;
+  const hintKey = storageKeys.examDateHint(node.id);
   const [hint] = useState(() => {
     try {
       return localStorage.getItem(hintKey) === '1';

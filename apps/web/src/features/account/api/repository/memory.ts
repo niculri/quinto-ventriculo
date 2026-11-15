@@ -4,6 +4,7 @@ import { normalizeEmail } from '../../../../shared/lib/email';
 import type { AccountRepository } from './port';
 import { AccountError, MESSAGES } from './model';
 import type { AcceptedVersions } from './model';
+import { storageKeys } from '../../../../shared/lib/storage';
 
 interface LocalAccount {
   /** One per pair of versions, with the date it was first accepted (as legal_acceptances). */
@@ -44,7 +45,7 @@ export function localAccountRepository(
   } = {},
 ): AccountRepository {
   const storage = options.storage ?? null;
-  const KEY = 'qv-demo-account';
+  const KEY = storageKeys.demo.account;
   let memory: LocalAccount = {
     acceptances: [],
     deletion: null,

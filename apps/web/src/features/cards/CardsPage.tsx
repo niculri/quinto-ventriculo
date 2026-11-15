@@ -29,7 +29,8 @@ import type { AnkiTree, CourseDeckNode } from '../catalog/model/tree';
 import { CardTable } from '../browse/BrowsePage';
 import { useCatalog } from '../catalog/queries';
 import { dateText } from '@qv/study';
-import { useDeckSettings, useNow, useUserPresets } from '../progress/queries';
+import { useDeckSettings, useUserPresets } from '../progress/queries';
+import { useNow } from '../../shared/hooks/useNow';
 import { CardList, ListSkeleton, notesText } from './CardList';
 import { CardFilters } from './Filters';
 import {
@@ -65,6 +66,8 @@ import type { CardsScope } from '../catalog/model/scope';
 import { CardsViewer } from './Viewer';
 import type { ExplorerCard, ExplorerNote } from './model';
 import { GhostCloseX } from '../../shared/ui/Dialog';
+import { storageKeys } from '../../shared/lib/storage';
+import { useTitle } from '../../shared/hooks/useTitle';
 
 const summaryOf = (n: ExplorerNote, c: ExplorerCard): CardSummary => ({
   noteGuid: c.noteGuid,
@@ -78,7 +81,7 @@ const summaryOf = (n: ExplorerNote, c: ExplorerCard): CardSummary => ({
 
 const cardsText = (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'tarjeta' : 'tarjetas'}`;
 
-const HIDE_KEY = 'qv-cards-hide-answers';
+const HIDE_KEY = storageKeys.cardsHideAnswers;
 
 function useHideAnswers() {
   const [hide, setHide] = useState(() => {
@@ -126,12 +129,7 @@ export function CardsPage({ node }: { node: CourseDeckNode }) {
     [catalog.data, node],
   );
   const title = node.depth === 2 && node.course ? node.course.name : node.label;
-  useEffect(() => {
-    document.title = `Tarjetas de ${title} · El Quinto Ventrículo`;
-    return () => {
-      document.title = 'El Quinto Ventrículo';
-    };
-  }, [title]);
+  useTitle(`Tarjetas de ${title}`);
   return (
     <div className={page}>
       <Breadcrumbs items={deckCrumbs(node, { label: 'Tarjetas' })} />

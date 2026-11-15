@@ -1,11 +1,12 @@
 // One-time tips: at most one a visit, shown after the action it is about, once per device, and never again once closed.
 import { useEffect, useState } from 'react';
 import { usePreferences, useSavePreferences } from '../progress/queries';
+import { storageKeys } from '../../shared/lib/storage';
 
 export type TipId = 'tip-material' | 'tip-search';
 
-const SESSION_KEY = 'qv-tip';
-const SHOWN_KEY = 'qv-tips-shown';
+const SESSION_KEY = storageKeys.tipThisVisit;
+const SHOWN_KEY = storageKeys.tipsShown;
 
 function storage(kind: 'local' | 'session'): Storage | null {
   try {

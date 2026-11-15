@@ -25,6 +25,7 @@ import type {
   StudyPreferences,
   UserPreset,
 } from './model';
+import { storageKeys } from '../../../../shared/lib/storage';
 
 const MIN_ANSWERS_FOR_MEDIAN = 20;
 const UNDO_MS = 48 * 3_600_000;
@@ -118,7 +119,7 @@ export function localStudyRepository(
   storage: Storage | null = safeLocalStorage(),
   preferences?: Partial<StudyPreferences>,
 ): StudyRepository {
-  const KEY = 'qv-demo-study';
+  const KEY = storageKeys.demo.study;
   let memory: LocalData = {
     ...empty(),
     preferences: preferences ? { ...defaultPreferences(), ...preferences } : null,

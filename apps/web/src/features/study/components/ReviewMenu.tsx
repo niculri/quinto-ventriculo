@@ -1,14 +1,15 @@
 // «Más» of a round of review or practice: mark the card for review and report it.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as Menu from '@radix-ui/react-dropdown-menu';
-import { Flag, MessageSquareWarning, MoreHorizontal } from 'lucide-react';
+import { Flag, MessageSquareWarning } from 'lucide-react';
 import { useStudyRepository } from '../../progress/api/context';
-import { button } from '../../../shared/ui/styles';
 import { cardKey } from '@qv/study';
 import type { CardKey, CardRef } from '../../progress/api/repository';
 import { ReportEntry } from './ReportEntry';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { LiveToast } from '../../../shared/ui/Toast';
+import { useTransient } from '../hooks/useTransient';
+import { MoreContent, MoreTrigger } from './MoreMenuParts';
 
 const REVIEW_FLAG = 1;
 
@@ -25,12 +26,7 @@ export function ReviewMenu({
 }) {
   const study = useStudyRepository();
   const [reporting, setReporting] = useState<CardKey | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  useEffect(() => {
-    if (!message) return;
-    const id = setTimeout(() => setMessage(null), 3000);
-    return () => clearTimeout(id);
-  }, [message]);
+  const [message, setMessage] = useTransient<string | null>(null);
   const item =
     'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-2';
   const toggle = () => {
@@ -55,29 +51,18 @@ export function ReviewMenu({
         <span className="size-5 flex-none" aria-hidden="true" />
       )}
       <MenuRoot closeOnly>
-        <Menu.Trigger className={`${button.base} ${button.ghost}`} aria-label="Más">
-          <MoreHorizontal className="size-5" aria-hidden="true" />
-          <span className="hidden sm:inline">Más</span>
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Content
-            align="end"
-            sideOffset={6}
-            className="z-50 w-64 rounded-xl border border-border bg-surface p-1.5 shadow-soft"
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            {markable ? (
-              <Menu.Item className={item} onSelect={toggle}>
-                <Flag className="size-4 text-muted" aria-hidden="true" />
-                {flag ? 'Quitar la marca' : 'Marcar para revisar'}
-              </Menu.Item>
-            ) : null}
-            <Menu.Item className={item} onSelect={() => setReporting(current)}>
-              <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" /> Reportar
-              error
+        <MoreTrigger />
+        <MoreContent>
+          {markable ? (
+            <Menu.Item className={item} onSelect={toggle}>
+              <Flag className="size-4 text-muted" aria-hidden="true" />
+              {flag ? 'Quitar la marca' : 'Marcar para revisar'}
             </Menu.Item>
-          </Menu.Content>
-        </Menu.Portal>
+          ) : null}
+          <Menu.Item className={item} onSelect={() => setReporting(current)}>
+            <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" /> Reportar error
+          </Menu.Item>
+        </MoreContent>
       </MenuRoot>
       <LiveToast message={message} />
       {reporting ? (

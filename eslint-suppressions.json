@@ -655,14 +655,8 @@
     }
   },
   "apps/web/src/features/study/components/DoneToday.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
       "count": 26
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
     }
   },
   "apps/web/src/features/study/components/FinalReview.tsx": {
@@ -675,41 +669,28 @@
       "count": 2
     }
   },
-  "apps/web/src/features/study/components/MoreMenu.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
+  "apps/web/src/features/study/components/MaterialTip.tsx": {
     "qv/no-literal-text": {
-      "count": 10
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/components/MoreMenu.tsx": {
+    "qv/no-literal-text": {
+      "count": 8
+    }
+  },
+  "apps/web/src/features/study/components/MoreMenuParts.tsx": {
+    "qv/no-literal-text": {
+      "count": 2
     }
   },
   "apps/web/src/features/study/components/ReviewMenu.tsx": {
     "qv/no-literal-text": {
-      "count": 6
+      "count": 4
     }
   },
   "apps/web/src/features/study/components/ReviewScreen.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "qv/no-literal-text": {
-      "count": 2
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/components/Reviewer.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 17
-    },
-    "sonarjs/cognitive-complexity": {
       "count": 2
     }
   },
@@ -718,14 +699,39 @@
       "count": 4
     }
   },
+  "apps/web/src/features/study/components/SessionStatus.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
   "apps/web/src/features/study/components/SimpleMenu.tsx": {
     "qv/no-literal-text": {
-      "count": 7
+      "count": 5
+    }
+  },
+  "apps/web/src/features/study/components/StudyAnswers.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
     }
   },
   "apps/web/src/features/study/components/StudyCard.tsx": {
     "qv/no-literal-text": {
       "count": 4
+    }
+  },
+  "apps/web/src/features/study/components/StudyCardArea.tsx": {
+    "qv/no-literal-text": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/components/StudyNotices.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
+    }
+  },
+  "apps/web/src/features/study/components/StudyTopBar.tsx": {
+    "qv/no-literal-text": {
+      "count": 6
     }
   },
   "apps/web/src/features/study/components/Welcome.tsx": {

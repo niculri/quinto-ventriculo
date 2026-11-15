@@ -1,5 +1,5 @@
 // A card of a final review's round and its two answers, which change no date.
-import { useEffect, useEffectEvent } from 'react';
+import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
 import { button } from '../../../shared/ui/styles';
@@ -8,6 +8,7 @@ import { cardQuery } from '../../decks/queries';
 import { answerRound, dropCurrent, revealCard } from '@qv/study';
 import type { Round } from '@qv/study';
 import { useCardMaterial } from '../hooks/useCardMaterial';
+import { useReviewShortcuts } from '../hooks/useReviewShortcuts';
 import type { CardRef } from '../../progress/api/repository';
 import { RATINGS } from './ratings';
 import { StudyCard } from './StudyCard';
@@ -36,36 +37,7 @@ export function ReviewScreen({
     }
   }, [api, client, round.queue]);
 
-  const onKey = useEffectEvent((e: KeyboardEvent) => {
-    const origin = (e.composedPath()[0] ?? e.target) as Element | null;
-    if (
-      origin instanceof Element &&
-      origin.closest('input, textarea, select, [contenteditable], [role="menu"], [role="dialog"]')
-    ) {
-      return;
-    }
-    const activates = origin instanceof Element && origin.matches('button, a[href], summary');
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const reveals = (e.key === ' ' || e.key === 'Enter') && !activates;
-    if (e.repeat) {
-      if (reveals) e.preventDefault();
-      return;
-    }
-    if (reveals) {
-      e.preventDefault();
-      if (revealed) onAnswer(current.deckId);
-      onChange(revealed ? answerRound(round, 'good') : revealCard(round));
-    } else if (revealed && (e.key === '1' || e.key === '2')) {
-      e.preventDefault();
-      onAnswer(current.deckId);
-      onChange(answerRound(round, e.key === '1' ? 'again' : 'good'));
-    }
-  });
-  useEffect(() => {
-    const listener = (e: KeyboardEvent) => onKey(e);
-    window.addEventListener('keydown', listener);
-    return () => window.removeEventListener('keydown', listener);
-  }, []);
+  useReviewShortcuts(round, current, onChange, onAnswer);
 
   const again = RATINGS.find((r) => r.rating === 1)!;
   const good = RATINGS.find((r) => r.rating === 3)!;

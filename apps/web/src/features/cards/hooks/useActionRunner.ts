@@ -1,25 +1,27 @@
-// Runs the table's actions and «Deshacer» on the repository at once (not with `useMutation`, a few microtasks later):
-// busy meanwhile, the progress read again, and a toast with what it did or a notice with why it could not.
+// Runs the table's actions and «Deshacer»: busy meanwhile, the progress read again, and a toast with what it did or a
+// notice with why it could not.
 
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { actionLabel } from '@qv/study';
-import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
+import type { CardWrite } from '../api/cardWrites';
+import { useCardWrite, useUndoWrite } from './useCardWrites';
 import { cardsStrings } from '../strings';
 
 export function useActionRunner(full: boolean) {
-  const study = useStudyRepository();
+  const write = useCardWrite();
+  const undoWrite = useUndoWrite();
   const client = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
-  const act = async (what: string, run: () => Promise<unknown>) => {
+  const act = async (what: string, w: CardWrite) => {
     setBusy(true);
     setProblem(null);
     try {
-      await run();
+      await write.mutateAsync(w);
       await client.invalidateQueries({ queryKey: studyKeys.all });
       setToast(what);
     } catch (e) {
@@ -33,7 +35,7 @@ export function useActionRunner(full: boolean) {
       setBusy(true);
       setProblem(null);
       try {
-        const done = await study.undo();
+        const done = await undoWrite.mutateAsync();
         await client.invalidateQueries({ queryKey: studyKeys.all });
         setToast(
           done

@@ -1,5 +1,5 @@
 // Tests what «Configuración de mazos» and «Anki general» say, section by section, their less used paths, and that
-// «Guardar» calls the repository in the click itself.
+// «Guardar» calls the repository once the page shows it is saving.
 
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -214,7 +214,7 @@ describe('«Guardar» of the Anki options', () => {
   const saveDisabled = () =>
     screen.getByRole('button', { name: 'Guardar' }).hasAttribute('disabled');
 
-  it('«Anki general» saves the preferences in the same click, before the page shows it is saving', async () => {
+  it('«Anki general» saves the preferences once the page shows it is saving', async () => {
     const study = fullAnkiStudy();
     const save = study.savePreferences.bind(study);
     const disabledAtCall: boolean[] = [];
@@ -226,10 +226,10 @@ describe('«Guardar» of the Anki options', () => {
     await screen.findByRole('heading', { level: 2, name: 'Anki general' });
     await userEvent.click(screen.getByRole('switch', { name: 'Mostrar los 4 botones' }));
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
-    await waitFor(() => expect(disabledAtCall).toEqual([false]));
+    await waitFor(() => expect(disabledAtCall).toEqual([true]));
   });
 
-  it('«Configuración de mazos» saves the preset in the same click, before the page shows it is saving', async () => {
+  it('«Configuración de mazos» saves the preset once the page shows it is saving', async () => {
     const study = fullAnkiStudy();
     const save = study.savePreset.bind(study);
     const disabledAtCall: boolean[] = [];
@@ -242,6 +242,6 @@ describe('«Guardar» of the Anki options', () => {
     await userEvent.clear(perDay);
     await userEvent.type(perDay, '30{Enter}');
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
-    await waitFor(() => expect(disabledAtCall).toEqual([false]));
+    await waitFor(() => expect(disabledAtCall).toEqual([true]));
   });
 });

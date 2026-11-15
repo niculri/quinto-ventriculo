@@ -1,18 +1,19 @@
-// The viewer's actions on its card: mark it and hide it, shown at once and undone if saving fails; the repository is
-// called right after (not with `useMutation`, a few microtasks later), and a message says how it went.
+// The viewer's actions on its card: mark it and hide it, shown at once and undone if saving fails, and a message that
+// says how it went.
 
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { CardSummary } from '@qv/schema';
-import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
 import type { BrowseCard } from '../model/browseCards';
+import type { CardWrite } from '../api/cardWrites';
+import { useCardWrite } from './useCardWrites';
 import { cardsStrings } from '../strings';
 
 const REVIEW_FLAG = 1;
 
 export function useViewerActions(card: CardSummary, info: BrowseCard | undefined) {
-  const study = useStudyRepository();
+  const write = useCardWrite();
   const client = useQueryClient();
   const [flag, setFlag] = useState(info?.flag ?? 0);
   const [hidden, setHidden] = useState(info?.queue === 'suspended');
@@ -24,10 +25,10 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     return () => clearTimeout(id);
   }, [message]);
   const ref = { noteGuid: card.noteGuid, ord: card.ord, deckId: card.deckId };
-  const run = async (what: () => Promise<unknown>, done: string, undo: () => void) => {
+  const run = async (w: CardWrite, done: string, undo: () => void) => {
     setBusy(true);
     try {
-      await what();
+      await write.mutateAsync(w);
       setMessage(done);
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch {
@@ -42,7 +43,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     const next = flag ? 0 : REVIEW_FLAG;
     setFlag(next);
     void run(
-      () => study.setFlag(ref, next),
+      { kind: 'flag', card: ref, flag: next },
       next ? cardsStrings.viewer.markedForReview : cardsStrings.viewer.noMark,
       () => setFlag(before),
     );
@@ -51,7 +52,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     const before = hidden;
     setHidden(!hidden);
     void run(
-      () => (before ? study.unsuspend([ref]) : study.suspend([ref], false)),
+      { kind: before ? 'unsuspend' : 'suspend', cards: [ref] },
       before ? cardsStrings.viewer.shownAgain : cardsStrings.viewer.hidden,
       () => setHidden(before),
     );

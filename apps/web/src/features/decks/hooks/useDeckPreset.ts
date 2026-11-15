@@ -1,15 +1,17 @@
-// The configuration a deck uses and changing it (by hand, not with `useMutation`: `mutate()` would call the
-// repository after React paints «saving»).
+// The configuration a deck uses and changing it.
 
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { presetChoices, presetOf } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
+import type { StudyRepository } from '../../progress/api/repository';
 import { useCatalog } from '../../catalog/queries';
 import { studyKeys, useDeckSettings, useUserPresets } from '../../progress/queries';
 import type { DeckNode } from '../../catalog/model/tree';
 import { refKey } from '../model/presets';
 import { presetsStrings as p } from '../presets.strings';
+
+type DeckPresetChoice = Parameters<StudyRepository['setDeckPreset']>[1];
 
 export function useDeckPreset(node: DeckNode) {
   const study = useStudyRepository();
@@ -19,6 +21,11 @@ export function useDeckPreset(node: DeckNode) {
   const settings = useDeckSettings();
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const setDeckPreset = useMutation({
+    mutationFn: ({ deckId, preset }: { deckId: string; preset: DeckPresetChoice }) =>
+      study.setDeckPreset(deckId, preset),
+    networkMode: 'always',
+  });
   if (!catalog.data || !presets.data || !settings.data) return null;
   const choices = presetChoices(catalog.data.anki.presets, presets.data);
   const current = presetOf(node.id, node.preset, choices, settings.data);
@@ -29,14 +36,15 @@ export function useDeckPreset(node: DeckNode) {
     setSaving(true);
     setError(null);
     try {
-      await study.setDeckPreset(
-        node.id,
-        choice.ref.kind === 'user'
-          ? { presetId: choice.ref.id }
-          : choice.ref.name === node.preset
-            ? null
-            : { authorPreset: choice.ref.name },
-      );
+      await setDeckPreset.mutateAsync({
+        deckId: node.id,
+        preset:
+          choice.ref.kind === 'user'
+            ? { presetId: choice.ref.id }
+            : choice.ref.name === node.preset
+              ? null
+              : { authorPreset: choice.ref.name },
+      });
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch (e) {
       setError(e instanceof Error ? e.message : p.notSaved);

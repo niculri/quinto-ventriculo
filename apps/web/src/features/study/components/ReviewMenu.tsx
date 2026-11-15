@@ -1,5 +1,6 @@
 // «Más» of a round of review or practice: mark the card for review and report it.
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { Flag, MessageSquareWarning } from 'lucide-react';
 import { useStudyRepository } from '../../progress/api/context';
@@ -29,17 +30,26 @@ export function ReviewMenu({
   const study = useStudyRepository();
   const [reporting, setReporting] = useState<CardKey | null>(null);
   const [message, setMessage] = useTransient<string | null>(null);
+  // The mark shows at once and goes back if saving fails.
+  const mark = useMutation({
+    mutationFn: (m: { card: CardRef; key: string; flag: number; before: number }) =>
+      study.setFlag(m.card, m.flag),
+    networkMode: 'always',
+    onMutate: (m) => onMarked(m.key, m.flag),
+    onError: (_, m) => {
+      onMarked(m.key, m.before);
+      setMessage(studyStrings.review.markNotSaved);
+    },
+  });
   const item =
     'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-2';
-  const toggle = () => {
-    const next = flag ? 0 : REVIEW_FLAG;
-    const key = cardKey(current);
-    onMarked(key, next);
-    void study.setFlag(current, next).catch(() => {
-      onMarked(key, flag);
-      setMessage(studyStrings.review.markNotSaved);
+  const toggle = () =>
+    mark.mutate({
+      card: current,
+      key: cardKey(current),
+      flag: flag ? 0 : REVIEW_FLAG,
+      before: flag,
     });
-  };
   return (
     <>
       {flag ? (

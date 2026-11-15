@@ -1,12 +1,13 @@
-// Adding, cloning, renaming and removing a preset, and going back to the author's (by hand, not with `useMutation`:
-// `mutate()` would call the repository after React paints the closed dialog or menu).
+// Adding, cloning, renaming and removing a preset, and going back to the author's.
 
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import type { Dispatch, SetStateAction } from 'react';
 import type { DeckConfig } from '@qv/srs';
 import { sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
+import type { StudyRepository } from '../../progress/api/repository';
 import { nameProblem } from '../model/presetDrafts';
 import { refKey } from '../model/presets';
 import { optionsStrings as o } from '../options.strings';
@@ -31,6 +32,14 @@ export function usePresetActions({
   run: (what: () => Promise<unknown>) => Promise<void>;
 }) {
   const study = useStudyRepository();
+  const savePreset = useMutation({
+    mutationFn: (p: Parameters<StudyRepository['savePreset']>[0]) => study.savePreset(p),
+    networkMode: 'always',
+  });
+  const deletePreset = useMutation({
+    mutationFn: (id: string) => study.deletePreset(id),
+    networkMode: 'always',
+  });
   const [naming, setNaming] = useState<Naming | null>(null);
   const [removing, setRemoving] = useState(false);
   const problemText = (p: 'empty' | 'taken' | null) =>
@@ -41,21 +50,23 @@ export function usePresetActions({
   const addPreset = (name: string, from: DeckConfig) => {
     setNaming(null);
     void run(async () => {
-      const p = await study.savePreset({ name, replaces: null, config: { ...from } });
+      const p = await savePreset.mutateAsync({ name, replaces: null, config: { ...from } });
       setSelected({ kind: 'user', id: p.id });
     });
   };
   const renamePreset = (name: string) => {
     if (choice.ref.kind !== 'user' || !choice.row) return;
     const row = choice.row;
-    void run(() => study.savePreset({ id: row.id, name, replaces: null, config: row.config }));
+    void run(() =>
+      savePreset.mutateAsync({ id: row.id, name, replaces: null, config: row.config }),
+    );
   };
   const removePreset = () => {
     setRemoving(false);
     if (choice.ref.kind !== 'user' || !choice.row) return;
     const id = choice.row.id;
     void run(async () => {
-      await study.deletePreset(id);
+      await deletePreset.mutateAsync(id);
       setSelected(choices[0]!.ref);
     });
   };
@@ -63,7 +74,7 @@ export function usePresetActions({
     if (choice.ref.kind !== 'author' || !choice.row) return;
     const id = choice.row.id;
     void run(async () => {
-      await study.deletePreset(id);
+      await deletePreset.mutateAsync(id);
       setDrafts((d) => {
         const next = new Map(d);
         next.delete(refKey(choice.ref));

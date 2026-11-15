@@ -40,11 +40,15 @@ export function usePreferences() {
     [query.data, zone],
   );
   // The stored zone is kept as the browser's: the statistics and other devices use it.
+  const { mutate: saveZone } = useMutation({
+    mutationFn: (next: StudyPreferences) => study.savePreferences(next),
+    networkMode: 'always',
+    onSuccess: (_, next) => client.setQueryData(studyKeys.preferences, next),
+  });
   useEffect(() => {
     if (query.data === undefined || query.data?.timeZone === zone) return;
-    const next = { ...(query.data ?? defaultPreferences(zone)), timeZone: zone };
-    void study.savePreferences(next).then(() => client.setQueryData(studyKeys.preferences, next));
-  }, [client, query.data, study, zone]);
+    saveZone({ ...(query.data ?? defaultPreferences(zone)), timeZone: zone });
+  }, [query.data, saveZone, zone]);
   return { ...query, prefs };
 }
 

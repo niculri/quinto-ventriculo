@@ -1,10 +1,9 @@
-// The Anki options form: the chosen preset, what is not saved yet of the presets and the preferences, and saving it
-// (by hand, not with `useMutation`: `mutate()` would call the repository after React paints «saving»).
+// The Anki options form: the chosen preset, what is not saved yet of the presets and the preferences, and saving it.
 
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { SetURLSearchParams } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DeckConfig } from '@qv/srs';
 import { presetChoices, presetOf, sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
@@ -34,7 +33,6 @@ export interface OptionsData {
 }
 
 export function usePresetDrafts(d: OptionsData) {
-  const study = useStudyRepository();
   const client = useQueryClient();
   const [params, setParams] = useSearchParams();
   const choices = useMemo(
@@ -65,6 +63,7 @@ export function usePresetDrafts(d: OptionsData) {
       hasPage(n) && sameRef(presetOf(n.id, n.preset, choices, d.settings).ref, choice.ref),
   );
 
+  const saveAll = useSaveOptions();
   const refresh = () => client.invalidateQueries({ queryKey: studyKeys.all });
   const run = async (what: () => Promise<unknown>) => {
     setError(null);
@@ -81,11 +80,10 @@ export function usePresetDrafts(d: OptionsData) {
     state.setSaving(true);
     setError(null);
     try {
-      // Each save awaited here, not inside a helper: with nothing to save, the preferences go in this same click.
-      for (const [c, draft] of changedDrafts(drafts, choices)) {
-        await savePresetDraft(study, c, draft);
-      }
-      if (prefsChanged(prefs, d.prefs)) await study.savePreferences(prefs);
+      await saveAll.mutateAsync({
+        changed: changedDrafts(drafts, choices),
+        prefs: prefsChanged(prefs, d.prefs) ? prefs : null,
+      });
       await refresh();
       setDrafts(new Map());
       setSaved(true);
@@ -108,6 +106,21 @@ export function usePresetDrafts(d: OptionsData) {
     save,
     dirty: isDirty(drafts, choices, prefs, d.prefs),
   };
+}
+
+/** The presets that changed, one after another in their order, and then the preferences if they changed. */
+function useSaveOptions() {
+  const study = useStudyRepository();
+  return useMutation({
+    mutationFn: async (w: {
+      changed: [PresetChoice, DeckConfig][];
+      prefs: StudyPreferences | null;
+    }) => {
+      for (const [c, draft] of w.changed) await savePresetDraft(study, c, draft);
+      if (w.prefs) await study.savePreferences(w.prefs);
+    },
+    networkMode: 'always',
+  });
 }
 
 function useDraftState(savedPrefs: StudyPreferences) {

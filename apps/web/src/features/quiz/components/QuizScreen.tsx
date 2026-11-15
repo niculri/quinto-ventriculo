@@ -9,7 +9,7 @@ import { backLabel } from '../../../shared/ui/BackButton';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import { StatusToast } from '../../../shared/ui/Toast';
 import { sharedStrings } from '../../../shared/strings';
-import { ReportDialog } from '../../reports/ReportDialog';
+import { ReportDialog } from '../../reports/components/ReportDialog';
 import type { ReportTarget } from '../../reports/api/repository';
 import type { SavedQuiz } from '../api/repository';
 import type { RoundActions } from '../hooks/roundActions';

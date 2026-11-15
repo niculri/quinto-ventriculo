@@ -1,41 +1,23 @@
-// Spanish labels, links and plain-text forms of reports, shared by the student and admin pages.
-import type { ReportCategory, ReportKind, ResolutionStatus } from '@qv/schema';
-import { paths } from '../../shared/lib/paths';
-import type { MyReport, ReportGroup, ReportLocation, Resolution } from './api/repository';
+// The labels, links and plain-text forms of reports, shared by the student and admin pages.
+import type { ReportKind } from '@qv/schema';
+import type { MyReport, ReportGroup, ReportLocation, Resolution } from '@qv/schema/user';
+import { paths } from '../../../shared/lib/paths';
 import { splitCardId } from './targets';
+import { reportStrings as s } from '../strings';
 
-export const CATEGORY_LABELS: Record<ReportCategory, string> = {
-  fact: 'El dato está mal',
-  answer_key: 'La clave está mal',
-  text: 'Redacción u ortografía',
-  image: 'Problema con una imagen',
-  technical: 'No se ve bien o no funciona',
-  other: 'Otra cosa',
-};
-
-export const KIND_LABELS: Record<ReportKind, string> = {
-  card: 'Tarjeta',
-  note: 'Apunte',
-  quiz_question: 'Pregunta de test',
-};
-
-export const STATUS_LABELS: Record<ResolutionStatus, string> = {
-  fixed: 'Corregido',
-  not_an_error: 'No es un error',
-  wont_fix: 'No se corregirá',
-};
+export const CATEGORY_LABELS = s.categories;
+export const KIND_LABELS = s.kinds;
+export const STATUS_LABELS = s.statuses;
 
 export function studentStatus(resolution: Resolution | null): string {
-  if (!resolution) return 'Recibido';
+  if (!resolution) return s.student.received;
   switch (resolution.status) {
     case 'fixed':
-      return resolution.fixedVersion
-        ? `Corregido (versión ${resolution.fixedVersion})`
-        : 'Corregido';
+      return resolution.fixedVersion ? s.student.fixedIn(resolution.fixedVersion) : s.student.fixed;
     case 'not_an_error':
-      return 'Revisado: no es un error';
+      return s.student.notAnError;
     case 'wont_fix':
-      return 'Revisado: no se corregirá';
+      return s.student.wontFix;
   }
 }
 
@@ -100,24 +82,24 @@ export function placeLink(
 }
 
 export function placeLabel(location: ReportLocation): string | null {
-  if (location.figure) return `Imagen: ${location.figure}`;
+  if (location.figure) return s.image(location.figure);
   if (location.sectionTitle) return location.sectionTitle;
-  if (location.number) return `Pregunta ${location.number}`;
+  if (location.number) return s.question(location.number);
   return null;
 }
 
 export function chatText(groups: readonly ReportGroup[]): string {
-  const lines = ['Errores reportados en el sitio:'];
+  const lines: string[] = [s.chat.title];
   for (const g of groups) {
     const code = codeWithVersion(g.code, g.version) ?? g.targetId;
     const title = g.title ? ` · ${g.title}` : '';
-    const people = g.reporters === 1 ? '1 persona' : `${g.reporters} personas`;
+    const people = s.chat.people(g.reporters);
     lines.push(`- ${code} (${KIND_LABELS[g.kind]}${title}) · ${people}`);
     for (const r of g.reports) {
-      const seen = r.version && r.version !== g.version ? ` (vio la versión ${r.version})` : '';
+      const seen = r.version && r.version !== g.version ? s.chat.saw(r.version) : '';
       const where = placeLabel(r.location);
       lines.push(`  · ${CATEGORY_LABELS[r.category]}${where ? ` · ${where}` : ''}${seen}`);
-      if (r.location.quote?.exact) lines.push(`    Cita: «${r.location.quote.exact}»`);
+      if (r.location.quote?.exact) lines.push(s.chat.quote(r.location.quote.exact));
       lines.push(`    ${r.comment.replace(/\s*\n\s*/g, ' / ')}`);
     }
   }

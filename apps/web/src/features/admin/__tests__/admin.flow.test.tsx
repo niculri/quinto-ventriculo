@@ -6,7 +6,7 @@ import type { SiteSettings } from '@qv/schema';
 import { CATALOG, fakeApi, renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 import { localReportsRepository } from '../../reports/api/repository';
-import { cardTarget } from '../../reports/targets';
+import { cardTarget } from '../../reports/model/targets';
 
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>
   localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl', ...o });

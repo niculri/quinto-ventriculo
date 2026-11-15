@@ -1,5 +1,5 @@
 // Card report targets: building the 'guid:ord' id and splitting it back.
-import type { ReportTarget } from './api/repository';
+import type { ReportTarget } from '@qv/schema/user';
 
 export function cardTarget(card: {
   noteGuid: string;

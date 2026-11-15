@@ -3,7 +3,7 @@
 import type { ReportQueue } from '../../../reports/api/repository';
 import { Switch } from '../../../../shared/ui/Switch';
 import { card } from '../../../../shared/ui/styles';
-import { chatText } from '../../../reports/labels';
+import { chatText } from '../../../reports/model/labels';
 import { reportsStrings } from '../../reports.strings';
 import { BlockedRow } from './BlockedRow';
 import { CopyButton } from './CopyButton';

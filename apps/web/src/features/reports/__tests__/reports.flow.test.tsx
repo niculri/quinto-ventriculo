@@ -3,19 +3,19 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { REPORT_LIMITS } from '@qv/schema';
-import { renderApp } from '../../test/render';
-import { localAdminRepository } from '../admin/api/repository';
-import { readSelection, sectionAt } from '../notes/model/selection';
-import { chatText, placeLink, quoteLink, sitePath, studentStatus } from './labels';
-import { REPORT_MESSAGES, localReportsRepository } from './api/repository';
+import { renderApp } from '../../../test/render';
+import { localAdminRepository } from '../../admin/api/repository';
+import { readSelection, sectionAt } from '../../notes/model/selection';
+import { chatText, placeLink, quoteLink, sitePath, studentStatus } from '../model/labels';
+import { REPORT_MESSAGES, localReportsRepository } from '../api/repository';
 import type {
   NewReport,
   ReportGroup,
   ReportQueue,
   ReportsRepository,
   ResolveInput,
-} from './api/repository';
-import { cardTarget, splitCardId } from './targets';
+} from '../api/repository';
+import { cardTarget, splitCardId } from '../model/targets';
 
 const NOTE_PATH = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const QUIZ_PATH = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica/pautas';

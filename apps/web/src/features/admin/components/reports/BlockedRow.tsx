@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { formatDateTime } from '../../../../shared/lib/dates';
 import { button } from '../../../../shared/ui/styles';
-import { useSetReportBlock } from '../../../reports/queries';
+import { useSetReportBlock } from '../../../reports/hooks/useReports';
 import { reportsStrings } from '../../reports.strings';
 
 export function BlockedRow({ id, at, children }: { id: string; at: string; children: ReactNode }) {

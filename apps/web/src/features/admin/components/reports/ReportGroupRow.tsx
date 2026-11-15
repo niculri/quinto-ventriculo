@@ -15,10 +15,10 @@ import {
   chatText,
   codeWithVersion,
   placeLink,
-} from '../../../reports/labels';
-import { useReopenReports } from '../../../reports/queries';
+} from '../../../reports/model/labels';
+import { useReopenReports } from '../../../reports/hooks/useReports';
 import { ReportError } from '../../../reports/api/repository';
-import { splitCardId } from '../../../reports/targets';
+import { splitCardId } from '../../../reports/model/targets';
 import type { ReportGroup } from '../../../reports/api/repository';
 import { categoryCounts, changedSince } from '../../model/reports';
 import { reportsStrings } from '../../reports.strings';

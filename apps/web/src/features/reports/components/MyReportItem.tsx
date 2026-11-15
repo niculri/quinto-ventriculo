@@ -1,10 +1,7 @@
-// «Mis reportes» settings page: the student's own reports and what happened with each one.
+// A report in «Mis reportes»: what it is about (with its link and code), its status, place, quote, comment and answer.
 import { Link } from 'react-router';
-import { formatDateTime } from '../../shared/lib/dates';
-import { Loading } from '../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../shared/ui/Notice';
-import { card } from '../../shared/ui/styles';
-import { SettingsLayout } from '../settings/components/SettingsLayout';
+import type { MyReport } from '@qv/schema/user';
+import { formatDateTime } from '../../../shared/lib/dates';
 import {
   CATEGORY_LABELS,
   KIND_LABELS,
@@ -13,43 +10,10 @@ import {
   placeLabel,
   placeLink,
   studentStatus,
-} from './labels';
-import { useMyReports } from './queries';
-import type { MyReport } from './api/repository';
-import { useTitle } from '../../shared/hooks/useTitle';
+} from '../model/labels';
+import { myReportsStrings as s } from '../myReports.strings';
 
-export function MyReportsPage() {
-  const reports = useMyReports();
-  useTitle('Mis reportes');
-  return (
-    <SettingsLayout>
-      <h2 className="font-serif text-2xl font-semibold tracking-tight">Mis reportes</h2>
-      <p className="mt-1 text-sm text-muted">
-        Los errores que reportaste en tarjetas, apuntes y tests, y qué pasó con cada uno.
-      </p>
-      {reports.isError ? (
-        <div className="mt-6">
-          <ErrorWithRetry error={reports.error} onRetry={() => void reports.refetch()} />
-        </div>
-      ) : !reports.data ? (
-        <Loading />
-      ) : reports.data.length ? (
-        <ol className={`${card} mt-6 divide-y divide-border`}>
-          {reports.data.map((r) => (
-            <Item key={r.id} report={r} />
-          ))}
-        </ol>
-      ) : (
-        <p className="mt-6 text-muted">
-          Todavía no has reportado nada. Si encuentras un error, usa «Reportar error» en la tarjeta,
-          la pregunta o el apunte.
-        </p>
-      )}
-    </SettingsLayout>
-  );
-}
-
-function Item({ report: r }: { report: MyReport }) {
+export function MyReportItem({ report: r }: { report: MyReport }) {
   const link = placeLink(r.kind, r.targetId, r.code, r.location);
   const code = codeWithVersion(r.code, r.version);
   const where = placeLabel(r.location);
@@ -88,7 +52,7 @@ function Item({ report: r }: { report: MyReport }) {
       <p className="mt-2 text-sm whitespace-pre-wrap text-ink">{r.comment}</p>
       {r.resolution?.note ? (
         <p className="mt-2 rounded-md bg-surface-2 px-3 py-2 text-sm text-ink">
-          <span className="font-medium">Respuesta: </span>
+          <span className="font-medium">{s.answer}</span>
           {r.resolution.note}
         </p>
       ) : null}

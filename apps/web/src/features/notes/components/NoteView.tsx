@@ -8,7 +8,7 @@ import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import { StatusToast } from '../../../shared/ui/Toast';
 import { sharedStrings } from '../../../shared/strings';
 import type { NoteLocation } from '../../catalog/model/catalog';
-import { ReportDialog } from '../../reports/ReportDialog';
+import { ReportDialog } from '../../reports/components/ReportDialog';
 import { useNoteView } from '../hooks/useNoteView';
 import type { NoteViewState } from '../hooks/useNoteView';
 import { noteCrumbs } from '../model/noteCrumbs';

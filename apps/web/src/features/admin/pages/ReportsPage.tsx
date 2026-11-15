@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { useReportQueue } from '../../reports/queries';
+import { useReportQueue } from '../../reports/hooks/useReports';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { BlockedList, ReportGroups } from '../components/reports/ReportGroups';
 import type { Showing } from '../components/reports/ReportGroups';

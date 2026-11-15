@@ -145,26 +145,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/reports/MyReportsPage.tsx": {
-    "qv/no-literal-text": {
-      "count": 4
-    }
-  },
-  "apps/web/src/features/reports/ReportDialog.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 11
-    }
-  },
   "apps/web/src/features/reports/api/repository/memory.ts": {
     "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/reports/labels.ts": {
-    "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },

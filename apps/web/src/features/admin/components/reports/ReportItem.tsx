@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Ban } from 'lucide-react';
 import { formatDateTime } from '../../../../shared/lib/dates';
 import { button } from '../../../../shared/ui/styles';
-import { CATEGORY_LABELS, placeLabel, placeLink } from '../../../reports/labels';
+import { CATEGORY_LABELS, placeLabel, placeLink } from '../../../reports/model/labels';
 import type { QueueReport, Reporter, ReportGroup } from '../../../reports/api/repository';
 import { reportsStrings } from '../../reports.strings';
 import { BlockDialog } from './ReportDialogs';

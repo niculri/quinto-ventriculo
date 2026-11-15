@@ -343,7 +343,7 @@ export default tseslint.config(
   },
   {
     // The answers of the landing page's FAQ are fixed text too.
-    files: ['apps/web/src/features/landing/LandingPage.tsx'],
+    files: ['apps/web/src/features/landing/components/Faq.tsx'],
     rules: { 'qv/no-literal-text': ['error', { ...LITERAL_TEXT, fixedText: ['Question'] }] },
   },
   {

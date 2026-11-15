@@ -1,11 +1,11 @@
 // Notices the landing page shows after a failed or cancelled sign-in, by code, and the mapping from Supabase errors.
-import { ACCOUNT_DELETION_DAYS, ALLOWED_DOMAIN, CONTACT_EMAIL } from '@qv/schema';
+import { ALLOWED_DOMAIN } from '@qv/schema';
+import { sessionStrings } from '../strings';
 
-export const DOMAIN_NOTICE =
-  'El Quinto Ventrículo es solo para cuentas @ug.uchile.cl. Entra con tu cuenta de la U.';
-export const GOOGLE_NOTICE = 'No se pudo entrar con Google. Intenta de nuevo.';
-const DELETION_NOTICE = `Pediste eliminar tu cuenta: se cerraron tus sesiones y se borrará en ${ACCOUNT_DELETION_DAYS} días. Si vuelves a entrar antes, se cancela.`;
-export const INVITE_NOTICE = `El Quinto Ventrículo está en prueba y por ahora solo entran personas invitadas. Si deberías tener acceso, escribe a ${CONTACT_EMAIL}.`;
+export const DOMAIN_NOTICE = sessionStrings.notices.domain;
+export const GOOGLE_NOTICE = sessionStrings.notices.google;
+const DELETION_NOTICE = sessionStrings.notices.deletion;
+export const INVITE_NOTICE = sessionStrings.notices.invite;
 
 // Only codes go in the URL (`/?notice=<code>`): free text there would be shown as is on the site and could deceive.
 const NOTICES = {
@@ -17,7 +17,7 @@ const NOTICES = {
 export type NoticeCode = keyof typeof NOTICES;
 
 export function noticeTitle(code: string | null): string {
-  return code === 'deletion' ? 'Tu cuenta se eliminará' : 'No se pudo entrar';
+  return code === 'deletion' ? sessionStrings.titles.deletion : sessionStrings.titles.failed;
 }
 
 export function noticeText(code: string | null): string | null {

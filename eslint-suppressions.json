@@ -71,20 +71,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/landing/LandingPage.tsx": {
-    "@typescript-eslint/no-misused-promises": {
-      "count": 2
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "qv/no-literal-text": {
-      "count": 31
-    }
-  },
   "apps/web/src/features/legal/LegalPage.tsx": {
     "qv/no-literal-text": {
       "count": 2
@@ -116,11 +102,6 @@
   },
   "apps/web/src/features/reports/api/repository/memory.ts": {
     "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/session/AuthCallbackPage.tsx": {
-    "qv/no-literal-text": {
       "count": 1
     }
   },

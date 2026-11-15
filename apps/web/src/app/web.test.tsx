@@ -10,8 +10,8 @@ import { headerParts, noteDates, versionedCode } from '../features/notes/model/h
 import { findPracticeDeck, practiceLink, topicsSection } from '../features/notes/model/practice';
 import { buildAnkiTree } from '../features/catalog/model/tree';
 import { sanitizeInBrowser } from '../features/notes/model/sanitize';
-import { DOMAIN_NOTICE, GOOGLE_NOTICE, INVITE_NOTICE } from '../features/session/notices';
-import { safeDestination } from '../features/session/AuthCallbackPage';
+import { DOMAIN_NOTICE, GOOGLE_NOTICE, INVITE_NOTICE } from '../features/session/model/notices';
+import { safeDestination } from '../features/session/model/destination';
 import { RouteError } from '../shared/ui/RouteError';
 import { resultLink } from '../features/search/model/results';
 import { paths } from '../shared/lib/paths';

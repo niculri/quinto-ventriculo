@@ -2,8 +2,8 @@
 import { Navigate, Outlet, ScrollRestoration } from 'react-router';
 import type { ComponentType } from 'react';
 import type { RouteObject } from 'react-router';
-import { LandingPage } from '../features/landing/LandingPage';
-import { AuthCallbackPage } from '../features/session/AuthCallbackPage';
+import { LandingPage } from '../features/landing/pages/LandingPage';
+import { AuthCallbackPage } from '../features/session/pages/AuthCallbackPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { RouteError } from '../shared/ui/RouteError';
 import { paths } from '../shared/lib/paths';

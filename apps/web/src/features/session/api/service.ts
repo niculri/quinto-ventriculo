@@ -25,8 +25,6 @@ export interface SessionService {
   signOut(): Promise<void>;
 }
 
-export const NEXT_KEY = storageKeys.signInNext;
-
 function toSession(s: SupabaseSession | null): Session | null {
   if (!s) return null;
   // Auth's metadata is typed `any`: read as `unknown`, each field is checked before use.
@@ -57,7 +55,7 @@ export function supabaseSessionService(client: SupabaseClient<Database>): Sessio
     },
     async signInWithGoogle(next) {
       try {
-        sessionStorage.setItem(NEXT_KEY, next);
+        sessionStorage.setItem(storageKeys.signInNext, next);
       } catch {
         // goes back home
       }

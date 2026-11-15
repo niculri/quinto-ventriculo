@@ -1,0 +1,52 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`«Administración», the texts of each section > «Acceso»: a report that does not come, and its retry 1`] = `"No se pudo cargarNo se pudo. Revisa tu conexión e intenta de nuevo.Reintentar"`;
+
+exports[`«Administración», the texts of each section > «Acceso»: each kind of row, the lists, the accounts without an invitation and the form > form 1`] = `"InvitarCorreos @ug.uchile.clNo se pudo. Revisa tu conexión e intenta de nuevo.ListaLista nuevaNombre de la lista nuevaNota (opcional)Invitando…Invitar"`;
+
+exports[`«Administración», the texts of each section > «Acceso»: each kind of row, the lists, the accounts without an invitation and the form > invited 1`] = `"InvitadosCurso2 invitados · 2 con cuenta Sacar la listados@ug.uchile.clInvitado el 1 de noviembre de 2026 · tiene cuentaHacer administradorSacaruno@ug.uchile.clInvitado el 1 de noviembre de 2026 · último ingreso el 1 de noviembre de 2026 a las 09:00 · Primera tandaHacer administradorSacarEquipo2 invitados · 2 con cuentadueno@ug.uchile.clInvitado el 1 de noviembre de 2026 · tiene cuentaDueñootra.admin@ug.uchile.clInvitado el 1 de noviembre de 2026 · último ingreso el 1 de noviembre de 2026 a las 09:00AdministradorQuitar administradorSolo1 invitado · 0 con cuenta Sacar la listatres@ug.uchile.clInvitado el 1 de noviembre de 2026 · todavía sin cuentaHacer administradorSacar"`;
+
+exports[`«Administración», the texts of each section > «Acceso»: each kind of row, the lists, the accounts without an invitation and the form > remove a list of one 1`] = `"Sacar la lista «Solo»Se borra 1 invitación y se cierran sus sesiones: deja de ver el material en menos de un minuto.Su cuenta y su avance quedan: si se vuelve a invitar, sigue donde iba.Un administrador nunca se saca desde aquí: se mantiene, con sus sesiones.Para confirmar, escribe el nombre de la lista (Solo)No se pudo. Revisa tu conexión e intenta de nuevo.CancelarSacar la listaSacar la lista"`;
+
+exports[`«Administración», the texts of each section > «Acceso»: each kind of row, the lists, the accounts without an invitation and the form > strays 1`] = `"2 cuentas sin invitaciónExisten en la base de usuarios pero no están en ninguna lista, así que no ven el material. Invítalas o bórralas en Supabase (Authentication → Users).perdida.uno@ug.uchile.clCreada el 1 de noviembre de 2026 · último ingreso el 1 de noviembre de 2026 a las 09:00perdida.dos@ug.uchile.clCreada el 1 de noviembre de 2026"`;
+
+exports[`«Administración», the texts of each section > «Acceso»: each kind of row, the lists, the accounts without an invitation and the form > who 1`] = `"Quién entraSolo las cuentas invitadas: 5 en 3 listas. Sacar a alguien le cierra el material en menos de un minuto."`;
+
+exports[`«Administración», the texts of each section > «Fuera del sitio»: a test and an image, with what each one took > now 1`] = `"Ahora fuera del sitioTestquiz-xNo se pudo saberClave mal1 de noviembre de 2026 a las 09:00 · alguien · 1 preguntaImagenImagen de pruebaimg.pngFuera del sitioDerechos1 de noviembre de 2026 a las 09:00 · alguien · 2 piezas la usabanImagenotra.pngFuera del sitioBorrosa1 de noviembre de 2026 a las 09:00 · alguien · 1 pieza la usabaMazoMazo5Fuera del sitioRepetido1 de noviembre de 2026 a las 09:00 · alguien · 1 mazo · 2 notas siguen en otro mazo"`;
+
+exports[`«Administración», the texts of each section > «Fuera del sitio»: a test and an image, with what each one took > record 1`] = `"RegistroTestquiz-xNo se pudo saberClave mal1 de noviembre de 2026 a las 09:00 · alguien · 1 preguntaImagenImagen de pruebaimg.pngFuera del sitioDerechos1 de noviembre de 2026 a las 09:00 · alguien · 2 piezas la usabanImagenotra.pngFuera del sitioBorrosa1 de noviembre de 2026 a las 09:00 · alguien · 1 pieza la usabaMazoMazo5Fuera del sitioRepetido1 de noviembre de 2026 a las 09:00 · alguien · 1 mazo · 2 notas siguen en otro mazoSe muestran las 4 más recientes de 9."`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Activación 1`] = `"Activación75 %de las cuentas con 7 días o más respondió una tarjeta o una pregunta en sus primeros 7 días.Cuentas con 7 días o más20Respondieron a tiempo15No respondieron a tiempo5"`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Invitados 1`] = `"InvitadosEntraron alguna vez30Nunca entraronmenos de 5Quiénes son está en Acceso."`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Lo más usado en 30 días 1`] = `"Lo más usado en 30 díasSolo lo que usaron 5 alumnos o más (en las aperturas, lo que se abrió 5 veces o más).MazosMazosNombreAlumnosRespuestasTarjetas nuevasMazo 9996403TestsTestsNombreAlumnosRondasTerminadasno-existe69—Lo más abiertoLo más abiertoNombreQué esAperturasno-existeApunte25Mazo 999Mazo9no-existeTest7Búsquedas, según desde dónde se buscóBúsquedas, según desde dónde se buscóNombreBúsquedasInicio14Otras páginas—"`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Por ramo y certamen en 30 días 1`] = `"Por ramo y certamen en 30 díasRamos y certámenesNombreAlumnosRespuestasRondasotro-ramo129009otro-ramo/certamen-1129009"`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > by day 1`] = `
+[
+  "11 oct: 9",
+  "12 oct: 0",
+  "13 oct: 9",
+]
+`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > by week 1`] = `
+[
+  "Semana del 11 oct: 30",
+  "Semana del 18 oct: menos de 5",
+]
+`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > chart 1`] = `"Por semanaAlumnos activosÚltimas 12 semanasSemana del 11 oct: 30Semana del 18 oct: menos de 530 sept.11 octmáx. 100.000máx. 3030 sept.18 oct"`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > heights 1`] = `
+[
+  "height: 100%;",
+  "height: 0%;",
+  "height: 100%;",
+]
+`;
+
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > summary 1`] = `"ResumenCifraHoy7 días30 díasAlumnos activosmenos de 501.234.567Alumnos nuevosmenos de 501.234.567Respuestas de Anki—01.234.567Tarjetas nuevas vistas—01.234.567Rondas de tests empezadas—01.234.567Rondas de tests terminadas—01.234.567Apuntes abiertos—40120Mazos abiertos01233Tests abiertos——7Búsquedas3920No se pudieron leer las aperturas y las búsquedas. Intenta de nuevo en un rato.No se pudieron leer las aperturas y las búsquedas. Intenta de nuevo en un rato."`;

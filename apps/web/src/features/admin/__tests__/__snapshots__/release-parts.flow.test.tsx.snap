@@ -1,0 +1,44 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`«Publicaciones», piece by piece > a check with more than 8 items shows 8, then all, then 8 again > eight 1`] = `"Imágenes que faltan11img-0.png no está en el almacén de imágenes.img-1.png no está en el almacén de imágenes.img-2.png no está en el almacén de imágenes.img-3.png no está en el almacén de imágenes.img-4.png no está en el almacén de imágenes.img-5.png no está en el almacén de imágenes.img-6.png no está en el almacén de imágenes.img-7.png no está en el almacén de imágenes.Ver los 11"`;
+
+exports[`«Publicaciones», piece by piece > a review whose texts or images could not be read says so 1`] = `"Lista de revisiónNada lo impide; faltan las marcas a mano.Revisando las imágenes y los textos…No se pudieron revisar las imágenes o los textos. Recarga la página para intentarlo de nuevo.Impiden publicarImágenes que faltanBienTarjetas con el GUID cambiadoBienHuecos o máscaras renumeradosBienPreguntas con el id corridoBienClaves fuera de rangoBienVersión del paqueteBienEnlaces de «Ponte a prueba» rotosBienClases sin año1Núcleo celular (AP-BC-C2-10) no dice de qué año es la clase.Material sacado del sitioBienImágenes de IMAIOSBienAvisosFrases de proceso o del calendarioRevisando…Mazos que pierden más del 10 % de sus tarjetas1Extras: de 4 a 3 tarjetas.Cambios a menos de 7 días de la pruebaBienConfiguraciones de mazo cambiadasBienTarjetas quitadas y nuevas en la misma evaluación1Anatomía I · Certamen 1: sale 1 nota y entra 1, sin ninguna casi igual a otra.Máscaras que cambiaron de lugarBienA mano, para este borradorVi lo nuevo en el teléfonoMarcada por alguien@ug.uchile.clSin marcarRevisé las respuestas cambiadasMarcada por alguien@ug.uchile.clSin marcarPublicarSe habilita cuando nada lo impide y están las marcas a mano.Se habilita cuando nada lo impide y están las marcas a mano."`;
+
+exports[`«Publicaciones», piece by piece > each kind of change, with its before and after, as the tabs open them > anatomy before a tab 1`] = `"Anatomía I · Certamen 1ArtículosSin cambiosPreguntasSin cambiosTarjetas1 nueva2 pueden cambiar la respuesta3 no cambian la respuesta1 saleA quién llegaMazo de prueba: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Mazo de prueba: contando… (2 tarjetas que salen o cambian)Extras: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Extras: contando… (1 tarjeta que sale o cambia)Tarjetas (4)"`;
+
+exports[`«Publicaciones», piece by piece > each kind of change, with its before and after, as the tabs open them > anatomy cards 1`] = `"Anatomía I · Certamen 1ArtículosSin cambiosPreguntasSin cambiosTarjetas1 nueva2 pueden cambiar la respuesta3 no cambian la respuesta1 saleA quién llegaMazo de prueba: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Mazo de prueba: 0 alumnos vieron sus tarjetas (2 tarjetas que salen o cambian)Extras: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Extras: 0 alumnos vieron sus tarjetas (1 tarjeta que sale o cambia)Tarjetas (4)T-PR-01-001 · .2 → .3CambiaPuede cambiar la respuestaCódigoT-PR-01-001.2 T-PR-01-001.3Reverso7 SieteT-PR-01-003CambiaNo cambia la respuestaExtraEl sacro y el cóccix están fusionados . en el adulto.extra-basica-1SaleFrenteFrente con espacios durosT-PR-01-004NuevaFrente¿Cuántas vértebras torácicas hay?"`;
+
+exports[`«Publicaciones», piece by piece > each kind of change, with its before and after, as the tabs open them > cell biology articles 1`] = `"Biología celular · Certamen 2Artículos1 cambia el textoPreguntas1 cambia la clave1 puede cambiar la respuesta1 no cambia la respuestaTarjetasSin cambiosArtículos (1)Preguntas (2)AP-BC-C2-11 · TraducciónCambiaCambia el texto1. RibosomasLos ribosomas tienen dos subunidades. subunidades, una mayor y una menor, que este semestre se ven juntas. Un ribosoma"`;
+
+exports[`«Publicaciones», piece by piece > each kind of change, with its before and after, as the tabs open them > cell biology questions 1`] = `"Biología celular · Certamen 2Artículos1 cambia el textoPreguntas1 cambia la clave1 puede cambiar la respuesta1 no cambia la respuestaTarjetasSin cambiosArtículos (1)Preguntas (2)biologia-celular-certamen-2-preguntas-de-practica · N-01CambiaNo cambia la respuestaExplicaciónLa RNA polimerasa lee la hebra molde.biologia-celular-certamen-2-preguntas-de-practica · P-01CambiaPuede cambiar la respuestaCambia la claveLa correcta era la a) y ahora es la b)"`;
+
+exports[`«Publicaciones», piece by piece > the popup to publish, with the warnings of the list > list 1`] = `"Lista de revisiónNada lo impide; faltan las marcas a mano.Nada impide publicar.Impiden publicarImágenes que faltanBienTarjetas con el GUID cambiadoBienHuecos o máscaras renumeradosBienPreguntas con el id corridoBienClaves fuera de rangoBienVersión del paqueteBienEnlaces de «Ponte a prueba» rotosBienClases sin añoBienMaterial sacado del sitioBienImágenes de IMAIOSBienAvisosFrases de proceso o del calendarioBienMazos que pierden más del 10 % de sus tarjetas1Extras: de 4 a 3 tarjetas.Cambios a menos de 7 días de la pruebaBienConfiguraciones de mazo cambiadasBienTarjetas quitadas y nuevas en la misma evaluación1Anatomía I · Certamen 1: sale 1 nota y entra 1, sin ninguna casi igual a otra.Máscaras que cambiaron de lugarBienA mano, para este borradorVi lo nuevo en el teléfonoMarcada por alguien@ug.uchile.clMarcada por a@ug.uchile.clRevisé las respuestas cambiadasMarcada por alguien@ug.uchile.clMarcada por a@ug.uchile.clPublicarSe habilita cuando nada lo impide y están las marcas a mano.Todo el borrador pasa a lo publicado de una vez. Se puede deshacer."`;
+
+exports[`«Publicaciones», piece by piece > the popup to publish, with the warnings of the list > popup 1`] = `"¿Publicar el borrador?Anatomía I · Certamen 1 y Biología celular · Certamen 2Anatomía I · Certamen 1: 1 tarjeta nueva, 2 tarjetas que pueden cambiar la respuesta, 3 tarjetas corregidas, 1 tarjeta que sale.Biología celular · Certamen 2: 1 artículo cambiado, 1 pregunta que puede cambiar la respuesta, 1 pregunta corregida.Las tarjetas de «Anatomía I · Certamen 1» se pueden explorar.La lista de revisión tiene 2 avisos.Los alumnos ven todo lo nuevo de una vez, al terminar. Su avance no cambia: las tarjetas que se mueven o salen se ordenan solas cuando entran. Mientras sea la última, la puedes deshacer.CancelarPublicando…Publicar"`;
+
+exports[`«Publicaciones», piece by piece > the record and the last publication, published and undone, with who and when > last 1`] = `"Última publicaciónN.º 9999 · Biología celular y molecular · Certamen 2, Anatomía II · Certamen 3 y 12 más. Publicada el 30 de septiembre de 2026, 23:59 por alguien.largo@ug.uchile.cl.N.º 3 · Publicación 3. Deshecha el 8 de noviembre de 2026 a las 7:00 a. m. por otra@ug.uchile.cl.Deshacer la última publicación"`;
+
+exports[`«Publicaciones», piece by piece > the record and the last publication, published and undone, with who and when > record 1`] = `"Registro de publicacionesN.º 3Publicación 3Deshecha el 8 de noviembre de 2026 a las 7:00 a. m. por otra@ug.uchile.cl.DeshechaN.º 2Publicación 2Deshecha el 8 de noviembre de 2026 a las 6:00 a. m..DeshechaN.º 1Publicación 1Publicada el 7 de noviembre de 2026 a las 12:00 p. m. por alguien@ug.uchile.cl.Publicada"`;
+
+exports[`«Publicaciones», piece by piece > what changes in the site: semesters, courses, note types, presets and decks, each in its line 1`] = `
+[
+  "El semestre «Semestre 9» es nuevo.",
+  "El ramo «Ramo uno» sale.",
+  "El ramo «c2» cambia.",
+  "El tipo de nota «Básica» es nuevo.",
+  "El tipo de nota «Cloze» cambia.",
+  "La configuración «Rápida» sale.",
+  "La configuración «Lenta» es nueva.",
+  "El mazo «Mazo uno» es nuevo.",
+  "El mazo «Mazo dos» sale.",
+  "El mazo «Viejo» pasa a llamarse «Nuevo».",
+  "El mazo «Mazo uno» pasa de la configuración «ninguna» a «Lenta».",
+  "El mazo «Mazo uno» pasa de la configuración «Lenta» a «ninguna».",
+  "El mazo «Mazo uno» cambia de lugar.",
+  "Las tarjetas de «Anatomía I · Certamen 1» dejan de poder explorarse.",
+]
+`;
+
+exports[`«Publicaciones», piece by piece > whom it reaches, when the count fails 1`] = `"A quién llegaMazo de prueba: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Mazo de prueba: no se pudo contar (2 tarjetas que salen o cambian)Extras: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Extras: no se pudo contar (1 tarjeta que sale o cambia)"`;
+
+exports[`«Publicaciones», piece by piece > whom it reaches: counting, the count, or that it could not be counted 1`] = `"A quién llegaMazo de prueba: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Mazo de prueba: 0 alumnos vieron sus tarjetas (2 tarjetas que salen o cambian)Extras: 99999 alumnos vieron sus tarjetas (99999 tarjetas que salen o cambian)Extras: 0 alumnos vieron sus tarjetas (1 tarjeta que sale o cambia)"`;

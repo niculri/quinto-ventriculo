@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`«Reportes», piece by piece > a card, an article and a question, with their versions and the quote > links 1`] = `
+[
+  [
+    "T-PR-01-001.1",
+    "/anki/browse?q=%22T-PR-01-001%22&note=s%40%2FAqX%25n%3F%23&ord=0",
+    null,
+  ],
+]
+`;
+
+exports[`«Reportes», piece by piece > a card, an article and a question, with their versions and the quote 1`] = `"Errores reportadosAbiertos (3)Resueltos (2)Mostrar quién reportóCopiar todo para el chatCopiadoNo se pudo copiarTarjetaT-PR-01-001.12 personas · 8 de noviembre de 2026 a las 09:00El dato está malRedacción u ortografíaCambió de la versión 1 a la 2 desde que se reportó. ¿Ya está corregido?El dato está mal · vio la versión 18 de noviembre de 2026 a las 09:00Comentario aRedacción u ortografía · vio la versión 18 de noviembre de 2026 a las 09:00Comentario bCopiar para el chatCopiadoNo se pudo copiar ResolverApunteQV-BC-C2-11.1Traducción1 persona · 8 de noviembre de 2026 a las 09:00El dato está malCambió de la versión 1 a la 3 desde que se reportó. ¿Ya está corregido?El dato está mal · 1. Ribosomas · vio la versión 18 de noviembre de 2026 a las 09:00«dos subunidades»Comentario cCopiar para el chatCopiadoNo se pudo copiar ResolverPregunta de testquiz-x/P-01Pregunta 11 persona · 8 de noviembre de 2026 a las 09:00El dato está malEl dato está mal8 de noviembre de 2026 a las 09:00Comentario dCopiar para el chatCopiadoNo se pudo copiar Resolver"`;
+
+exports[`«Reportes», piece by piece > resolving: the version proposed for each kind, the choices, and a failure > article 1`] = `"ResolverCierra el reporte de QV-BC-C2-11.1. Cada persona lo ve en «Mis reportes».Qué se decidióCorregidoCorregido en la versiónNota para quien lo reportó (opcional)CancelarResolver el reporte"`;
+
+exports[`«Reportes», piece by piece > resolving: the version proposed for each kind, the choices, and a failure > card 1`] = `"ResolverCierra los 2 reportes de T-PR-01-001.1. Cada persona lo ve en «Mis reportes».Qué se decidióCorregidoCorregido en la versiónNota para quien lo reportó (opcional)CancelarResolver los 2"`;
+
+exports[`«Reportes», piece by piece > the resolved ones, with their decision and note; reopening, and when it fails 1`] = `
+"Errores reportadosAbiertos (3)Resueltos (2)Mostrar quién reportóTarjetaT-PR-01-001.11 persona · 8 de noviembre de 2026 a las 09:00El dato está malCorregido en la versión 2 · 8 de noviembre de 2026 a las 09:00Ya está.
+Gracias.El dato está mal · vio la versión 18 de noviembre de 2026 a las 09:00Comentario a ReabrirTarjetaT-PR-01-002.11 persona · 8 de noviembre de 2026 a las 09:00El dato está malNo se corregirá · 8 de noviembre de 2026 a las 09:00El dato está mal · vio la versión 18 de noviembre de 2026 a las 09:00Comentario a Reabrir"
+`;
+
+exports[`«Reportes», piece by piece > who reported, only when asked; blocking from there, and the blocked ones below > blocked, hidden 1`] = `"Sin permiso para reportar (2)Persona bloqueada · desde el 8 de noviembre de 2026 a las 09:00DesbloquearPersona bloqueada · desde el 8 de noviembre de 2026 a las 09:00Desbloquear"`;
+
+exports[`«Reportes», piece by piece > who reported, only when asked; blocking from there, and the blocked ones below > blocked, shown 1`] = `"Sin permiso para reportar (2)Persona Bloqueada · bloqueada@ug.uchile.cl · desde el 8 de noviembre de 2026 a las 09:00DesbloquearCuenta sin nombre · desde el 8 de noviembre de 2026 a las 09:00Desbloquear"`;
+
+exports[`«Reportes», piece by piece > who reported, only when asked; blocking from there, and the blocked ones below > names shown 1`] = `"Errores reportadosAbiertos (3)Resueltos (2)Mostrar quién reportóCopiar todo para el chatCopiadoNo se pudo copiarTarjetaT-PR-01-001.12 personas · 8 de noviembre de 2026 a las 09:00El dato está malRedacción u ortografíaCambió de la versión 1 a la 2 desde que se reportó. ¿Ya está corregido?El dato está mal · vio la versión 18 de noviembre de 2026 a las 09:00Comentario aAlumno a · alumno.a@ug.uchile.cl BloquearRedacción u ortografía · vio la versión 18 de noviembre de 2026 a las 09:00Comentario bSin autor (cuenta eliminada o reporte antiguo)Copiar para el chatCopiadoNo se pudo copiar ResolverApunteQV-BC-C2-11.1Traducción1 persona · 8 de noviembre de 2026 a las 09:00El dato está malCambió de la versión 1 a la 3 desde que se reportó. ¿Ya está corregido?El dato está mal · 1. Ribosomas · vio la versión 18 de noviembre de 2026 a las 09:00«dos subunidades»Comentario cAlumno c · alumno.c@ug.uchile.cl BloquearCopiar para el chatCopiadoNo se pudo copiar ResolverPregunta de testquiz-x/P-01Pregunta 11 persona · 8 de noviembre de 2026 a las 09:00El dato está malEl dato está mal8 de noviembre de 2026 a las 09:00Comentario dCuenta sin nombreSin permiso para reportarCopiar para el chatCopiadoNo se pudo copiar Resolver"`;
+
+exports[`«Reportes», piece by piece > who reported, only when asked; blocking from there, and the blocked ones below > popup 1`] = `"¿Bloquear?Alumno a no podrá enviar más reportes. Lo que ya escribió queda, y se puede desbloquear abajo, en «Sin permiso para reportar».CancelarBloquear"`;

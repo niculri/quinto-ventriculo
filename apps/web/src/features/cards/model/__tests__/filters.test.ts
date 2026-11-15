@@ -87,12 +87,17 @@ describe('the cards page’s model', () => {
     const tree = buildAnkiTree(CATALOG);
     const rows = new Map(syntheticRows(index, Date.now()).map((r) => [cardKey(r), r]));
     const notes = explorerNotes([index], (id) => lectureOf(tree.byId.get(id))?.id ?? id, rows);
+    // This thread's CPU time, not the clock: on a busy machine the clock also counts the time the worker waits.
+    const cpuMs = () => {
+      const { user, system } = process.threadCpuUsage();
+      return (user + system) / 1000;
+    };
     const times: number[] = [];
     for (const state of ['all', 'hard', 'new', 'seen', 'marked'] as const) {
-      const start = performance.now();
+      const start = cpuMs();
       const { matched } = applyFilters(notes, { ...NO_FILTERS, state, origins: ['profe'] });
       listItems(groupNotes(matched), listMetrics(800, true));
-      times.push(performance.now() - start);
+      times.push(cpuMs() - start);
     }
     expect(Math.max(...times)).toBeLessThan(100);
   });

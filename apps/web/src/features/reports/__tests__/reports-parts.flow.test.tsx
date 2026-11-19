@@ -1,6 +1,6 @@
 // Characterizes «Mis reportes» and the «Reportar error» popup: the empty list, each report's lines with their text
 // nodes, and what the popup says for each kind, while sending and on an error it does not know.
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/render';
@@ -126,5 +126,46 @@ describe('the «Reportar error» popup', () => {
     ).toHaveAttribute('role', 'alert');
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
     expect(screen.queryByRole('dialog', { name: 'Reportar error' })).toBeNull();
+  });
+});
+
+describe('the «Reportar error» popup, opened again', () => {
+  it('starts over: the first category and no comment, and it does not send what is not written', async () => {
+    const sent: NewReport[] = [];
+    const inner = localReportsRepository({ admin: true });
+    const reports: ReportsRepository = {
+      ...inner,
+      send: async (report) => {
+        sent.push(report);
+        return inner.send(report);
+      },
+    };
+    const user = userEvent.setup();
+    renderApp(NOTE_PATH, { reports });
+    const open = await screen.findByRole('button', { name: 'Reportar un error en este apunte' });
+    await user.click(open);
+    let dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Qué tipo de error: El dato está mal' }),
+    );
+    await user.click(await screen.findByRole('menuitemradio', { name: /Redacción u ortografía/ }));
+    expect(
+      within(dialog).getByRole('button', { name: 'Qué tipo de error: Redacción u ortografía' }),
+    ).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText('¿Qué está mal?'), '   ');
+    expect(within(dialog).getByRole('button', { name: 'Enviar' })).toBeDisabled();
+    await user.keyboard('{Enter}');
+    expect(sent).toHaveLength(0);
+    await user.type(within(dialog).getByLabelText('¿Qué está mal?'), 'una errata');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Reportar error' })).toBeNull(),
+    );
+    await user.click(open);
+    dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
+    expect(
+      within(dialog).getByRole('button', { name: 'Qué tipo de error: El dato está mal' }),
+    ).toBeInTheDocument();
+    expect(within(dialog).getByLabelText('¿Qué está mal?')).toHaveValue('');
   });
 });

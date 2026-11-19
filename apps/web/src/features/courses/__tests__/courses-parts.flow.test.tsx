@@ -1,6 +1,6 @@
 // Characterizes the pages of the career, a semester, a course and an assessment's lists: what each line says, its
 // links and the text nodes where a text follows an icon or a number.
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Catalog, NoteSummary, QuizSummary } from '@qv/schema';
@@ -341,5 +341,103 @@ describe('an assessment’s tests', () => {
       'href',
       '/semesters/1/courses/anatomia-1',
     );
+  });
+});
+
+describe('the numbers and the links of the lists', () => {
+  it('says «pregunta» for one and «preguntas» for none, for several and for thousands', async () => {
+    renderApp('/semesters/2/courses/biologia-celular/assessments/certamen-2/tests', {
+      api: fakeApi({
+        catalog: async () => {
+          const c = richCatalog();
+          const a = c.semesters[1]!.courses[0]!.assessments[0]!;
+          a.quizzes = [
+            quiz({ id: 'q0', slug: 'cero', questionCount: 0 }),
+            quiz({ id: 'q1', slug: 'una', questionCount: 1 }),
+            quiz({ id: 'q2', slug: 'miles', questionCount: 12345 }),
+          ];
+          return c;
+        },
+      }),
+    });
+    await screen.findByRole('main');
+    expect(await main().findByText('0 preguntas')).toBeInTheDocument();
+    expect(main().getByText('1 pregunta')).toBeInTheDocument();
+    expect(main().getByText('12.345 preguntas')).toBeInTheDocument();
+  });
+
+  it('a note with a deck and a test links them: the deck, and the test in its tab and topics', async () => {
+    renderApp('/semesters/1/courses/anatomia-1/assessments/certamen-1/notes', {
+      api: fakeApi({
+        catalog: async () => {
+          const c = structuredClone(CATALOG);
+          const a = c.semesters[0]!.courses[0]!.assessments[0]!;
+          a.quizzes = [
+            quiz({
+              id: 'practica-anato',
+              slug: 'practica',
+              courseId: 'anatomia-1',
+              assessmentId: 'anatomia-1/certamen-1',
+              sectionCount: 2,
+            }),
+          ];
+          a.notes = [
+            note({
+              id: 'AP-AN-01',
+              slug: 'columna',
+              title: 'Columna',
+              courseId: 'anatomia-1',
+              assessmentId: 'anatomia-1/certamen-1',
+              practice: {
+                quizId: 'practica-anato',
+                section: 'pautas',
+                groups: ['01', '02'],
+                deck: 'Mazo de prueba',
+              },
+            }),
+          ];
+          return c;
+        },
+      }),
+    });
+    await screen.findByRole('main');
+    const test = await main().findByRole('link', { name: 'Test de Columna' });
+    expect(test).toHaveAttribute(
+      'href',
+      '/semesters/1/courses/anatomia-1/tests/certamen-1/practica/pautas?topics=01%2C02',
+    );
+    expect(textNodes(test)).toEqual([' Test']);
+    const deck = main().getByRole('link', { name: /^Anki de Columna/ });
+    expect(deck).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^\/semesters\/1\/courses\/anatomia-1\/anki\/.*mazo-de-prueba$/),
+    );
+    expect(textNodes(deck)[0]).toBe(' Anki');
+  });
+
+  it('the pages of an assessment under another semester go to the right one', async () => {
+    const { router } = renderApp(
+      '/semesters/1/courses/biologia-celular/assessments/certamen-2/notes',
+      { api: api() },
+    );
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(
+        '/semesters/2/courses/biologia-celular/assessments/certamen-2/notes',
+      ),
+    );
+    await main().findByRole('heading', { level: 1, name: 'Apuntes' });
+  });
+
+  it('and so do its tests', async () => {
+    const { router } = renderApp(
+      '/semesters/1/courses/biologia-celular/assessments/certamen-2/tests',
+      { api: api() },
+    );
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(
+        '/semesters/2/courses/biologia-celular/assessments/certamen-2/tests',
+      ),
+    );
+    await main().findByRole('heading', { level: 1, name: 'Tests' });
   });
 });

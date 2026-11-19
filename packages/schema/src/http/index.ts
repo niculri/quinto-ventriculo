@@ -35,11 +35,16 @@ export {
   ReleasePageQuery,
   SearchQuery,
   UsageOpenBody,
+  ClientErrorBody,
 } from './requests';
 export { API_PREFIX, API_ROUTES, apiPaths } from './routes';
 export type { ApiRouteName } from './routes';
 export {
   AdminUsageRow,
+  CLIENT_ERROR_DAYS,
+  CLIENT_ERROR_KINDS,
+  ClientErrorGroup,
+  ClientErrorReport,
   FEW,
   SEARCH_CONTEXTS,
   USAGE_EVENT_KINDS,
@@ -52,4 +57,10 @@ export {
   UsageOpens,
   UsageReport,
 } from './usage';
-export type { AdminUsageFigures, AdminUsageGroup, SearchContext, UsageEventKind } from './usage';
+export type {
+  AdminUsageFigures,
+  AdminUsageGroup,
+  ClientErrorKind,
+  SearchContext,
+  UsageEventKind,
+} from './usage';

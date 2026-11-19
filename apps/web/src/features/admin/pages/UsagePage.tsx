@@ -3,6 +3,7 @@ import { ExternalLink } from 'lucide-react';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
+import { ClientErrors } from '../components/usage/ClientErrors';
 import { UsageChart } from '../components/usage/UsageChart';
 import { DetailsLoading, UsageDetails } from '../components/usage/UsageDetails';
 import { UsageSummary } from '../components/usage/UsageSummary';
@@ -41,7 +42,14 @@ export function UsagePage() {
         <>
           <UsageSummary report={data?.usage ?? null} />
           <UsageChart report={data?.usage ?? null} />
-          {data ? <UsageDetails report={data.usage} catalog={data.catalog} /> : <DetailsLoading />}
+          {data ? (
+            <>
+              <UsageDetails report={data.usage} catalog={data.catalog} />
+              <ClientErrors report={data.usage} />
+            </>
+          ) : (
+            <DetailsLoading />
+          )}
         </>
       )}
     </>

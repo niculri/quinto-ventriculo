@@ -11,6 +11,7 @@ import {
 import type { Database } from '@qv/db-types/users';
 import type {
   AdminUsageFigures,
+  ClientErrorGroup,
   AdminUsageGroup,
   Catalog,
   SearchContext,
@@ -81,15 +82,15 @@ function aeRows(body: unknown): Record<string, unknown>[] {
   if (!Array.isArray(data)) throw new Error('Analytics Engine: una respuesta sin filas');
   return data.filter((r): r is Record<string, unknown> => !!r && typeof r === 'object');
 }
-const num = (v: unknown) => {
+export const num = (v: unknown) => {
   const n = Number(v);
   return Number.isFinite(n) && n >= 0 ? Math.round(n) : 0;
 };
 const isKind = (v: unknown): v is UsageEventKind =>
   typeof v === 'string' && (USAGE_EVENT_KINDS as readonly string[]).includes(v);
 
-/** Analytics Engine's SQL API: with a sampled dataset, each row counts `_sample_interval`. */
-export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensReader {
+/** Analytics Engine's SQL API, and the dataset name checked to go into the SQL. */
+export function analyticsEngineSql(op: AnalyticsReaderOptions) {
   const doFetch = op.fetch ?? fetch;
   const dataset = op.dataset ?? USAGE_DATASET;
   if (!/^[a-z0-9_]+$/.test(dataset)) throw new Error('dataset inválido');
@@ -103,6 +104,12 @@ export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensRea
     if (!r.ok) throw new Error(`Analytics Engine: ${r.status}`);
     return aeRows(await r.json());
   };
+  return { dataset, query };
+}
+
+/** With a sampled dataset, each row counts `_sample_interval`. */
+export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensReader {
+  const { dataset, query } = analyticsEngineSql(op);
   return {
     async read() {
       const [hourly, items, searches] = await Promise.all([
@@ -142,7 +149,8 @@ export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensRea
 }
 
 /** «2026-11-09 13:00:00» (UTC) → ISO. */
-const aeTime = (t: string) => (/^\d{4}-\d{2}-\d{2} /.test(t) ? `${t.replace(' ', 'T')}Z` : t);
+export const aeTime = (t: string) =>
+  /^\d{4}-\d{2}-\d{2} /.test(t) ? `${t.replace(' ', 'T')}Z` : t;
 
 /** Counts the points like the SQL API, for the local demo and the tests. */
 export function memoryUsageEvents(
@@ -377,6 +385,7 @@ export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens
 export function usageReport(
   stats: unknown,
   opens: { status: 'ok'; counts: OpenCounts } | { status: 'not_configured' | 'unavailable' },
+  clientErrors: ClientErrorGroup[] | null = null,
 ): UsageReport {
   const raw = AdminUsageRow.parse(stats);
   return UsageReport.parse({
@@ -418,5 +427,6 @@ export function usageReport(
     },
     opens: opens.status === 'ok' ? opensFigures(opens.counts, raw) : null,
     opensStatus: opens.status,
+    clientErrors,
   });
 }

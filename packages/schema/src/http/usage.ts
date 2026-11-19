@@ -53,6 +53,41 @@ export const UsageOpenRequest = z.discriminatedUnion('kind', [
 ]);
 export type UsageOpenRequest = z.infer<typeof UsageOpenRequest>;
 export const UsageOpenAck = z.object({ ok: z.literal(true) });
+
+/**
+ * A page that failed in a browser, without who: `boot` the app did not start (the page stayed blank), `chunk` a file
+ * of the app did not load, `render` React caught an error, `unhandled` an error or a rejection nothing caught.
+ */
+export const CLIENT_ERROR_KINDS = ['boot', 'chunk', 'render', 'unhandled'] as const;
+export type ClientErrorKind = (typeof CLIENT_ERROR_KINDS)[number];
+
+export const ClientErrorReport = z
+  .object({
+    kind: z.enum(CLIENT_ERROR_KINDS),
+    /** The path alone: no query nor hash, which could carry a search or a token. */
+    page: z
+      .string()
+      .max(200)
+      .regex(/^\/[^?#\s]*$/),
+    message: z.string().max(300),
+    /** The hash of the entry file, which says which deploy the page was running; empty in development. */
+    version: z
+      .string()
+      .max(40)
+      .regex(/^[A-Za-z0-9_-]*$/),
+  })
+  .strict();
+export type ClientErrorReport = z.infer<typeof ClientErrorReport>;
+
+/** The errors of the last days, grouped by what failed and where. */
+export const ClientErrorGroup = ClientErrorReport.extend({
+  count: z.number().int().nonnegative(),
+  lastSeen: z.iso.datetime({ offset: true }),
+});
+export type ClientErrorGroup = z.infer<typeof ClientErrorGroup>;
+
+/** The days the panel shows of errors. */
+export const CLIENT_ERROR_DAYS = 7;
 export type UsageOpenAck = z.infer<typeof UsageOpenAck>;
 
 const Day = z.iso.date();
@@ -118,6 +153,8 @@ export const UsageReport = z.object({
   }),
   opens: UsageOpens.nullable(),
   opensStatus: z.enum(['ok', 'not_configured', 'unavailable']),
+  /** Null with `opensStatus` other than `ok`: they come from the same reading. */
+  clientErrors: z.array(ClientErrorGroup).nullable(),
 });
 export type UsageReport = z.infer<typeof UsageReport>;
 

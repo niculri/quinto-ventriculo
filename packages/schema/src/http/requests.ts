@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { NoteGuid } from '../anki/flashcards';
 import { ReleaseItemKind, ReleaseMarkId } from '../release/release';
-import { UsageOpenRequest } from './usage';
+import { ClientErrorReport, UsageOpenRequest } from './usage';
 import { PREVIEW_VALUE } from './headers';
 
 const BEARER = /^Bearer\s+(\S+)$/i;
@@ -63,6 +63,18 @@ export const UsageOpenBody = upTo(512)
     }
   })
   .pipe(UsageOpenRequest);
+
+/** At most 1,024 UTF-16 units of JSON: a page's error, sent without a session. */
+export const ClientErrorBody = upTo(1024)
+  .transform((text, ctx) => {
+    try {
+      return JSON.parse(text) as unknown;
+    } catch {
+      ctx.addIssue({ code: 'custom', message: 'not JSON' });
+      return z.NEVER;
+    }
+  })
+  .pipe(ClientErrorReport);
 
 export const ReleaseItemsQuery = z.object({
   kind: ReleaseItemKind,

@@ -13,6 +13,7 @@ const OTHER_CLIENTS: Partial<Record<ApiRouteName, string>> = {
   health: '`npm run smoke`, after each deploy',
   deepHealth: 'the external monitor (and `npm run smoke`)',
   me: '`npm run smoke`, to check that a session is asked for',
+  clientError: '`public/error-report.js`, when a page fails in the browser',
 };
 
 const FP = 'f'.repeat(32);

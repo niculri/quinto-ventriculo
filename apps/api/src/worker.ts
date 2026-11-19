@@ -21,6 +21,7 @@ import {
   supabaseUnpublishedRepository,
 } from './repositories/supabase';
 import { supabaseVerifier } from './session';
+import { analyticsEngineErrorRecorder, analyticsEngineErrorsReader } from './client-errors';
 import { analyticsEngineReader, analyticsEngineRecorder, supabaseUsageStats } from './usage';
 
 export interface Env {
@@ -108,7 +109,19 @@ function getApp(env: Env, origin: string) {
       env.CF_ACCOUNT_ID && env.CF_ANALYTICS_TOKEN
         ? analyticsEngineReader({ accountId: env.CF_ACCOUNT_ID, token: env.CF_ANALYTICS_TOKEN })
         : null,
-    ...(env.USAGE ? { usageEvents: analyticsEngineRecorder(env.USAGE) } : {}),
+    ...(env.USAGE
+      ? {
+          usageEvents: analyticsEngineRecorder(env.USAGE),
+          clientErrors: analyticsEngineErrorRecorder(env.USAGE),
+        }
+      : {}),
+    clientErrorsReader:
+      env.CF_ACCOUNT_ID && env.CF_ANALYTICS_TOKEN
+        ? analyticsEngineErrorsReader({
+            accountId: env.CF_ACCOUNT_ID,
+            token: env.CF_ANALYTICS_TOKEN,
+          })
+        : null,
     deepHealth: deepHealth(
       {
         users: usersDatabaseCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),

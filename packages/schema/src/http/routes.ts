@@ -27,6 +27,7 @@ export const API_ROUTES = {
   setSiteSettings: route('PUT', '/admin/site-settings'),
   unpublished: route('GET', '/admin/unpublished'),
   usageOpen: route('POST', '/usage/open'),
+  clientError: route('POST', '/client-error'),
   usage: route('GET', '/admin/usage'),
   release: route('GET', '/admin/release'),
   releaseItems: route('GET', '/admin/release/items'),
@@ -81,6 +82,7 @@ export const apiPaths = {
   siteSettings: () => fill(R.siteSettings.pattern),
   unpublished: () => fill(R.unpublished.pattern),
   usageOpen: () => fill(R.usageOpen.pattern),
+  clientError: () => fill(R.clientError.pattern),
   usage: () => fill(R.usage.pattern),
   release: () => fill(R.release.pattern),
   releaseItems: (assessment: string, kind: ReleaseItemKind, afterKey: string | null) =>

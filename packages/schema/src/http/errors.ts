@@ -20,6 +20,7 @@ export const ErrorCode = z.enum([
   'invalid_quiz',
   'invalid_settings',
   'invalid_open',
+  'invalid_client_error',
   'invalid_release',
   'invalid_mark',
   'invalid_key',

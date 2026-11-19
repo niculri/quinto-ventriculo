@@ -36,6 +36,10 @@ export {
   UnpublishedEntry,
   UnpublishedKind,
   UnpublishedLog,
+  CLIENT_ERROR_DAYS,
+  CLIENT_ERROR_KINDS,
+  ClientErrorGroup,
+  ClientErrorReport,
   USAGE_EVENT_KINDS,
   USAGE_MIN_STUDENTS,
   UsageCount,
@@ -47,7 +51,13 @@ export {
   UsageReport,
   withoutEmptySemesters,
 } from './http';
-export type { AdminUsageFigures, AdminUsageGroup, SearchContext, UsageEventKind } from './http';
+export type {
+  AdminUsageFigures,
+  AdminUsageGroup,
+  ClientErrorKind,
+  SearchContext,
+  UsageEventKind,
+} from './http';
 export {
   ACCOUNT_DELETION_DAYS,
   ALLOWED_DOMAIN,

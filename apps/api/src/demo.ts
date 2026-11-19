@@ -14,6 +14,7 @@ import { folderUnpublishedRepository } from './repositories/memory-unpublished';
 import { demoUsageEvents, demoUsageStats } from './repositories/memory-usage';
 import { supabaseVerifier } from './session';
 import type { SessionVerifier } from './session';
+import { memoryClientErrors } from './client-errors';
 
 export const DEMO_TOKEN = 'demo-local';
 export const DEMO_USER = {
@@ -55,6 +56,7 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     },
   };
   const usageEvents = demoUsageEvents(bundle);
+  const clientErrors = memoryClientErrors();
   const repository = memoryRepository(bundle);
   return createApp({
     verifier,
@@ -69,6 +71,8 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     usageStats: demoUsageStats(),
     usageOpens: usageEvents,
     usageEvents,
+    clientErrors,
+    clientErrorsReader: clientErrors,
     deepHealth: deepHealth({
       content: async () => {
         await repository.catalog();

@@ -70,6 +70,8 @@ import type {
 } from './repository';
 import { tokenFromHeader } from './session';
 import type { User, SessionVerifier } from './session';
+import { clientErrorHandler } from './client-errors';
+import type { ClientErrorRecorder, ClientErrorsReader } from './client-errors';
 import { usageGroups, usageReport } from './usage';
 import type { UsageEvent, UsageOpensReader, UsageRecorder, UsageStatsSource } from './usage';
 
@@ -91,6 +93,9 @@ export interface Dependencies {
   usageOpens?: UsageOpensReader | null;
   usageEvents?: UsageRecorder;
   usageTtl?: number;
+  /** Without it the errors are answered and not kept. */
+  clientErrors?: ClientErrorRecorder;
+  clientErrorsReader?: ClientErrorsReader | null;
   deepHealth?: DeepHealth;
 }
 
@@ -543,6 +548,12 @@ export function createApp(deps: Dependencies) {
     return ids;
   };
 
+  // `now` is in seconds; the budget counts minutes in milliseconds.
+  app.post(
+    R.clientError.pattern,
+    clientErrorHandler(deps.clientErrors, () => now() * 1000),
+  );
+
   app.post(R.usageOpen.pattern, requireSession, async (c) => {
     c.header('Cache-Control', 'no-store');
     const open = UsageOpenBody.safeParse(await c.req.text().catch(() => ''));
@@ -591,12 +602,22 @@ export function createApp(deps: Dependencies) {
         return { status: 'unavailable' as const };
       }
     };
-    const [statsResult, opens] = await Promise.all([
+    const readErrors = async () => {
+      if (!deps.clientErrorsReader) return null;
+      try {
+        return await deps.clientErrorsReader.read();
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    };
+    const [statsResult, opens, clientErrors] = await Promise.all([
       deps.usageStats!.stats(c.get('token'), usageGroups(catalog)).then(
         (s) => ({ ok: true as const, s }),
         (e: unknown) => ({ ok: false as const, e }),
       ),
       readOpens(),
+      readErrors(),
     ]);
     if (!statsResult.ok) {
       console.error(statsResult.e);
@@ -608,7 +629,7 @@ export function createApp(deps: Dependencies) {
         503,
       );
     }
-    const report = usageReport(statsResult.s, opens);
+    const report = usageReport(statsResult.s, opens, clientErrors);
     usageKept = { until: t + (deps.usageTtl ?? 60), report };
     return c.json(report satisfies UsageReport);
   });

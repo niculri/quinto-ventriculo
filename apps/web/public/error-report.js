@@ -61,8 +61,8 @@
     'error',
     function (e) {
       var t = e.target;
-      if (t && t !== window && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
-        var url = t.src || t.href;
+      if (t && t.nodeType === 1) {
+        var url = t.tagName === 'SCRIPT' ? t.src : t.tagName === 'LINK' ? t.href : '';
         if (own(url)) report('chunk', 'No cargó ' + url);
         return;
       }

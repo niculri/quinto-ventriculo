@@ -95,7 +95,7 @@ describe('public/error-report.js', () => {
     ]);
   });
 
-  it('does not report what is not the site: files of someone else, extensions, the browser itself', () => {
+  it('does not report what is not the site: files of someone else, pictures, extensions, the browser itself', () => {
     load();
     const blocked = document.createElement('script');
     blocked.src = 'https://static.cloudflareinsights.com/beacon.min.js';
@@ -106,6 +106,10 @@ describe('public/error-report.js', () => {
     sheet.href = 'https://fonts.example.test/inter.css';
     document.head.append(sheet);
     sheet.dispatchEvent(new Event('error'));
+    const picture = document.createElement('img');
+    picture.src = `${location.origin}/api/media/figura.png`;
+    document.body.append(picture);
+    picture.dispatchEvent(new Event('error'));
     for (const init of [
       { message: 'x is not defined', filename: 'chrome-extension://abc/content.js', lineno: 3 },
       { message: 'Script error.', filename: '', lineno: 0 },

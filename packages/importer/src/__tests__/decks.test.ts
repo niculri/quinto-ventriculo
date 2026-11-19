@@ -20,11 +20,13 @@ async function variant(
   tag: string,
   edit: (type: AnkiPackage['collection']['noteTypes'][number]) => void,
   notes: (note: AnkiPackage['collection']['notes'][number]) => void = () => {},
+  others: (type: AnkiPackage['collection']['noteTypes'][number]) => void = () => {},
 ): Promise<AnkiPackage> {
   const pkg = await readApkgFile(SAMPLE);
   const c = structuredClone(pkg.collection);
   const id = (x: string) => `${tag.charCodeAt(0)}${x}`;
   c.noteTypes.filter((t) => t.name === BASIC).forEach(edit);
+  c.noteTypes.filter((t) => t.name !== BASIC).forEach(others);
   c.decks.forEach((d) => {
     d.id = id(d.id);
     d.name = d.name.replace('Mazo', tag);
@@ -89,11 +91,63 @@ describe('buildDecks note types', () => {
     expect(old.cards[0]!.frontHtml).toContain('de-la-nueva');
   });
 
-  it('on equal mod the last package read wins', async () => {
+  it('on equal mod and different content, the order of the packages does not matter, and it is reported', async () => {
     const a = await variant('A', (t) => (t.css += '\n.de-a {}'));
     const b = await variant('B', (t) => (t.css += '\n.de-b {}'));
-    const { noteTypes } = await run({ 'A.apkg': a, 'B.apkg': b });
-    expect(noteTypes.find((t) => t.name === BASIC)!.css).toContain('.de-b');
+    const forward = await run({ 'A.apkg': a, 'B.apkg': b });
+    const backward = await run({ 'B.apkg': b, 'A.apkg': a });
+    const css = (r: typeof forward) => r.noteTypes.find((t) => t.name === BASIC)!.css;
+    expect(css(forward)).toBe(css(backward));
+    expect(forward.warnings.filter((w) => /misma fecha/.test(w))).toHaveLength(1);
+  });
+
+  it('puts the site footer on the newest version, which the notes of every package render', async () => {
+    const nuevo = await variant('Nuevo', (t) => {
+      t.mod += 100;
+      t.fields = [...t.fields, 'Creación', 'Actualización'];
+      t.templates[0]!.afmt += '{{#Código}}<div class="pie">de Anki {{Código}}</div>{{/Código}}';
+    });
+    const viejo = await variant('Viejo', () => {});
+    const { noteTypes, notes } = await run({ 'Viejo.apkg': viejo, 'Nuevo.apkg': nuevo });
+    const basic = noteTypes.find((t) => t.name === BASIC)!;
+    expect(basic.templates[0]!.afmt).toContain('creada el {{Creación}}');
+    expect(basic.templates[0]!.afmt).not.toContain('de Anki');
+    expect(basic.css).toContain('the footer goes in the flow');
+    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.fields['Código'])!;
+    expect(old.cards[0]!.backHtml).toContain('creada el');
+    expect(old.cards[0]!.backHtml).not.toContain('de Anki');
+  });
+
+  it('keeps the fields by name when the newest version drops one in the middle', async () => {
+    const nuevo = await variant('Nuevo', (t) => {
+      t.mod += 100;
+      t.fields = t.fields.filter((f) => f !== 'Pista');
+    });
+    const viejo = await variant('Viejo', () => {});
+    const { notes } = await run({ 'Viejo.apkg': viejo, 'Nuevo.apkg': nuevo });
+    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.fields['Frente'])!;
+    expect(old.fields['Pista']).toBeUndefined();
+    expect(old.fields['Código']).toMatch(/^T-PR-/);
+    expect(old.code).toBe('T-PR-01-001');
+  });
+
+  it('an occlusion note type keeps working when the newest version adds a field', async () => {
+    const nuevo = await variant(
+      'Nuevo',
+      () => {},
+      () => {},
+      (t) => {
+        t.mod += 100;
+        t.fields = [...t.fields, 'Prioridad'];
+      },
+    );
+    const viejo = await variant('Viejo', () => {});
+    const { noteTypes, notes } = await run({ 'Viejo.apkg': viejo, 'Nuevo.apkg': nuevo });
+    const occlusion = noteTypes.find((t) => t.name === 'Prueba · Oclusión')!;
+    expect(occlusion.occlusion).toBe(true);
+    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.noteTypeId === occlusion.id)!;
+    expect(old.fields['Prioridad']).toBe('');
+    expect(old.cards[0]!.frontHtml).toContain('image-occlusion-container');
   });
 
   it('says which fields of an older note are dropped', async () => {

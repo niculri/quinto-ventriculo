@@ -42,12 +42,23 @@ describe('newestNoteTypes', () => {
     expect(newest.get('1')!.css).toBe('nuevo');
   });
 
-  it('on equal mod, the last one read wins', async () => {
-    const newest = await newestNoteTypes(
+  it('on equal mod and different content, the choice does not depend on the order, and it is reported', async () => {
+    const packages = { a: [type({ css: 'a' })], b: [type({ css: 'b' })] };
+    const ties: string[] = [];
+    const forward = await newestNoteTypes(['a', 'b'], read(packages), (name) => ties.push(name));
+    const backward = await newestNoteTypes(['b', 'a'], read(packages), (name) => ties.push(name));
+    expect(forward.get('1')!.css).toBe(backward.get('1')!.css);
+    expect(ties).toEqual(['Básica', 'Básica']);
+  });
+
+  it('on equal mod and equal content, nothing is reported', async () => {
+    const ties: string[] = [];
+    await newestNoteTypes(
       ['a', 'b'],
-      read({ a: [type({ css: 'a' })], b: [type({ css: 'b' })] }),
+      read({ a: [type({ css: 'x' })], b: [type({ css: 'x' })] }),
+      (name) => ties.push(name),
     );
-    expect(newest.get('1')!.css).toBe('b');
+    expect(ties).toEqual([]);
   });
 
   it('chooses each note type id on its own', async () => {

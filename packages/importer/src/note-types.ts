@@ -4,17 +4,28 @@ import type { AnkiNote, AnkiNoteType, AnkiPackage } from '@qv/anki-format';
 
 export type NewestNoteTypes = Map<string, AnkiNoteType>;
 
-/** Reads each package in turn and keeps only its note types, so no package stays in memory. On a tie the last wins. */
+/**
+ * Reads each package in turn and keeps only its note types, so no package stays in memory. Two versions with the same
+ * `mod` and different content are told apart by their content, not by the order of the packages, and reported.
+ */
 export async function newestNoteTypes(
   paths: string[],
   read: (path: string) => Promise<AnkiPackage>,
+  onTie: (noteTypeName: string) => void = () => {},
 ): Promise<NewestNoteTypes> {
   const newest: NewestNoteTypes = new Map();
   for (const path of paths) {
     const types = (await read(path)).collection.noteTypes;
     for (const type of types) {
       const before = newest.get(type.id);
-      if (!before || type.mod >= before.mod) newest.set(type.id, type);
+      if (!before || type.mod > before.mod) {
+        newest.set(type.id, type);
+      } else if (type.mod === before.mod) {
+        const [mine, theirs] = [JSON.stringify(type), JSON.stringify(before)];
+        if (mine === theirs) continue;
+        onTie(type.name);
+        if (mine > theirs) newest.set(type.id, type);
+      }
     }
   }
   return newest;

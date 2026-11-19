@@ -68,10 +68,17 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
   const courses = new Map(op.courses.map((c) => [c.id, c]));
   const semesters = new Map(op.semesters.map((s) => [s.number, s]));
 
+  const tied = new Set<string>();
   const newest = await newestNoteTypes(
     op.manifests.flatMap((m) => m.decks.map((entry) => resolve(op.root, entry.apkg))),
     read,
+    (name) => tied.add(name),
   );
+  for (const name of tied) {
+    result.warnings.push(
+      `el tipo de nota «${name}» viene en dos versiones con la misma fecha y distinto contenido; se elige una de forma fija. Vuelve a armar un mazo con la plantilla actual.`,
+    );
+  }
 
   for (const manifest of op.manifests) {
     const assessment = op.assessments.get(manifest.assessmentId)!;

@@ -56,8 +56,9 @@ async function forwardToApi(
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(chunk as Buffer);
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
+  // With the browser's own host and port: the API compares them with the `Origin` of the requests that carry one.
   const r = await app.fetch(
-    new Request(`http://localhost${req.url}`, {
+    new Request(`http://${req.headers.host ?? 'localhost'}${req.url}`, {
       method: req.method ?? 'GET',
       headers,
       ...(body && req.method !== 'GET' && req.method !== 'HEAD' ? { body } : {}),

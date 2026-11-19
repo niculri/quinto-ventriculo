@@ -79,3 +79,68 @@ describe('the page', () => {
     );
   });
 });
+
+describe('the frequently asked questions', () => {
+  it('the answers with a link keep the words and the spaces around it in their own text nodes', async () => {
+    renderApp('/', { session: null });
+    const privacy = (await screen.findByText(/^Tu nombre, tu correo y tu foto de Google/)).closest(
+      'dd',
+    )!;
+    expect(textNodes(privacy)).toEqual([
+      expect.stringMatching(/^Tu nombre, tu correo y tu foto de Google;.*El detalle está en la$/),
+      ' ',
+      'política de privacidad',
+      '.',
+    ]);
+    const about = screen.getByText(/^Estudiantes, a partir de las clases/).closest('dd')!;
+    expect(textNodes(about)).toEqual([
+      expect.stringMatching(/^Estudiantes, a partir de las clases.*cada pieza está en$/),
+      ' ',
+      'Acerca de',
+      '.',
+    ]);
+    const take = screen.getByText(/^Sí\. Si algo tuyo aparece/).closest('dd')!;
+    expect(textNodes(take)).toEqual([
+      'Sí. Si algo tuyo aparece en el sitio y quieres que se saque, escribe a',
+      ' ',
+      expect.stringMatching(/@/),
+      ' e indica qué es.',
+    ]);
+    const enter = screen.getByText(/^Entra con tu cuenta @ug\.uchile\.cl/).closest('dd')!;
+    expect(textNodes(enter)).toEqual([
+      expect.stringMatching(/^Entra con tu cuenta.*escribe a $/),
+      expect.stringMatching(/@/),
+      '.',
+    ]);
+  });
+});
+
+describe('the sign-in button and the notices', () => {
+  it('while the session is read the page is only a status, and then it shows the sign-in', async () => {
+    renderApp('/', { session: null });
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Entrar con Google' })).toBeNull();
+    expect(await screen.findByRole('button', { name: 'Entrar con Google' })).toBeInTheDocument();
+  });
+
+  it('a new attempt takes away the error of the one before, and the error comes before the notice of the URL', async () => {
+    const user = userEvent.setup();
+    const { session } = renderApp('/?notice=deletion', { session: null });
+    expect(await screen.findByText('Tu cuenta se eliminará')).toBeInTheDocument();
+    session.signInWithGoogle = async () => {
+      throw new Error('red');
+    };
+    await user.click(await screen.findByRole('button', { name: 'Entrar' }));
+    expect(
+      await screen.findByText('No se pudo abrir Google. Revisa tu conexión e intenta de nuevo.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Tu cuenta se eliminará')).toBeNull();
+    session.signInWithGoogle = () => new Promise(() => undefined);
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+    expect(screen.getByRole('button', { name: 'Abriendo Google…' })).toBeDisabled();
+    expect(
+      screen.queryByText('No se pudo abrir Google. Revisa tu conexión e intenta de nuevo.'),
+    ).toBeNull();
+    expect(screen.getByText('Tu cuenta se eliminará')).toBeInTheDocument();
+  });
+});

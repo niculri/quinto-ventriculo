@@ -25,3 +25,6 @@ export function reportError(error: unknown): void {
     // an error report never breaks the page
   }
 }
+
+/** The options of `createRoot`: what React catches and what nothing catches go through `reportError`. */
+export const ROOT_ERROR_HANDLERS = { onCaughtError: reportError, onUncaughtError: reportError };

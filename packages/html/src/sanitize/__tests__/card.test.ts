@@ -22,4 +22,14 @@ describe('sanitizeCard extras', () => {
     const { html: clean } = await sanitizeCard('<div class="panel" data-k="b">x</div>', none);
     expect(clean).toBe('<div class="panel" data-k="b">x</div>');
   });
+
+  it('keeps an empty `alt`, and `hidden` with a value', async () => {
+    const { html: clean } = await sanitizeCard(
+      '<img src="x.png" alt=""><div class="panel" hidden="until-found">t</div>',
+      async () => ({ key: 'cards/x.webp' }),
+    );
+    expect(clean).toBe(
+      '<img alt="" data-media="cards/x.webp" /><div class="panel" hidden="until-found">t</div>',
+    );
+  });
 });

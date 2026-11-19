@@ -383,6 +383,38 @@ describe('the release panel', () => {
     });
   });
 
+  it('the lookups of a page go out together, not one after another, and keep the order', async () => {
+    const keys = Array.from({ length: 40 }, (_, i) => `cards/i${String(i).padStart(2, '0')}.webp`);
+    let inFlight = 0;
+    let most = 0;
+    const a = createApp({
+      verifier: { verify: async () => ({ id: 'u', email: ADMIN }) },
+      repository: memoryRepository(bundle('Traducción')),
+      releases: { ...releases, media: async () => ({ keys, next: null }) },
+      media: {
+        get: async () => null,
+        has: async (key) => {
+          inFlight += 1;
+          most = Math.max(most, inFlight);
+          await new Promise((r) => setTimeout(r, 5));
+          inFlight -= 1;
+          return Number(key.slice(7, 9)) % 2 === 0;
+        },
+      },
+      signer: new MediaSigner('secreto-de-prueba-0123456789-0123456789'),
+      admins: { isAdmin: async () => true },
+    });
+    const r = await a.request('/api/admin/release/media', {
+      headers: { Authorization: 'Bearer t' },
+    });
+    expect(await r.json()).toEqual({
+      checked: keys,
+      missing: keys.filter((_, i) => i % 2 === 1),
+      next: null,
+    });
+    expect(most).toBe(40);
+  });
+
   it('a mark, by who checks it; 409 if the draft changed; 400 for an odd one', async () => {
     const put = (body: unknown) =>
       request(

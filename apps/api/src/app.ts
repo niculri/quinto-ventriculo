@@ -676,15 +676,18 @@ export function createApp(deps: Dependencies) {
       return c.json(apiError('invalid_release', 'Esa parte de la publicación no existe.'), 400);
     }
     const page = await deps.releases!.media(query.data.after ?? null, 40);
-    const missing: string[] = [];
-    for (const key of page.keys) {
-      const there = !isValidKey(key)
-        ? false
-        : deps.media.has
-          ? await deps.media.has(key)
-          : await deps.media.get(key).then((o) => o !== null);
-      if (!there) missing.push(key);
-    }
+    // All at once: one after another, 40 lookups took about 6 s a page in production (the runtime queues what is over
+    // its limit of simultaneous connections).
+    const there = await Promise.all(
+      page.keys.map((key) =>
+        !isValidKey(key)
+          ? false
+          : deps.media.has
+            ? deps.media.has(key)
+            : deps.media.get(key).then((o) => o !== null),
+      ),
+    );
+    const missing = page.keys.filter((_, i) => !there[i]);
     return c.json({ checked: page.keys, missing, next: page.next } satisfies ReleaseMediaPage);
   });
 

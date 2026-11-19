@@ -228,14 +228,14 @@ describe('reading them back', () => {
         asked.push(String(init?.body));
         return Response.json({
           data: [
-            { ...REPORT, n: '3', last: '2026-11-19 12:00:00' },
+            { ...REPORT, n: '3', latest: '2026-11-19 12:00:00' },
             {
               kind: 'otro',
               page: '/',
               message: '',
               version: '',
               n: 1,
-              last: '2026-11-19 11:00:00',
+              latest: '2026-11-19 11:00:00',
             },
           ],
         });
@@ -246,5 +246,9 @@ describe('reading them back', () => {
     ]);
     expect(asked[0]).toContain("blob1 = 'error'");
     expect(asked[0]).toContain("INTERVAL '7' DAY");
+    expect(asked[0]).toContain(
+      'GROUP BY kind, page, message, version ORDER BY latest DESC LIMIT 50',
+    );
+    expect(asked[0]).toContain('SUM(_sample_interval) AS n');
   });
 });

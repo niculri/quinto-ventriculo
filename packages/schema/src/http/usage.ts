@@ -153,7 +153,7 @@ export const UsageReport = z.object({
   }),
   opens: UsageOpens.nullable(),
   opensStatus: z.enum(['ok', 'not_configured', 'unavailable']),
-  /** Null with `opensStatus` other than `ok`: they come from the same reading. */
+  /** Null when they could not be read (no Analytics Engine token, or its query failed): `opensStatus` does not say it. */
   clientErrors: z.array(ClientErrorGroup).nullable(),
 });
 export type UsageReport = z.infer<typeof UsageReport>;

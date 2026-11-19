@@ -55,8 +55,8 @@ export function analyticsEngineErrorsReader(op: AnalyticsReaderOptions): ClientE
     async read() {
       const rows = await query(
         `SELECT blob3 AS kind, blob2 AS page, blob4 AS message, blob5 AS version, SUM(_sample_interval) AS n, ` +
-          `MAX(timestamp) AS last FROM ${dataset} WHERE timestamp > NOW() - INTERVAL '${CLIENT_ERROR_DAYS}' DAY ` +
-          `AND blob1 = 'error' GROUP BY kind, page, message, version ORDER BY last DESC LIMIT ${ERRORS_SHOWN} FORMAT JSON`,
+          `MAX(timestamp) AS latest FROM ${dataset} WHERE timestamp > NOW() - INTERVAL '${CLIENT_ERROR_DAYS}' DAY ` +
+          `AND blob1 = 'error' GROUP BY kind, page, message, version ORDER BY latest DESC LIMIT ${ERRORS_SHOWN} FORMAT JSON`,
       );
       return rows.flatMap((r) => {
         const g = ClientErrorGroup.safeParse({
@@ -65,7 +65,7 @@ export function analyticsEngineErrorsReader(op: AnalyticsReaderOptions): ClientE
           message: r['message'],
           version: r['version'],
           count: num(r['n']),
-          lastSeen: typeof r['last'] === 'string' ? aeTime(r['last']) : '',
+          lastSeen: typeof r['latest'] === 'string' ? aeTime(r['latest']) : '',
         });
         return g.success ? [g.data] : [];
       });

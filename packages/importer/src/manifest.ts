@@ -60,6 +60,9 @@ export const DecksManifest = z.object({
       apkg: z.string().min(1).endsWith('.apkg'),
       /** Without it, a package with notes that name IMAIOS stops the import (IMAIOS never goes to the site). */
       excludeImaios: z.boolean().optional(),
+      /** A JSON `{ cards: [{ guid, ord }] }`, relative like `apkg`: those cards stay out of the site; a note left
+       * without cards, too. For decks whose author took cards out of his own collection. */
+      excludeCards: z.string().min(1).endsWith('.json').optional(),
     }),
   ),
 });

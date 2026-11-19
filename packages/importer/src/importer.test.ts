@@ -863,6 +863,62 @@ describe('decks', () => {
       }
     });
 
+    it('«excludeCards» leaves those cards out, and a note left without cards too', async () => {
+      const all = await buildDecksOnly();
+      const two = all.bundle.ankiNotes.find((n) => n.cards.length > 1)!;
+      const one = all.bundle.ankiNotes.find((n) => n.cards.length === 1)!;
+      const folder = await mkdtemp(join(tmpdir(), 'qv-excluded-'));
+      try {
+        const list = join(folder, 'fuera.json');
+        await writeFile(
+          list,
+          JSON.stringify({
+            cards: [
+              { guid: two.guid, ord: two.cards[0]!.ord },
+              { guid: one.guid, ord: one.cards[0]!.ord },
+              { guid: 'otra-nota', ord: 0 },
+            ],
+          }),
+        );
+        const m: Manifest = structuredClone(withDecks);
+        m.decks[0]!.decks[0]!.excludeCards = list;
+        const { bundle } = await buildBundle({
+          manifest: m,
+          root,
+          process: processImage,
+          processCardImage,
+          onlyDecks: true,
+        });
+        const kept = bundle.ankiNotes.find((n) => n.guid === two.guid)!;
+        expect(kept.cards.map((c) => c.ord)).toEqual(two.cards.slice(1).map((c) => c.ord));
+        expect(bundle.ankiNotes.map((n) => n.guid)).not.toContain(one.guid);
+        expect(bundle.ankiNotes).toHaveLength(all.bundle.ankiNotes.length - 1);
+      } finally {
+        await rm(folder, { recursive: true, force: true });
+      }
+    });
+
+    it('«excludeCards» that is not a list of cards stops the import', async () => {
+      const folder = await mkdtemp(join(tmpdir(), 'qv-excluded-'));
+      try {
+        const list = join(folder, 'fuera.json');
+        await writeFile(list, JSON.stringify({ cards: [{ guid: 'x' }] }));
+        const m: Manifest = structuredClone(withDecks);
+        m.decks[0]!.decks[0]!.excludeCards = list;
+        await expect(
+          buildBundle({
+            manifest: m,
+            root,
+            process: processImage,
+            processCardImage,
+            onlyDecks: true,
+          }),
+        ).rejects.toThrow(/no es una lista/);
+      } finally {
+        await rm(folder, { recursive: true, force: true });
+      }
+    });
+
     it('a deck of IMAIOS is an error, even with «excludeImaios»', async () => {
       await expect(decksWith(true, true)).rejects.toThrow(/es un mazo de IMAIOS/);
     });

@@ -1,6 +1,7 @@
 // Reads the published .apkg files: cards rendered like Anki and sanitized, plus the note types, presets and the deck
 // tree they need.
 import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { deckLeafName, deckTree, parentDeckName, readApkgFile } from '@qv/anki-format';
 import type { AnkiPackage } from '@qv/anki-format';
@@ -16,6 +17,7 @@ import type {
   ImportedAnkiNote,
   Semester,
 } from '@qv/schema';
+import { z } from 'zod';
 import { forSite } from './site-note-types';
 import type { CatalogCourse } from './manifest';
 import type { ImageDataProcessor, ProcessedImage } from './images';
@@ -23,6 +25,17 @@ import type { DecksManifest } from './manifest';
 
 /** IMAIOS is licensed for personal use only: nothing that names it goes up to the site. */
 export const IMAIOS = /imaios/i;
+
+const ExcludedCards = z.object({
+  cards: z.array(z.object({ guid: z.string().min(1), ord: z.number().int().min(0) })),
+});
+
+/** The cards a deck leaves out, as `guid:ord`. */
+async function readExcludedCards(path: string): Promise<Set<string>> {
+  const parsed = ExcludedCards.safeParse(JSON.parse(await readFile(path, 'utf8')));
+  if (!parsed.success) throw new Error(`${path}: no es una lista { cards: [{ guid, ord }] }.`);
+  return new Set(parsed.data.cards.map((c) => `${c.guid}:${c.ord}`));
+}
 
 function namesImaios(note: { fields: string[]; tags: string[] }): boolean {
   return note.fields.some((f) => IMAIOS.test(f)) || note.tags.some((t) => IMAIOS.test(t));
@@ -155,11 +168,21 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
         return imageCache.get(name) ?? null;
       };
 
+      const excluded = entry.excludeCards
+        ? await readExcludedCards(resolve(op.root, entry.excludeCards))
+        : null;
+      const guidOf = new Map(collection.notes.map((n) => [n.id, n.guid]));
+      let left = 0;
       const cardsByNote = new Map<string, typeof collection.cards>();
       for (const c of collection.cards) {
         if (!included.has(c.deckId)) continue;
+        if (excluded?.has(`${guidOf.get(c.noteId)}:${c.ord}`)) {
+          left += 1;
+          continue;
+        }
         cardsByNote.set(c.noteId, [...(cardsByNote.get(c.noteId) ?? []), c]);
       }
+      if (excluded && !left) warn(`«excludeCards» no deja fuera ninguna tarjeta de este mazo.`);
       const imaios: string[] = [];
       for (const note of collection.notes) {
         const cards = cardsByNote.get(note.id);
@@ -247,7 +270,8 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
       }
       op.onProgress?.(
         `  ${included.size} mazos, ${[...cardsByNote.values()].flat().length} tarjetas · ${deckLeafName(tree[0]!.deck.name)}` +
-          (imaios.length ? ` · ${imaios.length} notas de IMAIOS fuera` : ''),
+          (imaios.length ? ` · ${imaios.length} notas de IMAIOS fuera` : '') +
+          (left ? ` · ${left} tarjetas dejadas fuera` : ''),
       );
     }
   }

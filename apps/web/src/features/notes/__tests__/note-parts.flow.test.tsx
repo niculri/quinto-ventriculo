@@ -1,12 +1,18 @@
 // Characterizes each part of a note's page: the header, the phone's index bar, the report line, the search tip,
 // «Ponte a prueba», the neighbors and the loading state, with their texts and text nodes.
-import { fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Note } from '@qv/schema';
-import { NOTE, fakeApi, renderApp } from '../../../test/render';
+import { ApiRequestError } from '../../../shared/lib/api';
+import { CATALOG, NOTE, fakeApi, renderApp } from '../../../test/render';
 
 const PATH = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  document.getSelection()?.removeAllRanges();
+});
 
 const textNodes = (el: Node) => {
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -191,6 +197,160 @@ describe('while the note loads', () => {
     expect(within(crumbs).getByRole('link', { name: 'Apuntes' })).toHaveAttribute(
       'href',
       '/semesters/2/courses/biologia-celular/assessments/certamen-2/notes',
+    );
+  });
+});
+
+describe('arriving at a section', () => {
+  const sections =
+    '<h2 id="ribosomas">Ribosomas</h2><p>Uno.</p><h2 id="núcleo celular">Núcleo</h2><p>Dos.</p>';
+  const scrolledTo = (spy: { mock: { contexts: unknown[] } }) =>
+    spy.mock.contexts.map((el) => (el as HTMLElement).id);
+
+  it('the hash goes to its section, without the text fragment the browser left in it', async () => {
+    const spy = vi.spyOn(Element.prototype, 'scrollIntoView');
+    renderApp(`${PATH}#ribosomas:~:text=Uno`, { api: withNote({ html: sections }) });
+    await screen.findByRole('heading', { level: 2, name: 'Ribosomas' });
+    await waitFor(() => expect(scrolledTo(spy)).toEqual(['ribosomas']));
+  });
+
+  it('the hash goes to its section decoded', async () => {
+    const spy = vi.spyOn(Element.prototype, 'scrollIntoView');
+    renderApp(`${PATH}#n%C3%BAcleo%20celular`, { api: withNote({ html: sections }) });
+    await screen.findByRole('heading', { level: 2, name: 'Núcleo' });
+    await waitFor(() => expect(scrolledTo(spy)).toEqual(['núcleo celular']));
+  });
+
+  it('the section is looked for again when the catalog arrives, because the breadcrumbs push the text down', async () => {
+    let arrive: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => (arrive = resolve));
+    const spy = vi.spyOn(Element.prototype, 'scrollIntoView');
+    renderApp(`${PATH}#ribosomas`, {
+      api: fakeApi({
+        note: async () => ({ ...NOTE, html: sections }),
+        catalog: async () => {
+          await gate;
+          return CATALOG;
+        },
+      }),
+    });
+    await screen.findByRole('heading', { level: 2, name: 'Ribosomas' });
+    await waitFor(() => expect(scrolledTo(spy)).toEqual(['ribosomas']));
+    await act(async () => arrive());
+    await waitFor(() => expect(scrolledTo(spy)).toEqual(['ribosomas', 'ribosomas']));
+  });
+});
+
+describe('what the page does besides showing the note', () => {
+  it('opening a note keeps it for «Seguir», and the reading page of development does not', async () => {
+    renderApp(PATH);
+    await screen.findByRole('heading', { level: 1, name: 'Traducción' });
+    expect(window.localStorage.getItem('qv-last-note')).toBe('11-traduccion');
+    window.localStorage.clear();
+    renderApp('/dev/reading');
+    await screen.findByRole('heading', { level: 1 });
+    expect(window.localStorage.getItem('qv-last-note')).toBeNull();
+  });
+
+  it('a note that does not exist says so, and another error offers to try again', async () => {
+    renderApp(PATH, {
+      api: fakeApi({
+        note: async () => {
+          throw new ApiRequestError(404, 'not_found', 'Ese apunte no existe.');
+        },
+      }),
+    });
+    expect(await screen.findByText('404')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
+  });
+
+  it('an error of the server shows its message with «Reintentar»', async () => {
+    renderApp(PATH, {
+      api: fakeApi({
+        note: async () => {
+          throw new ApiRequestError(500, 'internal', 'Falló de prueba.');
+        },
+      }),
+    });
+    expect(await screen.findByText('Falló de prueba.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
+    expect(screen.queryByText('404')).toBeNull();
+  });
+});
+
+describe('the images of the article', () => {
+  it('each one is a button for the keyboard: Enter and Space open it, and a long caption is cut when reported', async () => {
+    const long = 'a'.repeat(400);
+    const user = userEvent.setup();
+    renderApp(PATH, {
+      api: withNote({
+        html: `<h2 id="a">A</h2><figure class="figure"><img src="/api/media/b.webp" alt="${long}"></figure>`,
+      }),
+    });
+    const image = await screen.findByRole('button', { name: `Ampliar la imagen: ${long}` });
+    expect(image).toHaveAttribute('tabindex', '0');
+    expect(fireEvent.keyDown(image, { key: ' ' })).toBe(false);
+    await user.click(await screen.findByRole('button', { name: 'Reportar esta imagen' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
+    expect(within(dialog).getByText(`Imagen: ${'a'.repeat(300)}`)).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(fireEvent.keyDown(image, { key: 'Enter' })).toBe(false);
+    expect(await screen.findByRole('button', { name: 'Reportar esta imagen' })).toBeInTheDocument();
+    expect(fireEvent.keyDown(image, { key: 'a' })).toBe(true);
+  });
+});
+
+describe('reporting what is selected', () => {
+  const select = (text: string) =>
+    act(() => {
+      const range = document.createRange();
+      range.selectNodeContents(screen.getByText(text));
+      const selection = document.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.dispatchEvent(new Event('selectionchange'));
+    });
+
+  it('the bar takes neither the pointer nor the mouse, so that tapping it does not clear the selection', async () => {
+    renderApp(PATH);
+    await screen.findByText('Texto.');
+    select('Texto.');
+    const bar = await screen.findByRole('button', { name: 'Reportar lo seleccionado' });
+    expect(fireEvent.pointerDown(bar)).toBe(false);
+    expect(fireEvent.mouseDown(bar)).toBe(false);
+  });
+
+  it('once the selection is cleared the bar waits a moment before it goes', async () => {
+    renderApp(PATH);
+    await screen.findByText('Texto.');
+    select('Texto.');
+    await screen.findByRole('button', { name: 'Reportar lo seleccionado' });
+    act(() => {
+      document.getSelection()!.removeAllRanges();
+      document.dispatchEvent(new Event('selectionchange'));
+    });
+    await act(async () => new Promise((r) => setTimeout(r, 150)));
+    expect(screen.getByRole('button', { name: 'Reportar lo seleccionado' })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Reportar lo seleccionado' })).toBeNull(),
+    );
+  });
+
+  it('once sent, the selection goes, the thanks show for three seconds and then go', async () => {
+    const user = userEvent.setup();
+    renderApp(PATH);
+    await screen.findByText('Texto.');
+    select('Texto.');
+    await user.click(await screen.findByRole('button', { name: 'Reportar lo seleccionado' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
+    await user.type(within(dialog).getByLabelText('¿Qué está mal?'), 'No es así');
+    await user.click(within(dialog).getByRole('button', { name: 'Enviar' }));
+    expect(await screen.findByText('Gracias: tu reporte le llegó al autor.')).toBeInTheDocument();
+    expect(document.getSelection()!.rangeCount).toBe(0);
+    await waitFor(
+      () => expect(screen.queryByText('Gracias: tu reporte le llegó al autor.')).toBeNull(),
+      { timeout: 6000 },
     );
   });
 });

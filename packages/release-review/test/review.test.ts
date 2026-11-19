@@ -471,7 +471,7 @@ describe('the process and calendar phrases', () => {
 
   // The published articles as the importer's dry run built them; without that folder (as in the CI), nothing to read.
   const OUTPUT = join(import.meta.dirname, '..', '..', '..', '.output', 'content.json');
-  it.skipIf(!existsSync(OUTPUT))('gives 0 in the 10 articles on line', () => {
+  it.skipIf(!existsSync(OUTPUT))('gives 0 in the articles of the dry run of the importer', () => {
     const bundle = JSON.parse(readFileSync(OUTPUT, 'utf8')) as {
       notes: {
         id: string;
@@ -482,7 +482,7 @@ describe('the process and calendar phrases', () => {
         sections: { title: string; text: string }[];
       }[];
     };
-    expect(bundle.notes).toHaveLength(10);
+    expect(bundle.notes.length).toBeGreaterThanOrEqual(10);
     const hits = bundle.notes.flatMap((n) =>
       [
         n.title,

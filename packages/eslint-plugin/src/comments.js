@@ -7,9 +7,9 @@
  * @typedef {{ getAllComments(): Comment[], text: string, ast: unknown }} AnySourceCode
  */
 
-/** What tools read from a comment (ESLint, TypeScript, Prettier, Vite, coverage, Vitest, shellcheck…). */
+/** What tools read from a comment (ESLint, TypeScript, Biome, Prettier, Vite, coverage, Vitest, shellcheck…). */
 const DIRECTIVE =
-  /^(?:eslint(?:-disable|-enable)?\b|global\b|globals\b|exported\b|@ts-|\/\s*<reference\b|prettier-ignore\b|@vite-ignore\b|istanbul\b|[vc]8 ignore\b|@vitest-environment\b|@jsx|[#@]__PURE__|shellcheck\b|yaml-language-server:)/;
+  /^(?:eslint(?:-disable|-enable)?\b|global\b|globals\b|exported\b|@ts-|\/\s*<reference\b|prettier-ignore\b|biome-ignore\b|@vite-ignore\b|istanbul\b|[vc]8 ignore\b|@vitest-environment\b|@jsx|[#@]__PURE__|shellcheck\b|yaml-language-server:)/;
 
 /** @param {Comment} comment */
 export function isDirective(comment) {

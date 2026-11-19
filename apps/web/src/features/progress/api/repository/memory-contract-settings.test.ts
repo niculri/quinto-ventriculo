@@ -151,14 +151,11 @@ const noDate = (deckId: string) => ({
 
 // The database keeps the default days of final review (3) and no date as null; the in-memory repository keeps the
 // setting as it was given, and a test of the page reads it back so.
-it.fails(
-  'an assessment saved without its date nor days is read back with the defaults',
-  async () => {
-    const { sql, memory } = await pair();
-    const got = await onBoth(sql, memory, [
-      (r) => r.saveAssessmentSetting({ deckId: DECK, includeExtras: true, newPerDay: null }),
-      (r) => r.assessmentSettings(),
-    ]);
-    expect(got.memory).toEqual(got.sql);
-  },
-);
+it.fails('an assessment saved without its date nor days is read back with the defaults', async () => {
+  const { sql, memory } = await pair();
+  const got = await onBoth(sql, memory, [
+    (r) => r.saveAssessmentSetting({ deckId: DECK, includeExtras: true, newPerDay: null }),
+    (r) => r.assessmentSettings(),
+  ]);
+  expect(got.memory).toEqual(got.sql);
+});

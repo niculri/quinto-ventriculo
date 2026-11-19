@@ -2,7 +2,8 @@
 import type { AccessInvite, AccessReport } from '@qv/schema/user';
 
 export type Removing =
-  { kind: 'person'; email: string } | { kind: 'list'; list: string; count: number };
+  | { kind: 'person'; email: string }
+  | { kind: 'list'; list: string; count: number };
 
 export type Appointing = { email: string; admin: boolean };
 

@@ -4,7 +4,8 @@ const OPEN = '\u0001';
 const CLOSE = '\u0002';
 
 export type ClozePart =
-  { text: string; hole: null } | { text: string; hole: { hint: string | null } };
+  | { text: string; hole: null }
+  | { text: string; hole: { hint: string | null } };
 
 interface Scan {
   out: ClozePart[];
@@ -34,7 +35,7 @@ function closeHole(s: Scan) {
 export function clozeParts(text: string): ClozePart[] {
   const s: Scan = { out: [], plain: '', depth: 0, inner: '' };
   const open = /^\{\{c\d+::/;
-  for (let i = 0; i < text.length;) {
+  for (let i = 0; i < text.length; ) {
     const rest = text.slice(i);
     const start = open.exec(rest);
     if (start) {

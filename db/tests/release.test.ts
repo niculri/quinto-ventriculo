@@ -939,7 +939,7 @@ describe('who reaches the review tools', () => {
 });
 
 // The release the demo serves. To write its files again: `QV_WRITE_RELEASE_FIXTURES=1 npx vitest run
-// db/tests/release.test.ts`, then `npx prettier --write apps/web/e2e/content/release`.
+// db/tests/release.test.ts`, then `npx biome format --write apps/web/e2e/content/release`.
 const E2E = join(import.meta.dirname, '..', '..', 'apps', 'web', 'e2e', 'content');
 
 describe('the e2e folder', () => {

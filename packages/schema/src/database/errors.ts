@@ -6,7 +6,14 @@
  * and PostgREST's own code for a function the database does not have.
  */
 export type SqlState =
-  '22023' | '28000' | '42501' | 'P0001' | 'P0002' | 'P0409' | 'P0422' | 'PGRST202';
+  | '22023'
+  | '28000'
+  | '42501'
+  | 'P0001'
+  | 'P0002'
+  | 'P0409'
+  | 'P0422'
+  | 'PGRST202';
 
 /**
  * Each reason the code tells apart, with the text of the message that carries it. The SQL raises

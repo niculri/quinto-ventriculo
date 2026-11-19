@@ -14,7 +14,11 @@ export type NewCardGatherPriority =
   | 'randomNotes'
   | 'randomCards';
 export type NewCardSortOrder =
-  'template' | 'noSort' | 'templateThenRandom' | 'randomNoteThenTemplate' | 'randomCard';
+  | 'template'
+  | 'noSort'
+  | 'templateThenRandom'
+  | 'randomNoteThenTemplate'
+  | 'randomCard';
 export type ReviewCardOrder =
   | 'day'
   | 'dayThenDeck'

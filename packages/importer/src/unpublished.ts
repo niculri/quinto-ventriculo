@@ -60,7 +60,7 @@ export function withoutUnpublished(
     const root = ankiDecks.find((d) => d.id === id);
     if (!root) continue;
     const below = new Set([id]);
-    for (let grew = true; grew;) {
+    for (let grew = true; grew; ) {
       grew = false;
       for (const d of ankiDecks) {
         if (d.parentId && below.has(d.parentId) && !below.has(d.id)) {

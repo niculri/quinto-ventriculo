@@ -30,10 +30,7 @@
       "fijas": true,
       "tabla": {
         "cab": 1,
-        "filas": [
-          ["Factor", "Sitio"],
-          ["TBP", { "t": "TATA", "hl": true }]
-        ]
+        "filas": [["Factor", "Sitio"], ["TBP", { "t": "TATA", "hl": true }]]
       },
       "nota": "[P-02] …"
     }

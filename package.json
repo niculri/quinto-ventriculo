@@ -25,8 +25,8 @@
     "test-names": "tsx packages/ops/src/test-names-cli.ts",
     "test-names:baseline": "tsx packages/ops/src/test-names-cli.ts --write-baseline",
     "knip": "knip",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -40,6 +40,7 @@
     "prepare": "sh .githooks/install.sh"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.5",
     "@eslint/js": "10.0.1",
     "@qv/eslint-plugin": "0.0.0",
     "@types/node": "26.6.6",

@@ -922,9 +922,9 @@ describe('the image cache, --assessment and the batches', () => {
     expect(again.misses).toBe(1);
     expect(await d.read()).toEqual(await plain.read());
     await writeFile(join(folder, a.key), Buffer.from('not the webp'));
-    const damaged = await (
-      await ImageCache.open(folder)
-    ).file(join(root, 'clase/imagenes/ribosoma.png'));
+    const damaged = await (await ImageCache.open(folder)).file(
+      join(root, 'clase/imagenes/ribosoma.png'),
+    );
     await expect(damaged.read()).rejects.toThrow(/dañada/);
     const fresh = await ImageCache.open(folder);
     const e = await fresh.file(join(root, 'clase/imagenes/ribosoma.png'));

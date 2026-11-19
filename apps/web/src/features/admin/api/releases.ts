@@ -40,7 +40,7 @@ export const phrasesQuery = (api: ApiClient, fingerprint: string | undefined) =>
     staleTime: Infinity,
     queryFn: async ({ signal }) => {
       const texts: ReleaseText[] = [];
-      for (let after: string | null = null; ;) {
+      for (let after: string | null = null; ; ) {
         const page = await api.releaseTexts(after, signal);
         texts.push(...page.items);
         after = page.next;
@@ -58,7 +58,7 @@ export const missingImagesQuery = (api: ApiClient, fingerprint: string | undefin
     staleTime: Infinity,
     queryFn: async ({ signal }) => {
       const missing: string[] = [];
-      for (let after: string | null = null; ;) {
+      for (let after: string | null = null; ; ) {
         const page = await api.releaseMedia(after, signal);
         missing.push(...page.missing);
         after = page.next;

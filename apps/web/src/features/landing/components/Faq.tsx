@@ -52,8 +52,7 @@ export function Faq() {
             pasó con cada uno. Para cualquier otra cosa, escribe a <ContactLink /> con el nombre o
             el código de lo que viste (por ejemplo, QV-BC-C2-11 o T-BC-C2-11-086).
           </Question>
-          {/* «a» and the space before the link are two text nodes; Prettier would join them into one. */}
-          {/* prettier-ignore */}
+          {/* biome-ignore format: «a» and the space before the link are two text nodes; the formatter would join them. */}
           <Question q="¿Puedo pedir que se saque algo del sitio?">
             Sí. Si algo tuyo aparece en el sitio y quieres que se saque, escribe a{' '}
             <ContactLink /> e indica qué es.

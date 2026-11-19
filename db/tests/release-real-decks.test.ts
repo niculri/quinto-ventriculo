@@ -147,7 +147,7 @@ describe.skipIf(!available)(
           return (await tx.query<{ r: T }>(sql, params)).rows[0]!.r;
         });
       summary = ReleaseSummary.parse(await service('select public.release_summary() as r'));
-      for (let after: string | null = null; ;) {
+      for (let after: string | null = null; ; ) {
         const page: { items: unknown[]; next: string | null } = await service(
           `select public.release_items($1, 'card', $2, 500) as r`,
           [BC, after],

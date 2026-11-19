@@ -529,7 +529,7 @@ export function r2Media(config: CloudConfig): MediaStore & {
     },
     async deletePrefix(prefix) {
       let deleted = 0;
-      for (let token: string | undefined; ;) {
+      for (let token: string | undefined; ; ) {
         const page = await s3.send(
           new ListObjectsV2Command({
             Bucket: config.r2Bucket,
@@ -719,7 +719,7 @@ export class CloudTarget implements Target {
     if (scope.decks && (ankiNotes.length || report.removedCards)) {
       let moved = 0;
       let retired = 0;
-      for (let since = state.latestChange; ;) {
+      for (let since = state.latestChange; ; ) {
         const page = await this.call<{
           changes: { deckId: string | null }[];
           next: number;

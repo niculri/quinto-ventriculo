@@ -380,7 +380,7 @@ def main(out_path, ignore_accents=False):
         json.dump(out, f, ensure_ascii=False, indent=1)
         f.write("\n")
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..")
-    subprocess.run(["npx", "prettier", "--write", os.path.abspath(out_path)], cwd=root, check=False,
+    subprocess.run(["npx", "prettier", "--print-width", "100", "--write", os.path.abspath(out_path)], cwd=root, check=False,
                    stdout=subprocess.DEVNULL)
     errors = sum(1 for r in results if "error" in r)
     print(f"{len(results)} searches ({errors} errors), {len(terms)} terms, {len(out_cards)} cards → {out_path}")

@@ -140,6 +140,17 @@ export default defineConfig(({ command, mode }) => {
       // Development with the real API: `npx wrangler dev` in apps/api (port 8787).
       proxy: demo || local ? undefined : { '/api': 'http://localhost:8787' },
     },
-    build: { sourcemap: false },
+    build: {
+      sourcemap: false,
+      // A dot before the hash, not Vite's dash: the file names of the deploy of 19-11-2026 got the app's HTML cached as
+      // `immutable` in some browsers (see apps/api/src/worker.ts), and new names are the only way those ever load again.
+      rolldownOptions: {
+        output: {
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash][extname]',
+        },
+      },
+    },
   };
 });

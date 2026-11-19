@@ -5,6 +5,13 @@
   var MAX = 5;
   var sent = 0;
   var seen = {};
+  var lastChunk = 0;
+  // What the browser itself says when nothing of ours failed.
+  var NOISE = /^Script error\.?$|ResizeObserver loop/;
+
+  function own(url) {
+    return typeof url === 'string' && url.indexOf(location.origin + '/') === 0;
+  }
 
   function version() {
     var s = document.querySelector('script[type="module"][src*="/assets/"]');
@@ -23,6 +30,7 @@
 
   function report(kind, message) {
     var text = scrub(message);
+    if (kind === 'chunk') lastChunk = Date.now();
     var key = kind + '|' + text;
     if (sent >= MAX || seen[key]) return;
     seen[key] = true;
@@ -48,19 +56,34 @@
   window.__qvReportError = report;
 
   // In the capture phase: a <script> or <link> that does not load fires `error` on itself, and it does not bubble.
+  // Only the site's own files count: a script of someone else that a content blocker stops is not a failure of the site.
   window.addEventListener(
     'error',
     function (e) {
       var t = e.target;
       if (t && t !== window && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
-        report('chunk', 'No cargó ' + (t.src || t.href || t.tagName));
+        var url = t.src || t.href;
+        if (own(url)) report('chunk', 'No cargó ' + url);
         return;
       }
+      if ((e.filename && !own(e.filename)) || NOISE.test(e.message || '')) return;
       var where = e.filename ? ' (' + e.filename + ':' + e.lineno + ')' : '';
       report('unhandled', (e.message || 'Error') + where);
     },
     true,
   );
+
+  // A page of the app that cannot be imported is not an `error` of any element, and the router keeps its rejection:
+  // Vite says so here. The <link> that failed, if there was one, tells which file, before or after this event
+  // depending on the browser, so this waits a second to see whether it did.
+  window.addEventListener('vite:preloadError', function (e) {
+    var at = Date.now();
+    var r = e.payload;
+    setTimeout(function () {
+      if (lastChunk > at - 3000) return;
+      report('chunk', r && r.message ? r.message : 'No cargó un archivo');
+    }, 1000);
+  });
 
   window.addEventListener('unhandledrejection', function (e) {
     var r = e.reason;

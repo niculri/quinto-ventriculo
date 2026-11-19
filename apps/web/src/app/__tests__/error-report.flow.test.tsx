@@ -81,11 +81,106 @@ describe('public/error-report.js', () => {
     ]);
   });
 
+  it('reports an error of the app with where it came from, without the origin', () => {
+    load();
+    window.dispatchEvent(
+      new ErrorEvent('error', {
+        message: 'x is undefined',
+        filename: `${location.origin}/assets/index.CXEF97yv.js`,
+        lineno: 12,
+      }),
+    );
+    expect(sent.map((s) => [s.kind, s.message])).toEqual([
+      ['unhandled', 'x is undefined (/assets/index.CXEF97yv.js:12)'],
+    ]);
+  });
+
+  it('does not report what is not the site: files of someone else, extensions, the browser itself', () => {
+    load();
+    const blocked = document.createElement('script');
+    blocked.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    document.body.append(blocked);
+    blocked.dispatchEvent(new Event('error'));
+    const sheet = document.createElement('link');
+    sheet.rel = 'stylesheet';
+    sheet.href = 'https://fonts.example.test/inter.css';
+    document.head.append(sheet);
+    sheet.dispatchEvent(new Event('error'));
+    for (const init of [
+      { message: 'x is not defined', filename: 'chrome-extension://abc/content.js', lineno: 3 },
+      { message: 'Script error.', filename: '', lineno: 0 },
+      { message: 'ResizeObserver loop completed with undelivered notifications.' },
+    ]) {
+      window.dispatchEvent(new ErrorEvent('error', init));
+    }
+    expect(sent).toEqual([]);
+  });
+
+  it('reports a page of the app that could not be imported, which no element reports', () => {
+    vi.useFakeTimers();
+    load();
+    const failure = Object.assign(new Event('vite:preloadError', { cancelable: true }), {
+      payload: new TypeError(
+        `Failed to fetch dynamically imported module: ${location.origin}/assets/PrivacyPage.OLD123.js`,
+      ),
+    });
+    window.dispatchEvent(failure);
+    expect(failure.defaultPrevented).toBe(false);
+    vi.advanceTimersByTime(1000);
+    expect(sent.map((s) => [s.kind, s.message])).toEqual([
+      ['chunk', 'Failed to fetch dynamically imported module: /assets/PrivacyPage.OLD123.js'],
+    ]);
+  });
+
+  it('a failed import without a message is reported all the same', () => {
+    vi.useFakeTimers();
+    load();
+    window.dispatchEvent(new Event('vite:preloadError'));
+    vi.advanceTimersByTime(1000);
+    expect(sent.map((s) => [s.kind, s.message])).toEqual([['chunk', 'No cargó un archivo']]);
+  });
+
+  describe('a file of the app that did not load, and the import that fails with it', () => {
+    const failedLink = () => {
+      const script = document.createElement('script');
+      script.src = `${location.origin}/assets/PrivacyPage.OLD123.js`;
+      document.body.append(script);
+      script.dispatchEvent(new Event('error'));
+    };
+    const failedImport = () =>
+      window.dispatchEvent(
+        Object.assign(new Event('vite:preloadError'), {
+          payload: new TypeError('Importing failed'),
+        }),
+      );
+
+    it('are one report when the <link> fails first, as in Chromium', () => {
+      vi.useFakeTimers();
+      load();
+      failedLink();
+      failedImport();
+      vi.advanceTimersByTime(1000);
+      expect(sent.map((s) => s.message)).toEqual(['No cargó /assets/PrivacyPage.OLD123.js']);
+    });
+
+    it('and one when the import fails first, as in WebKit', () => {
+      vi.useFakeTimers();
+      load();
+      failedImport();
+      vi.advanceTimersByTime(500);
+      failedLink();
+      vi.advanceTimersByTime(500);
+      expect(sent.map((s) => s.message)).toEqual(['No cargó /assets/PrivacyPage.OLD123.js']);
+    });
+  });
+
   it('reports a page left blank 8 seconds after it loaded, and not one that mounted', () => {
     vi.useFakeTimers();
     load();
     window.dispatchEvent(new Event('load'));
-    vi.advanceTimersByTime(8000);
+    vi.advanceTimersByTime(7999);
+    expect(sent).toEqual([]);
+    vi.advanceTimersByTime(1);
     expect(sent.map((s) => s.kind)).toEqual(['boot']);
 
     sent = [];

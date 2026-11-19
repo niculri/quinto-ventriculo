@@ -125,6 +125,49 @@ describe('POST /api/client-error', () => {
     expect(errors.points).toEqual([]);
   });
 
+  it('takes 1,024 units of JSON and 300 of message, not one more', async () => {
+    const json = JSON.stringify(REPORT);
+    const padded = (units: number) => json + ' '.repeat(units - json.length);
+    const errors = memoryClientErrors();
+    const app = appWith({ clientErrors: errors });
+    expect((await send(app, padded(1024))).status).toBe(204);
+    expect((await send(app, padded(1025))).status).toBe(400);
+    expect((await send(app, { ...REPORT, message: 'x'.repeat(300) })).status).toBe(204);
+    expect((await send(app, { ...REPORT, message: 'x'.repeat(301) })).status).toBe(400);
+    expect(errors.points).toHaveLength(2);
+  });
+
+  it('a body above 3 KB is refused with 413 after reading little of it', async () => {
+    const errors = memoryClientErrors();
+    let pulled = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1;
+        controller.enqueue(new Uint8Array(1024));
+        if (pulled > 10_000) controller.close();
+      },
+    });
+    const r = await appWith({ clientErrors: errors }).request(`${SITE}/api/client-error`, {
+      method: 'POST',
+      body,
+      headers: { Origin: SITE },
+      duplex: 'half',
+    } as RequestInit);
+    expect(r.status).toBe(413);
+    expect(pulled).toBeLessThanOrEqual(5);
+    expect(errors.points).toEqual([]);
+  });
+
+  it('a Content-Length above 3 KB is refused with 413 without looking at the body', async () => {
+    const errors = memoryClientErrors();
+    const r = await send(appWith({ clientErrors: errors }), JSON.stringify(REPORT), {
+      Origin: SITE,
+      'Content-Length': '100000',
+    });
+    expect(r.status).toBe(413);
+    expect(errors.points).toEqual([]);
+  });
+
   it('without a recorder it answers the same and keeps nothing', async () => {
     expect((await send(appWith(), REPORT)).status).toBe(204);
   });

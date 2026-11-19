@@ -70,7 +70,7 @@ import type {
 } from './repository';
 import { tokenFromHeader } from './session';
 import type { User, SessionVerifier } from './session';
-import { clientErrorHandler } from './client-errors';
+import { clientErrorBodyLimit, clientErrorHandler } from './client-errors';
 import type { ClientErrorRecorder, ClientErrorsReader } from './client-errors';
 import { usageGroups, usageReport } from './usage';
 import type { UsageEvent, UsageOpensReader, UsageRecorder, UsageStatsSource } from './usage';
@@ -551,6 +551,7 @@ export function createApp(deps: Dependencies) {
   // `now` is in seconds; the budget counts minutes in milliseconds.
   app.post(
     R.clientError.pattern,
+    clientErrorBodyLimit,
     clientErrorHandler(deps.clientErrors, () => now() * 1000),
   );
 

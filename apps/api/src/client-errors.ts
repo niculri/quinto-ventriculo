@@ -5,6 +5,7 @@ import { ClientErrorBody } from '@qv/schema/http';
 import type { ClientErrorReport } from '@qv/schema';
 import type { ErrorCode } from '@qv/schema/http';
 import type { Context } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
 import { aeTime, analyticsEngineSql, num } from './usage';
 import type { AnalyticsReaderOptions, UsageDataset } from './usage';
 
@@ -124,9 +125,18 @@ export function errorBudget(limit: number, now: () => number) {
 
 const MAX_A_MINUTE = 60;
 
+/** `ClientErrorBody` takes 1,024 UTF-16 units, three bytes each at most. */
+const MAX_BODY_BYTES = 3 * 1024;
+
+/** Before anything is read: the route has no session, so it never buffers what a stranger sends. */
+export const clientErrorBodyLimit = bodyLimit({
+  maxSize: MAX_BODY_BYTES,
+  onError: (c) => c.body(null, 413),
+});
+
 /**
  * The handler of `POST /client-error`: 204 for anything well formed from the site itself (counted or not), 400 for
- * the rest, 403 from another origin. It never says whether the point was kept.
+ * the rest, 403 from another origin, 413 from `clientErrorBodyLimit`. It never says whether the point was kept.
  */
 export function clientErrorHandler(recorder: ClientErrorRecorder | undefined, now: () => number) {
   const take = errorBudget(MAX_A_MINUTE, now);

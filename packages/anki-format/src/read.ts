@@ -228,6 +228,7 @@ function toNoteType(m: Record<string, unknown>): AnkiNoteType {
     templates,
     css: str(m['css']),
     sortField: num(m['sortf']),
+    mod: num(m['mod']),
     originalStockKind: stock === undefined || stock === null ? null : num(stock),
   };
 }

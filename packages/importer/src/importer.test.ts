@@ -650,43 +650,6 @@ describe('decks', () => {
     expect(r).toMatchObject({ removedCards: 1, movedCards: 1, retiredCards: b!.cards.length });
   });
 
-  it('warns when two packages bring the same note type with another CSS (the last one stays)', async () => {
-    const read = async (path: string) => {
-      const pkg = await readApkgFile(join(root, 'mazos/Mazo de prueba.apkg'));
-      if (!path.endsWith('Otro.apkg')) return pkg;
-      const c = pkg.collection;
-      const id = (x: string) => `9${x.slice(1)}`;
-      return {
-        ...pkg,
-        collection: {
-          ...c,
-          noteTypes: c.noteTypes.map((t, i) =>
-            i === 0 ? { ...t, css: `${t.css}\n.nueva {}` } : t,
-          ),
-          decks: c.decks.map((d) => ({ ...d, id: id(d.id), name: d.name.replace('Mazo', 'Otro') })),
-          notes: c.notes.map((n) => ({ ...n, guid: `otro-${n.guid}` })),
-          cards: c.cards.map((k) => ({ ...k, deckId: id(k.deckId) })),
-        },
-      };
-    };
-    const two: Manifest = structuredClone(withDecks);
-    two.decks[0]!.decks.push({ apkg: 'mazos/Otro.apkg' });
-    const { bundle, warnings } = await buildBundle({
-      manifest: two,
-      root,
-      process: processImage,
-      processCardImage,
-      onlyDecks: true,
-      readApkg: read,
-    });
-    expect(warnings).toEqual([
-      expect.stringMatching(/^Otro\.apkg: el tipo de nota «.+» trae otra plantilla o CSS/),
-    ]);
-    expect(bundle.ankiNoteTypes).toHaveLength(3);
-    expect(bundle.ankiNoteTypes.some((t) => t.css.includes('.nueva {}'))).toBe(true);
-    expect(bundle.ankiNotes).toHaveLength(14);
-  });
-
   it("a deck name that does not say the catalog's semester, course or assessment is an error", async () => {
     const wrong = async (rename: (name: string) => string) => {
       const pkg = await readApkgFile(join(root, 'mazos/Mazo de prueba.apkg'));

@@ -20,6 +20,7 @@ describe('readApkg', () => {
       kind: 'normal',
       fields: ['Frente', 'Reverso', 'Imagen', 'Extra', 'Pista', 'Código'],
       sortField: 0,
+      mod: 1793497867,
     });
     expect(basic.templates.map((t) => t.name)).toEqual(['Directa', 'Inversa']);
     expect(basic.templates[0]!.qfmt).toContain('{{hint:Pista}}');

@@ -19,6 +19,8 @@ export interface AnkiNoteType {
   templates: AnkiTemplate[];
   css: string;
   sortField: number;
+  /** Last modification, in seconds since the epoch: Anki keeps the newest version of a note type. */
+  mod: number;
   /** 6 = Image Occlusion. */
   originalStockKind: number | null;
 }

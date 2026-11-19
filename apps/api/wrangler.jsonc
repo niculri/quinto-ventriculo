@@ -9,8 +9,10 @@
   "assets": {
     "directory": "../web/dist",
     "binding": "ASSETS",
+    // No `run_worker_first` list on purpose: with one, Cloudflare stops looking at Sec-Fetch-Mode and answers a missing
+    // /assets/* file with index.html, which then takes the year-long `immutable` of `_headers`. Without it, only
+    // navigations get index.html; the API and missing files reach the Worker (src/worker.ts).
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"],
   },
   // A Cloudflare Redirect Rule sends the bare domain to www before it reaches the Worker.
   "routes": [

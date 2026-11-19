@@ -124,13 +124,22 @@ function getApp(env: Env, origin: string) {
   return app;
 }
 
+/** Vite's hashed files: one that is not in this version must be a 404, never the app's HTML cached for a year. */
+const BUILT_FILES = '/assets/';
+
 export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     if (pathname === API_PREFIX || pathname.startsWith(`${API_PREFIX}/`)) {
       return getApp(env, new URL(request.url).origin).fetch(request, env, ctx);
     }
-    // Normally a static file does not even get here: see run_worker_first in wrangler.jsonc.
+    // Existing files and navigations never get here (wrangler.jsonc): this is a missing file or a fetch of a page.
+    if (pathname.startsWith(BUILT_FILES)) {
+      return new Response('Not found', {
+        status: 404,
+        headers: { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
     return env.ASSETS.fetch(request);
   },
 } satisfies ExportedHandler<Env>;

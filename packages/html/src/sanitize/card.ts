@@ -75,7 +75,7 @@ const OPTIONS: sanitizeHtml.IOptions = {
     'wbr',
   ],
   allowedAttributes: {
-    '*': ['class', 'id', 'style', 'title', 'lang', 'dir', 'data-*'],
+    '*': ['class', 'id', 'style', 'title', 'lang', 'dir', 'hidden', 'data-*'],
     img: ['data-media', 'alt', 'width', 'height'],
     a: ['href', 'draggable'],
     font: ['color', 'face', 'size'],
@@ -87,6 +87,8 @@ const OPTIONS: sanitizeHtml.IOptions = {
     button: ['type'],
     canvas: ['width', 'height'],
   },
+  // sanitize-html drops an empty `hidden` unless it is listed (and `alt` keeps its default).
+  allowedEmptyAttributes: ['alt', 'hidden'],
   allowedStyles: { '*': Object.fromEntries(STYLE_PROPERTIES.map((p) => [p, [CARD_SAFE_VALUE]])) },
   allowedSchemes: ['https'],
   allowedSchemesAppliedToAttributes: ['href'],

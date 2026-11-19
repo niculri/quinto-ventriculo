@@ -6,6 +6,7 @@
 // styles, with occlusions, hint links and tap to zoom.
 import { useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
+import { initExtras, toggleExtraPanel } from './extras';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
@@ -84,10 +85,12 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
     card.innerHTML = sanitizeCardInBrowser(html);
     body.append(card);
     root.replaceChildren(base, own, body);
+    initExtras(card);
 
-    // The template's onclick does not survive the sanitizing: «hint» links and «#» links, here.
+    // The template's onclick does not survive the sanitizing: the extras buttons, «hint» links and «#» links, here.
     const onClick = (e: Event) => {
       const target = e.target as Element | null;
+      if (toggleExtraPanel(target)) return;
       const link = target?.closest?.('a');
       if (!link) {
         const image = zoomable(root, target);

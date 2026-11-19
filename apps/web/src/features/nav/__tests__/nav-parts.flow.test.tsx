@@ -68,3 +68,26 @@ describe('the assessments of the menu', () => {
     closed('Certamen 3');
   });
 });
+
+describe('the tests of an assessment in the menu', () => {
+  it('with one, a link; with several, a branch that marks the one being answered', async () => {
+    const several = fakeApi({
+      catalog: async () => {
+        const c = structuredClone(CATALOG);
+        const a = c.semesters[1]!.courses[0]!.assessments[0]!;
+        a.quizzes = [
+          a.quizzes[0]!,
+          { ...a.quizzes[0]!, id: 'otro-test', slug: 'otro', title: 'Otro test', position: 2 },
+        ];
+        return c;
+      },
+    });
+    renderApp(`${COURSE}/tests/certamen-2/otro`, { api: several });
+    const branch = await screen.findByRole('button', { name: 'Tests' });
+    expect(branch).toHaveAttribute('aria-expanded', 'true');
+    expect(menu().getByRole('link', { name: 'Otro test' })).toHaveAttribute('aria-current', 'page');
+    expect(menu().getByRole('link', { name: 'Práctica de Biocel' })).not.toHaveAttribute(
+      'aria-current',
+    );
+  });
+});

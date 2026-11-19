@@ -3,7 +3,8 @@ import sanitizeHtml from 'sanitize-html';
 import { CARD_SAFE_VALUE, STYLE_PROPERTIES } from './css';
 
 /** Unlike the notes', a card keeps what its note type's CSS and Image Occlusion need; scripts and handlers go away. */
-const OPTIONS: sanitizeHtml.IOptions = {
+/** `allowedEmptyAttributes` works in sanitize-html but is missing from its typings. */
+const OPTIONS: sanitizeHtml.IOptions & { allowedEmptyAttributes: string[] } = {
   allowedTags: [
     'p',
     'div',

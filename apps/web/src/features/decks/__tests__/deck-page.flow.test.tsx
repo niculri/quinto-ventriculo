@@ -2,16 +2,10 @@
 
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ankiScreens } from '../../../app/ankiScreens';
+import { describe, expect, it } from 'vitest';
 import { DECK_PATH } from '../../../test/fixtures/deck';
 import { renderApp } from '../../../test/render';
 import { pageLoad } from '../../../test/dom';
-
-afterEach(() => {
-  vi.restoreAllMocks();
-  vi.unstubAllGlobals();
-});
 
 describe('deck page', () => {
   it('a deck inside a week or lecture has no page of its own, also in «Modo avanzado»', async () => {
@@ -57,26 +51,5 @@ describe('deck page', () => {
     expect(within(again).queryByText('Mazo de prueba')).toBeNull();
     await userEvent.click(within(again).getByRole('button', { name: 'Desplegar Certamen 1' }));
     expect(await within(again).findByText('Mazo de prueba')).toBeInTheDocument();
-  });
-  it('«Estudiar» has its screen fetched as a pointer reaches it, or the focus', async () => {
-    const study = vi.spyOn(ankiScreens.study, 'preload');
-    renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1');
-    const link = await screen.findByRole('link', { name: 'Estudiar' });
-    study.mockClear();
-    await userEvent.hover(link);
-    expect(study).toHaveBeenCalledTimes(1);
-    link.focus();
-    expect(study).toHaveBeenCalledTimes(2);
-  });
-
-  it('with the data saver on, reaching «Estudiar» fetches nothing', async () => {
-    const study = vi.spyOn(ankiScreens.study, 'preload');
-    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
-    renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1');
-    const link = await screen.findByRole('link', { name: 'Estudiar' });
-    study.mockClear();
-    await userEvent.hover(link);
-    link.focus();
-    expect(study).not.toHaveBeenCalled();
   });
 });

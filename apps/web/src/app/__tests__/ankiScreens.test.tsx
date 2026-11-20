@@ -2,10 +2,12 @@
 // what a screen whose chunk does not arrive does.
 import { Suspense } from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG } from '../../test/fixtures/catalog';
+import { renderApp } from '../../test/render';
 import { buildAnkiTree, hasPage } from '../../features/catalog/model/tree';
 import type { CourseDeckNode } from '../../features/catalog/model/tree';
 import { ankiScreens, lazyScreen, screenOfPath, WarmScreens } from '../ankiScreens';
@@ -79,6 +81,30 @@ describe('WarmScreens', () => {
     render(warm());
     expect(idle).toHaveLength(1);
     expect(preloads.map((p) => p.mock.calls.length)).toEqual([1, 1, 1, 1, 1]);
+  });
+});
+
+describe('the links of a deck’s page', () => {
+  it('«Estudiar» has its screen fetched as a pointer reaches it, or the focus', async () => {
+    const study = vi.spyOn(ankiScreens.study, 'preload');
+    renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1');
+    const link = await screen.findByRole('link', { name: 'Estudiar' });
+    study.mockClear();
+    await userEvent.hover(link);
+    expect(study).toHaveBeenCalledTimes(1);
+    link.focus();
+    expect(study).toHaveBeenCalledTimes(2);
+  });
+
+  it('with the data saver on, reaching «Estudiar» fetches nothing', async () => {
+    const study = vi.spyOn(ankiScreens.study, 'preload');
+    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
+    renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1');
+    const link = await screen.findByRole('link', { name: 'Estudiar' });
+    study.mockClear();
+    await userEvent.hover(link);
+    link.focus();
+    expect(study).not.toHaveBeenCalled();
   });
 });
 

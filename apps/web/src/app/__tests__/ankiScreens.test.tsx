@@ -1,12 +1,13 @@
 // Tests ankiScreens: which screen a URL is for, that the other screens are fetched once, when nothing else loads, and
 // what a screen whose chunk does not arrive does.
 import { Suspense } from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG } from '../../test/fixtures/catalog';
+import { fullAnkiStudy } from '../../test/fakes/repositories';
 import { renderApp } from '../../test/render';
 import { buildAnkiTree, hasPage } from '../../features/catalog/model/tree';
 import type { CourseDeckNode } from '../../features/catalog/model/tree';
@@ -105,6 +106,59 @@ describe('the links of a deck’s page', () => {
     await userEvent.hover(link);
     link.focus();
     expect(study).not.toHaveBeenCalled();
+  });
+
+  it('«Repaso final» and the play link of each deck have their screens fetched too, never with the data saver on', async () => {
+    const study = fullAnkiStudy();
+    await study.recordReview({
+      card: { noteGuid: 's@/AqX%n?#', ord: 0, deckId: '20' },
+      expectedUpdatedAt: null,
+      rating: 3,
+      queueBefore: 'new',
+      interval: 2,
+      lastInterval: 0,
+      durationMs: 4000,
+      state: {
+        phase: 'review',
+        interday: true,
+        remainingSteps: 0,
+        due: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+        interval: 2,
+        stability: 2.3,
+        difficulty: 3,
+        reps: 1,
+        lapses: 0,
+        lastReview: new Date().toISOString(),
+        suspended: false,
+        leech: false,
+      },
+      bury: [],
+      buriedUntil: null,
+    });
+    const review = vi.spyOn(ankiScreens.review, 'preload');
+    const studyScreen = vi.spyOn(ankiScreens.study, 'preload');
+    renderApp(DECK, { study });
+    const finalReview = await screen.findByRole('link', { name: 'Repaso final' });
+    const tree = await screen.findByRole('list', { name: 'Submazos' });
+    const play = (await within(tree).findAllByRole('link', { name: /^Estudiar / }))[0]!;
+    review.mockClear();
+    studyScreen.mockClear();
+    await userEvent.hover(finalReview);
+    finalReview.focus();
+    expect(review).toHaveBeenCalledTimes(2);
+    expect(studyScreen).not.toHaveBeenCalled();
+    await userEvent.hover(play);
+    play.focus();
+    expect(studyScreen).toHaveBeenCalledTimes(2);
+    expect(review).toHaveBeenCalledTimes(2);
+
+    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
+    review.mockClear();
+    studyScreen.mockClear();
+    await userEvent.hover(finalReview);
+    await userEvent.hover(play);
+    expect(review).not.toHaveBeenCalled();
+    expect(studyScreen).not.toHaveBeenCalled();
   });
 });
 

@@ -68,8 +68,11 @@ function sizeOf(figure: HTMLElement): FigureSize {
   const number = (name: string) => Number(img?.getAttribute(name)) || undefined;
   const width = number('width');
   const height = number('height');
+  const plate = figure.classList.contains('figure-plate');
+  const percent = plate ? Number.parseFloat(figure.style.width) || undefined : undefined;
   return {
-    ...(figure.classList.contains('figure-plate') ? { plate: true } : {}),
+    ...(plate ? { plate: true } : {}),
+    ...(percent ? { percent } : {}),
     ...(width ? { width } : {}),
     ...(height ? { height } : {}),
   };

@@ -49,6 +49,17 @@ describe('the layout of an article’s figures', () => {
     expect(figureLayout({ width: PANORAMA * 500 - 1, height: 500 }).kind).toBe('thumb');
   });
 
+  it('a plate with its percentage is that share of the column, never wider than its pixels', () => {
+    const sixty = figureLayout({ plate: true, percent: 60, width: 1800, height: 1500 });
+    expect(sixty.kind).toBe('wide');
+    expect(sixty.width).toBeCloseTo(COLUMN_PX * 0.6);
+    expect(figureLayout({ plate: true, percent: 90, width: 500, height: 400 }).width).toBe(500);
+    expect(figureLayout({ plate: true, percent: 150, width: 1800, height: 1500 }).width).toBe(
+      COLUMN_PX,
+    );
+    expect(figureLayout({ plate: true, percent: 50 }).width).toBe(COLUMN_PX / 2);
+  });
+
   it('a row: the same height, the column’s width with the gaps, never enlarged', () => {
     const [a, b] = rowWidths([
       { width: 800, height: 400 },
@@ -74,6 +85,13 @@ describe('prepareArticle', () => {
     expect(html).not.toContain('40%');
     expect(html).toContain('role="button"');
     expect(html).toContain('aria-label="Ampliar la imagen: Una lámina"');
+  });
+
+  it('a plate keeps the width its percentage gives, and the percentage leaves the style', () => {
+    const html = prepareArticle(fig(' style="width:50%"', 1600, 1200, 'figure figure-plate'));
+    expect(html).toContain(`--fig: ${(COLUMN_PX * 0.5) / 16}rem`);
+    expect(html).toContain('is-wide');
+    expect(html).not.toContain('50%');
   });
 
   it('in a callout, the figure the source made wide fills it', () => {

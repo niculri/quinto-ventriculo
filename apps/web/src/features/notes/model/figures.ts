@@ -14,6 +14,8 @@ const ROW_GAP_PX = 16;
 
 export interface FigureSize {
   plate?: boolean;
+  /** A plate's width in the column, from its `{NN%!}`: what makes its labels read like the text. */
+  percent?: number;
   width?: number;
   height?: number;
 }
@@ -27,10 +29,13 @@ const known = (s: FigureSize): s is FigureSize & { width: number; height: number
   !!s.width && !!s.height && s.width > 0 && s.height > 0;
 
 export function figureLayout(size: FigureSize): FigureLayout {
+  const plateWidth = size.percent ? (COLUMN_PX * Math.min(100, size.percent)) / 100 : COLUMN_PX;
   if (!known(size))
-    return size.plate ? { kind: 'wide', width: COLUMN_PX } : { kind: 'thumb', width: 300 };
+    return size.plate ? { kind: 'wide', width: plateWidth } : { kind: 'thumb', width: 300 };
   const ratio = size.width / size.height;
-  if (size.plate) return { kind: 'wide', width: size.width };
+  if (size.plate) {
+    return { kind: 'wide', width: size.percent ? Math.min(size.width, plateWidth) : size.width };
+  }
   if (ratio >= PANORAMA) return { kind: 'wide', width: Math.min(size.width, PANORAMA_MAX_PX) };
   const width = Math.max(THUMB_MIN_PX, Math.min(THUMB_MAX_PX, Math.sqrt(THUMB_AREA * ratio)));
   return { kind: 'thumb', width: Math.min(width, size.width) };

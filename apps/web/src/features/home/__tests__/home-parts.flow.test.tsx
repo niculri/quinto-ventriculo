@@ -3,10 +3,14 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SESSION_ANA, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { SESSION_ANA } from '../../../test/fixtures/session';
+import { renderApp } from '../../../test/render';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
 import { localQuizRepository } from '../../quiz/api/repository';
+import { chooseIn } from '../../../test/dom';
 
 // A Tuesday of November, at noon in Santiago: the same study day from 11 hours behind UTC to 12 ahead.
 const NOW = new Date('2026-11-10T12:00:00-03:00');
@@ -30,11 +34,6 @@ function saving(study: StudyRepository) {
     return save(p);
   };
   return saved;
-}
-
-async function chooseIn(trigger: HTMLElement, option: string | RegExp) {
-  await userEvent.click(trigger);
-  await userEvent.click(await screen.findByRole('menuitemradio', { name: option }));
 }
 
 const text = (el: Element) => el.textContent;

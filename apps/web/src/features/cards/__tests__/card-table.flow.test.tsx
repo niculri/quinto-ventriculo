@@ -5,7 +5,9 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { searchTerm } from '@qv/anki-search';
-import { DECK, renderApp, fullAnkiStudy } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { DECK } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 import type { StudyRepository } from '../../progress/api/repository';
 import { combineSearch } from '../model/search';
 

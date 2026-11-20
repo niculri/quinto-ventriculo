@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { FEW } from '@qv/schema';
 import type { UsageFigures, UsageReport } from '@qv/schema';
-import { fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { renderApp } from '../../../test/render';
 import { searchContext } from '../../search/model/results';
 import { localAdminRepository } from '../api/repository';
 

@@ -5,11 +5,14 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { QuizSectionDetail } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { QUIZ, fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { QUIZ } from '../../../test/fixtures/quiz';
+import { renderApp } from '../../../test/render';
 import { localReportsRepository } from '../../reports/api/repository';
 import type { NewReport } from '../../reports/api/repository';
 import { localQuizRepository } from '../api/repository';
 import type { QuizRepository, QuizStep } from '../api/repository';
+import { memoryStorage } from '../../../test/storage';
 
 const COURSE = '/semesters/2/courses/biologia-celular';
 const BASE = `${COURSE}/tests/certamen-2/practica`;
@@ -18,20 +21,6 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
-
-function memoryStorage(): Storage {
-  const m = new Map<string, string>();
-  return {
-    get length() {
-      return m.size;
-    },
-    clear: () => m.clear(),
-    getItem: (k) => m.get(k) ?? null,
-    key: (i) => [...m.keys()][i] ?? null,
-    removeItem: (k) => void m.delete(k),
-    setItem: (k, v) => void m.set(k, String(v)),
-  };
-}
 
 function recording(save?: (s: QuizStep) => Promise<void>) {
   const inner = localQuizRepository(null);

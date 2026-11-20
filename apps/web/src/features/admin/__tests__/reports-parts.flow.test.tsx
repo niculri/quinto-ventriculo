@@ -4,7 +4,9 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
-import { CATALOG, fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { renderApp } from '../../../test/render';
 import { ReportError, localReportsRepository } from '../../reports/api/repository';
 import type {
   QueueReport,

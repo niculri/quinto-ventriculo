@@ -3,17 +3,11 @@
 import { screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderApp } from '../../../test/render';
+import { textNodes } from '../../../test/dom';
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-const textNodes = (el: Node) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const out: string[] = [];
-  while (walker.nextNode()) out.push(walker.currentNode.nodeValue ?? '');
-  return out;
-};
 
 describe('the list of packages of /licenses', () => {
   it('each package keeps its name, its version, its license and who uses it in their own text nodes', async () => {

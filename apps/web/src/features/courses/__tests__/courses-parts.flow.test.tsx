@@ -4,14 +4,10 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Catalog, NoteSummary, QuizSummary } from '@qv/schema';
-import { CATALOG, fakeApi, renderApp } from '../../../test/render';
-
-const textNodes = (el: Node) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const out: string[] = [];
-  while (walker.nextNode()) out.push(walker.currentNode.nodeValue ?? '');
-  return out;
-};
+import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { renderApp } from '../../../test/render';
+import { textNodes } from '../../../test/dom';
 
 const BC = 'biologia-celular/certamen-2';
 

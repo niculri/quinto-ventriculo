@@ -5,19 +5,15 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LEGAL_VERSIONS } from '@qv/schema';
-import { SESSION_ANA, acceptedAccount, renderApp } from '../../../test/render';
+import { acceptedAccount } from '../../../test/fakes/repositories';
+import { SESSION_ANA } from '../../../test/fixtures/session';
+import { renderApp } from '../../../test/render';
 import { AccountError, localAccountRepository } from '../api/repository';
+import { textNodes } from '../../../test/dom';
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
-
-const textNodes = (el: Node) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const out: string[] = [];
-  while (walker.nextNode()) out.push(walker.currentNode.nodeValue ?? '');
-  return out;
-};
 
 const main = () => within(screen.getByRole('main'));
 

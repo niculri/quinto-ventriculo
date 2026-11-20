@@ -2,7 +2,8 @@
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { UnpublishedLog } from '@qv/schema';
-import { fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 
 const admin = (o: Parameters<typeof localAdminRepository>[0] = {}) =>

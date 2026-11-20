@@ -3,7 +3,8 @@
 import { describe, expect, it } from 'vitest';
 import { defaultConfig, newCard } from '@qv/srs';
 import type { CardRecord } from '@qv/srs';
-import { CATALOG, DECK } from '../../test/render';
+import { CATALOG } from '../../test/fixtures/catalog';
+import { DECK } from '../../test/fixtures/deck';
 import {
   blankRow,
   EMPTY_PLAN,

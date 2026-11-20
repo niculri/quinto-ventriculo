@@ -5,7 +5,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CATALOG } from '../../test/render';
+import { CATALOG } from '../../test/fixtures/catalog';
 import { buildAnkiTree, hasPage } from '../../features/catalog/model/tree';
 import type { CourseDeckNode } from '../../features/catalog/model/tree';
 import { ankiScreens, lazyScreen, screenOfPath, WarmScreens } from '../ankiScreens';

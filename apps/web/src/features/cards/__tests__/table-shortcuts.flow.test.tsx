@@ -4,7 +4,8 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { renderApp, fullAnkiStudy } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { renderApp } from '../../../test/render';
 import type { StudyRepository } from '../../progress/api/repository';
 
 const TABLE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards?view=table';

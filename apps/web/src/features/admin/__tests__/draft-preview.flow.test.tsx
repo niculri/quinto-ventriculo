@@ -1,34 +1,13 @@
 // Tests the preview of the draft from «Publicaciones»: the site read with the preview API, and how it is left.
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ReleaseSummary } from '@qv/schema';
-import type { ReleaseOverview } from '@qv/schema';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CATALOG, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
-
-/** What the database gives for the e2e folder's draft (db/tests/release.test.ts writes it). */
-const SUMMARY = ReleaseSummary.parse(
-  JSON.parse(
-    readFileSync(join(import.meta.dirname, '../../../../e2e/content/release/summary.json'), 'utf8'),
-  ),
-);
-const OVERVIEW: ReleaseOverview = {
-  supportedSchemaVersion: 1,
-  summary: SUMMARY,
-  browseIndexes: [],
-};
-
-const adminApi = (changes: Parameters<typeof fakeApi>[0] = {}) =>
-  fakeApi({
-    releaseOverview: async () => OVERVIEW,
-    releaseTexts: async () => ({ items: [], next: null }),
-    releaseMedia: async () => ({ checked: [], missing: [], next: null }),
-    releaseLog: async () => ({ releases: [] }),
-    ...changes,
-  });
+import { RELEASE_OVERVIEW, RELEASE_SUMMARY, releaseApi } from '../../../test/releases';
 
 afterEach(() => window.sessionStorage.clear());
 
@@ -38,8 +17,8 @@ describe('the preview of the draft', () => {
     const draft = vi.fn(async () => CATALOG);
     const { router } = renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({ catalog: published }),
-      previewApi: adminApi({ catalog: draft }),
+      api: releaseApi({ catalog: published }),
+      previewApi: releaseApi({ catalog: draft }),
     });
     await userEvent.click(
       await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' }),
@@ -94,7 +73,10 @@ describe('the preview of the draft', () => {
       checkedAt: string;
     }[] = [];
     const server = {
-      releaseOverview: async () => ({ ...OVERVIEW, summary: { ...SUMMARY, marks } }),
+      releaseOverview: async () => ({
+        ...RELEASE_OVERVIEW,
+        summary: { ...RELEASE_SUMMARY, marks },
+      }),
       setReleaseMark: async (
         _fp: string,
         mark: 'phone' | 'answers' | 'announcement',
@@ -108,8 +90,8 @@ describe('the preview of the draft', () => {
     };
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi(server),
-      previewApi: adminApi(server),
+      api: releaseApi(server),
+      previewApi: releaseApi(server),
     });
     const toggle = await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' });
     await userEvent.click(toggle);
@@ -129,8 +111,8 @@ describe('the preview of the draft', () => {
   it('signing out leaves the preview', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi(),
-      previewApi: adminApi(),
+      api: releaseApi(),
+      previewApi: releaseApi(),
     });
     await userEvent.click(
       await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' }),
@@ -147,7 +129,7 @@ describe('the preview of the draft', () => {
   it('without the preview API (a build that cannot), the switch is off and does nothing', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi(),
+      api: releaseApi(),
     });
     const toggle = await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' });
     expect(toggle).toBeDisabled();

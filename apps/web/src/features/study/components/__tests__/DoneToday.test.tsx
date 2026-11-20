@@ -5,26 +5,16 @@ import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import type { CongratsInfo } from '@qv/study';
-import { CATALOG } from '../../../../test/render';
+import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree, hasPage } from '../../../catalog/model/tree';
 import type { CourseDeckNode } from '../../../catalog/model/tree';
 import { DoneToday } from '../DoneToday';
+import { CONGRATS_BASE } from '../../../../test/fixtures/congrats';
 
 const tree = buildAnkiTree(CATALOG);
 const at = (depth: number) =>
   tree.nodes.find((n): n is CourseDeckNode => n.depth === depth && hasPage(n))!;
 
-const BASE: CongratsInfo = {
-  learnMessage: '',
-  reviewLimitReached: false,
-  newLimitReached: false,
-  buried: false,
-  dueTomorrow: 0,
-  inactiveNew: 0,
-  nothingActive: false,
-  extrasOff: false,
-  exam: null,
-};
 const EXAM = {
   computed: false,
   finalReview: false,
@@ -37,7 +27,7 @@ function html(info: Partial<CongratsInfo>, node = at(5), seen = false) {
   const { container } = render(
     <MemoryRouter>
       <DoneToday
-        info={{ ...BASE, ...info }}
+        info={{ ...CONGRATS_BASE, ...info }}
         node={node}
         deckPath="/deck"
         hasSeen={() => seen}

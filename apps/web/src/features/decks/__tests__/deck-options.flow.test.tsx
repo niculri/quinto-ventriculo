@@ -4,19 +4,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, expect, it } from 'vitest';
-import { DECK_PATH, renderApp, fullAnkiStudy } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { DECK_PATH } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 import { DEFAULT_PARAMETERS, defaultConfig } from '@qv/srs';
-
-async function chooseIn(trigger: HTMLElement, option: string | RegExp) {
-  await userEvent.click(trigger);
-  await userEvent.click(await screen.findByRole('menuitemradio', { name: option }));
-}
-
-async function pageLoad() {
-  const group = await screen.findByRole('group', { name: 'Para hoy' });
-  const button = await within(group).findByRole('button');
-  return Number(/(\d+) para hoy/.exec(button.textContent!)?.[1] ?? 0);
-}
+import { pageLoad } from '../../../test/dom';
+import { chooseIn } from '../../../test/dom';
 
 describe('Opciones: Anki general y Configuración de mazos', () => {
   it('changing the author’s preset makes the user’s version of it; the deck uses it', async () => {

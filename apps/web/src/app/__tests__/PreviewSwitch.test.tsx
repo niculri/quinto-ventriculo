@@ -2,13 +2,10 @@
 import { act, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  SESSION_ANA,
-  acceptedAccount,
-  fakeApi,
-  fakeSession,
-  fullAnkiStudy,
-} from '../../test/render';
+import { fakeApi } from '../../test/fakes/api';
+import { acceptedAccount, fullAnkiStudy } from '../../test/fakes/repositories';
+import { fakeSession } from '../../test/fakes/session';
+import { SESSION_ANA } from '../../test/fixtures/session';
 import type { Services } from '../services';
 import { localQuizRepository } from '../../features/quiz/api/repository';
 import { PreviewSwitch } from '../PreviewSwitch';

@@ -3,39 +3,20 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { CATALOG, CARD_INDEX, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { CARD_INDEX } from '../../../test/fixtures/cards';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { renderApp } from '../../../test/render';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { localStudyRepository } from '../../progress/api/repository';
-import type { StoredCard, StudyRepository } from '../../progress/api/repository';
+import type { StudyRepository } from '../../progress/api/repository';
 import { isoOfDay } from '@qv/study';
 import { dayOf, dayStartsAt } from '@qv/srs';
 import { defaultPreferences } from '../../progress/api/repository';
+import { storedCard } from '../../../test/fixtures/storedCard';
 
 const PAGE = '/semesters/1/courses/anatomia-1/anki/certamen-1/cards';
-
-function row(noteGuid: string, ord: number, deckId: string, patch: Partial<StoredCard> = {}) {
-  return {
-    noteGuid,
-    ord,
-    deckId,
-    phase: 'review',
-    interday: true,
-    remainingSteps: 0,
-    due: new Date(Date.now() + 3 * 86_400_000).toISOString(),
-    interval: 3,
-    stability: 5,
-    difficulty: 5,
-    reps: 2,
-    lapses: 0,
-    lastReview: new Date().toISOString(),
-    flag: 0,
-    suspended: false,
-    buriedUntil: null,
-    leech: false,
-    updatedAt: new Date().toISOString(),
-    ...patch,
-  } satisfies StoredCard;
-}
 
 async function rowNamed(name: RegExp) {
   return screen.findByRole('button', { name });
@@ -334,9 +315,9 @@ function occlusionFirst(): StudyRepository {
   const study = fullAnkiStudy();
   const later = { due: new Date(Date.now() + 20 * 86_400_000).toISOString() };
   const rows = [
-    row('s@/AqX%n?#', 0, '20', later),
-    row('cloze-1', 0, '20', later),
-    row('cloze-1', 1, '21', later),
+    storedCard('s@/AqX%n?#', 0, '20', later),
+    storedCard('cloze-1', 0, '20', later),
+    storedCard('cloze-1', 1, '21', later),
   ];
   return {
     ...study,
@@ -352,7 +333,7 @@ function firstNew(noteGuid: string, ord: number): StudyRepository {
   const rows = CARD_INDEX.notes
     .flatMap((n) => n.cards.map((c) => ({ guid: n.guid, ...c })))
     .filter((c) => !(c.guid === noteGuid && c.ord === ord))
-    .map((c) => row(c.guid, c.ord, c.deckId, later));
+    .map((c) => storedCard(c.guid, c.ord, c.deckId, later));
   return {
     ...study,
     async cards(ids) {

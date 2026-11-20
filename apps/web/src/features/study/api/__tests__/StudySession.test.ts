@@ -2,7 +2,8 @@
 
 import { DEFAULT_PARAMETERS, retrievability } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
-import { CATALOG, DECK } from '../../../../test/render';
+import { CATALOG } from '../../../../test/fixtures/catalog';
+import { DECK } from '../../../../test/fixtures/deck';
 import {
   CardChangedError,
   defaultPreferences,

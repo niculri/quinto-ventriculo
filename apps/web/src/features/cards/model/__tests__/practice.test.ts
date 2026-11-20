@@ -1,7 +1,7 @@
 // Tests the cards of «Practicar estas»: never two of a note in a row.
 
 import { describe, expect, it } from 'vitest';
-import { CATALOG } from '../../../../test/render';
+import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree } from '../../../catalog/model/tree';
 import { lectureOf } from '../../../catalog/model/scope';
 import { syntheticIndex } from '../../api/demo';

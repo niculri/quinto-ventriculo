@@ -4,9 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { focusManager } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { renderApp } from '../../../test/render';
 import { localQuizRepository } from '../api/repository';
 import type { QuizRepository, QuizStep } from '../api/repository';
+import { memoryStorage } from '../../../test/storage';
 
 const BASE = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica';
 
@@ -22,20 +24,6 @@ function recording(storage: Storage | null = null) {
     },
   };
   return { repo, steps };
-}
-
-function memoryStorage(): Storage {
-  const m = new Map<string, string>();
-  return {
-    get length() {
-      return m.size;
-    },
-    clear: () => m.clear(),
-    getItem: (k) => m.get(k) ?? null,
-    key: (i) => [...m.keys()][i] ?? null,
-    removeItem: (k) => void m.delete(k),
-    setItem: (k, v) => void m.set(k, String(v)),
-  };
 }
 
 const option = (name: RegExp) =>

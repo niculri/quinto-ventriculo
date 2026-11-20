@@ -3,7 +3,8 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fullAnkiStudy, renderApp } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { renderApp } from '../../../test/render';
 import type { StudyRepository } from '../../progress/api/repository';
 import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';

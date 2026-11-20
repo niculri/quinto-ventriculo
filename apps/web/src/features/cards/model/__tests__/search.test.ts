@@ -1,7 +1,8 @@
 // Tests the simple mode's plain search and the codes that find their note.
 
 import { describe, expect, it } from 'vitest';
-import { CATALOG, CARD_INDEX } from '../../../../test/render';
+import { CARD_INDEX } from '../../../../test/fixtures/cards';
+import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree } from '../../../catalog/model/tree';
 import { lectureOf } from '../../../catalog/model/scope';
 import { explorerNotes } from '../explorer';

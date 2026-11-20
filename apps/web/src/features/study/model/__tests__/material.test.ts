@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Catalog, NotePractice } from '@qv/schema';
-import { CATALOG } from '../../../../test/render';
+import { CATALOG } from '../../../../test/fixtures/catalog';
 import { materialByDeck } from '../material';
 
 function catalog(practice: NotePractice | undefined): Catalog {

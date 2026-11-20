@@ -5,23 +5,12 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import type { CongratsInfo } from '@qv/study';
 import { Congrats } from '../Congrats';
-
-const BASE: CongratsInfo = {
-  learnMessage: '',
-  reviewLimitReached: false,
-  newLimitReached: false,
-  buried: false,
-  dueTomorrow: 0,
-  inactiveNew: 0,
-  nothingActive: false,
-  extrasOff: false,
-  exam: null,
-};
+import { CONGRATS_BASE } from '../../../../test/fixtures/congrats';
 
 function html(info: Partial<CongratsInfo>) {
   const { container } = render(
     <MemoryRouter>
-      <Congrats info={{ ...BASE, ...info }} deckPath="/deck" summary={<p>resumen</p>} />
+      <Congrats info={{ ...CONGRATS_BASE, ...info }} deckPath="/deck" summary={<p>resumen</p>} />
     </MemoryRouter>,
   );
   return container.innerHTML;

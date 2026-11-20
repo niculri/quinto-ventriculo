@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { localQuizRepository, OPEN_ROUNDS } from '..';
 import type { AnswerInfo, RoundInfo } from '..';
+import { memoryStorage } from '../../../../../test/storage';
 
 const info = (id: string, over: Partial<RoundInfo> = {}): RoundInfo => ({
   id,
@@ -117,20 +118,6 @@ describe('«Seguir» on the home page (openRounds)', () => {
     expect((await repo.openRounds()).map((r) => r.quizId)).toEqual(['early', 'late']);
   });
 });
-
-function memoryStorage(): Storage {
-  const m = new Map<string, string>();
-  return {
-    get length() {
-      return m.size;
-    },
-    clear: () => m.clear(),
-    getItem: (k) => m.get(k) ?? null,
-    key: (i) => [...m.keys()][i] ?? null,
-    removeItem: (k) => void m.delete(k),
-    setItem: (k, v) => void m.set(k, String(v)),
-  };
-}
 
 describe('the demo repository', () => {
   it('as the database: an answer once, the replaced round abandoned, the finished one finished', async () => {

@@ -3,13 +3,9 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { DECK_PATH, renderApp } from '../../../test/render';
-
-async function pageLoad() {
-  const group = await screen.findByRole('group', { name: 'Para hoy' });
-  const button = await within(group).findByRole('button');
-  return Number(/(\d+) para hoy/.exec(button.textContent!)?.[1] ?? 0);
-}
+import { DECK_PATH } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
+import { pageLoad } from '../../../test/dom';
 
 describe('deck page', () => {
   it('a deck inside a week or lecture has no page of its own, also in «Modo avanzado»', async () => {

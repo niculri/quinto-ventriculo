@@ -1,35 +1,12 @@
 // Tests «Publicaciones»: the review list, what changes, the marks by hand, publishing and undoing, without network.
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ReleaseSummary } from '@qv/schema';
+import type { ReleaseOverview } from '@qv/schema';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiRequestError } from '../../../shared/lib/api';
-import type { ReleaseOverview } from '@qv/schema';
-import { fakeApi, renderApp } from '../../../test/render';
+import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
-
-/** What the database gives for the e2e folder's draft (db/tests/release.test.ts writes it). */
-const SUMMARY = ReleaseSummary.parse(
-  JSON.parse(
-    readFileSync(join(import.meta.dirname, '../../../../e2e/content/release/summary.json'), 'utf8'),
-  ),
-);
-const OVERVIEW: ReleaseOverview = {
-  supportedSchemaVersion: 1,
-  summary: SUMMARY,
-  browseIndexes: [],
-};
-
-const adminApi = (changes: Parameters<typeof fakeApi>[0] = {}) =>
-  fakeApi({
-    releaseOverview: async () => OVERVIEW,
-    releaseTexts: async () => ({ items: [], next: null }),
-    releaseMedia: async () => ({ checked: [], missing: [], next: null }),
-    releaseLog: async () => ({ releases: [] }),
-    ...changes,
-  });
+import { RELEASE_SUMMARY, releaseApi } from '../../../test/releases';
 
 afterEach(() => window.sessionStorage.clear());
 
@@ -54,7 +31,7 @@ describe('the release panel', () => {
     );
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({ setReleaseMark }),
+      api: releaseApi({ setReleaseMark }),
     });
     expect(await screen.findByText('Hay 1 regla que impide publicar.')).toBeInTheDocument();
     expect(
@@ -70,7 +47,7 @@ describe('the release panel', () => {
     );
     await userEvent.click(screen.getByRole('switch', { name: 'Vi lo nuevo en el teléfono' }));
     await waitFor(() =>
-      expect(setReleaseMark).toHaveBeenCalledWith(SUMMARY.fingerprint, 'phone', true),
+      expect(setReleaseMark).toHaveBeenCalledWith(RELEASE_SUMMARY.fingerprint, 'phone', true),
     );
     expect(await screen.findByText('Marcada por ana@ug.uchile.cl')).toBeInTheDocument();
   });
@@ -78,11 +55,11 @@ describe('the release panel', () => {
   it('a draft equal to what is published says so', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({
+      api: releaseApi({
         releaseOverview: async () => ({
           supportedSchemaVersion: 1,
           summary: {
-            ...SUMMARY,
+            ...RELEASE_SUMMARY,
             assessments: [],
             catalog: [],
             noteTypes: [],
@@ -101,11 +78,11 @@ describe('the release panel', () => {
   it('a draft whose only change is the card browser’s indexes can be reviewed and published', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({
+      api: releaseApi({
         releaseOverview: async () => ({
           supportedSchemaVersion: 1,
           summary: {
-            ...SUMMARY,
+            ...RELEASE_SUMMARY,
             assessments: [],
             catalog: [],
             noteTypes: [],
@@ -135,8 +112,8 @@ describe('publishing and undoing', () => {
   const READY: ReleaseOverview = {
     supportedSchemaVersion: 1,
     summary: {
-      ...SUMMARY,
-      findings: SUMMARY.findings.filter((f) => f.rule !== 'class_without_year'),
+      ...RELEASE_SUMMARY,
+      findings: RELEASE_SUMMARY.findings.filter((f) => f.rule !== 'class_without_year'),
       marks: [
         { mark: 'answers', checkedBy: 'ana@ug.uchile.cl', checkedAt: '2026-11-07T12:00:00Z' },
         { mark: 'phone', checkedBy: 'ana@ug.uchile.cl', checkedAt: '2026-11-07T12:00:00Z' },
@@ -160,7 +137,7 @@ describe('publishing and undoing', () => {
   it('«Publicar» is off while the list is not ready, and so is undoing without a publication', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi(),
+      api: releaseApi(),
     });
     expect(await screen.findByText('Hay 1 regla que impide publicar.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Publicar' })).toBeDisabled();
@@ -180,7 +157,7 @@ describe('publishing and undoing', () => {
     });
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({
+      api: releaseApi({
         releaseOverview: async () => overview,
         releaseLog: async () => ({ releases: log }),
         publishRelease,
@@ -259,7 +236,7 @@ describe('publishing and undoing', () => {
     };
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({ releaseOverview: async () => overview }),
+      api: releaseApi({ releaseOverview: async () => overview }),
     });
     expect(
       await screen.findByText('La evaluación «Química general y orgánica · Certamen 1» es nueva.'),
@@ -290,7 +267,7 @@ describe('publishing and undoing', () => {
     });
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({ releaseOverview: async () => READY, publishRelease }),
+      api: releaseApi({ releaseOverview: async () => READY, publishRelease }),
     });
     const button = await screen.findByRole('button', { name: 'Publicar' });
     await waitFor(() => expect(button).toBeEnabled());
@@ -315,7 +292,7 @@ describe('publishing and undoing', () => {
     });
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: adminApi({ releaseLog: async () => ({ releases: log }), revertRelease }),
+      api: releaseApi({ releaseLog: async () => ({ releases: log }), revertRelease }),
     });
     const undo = await screen.findByRole('button', { name: 'Deshacer la última publicación' });
     await waitFor(() => expect(undo).toBeEnabled());

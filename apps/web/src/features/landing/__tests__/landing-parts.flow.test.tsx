@@ -4,13 +4,7 @@ import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/render';
-
-const textNodes = (el: Node) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const out: string[] = [];
-  while (walker.nextNode()) out.push(walker.currentNode.nodeValue ?? '');
-  return out;
-};
+import { textNodes } from '../../../test/dom';
 
 describe('signing in', () => {
   it('both buttons say Google is opening and wait, and the attempt goes to the destination', async () => {

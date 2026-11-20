@@ -3,7 +3,8 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { DECK_PATH, renderApp } from '../../../test/render';
+import { DECK_PATH } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 
 describe('catalog', () => {
   it('the course has a card to its decks and a page with its deck tree; a course with only decks is not «Próximamente»', async () => {

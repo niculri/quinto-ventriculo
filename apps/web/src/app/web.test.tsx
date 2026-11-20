@@ -17,7 +17,12 @@ import { resultLink } from '../features/search/model/results';
 import { paths } from '../shared/lib/paths';
 import { initials } from '../shared/lib/initials';
 import { CONTACT_EMAIL } from '@qv/schema';
-import { CATALOG, DECK_PATH, NOTE, SESSION_ANA, fakeApi, renderApp } from '../test/render';
+import { fakeApi } from '../test/fakes/api';
+import { CATALOG } from '../test/fixtures/catalog';
+import { DECK_PATH } from '../test/fixtures/deck';
+import { NOTE } from '../test/fixtures/note';
+import { SESSION_ANA } from '../test/fixtures/session';
+import { renderApp } from '../test/render';
 import { ApiRequestError } from '../shared/lib/api';
 
 describe('access', () => {

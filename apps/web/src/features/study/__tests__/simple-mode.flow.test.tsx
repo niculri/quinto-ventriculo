@@ -5,10 +5,14 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
-import { CATALOG, DECK_PATH, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/components/CardFrame';
+import { fakeApi } from '../../../test/fakes/api';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { DECK_PATH } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { StudyRepository } from '../../progress/api/repository';
+import { cardText } from '../../../test/dom';
 
 function student(over: { welcomeSeen?: boolean; fourButtons?: boolean } = {}): StudyRepository {
   return localStudyRepository(null, { welcomeSeen: true, ...over });
@@ -21,12 +25,6 @@ const COURSE_PATH = '/semesters/1/courses/anatomia-1';
 async function withWeekOn(study = student()) {
   await study.setDeckActivation(WEEK_ID, true);
   return study;
-}
-
-async function cardText(label: RegExp) {
-  const region = await screen.findByRole('region', { name: label });
-  await waitFor(() => expect(cardShadowRoot(region)?.querySelector('.card')).toBeTruthy());
-  return cardShadowRoot(region)!.querySelector('.card')!.textContent ?? '';
 }
 
 describe('a student who just arrived', () => {

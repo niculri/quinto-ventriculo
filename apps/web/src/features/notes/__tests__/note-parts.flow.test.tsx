@@ -5,7 +5,11 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Note } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { CATALOG, NOTE, fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { NOTE } from '../../../test/fixtures/note';
+import { renderApp } from '../../../test/render';
+import { textNodes } from '../../../test/dom';
 
 const PATH = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 
@@ -13,13 +17,6 @@ afterEach(() => {
   vi.restoreAllMocks();
   document.getSelection()?.removeAllRanges();
 });
-
-const textNodes = (el: Node) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const out: string[] = [];
-  while (walker.nextNode()) out.push(walker.currentNode.nodeValue ?? '');
-  return out;
-};
 
 const withNote = (over: Partial<Note>) => fakeApi({ note: async () => ({ ...NOTE, ...over }) });
 

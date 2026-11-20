@@ -5,7 +5,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { defaultConfig } from '@qv/srs';
-import { fullAnkiStudy, renderApp } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { renderApp } from '../../../test/render';
 
 const sectionTexts = () =>
   within(screen.getByRole('main'))

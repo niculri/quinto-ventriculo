@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
-import { CATALOG } from '../../../../test/render';
+import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree, hasPage } from '../../../catalog/model/tree';
 import type { CourseDeckNode } from '../../../catalog/model/tree';
 import type { CardRef } from '../../../progress/api/repository';

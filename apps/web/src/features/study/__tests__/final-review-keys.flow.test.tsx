@@ -1,21 +1,16 @@
 // Tests the final review's keyboard (space answers «Bien» once the answer is shown; a held key or a modifier does
 // nothing) and a mark that cannot be saved.
 
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { DECK, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/components/CardFrame';
+import { DECK } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { CardRef, StudyRepository } from '../../progress/api/repository';
+import { cardText } from '../../../test/dom';
 
 const REVIEW_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1/review';
-
-async function cardText(label: RegExp) {
-  const region = await screen.findByRole('region', { name: label });
-  await waitFor(() => expect(cardShadowRoot(region)?.querySelector('.card')).toBeTruthy());
-  return cardShadowRoot(region)!.querySelector('.card')!.textContent ?? '';
-}
 
 async function seen(): Promise<StudyRepository> {
   const study = localStudyRepository(null, { welcomeSeen: true });

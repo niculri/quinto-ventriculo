@@ -4,7 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CONTACT_EMAIL, DATA_CONTROLLER, LEGAL_VERSIONS } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { SESSION_ANA, acceptedAccount, fakeApi, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { acceptedAccount } from '../../../test/fakes/repositories';
+import { SESSION_ANA } from '../../../test/fixtures/session';
+import { renderApp } from '../../../test/render';
 import { localAccountRepository } from '../api/repository';
 import type { AccountRepository } from '../api/repository';
 

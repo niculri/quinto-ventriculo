@@ -5,14 +5,9 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { SearchResponse, SearchResult } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { fakeApi, renderApp } from '../../../test/render';
-
-const textNodes = (el: Node) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const out: string[] = [];
-  while (walker.nextNode()) out.push(walker.currentNode.nodeValue ?? '');
-  return out;
-};
+import { fakeApi } from '../../../test/fakes/api';
+import { renderApp } from '../../../test/render';
+import { textNodes } from '../../../test/dom';
 
 const result = (over: Partial<SearchResult>): SearchResult => ({
   noteId: 'AP-BC-C2-11',

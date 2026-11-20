@@ -4,16 +4,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { DECK_PATH, fullAnkiStudy, renderApp } from '../../../test/render';
-import { cardShadowRoot } from '../../decks/components/CardFrame';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { DECK_PATH } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 import { localStudyRepository } from '../../progress/api/repository';
 import type { StudyRepository } from '../../progress/api/repository';
-
-async function cardText(label: RegExp) {
-  const region = await screen.findByRole('region', { name: label });
-  await waitFor(() => expect(cardShadowRoot(region)?.querySelector('.card')).toBeTruthy());
-  return cardShadowRoot(region)!.querySelector('.card')!.textContent ?? '';
-}
+import { cardText } from '../../../test/dom';
 
 async function simpleStudent(): Promise<StudyRepository> {
   const study = localStudyRepository(null, { welcomeSeen: true });

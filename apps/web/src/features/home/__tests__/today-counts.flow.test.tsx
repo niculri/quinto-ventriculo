@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { dayStartsAt } from '@qv/srs';
-import type { AnkiTreeDeck, CardSummary } from '@qv/schema';
+import type { CardSummary } from '@qv/schema';
 import {
   blankRow,
   cardKey,
@@ -17,18 +17,8 @@ import {
 import type { StudyData, TreeDeck } from '@qv/study';
 import { defaultPreferences, localStudyRepository } from '../../progress/api/repository';
 import type { StoredCard } from '../../progress/api/repository';
-
-/** A small deterministic generator (mulberry32). */
-function random(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+import { random } from '../../../test/random';
+import { catalogOf } from '../../../test/fixtures/deckTree';
 
 const NOW = Date.parse('2026-11-09T15:00:00Z');
 const MIN = 60_000;
@@ -161,32 +151,6 @@ function scenario(seed: number) {
     progress: [],
   };
   return { data, cards };
-}
-
-function catalogOf(data: StudyData, cards: CardSummary[]): AnkiTreeDeck[] {
-  return data.decks.map((d) => {
-    const mine = cards.filter((c) => c.deckId === d.id);
-    const below = data.decks.filter((x) => x.name === d.name || x.name.startsWith(`${d.name}::`));
-    const notes = new Set(mine.map((c) => c.noteGuid));
-    return {
-      id: d.id,
-      name: d.name,
-      parentId: d.parentId,
-      preset: d.authorPreset,
-      semester: null,
-      courseId: null,
-      assessmentId: null,
-      noteCount: 0,
-      cardCount: 0,
-      ownNoteCount: notes.size,
-      exclusiveNoteCount: [...notes].filter((n) =>
-        cards.filter((c) => c.noteGuid === n).every((c) => c.deckId === d.id),
-      ).length,
-      closedNoteCount: [...notes].filter((n) =>
-        cards.filter((c) => c.noteGuid === n).every((c) => below.some((x) => x.id === c.deckId)),
-      ).length,
-    };
-  });
 }
 
 afterEach(() => {

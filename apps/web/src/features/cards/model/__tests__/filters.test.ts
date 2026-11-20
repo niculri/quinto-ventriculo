@@ -2,8 +2,8 @@
 // fast they filter a large assessment.
 
 import { describe, expect, it } from 'vitest';
-import { CATALOG, CARD_INDEX } from '../../../../test/render';
-import type { StoredCard } from '../../../progress/api/repository';
+import { CARD_INDEX } from '../../../../test/fixtures/cards';
+import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree } from '../../../catalog/model/tree';
 import { lectureOf } from '../../../catalog/model/scope';
 import { cardKey } from '@qv/study';
@@ -13,39 +13,16 @@ import { NO_FILTERS, applyFilters } from '../filters';
 import { groupNotes } from '../groups';
 import { listItems, listMetrics } from '../list';
 import { practiceCards } from '../practice';
-
-function row(noteGuid: string, ord: number, deckId: string, patch: Partial<StoredCard> = {}) {
-  return {
-    noteGuid,
-    ord,
-    deckId,
-    phase: 'review',
-    interday: true,
-    remainingSteps: 0,
-    due: new Date(Date.now() + 3 * 86_400_000).toISOString(),
-    interval: 3,
-    stability: 5,
-    difficulty: 5,
-    reps: 2,
-    lapses: 0,
-    lastReview: new Date().toISOString(),
-    flag: 0,
-    suspended: false,
-    buriedUntil: null,
-    leech: false,
-    updatedAt: new Date().toISOString(),
-    ...patch,
-  } satisfies StoredCard;
-}
+import { storedCard } from '../../../../test/fixtures/storedCard';
 
 describe('the cards page’s model', () => {
   it('counts each option with the others as they are, and groups the images of a lecture together', () => {
     const tree = buildAnkiTree(CATALOG);
     const rows = new Map(
       [
-        row('s@/AqX%n?#', 0, '20'),
-        row('cloze-1', 0, '20', { lapses: 2 }),
-        row('cloze-1', 1, '21', { suspended: true }),
+        storedCard('s@/AqX%n?#', 0, '20'),
+        storedCard('cloze-1', 0, '20', { lapses: 2 }),
+        storedCard('cloze-1', 1, '21', { suspended: true }),
       ].map((r) => [cardKey(r), r]),
     );
     const notes = explorerNotes([CARD_INDEX], (id) => lectureOf(tree.byId.get(id))?.id ?? id, rows);

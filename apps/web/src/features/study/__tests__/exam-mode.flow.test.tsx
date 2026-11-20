@@ -5,7 +5,11 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Catalog } from '@qv/schema';
-import { CATALOG, DECK, fakeApi, fullAnkiStudy, renderApp } from '../../../test/render';
+import { fakeApi } from '../../../test/fakes/api';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { DECK } from '../../../test/fixtures/deck';
+import { renderApp } from '../../../test/render';
 import { cardShadowRoot } from '../../decks/components/CardFrame';
 import { countsByDay, dateOfDay, heatmapStats } from '@qv/study';
 import { roughToday } from '../../progress/queries';

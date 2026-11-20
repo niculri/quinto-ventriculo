@@ -1,47 +1,34 @@
 // Tests the parts of «Publicaciones» one by one: the changes of each kind with their before and after, the lines of
 // what changes in the site, a long check, the impact of each deck, the marks' failures and the record.
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ReleaseSummary } from '@qv/schema';
 import type {
   ReleaseArticleItem,
   ReleaseCardItem,
   ReleaseOverview,
   ReleaseQuestionItem,
   ReleaseRecord,
+  ReleaseSummary,
 } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { fakeApi, renderApp } from '../../../test/render';
+import type { fakeApi } from '../../../test/fakes/api';
+import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
-
-const CONTENT = join(import.meta.dirname, '../../../../e2e/content/release');
-const SUMMARY = ReleaseSummary.parse(
-  JSON.parse(readFileSync(join(CONTENT, 'summary.json'), 'utf8')),
-);
-const ITEMS = JSON.parse(readFileSync(join(CONTENT, 'items.json'), 'utf8')) as Record<
-  string,
-  unknown[]
->;
-const OVERVIEW: ReleaseOverview = {
-  supportedSchemaVersion: 1,
-  summary: SUMMARY,
-  browseIndexes: [],
-};
+import {
+  RELEASE_ITEMS,
+  RELEASE_OVERVIEW,
+  RELEASE_SUMMARY,
+  releaseApi,
+} from '../../../test/releases';
 
 const page = <T,>(assessment: string, kind: string) => ({
-  items: (ITEMS[`${assessment}|${kind}`] ?? []) as T[],
+  items: (RELEASE_ITEMS[`${assessment}|${kind}`] ?? []) as T[],
   next: null,
 });
 
-const adminApi = (changes: Parameters<typeof fakeApi>[0] = {}) =>
-  fakeApi({
-    releaseOverview: async () => OVERVIEW,
-    releaseTexts: async () => ({ items: [], next: null }),
-    releaseMedia: async () => ({ checked: [], missing: [], next: null }),
-    releaseLog: async () => ({ releases: [] }),
+const adminApi = (changes: Parameters<typeof releaseApi>[0] = {}) =>
+  releaseApi({
     releaseCards: async (a) => page<ReleaseCardItem>(a, 'card'),
     releaseArticles: async (a) => page<ReleaseArticleItem>(a, 'article'),
     releaseQuestions: async (a) => page<ReleaseQuestionItem>(a, 'question'),
@@ -97,9 +84,9 @@ describe('«Publicaciones», piece by piece', () => {
       ...over,
     });
     const overview: ReleaseOverview = {
-      ...OVERVIEW,
+      ...RELEASE_OVERVIEW,
       summary: {
-        ...SUMMARY,
+        ...RELEASE_SUMMARY,
         catalog: [
           { kind: 'semester', id: 's9', op: 'added', before: null, after: { name: 'Semestre 9' } },
           { kind: 'course', id: 'c1', op: 'removed', before: { name: 'Ramo uno' }, after: null },
@@ -249,10 +236,10 @@ describe('«Publicaciones», piece by piece', () => {
 
   it('the popup to publish, with the warnings of the list', async () => {
     const ready: ReleaseOverview = {
-      ...OVERVIEW,
+      ...RELEASE_OVERVIEW,
       summary: {
-        ...SUMMARY,
-        findings: SUMMARY.findings.filter((f) => f.rule !== 'class_without_year'),
+        ...RELEASE_SUMMARY,
+        findings: RELEASE_SUMMARY.findings.filter((f) => f.rule !== 'class_without_year'),
         marks: [
           { mark: 'answers', checkedBy: 'a@ug.uchile.cl', checkedAt: '2026-11-07T12:00:00Z' },
           { mark: 'phone', checkedBy: 'a@ug.uchile.cl', checkedAt: '2026-11-07T12:00:00Z' },

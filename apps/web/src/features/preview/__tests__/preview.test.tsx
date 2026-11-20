@@ -1,6 +1,6 @@
 // Tests previewStudyRepository: studying in the preview reads the user's choices and writes nothing.
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fullAnkiStudy } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { localStudyRepository } from '../../progress/api/repository';
 import { previewStudyRepository, sharedWithPreview } from '../preview';
 import { adminKeys } from '../../admin/api/queries';

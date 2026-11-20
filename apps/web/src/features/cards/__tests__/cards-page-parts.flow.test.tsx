@@ -6,7 +6,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { dayOf } from '@qv/srs';
 import { isoOfDay } from '@qv/study';
-import { fullAnkiStudy, renderApp } from '../../../test/render';
+import { fullAnkiStudy } from '../../../test/fakes/repositories';
+import { renderApp } from '../../../test/render';
 import { defaultPreferences, localStudyRepository } from '../../progress/api/repository';
 import type { StudyRepository } from '../../progress/api/repository';
 

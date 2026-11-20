@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import type { CongratsInfo } from '@qv/study';
 import { Congrats } from '../Congrats';
 import { CONGRATS_BASE } from '../../../../test/fixtures/congrats';
+import { structure } from '../../../../test/dom';
 
 function html(info: Partial<CongratsInfo>) {
   const { container } = render(
@@ -13,7 +14,7 @@ function html(info: Partial<CongratsInfo>) {
       <Congrats info={{ ...CONGRATS_BASE, ...info }} deckPath="/deck" summary={<p>resumen</p>} />
     </MemoryRouter>,
   );
-  return container.innerHTML;
+  return structure(container);
 }
 
 describe('the full mode’s end screen', () => {

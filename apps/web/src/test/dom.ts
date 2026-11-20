@@ -27,3 +27,24 @@ export async function chooseIn(trigger: HTMLElement, option: string | RegExp) {
   await userEvent.click(trigger);
   await userEvent.click(await screen.findByRole('menuitemradio', { name: option }));
 }
+
+/**
+ * What a screen says without how it is dressed, for a snapshot: no classes, no router marks and each icon as its name. A
+ * restyle or a new version of the icons or of the router then does not break the photo of the structure.
+ */
+export function structure(root: Element): string {
+  const copy = root.cloneNode(true) as Element;
+  for (const svg of copy.querySelectorAll('svg')) {
+    const name = [...svg.classList].find((c) => c.startsWith('lucide-'))?.slice('lucide-'.length);
+    const icon = document.createElement('svg');
+    icon.setAttribute('data-icon', name ?? '');
+    for (const attr of ['aria-hidden', 'aria-label', 'role']) {
+      const value = svg.getAttribute(attr);
+      if (value !== null) icon.setAttribute(attr, value);
+    }
+    svg.replaceWith(icon);
+  }
+  for (const el of copy.querySelectorAll('[class]')) el.removeAttribute('class');
+  for (const el of copy.querySelectorAll('[data-discover]')) el.removeAttribute('data-discover');
+  return copy.innerHTML;
+}

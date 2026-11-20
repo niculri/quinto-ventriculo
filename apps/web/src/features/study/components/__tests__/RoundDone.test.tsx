@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import type { Round } from '@qv/study';
 import { RoundDone } from '../RoundDone';
+import { structure } from '../../../../test/dom';
 
 const round = (total: number, again: number): Round => ({
   queue: [],
@@ -20,7 +21,7 @@ function html(r: Round, extra: { title?: string; againLabel?: string } = {}) {
       <RoundDone round={r} deckPath="/deck" label="Certamen 1" onAgain={() => {}} {...extra} />
     </MemoryRouter>,
   );
-  return container.innerHTML;
+  return structure(container);
 }
 
 describe('the end of a round', () => {

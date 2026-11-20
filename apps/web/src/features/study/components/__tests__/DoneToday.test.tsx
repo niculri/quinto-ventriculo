@@ -10,6 +10,7 @@ import { buildAnkiTree, hasPage } from '../../../catalog/model/tree';
 import type { CourseDeckNode } from '../../../catalog/model/tree';
 import { DoneToday } from '../DoneToday';
 import { CONGRATS_BASE } from '../../../../test/fixtures/congrats';
+import { structure } from '../../../../test/dom';
 
 const tree = buildAnkiTree(CATALOG);
 const at = (depth: number) =>
@@ -35,7 +36,7 @@ function html(info: Partial<CongratsInfo>, node = at(5), seen = false) {
       />
     </MemoryRouter>,
   );
-  return container.innerHTML;
+  return structure(container);
 }
 
 describe('«Listo por hoy»', () => {

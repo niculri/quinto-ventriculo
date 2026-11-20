@@ -24,7 +24,6 @@ export function useDeckPreset(node: DeckNode) {
   const setDeckPreset = useMutation({
     mutationFn: ({ deckId, preset }: { deckId: string; preset: DeckPresetChoice }) =>
       study.setDeckPreset(deckId, preset),
-    networkMode: 'always',
   });
   if (!catalog.data || !presets.data || !settings.data) return null;
   const choices = presetChoices(catalog.data.anki.presets, presets.data);

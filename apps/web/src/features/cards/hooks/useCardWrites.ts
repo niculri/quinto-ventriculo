@@ -8,10 +8,10 @@ import type { CardWrite } from '../api/cardWrites';
 /** Sent whatever the browser says of the connection, as the repository decides what to do offline. */
 export function useCardWrite() {
   const study = useStudyRepository();
-  return useMutation({ mutationFn: (w: CardWrite) => writeCards(study, w), networkMode: 'always' });
+  return useMutation({ mutationFn: (w: CardWrite) => writeCards(study, w) });
 }
 
 export function useUndoWrite() {
   const study = useStudyRepository();
-  return useMutation({ mutationFn: () => study.undo(), networkMode: 'always' });
+  return useMutation({ mutationFn: () => study.undo() });
 }

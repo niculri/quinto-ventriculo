@@ -1,26 +1,13 @@
 // The providers around the whole site: services, React Query and the session, with the admin preview of the draft.
 import { Fragment, useState } from 'react';
 import type { ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiRequestError } from '../shared/lib/api';
+import { QueryClientProvider } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { PreviewSwitch } from './PreviewSwitch';
 import { SessionProvider } from './SessionProvider';
+import { createQueryClient } from './queryClient';
 import { ServicesProvider } from './services';
 import type { Services } from './services';
-
-function createQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        // A 401, 403 or 404 is not fixed by retrying.
-        retry: (attempts, error) =>
-          !(error instanceof ApiRequestError && error.status >= 400 && error.status < 500) &&
-          attempts < 2,
-        refetchOnWindowFocus: false,
-      },
-    },
-  });
-}
 
 export function Providers({
   services,

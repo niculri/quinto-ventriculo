@@ -42,7 +42,6 @@ export function usePreferences() {
   // The stored zone is kept as the browser's: the statistics and other devices use it.
   const { mutate: saveZone } = useMutation({
     mutationFn: (next: StudyPreferences) => study.savePreferences(next),
-    networkMode: 'always',
     onSuccess: (_, next) => client.setQueryData(studyKeys.preferences, next),
   });
   useEffect(() => {

@@ -34,11 +34,9 @@ export function usePresetActions({
   const study = useStudyRepository();
   const savePreset = useMutation({
     mutationFn: (p: Parameters<StudyRepository['savePreset']>[0]) => study.savePreset(p),
-    networkMode: 'always',
   });
   const deletePreset = useMutation({
     mutationFn: (id: string) => study.deletePreset(id),
-    networkMode: 'always',
   });
   const [naming, setNaming] = useState<Naming | null>(null);
   const [removing, setRemoving] = useState(false);

@@ -23,6 +23,7 @@ import type {
 } from '@qv/schema';
 import { LEGAL_VERSIONS } from '@qv/schema';
 import { Providers } from '../app/Providers';
+import { WRITE_DEFAULTS } from '../app/queryClient';
 import { routes } from '../app/routes';
 import type { Services } from '../app/services';
 import { ApiRequestError } from '../shared/lib/api';
@@ -773,7 +774,11 @@ export function renderApp(
   const r = render(
     <Providers
       services={services}
-      queryClient={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      queryClient={
+        new QueryClient({
+          defaultOptions: { queries: { retry: false }, mutations: WRITE_DEFAULTS },
+        })
+      }
     >
       <RouterProvider router={router} />
     </Providers>,

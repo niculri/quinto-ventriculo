@@ -119,7 +119,6 @@ function useSaveOptions() {
       for (const [c, draft] of w.changed) await savePresetDraft(study, c, draft);
       if (w.prefs) await study.savePreferences(w.prefs);
     },
-    networkMode: 'always',
   });
 }
 

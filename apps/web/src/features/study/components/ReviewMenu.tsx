@@ -34,7 +34,6 @@ export function ReviewMenu({
   const mark = useMutation({
     mutationFn: (m: { card: CardRef; key: string; flag: number; before: number }) =>
       study.setFlag(m.card, m.flag),
-    networkMode: 'always',
     onMutate: (m) => onMarked(m.key, m.flag),
     onError: (_, m) => {
       onMarked(m.key, m.before);

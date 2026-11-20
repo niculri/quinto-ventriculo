@@ -1,0 +1,86 @@
+/* The color tokens of both themes, the Tailwind theme that names them and the dark variant. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --chrome: var(--bg);
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #f1efea;
+  --ink: #1a1f24;
+  --muted: #5b6670;
+  --border: #e3e0d9;
+  --border-strong: #cfcbc2;
+  --brand: #0f3d4c;
+  --brand-2: #16596d;
+  --brand-soft: #e3eef0;
+  --accent: #d9772f;
+  --highlight: #fde7b0;
+  --shadow: 0 1px 2px rgb(16 24 32 / 0.05), 0 4px 16px rgb(16 24 32 / 0.06);
+  --state-new: #1e64c8;
+  --state-learn: #c62828;
+  --state-review: #2e7d32;
+  /* The heatmap's turquoise (the strongest shade; the others mix it with --brand-soft) */
+  --heat: #0b7480;
+  /* The test pages' own tones (their published figures name them): paper, right, wrong, text on the accent, radius */
+  --papel: #ffffff;
+  --ok: #186b45;
+  --ok-b: #d8ede2;
+  --ok-l: #8fcbaf;
+  --mal: #a62a2a;
+  --mal-b: #f6dedc;
+  --mal-l: #dfa09b;
+  --on-ac: #ffffff;
+  --r: 12px;
+  color-scheme: light;
+}
+
+.dark {
+  --chrome: #050b0d;
+  --bg: #0c1316;
+  --surface: #141d21;
+  --surface-2: #1e2a2f;
+  --ink: #eaf1f2;
+  --muted: #93a4a9;
+  --border: #2a383d;
+  --border-strong: #3a4b51;
+  --brand: #6fcbd8;
+  --brand-2: #9adfe9;
+  --brand-soft: #143038;
+  --accent: #f2a65a;
+  --highlight: #5a4512;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  --state-new: #7fb2ff;
+  --state-learn: #ff8a80;
+  --state-review: #85d08a;
+  --heat: #7dd6e2;
+  --papel: #e6ebef;
+  --ok: #66c795;
+  --ok-b: #16301f;
+  --ok-l: #2f6448;
+  --mal: #ec8b84;
+  --mal-b: #341a1a;
+  --mal-l: #6e3230;
+  --on-ac: #0a1316;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-chrome: var(--chrome);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-state-new: var(--state-new);
+  --color-state-learn: var(--state-learn);
+  --color-state-review: var(--state-review);
+  --shadow-soft: var(--shadow);
+  --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
+}

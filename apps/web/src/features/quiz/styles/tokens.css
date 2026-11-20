@@ -1,29 +1,20 @@
-/* The test's names for the site's tokens (--surf, --ink2, --line, --g1…), used by its published figures, and its own
-   colors, on `.quiz`; the page sets the course's chart colors in --t-<token>-l and -d. */
+/* The test's names for the site's tokens (--surf, --ink2, --line, --g1…), used by its published figures, on `.quiz`; the
+   page sets the course's chart colors in --t-<token>-l and -d. Its paper, right and wrong tones are site tokens. */
 .quiz {
   --surf: var(--surface);
   --surf2: var(--surface-2);
-  --papel: #ffffff;
   --ink2: color-mix(in srgb, var(--ink) 72%, var(--muted));
   --mute: var(--muted);
   --line: var(--border-strong);
   --line2: var(--border);
-  --ok: #186b45;
-  --ok-b: #d8ede2;
-  --ok-l: #8fcbaf;
-  --mal: #a62a2a;
-  --mal-b: #f6dedc;
-  --mal-l: #dfa09b;
   --fdisp: var(--font-sans);
   --fbody: var(--font-sans);
   --fmono: var(--font-sans);
-  --r: 12px;
   --sh: var(--shadow);
   --ac: var(--brand);
   --ac-b: var(--brand-soft);
   --ac2: var(--brand-2);
   --ac2-b: color-mix(in srgb, var(--brand) 18%, var(--surface));
-  --on-ac: #ffffff;
   --g1: var(--t-g1-l);
   --g2: var(--t-g2-l);
   --g3: var(--t-g3-l);
@@ -33,14 +24,6 @@
   line-height: 1.5;
 }
 .dark .quiz {
-  --papel: #e6ebef;
-  --ok: #66c795;
-  --ok-b: #16301f;
-  --ok-l: #2f6448;
-  --mal: #ec8b84;
-  --mal-b: #341a1a;
-  --mal-l: #6e3230;
-  --on-ac: #0a1316;
   --g1: var(--t-g1-d);
   --g2: var(--t-g2-d);
   --g3: var(--t-g3-d);

@@ -1,0 +1,72 @@
+/* Elements and rules of the whole site: the page, the fields on a phone, the selection, the focus, print and reduced motion. */
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  min-height: 100dvh;
+  /* viewport-fit=cover (index.html) lets the page reach under the notch of an iPhone held sideways. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/*
+ * Unlayered, over the utilities: iOS zooms the page into a field whose text is under 16 px, and never zooms back. The
+ * line keeps the height it had with the small text, so that no field grows and nothing under it moves.
+ */
+@media (max-width: 639.98px), (pointer: coarse) {
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+  :is(input, textarea, select).text-sm {
+    line-height: 1.25rem;
+  }
+  :is(input, textarea, select).text-xs {
+    line-height: 1rem;
+  }
+}
+
+::selection {
+  background: color-mix(in oklab, var(--brand) 22%, transparent);
+}
+
+/* In the base layer, so that a component's own `outline-none` (the search box, the card viewer…) wins. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+mark {
+  background: var(--highlight);
+  color: var(--ink);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+@media print {
+  header,
+  nav,
+  aside.toc {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

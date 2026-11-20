@@ -421,58 +421,66 @@ describe('the final review', () => {
   });
 
   it('a day with only the final review keeps the streak', async () => {
-    const refs: CardRef[] = DECK.cards
-      .filter((c) => c.deckId === '20')
-      .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
-    const yesterday = localStudyRepository(null, { welcomeSeen: true });
-    await yesterday.setDeckActivation(WEEK_ID, true);
-    const day = 86_400_000;
-    for (const card of refs) {
-      await yesterday.recordReview({
-        card,
-        expectedUpdatedAt: null,
-        rating: 3,
-        queueBefore: 'new',
-        interval: 3,
-        lastInterval: 0,
-        durationMs: 4000,
-        state: {
-          phase: 'review',
-          interday: true,
-          remainingSteps: 0,
-          due: new Date(Date.now() + 2 * day).toISOString(),
+    // A frozen clock: the answers «of yesterday» are exactly a day old, which the repository takes, and no day starts
+    // while the test runs.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 10, 12));
+    try {
+      const refs: CardRef[] = DECK.cards
+        .filter((c) => c.deckId === '20')
+        .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
+      const yesterday = localStudyRepository(null, { welcomeSeen: true });
+      await yesterday.setDeckActivation(WEEK_ID, true);
+      const day = 86_400_000;
+      for (const card of refs) {
+        await yesterday.recordReview({
+          card,
+          expectedUpdatedAt: null,
+          rating: 3,
+          queueBefore: 'new',
           interval: 3,
-          stability: 3,
-          difficulty: 5,
-          reps: 1,
-          lapses: 0,
-          lastReview: new Date(Date.now() - day).toISOString(),
-          suspended: false,
-          leech: false,
-        },
-        bury: [],
-        buriedUntil: null,
-      });
+          lastInterval: 0,
+          durationMs: 4000,
+          state: {
+            phase: 'review',
+            interday: true,
+            remainingSteps: 0,
+            due: new Date(Date.now() + 2 * day).toISOString(),
+            interval: 3,
+            stability: 3,
+            difficulty: 5,
+            reps: 1,
+            lapses: 0,
+            lastReview: new Date(Date.now() - day).toISOString(),
+            suspended: false,
+            leech: false,
+          },
+          bury: [],
+          buriedUntil: null,
+        });
+      }
+      const streak = async () => {
+        const today = roughToday();
+        return heatmapStats(countsByDay((await yesterday.heatmap(null)).days, today), today)
+          .currentStreak;
+      };
+      expect(await streak()).toBe(1);
+      renderApp(REVIEW_PATH, { study: yesterday });
+      await userEvent.click(await screen.findByRole('button', { name: /^Todo lo visto/ }));
+      for (let i = 0; i < 10 && !screen.queryByText('Terminaste el repaso'); i++) {
+        await userEvent.click(await screen.findByRole('button', { name: 'Mostrar respuesta' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Bien' }));
+        await waitFor(() =>
+          expect(
+            screen.queryByRole('button', { name: 'Mostrar respuesta' }) ??
+              screen.getByText('Terminaste el repaso'),
+          ).toBeInTheDocument(),
+        );
+      }
+      await waitFor(async () => expect(await streak()).toBe(2));
+    } finally {
+      vi.useRealTimers();
     }
-    const streak = async () => {
-      const today = roughToday();
-      return heatmapStats(countsByDay((await yesterday.heatmap(null)).days, today), today)
-        .currentStreak;
-    };
-    expect(await streak()).toBe(1);
-    renderApp(REVIEW_PATH, { study: yesterday });
-    await userEvent.click(await screen.findByRole('button', { name: /^Todo lo visto/ }));
-    for (let i = 0; i < 10 && !screen.queryByText('Terminaste el repaso'); i++) {
-      await userEvent.click(await screen.findByRole('button', { name: 'Mostrar respuesta' }));
-      await userEvent.click(screen.getByRole('button', { name: 'Bien' }));
-      await waitFor(() =>
-        expect(
-          screen.queryByRole('button', { name: 'Mostrar respuesta' }) ??
-            screen.getByText('Terminaste el repaso'),
-        ).toBeInTheDocument(),
-      );
-    }
-    await waitFor(async () => expect(await streak()).toBe(2));
   });
 
   it('marking is the one thing that saves, and it does not touch the dates', async () => {

@@ -9,8 +9,8 @@ import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
 
 const D = dayNumber;
-// A Tuesday of November, at noon in Santiago: its study day is 10-11-2026 from 11 hours behind UTC to 12 ahead.
-const NOW = new Date('2026-11-10T12:00:00-03:00');
+// A Tuesday of November, at noon wherever the test runs: its study day is 10-11-2026 in any time zone.
+const NOW = new Date(2026, 10, 10, 12);
 const TODAY = D('2026-11-10');
 
 const DATA: HeatmapData = {

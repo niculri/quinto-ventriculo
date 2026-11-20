@@ -211,6 +211,14 @@ test('from an occlusion: the zoom keeps its masks, and the front stays the front
         .evaluate((i: HTMLImageElement) => i.naturalWidth),
     )
     .toBeGreaterThan(0);
+  // The masks are drawn once the canvas has its size: before that the click would land on the card, not on the canvas.
+  await expect
+    .poll(() =>
+      front
+        .locator('#image-occlusion-canvas')
+        .evaluate((c: HTMLCanvasElement) => c.width > 0 && c.clientHeight > 10),
+    )
+    .toBe(true);
   await front.locator('#image-occlusion-canvas').click({ position: { x: 5, y: 5 } });
 
   await expect(viewer(page)).toBeVisible();

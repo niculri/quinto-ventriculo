@@ -254,6 +254,11 @@ async function watchShifts(page: Page) {
 }
 const shifts = (page: Page) =>
   page.evaluate(() => (window as unknown as { shift_: number }).shift_);
+/** Counts from here on: how the pages arrive on a loaded machine is not what a test about a gesture looks at. */
+const forgetShifts = (page: Page) =>
+  page.evaluate(() => {
+    (window as unknown as { shift_: number }).shift_ = 0;
+  });
 
 test('studying takes the whole screen: no top bar, the answers at the bottom, nothing moves', async ({
   page,
@@ -291,6 +296,11 @@ test('a long note: the index is always at hand, takes to the section below its b
   await signIn(page);
   await page.goto(`${BIOCEL}/notes/11-traduccion`);
   await settle(page);
+  // The path comes with the catalog, and on a loaded machine after the text: it pushes the article down 24 px.
+  await expect(page.getByRole('main').getByRole('navigation', { name: 'Ruta' })).toContainText(
+    'Biología celular',
+  );
+  if (browserName === 'chromium') await forgetShifts(page);
   const bar = page.getByRole('button', { name: 'Índice', exact: true });
   await page.getByRole('heading', { level: 2, name: 'Resumen' }).scrollIntoViewIfNeeded();
   await expect(bar).toBeInViewport();

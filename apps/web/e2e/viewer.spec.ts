@@ -202,7 +202,9 @@ test('from an occlusion: the zoom keeps its masks, and the front stays the front
     .first()
     .click();
   await page.getByRole('button', { name: /Ver en grande/ }).click();
-  const front = page.getByRole('region', { name: 'Frente de la tarjeta' });
+  // The card of the viewer, not the cards page's own preview behind it: before the page is hidden from the roles the
+  // query finds that one, and the viewer's card is what covers it, so the click is never theirs.
+  const front = page.getByRole('dialog').getByRole('region', { name: 'Frente de la tarjeta' });
   await expect(front.locator('#image-occlusion-canvas')).toBeVisible();
   await expect
     .poll(() =>
@@ -211,14 +213,6 @@ test('from an occlusion: the zoom keeps its masks, and the front stays the front
         .evaluate((i: HTMLImageElement) => i.naturalWidth),
     )
     .toBeGreaterThan(0);
-  // The masks are drawn once the canvas has its size: before that the click would land on the card, not on the canvas.
-  await expect
-    .poll(() =>
-      front
-        .locator('#image-occlusion-canvas')
-        .evaluate((c: HTMLCanvasElement) => c.width > 0 && c.clientHeight > 10),
-    )
-    .toBe(true);
   await front.locator('#image-occlusion-canvas').click({ position: { x: 5, y: 5 } });
 
   await expect(viewer(page)).toBeVisible();

@@ -30,6 +30,24 @@ describe('screenOfPath', () => {
 });
 
 describe('WarmScreens', () => {
+  it('fetches nothing when the browser says the person saves data', () => {
+    const idle: (() => void)[] = [];
+    vi.stubGlobal('requestIdleCallback', (cb: () => void) => idle.push(cb));
+    vi.stubGlobal('cancelIdleCallback', () => undefined);
+    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
+    const preloads = Object.values(ankiScreens).map((s) =>
+      vi.spyOn(s, 'preload').mockResolvedValue(undefined),
+    );
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <WarmScreens />
+      </QueryClientProvider>,
+    );
+    idle.forEach((cb) => cb());
+    expect(idle).toHaveLength(0);
+    expect(preloads.every((p) => p.mock.calls.length === 0)).toBe(true);
+  });
+
   it('waits for the reads in progress, then fetches every screen once the browser is idle, and only once', async () => {
     const idle: (() => void)[] = [];
     vi.stubGlobal('requestIdleCallback', (cb: () => void) => idle.push(cb));

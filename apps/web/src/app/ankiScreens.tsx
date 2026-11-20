@@ -6,6 +6,7 @@ import { useLocation } from 'react-router';
 import { useIsFetching } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { CourseDeckNode, DeckScreen } from '../features/catalog/model/tree';
+import { registerPreload, savesData } from '../shared/lib/preload';
 
 type ScreenProps = { node: CourseDeckNode };
 type Render = (props: ScreenProps) => ReactNode;
@@ -79,6 +80,11 @@ export const ankiScreens: Record<DeckScreen, LazyScreen> = {
   ),
 };
 
+// The links of a deck's page ask for their screen by this name when a pointer or the focus gets to them.
+for (const [screen, lazy] of Object.entries(ankiScreens)) {
+  registerPreload(`anki-${screen}`, () => lazy.preload());
+}
+
 /** The screen a URL is most likely for, before the catalog says which deck it is. */
 export function screenOfPath(pathname: string): DeckScreen {
   if (pathname.endsWith('/cards/practice')) return 'practice';
@@ -92,12 +98,12 @@ let warmed = false;
 
 /**
  * Rendered beside a screen, inside its boundary: once it is shown and its reads are done, it fetches the other screens
- * while the browser is idle, so they do not slow down what this one is loading.
+ * while the browser is idle, so they do not slow down what this one is loading. Not with the data saver on.
  */
 export function WarmScreens() {
   const fetching = useIsFetching();
   useEffect(() => {
-    if (warmed || fetching > 0) return;
+    if (warmed || fetching > 0 || savesData()) return;
     const run = () => {
       warmed = true;
       for (const s of Object.values(ankiScreens)) s.preload().catch(() => undefined);

@@ -3,6 +3,7 @@
 import { Link } from 'react-router';
 import { Play } from 'lucide-react';
 import { paths } from '../../../shared/lib/paths';
+import { preloadOnIntent } from '../../../shared/lib/preload';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { button, card } from '../../../shared/ui/styles';
@@ -39,6 +40,7 @@ export function DeckStudyPanel({
           <div className="flex flex-wrap items-center gap-4">
             <Link
               to={paths.deckStudy(node.ref)}
+              {...preloadOnIntent('anki-study')}
               className={`${button.base} ${button.primary} order-1 flex-1 py-3 text-base sm:flex-none sm:px-10`}
             >
               <Play className="size-4" aria-hidden="true" /> {s.panel.study}

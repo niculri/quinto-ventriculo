@@ -3,6 +3,7 @@
 import { Link } from 'react-router';
 import { History } from 'lucide-react';
 import { paths } from '../../../shared/lib/paths';
+import { preloadOnIntent } from '../../../shared/lib/preload';
 import { button } from '../../../shared/ui/styles';
 import type { AssessmentView } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
@@ -26,7 +27,7 @@ export function FinalReviewLink({
     </>
   );
   return view && view.facts.seen > 0 ? (
-    <Link to={paths.deckReview(node.ref)} className={className}>
+    <Link to={paths.deckReview(node.ref)} className={className} {...preloadOnIntent('anki-review')}>
       {content}
     </Link>
   ) : (

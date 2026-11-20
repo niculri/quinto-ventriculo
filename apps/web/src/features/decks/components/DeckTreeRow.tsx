@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { ChevronRight, Play } from 'lucide-react';
 import type { Counts } from '@qv/srs';
 import { paths } from '../../../shared/lib/paths';
+import { preloadOnIntent } from '../../../shared/lib/preload';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { button } from '../../../shared/ui/styles';
 import { Switch } from '../../../shared/ui/Switch';
@@ -87,6 +88,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
       </span>
       <Link
         to={paths.deckStudy(d.ref)}
+        {...preloadOnIntent('anki-study')}
         className={`${button.base} ${button.ghost} flex-none px-2`}
         aria-label={s.tree.study(d.label)}
         title={s.tree.studyTitle}

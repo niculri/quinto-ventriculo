@@ -15,17 +15,17 @@ export function ChooseReview({
   pools: { all: CardRef[]; hard: CardRef[] };
   onChoose: (cards: CardRef[]) => void;
 }) {
-  const option = (title: string, text: string, cards: CardRef[], count = cards.length) => (
+  const option = (title: string, text: string, cards: CardRef[]) => (
     <button
       type="button"
-      disabled={count === 0}
+      disabled={cards.length === 0}
       onClick={() => onChoose(cards)}
       className={`${card} block w-full p-4 text-left transition hover:border-border-strong disabled:pointer-events-none disabled:opacity-60`}
     >
       <span className="flex items-baseline justify-between gap-3">
         <span className="font-medium">{title}</span>
         <span className="flex-none text-sm text-muted tabular-nums">
-          {studyStrings.cards(count)}
+          {studyStrings.cards(cards.length)}
         </span>
       </span>
       <span className="mt-1 block text-sm text-muted">{text}</span>

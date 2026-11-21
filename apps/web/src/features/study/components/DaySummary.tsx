@@ -16,6 +16,7 @@ import { studyStrings } from '../strings';
 
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;
+const nextVisit = () => ++visits;
 
 /** It has its whole height from the first frame (the figures wait in their places), so nothing moves when they arrive. */
 export function DaySummary({
@@ -29,7 +30,7 @@ export function DaySummary({
 }) {
   const study = useStudyRepository();
   const client = useQueryClient();
-  const [visit] = useState(() => ++visits);
+  const [visit] = useState(nextVisit);
   const query = useQuery(daySummaryQuery({ study, client, node, prefs, saved, visit }));
 
   const data = query.data;

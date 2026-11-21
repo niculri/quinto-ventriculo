@@ -594,11 +594,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/decks/strings.ts": {
-    "@eslint-react/no-unnecessary-use-prefix": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/home/hooks/useAddFocus.ts": {
     "@eslint-react/naming-convention-ref-name": {
       "count": 1

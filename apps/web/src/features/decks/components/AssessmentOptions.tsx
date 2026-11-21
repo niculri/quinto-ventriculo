@@ -101,7 +101,7 @@ function ExamDateField({ o, plan }: { o: Options; plan: StudyPlan | undefined })
             onClick={() => o.setDate(suggested)}
             className={`mt-1 text-left text-xs font-medium text-brand hover:underline ${date === suggested ? 'invisible' : ''}`}
           >
-            {s.assessment.useSuggested(longDate(suggested))}
+            {s.assessment.suggestion(longDate(suggested))}
           </button>
         ) : null}
       </div>

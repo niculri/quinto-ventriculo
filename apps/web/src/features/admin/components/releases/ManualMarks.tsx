@@ -11,10 +11,18 @@ import { releasesStrings } from '../../releases.strings';
 
 const s = releasesStrings.marks;
 
+type Shown = Partial<Record<string, boolean>>;
+
+// Outside the component: React Compiler does not compile a computed key in a destructuring.
+function without(shown: Shown, mark: string): Shown {
+  const { [mark]: _, ...rest } = shown;
+  return rest;
+}
+
 export function ManualMarks({ review, fingerprint }: { review: ReviewList; fingerprint: string }) {
   const user = useUser();
   const mark = useSetReleaseMark(fingerprint, user.email);
-  const [shown, setShown] = useState<Partial<Record<string, boolean>>>({});
+  const [shown, setShown] = useState<Shown>({});
   return (
     <>
       <ul className={`${card} mt-2 divide-y divide-border`}>
@@ -33,7 +41,7 @@ export function ManualMarks({ review, fingerprint }: { review: ReviewList; finge
                 setShown((v) => ({ ...v, [m.mark]: checked }));
                 mark.mutate(
                   { mark: m.mark, checked },
-                  { onSettled: () => setShown(({ [m.mark]: _, ...rest }) => rest) },
+                  { onSettled: () => setShown((v) => without(v, m.mark)) },
                 );
               }}
             />

@@ -1,9 +1,11 @@
 // Tests the summary of «Listo por hoy»: its figures are review_log's for the site's day, and its streak is the one
 // of «Días de estudio».
 
-import { screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router';
+import { describe, expect, it, vi } from 'vitest';
 import { dayOf, dayStartsAt } from '@qv/srs';
 import { fullAnkiStudy } from '../../../../test/fakes/repositories';
 import { DECK_PATH } from '../../../../test/fixtures/deck';
@@ -19,6 +21,9 @@ import {
   localStudyRepository,
 } from '../../../progress/api/repository';
 import type { StudyRepository } from '../../../progress/api/repository';
+import { StudyRepositoryContext } from '../../../progress/api/context';
+import type { CourseDeckNode } from '../../../catalog/model/tree';
+import { DaySummary } from '../DaySummary';
 
 const WEEK_ID = '5';
 const ASSESSMENT_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1';
@@ -300,5 +305,30 @@ describe('«Listo por hoy»', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(reads).toBe(0);
     expect(screen.queryByRole('region', { name: 'Resumen de hoy' })).toBeNull();
+  });
+});
+
+describe('each «Listo por hoy»', () => {
+  it('reads its own summary, even when two are on screen at once', async () => {
+    const node = {
+      id: 'n1',
+      depth: 3,
+      parent: null,
+      children: [],
+      ref: null,
+    } as unknown as CourseDeckNode;
+    const study = localStudyRepository(null);
+    const saved = vi.fn().mockResolvedValue(undefined);
+    render(
+      <MemoryRouter>
+        <StudyRepositoryContext value={study}>
+          <QueryClientProvider client={new QueryClient()}>
+            <DaySummary node={node} prefs={defaultPreferences()} saved={saved} />
+            <DaySummary node={node} prefs={defaultPreferences()} saved={saved} />
+          </QueryClientProvider>
+        </StudyRepositoryContext>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(saved).toHaveBeenCalledTimes(2));
   });
 });

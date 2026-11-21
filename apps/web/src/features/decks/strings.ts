@@ -39,7 +39,7 @@ export const decksStrings = {
       `Lo calcula el sitio con tu fecha. Si la sacas, vuelve a ser ${value}.`,
     examDate: 'Fecha de la prueba',
     examDateHelp: 'Opcional: pon la tuya.',
-    useSuggested: (date: string) => `Usar el ${date}`,
+    suggestion: (date: string) => `Usar el ${date}`,
     removeDate: 'Sacar la fecha',
     finalDays: '¿Cuántos días quieres dejar solo para repasar?',
     finalDaysHelp:

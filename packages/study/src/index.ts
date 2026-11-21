@@ -94,3 +94,33 @@ export { correctPercent, daySummary } from './day-summary';
 export { decayByDeck, homeCourseCounts, nextChangeAt } from './home-counts';
 export type { HomeStudyBase } from './home-counts';
 export { FLAGS } from './flags';
+export { createStudyState, studyReducer } from './reviewer/reducer';
+export {
+  answeredToday,
+  canUndo,
+  commandsAfter,
+  congrats,
+  countsOf,
+  flagOf,
+  hasSeen,
+  isDone,
+  rowOf,
+} from './reviewer/selectors';
+export { touchedBy } from './reviewer/commands';
+export type {
+  BuryCommand,
+  Command,
+  PrefetchCommand,
+  SaveAnswerCommand,
+  SetFlagCommand,
+  SuspendCommand,
+  UndoCommand,
+} from './reviewer/commands';
+export type {
+  HistoryItem,
+  SaveFailure,
+  StudyAction,
+  StudyState,
+  Toast,
+  ToastKind,
+} from './reviewer/state';

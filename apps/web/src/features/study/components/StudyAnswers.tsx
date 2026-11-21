@@ -1,19 +1,19 @@
 // Under the card: «Mostrar respuesta», then the answer buttons with their intervals (two, or Anki's four).
 import type { Shown } from '@qv/study';
 import { button } from '../../../shared/ui/styles';
-import type { StudySession } from '../api/StudySession';
+import type { StudyActions } from '../hooks/useStudySession';
 import { RATINGS } from './ratings';
 import { studyStrings } from '../strings';
 
 export function StudyAnswers({
-  session,
+  act,
   shown,
   revealed,
   fourButtons,
   full,
   failed,
 }: {
-  session: StudySession;
+  act: StudyActions;
   shown: Shown;
   revealed: boolean;
   fourButtons: boolean;
@@ -31,7 +31,7 @@ export function StudyAnswers({
           <button
             key={rating}
             type="button"
-            onClick={() => session.answer(rating)}
+            onClick={() => act.answer(rating)}
             className={`${button.base} ${button.secondary} flex-col gap-0.5 px-1 py-2 ${barHeight}`}
             aria-label={studyStrings.ratingLabel(label, shown.labels[rating - 1]!)}
             disabled={failed}
@@ -46,7 +46,7 @@ export function StudyAnswers({
     <div className="mx-auto flex max-w-2xl">
       <button
         type="button"
-        onClick={() => session.reveal()}
+        onClick={() => act.reveal()}
         className={`${button.base} ${button.primary} w-full py-3 text-base ${barHeight}`}
       >
         {studyStrings.showAnswer}

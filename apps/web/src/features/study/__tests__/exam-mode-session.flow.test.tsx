@@ -40,7 +40,7 @@ import type {
   StoredCard,
   StudyRepository,
 } from '../../progress/api/repository';
-import { StudySession } from '../api/StudySession';
+import { StudyDriver } from '../../../test/studyDriver';
 
 const NOW = Date.parse('2026-11-01T15:00:00Z');
 const DAY = 86_400_000;
@@ -240,7 +240,7 @@ describe('what the scheduler gets with a date', () => {
     const data = study(plan);
     const said = deckCounts(data).get(ASSESSMENT)!;
     expect(said.new).toBe(4);
-    const session = new StudySession(study(plan, [], {}, ASSESSMENT), ASSESSMENT, noSaving());
+    const session = new StudyDriver(study(plan, [], {}, ASSESSMENT), ASSESSMENT, noSaving());
     session.showNext();
     const first = new Set<string>();
     for (let i = 0; i < 100 && session.shown; i++) {
@@ -271,7 +271,7 @@ describe('what the scheduler gets with a date', () => {
       return data;
     };
     const said = deckCounts(withNotes()).get(root)!;
-    const session = new StudySession(withNotes(), root, noSaving());
+    const session = new StudyDriver(withNotes(), root, noSaving());
     session.showNext();
     const out = new Set<string>();
     for (let i = 0; i < 100 && session.shown; i++) {
@@ -299,7 +299,7 @@ describe('what the scheduler gets with a date', () => {
   });
 
   it('in a session, with something skipped or hidden on the way, the number is the same', () => {
-    const session = new StudySession(study(plan, [], {}, ASSESSMENT), ASSESSMENT, noSaving());
+    const session = new StudyDriver(study(plan, [], {}, ASSESSMENT), ASSESSMENT, noSaving());
     session.showNext();
     session.reveal();
     session.answer(3);
@@ -355,7 +355,7 @@ describe('what the scheduler gets with a date', () => {
   });
 
   it('a new day with the session open: it is computed again, from what is left', () => {
-    const session = new StudySession(study(plan, [], {}, ASSESSMENT), ASSESSMENT, noSaving());
+    const session = new StudyDriver(study(plan, [], {}, ASSESSMENT), ASSESSMENT, noSaving());
     session.showNext();
     for (let i = 0; i < 4; i++) {
       session.reveal();
@@ -372,7 +372,7 @@ describe('the screen at the end of the day', () => {
   const plan = { activations: on(L1), assessments: [dated(12)] };
 
   const finish = (data: StudyData, root: string) => {
-    const session = new StudySession(data, root, noSaving());
+    const session = new StudyDriver(data, root, noSaving());
     session.showNext();
     for (let i = 0; i < 200 && session.shown; i++) {
       session.reveal();
@@ -461,7 +461,7 @@ describe('a student who answers everything, day after day, with the real schedul
           .filter((c) => c.deckId === L1)
           .map(remap)
           .concat(data.deck.cards.filter((c) => c.deckId !== L1));
-        const session = new StudySession(data, ASSESSMENT, repository);
+        const session = new StudyDriver(data, ASSESSMENT, repository);
         session.showNext();
         const said = session.counts().new;
         const view = assessmentView({
@@ -499,7 +499,7 @@ describe('a student who answers everything, day after day, with the real schedul
       noteGuid: `big-${Math.floor(i / 8)}`,
       ord: i % 8,
     }));
-    const session = new StudySession(data, ASSESSMENT, localStudyRepository(null, PREFS));
+    const session = new StudyDriver(data, ASSESSMENT, localStudyRepository(null, PREFS));
     session.showNext();
     const notes = new Set<string>();
     for (let i = 0; i < 300 && session.shown; i++) {

@@ -3,6 +3,7 @@
 import { Flag, Undo2 } from 'lucide-react';
 import type { Counts } from '@qv/srs';
 import { FLAGS } from '@qv/study';
+import type { Shown } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
 import { BackButton } from '../../../shared/ui/BackButton';
 import { answerBar, button } from '../../../shared/ui/styles';
@@ -10,7 +11,7 @@ import { keys } from '../../../shared/ui/keys';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { CountNumbers, DayLoad } from '../../progress/components/DeckCounts';
-import type { StudySession } from '../api/StudySession';
+import type { StudyActions } from '../hooks/useStudySession';
 import { MoreMenu } from './MoreMenu';
 import { SimpleMenu } from './SimpleMenu';
 import { studyStrings } from '../strings';
@@ -19,24 +20,28 @@ import { studyStrings } from '../strings';
 const REVIEW_FLAG = 1;
 
 export function StudyTopBar({
-  session,
   counts,
+  shown,
+  flag: currentFlag,
+  canUndo,
+  act,
   node,
   deckPath,
   full,
   medianAnswerMs,
   onReport,
 }: {
-  session: StudySession;
   counts: Counts;
+  shown: Shown | null;
+  flag: number;
+  canUndo: boolean;
+  act: StudyActions;
   node: CourseDeckNode;
   deckPath: string;
   full: boolean;
   medianAnswerMs: number | null;
   onReport: () => void;
 }) {
-  const { shown } = session;
-  const currentFlag = shown ? (session.row(shown.entry)?.flag ?? 0) : 0;
   return (
     <div className={`${answerBar} pb-2`}>
       <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
@@ -65,22 +70,22 @@ export function StudyTopBar({
         {full ? (
           <MoreMenu
             disabled={!shown}
-            onBury={(a) => session.hide(a)}
-            onFlag={(f) => session.flag(f)}
-            onUndo={() => session.undo()}
-            canUndo={session.canUndo}
+            onBury={act.hide}
+            onFlag={act.flag}
+            onUndo={act.undo}
+            canUndo={canUndo}
             currentFlag={currentFlag}
             optionsPath={paths.deckOptions({ deck: node.id })}
             onReport={onReport}
           />
         ) : (
           <>
-            <UndoButton session={session} />
+            <UndoButton canUndo={canUndo} onUndo={act.undo} />
             <SimpleMenu
               disabled={!shown}
               marked={currentFlag !== 0}
-              onHide={(a) => session.hide(a)}
-              onMark={() => session.flag(currentFlag || REVIEW_FLAG)}
+              onHide={act.hide}
+              onMark={() => act.flag(currentFlag || REVIEW_FLAG)}
               onReport={onReport}
             />
           </>
@@ -112,13 +117,13 @@ function FlagMark({ full, flag }: { full: boolean; flag: number }) {
   );
 }
 
-function UndoButton({ session }: { session: StudySession }) {
+function UndoButton({ canUndo, onUndo }: { canUndo: boolean; onUndo: () => void }) {
   return (
     <button
       type="button"
-      disabled={!session.canUndo}
+      disabled={!canUndo}
       onClick={(e) => {
-        session.undo();
+        onUndo();
         // Focus does not stay here: space and Enter have to keep showing the answer.
         e.currentTarget.blur();
       }}

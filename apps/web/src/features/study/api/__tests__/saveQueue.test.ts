@@ -1,4 +1,4 @@
-// Tests a study session: saving answers when the connection fails, undo, and what an answer saves for statistics.
+// Tests what a study session saves: answers when the connection fails, undo, and what an answer saves for statistics.
 
 import { DEFAULT_PARAMETERS, retrievability } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
@@ -11,12 +11,12 @@ import {
 } from '../../../progress/api/repository';
 import type { ReviewInput, StoredCard, StudyRepository } from '../../../progress/api/repository';
 import { blankRow, cardKey, EMPTY_PLAN, treeDecks } from '@qv/study';
-import { StudySession } from '../StudySession';
+import { StudyDriver } from '../../../../test/studyDriver';
 
 const NETWORK = () => new Error('No se pudo guardar tu respuesta: TypeError: Failed to fetch');
 
 function session(repository: StudyRepository, rootId = DECK.id, rows: StoredCard[] = []) {
-  return new StudySession(
+  return new StudyDriver(
     {
       deck: DECK,
       decks: treeDecks(CATALOG.anki.decks),
@@ -35,7 +35,7 @@ function session(repository: StudyRepository, rootId = DECK.id, rows: StoredCard
   );
 }
 
-function answer(s: StudySession, rating: 1 | 2 | 3 | 4 = 4) {
+function answer(s: StudyDriver, rating: 1 | 2 | 3 | 4 = 4) {
   s.reveal();
   s.answer(rating);
 }

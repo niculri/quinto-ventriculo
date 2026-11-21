@@ -943,14 +943,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/api/StudySession.ts": {
-    "@typescript-eslint/no-empty-function": {
-      "count": 1
-    },
-    "@typescript-eslint/prefer-optional-chain": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/study/api/queries.ts": {
     "@typescript-eslint/no-deprecated": {
       "count": 1

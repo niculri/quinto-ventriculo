@@ -19,7 +19,7 @@ import {
   supabaseStudyRepository,
 } from '../../progress/api/repository';
 import type { CardChange, StudyRepository } from '../../progress/api/repository';
-import { StudySession } from '../api/StudySession';
+import { StudyDriver } from '../../../test/studyDriver';
 import { syncCards, withCardSync } from '../../progress/api/sync';
 import type { CardChangeSource } from '../../progress/api/sync';
 
@@ -162,7 +162,7 @@ async function load(
   };
 }
 
-async function studyAll(session: StudySession, start: number) {
+async function studyAll(session: StudyDriver, start: number) {
   let now = start;
   let fresh = 0;
   session.showNext();
@@ -193,7 +193,7 @@ describe('a card that moved to another deck after it was seen', () => {
   it('studying its new deck: it is not new, answering it does not stop the session, and it keeps its progress', async () => {
     const content = new Content({ [L1]: 3, [L2]: 2 });
     const local = localStudyRepository(null, PREFS);
-    const first = new StudySession(await load(content, local, L1, plan), L1, local);
+    const first = new StudyDriver(await load(content, local, L1, plan), L1, local);
     await studyAll(first, NOW);
     const before = (await local.allCards()).find((r) => r.noteGuid === `${L1}-00`)!;
     expect(before.reps).toBeGreaterThan(0);
@@ -207,7 +207,7 @@ describe('a card that moved to another deck after it was seen', () => {
       reps: before.reps,
       stability: before.stability,
     });
-    const session = new StudySession(data, L2, study);
+    const session = new StudyDriver(data, L2, study);
     session.showNext();
     for (let i = 0; i < 20 && session.shown; i++) {
       if (session.shown.entry.noteGuid === `${L1}-00`) {
@@ -268,7 +268,7 @@ describe('with a date, everything still comes out in time after the author moves
         (c) => !rows.some((r) => r.noteGuid === c.noteGuid && r.phase !== 'new'),
       ).length;
       expect(view.facts.newLeft + (view.facts.newToday ?? 0), `day ${day}`).toBe(unseen);
-      await studyAll(new StudySession(data, ASSESSMENT, study), now);
+      await studyAll(new StudyDriver(data, ASSESSMENT, study), now);
     }
     const rows = await local.allCards();
     const left = content.cards.filter(

@@ -2,14 +2,10 @@
 // in the simple mode; «Seguir» takes the warning away).
 import { useState } from 'react';
 import { estimateMinutes, HEAVY_LOAD_MINUTES } from '@qv/study';
-import type { StudySession } from '../api/StudySession';
+import type { Counts } from '@qv/srs';
 
-export function useOpeningLoad(
-  session: StudySession,
-  full: boolean,
-  medianAnswerMs: number | null,
-) {
-  const [opening] = useState(() => session.counts());
+export function useOpeningLoad(counts: Counts, full: boolean, medianAnswerMs: number | null) {
+  const [opening] = useState(counts);
   const minutes = estimateMinutes(opening, medianAnswerMs);
   const [heavy, setHeavy] = useState(!full && minutes >= HEAVY_LOAD_MINUTES);
   return { opening, minutes, heavy, goOn: () => setHeavy(false) };

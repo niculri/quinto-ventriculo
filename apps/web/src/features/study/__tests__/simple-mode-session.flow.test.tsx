@@ -11,7 +11,7 @@ import type {
   StoredCard,
   StudyRepository,
 } from '../../progress/api/repository';
-import { StudySession } from '../api/StudySession';
+import { StudyDriver } from '../../../test/studyDriver';
 
 const NOW = Date.parse('2026-10-31T15:00:00Z');
 const DAY = 86_400_000;
@@ -169,7 +169,7 @@ function withRoot(data: StudyData, root: string): StudyData {
 }
 
 function walk(data: StudyData, root: string) {
-  const session = new StudySession(withRoot(data, root), root, noSaving());
+  const session = new StudyDriver(withRoot(data, root), root, noSaving());
   session.showNext();
   const seen = new Map<string, 'new' | 'learning' | 'review'>();
   for (let i = 0; i < 2000 && session.shown; i++) {
@@ -278,7 +278,7 @@ describe('«N para hoy» is what comes out, from every level', () => {
 
 describe('going back and forth in a session', () => {
   const session = (data: StudyData, root: string) => {
-    const s = new StudySession(withRoot(data, root), root, {
+    const s = new StudyDriver(withRoot(data, root), root, {
       ...noSaving(),
       undo: async () => {
         throw new Error('not in this test');
@@ -365,7 +365,7 @@ describe('a card that costs a lot (a leech)', () => {
         ],
         prefs: { ...base.prefs, fullAnki },
       };
-      const s = new StudySession(data, L2, {
+      const s = new StudyDriver(data, L2, {
         ...noSaving(),
         recordReview: async (input) => {
           saved.push(input.state);
@@ -405,7 +405,7 @@ describe('the Extras that are off', () => {
   });
 
   it('studying it, the end screen says so, not that the lecture is off', () => {
-    const s = new StudySession(
+    const s = new StudyDriver(
       withRoot(study([], { activations: on(L1) }), L1_EXTRAS),
       L1_EXTRAS,
       noSaving(),
@@ -417,7 +417,7 @@ describe('the Extras that are off', () => {
 
   it('in «Modo avanzado» too', () => {
     const data = study([], {});
-    const s = new StudySession(
+    const s = new StudyDriver(
       { ...withRoot(data, L1_EXTRAS), prefs: { ...data.prefs, fullAnki: true } },
       L1_EXTRAS,
       noSaving(),

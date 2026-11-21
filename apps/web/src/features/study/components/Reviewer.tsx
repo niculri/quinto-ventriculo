@@ -6,7 +6,16 @@ import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { deckTitle } from '../../catalog/model/tree';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { cardKey } from '@qv/study';
+import {
+  answeredToday,
+  canUndo,
+  cardKey,
+  congrats,
+  countsOf,
+  flagOf,
+  hasSeen,
+  isDone,
+} from '@qv/study';
 import type { StudyData } from '@qv/study';
 import { DaySummary } from './DaySummary';
 import { useCardMaterial } from '../hooks/useCardMaterial';
@@ -22,6 +31,7 @@ import {
 import { useStudyShortcuts } from '../hooks/useStudyShortcuts';
 import { useCardReport } from '../hooks/useCardReport';
 import { useOpeningLoad } from '../hooks/useOpeningLoad';
+import { failureText, toastText } from '../model/messages';
 import { ReportEntry } from './ReportEntry';
 import { SessionStatus } from './SessionStatus';
 import { StudyCardArea } from './StudyCardArea';
@@ -42,40 +52,43 @@ export function Reviewer({
   initial: StudyData;
 }) {
   const night = useDarkMode();
-  const { session, version } = useStudySession(initial, rootId);
+  const { state, act, saves } = useStudySession(initial, rootId);
 
   const rootName = deckTitle(node);
   const [scopeDecks] = useState(() => new Set(descendants(node).map((n) => n.id)));
   const deckPath = paths.deck(node.ref);
-  const { shown, revealed, toast, failure } = session;
+  const { shown, revealed, failure } = state;
   const full = initial.prefs.fullAnki;
   const fourButtons = initial.prefs.fourButtons;
   const material = useCardMaterial(shown?.entry.deckId);
   const tip = useTip(
     'tip-material',
-    !full && revealed && !!material && session.answeredInSession > 0,
+    !full && revealed && !!material && state.answeredInSession > 0,
   );
-  const load = useOpeningLoad(session, full, initial.plan.medianAnswerMs);
+  const load = useOpeningLoad(countsOf(state), full, initial.plan.medianAnswerMs);
   const report = useCardReport();
+  const toast = state.toast ? toastText(state.toast, full) : null;
   const message = toast ?? (report.sent ? sharedStrings.reportThanks : null);
 
   useTitle(studyStrings.studyTitle(rootName));
-  useSessionLifecycle(session);
-  useStudyShortcuts(session, full, fourButtons);
+  useSessionLifecycle(act, saves);
+  useStudyShortcuts(act, revealed, full, fourButtons);
 
-  const counts = session.counts();
-  const done = !shown && version > 0;
-  const withSummary = useDoneSummary(done, () => session.answeredToday(scopeDecks));
+  const done = isDone(state);
+  const withSummary = useDoneSummary(done, () => answeredToday(state, scopeDecks));
   const summary = withSummary ? (
-    <DaySummary node={node} prefs={initial.prefs} saved={() => session.saved()} />
+    <DaySummary node={node} prefs={initial.prefs} saved={() => saves.saved()} />
   ) : null;
   const turn = useCardTurn(shown ? cardKey(shown.entry) : '');
 
   return (
     <div className={studyScreen}>
       <StudyTopBar
-        session={session}
-        counts={counts}
+        counts={countsOf(state)}
+        shown={shown}
+        flag={flagOf(state)}
+        canUndo={canUndo(state)}
+        act={act}
         node={node}
         deckPath={deckPath}
         full={full}
@@ -92,12 +105,14 @@ export function Reviewer({
         />
       ) : null}
 
-      {failure ? <SessionStopped failure={failure} /> : null}
+      {failure ? <SessionStopped failure={failureText(failure)} /> : null}
 
       {shown ? (
         <StudyCardArea
-          session={session}
+          act={act}
           shown={shown}
+          revealed={revealed}
+          failed={!!failure}
           night={night}
           full={full}
           fourButtons={fourButtons}
@@ -106,8 +121,8 @@ export function Reviewer({
         />
       ) : (
         <StudyEnd
-          session={session}
-          done={done}
+          info={done ? congrats(state) : null}
+          hasSeen={(id) => hasSeen(state, id)}
           full={full}
           node={node}
           deckPath={deckPath}

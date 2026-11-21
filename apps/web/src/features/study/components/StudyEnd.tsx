@@ -2,38 +2,32 @@
 // screen of its mode.
 import type { ReactNode } from 'react';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import type { StudySession } from '../api/StudySession';
+import type { CongratsInfo } from '@qv/study';
 import { Congrats } from './Congrats';
 import { DoneToday } from './DoneToday';
 
 export function StudyEnd({
-  session,
-  done,
+  info,
+  hasSeen,
   full,
   node,
   deckPath,
   summary,
 }: {
-  session: StudySession;
-  done: boolean;
+  info: CongratsInfo | null;
+  hasSeen: (assessmentId: string) => boolean;
   full: boolean;
   node: CourseDeckNode;
   deckPath: string;
   summary: ReactNode;
 }) {
-  return !done ? (
+  return !info ? (
     // Before the session looks for its first card: neither the end screen nor its summary, which would be gone in the
     // next frame.
     <div className="flex-1" />
   ) : full ? (
-    <Congrats info={session.congrats()} deckPath={deckPath} summary={summary} />
+    <Congrats info={info} deckPath={deckPath} summary={summary} />
   ) : (
-    <DoneToday
-      info={session.congrats()}
-      node={node}
-      deckPath={deckPath}
-      hasSeen={(id) => session.hasSeen(id)}
-      summary={summary}
-    />
+    <DoneToday info={info} node={node} deckPath={deckPath} hasSeen={hasSeen} summary={summary} />
   );
 }

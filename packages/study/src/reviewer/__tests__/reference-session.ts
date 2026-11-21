@@ -33,7 +33,7 @@ import {
   studyStrings,
 } from './reference-save';
 import type { SessionRepository } from './reference-save';
-import { restore, snapshot } from './reference-history';
+import { keepStamps, restore, restoreStamps, snapshot } from './reference-history';
 import type { HistoryItem } from './reference-history';
 
 type CardKey = { noteGuid: string; ord: number };
@@ -206,7 +206,7 @@ export class ReferenceStudySession {
     const result = answerCard(ref, record, rating, config, timing, {}, states);
     const bury = siblingsToBury(this.data, ref, record.queue, config, now);
     const buriedUntil = new Date(timing.nextDayAt * 1000).toISOString();
-    const { before, stamps } = snapshot(this.data.rows, this.stamps, [ref, ...bury]);
+    const kept = snapshot(this.data.rows, [ref, ...bury]);
 
     const fields = toStateFields(result.card, this.data.prefs, {
       suspended: (prev?.suspended ?? false) || result.suspend,
@@ -225,12 +225,13 @@ export class ReferenceStudySession {
       result.suspend ? { ...result.card, queue: 'review' } : result.card,
       timing,
     );
-    this.history.push({ kind: 'answer', card: ref, before, stamps, update, answer: answered });
+    this.history.push({ kind: 'answer', card: ref, ...kept, update, answer: answered });
     this.answeredInSession++;
 
     // Anki caps the time on a card to the preset's maximum.
     const durationMs = Math.round(Math.min(now - shownAt, config.capAnswerTimeToSecs * 1000));
     this.saves.enqueue(async () => {
+      keepStamps(kept, this.stamps);
       await saveAnswer(
         this.repository,
         this.stamps,
@@ -277,7 +278,7 @@ export class ReferenceStudySession {
     // Anki does not bury a suspended card.
     const targets = bury ? cards.filter((c) => !this.row(c)?.suspended) : cards;
     const until = new Date(timingFor(this.data.prefs).nextDayAt * 1000);
-    const { before, stamps } = snapshot(this.data.rows, this.stamps, targets);
+    const kept = snapshot(this.data.rows, targets);
     for (const c of targets) {
       const row = this.row(c) ?? blankRow(c);
       this.data.rows.set(
@@ -287,8 +288,9 @@ export class ReferenceStudySession {
           : { ...row, suspended: true, buriedUntil: null },
       );
     }
-    this.history.push({ kind: 'action', action, card: ref, before, stamps });
+    this.history.push({ kind: 'action', action, card: ref, ...kept });
     this.saves.enqueue(async () => {
+      keepStamps(kept, this.stamps);
       if (bury) await this.repository.bury(targets, until, note);
       else await this.repository.suspend(targets, note);
       await refreshStamps(
@@ -313,10 +315,11 @@ export class ReferenceStudySession {
     if (!ref || this.failure) return;
     const row = this.row(ref) ?? blankRow(ref);
     const next = row.flag === value ? 0 : value;
-    const { before, stamps } = snapshot(this.data.rows, this.stamps, [ref]);
+    const kept = snapshot(this.data.rows, [ref]);
     this.data.rows.set(cardKey(ref), { ...row, flag: next });
-    this.history.push({ kind: 'action', action: 'flag', card: ref, before, stamps });
+    this.history.push({ kind: 'action', action: 'flag', card: ref, ...kept });
     this.saves.enqueue(async () => {
+      keepStamps(kept, this.stamps);
       await this.repository.setFlag(ref, next);
       await refreshStamps(this.repository, this.stamps, [ref.deckId]);
     });
@@ -333,7 +336,7 @@ export class ReferenceStudySession {
     if (this.failure) return;
     const item = this.history.pop();
     if (item) {
-      restore(this.data.rows, this.stamps, item);
+      restore(this.data.rows, item);
       if (item.kind === 'answer') {
         this.queue.undo(item.update);
         const i = this.data.answers.lastIndexOf(item.answer);
@@ -345,6 +348,7 @@ export class ReferenceStudySession {
       const action = item.kind === 'answer' ? 'answer' : item.action;
       this.saves.enqueue(async () => {
         const undone = await this.repository.undo();
+        restoreStamps(this.stamps, item);
         // The database undoes the user's last action: if it was not this one (another tab or device did
         // something after it), what is shown here is no longer what is saved.
         if (

@@ -3,7 +3,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { cardKey } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
-import { CardChangedError, studyStrings } from './reference-save';
+import { CardChangedError } from './reference-save';
 import { createStudyState, studyReducer } from '../reducer';
 import { commandsAfter, isDone } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
@@ -305,9 +305,9 @@ describe('the day turning over', () => {
   });
 });
 
-// The marks of concurrency are filled in by the saving side. An answer, flag, burying or suspension that is still
-// being saved when it is undone has its card's mark overwritten by the end of that save, after the undo put it back;
-// the database then holds the old mark and the next answer of the card is refused as «changed elsewhere».
+// The marks of concurrency are filled in by the saving side as each write begins, and put back once the database has
+// undone it: a write still going when it is undone must not leave the card's old mark behind (the database would then
+// refuse the next answer of that card as «changed elsewhere»).
 describe('undoing before what was done is saved', () => {
   interface Doing {
     name: string;
@@ -407,15 +407,8 @@ describe('undoing before what was done is saved', () => {
       expect(await afterQuickUndo(doing, true)).toEqual({ old: null, now: null });
     });
 
-    it(`today, ${doing.name} undone before it was saved makes the next answer of that card fail`, async () => {
-      expect(await afterQuickUndo(doing, false)).toEqual({
-        old: studyStrings.session.changedElsewhere,
-        now: { kind: 'changedElsewhere' },
-      });
-    });
-
-    it.fails(`${doing.name} undone before it was saved leaves the card answerable`, async () => {
-      expect((await afterQuickUndo(doing, false)).now).toBeNull();
+    it(`${doing.name} undone before it was saved leaves the card answerable`, async () => {
+      expect(await afterQuickUndo(doing, false)).toEqual({ old: null, now: null });
     });
   }
 });

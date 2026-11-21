@@ -9,6 +9,8 @@ import { cardKey } from '../../scheduler';
 
 interface Before {
   before: Map<string, StoredCard | undefined>;
+  refs: CardRef[];
+  /** The marks of the cards, kept when the write of the step began (empty before). */
   stamps: Map<string, string | null>;
 }
 
@@ -16,28 +18,25 @@ export type HistoryItem =
   | (Before & { kind: 'answer'; card: CardRef; update: QueueUpdate; answer: AnswerToday })
   | (Before & { kind: 'action'; action: ActionName; card: CardRef });
 
-export function snapshot(
-  rows: Map<string, StoredCard>,
-  stamps: Map<string, string | null>,
-  refs: CardRef[],
-): Before {
+export function snapshot(rows: Map<string, StoredCard>, refs: CardRef[]): Before {
   const before = new Map<string, StoredCard | undefined>();
-  const kept = new Map<string, string | null>();
-  for (const r of refs) {
-    before.set(cardKey(r), rows.get(cardKey(r)));
-    kept.set(cardKey(r), stamps.get(cardKey(r)) ?? null);
-  }
-  return { before, stamps: kept };
+  for (const r of refs) before.set(cardKey(r), rows.get(cardKey(r)));
+  return { before, refs, stamps: new Map() };
 }
 
-export function restore(
-  rows: Map<string, StoredCard>,
-  stamps: Map<string, string | null>,
-  item: Before,
-) {
+/** The marks as they are now: called when the write of the step begins. */
+export function keepStamps(item: Before, stamps: Map<string, string | null>) {
+  for (const r of item.refs) item.stamps.set(cardKey(r), stamps.get(cardKey(r)) ?? null);
+}
+
+export function restore(rows: Map<string, StoredCard>, item: Before) {
   for (const [k, row] of item.before) {
     if (row) rows.set(k, row);
     else rows.delete(k);
   }
+}
+
+/** The marks the database gives back: called after it undid the step. */
+export function restoreStamps(stamps: Map<string, string | null>, item: Before) {
   for (const [k, stamp] of item.stamps) stamps.set(k, stamp);
 }

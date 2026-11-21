@@ -11,7 +11,7 @@ export class SaveQueue {
   pending = 0;
   private chain: Promise<unknown> = Promise.resolve();
   private readonly listeners = new Set<() => void>();
-  /** The marks of the cards a command changed, as they were when it was received: an undo puts them back. */
+  /** The marks of the cards a command changed, as they were when its write began: an undo puts them back. */
   private readonly before = new Map<number, Map<string, string | null>>();
   private readonly stamps: Map<string, string | null>;
 
@@ -42,8 +42,8 @@ export class SaveQueue {
         return;
       case 'saveAnswer': {
         const key = cardKey(command.review.card);
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await saveAnswer(
             repository,
             stamps,
@@ -57,31 +57,33 @@ export class SaveQueue {
         return;
       }
       case 'bury':
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await repository.bury([...command.cards], new Date(command.untilMs), command.note);
           await refreshStamps(repository, stamps, deckIdsOf(command.cards));
         });
         return;
       case 'suspend':
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await repository.suspend([...command.cards], command.note);
           await refreshStamps(repository, stamps, deckIdsOf(command.cards));
         });
         return;
       case 'setFlag':
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await repository.setFlag(command.card, command.flag);
           await refreshStamps(repository, stamps, [command.card.deckId]);
         });
         return;
       case 'undo':
-        for (const [k, stamp] of this.before.get(command.undoes) ?? []) stamps.set(k, stamp);
-        this.before.delete(command.undoes);
         this.enqueue(async () => {
           const undone = await repository.undo();
+          // The database gives the card back its old mark: put it back here only now, or the end of the write
+          // being undone would overwrite it.
+          for (const [k, stamp] of this.before.get(command.undoes) ?? []) stamps.set(k, stamp);
+          this.before.delete(command.undoes);
           // The database undoes the user's last action: if it was not this one (another tab or device did
           // something after it), what is shown here is no longer what is saved.
           if (

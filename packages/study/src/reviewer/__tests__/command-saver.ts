@@ -1,5 +1,5 @@
-// What the web's saving side has to do with the reducer's commands (the test writes it independently of the copy of
-// the old saving): in order, one write after another, with each card's mark filled in and put back on an undo.
+// What the web's saving side does with the reducer's commands, written apart from the old saving: in order, one
+// write at a time, each card's mark filled in as its write begins and put back once the database has undone it.
 import type { CardRef } from '@qv/schema/user';
 import { cardKey } from '../../scheduler';
 import { touchedBy } from '../commands';
@@ -32,9 +32,9 @@ export class CommandSaver {
         this.onPrefetch(command.entries);
         return;
       case 'saveAnswer': {
-        this.remember(command);
         const key = cardKey(command.review.card);
         this.enqueue(async () => {
+          this.remember(command);
           await saveAnswer(
             repository,
             stamps,
@@ -48,31 +48,31 @@ export class CommandSaver {
         return;
       }
       case 'bury':
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await repository.bury([...command.cards], new Date(command.untilMs), command.note);
           await refreshStamps(repository, stamps, deckIdsOf(command.cards));
         });
         return;
       case 'suspend':
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await repository.suspend([...command.cards], command.note);
           await refreshStamps(repository, stamps, deckIdsOf(command.cards));
         });
         return;
       case 'setFlag':
-        this.remember(command);
         this.enqueue(async () => {
+          this.remember(command);
           await repository.setFlag(command.card, command.flag);
           await refreshStamps(repository, stamps, [command.card.deckId]);
         });
         return;
       case 'undo': {
-        for (const [k, stamp] of this.before.get(command.undoes) ?? []) stamps.set(k, stamp);
-        this.before.delete(command.undoes);
         this.enqueue(async () => {
           const undone = await repository.undo();
+          for (const [k, stamp] of this.before.get(command.undoes) ?? []) stamps.set(k, stamp);
+          this.before.delete(command.undoes);
           if (
             undone?.action !== command.action ||
             undone.noteGuid !== command.card.noteGuid ||

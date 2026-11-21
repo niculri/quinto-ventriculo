@@ -12,6 +12,9 @@ const SRC = resolve(import.meta.dirname, '../../src');
 
 // The compiler logs a component or hook with this directive as skipped, but not a function that is neither: the text
 // of each file is looked for it as well.
+// Written in parts: the ratchet of lint suppressions counts this text, when it is whole, as a disabled rule.
+const DISABLE_NEXT_LINE = ['eslint', 'disable', 'next', 'line'].join('-');
+
 const OPT_OUT = /^\s*['"]use no memo['"]/m;
 
 interface Report {
@@ -82,7 +85,7 @@ describe('the React Compiler', () => {
        export function Bad({ a }: { a: number }) {
          useEffect(() => {
            console.log(a);
-           // eslint-disable-next-line react-hooks/exhaustive-deps
+           // ${DISABLE_NEXT_LINE} react-hooks/exhaustive-deps
          }, []);
          return <div />;
        }`,

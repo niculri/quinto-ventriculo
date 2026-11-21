@@ -17,10 +17,10 @@ import { reviewOrder, sortNew } from './sort';
 
 const keyOf = (c: CardKey) => `${c.noteGuid}\u001f${c.ord}`;
 
-export type LearningEntry = QueueEntry & { readonly due: number };
+export type LearningEntry = Readonly<QueueEntry> & { readonly due: number };
 
 export interface QueueState {
-  readonly main: readonly QueueEntry[];
+  readonly main: readonly Readonly<QueueEntry>[];
   /** Cards in (re)learning today, ordered by due time (not strictly, after `moveToFrontIn`). */
   readonly learning: readonly LearningEntry[];
   readonly counts: Readonly<Counts>;
@@ -31,7 +31,7 @@ export interface QueueState {
 
 /** What `answeredIn` took out of the queue and put back in, and what `undoIn` needs to reverse it. */
 export interface QueueUpdate {
-  readonly removed: QueueEntry | null;
+  readonly removed: Readonly<QueueEntry> | null;
   readonly fromLearning: LearningEntry | null;
   readonly requeued: LearningEntry | null;
   readonly snapshot: { readonly cutoff: number; readonly learningCount: number };
@@ -145,7 +145,7 @@ export function answeredIn(
   let main = q.main;
   let learning = q.learning;
   let counts = q.counts;
-  let removed: QueueEntry | null = null;
+  let removed: Readonly<QueueEntry> | null = null;
   let fromLearning: LearningEntry | null = null;
   const firstLearning = learning[0];
   const firstMain = main[0];

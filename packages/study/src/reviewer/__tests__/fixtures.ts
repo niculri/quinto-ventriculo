@@ -218,7 +218,7 @@ export function build(o: Options, rootId: string): StudyData {
   };
 }
 
-// Half of the cards have never been answered; the rest are spread over every state a stored card can be in.
+// Half of the cards have never been answered (a few forgotten); the rest are spread over every state a card can be in.
 function stateOf(
   card: CardSummary,
   rnd: () => number,
@@ -227,7 +227,11 @@ function stateOf(
   nearLeech: number,
 ): StoredCard | null {
   const roll = rnd();
-  if (roll < 0.45) return null;
+  // No row (never answered), or a forgotten card: new again but with the reviews and lapses it had.
+  if (roll < 0.45)
+    return roll < 0.05
+      ? { ...blankRow(card), reps: 4, lapses: 2, updatedAt: `m:${card.noteGuid}:${card.ord}` }
+      : null;
   const base = {
     ...blankRow(card),
     updatedAt: `m:${card.noteGuid}:${card.ord}`,

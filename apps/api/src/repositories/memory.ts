@@ -57,10 +57,6 @@ export function memoryRepository(bundle: ContentBundle): ContentRepository {
       });
     },
 
-    async browseJson() {
-      return JSON.stringify(decks.browse());
-    },
-
     async deckJson(id) {
       const deck = decks.deck(id);
       return deck ? JSON.stringify(deck) : null;

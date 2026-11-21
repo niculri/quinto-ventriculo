@@ -15,7 +15,6 @@
     "types": "wrangler types"
   },
   "dependencies": {
-    "@qv/html": "0.0.0",
     "@qv/schema": "0.0.0",
     "@supabase/supabase-js": "2.118.0",
     "hono": "4.13.14",

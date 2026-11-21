@@ -15,7 +15,6 @@ export const API_ROUTES = {
   note: route('GET', '/notes/:slug'),
   search: route('GET', '/search'),
   deck: route('GET', '/decks/:id'),
-  ankiNotes: route('GET', '/anki/notes'),
   cardIndex: route('GET', '/anki/index/:course/:assessment/:hash'),
   thumbs: route('GET', '/anki/thumbs'),
   cardChanges: route('GET', '/anki/card-changes'),
@@ -60,7 +59,6 @@ export const apiPaths = {
   search: (query: string, limit: number) =>
     `${fill(R.search.pattern)}?${new URLSearchParams({ q: query, limit: String(limit) })}`,
   deck: (id: string) => fill(R.deck.pattern, { id: encodeURIComponent(id) }),
-  ankiNotes: () => fill(R.ankiNotes.pattern),
   /** The assessment's id is `course/assessment`: it fills two segments, as it is. */
   cardIndex: (assessmentId: string, hash: string) =>
     fill(R.cardIndex.pattern.replace(':course/:assessment', ':assessmentId'), {

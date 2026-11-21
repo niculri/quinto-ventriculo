@@ -203,12 +203,21 @@ export function supabaseRepository(
       return nonNull(await rawRpc('quiz_section', { quiz_id: id, section_id: sectionId }));
     },
 
-    async browseJson() {
-      return rawRpc('anki_browse_notes', {});
-    },
-
+    // The root and the semester decks have no course: the web has no page for them and the root alone is every card.
     async deckJson(id) {
-      return nonNull(await rawRpc('anki_deck_detail', { deck_id: id }));
+      const [level, body] = await Promise.all([
+        db.from('anki_decks').select('course_id').eq('id', id).maybeSingle(),
+        rawRpc('anki_deck_detail', { deck_id: id }),
+      ]);
+      if (level.error) {
+        await body.cancel();
+        throw new Error(`Content database (deck level): ${level.error.message}`);
+      }
+      if (!level.data?.course_id) {
+        await body.cancel();
+        return null;
+      }
+      return nonNull(body);
     },
 
     async cardChanges(since, limit) {

@@ -3,7 +3,6 @@ import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  BrowseData,
   CardChanges,
   CardDetail,
   Catalog,
@@ -261,6 +260,7 @@ const media: MediaStore = {
 };
 
 let privateKey: JoseKey;
+let publicJwk: Record<string, unknown>;
 let app: ReturnType<typeof createApp>;
 const signer = new MediaSigner('secreto-de-prueba-0123456789-0123456789');
 
@@ -268,6 +268,7 @@ beforeAll(async () => {
   const pair = await generateKeyPair('ES256');
   privateKey = pair.privateKey;
   const jwk = { ...(await exportJWK(pair.publicKey)), kid: 'k1', alg: 'ES256' };
+  publicJwk = jwk;
   app = createApp({
     verifier: supabaseVerifier({
       supabaseUrl: SUPABASE,
@@ -457,39 +458,9 @@ describe('decks and cards', () => {
     ]);
   });
 
-  it('every note for the browser: plain text, tags, cards; no HTML', async () => {
-    const r = await get('/api/anki/notes', await token());
-    const b = BrowseData.parse(await r.json());
-    expect(b.notes).toEqual([
-      {
-        guid: 'oclusion-1',
-        noteTypeId: '2',
-        tags: ['columna'],
-        code: 'T-PR-01-001',
-        version: 2,
-        createdAt: null,
-        fields: ['{{c1::image-occlusion:rect}}', ''],
-        sortField: 'Vértebra',
-        cards: [
-          { ord: 0, deckId: '20' },
-          { ord: 1, deckId: '20' },
-        ],
-      },
-      {
-        guid: 's@/AqX%n?#',
-        noteTypeId: '1',
-        tags: [],
-        code: 'T-PR-01-002',
-        version: 1,
-        createdAt: '2026-10-08T12:00:00.000Z',
-        fields: ['¿Cuántas?', '7'],
-        sortField: '¿Cuántas?',
-        cards: [{ ord: 0, deckId: '21' }],
-      },
-    ]);
-    expect(r.headers.get('Content-Type')).toMatch(/^application\/json/);
-    expect(r.headers.get('Cache-Control')).toBe('private, max-age=60');
-    expect((await get('/api/anki/notes')).status).toBe(401);
+  it('the route that sent every note is gone', async () => {
+    expect((await get('/api/anki/notes', await token())).status).toBe(404);
+    expect((await get('/api/anki/notes')).status).toBe(404);
   });
 
   it('a deck: subdecks and cards sorted by code and ord', async () => {
@@ -505,6 +476,49 @@ describe('decks and cards', () => {
       ['T-PR-01-002', 0, 'basic', '21'],
     ]);
     expect(d.presets).toEqual([{ name: 'Default', config: { new: { perDay: 20 } } }]);
+  });
+
+  it('a deck answers from the course level down: the root and the semesters are a 404 like a missing id', async () => {
+    const level = (
+      id: string,
+      name: string,
+      courseId: string | null,
+      assessmentId: string | null,
+    ) => ({
+      id,
+      name,
+      description: '',
+      parentId: null,
+      semester: id === '18' ? null : 2,
+      courseId,
+      assessmentId,
+      preset: 'Default',
+      position: 0,
+    });
+    const leveled = createApp({
+      verifier: supabaseVerifier({
+        supabaseUrl: SUPABASE,
+        keys: createLocalJWKSet({ keys: [publicJwk] }),
+      }),
+      repository: memoryRepository({
+        ...bundle,
+        ankiDecks: [
+          level('18', 'Raíz', null, null),
+          level('19', 'Raíz::2° Semestre', null, null),
+          level('22', 'Raíz::2° Semestre::Biología celular', 'biologia-celular', null),
+          ...bundle.ankiDecks,
+        ],
+      }),
+      media,
+      signer,
+    });
+    const t = await token();
+    const status = async (id: string) =>
+      (await leveled.request(`/api/decks/${id}`, { headers: { Authorization: `Bearer ${t}` } }))
+        .status;
+    expect(await Promise.all(['18', '19', '22', '20', '21', '999'].map(status))).toEqual([
+      404, 404, 200, 200, 200, 404,
+    ]);
   });
 
   it('a card with signed images, its CSS and its kind; odd guids travel encoded', async () => {
@@ -692,7 +706,6 @@ describe('errors', () => {
         deckJson: async () => null,
         card: async () => null,
         cardChanges: async () => ({ changes: [], next: 0, latest: 0, more: false }),
-        browseJson: async () => '{"notes":[]}',
         quizzes: async () => [],
         quiz: async () => null,
         quizSectionJson: async () => null,

@@ -2,14 +2,12 @@
 import type {
   AnkiCatalog,
   AnkiNoteTypeRecord,
-  BrowseData,
   CardDetail,
   CardKind,
   CardSummary,
   ContentBundle,
   DeckDetail,
 } from '@qv/schema';
-import { ankiPlainText } from '@qv/html/text';
 
 export function memoryDecks(bundle: ContentBundle) {
   const decks = new Map(bundle.ankiDecks.map((d) => [d.id, d]));
@@ -72,29 +70,9 @@ export function memoryDecks(bundle: ContentBundle) {
       };
     },
 
-    browse(): BrowseData {
-      return {
-        notes: [...bundle.ankiNotes]
-          .sort((a, b) => compareCodes(a.code, b.code) || compare(a.guid, b.guid))
-          .map((n) => ({
-            guid: n.guid,
-            noteTypeId: n.noteTypeId,
-            tags: n.tags,
-            code: n.code,
-            version: n.version,
-            createdAt: n.createdAt,
-            fields: (noteTypes.get(n.noteTypeId)?.fields ?? []).map((f) => plainText(n.fields[f])),
-            sortField: [...n.cards].sort((a, b) => a.ord - b.ord)[0]?.sortField ?? '',
-            cards: [...n.cards]
-              .sort((a, b) => a.ord - b.ord)
-              .map((c) => ({ ord: c.ord, deckId: c.deckId })),
-          })),
-      };
-    },
-
     deck(id: string): DeckDetail | null {
       const d = decks.get(id);
-      if (!d) return null;
+      if (!d?.courseId) return null;
       const tree = subtree(id);
       const ids = new Set(tree.map((x) => x.id));
       const subdecks = tree
@@ -169,5 +147,3 @@ const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 const compareCodes = (a: string | null, b: string | null) =>
   a === b ? 0 : a === null ? 1 : b === null ? -1 : compare(a, b);
-
-const plainText = ankiPlainText;

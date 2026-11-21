@@ -99,8 +99,8 @@ const CONTENT_ANSWERS: Record<string, unknown> = {
   anki_card: null,
   anki_card_changes_since: { changes: [], latest: 0, more: false },
   quiz_section: { questions: [] },
-  anki_browse_notes: [],
-  anki_deck_detail: null,
+  anki_decks: [{ course_id: 'biologia-celular' }],
+  anki_deck_detail: { id: '1' },
   search_notes: [
     {
       note_id: 'n1',
@@ -132,7 +132,6 @@ describe('content database: the calls of each adapter', () => {
           ['quizzes', () => repo.quizzes()],
           ['quiz', () => repo.quiz('q1')],
           ['quizSectionJson', () => repo.quizSectionJson('q1', 's1')],
-          ['browseJson', () => repo.browseJson()],
           ['deckJson', () => repo.deckJson('1')],
           ['cardChanges', () => repo.cardChanges(5, 100)],
           ['card', () => repo.card('g1', 0)],

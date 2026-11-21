@@ -155,5 +155,5 @@ test('the old URLs of a deck and its subdeck go to their place in the tree', asy
 test('cards cannot be read without a session', async ({ page }) => {
   expect((await page.request.get('/api/decks/2059400110')).status()).toBe(401);
   expect((await page.request.get('/api/cards/cloze-1/0')).status()).toBe(401);
-  expect((await page.request.get('/api/anki/notes')).status()).toBe(401);
+  expect((await page.request.get('/api/anki/notes')).status()).toBe(404);
 });

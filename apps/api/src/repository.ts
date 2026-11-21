@@ -24,7 +24,6 @@ export interface ContentRepository {
   note(slug: string): Promise<Note | null>;
   search(query: string, limit: number): Promise<SearchResult[]>;
   deckJson(id: string): Promise<JsonBody | null>;
-  browseJson(): Promise<JsonBody>;
   cardChanges(since: number, limit: number): Promise<CardChanges>;
   card(noteGuid: string, ord: number): Promise<CardDetail | null>;
   quizzes(): Promise<QuizSummary[]>;

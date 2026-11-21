@@ -386,10 +386,6 @@ export function createApp(deps: Dependencies) {
     return c.body(deck, 200, JSON_TYPE);
   });
 
-  app.get(R.ankiNotes.pattern, requireSession, async (c) => {
-    return c.body(await c.get('repository').browseJson(), 200, JSON_TYPE);
-  });
-
   app.get(R.cardIndex.pattern, requireSession, async (c) => {
     const params = CardIndexParams.safeParse(c.req.param());
     if (!params.success) return c.json(apiError('invalid_index', 'Ese índice no existe.'), 400);

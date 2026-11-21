@@ -2,7 +2,6 @@
 import type { z } from 'zod';
 import {
   ApiError,
-  BrowseData,
   CardChanges,
   CardIndex,
   CardDetail,
@@ -103,7 +102,6 @@ export function createApiClient(
       request(apiPaths.catalog(), Catalog, signal, options.fresh ? { fresh: true } : {}),
     note: (slug: string, signal?: AbortSignal) => request(apiPaths.note(slug), Note, signal),
     deck: (id: string, signal?: AbortSignal) => request(apiPaths.deck(id), DeckDetail, signal),
-    ankiNotes: (signal?: AbortSignal) => request(apiPaths.ankiNotes(), BrowseData, signal),
     cardIndex: (assessmentId: string, hash: string, signal?: AbortSignal) =>
       request(apiPaths.cardIndex(assessmentId, hash), CardIndex, signal),
     /** One signature for every thumbnail of the browser: `apiPaths.media(<thumb>)?<query>`. */

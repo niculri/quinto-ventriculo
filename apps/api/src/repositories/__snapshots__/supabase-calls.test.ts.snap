@@ -179,24 +179,6 @@ exports[`content database: the calls of each adapter > content (draft) 1`] = `
   {
     "calls": [
       {
-        "body": {},
-        "headers": {
-          "accept": "application/json",
-          "apikey": "service-test-key",
-          "authorization": "Bearer service-test-key",
-          "content-profile": "draft",
-          "content-type": "application/json",
-        },
-        "method": "POST",
-        "path": "/rest/v1/rpc/anki_browse_notes",
-      },
-    ],
-    "result": "stream: []",
-    "step": "browseJson",
-  },
-  {
-    "calls": [
-      {
         "body": {
           "deck_id": "1",
         },
@@ -210,8 +192,17 @@ exports[`content database: the calls of each adapter > content (draft) 1`] = `
         "method": "POST",
         "path": "/rest/v1/rpc/anki_deck_detail",
       },
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_decks?select=course_id&id=eq.1",
+      },
     ],
-    "result": null,
+    "result": "stream: {"id":"1"}",
     "step": "deckJson",
   },
   {
@@ -490,23 +481,6 @@ exports[`content database: the calls of each adapter > content (public) 1`] = `
   {
     "calls": [
       {
-        "body": {},
-        "headers": {
-          "accept": "application/json",
-          "apikey": "service-test-key",
-          "authorization": "Bearer service-test-key",
-          "content-type": "application/json",
-        },
-        "method": "POST",
-        "path": "/rest/v1/rpc/anki_browse_notes",
-      },
-    ],
-    "result": "stream: []",
-    "step": "browseJson",
-  },
-  {
-    "calls": [
-      {
         "body": {
           "deck_id": "1",
         },
@@ -519,8 +493,17 @@ exports[`content database: the calls of each adapter > content (public) 1`] = `
         "method": "POST",
         "path": "/rest/v1/rpc/anki_deck_detail",
       },
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_decks?select=course_id&id=eq.1",
+      },
     ],
-    "result": null,
+    "result": "stream: {"id":"1"}",
     "step": "deckJson",
   },
   {

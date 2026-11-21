@@ -28,7 +28,6 @@ const CALLS: { [K in keyof ApiClient]: (api: ApiClient) => Promise<unknown> } = 
   catalog: (api) => api.catalog(),
   note: (api) => api.note('a-b'),
   deck: (api) => api.deck('1'),
-  ankiNotes: (api) => api.ankiNotes(),
   cardIndex: (api) => api.cardIndex('curso/certamen-1', '0123456789abcdef0123456789abcdef'),
   thumbSignature: (api) => api.thumbSignature(),
   cardChanges: (api) => api.cardChanges(7),

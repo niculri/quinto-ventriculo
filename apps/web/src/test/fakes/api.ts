@@ -2,7 +2,7 @@
 import type { DeckDetail, SearchResponse } from '@qv/schema';
 import { ApiRequestError } from '../../shared/lib/api';
 import type { ApiClient } from '../../shared/lib/api';
-import { BROWSE, CARDS, CARD_INDEX } from '../fixtures/cards';
+import { CARDS, CARD_INDEX } from '../fixtures/cards';
 import { CARD_INDEX_HASH, CATALOG } from '../fixtures/catalog';
 import { DECK } from '../fixtures/deck';
 import { NOTE } from '../fixtures/note';
@@ -51,7 +51,6 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
       if (d) return d;
       throw new ApiRequestError(404, 'not_found', 'Ese mazo no existe.');
     },
-    ankiNotes: async () => BROWSE,
     cardIndex: async (assessmentId, hash) => {
       if (assessmentId === CARD_INDEX.assessmentId && hash === CARD_INDEX_HASH) return CARD_INDEX;
       throw new ApiRequestError(404, 'not_found', 'Las tarjetas de este certamen cambiaron.');

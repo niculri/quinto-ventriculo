@@ -10,7 +10,13 @@ import { supabaseReleaseRepository, supabaseRepository } from './supabase';
 
 const KEY = 'sb_secret_prueba';
 const DECK = '{"id":"20","name":"Mazo","cards":[]}';
-const BROWSE = '{"notes":[{"guid":"g"}]}';
+// The course each deck of the fake database belongs to (none: the root and the semesters).
+const DECK_COURSES: Record<string, string | null> = {
+  '1': null,
+  '2': null,
+  '20': 'biologia-celular',
+  '21': 'biologia-celular',
+};
 
 const TABLES = [
   'semesters',
@@ -94,11 +100,13 @@ beforeAll(async () => {
             { assessmentId: 'x/y', hash: 'a'.repeat(32), noteCount: 1, cardCount: 2, bytes: 3 },
           ]),
         );
+      } else if (path === '/rest/v1/anki_decks') {
+        const id =
+          new URL(req.url ?? '', 'http://x').searchParams.get('id')?.replace('eq.', '') ?? '';
+        send(200, JSON.stringify(id in DECK_COURSES ? [{ course_id: DECK_COURSES[id] }] : []));
       } else if (path === '/rest/v1/rpc/anki_deck_detail') {
         const { deck_id } = JSON.parse(body) as { deck_id: string };
-        send(200, deck_id === '20' ? DECK : 'null');
-      } else if (path === '/rest/v1/rpc/anki_browse_notes') {
-        send(200, BROWSE);
+        send(200, deck_id in DECK_COURSES ? DECK : 'null');
       } else if (path === '/rest/v1/rpc/quiz_section') {
         const { quiz_id, section_id } = JSON.parse(body) as Record<string, string>;
         send(200, quiz_id === 'practica' && section_id === 'pautas' ? SECTION : 'null');
@@ -183,8 +191,7 @@ describe('the big reads of the content database', () => {
     expect(r.status).toBe(200);
     expect(r.headers.get('Content-Type')).toMatch(/^application\/json/);
     expect(await r.text()).toBe(`  ${DECK}`);
-    const call = seen.at(-1)!;
-    expect(call.path).toBe('/rest/v1/rpc/anki_deck_detail');
+    const call = seen.findLast((c) => c.path === '/rest/v1/rpc/anki_deck_detail')!;
     expect(JSON.parse(call.body)).toEqual({ deck_id: '20' });
     expect(call.headers.apikey).toBe(KEY);
     expect(call.headers.authorization).toBe(`Bearer ${KEY}`);
@@ -263,11 +270,16 @@ describe('the big reads of the content database', () => {
     expect((await get('/api/decks/999')).status).toBe(404);
   });
 
-  it('every note of the browser, as it comes', async () => {
-    const r = await get('/api/anki/notes');
-    expect(r.status).toBe(200);
-    expect(JSON.parse(await r.text())).toEqual({ notes: [{ guid: 'g' }] });
-    expect(seen.at(-1)!.path).toBe('/rest/v1/rpc/anki_browse_notes');
+  it('a deck from the course level down is passed on as it comes; the root and a semester are a 404', async () => {
+    expect(
+      await Promise.all(
+        ['1', '2', '21', '999'].map(async (id) => (await get(`/api/decks/${id}`)).status),
+      ),
+    ).toEqual([404, 404, 200, 404]);
+  });
+
+  it('the route that sent every note is gone', async () => {
+    expect((await get('/api/anki/notes')).status).toBe(404);
   });
 
   it('the catalog brings every deck of the tree, past the 1000 rows PostgREST gives at once', async () => {
@@ -287,7 +299,7 @@ describe('the big reads of the content database', () => {
     });
     const original = console.error;
     console.error = () => {};
-    const r = await broken.request('/api/anki/notes', { headers: { Authorization: 'Bearer x' } });
+    const r = await broken.request('/api/decks/20', { headers: { Authorization: 'Bearer x' } });
     console.error = original;
     expect(r.status).toBe(500);
     expect(await r.text()).not.toContain('no existe');

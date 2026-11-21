@@ -148,10 +148,7 @@
   },
   "apps/api/src/repositories/memory.ts": {
     "@typescript-eslint/require-await": {
-      "count": 10
-    },
-    "max-lines-per-function": {
-      "count": 1
+      "count": 9
     }
   },
   "apps/api/src/repositories/supabase.test.ts": {

@@ -2,7 +2,7 @@
 import type { BrowseData, CardDetail, CardIndex } from '@qv/schema';
 import { CATALOG } from './catalog';
 
-export const BROWSE: BrowseData = {
+const BROWSE: BrowseData = {
   notes: [
     {
       guid: 's@/AqX%n?#',

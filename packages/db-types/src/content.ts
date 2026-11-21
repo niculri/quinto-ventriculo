@@ -665,6 +665,19 @@ export type Database = {
           snippet: string
         }[]
       }
+      search_notes_except: {
+        Args: { excluded_courses: string[]; max_results: number; query: string }
+        Returns: {
+          anchor: string
+          course_name: string
+          note_id: string
+          note_slug: string
+          note_title: string
+          score: number
+          section: string
+          snippet: string
+        }[]
+      }
       sync_catalog: { Args: { c: Json }; Returns: undefined }
     }
     Enums: {
@@ -1697,6 +1710,19 @@ export type Database = {
       save_quizzes: { Args: { items: Json }; Returns: Json }
       search_notes: {
         Args: { max_results?: number; query: string }
+        Returns: {
+          anchor: string
+          course_name: string
+          note_id: string
+          note_slug: string
+          note_title: string
+          score: number
+          section: string
+          snippet: string
+        }[]
+      }
+      search_notes_except: {
+        Args: { excluded_courses: string[]; max_results: number; query: string }
         Returns: {
           anchor: string
           course_name: string

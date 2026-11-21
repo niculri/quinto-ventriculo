@@ -24,7 +24,8 @@ type JsonBody = string | ReadableStream<Uint8Array>;
 export interface ContentRepository {
   catalog(): Promise<Catalog>;
   note(slug: string): Promise<Note | null>;
-  search(query: string, limit: number): Promise<SearchResult[]>;
+  /** `excluded`: ids of courses whose notes never come in the results, before the limit is applied. */
+  search(query: string, limit: number, excluded?: readonly string[]): Promise<SearchResult[]>;
   deckJson(id: string): Promise<JsonBody | null>;
   cardChanges(since: number, limit: number): Promise<CardChanges>;
   card(noteGuid: string, ord: number): Promise<CardDetail | null>;

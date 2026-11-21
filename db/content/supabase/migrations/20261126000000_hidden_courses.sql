@@ -8,6 +8,11 @@
 -- site_settings() answers `hiddenCourses` too, and set_site_settings() changes only the keys it is given: an older
 -- Worker, which sends only `hideEmptySemesters`, keeps working, and a newer one before this migration is refused by
 -- the Worker itself (the answer lacks the list it sent).
+--
+-- search_notes_except() is search_notes() that leaves out the courses it is told to, before its limit: a search gives
+-- at most 50 sections, and a course turned off with many hits would fill them all, leaving the ones shown with none.
+-- search_notes() keeps its signature and its answer (it calls the new one with no course left out), so an older Worker
+-- keeps working.
 
 alter table public.site_settings
   add column hidden_courses text[] not null default '{}'
@@ -75,5 +80,69 @@ begin
   return public.site_settings();
 end;
 $$;
+
+create function public.search_notes_except(query text, max_results integer, excluded_courses text[])
+returns table (
+  note_id text,
+  note_slug text,
+  note_title text,
+  course_name text,
+  anchor text,
+  section text,
+  snippet text,
+  score real
+)
+language sql
+stable
+set search_path = ''
+as $$
+  with q as (select public.query_to_tsquery(query) as tsq)
+  select s.note_id,
+         n.slug,
+         n.title,
+         c.name,
+         s.anchor,
+         s.title,
+         ts_headline('public.es'::regconfig, s.body, q.tsq,
+                     'StartSel=⟦, StopSel=⟧, MaxWords=30, MinWords=12, MaxFragments=2, FragmentDelimiter=" … "'),
+         ts_rank_cd(s.search, q.tsq)
+    from q
+    join public.note_sections s on s.search @@ q.tsq
+    join public.notes n on n.id = s.note_id
+    join public.courses c on c.id = n.course_id
+   where numnode(q.tsq) > 0
+     and not (n.course_id = any (coalesce(excluded_courses, '{}')))
+   order by 8 desc, n.position, s.position
+   limit least(greatest(coalesce(max_results, 30), 1), 50);
+$$;
+
+create or replace function public.search_notes(query text, max_results integer default 30)
+returns table (
+  note_id text,
+  note_slug text,
+  note_title text,
+  course_name text,
+  anchor text,
+  section text,
+  snippet text,
+  score real
+)
+language sql
+stable
+set search_path = ''
+as $$
+  select * from public.search_notes_except(query, max_results, '{}');
+$$;
+
+revoke all on function public.search_notes_except(text, integer, text[]) from public;
+do $$
+begin
+  if exists (select from pg_roles where rolname = 'anon') then
+    revoke all on function public.search_notes_except(text, integer, text[]) from anon, authenticated;
+  end if;
+  if exists (select from pg_roles where rolname = 'service_role') then
+    grant execute on function public.search_notes_except(text, integer, text[]) to service_role;
+  end if;
+end $$;
 
 select public.rebuild_draft();

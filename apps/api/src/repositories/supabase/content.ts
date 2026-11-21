@@ -256,8 +256,15 @@ export function supabaseRepository(
       });
     },
 
-    async search(query, limit) {
-      const r = await db.rpc('search_notes', { query, max_results: limit });
+    async search(query, limit, excluded = []) {
+      // The call that does not name courses is the one a database before the switch for courses has.
+      const r = excluded.length
+        ? await db.rpc('search_notes_except', {
+            query,
+            max_results: limit,
+            excluded_courses: [...excluded],
+          })
+        : await db.rpc('search_notes', { query, max_results: limit });
       const rows = unwrap(r, 'search');
       return rows.map((row) =>
         SearchResult.parse({

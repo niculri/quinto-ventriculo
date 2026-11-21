@@ -65,6 +65,53 @@ describe('search_notes', () => {
   });
 });
 
+describe('search_notes_except', () => {
+  const FISICA = `
+    insert into courses values ('fisica', 2, 'Física', '🧲', 2);
+    insert into assessments values ('fisica/certamen-1', 'fisica', 'Certamen 1', 1);
+    insert into notes (id, slug, course_id, assessment_id, kind, title, position, document, hash)
+    values ('AP-FI-1', '01-fluidos', 'fisica', 'fisica/certamen-1', 'lecture', 'Fluidos', 1, '{}', 'h3');
+    insert into note_sections (note_id, position, anchor, title, level, body) values
+      ('AP-FI-1', 0, 'ribos', 'Ribosomas ribosomas', 2, 'Ribosomas ribosomas ribosomas ribosomas.');`;
+
+  const ids = (rows: { note_id: string }[]) => rows.map((r) => r.note_id);
+
+  it('leaves the courses out before the limit, so what is shown fills the results', async () => {
+    const found = await db.transaction(async (tx) => {
+      await tx.exec(FISICA);
+      const run = async (sql: string) => ids((await tx.query<{ note_id: string }>(sql)).rows);
+      const out = {
+        all: await run(`select note_id from public.search_notes_except('ribosomas', 1, '{}')`),
+        except: await run(
+          `select note_id from public.search_notes_except('ribosomas', 1, array['fisica'])`,
+        ),
+        exceptAll: await run(
+          `select note_id from public.search_notes_except('ribosomas', 10, array['fisica', 'biologia-celular'])`,
+        ),
+        nothing: await run(`select note_id from public.search_notes_except('ribosomas', 10, null)`),
+        plain: await run(`select note_id from public.search_notes('ribosomas', 10)`),
+      };
+      await tx.rollback();
+      return out;
+    });
+    expect(found.all).toEqual(['AP-FI-1']);
+    expect(found.except).toEqual(['AP-BC-C2-11']);
+    expect(found.exceptAll).toEqual([]);
+    expect(found.nothing).toEqual(found.plain);
+  });
+
+  it('is not for anon or authenticated', async () => {
+    const user = { sub: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.cl' };
+    for (const claims of [null, user]) {
+      await expect(
+        asUser(db, claims, (tx) =>
+          tx.query(`select * from public.search_notes_except('ribosomas', 10, '{}')`),
+        ),
+      ).rejects.toThrow(/permission denied/);
+    }
+  });
+});
+
 describe('access', () => {
   it('anon and authenticated cannot read the tables (only the API with service_role)', async () => {
     const user = { sub: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.cl' };

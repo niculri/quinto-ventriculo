@@ -70,7 +70,7 @@ const quiz = (course: string, assessment: string): ImportedQuiz => ({
   media: [],
 });
 
-const note = (id: string, course: string, assessment: string, text: string) => ({
+const note = (id: string, course: string, assessment: string, text: string, heading = 'Uno') => ({
   id,
   slug: id.toLowerCase(),
   courseId: course,
@@ -82,7 +82,7 @@ const note = (id: string, course: string, assessment: string, text: string) => (
   sources: [],
   html: `<p>${text}</p><img data-media="${IMAGE}" alt="x">`,
   toc: [],
-  sections: [{ anchor: 'uno', title: 'Uno', level: 2 as const, text }],
+  sections: [{ anchor: 'uno', title: heading, level: 2 as const, text }],
   hash: id,
   media: [IMAGE],
 });
@@ -389,6 +389,30 @@ describe('a course turned off', () => {
       expect(back.status, path).toBe(200);
       expect(await back.text(), path).toBe(await never.text());
     }
+  });
+
+  it('searches what is shown even when the course turned off has all the best hits', async () => {
+    const crowded: ContentBundle = {
+      ...bundle,
+      notes: [
+        note('AP-A2-1', SHOWN, `${SHOWN}/certamen-3`, 'La laringe se ve en la clase de anatomía.'),
+        ...Array.from({ length: 60 }, (_, i) =>
+          note(`AP-FI-${i}`, OFF, OFF_ASSESSMENT, 'La laringe en física.', 'Laringe'),
+        ),
+      ],
+    };
+    const app = createApp({
+      verifier: { verify: async (token) => ({ id: token, email: token }) },
+      repository: memoryRepository(crowded),
+      media,
+      signer,
+      settings: memorySiteSettings({ hiddenCourses: [OFF] }),
+      settingsTtl: 0,
+    });
+    const found = SearchResponse.parse(
+      await (await call(app, '/api/search?q=laringe&limit=5')).json(),
+    );
+    expect(found.results.map((r) => r.noteSlug)).toEqual(['ap-a2-1']);
   });
 
   it('with the settings unreadable, nothing of the material is given', async () => {

@@ -77,6 +77,19 @@ const refusal = (code: string, message: string, details: string | null = null): 
   body: { code, message, details, hint: null },
 });
 
+const SEARCH_ROWS = [
+  {
+    note_id: 'n1',
+    note_slug: 'n1',
+    note_title: 'Nota',
+    course_name: 'Ramo',
+    anchor: 'a',
+    section: 'S',
+    snippet: 's',
+    score: 1,
+  },
+];
+
 const CONTENT_ANSWERS: Record<string, unknown> = {
   semesters: [{ number: 1, name: 'Primer semestre' }],
   anki_deck_tree: [
@@ -101,18 +114,8 @@ const CONTENT_ANSWERS: Record<string, unknown> = {
   quiz_section: { questions: [] },
   anki_decks: [{ course_id: 'biologia-celular' }],
   anki_deck_detail: { id: '1' },
-  search_notes: [
-    {
-      note_id: 'n1',
-      note_slug: 'n1',
-      note_title: 'Nota',
-      course_name: 'Ramo',
-      anchor: 'a',
-      section: 'S',
-      snippet: 's',
-      score: 1,
-    },
-  ],
+  search_notes: SEARCH_ROWS,
+  search_notes_except: SEARCH_ROWS,
 };
 
 afterEach(() => vi.unstubAllGlobals());
@@ -137,6 +140,7 @@ describe('content database: the calls of each adapter', () => {
           ['card', () => repo.card('g1', 0)],
           ['note', () => repo.note('n1')],
           ['search', () => repo.search('nucleo', 10)],
+          ['search except', () => repo.search('nucleo', 10, ['fisica'])],
           ['courses', () => repo.courses()],
           ['deckCourse', () => repo.deckCourse('1')],
         ],

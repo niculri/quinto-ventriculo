@@ -70,13 +70,14 @@ export function memoryRepository(bundle: ContentBundle): ContentRepository {
       return note satisfies Note;
     },
 
-    async search(query, limit) {
+    async search(query, limit, excluded = []) {
       const words = normalize(query)
         .split(/\s+/)
         .filter((w) => w.length > 1);
       if (!words.length) return [];
       const results: SearchResult[] = [];
       for (const n of bundle.notes) {
+        if (excluded.includes(n.courseId)) continue;
         n.sections.forEach((s) => {
           const title = normalize(s.title);
           const text = normalize(s.text);

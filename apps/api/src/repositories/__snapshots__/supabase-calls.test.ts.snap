@@ -303,6 +303,40 @@ exports[`content database: the calls of each adapter > content (draft) 1`] = `
   {
     "calls": [
       {
+        "body": {
+          "excluded_courses": [
+            "fisica",
+          ],
+          "max_results": 10,
+          "query": "nucleo",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "draft",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/search_notes_except",
+      },
+    ],
+    "result": [
+      {
+        "anchor": "a",
+        "courseName": "Ramo",
+        "noteId": "n1",
+        "noteSlug": "n1",
+        "noteTitle": "Nota",
+        "score": 1,
+        "section": "S",
+        "snippet": "s",
+      },
+    ],
+    "step": "search except",
+  },
+  {
+    "calls": [
+      {
         "headers": {
           "accept-profile": "draft",
           "apikey": "service-test-key",
@@ -630,6 +664,40 @@ exports[`content database: the calls of each adapter > content (public) 1`] = `
       },
     ],
     "step": "search",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "excluded_courses": [
+            "fisica",
+          ],
+          "max_results": 10,
+          "query": "nucleo",
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/search_notes_except",
+      },
+    ],
+    "result": [
+      {
+        "anchor": "a",
+        "courseName": "Ramo",
+        "noteId": "n1",
+        "noteSlug": "n1",
+        "noteTitle": "Nota",
+        "score": 1,
+        "section": "S",
+        "snippet": "s",
+      },
+    ],
+    "step": "search except",
   },
   {
     "calls": [

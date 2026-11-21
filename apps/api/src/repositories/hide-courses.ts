@@ -3,17 +3,12 @@
 import { withoutCourses } from '@qv/schema/http';
 import type { ContentRepository } from '../repository';
 
-/** A search takes this many times what was asked, since some of what comes may be taken out. */
-const SEARCH_MARGIN = 4;
-
 export function hideCourses(
   repository: ContentRepository,
   hidden: ReadonlySet<string>,
 ): ContentRepository {
   if (!hidden.size) return repository;
   const visible = (courseId: string | null) => !courseId || !hidden.has(courseId);
-  const hiddenNames = async () =>
-    new Set((await repository.courses()).filter((c) => hidden.has(c.id)).map((c) => c.name));
 
   return {
     ...repository,
@@ -27,13 +22,7 @@ export function hideCourses(
       return note && visible(note.courseId) ? note : null;
     },
 
-    async search(query, limit) {
-      const [results, names] = await Promise.all([
-        repository.search(query, limit * SEARCH_MARGIN),
-        hiddenNames(),
-      ]);
-      return results.filter((r) => !names.has(r.courseName)).slice(0, limit);
-    },
+    search: (query, limit) => repository.search(query, limit, [...hidden]),
 
     async deckJson(id) {
       return visible(await repository.deckCourse(id)) ? repository.deckJson(id) : null;

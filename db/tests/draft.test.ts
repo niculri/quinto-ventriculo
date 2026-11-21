@@ -99,6 +99,16 @@ async function reads(schema: 'public' | 'draft') {
   const one = async (sql: string, params: unknown[] = []) =>
     JSON.stringify(await service(sql.replaceAll('@.', `${schema}.`), params));
   out.search = await one(`select * from @.search_notes('transcripción', 50)`);
+  // The migration of the courses turned off made it: a database stopped before it does not have it.
+  const [except] = await q<{ made: boolean }>(
+    `select to_regprocedure('public.search_notes_except(text, integer, text[])') is not null as made`,
+  );
+  if (except!.made) {
+    out.searchExcept = await one(
+      `select * from @.search_notes_except('transcripción', 50, array[$1]::text[])`,
+      [BC.split('/')[0]],
+    );
+  }
   out.quiz = await one(`select @.quiz_detail('practica-bc') as r`);
   out.section = await one(`select @.quiz_section('practica-bc', 'all') as r`);
   out.tree = await one(`select * from @.anki_deck_tree()`);

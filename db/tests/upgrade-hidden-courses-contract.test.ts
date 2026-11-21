@@ -59,3 +59,36 @@ describe('turning courses off, on a database like production', () => {
     });
   });
 });
+
+describe('turning courses off, on a database whose draft has changes that are not published', () => {
+  let stopped: PGlite;
+  const one = async (sql: string) => (await stopped.query<{ r: unknown }>(sql)).rows[0]!.r;
+
+  beforeAll(async () => {
+    stopped = await createDatabase('content', [], MIGRATION);
+    await stopped.query(`insert into draft.semesters values (9, '9° Semestre')`);
+  });
+
+  it('stops whole: not a column, not a function, nothing of what it makes', async () => {
+    expect(await one(`select count(*)::int as r from public.draft_pending_changes()`)).toBe(1);
+    await expect(applyMigration(stopped, 'content', MIGRATION)).rejects.toThrow(
+      /the draft has changes that are not published/,
+    );
+    expect(
+      await one(`select count(*)::int as r from information_schema.columns
+                  where table_name = 'site_settings' and column_name = 'hidden_courses'`),
+    ).toBe(0);
+    expect(
+      await one(
+        `select to_regprocedure('public.search_notes_except(text, integer, text[])')::text as r`,
+      ),
+    ).toBeNull();
+    expect(await one(`select public.site_settings() ? 'hiddenCourses' as r`)).toBe(false);
+  });
+
+  it('goes through once the draft is as published', async () => {
+    await stopped.query(`select public.reset_draft()`);
+    await applyMigration(stopped, 'content', MIGRATION);
+    expect(await one(`select public.site_settings() ->> 'hiddenCourses' as r`)).toBe('[]');
+  });
+});

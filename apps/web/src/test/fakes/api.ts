@@ -15,7 +15,8 @@ const notAdmin = async (): Promise<never> => {
 function deckDetail(id: string): DeckDetail | null {
   const all = CATALOG.anki.decks;
   const d = all.find((x) => x.id === id);
-  if (!d) return null;
+  // Like the API: the root and the semesters have no course and no page.
+  if (!d?.courseId) return null;
   const below = all.filter((x) => x.name.startsWith(`${d.name}::`));
   const ids = new Set([d.id, ...below.map((x) => x.id)]);
   return {

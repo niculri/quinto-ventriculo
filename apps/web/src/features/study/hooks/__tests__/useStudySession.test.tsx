@@ -1,9 +1,9 @@
 // Tests the study session hook: what it asks the repository once (also in StrictMode), the toast's timer, the
 // browser's «leave?» and the look for more cards.
-import { StrictMode } from 'react';
+import { StrictMode, startTransition } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_PLAN, treeDecks } from '@qv/study';
 import type { StudyData } from '@qv/study';
@@ -235,5 +235,53 @@ describe('a save that fails', () => {
     act(() => result.current.act.reveal());
     act(() => result.current.act.answer(3));
     expect(result.current.state.shown).toEqual(shown);
+  });
+});
+
+describe('an update that React sets aside under a synchronous one', () => {
+  // A transition sits unrendered when a click comes in: React draws the click's update first and then replays both
+  // in the order they were dispatched. What each pass asks to save has to keep the same ids, or it is saved twice.
+  it('does not save the same write twice when it is replayed', async () => {
+    const local = localStudyRepository(null);
+    const calls = {
+      recordReview: vi.spyOn(local, 'recordReview'),
+      bury: vi.spyOn(local, 'bury'),
+      undo: vi.spyOn(local, 'undo'),
+    };
+    let session: ReturnType<typeof useStudySession> | undefined;
+    function Screen() {
+      session = useStudySession(data(), DECK.id);
+      return (
+        <button type="button" onClick={() => session?.act.undo()}>
+          undo
+        </button>
+      );
+    }
+    render(
+      <StrictMode>
+        <ApiClientContext value={fakeApi()}>
+          <StudyRepositoryContext value={local}>
+            <QueryClientProvider client={new QueryClient()}>
+              <Screen />
+            </QueryClientProvider>
+          </StudyRepositoryContext>
+        </ApiClientContext>
+      </StrictMode>,
+    );
+    act(() => session?.act.open());
+    act(() => session?.act.reveal());
+    act(() => session?.act.answer(3));
+    await settle();
+
+    act(() => {
+      startTransition(() => session?.act.hide('bury_card'));
+      fireEvent.click(screen.getByRole('button', { name: 'undo' }));
+    });
+    await settle();
+    await act(() => session!.saves.saved());
+
+    expect(calls.undo).toHaveBeenCalledTimes(1);
+    expect(calls.recordReview).toHaveBeenCalledTimes(1);
+    expect(session?.state.failure).toBeNull();
   });
 });

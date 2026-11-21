@@ -57,7 +57,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     expect(
       await screen.findByRole('heading', { level: 2, name: 'Publicaciones' }),
     ).toBeInTheDocument();
-    const sections = [
+    const sections: [string, string][] = [
       ['Publicaciones', '/admin/releases'],
       ['Reportes', '/admin/reports'],
       ['Uso', '/admin/usage'],

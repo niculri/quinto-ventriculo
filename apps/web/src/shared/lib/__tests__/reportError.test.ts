@@ -70,7 +70,7 @@ describe('reportError', () => {
     expect(container.textContent).toBe('cayó');
 
     // `act` rethrows what nothing catches, which is what is being looked at: outside it, the root hands it over.
-    const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+    const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean | undefined };
     const inAct = env.IS_REACT_ACT_ENVIRONMENT;
     env.IS_REACT_ACT_ENVIRONMENT = false;
     try {

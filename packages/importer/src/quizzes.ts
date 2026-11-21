@@ -402,11 +402,10 @@ export interface QuizEntry {
   kicker?: string | null | undefined;
   heading?: string | null | undefined;
   footer?: string | null | undefined;
-  sections?: Record<
-    string,
-    { description?: string | undefined; notice?: string | null | undefined }
-  >;
-  questions?: Record<string, { explanation: string }>;
+  sections?:
+    | Record<string, { description?: string | undefined; notice?: string | null | undefined }>
+    | undefined;
+  questions?: Record<string, { explanation: string }> | undefined;
   /** A positional id moves everybody's progress when a question is added or taken out before it. */
   allowPositionalIds?: boolean | undefined;
 }

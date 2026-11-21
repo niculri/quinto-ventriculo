@@ -13,8 +13,8 @@ export interface OpenImage {
   src: string;
   alt: string;
   caption: string;
-  section?: string;
-  sectionTitle?: string;
+  section?: string | undefined;
+  sectionTitle?: string | undefined;
 }
 
 export function ImageViewer({

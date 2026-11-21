@@ -22,7 +22,7 @@ export function NavLink({
   inPath?: boolean;
   icon?: ReactNode;
   children: ReactNode;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   return (
     <Link

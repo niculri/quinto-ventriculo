@@ -45,10 +45,10 @@ const REASON_TEXT = {
 export type DbReason = keyof typeof REASON_TEXT;
 
 export interface DbErrorLike {
-  code?: string | null;
+  code?: string | null | undefined;
   message: string;
-  details?: string | null;
-  hint?: string | null;
+  details?: string | null | undefined;
+  hint?: string | null | undefined;
 }
 
 export class DatabaseError extends Error {

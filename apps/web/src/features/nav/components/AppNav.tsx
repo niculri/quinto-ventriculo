@@ -16,7 +16,7 @@ import { NavLink, icon } from './NavLink';
 import { SemesterBranch } from './SemesterBranch';
 import { AdminBranch, SettingsBranch } from './SectionBranches';
 
-export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
+export function AppNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { pathname } = useLocation();
   const catalog = useCatalog();
   const data = catalog.data ?? null;
@@ -48,7 +48,7 @@ function NavTree({
   catalog: Catalog | null;
   tree: AnkiTree | null;
   pathname: string;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   const semesters = (catalog?.semesters ?? []).filter((s) =>
     s.courses.some((c) => hasMaterial(c, tree)),

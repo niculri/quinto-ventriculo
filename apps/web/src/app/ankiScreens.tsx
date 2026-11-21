@@ -14,7 +14,7 @@ type Chunk = Promise<Render> & {
   status?: 'fulfilled' | 'rejected';
   value?: Render;
   reason?: unknown;
-  visit?: string;
+  visit?: string | undefined;
 };
 
 interface LazyScreen {

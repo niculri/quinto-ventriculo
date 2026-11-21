@@ -12,7 +12,7 @@ const DECK = '2059400110';
 const TERMS: string = LEGAL_VERSIONS.terms.version;
 const PRIVACY: string = LEGAL_VERSIONS.privacy.version;
 
-type Claims = { sub: string; email: string; session_id?: string };
+type Claims = { sub: string; email: string; session_id?: string | undefined };
 type Q = Pick<PGlite, 'query'>;
 
 async function signIn(db: PGlite, user: { sub: string; email: string }): Promise<Claims> {

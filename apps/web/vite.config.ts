@@ -139,7 +139,7 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: 5173,
       // Development with the real API: `npx wrangler dev` in apps/api (port 8787).
-      proxy: demo || local ? undefined : { '/api': 'http://localhost:8787' },
+      ...(demo || local ? {} : { proxy: { '/api': 'http://localhost:8787' } }),
     },
     build: {
       sourcemap: false,

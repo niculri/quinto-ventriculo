@@ -312,7 +312,7 @@ export function compareWithHistory(
 interface HistoryReference {
   nextTopic: number;
   version: number;
-  topics: Map<string, { title: string; unit: string; gone?: string }>;
+  topics: Map<string, { title: string; unit: string; gone?: string | undefined }>;
 }
 
 function referenceOf(versions: readonly TaxonomyFile[]): HistoryReference {

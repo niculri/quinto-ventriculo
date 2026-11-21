@@ -21,7 +21,7 @@ export function SemesterBranch({
   where: Where;
   tree: AnkiTree | null;
   pathname: string;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   const course = semester.courses.find((c) => c.id === where.courseId) ?? null;
   const emoji = (c: CourseWithAssessments) => (
@@ -89,7 +89,7 @@ function CourseAssessments({
   course: CourseWithAssessments;
   where: Where;
   tree: AnkiTree | null;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   const decks = (tree?.nodes ?? []).filter(
     (n): n is CourseDeckNode => n.depth === 3 && hasPage(n) && n.courseId === course.id,

@@ -49,8 +49,8 @@ function Field({
   after,
 }: {
   name: string;
-  before?: string | null;
-  after?: string | null;
+  before?: string | null | undefined;
+  after?: string | null | undefined;
 }) {
   return (
     <div className="mt-2">

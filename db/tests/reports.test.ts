@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, applyMigration, asUser, createDatabase } from './pglite';
 
 type User = { sub: string; email: string };
-type Claims = User & { session_id?: string };
+type Claims = User & { session_id?: string | undefined };
 
 const MIGRATION = '20261117000000_content_reports.sql';
 const DROP = '20261118000000_drop_card_reports.sql';

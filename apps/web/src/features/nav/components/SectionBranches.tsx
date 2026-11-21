@@ -10,7 +10,7 @@ export function AdminBranch({
   onNavigate,
 }: {
   pathname: string;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   const isAdmin = useIsAdmin();
   if (isAdmin.data !== true) return null;
@@ -42,7 +42,7 @@ export function SettingsBranch({
   onNavigate,
 }: {
   pathname: string;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   const groups = useSettingsGroups();
   return (

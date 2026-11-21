@@ -32,7 +32,7 @@ export interface SaveScope {
   decks: boolean;
   tests?: boolean;
   partialNotes?: boolean;
-  assessments?: string[];
+  assessments?: string[] | undefined;
   /** Saved with the catalog, so the review list can stop a release that still has something of it. */
   unpublished?: readonly { kind: string; id: string }[];
 }

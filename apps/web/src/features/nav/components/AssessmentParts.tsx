@@ -20,7 +20,7 @@ export function AssessmentParts({
   assessment: CourseWithAssessments['assessments'][number];
   deck: CourseDeckNode | null;
   where: Where;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
   const isOpen = (tab: 'notes' | 'tests' | 'anki') => toggled[tab] ?? where.tab === tab;
@@ -102,7 +102,7 @@ function NoteLinks({
   course: CourseWithAssessments;
   notes: readonly NoteSummary[];
   where: Where;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   return (
     <>

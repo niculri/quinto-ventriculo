@@ -23,13 +23,19 @@ import {
   RevertResult,
   SearchResponse,
   SiteSettings,
+  SiteSettingsView,
   ThumbSignature,
   UnpublishedLog,
   UsageOpenAck,
   UsageReport,
 } from '@qv/schema';
 import { PREVIEW_HEADER, PREVIEW_VALUE, apiPaths } from '@qv/schema/http';
-import type { PublishRequest, ReleaseMarkId, UsageOpenRequest } from '@qv/schema';
+import type {
+  PublishRequest,
+  ReleaseMarkId,
+  SiteSettingsUpdate,
+  UsageOpenRequest,
+} from '@qv/schema';
 import { sharedStrings } from '../strings';
 
 export class ApiRequestError extends Error {
@@ -117,8 +123,9 @@ export function createApiClient(
     quiz: (id: string, signal?: AbortSignal) => request(apiPaths.quiz(id), QuizDetail, signal),
     quizSection: (id: string, sectionId: string, signal?: AbortSignal) =>
       request(apiPaths.quizSection(id, sectionId), QuizSectionDetail, signal),
-    siteSettings: (signal?: AbortSignal) => request(apiPaths.siteSettings(), SiteSettings, signal),
-    setSiteSettings: (body: { hideEmptySemesters: boolean }) =>
+    siteSettings: (signal?: AbortSignal) =>
+      request(apiPaths.siteSettings(), SiteSettingsView, signal),
+    setSiteSettings: (body: SiteSettingsUpdate) =>
       request(apiPaths.siteSettings(), SiteSettings, undefined, { method: 'PUT', body }),
     unpublishedLog: (signal?: AbortSignal) =>
       request(apiPaths.unpublished(), UnpublishedLog, signal),

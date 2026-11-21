@@ -2,9 +2,10 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import type { SiteSettings } from '@qv/schema';
+import type { SiteSettingsView } from '@qv/schema';
 import { fakeApi } from '../../../test/fakes/api';
 import { CATALOG } from '../../../test/fixtures/catalog';
+import { NO_SETTINGS } from '../../../test/fixtures/siteSettings';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 import { localReportsRepository } from '../../reports/api/repository';
@@ -111,7 +112,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
   });
 
   it('«Sitio»: the switch hides the semesters without material, and the catalog is asked for again, fresh', async () => {
-    let settings: SiteSettings = { hideEmptySemesters: false, updatedAt: null, updatedBy: null };
+    let settings: SiteSettingsView = { ...NO_SETTINGS };
     const catalogCalls: { fresh?: boolean }[] = [];
     const api = fakeApi({
       catalog: async (_signal, options = {}) => {
@@ -121,7 +122,8 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
       siteSettings: async () => settings,
       setSiteSettings: async ({ hideEmptySemesters }) => {
         settings = {
-          hideEmptySemesters,
+          ...settings,
+          hideEmptySemesters: hideEmptySemesters ?? settings.hideEmptySemesters,
           updatedAt: '2026-11-07T15:00:00.000Z',
           updatedBy: 'dueno@ug.uchile.cl',
         };
@@ -141,7 +143,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
   });
 
   it('«Sitio»: saved is saved, even if the catalog does not come right after', async () => {
-    let settings: SiteSettings = { hideEmptySemesters: false, updatedAt: null, updatedBy: null };
+    let settings: SiteSettingsView = { ...NO_SETTINGS };
     const api = fakeApi({
       catalog: async (_signal, options = {}) => {
         if (options.fresh) throw new Error('offline');
@@ -150,7 +152,8 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
       siteSettings: async () => settings,
       setSiteSettings: async ({ hideEmptySemesters }) => {
         settings = {
-          hideEmptySemesters,
+          ...settings,
+          hideEmptySemesters: hideEmptySemesters ?? settings.hideEmptySemesters,
           updatedAt: '2026-11-07T15:00:00.000Z',
           updatedBy: 'dueno@ug.uchile.cl',
         };

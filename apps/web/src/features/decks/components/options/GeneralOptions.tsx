@@ -11,7 +11,8 @@ import { NumberRow } from '../../../../shared/ui/form/NumberRow';
 import { SwitchRow } from '../../../../shared/ui/form/SwitchRow';
 import { defaultPreferences } from '../../../progress/api/repository';
 import type { usePresetDrafts } from '../../hooks/usePresetDrafts';
-import { OptionsSection as Section, SaveControls, SaveFailure } from './OptionsParts';
+import { OptionsSection as Section, SaveFailure } from './OptionsParts';
+import { SaveControls } from '../../../../shared/ui/SaveControls';
 import { optionsStrings as o } from '../../options.strings';
 
 type Form = ReturnType<typeof usePresetDrafts>;

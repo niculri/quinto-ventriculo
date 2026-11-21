@@ -1,44 +1,7 @@
-// The pieces of the Anki options pages: a section, a warning, «Guardar» with its status and why a save failed.
+// The pieces of the Anki options pages: a section, a warning and why a save failed.
 import type { ReactNode } from 'react';
-import { Check, CircleDot } from 'lucide-react';
-import { button, card } from '../../../../shared/ui/styles';
+import { card } from '../../../../shared/ui/styles';
 import { optionsStrings as o } from '../../options.strings';
-
-export function SaveControls({
-  dirty,
-  saved,
-  saving,
-  onSave,
-}: {
-  dirty: boolean;
-  saved: boolean;
-  saving: boolean;
-  onSave: () => void;
-}) {
-  return (
-    <div className="flex items-center gap-3">
-      <span role="status" className="inline-flex w-24 justify-end text-xs font-medium">
-        {dirty ? (
-          <span className="inline-flex items-center gap-1 text-state-learn">
-            <CircleDot className="size-3.5" aria-hidden="true" /> {o.unsaved}
-          </span>
-        ) : saved ? (
-          <span className="inline-flex items-center gap-1 text-muted">
-            <Check className="size-3.5" aria-hidden="true" /> {o.saved}
-          </span>
-        ) : null}
-      </span>
-      <button
-        type="button"
-        onClick={onSave}
-        disabled={saving || !dirty}
-        className={`${button.base} ${button.primary} disabled:opacity-50`}
-      >
-        {o.save}
-      </button>
-    </div>
-  );
-}
 
 export function SaveFailure({ error }: { error: string | null }) {
   return error ? (

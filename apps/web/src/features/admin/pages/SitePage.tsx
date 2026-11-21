@@ -6,6 +6,7 @@ import { Reserved } from '../../../shared/ui/Reserved';
 import { Switch } from '../../../shared/ui/Switch';
 import { card } from '../../../shared/ui/styles';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
+import { CourseSwitches } from '../components/site/CourseSwitches';
 import { useSetSiteSettings, useSiteSettings } from '../hooks/useSiteSettings';
 import { siteStrings } from '../site.strings';
 
@@ -16,7 +17,7 @@ export function SitePage() {
   const settings = useSiteSettings(true);
   const save = useSetSiteSettings();
   const value = save.isPending
-    ? (save.variables?.hideEmptySemesters ?? false)
+    ? (save.variables?.hideEmptySemesters ?? settings.data?.hideEmptySemesters ?? false)
     : (settings.data?.hideEmptySemesters ?? false);
   const status = save.isError
     ? s.notSaved
@@ -59,6 +60,7 @@ export function SitePage() {
           </p>
         </Reserved>
       </div>
+      {settings.data ? <CourseSwitches settings={settings.data} /> : null}
     </>
   );
 }

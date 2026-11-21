@@ -8,9 +8,6 @@ import type { NewCardGatherPriority, NewCardSortOrder, ReviewCardOrder, ReviewMi
 
 export const optionsStrings = {
   loading: 'Cargando las opciones…',
-  unsaved: 'Sin guardar',
-  saved: 'Guardado',
-  save: 'Guardar',
   saveFailed: (error: string) => `No se pudo guardar: ${error}`,
   generalTitle: 'Anki general',
   decksTitle: 'Configuración de mazos',

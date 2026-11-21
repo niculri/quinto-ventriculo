@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { FEW } from '@qv/schema';
 import type { UnpublishedLog, UsageFigures, UsageReport } from '@qv/schema';
 import { fakeApi } from '../../../test/fakes/api';
+import { NO_SETTINGS } from '../../../test/fixtures/siteSettings';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 import type { AccessInvite } from '../api/repository';
@@ -268,7 +269,7 @@ describe('«Administración», the texts of each section', () => {
       admin: localAdminRepository({ admin: true }),
       api: fakeApi({
         siteSettings: async () => ({
-          hideEmptySemesters: false,
+          ...NO_SETTINGS,
           updatedAt: '2026-11-07T15:00:00.000Z',
           updatedBy: null,
         }),

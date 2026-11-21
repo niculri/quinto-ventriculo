@@ -2,7 +2,7 @@
 import { entriesOf, nextLearningDue } from '@qv/srs';
 import type { QueueEntry } from '@qv/srs';
 import { expect, vi } from 'vitest';
-import { cardKey } from '../../scheduler';
+import { cardKey, siblingsOf } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { actionLabel } from '../../session';
 import { createStudyState, studyReducer } from '../reducer';
@@ -30,6 +30,14 @@ export interface Stats {
   dayChanges: number;
   buried: number;
   leechesInSimple: number;
+  /** Burying a note while one of its other cards is suspended. */
+  buriedNoteWithSuspendedSibling: number;
+  /** An undo right after another undo that took something back. */
+  undoStreaks: number;
+  /** Undoing an answer whose count of the day is gone because the day turned over. */
+  undoneAfterDayChange: number;
+  /** The day turned over inside something that rebuilds the queue but is not a look for the next card. */
+  dayRebuiltAside: number;
   failures: number;
   prefetches: number;
   toasts: Map<string, number>;
@@ -47,6 +55,10 @@ export const emptyStats = (): Stats => ({
   dayChanges: 0,
   buried: 0,
   leechesInSimple: 0,
+  buriedNoteWithSuspendedSibling: 0,
+  undoStreaks: 0,
+  undoneAfterDayChange: 0,
+  dayRebuiltAside: 0,
   failures: 0,
   prefetches: 0,
   toasts: new Map(),
@@ -86,6 +98,7 @@ function toastText(t: Toast | null, full: boolean): string | null {
 }
 
 const rowsOf = (d: StudyData) => [...d.rows.values()];
+const internal = (target: object, key: string): unknown => Reflect.get(target, key);
 
 /** The two sessions, the repository each saves to, and what is needed to move both the same way. */
 class Pair {
@@ -97,6 +110,7 @@ class Pair {
   private readonly full: boolean;
   private lastSeq = 0;
   private lastToast = 0;
+  private undoStreak = 0;
 
   constructor(
     scenario: Scenario,
@@ -162,6 +176,45 @@ class Pair {
 
   /** One step of a student, on both sessions. */
   do(step: Step) {
+    const before = this.state;
+    this.perform(step);
+    this.observe(step, before);
+  }
+
+  private observe(step: Step, before: StudyState) {
+    const { state, stats } = this;
+    const shown = before.shown?.entry;
+    const rows = before.data.rows;
+    if (
+      step.kind === 'hide' &&
+      step.action === 'bury_note' &&
+      shown &&
+      siblingsOf(before.data.deck, shown).some((s) => rows.get(cardKey(s))?.suspended)
+    ) {
+      stats.buriedNoteWithSuspendedSibling++;
+    }
+    const top = before.history.at(-1);
+    if (step.kind === 'undo') {
+      if (top && this.undoStreak > 0) stats.undoStreaks++;
+      if (top?.kind === 'answer' && !before.data.answers.includes(top.answer)) {
+        stats.undoneAfterDayChange++;
+      }
+      this.undoStreak = top ? this.undoStreak + 1 : 0;
+    } else {
+      this.undoStreak = 0;
+    }
+    const aside = step.kind === 'hide' || step.kind === 'skipMissing' || step.kind === 'undo';
+    if (
+      aside &&
+      before.data.answers.length > 0 &&
+      state.queue.today !== before.queue.today &&
+      state.data.answers.length >= before.data.answers.length
+    ) {
+      stats.dayRebuiltAside++;
+    }
+  }
+
+  private perform(step: Step) {
     const now = Date.now();
     const { old, stats } = this;
     switch (step.kind) {
@@ -237,6 +290,8 @@ class Pair {
     expect(state.data.answers).toEqual(old.data.answers);
     expect(state.data.progress).toEqual(old.data.progress);
     expect(state.data.deck.cards).toEqual(old.data.deck.cards);
+    expect(state.queue).toEqual(internal(old.queue, 'state'));
+    expect(state.configs).toEqual(internal(old, 'configs'));
     expect(entriesOf(state.queue)).toEqual(old.queue.entries());
     expect(nextLearningDue(state.queue)).toBe(old.queue.nextLearningDue());
     expect(state.queue.today).toBe(old.queue.today);

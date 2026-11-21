@@ -11,7 +11,7 @@ import { EMPTY_PLAN } from '../../simple';
 import type { StudyPlan } from '../../simple';
 
 const ZONE = 'America/Santiago';
-const COURSE = '3';
+export const COURSE = '3';
 export const ASSESSMENT = '4';
 export const L1 = '51';
 export const L2 = '52';
@@ -20,9 +20,9 @@ const SUB = '54';
 const OTHER = '91';
 
 /** 2026-11-18 12:00 in Santiago. */
-const NOON = Date.parse('2026-11-18T15:00:00Z');
+export const NOON = Date.parse('2026-11-18T15:00:00Z');
 /** 10 minutes before the day turns over (4:00) in Santiago. */
-const BEFORE_ROLLOVER = Date.parse('2026-11-19T06:50:00Z');
+export const BEFORE_ROLLOVER = Date.parse('2026-11-19T06:50:00Z');
 
 export function random(seed: number): () => number {
   let a = seed >>> 0;
@@ -84,6 +84,8 @@ interface Options {
   leechy?: boolean;
   seed?: number;
   notesPerDeck?: number;
+  /** A test date on the assessment, so the new cards of each day are worked out from the days left. */
+  exam?: { date: string; finalDays?: number };
 }
 
 export interface Scenario {
@@ -153,12 +155,16 @@ function deckDetail(decks: TreeDeck[], rootId: string, all: CardSummary[]): Deck
   };
 }
 
-function build(o: Options, rootId: string): StudyData {
-  const decks = tree();
+/** With a test date the pace counts the new cards each deck holds by itself. */
+const withOwnCards = (decks: TreeDeck[], cards: readonly CardSummary[]): TreeDeck[] =>
+  decks.map((d) => ({ ...d, ownCards: cards.filter((c) => c.deckId === d.id).length }));
+
+export function build(o: Options, rootId: string): StudyData {
   const timing = schedTiming(o.start / 1000, ZONE, 4);
   const dayStart = (offset: number) =>
     new Date(dayStartsAt(timing.today + offset, ZONE, 4) * 1000).toISOString();
   const { cards, rows } = cardsAndRows(o, dayStart);
+  const decks = o.exam ? withOwnCards(tree(), cards) : tree();
   const answers: AnswerToday[] = o.withAnswers
     ? [
         { deckId: L1, queueBefore: 'new' },
@@ -173,6 +179,17 @@ function build(o: Options, rootId: string): StudyData {
       { deckId: L2, active: true },
     ],
     answeredDecks: o.full ? [] : [L3],
+    assessments: o.exam
+      ? [
+          {
+            deckId: ASSESSMENT,
+            includeExtras: false,
+            newPerDay: null,
+            examDate: o.exam.date,
+            ...(o.exam.finalDays === undefined ? {} : { finalReviewDays: o.exam.finalDays }),
+          },
+        ]
+      : [],
   };
   const progress = o.withAnswers
     ? {
@@ -269,55 +286,3 @@ function stateOf(
     lastReview: dayStart(-3 - Math.floor(rnd() * 10)),
   };
 }
-
-export const SCENARIOS: Scenario[] = [
-  {
-    name: 'advanced mode, the whole course',
-    rootId: COURSE,
-    start: NOON,
-    data: () => build({ full: true, start: NOON }, COURSE),
-  },
-  {
-    name: 'simple mode, the whole course',
-    rootId: COURSE,
-    start: NOON,
-    data: () => build({ full: false, start: NOON, seed: 11 }, COURSE),
-  },
-  {
-    name: 'advanced mode, one unit with a subdeck, no learn-ahead',
-    rootId: L1,
-    start: NOON,
-    data: () => build({ full: true, start: NOON, seed: 5, learnAheadMinutes: 0 }, L1),
-  },
-  {
-    name: 'ten minutes before the day turns over, with the day’s answers',
-    rootId: COURSE,
-    start: BEFORE_ROLLOVER,
-    data: () => build({ full: true, start: BEFORE_ROLLOVER, withAnswers: true, seed: 3 }, COURSE),
-  },
-  {
-    name: 'simple mode before the rollover, with the day’s answers',
-    rootId: ASSESSMENT,
-    start: BEFORE_ROLLOVER,
-    data: () =>
-      build({ full: false, start: BEFORE_ROLLOVER, withAnswers: true, seed: 21 }, ASSESSMENT),
-  },
-  {
-    name: 'few cards, so the queue empties and fills again',
-    rootId: L2,
-    start: NOON,
-    data: () => build({ full: true, start: NOON, seed: 9, notesPerDeck: 2 }, L2),
-  },
-  {
-    name: 'advanced mode, reviews one failure from being leeches (suspended in the strict unit)',
-    rootId: COURSE,
-    start: NOON,
-    data: () => build({ full: true, start: NOON, seed: 17, leechy: true }, COURSE),
-  },
-  {
-    name: 'simple mode, reviews one failure from being leeches',
-    rootId: COURSE,
-    start: NOON,
-    data: () => build({ full: false, start: NOON, seed: 19, leechy: true }, COURSE),
-  },
-];

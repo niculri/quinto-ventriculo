@@ -8,7 +8,7 @@ import type { StudyAction, StudyState } from '../state';
 import { deepFreeze } from './freeze';
 import { emptyStats, runDifferential } from './harness';
 import type { Stats } from './harness';
-import { SCENARIOS } from './fixtures';
+import { SCENARIOS } from './scenarios';
 import type { Failures } from './fake-repository';
 
 const SEEDS = 36;
@@ -41,6 +41,10 @@ describe('the reducer and the old session, step by step', () => {
     expect(stats.dayChanges).toBeGreaterThan(100);
     expect(stats.buried).toBeGreaterThan(100);
     expect(stats.leechesInSimple).toBeGreaterThan(0);
+    expect(stats.buriedNoteWithSuspendedSibling).toBeGreaterThan(20);
+    expect(stats.undoStreaks).toBeGreaterThan(100);
+    expect(stats.undoneAfterDayChange).toBeGreaterThan(30);
+    expect(stats.dayRebuiltAside).toBeGreaterThan(30);
     for (const toast of [
       'leech',
       'leechSuspended',
@@ -263,5 +267,18 @@ describe('what the web leans on', () => {
     const undone = run(state, { type: 'undo', now: scenario.start });
     expect(undone.shown).not.toBeNull();
     expect(isDone(undone)).toBe(false);
+  });
+});
+
+describe('a deck with nothing to study', () => {
+  it('opening it is already the end, not a screen still waiting for its first card', () => {
+    const data = START.data();
+    const empty = { ...data, deck: { ...data.deck, cards: [] } };
+    const state = deepFreeze(
+      studyReducer(createStudyState(empty, START.rootId, AT), { type: 'opened', now: AT }),
+    );
+    expect(state.shown).toBeNull();
+    expect(state.started).toBe(true);
+    expect(isDone(state)).toBe(true);
   });
 });

@@ -16,7 +16,8 @@ import {
 } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
 import { deepFreeze } from './freeze';
-import { ASSESSMENT, L1, SCENARIOS } from './fixtures';
+import { ASSESSMENT, L1 } from './fixtures';
+import { SCENARIOS } from './scenarios';
 
 const scenario = SCENARIOS[0]!;
 const AT = scenario.start;

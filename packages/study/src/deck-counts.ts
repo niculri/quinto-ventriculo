@@ -1,5 +1,6 @@
 // What is left today in each deck of a tree, as Anki's deck list counts it, and when those counts change next.
 
+import { countsOf } from '@qv/srs';
 import type { Counts, QueueCard } from '@qv/srs';
 import { buildQueue, configsFor, deckIds, queueCards, studiedToday } from './scheduler';
 import type { StudyData } from './scheduler';
@@ -39,7 +40,7 @@ export function deckCounts(data: StudyData, nowMs = Date.now()): Map<string, Cou
   const known = new Set(data.decks.map((d) => d.id));
   for (const id of ids) {
     if (!known.has(id)) continue;
-    out.set(id, buildQueue(data, id, nowMs, configs, studied, gather(id)).counts());
+    out.set(id, countsOf(buildQueue(data, id, nowMs, configs, studied, gather(id))));
   }
   return out;
 }

@@ -35,7 +35,6 @@ export type {
 } from './queue/base';
 export { countStudiedToday, sortDecksByName } from './queue/limits';
 export {
-  StudyQueue,
   answeredIn,
   buildQueue,
   countsOf,

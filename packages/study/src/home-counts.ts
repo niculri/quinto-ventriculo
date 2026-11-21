@@ -1,6 +1,6 @@
 // What is left today in each course on the home page, built from the home_counts() figures without loading the decks.
 
-import { fillParameters } from '@qv/srs';
+import { countsOf, fillParameters } from '@qv/srs';
 import type { Counts, DeckConfig, SchedTiming, StudiedToday } from '@qv/srs';
 import type { AnkiTreeDeck, CardSummary, DeckDetail } from '@qv/schema/anki';
 import type { HomeCounts, HomeDeckCounts, StoredCard } from '@qv/schema/user';
@@ -164,7 +164,7 @@ export function homeCourseCounts(
       configs,
       studied,
     );
-  const least = count(plan.flatMap((p) => fresh(p.d.id, p.low))).counts();
+  const least = countsOf(count(plan.flatMap((p) => fresh(p.d.id, p.low))));
 
   // A note's new cards are buried when the preset of a deck of one of its cards due today buries new siblings.
   const buriesNew = new Map<string, boolean>();
@@ -186,7 +186,7 @@ export function homeCourseCounts(
   });
   const most = plan.every((p, i) => p.low === highs[i])
     ? least
-    : count(plan.flatMap((p, i) => fresh(p.d.id, highs[i]!))).counts();
+    : countsOf(count(plan.flatMap((p, i) => fresh(p.d.id, highs[i]!))));
 
   return { counts: least.new === most.new ? least : null, mastery };
 }

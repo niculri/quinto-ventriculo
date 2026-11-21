@@ -6,6 +6,7 @@ import { deckCounts } from '../src/deck-counts';
 import { defaultPreferences } from '../src/preferences';
 import type { StoredCard } from '@qv/schema/user';
 import { blankRow } from '../src/session';
+import { countsOf } from '@qv/srs';
 import { buildQueue, cardKey, queueCards } from '../src/scheduler';
 import type { StudyData, TreeDeck } from '../src/scheduler';
 import { EMPTY_PLAN } from '../src/simple';
@@ -110,7 +111,7 @@ describe('the counts of the deck list', () => {
     expect(counts.size).toBe(data.decks.length);
     const all = queueCards(data, now);
     for (const d of data.decks) {
-      const expected = buildQueue(data, d.id, now, undefined, undefined, all).counts();
+      const expected = countsOf(buildQueue(data, d.id, now, undefined, undefined, all));
       expect([d.name, counts.get(d.id)]).toEqual([d.name, expected]);
     }
     expect(counts.get('1')!.new).toBe(6);

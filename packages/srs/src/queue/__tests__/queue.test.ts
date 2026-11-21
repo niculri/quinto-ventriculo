@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The queue functions leave their argument as it was; the object over them and the pure values read like the old
-// mutable queue (reference-queue.ts) in random sessions.
+// The queue functions leave their argument as it was, and the pure values read like the old mutable queue
+// (reference-queue.ts) in random sessions.
 import { describe, expect, it } from 'vitest';
 import { answerCard, newCard } from '../../card';
 import type { CardKey, CardRecord, Rating } from '../../card';
@@ -10,7 +10,6 @@ import type { DeckConfig } from '../../config';
 import type { SchedTiming } from '../../timing';
 import type { QueueCard, QueueDeck, QueueEntry, QueueInput } from '../base';
 import {
-  StudyQueue,
   answeredIn,
   buildQueue,
   countsOf,
@@ -304,19 +303,20 @@ describe('the pure functions leave their arguments alone', () => {
   });
 });
 
-describe('the StudyQueue object', () => {
-  it('answers, undoes and moves cards like the pure functions', () => {
-    const queue = StudyQueue.build(input([card('n1', null, 0), card('n2', null, 1)]));
-    const first = queue.next()!;
+describe('answering, undoing and moving a card', () => {
+  it('give back the queue as it was, and tell a card that is not in it', () => {
+    let queue = buildQueue(input([card('n1', null, 0), card('n2', null, 1)]));
+    const first = nextOf(queue)!;
     const result = answerCard(first, newCard(0), 3, config, timing, { fuzz: false });
-    const update = queue.answered(first, result.card, timing);
-    expect(queue.next()?.noteGuid).toBe('n2');
-    expect(queue.counts()).toEqual({ new: 1, review: 0, learning: 1 });
-    queue.undo(update);
-    expect(queue.next()?.noteGuid).toBe('n1');
-    expect(queue.moveToFront(key('n2'))).toBe(true);
-    expect(queue.moveToFront(key('nobody'))).toBe(false);
-    expect(queue.next()?.noteGuid).toBe('n2');
+    const answered = answeredIn(queue, first, result.card, timing);
+    queue = answered.queue;
+    expect(nextOf(queue)?.noteGuid).toBe('n2');
+    expect(countsOf(queue)).toEqual({ new: 1, review: 0, learning: 1 });
+    queue = undoIn(queue, answered.update);
+    expect(nextOf(queue)?.noteGuid).toBe('n1');
+    expect(moveToFrontIn(queue, key('nobody'))).toBeNull();
+    queue = moveToFrontIn(queue, key('n2'))!;
+    expect(nextOf(queue)?.noteGuid).toBe('n2');
     expect([queue.today, queue.learnAheadSecs]).toEqual([timing.today, 1200]);
   });
 });
@@ -422,7 +422,6 @@ function runSession(seed: number, world: World) {
     },
   };
   const reference = ReferenceStudyQueue.build(base);
-  const wrapper = StudyQueue.build(base);
   let pure = deepFreeze(buildQueue(base));
   const records = new Map(
     cards.map((c) => [`${c.noteGuid}/${c.ord}`, c.record ?? newCard(c.index)]),
@@ -431,7 +430,6 @@ function runSession(seed: number, world: World) {
     before: CardRecord;
     key: CardKey;
     ref: ReturnType<ReferenceStudyQueue['answered']>;
-    wrap: QueueUpdate;
     pure: QueueUpdate;
   }[] = [];
   let now = NOW;
@@ -444,13 +442,6 @@ function runSession(seed: number, world: World) {
       learningDue: reference.nextLearningDue(),
       kinds: keys.map((k) => reference.kindOf(k)),
     }),
-    wrapper: snapshot({
-      entries: wrapper.entries(),
-      next: wrapper.next(),
-      counts: wrapper.counts(),
-      learningDue: wrapper.nextLearningDue(),
-      kinds: keys.map((k) => wrapper.kindOf(k)),
-    }),
     pure: snapshot({
       entries: entriesOf(pure),
       next: nextOf(pure),
@@ -462,7 +453,6 @@ function runSession(seed: number, world: World) {
   const keys = cards.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord }));
   const same = (step: string) => {
     const read = readAll(keys);
-    expect(read.wrapper, step).toEqual(read.reference);
     expect(read.pure, step).toEqual(read.reference);
     const held = heldBy(reference);
     expect(
@@ -485,42 +475,36 @@ function runSession(seed: number, world: World) {
       const rating = (1 + Math.floor(rand() * 4)) as Rating;
       const result = answerCard(k, before, rating, world.config, t, { fuzz: false });
       records.set(`${k.noteGuid}/${k.ord}`, result.card);
-      // With a moved learning card the next card may not be at the front of its list: all three refuse it alike.
+      // With a moved learning card the next card may not be at the front of its list: both refuse it alike.
       let ref: ReturnType<ReferenceStudyQueue['answered']>;
       try {
         ref = reference.answered(k, result.card, t);
       } catch {
         records.set(`${k.noteGuid}/${k.ord}`, before);
-        expect(() => wrapper.answered(k, result.card, t), label).toThrow();
         expect(() => answeredIn(pure, k, result.card, t), label).toThrow();
         continue;
       }
-      const wrap = wrapper.answered(k, result.card, t);
       const answered = answeredIn(pure, k, result.card, t);
       pure = deepFreeze(answered.queue);
-      expect(wrap, label).toEqual(ref);
       expect(answered.update, label).toEqual(ref);
-      undoStack.push({ before, key: k, ref, wrap, pure: answered.update });
+      undoStack.push({ before, key: k, ref, pure: answered.update });
     } else if (roll < 0.75) {
       const undo = undoStack.pop();
       if (!undo) continue;
       records.set(`${undo.key.noteGuid}/${undo.key.ord}`, undo.before);
       reference.undo(undo.ref);
-      wrapper.undo(undo.wrap);
       pure = deepFreeze(undoIn(pure, undo.pure));
       // After an undo the cutoff is the one from before the answer, which the clock has moved past.
       now = heldBy(reference).cutoff;
     } else if (roll < 0.9) {
       const target = keys[Math.floor(rand() * keys.length)]!;
       const expected = reference.moveToFront(target);
-      expect(wrapper.moveToFront(target), label).toBe(expected);
       const moved = moveToFrontIn(pure, target);
       expect(moved !== null, label).toBe(expected);
       if (moved) pure = deepFreeze(moved);
     } else {
       now += Math.floor(rand() * 1500);
       reference.updateCutoff(now);
-      wrapper.updateCutoff(now);
       pure = deepFreeze(withCutoff(pure, now));
     }
     same(label);
@@ -528,16 +512,16 @@ function runSession(seed: number, world: World) {
 }
 
 describe('random sessions', () => {
-  // The same answers, undos, moves and clock jumps run on the copy of the mutable queue, on the object and on frozen
-  // pure values; after every step the three read the same, and the pure values hold what the old class holds.
+  // The same answers, undos, moves and clock jumps run on the copy of the mutable queue and on frozen pure values;
+  // after every step the two read the same, and the pure values hold what the old class holds.
   for (let seed = 1; seed <= 150; seed++) {
-    it(`session ${seed} reads the same in the copy of the old queue, the object and the pure values`, () => {
+    it(`session ${seed} reads the same in the copy of the old queue and the pure values`, () => {
       runSession(seed, DEFAULT_WORLD);
     });
   }
   for (const world of OTHER_WORLDS) {
     for (let seed = 1; seed <= 50; seed++) {
-      it(`session ${seed} with ${world.label} reads the same in the copy of the old queue, the object and the pure values`, () => {
+      it(`session ${seed} with ${world.label} reads the same in the copy of the old queue and the pure values`, () => {
         runSession(seed, world);
       });
     }

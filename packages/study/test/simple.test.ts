@@ -5,6 +5,7 @@ import type { CardSummary, DeckDetail } from '@qv/schema/anki';
 import { deckCounts } from '../src/deck-counts';
 import { defaultPreferences } from '../src/preferences';
 import type { AnswerToday, StoredCard } from '@qv/schema/user';
+import { countsOf } from '@qv/srs';
 import { buildQueue, cardKey, configsFor, globalSettings } from '../src/scheduler';
 import type { StudyData, TreeDeck } from '../src/scheduler';
 import { blankRow } from '../src/session';
@@ -137,7 +138,7 @@ function study(
   };
 }
 
-const counts = (data: StudyData, root: string) => buildQueue(data, root, NOW).counts();
+const counts = (data: StudyData, root: string) => countsOf(buildQueue(data, root, NOW));
 const on = (...ids: string[]) => ids.map((deckId) => ({ deckId, active: true }));
 
 describe('what is turned on', () => {
@@ -295,7 +296,7 @@ describe('what the scheduler gets in simple mode', () => {
     }));
     const data = study({ list, plan: { activations: on(L1) } });
     expect(deckCounts(data, NOW).get(L1)!.new).toBe(1);
-    expect(buildQueue(data, L1, NOW).counts().new).toBe(1);
+    expect(countsOf(buildQueue(data, L1, NOW)).new).toBe(1);
   });
 });
 
@@ -339,7 +340,7 @@ describe('«Modo avanzado»', () => {
       text: '',
     }));
     const d = study({ full: true, list: cloze, plan });
-    expect(deckCounts(d, NOW).get(L2)!.new).toBe(buildQueue(d, L2, NOW).counts().new);
+    expect(deckCounts(d, NOW).get(L2)!.new).toBe(countsOf(buildQueue(d, L2, NOW)).new);
   });
 });
 

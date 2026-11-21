@@ -5,16 +5,16 @@
 // A study session of a deck (Anki's reviewer): the queue, answers applied at once and saved in order in the
 // background, and undo back to the start of the session; the page subscribes with useSyncExternalStore.
 import { answerCard, retrievability, describeNextStates, schedulingStates } from '@qv/srs';
-import type { DeckConfig, QueueEntry, Rating, StudyQueue } from '@qv/srs';
+import type { DeckConfig, QueueEntry, Rating } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import type { AnswerToday, CardRef, StoredCard } from '@qv/schema/user';
 import { congratsInfo, answeredTodayIn, hasSeenAssessment } from '../../congrats';
 import { rollProgress } from '../../pace';
 import {
   QUEUE_NAMES,
-  buildQueue,
   cardKey,
   configsFor,
+  queueInput,
   siblingsOf,
   siblingsToBury,
   timingFor,
@@ -23,6 +23,7 @@ import {
 } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { actionLabel, asNew, blankRow } from '../../session';
+import { ReferenceQueue } from './reference-queue';
 import type { CongratsInfo, HideAction, Shown } from '../../session';
 import {
   CardChangedError,
@@ -37,6 +38,8 @@ import type { HistoryItem } from './reference-history';
 
 type CardKey = { noteGuid: string; ord: number };
 
+const queueOf = (data: StudyData, rootId: string) => new ReferenceQueue(queueInput(data, rootId));
+
 export class ReferenceStudySession {
   shown: Shown | null = null;
   revealed = false;
@@ -44,7 +47,7 @@ export class ReferenceStudySession {
   now = Date.now();
 
   data: StudyData;
-  queue: StudyQueue;
+  queue: ReferenceQueue;
   private configs: Map<string, DeckConfig>;
   history: HistoryItem[] = [];
   stamps: Map<string, string | null>;
@@ -62,7 +65,7 @@ export class ReferenceStudySession {
   ) {
     this.data = { ...initial, rows: new Map(initial.rows), answers: [...initial.answers] };
     this.configs = configsFor(this.data);
-    this.queue = buildQueue(this.data, rootId);
+    this.queue = queueOf(this.data, rootId);
     this.stamps = new Map([...initial.rows].map(([k, r]) => [k, r.updatedAt]));
   }
 
@@ -113,7 +116,7 @@ export class ReferenceStudySession {
 
   private rebuild() {
     this.configs = configsFor(this.data);
-    this.queue = buildQueue(this.data, this.rootId);
+    this.queue = queueOf(this.data, this.rootId);
   }
 
   showNext() {

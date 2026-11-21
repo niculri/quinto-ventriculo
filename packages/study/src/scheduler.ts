@@ -3,7 +3,7 @@
 
 import {
   DEFAULT_GLOBAL_SETTINGS,
-  StudyQueue,
+  buildQueue as buildQueueState,
   configFromAnki,
   countStudiedToday,
   dayOfStart,
@@ -19,6 +19,7 @@ import type {
   QueueCard,
   QueueDeck,
   QueueInput,
+  QueueState,
   SchedTiming,
   StudiedToday,
 } from '@qv/srs';
@@ -318,8 +319,8 @@ export function buildQueue(
   studied = studiedToday(data.answers, data.decks),
   cards = queueCards(data, nowMs),
   deckList = false,
-): StudyQueue {
-  return StudyQueue.build(queueInput(data, rootDeckId, nowMs, configs, studied, cards, deckList));
+): QueueState {
+  return buildQueueState(queueInput(data, rootDeckId, nowMs, configs, studied, cards, deckList));
 }
 
 export function siblingsOf(deck: DeckDetail, card: CardRef): CardRef[] {

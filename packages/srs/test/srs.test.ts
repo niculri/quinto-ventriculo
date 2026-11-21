@@ -6,12 +6,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_CONFIG,
-  StudyQueue,
   answerCard,
+  answeredIn,
+  buildQueue,
   configFromAnki,
+  countsOf,
   dayStartsAt,
   defaultConfig,
+  entriesOf,
   newCard,
+  nextOf,
   nextLearnMessage,
   parseConfig,
   schedTiming,
@@ -19,6 +23,7 @@ import {
   stepsToString,
   stringToSteps,
   timeSpan,
+  undoIn,
 } from '../src';
 import type { QueueCard, QueueDeck } from '../src';
 import { intersperse } from '../src/queue/intersperse';
@@ -209,7 +214,7 @@ describe('queue', () => {
   });
 
   it('Extras with 0 new cards a day gives none; the parent’s limit counts its subdecks', () => {
-    const q = StudyQueue.build({
+    const q = buildQueue({
       rootDeckId: '1',
       decks: [parent, extras],
       cards: [
@@ -223,20 +228,20 @@ describe('queue', () => {
       studiedToday: new Map([['1', { newCount: 1, reviewCount: 0 }]]),
       timing,
     });
-    expect(q.counts()).toEqual({ new: 2, learning: 0, review: 0 });
-    expect(q.entries().map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['a0', 'a1']);
-    const extrasOnly = StudyQueue.build({
+    expect(countsOf(q)).toEqual({ new: 2, learning: 0, review: 0 });
+    expect(entriesOf(q).map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['a0', 'a1']);
+    const extrasOnly = buildQueue({
       rootDeckId: '2',
       decks: [parent, extras],
       cards: [card('x', 0, '2', 0)],
       studiedToday: new Map(),
       timing,
     });
-    expect(extrasOnly.next()).toBeNull();
+    expect(nextOf(extrasOnly)).toBeNull();
   });
 
   it('cards never answered are gathered by note, then template (Anki’s «due asc, ord asc»)', () => {
-    const q = StudyQueue.build({
+    const q = buildQueue({
       rootDeckId: '1',
       decks: [
         { ...parent, config: { ...parent.config, newPerDay: 3, newCardSortOrder: 'noSort' } },
@@ -250,12 +255,12 @@ describe('queue', () => {
       studiedToday: new Map(),
       timing,
     });
-    expect(q.entries().map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['a0', 'a1', 'b0']);
+    expect(entriesOf(q).map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['a0', 'a1', 'b0']);
   });
 
   it('hidden cards (suspended or buried) are not gathered; siblings get buried', () => {
     const buried = { ...parent, config: { ...parent.config, buryNew: true } };
-    const q = StudyQueue.build({
+    const q = buildQueue({
       rootDeckId: '1',
       decks: [buried],
       cards: [
@@ -266,25 +271,26 @@ describe('queue', () => {
       studiedToday: new Map(),
       timing,
     });
-    expect(q.entries().map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['b0']);
+    expect(entriesOf(q).map((e) => `${e.noteGuid}${e.ord}`)).toEqual(['b0']);
   });
 
   it('answer and undo: the card goes back to the top', () => {
-    const q = StudyQueue.build({
+    let q = buildQueue({
       rootDeckId: '1',
       decks: [parent],
       cards: [card('a', 0, '1', 0), card('b', 0, '1', 1)],
       studiedToday: new Map(),
       timing,
     });
-    const first = q.next()!;
+    const first = nextOf(q)!;
     const result = answerCard(first, newCard(0), 3, parent.config, timing, { fuzz: false });
-    const update = q.answered(first, result.card, timing);
-    expect(q.next()?.noteGuid).toBe('b');
-    expect(q.counts()).toEqual({ new: 1, learning: 1, review: 0 });
-    q.undo(update);
-    expect(q.next()?.noteGuid).toBe('a');
-    expect(q.counts()).toEqual({ new: 2, learning: 0, review: 0 });
+    const { queue: answered, update } = answeredIn(q, first, result.card, timing);
+    q = answered;
+    expect(nextOf(q)?.noteGuid).toBe('b');
+    expect(countsOf(q)).toEqual({ new: 1, learning: 1, review: 0 });
+    q = undoIn(q, update);
+    expect(nextOf(q)?.noteGuid).toBe('a');
+    expect(countsOf(q)).toEqual({ new: 2, learning: 0, review: 0 });
   });
 
   it('«added» orders and their reverse keep a note’s cards together, in template order', () => {
@@ -305,15 +311,15 @@ describe('queue', () => {
     });
     const cards = [review('a', 0, 0), review('a', 1, 1), review('b', 0, 2), review('b', 1, 3)];
     const order = (reviewOrder: 'added' | 'reverseAdded') =>
-      StudyQueue.build({
-        rootDeckId: '1',
-        decks: [{ ...parent, config: { ...parent.config, reviewOrder } }],
-        cards,
-        studiedToday: new Map(),
-        timing,
-      })
-        .entries()
-        .map((e) => `${e.noteGuid}${e.ord}`);
+      entriesOf(
+        buildQueue({
+          rootDeckId: '1',
+          decks: [{ ...parent, config: { ...parent.config, reviewOrder } }],
+          cards,
+          studiedToday: new Map(),
+          timing,
+        }),
+      ).map((e) => `${e.noteGuid}${e.ord}`);
     expect(order('added')).toEqual(['a0', 'a1', 'b0', 'b1']);
     expect(order('reverseAdded')).toEqual(['b0', 'b1', 'a0', 'a1']);
   });
@@ -341,21 +347,21 @@ describe('new cards of the same note, when the day has to give its whole number'
     hidden: false,
   }));
   const build = (newPerDay: number, fillNewWithSiblings: boolean) =>
-    StudyQueue.build({
-      rootDeckId: '1',
-      decks: [
-        {
-          id: '1',
-          name: 'D',
-          config: { ...DEFAULT_CONFIG, newPerDay, buryNew: true, fillNewWithSiblings },
-        },
-      ],
-      cards: fresh,
-      studiedToday: new Map(),
-      timing: schedTiming(1_700_000_000, 'UTC', 4),
-    })
-      .entries()
-      .map((e) => `${e.noteGuid}${e.ord}`);
+    entriesOf(
+      buildQueue({
+        rootDeckId: '1',
+        decks: [
+          {
+            id: '1',
+            name: 'D',
+            config: { ...DEFAULT_CONFIG, newPerDay, buryNew: true, fillNewWithSiblings },
+          },
+        ],
+        cards: fresh,
+        studiedToday: new Map(),
+        timing: schedTiming(1_700_000_000, 'UTC', 4),
+      }),
+    ).map((e) => `${e.noteGuid}${e.ord}`);
 
   it('without the option, as Anki: one card of each note', () => {
     expect(build(7, false)).toEqual(['a0', 'b0', 'c0']);

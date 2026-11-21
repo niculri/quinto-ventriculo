@@ -5,7 +5,15 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { StudyQueue, answerCard, configFromAnki } from '../src';
+import {
+  answerCard,
+  answeredIn,
+  buildQueue,
+  configFromAnki,
+  countsOf,
+  entriesOf,
+  nextOf,
+} from '../src';
 import type { CardRecord, QueueCard, Rating, SchedTiming } from '../src';
 import { fromAnki, queueCard } from './anki-cards';
 import type { AnkiCard } from './anki-cards';
@@ -51,7 +59,7 @@ describe('the queue against Anki', () => {
           return [String(d.id), { newCount, reviewCount }];
         }),
       );
-      const queue = StudyQueue.build({
+      let queue = buildQueue({
         rootDeckId: String(sc.decks[0]!.id),
         decks,
         cards,
@@ -63,10 +71,10 @@ describe('the queue against Anki', () => {
       sc.steps.forEach((step, n) => {
         const where = `${sc.name}, card ${n + 1}`;
         expect(
-          queue.entries().map((e) => `${e.noteGuid}/${e.ord}`),
+          entriesOf(queue).map((e) => `${e.noteGuid}/${e.ord}`),
           `${where}: the queue`,
         ).toEqual(step.order.map(([id]) => name(id)));
-        const c = queue.counts();
+        const c = countsOf(queue);
         expect([c.new, c.learning, c.review], `${where}: counts`).toEqual(step.counts);
 
         const anki = byId.get(step.card)!;
@@ -91,9 +99,9 @@ describe('the queue against Anki', () => {
         // From here on, the card as Anki left it (a second of difference in a learning step's time
         // could change the order of two cards due at the same moment).
         records.set(step.card, expected);
-        queue.answered(key, expected, timing);
+        queue = answeredIn(queue, key, expected, timing).queue;
       });
-      expect(queue.next(), `${sc.name}: finished`).toBeNull();
+      expect(nextOf(queue), `${sc.name}: finished`).toBeNull();
     });
   }
 });

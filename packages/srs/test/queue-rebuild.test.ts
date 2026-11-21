@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { StudyQueue, configFromAnki, countStudiedToday } from '../src';
+import { buildQueue, configFromAnki, countStudiedToday, countsOf, entriesOf } from '../src';
 import type { Queue, SchedTiming, StudiedToday } from '../src';
 import { QUEUES, queueCard } from './anki-cards';
 import type { AnkiCard } from './anki-cards';
@@ -60,7 +60,7 @@ describe('the queue built anew at every card, against Anki', () => {
             ];
           }),
         );
-        const queue = StudyQueue.build({
+        const queue = buildQueue({
           rootDeckId: String(sc.decks[0]!.id),
           decks,
           cards: [...cards.values()].sort((a, b) => a.id - b.id).map(queueCard),
@@ -68,10 +68,10 @@ describe('the queue built anew at every card, against Anki', () => {
           timing: step.timing,
         });
         expect(
-          queue.entries().map((e) => `${e.noteGuid}/${e.ord}`),
+          entriesOf(queue).map((e) => `${e.noteGuid}/${e.ord}`),
           `${where}: the queue`,
         ).toEqual(step.order.map(name));
-        const c = queue.counts();
+        const c = countsOf(queue);
         expect([c.new, c.learning, c.review], `${where}: counts`).toEqual(step.counts);
         if (step.card !== undefined) {
           answers.push({

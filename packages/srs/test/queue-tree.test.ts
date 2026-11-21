@@ -5,7 +5,17 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { StudyQueue, answerCard, configFromAnki, countStudiedToday, sortDecksByName } from '../src';
+import {
+  answerCard,
+  answeredIn,
+  buildQueue,
+  configFromAnki,
+  countStudiedToday,
+  countsOf,
+  entriesOf,
+  nextOf,
+  sortDecksByName,
+} from '../src';
 import type { CardRecord, QueueCard, Rating, SchedTiming } from '../src';
 import { fromAnki, queueCard } from './anki-cards';
 import type { AnkiCard } from './anki-cards';
@@ -78,7 +88,7 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
       answers: { deckId: string; queue: CardRecord['queue'] }[] = [],
       deckList = false,
     ) =>
-      StudyQueue.build({
+      buildQueue({
         rootDeckId,
         decks,
         cards,
@@ -97,7 +107,7 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
     it(`${sc.name}: the counts of every deck of the deck list`, () => {
       const cards = sc.cards.map(queueCard);
       for (const d of decks) {
-        const c = build(d.id, cards, sc.timing, [], true).counts();
+        const c = countsOf(build(d.id, cards, sc.timing, [], true));
         expect([c.new, c.learning, c.review], d.name).toEqual(sc.counts[d.id]);
       }
     });
@@ -106,17 +116,17 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
       const configOf = new Map(decks.map((d) => [d.id, d.config]));
       const byId = new Map(sc.cards.map((c) => [c.id, c]));
       const records = new Map<number, CardRecord>(sc.cards.map((c) => [c.id, fromAnki(c)]));
-      const queue = build(sc.root, sc.cards.map(queueCard), sc.timing);
+      let queue = build(sc.root, sc.cards.map(queueCard), sc.timing);
       const name = (id: number) => `${byId.get(id)!.guid}/${byId.get(id)!.ord}`;
       expect(sc.steps.length).toBeGreaterThan(5);
 
       sc.steps.forEach((step, n) => {
         const where = `${sc.name}, card ${n + 1}`;
         expect(
-          queue.entries().map((e) => `${e.noteGuid}/${e.ord}`),
+          entriesOf(queue).map((e) => `${e.noteGuid}/${e.ord}`),
           `${where}: the queue`,
         ).toEqual(step.order.map(([id]) => name(id)));
-        const c = queue.counts();
+        const c = countsOf(queue);
         expect([c.new, c.learning, c.review], `${where}: counts`).toEqual(step.counts);
 
         const anki = byId.get(step.card)!;
@@ -138,9 +148,9 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
           difficulty: 0,
         });
         records.set(step.card, expected);
-        queue.answered(key, expected, timing);
+        queue = answeredIn(queue, key, expected, timing).queue;
       });
-      expect(queue.next(), `${sc.name}: finished`).toBeNull();
+      expect(nextOf(queue), `${sc.name}: finished`).toBeNull();
     });
 
     it(`${sc.name}: the deck list at the end, with what was studied counted in every deck`, () => {
@@ -156,7 +166,7 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
       });
       const cards = sc.endCards.map(queueCard);
       for (const d of decks) {
-        const c = build(d.id, cards, sc.endTiming, answers, true).counts();
+        const c = countsOf(build(d.id, cards, sc.endTiming, answers, true));
         expect([c.new, c.learning, c.review], d.name).toEqual(sc.endCounts[d.id]);
       }
     });

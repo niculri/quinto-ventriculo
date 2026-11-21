@@ -65,6 +65,8 @@ describe('the content database', () => {
     await rpc('site_settings', undefined);
     await rpc('set_site_settings', { p: { hideEmptySemesters: true, by: 'dueno@ug.uchile.cl' } });
     expect((await rpc('site_settings', undefined)).updatedAt).toEqual(expect.any(String));
+    await rpc('set_site_settings', { p: { hiddenCourses: ['fisica'], by: 'dueno@ug.uchile.cl' } });
+    expect((await rpc('site_settings', undefined)).hiddenCourses).toEqual(['fisica']);
   });
 
   it('what the catalog and the student read', async () => {

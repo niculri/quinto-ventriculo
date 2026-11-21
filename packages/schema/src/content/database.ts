@@ -21,6 +21,8 @@ type ContentContracts = Partial<Record<keyof Database['public']['Functions'], Rp
 /** As `site_settings()` builds it; the Worker turns `updatedAt` into ISO before `SiteSettings`. */
 const SiteSettingsRow = z.object({
   hideEmptySemesters: z.boolean(),
+  /** A database before the switch for courses does not send it. */
+  hiddenCourses: z.array(z.string()).default([]),
   updatedAt: z.string().nullable(),
   updatedBy: z.string().nullable(),
 });
@@ -38,7 +40,13 @@ const PublishInput = z.object({
 export const CONTENT_RPC = {
   site_settings: rpcContract(NoArgs, SiteSettingsRow),
   set_site_settings: rpcContract(
-    z.object({ p: z.object({ hideEmptySemesters: z.boolean(), by: z.string() }) }),
+    z.object({
+      p: z.object({
+        hideEmptySemesters: z.boolean().optional(),
+        hiddenCourses: z.array(z.string()).optional(),
+        by: z.string(),
+      }),
+    }),
     SiteSettingsRow,
   ),
   unpublish_log_entries: rpcContract(

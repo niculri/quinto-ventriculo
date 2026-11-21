@@ -11,13 +11,17 @@ export {
   SearchResponse,
   SearchResult,
   SemesterWithCourses,
+  SiteCourse,
+  SiteSemester,
   SiteSettings,
   SiteSettingsUpdate,
+  SiteSettingsView,
   UnpublishedEntry,
   UnpublishedKind,
   UnpublishedLog,
   withoutEmptySemesters,
 } from './api';
+export { siteSemesters, withoutCourses } from './visibility';
 export { ErrorCode } from './errors';
 export { PREVIEW_HEADER, PREVIEW_VALUE } from './headers';
 export {

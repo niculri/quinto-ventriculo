@@ -88,6 +88,7 @@ describe('the site settings', () => {
   it('start with nothing hidden, and the function changes them and says who and when', async () => {
     expect((await service<{ r: unknown }>('select public.site_settings() as r'))[0]!.r).toEqual({
       hideEmptySemesters: false,
+      hiddenCourses: [],
       updatedAt: null,
       updatedBy: null,
     });
@@ -103,12 +104,40 @@ describe('the site settings', () => {
     expect(await q('select count(*)::int as n from public.site_settings')).toEqual([{ n: 1 }]);
   });
 
-  it('refuse what is not a boolean and somebody', async () => {
+  it('turn courses off as a whole list without repeats, and each key changes only itself', async () => {
+    const set = async (p: Record<string, unknown>) =>
+      (
+        await service<{ r: { hideEmptySemesters: boolean; hiddenCourses: string[] } }>(
+          'select public.set_site_settings($1::jsonb) as r',
+          [{ by: 'dueno@ug.uchile.cl', ...p }],
+        )
+      )[0]!.r;
+    expect(await set({ hiddenCourses: ['fisica', 'anatomia-2', 'fisica'] })).toMatchObject({
+      hideEmptySemesters: false,
+      hiddenCourses: ['anatomia-2', 'fisica'],
+    });
+    expect(await set({ hideEmptySemesters: true })).toMatchObject({
+      hideEmptySemesters: true,
+      hiddenCourses: ['anatomia-2', 'fisica'],
+    });
+    expect(await set({ hiddenCourses: [] })).toMatchObject({
+      hideEmptySemesters: true,
+      hiddenCourses: [],
+    });
+  });
+
+  it('refuse what is not a boolean, a list of courses and somebody', async () => {
     for (const p of [
       {},
+      { by: 'x' },
       { hideEmptySemesters: 'true', by: 'x' },
       { hideEmptySemesters: true },
       { hideEmptySemesters: true, by: '  ' },
+      { hiddenCourses: 'fisica', by: 'x' },
+      { hiddenCourses: [1], by: 'x' },
+      { hiddenCourses: [''], by: 'x' },
+      { hiddenCourses: ['x'.repeat(101)], by: 'x' },
+      { hiddenCourses: Array.from({ length: 201 }, (_, i) => `c${i}`), by: 'x' },
     ]) {
       await expect(service('select public.set_site_settings($1::jsonb)', [p])).rejects.toThrow(
         /set_site_settings: invalid/,
@@ -154,7 +183,7 @@ describe('the site settings', () => {
     );
     expect(await q('select * from public.draft_drift()')).toEqual([]);
     await service('select public.set_site_settings($1::jsonb)', [
-      { hideEmptySemesters: true, by: 'dueno@ug.uchile.cl' },
+      { hideEmptySemesters: true, hiddenCourses: [BC.split('/')[0]], by: 'dueno@ug.uchile.cl' },
     ]);
     await save(published, [seminar(BC)]);
     await service('select public.reset_draft()');
@@ -162,9 +191,11 @@ describe('the site settings', () => {
     await publish();
     expect(
       (
-        await service<{ r: { hideEmptySemesters: boolean } }>('select public.site_settings() as r')
-      )[0]!.r.hideEmptySemesters,
-    ).toBe(true);
+        await service<{ r: { hideEmptySemesters: boolean; hiddenCourses: string[] } }>(
+          'select public.site_settings() as r',
+        )
+      )[0]!.r,
+    ).toMatchObject({ hideEmptySemesters: true, hiddenCourses: [BC.split('/')[0]] });
   });
 });
 

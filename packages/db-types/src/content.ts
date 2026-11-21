@@ -1397,18 +1397,21 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          hidden_courses: string[]
           hide_empty_semesters: boolean
           id: boolean
           updated_at: string | null
           updated_by: string | null
         }
         Insert: {
+          hidden_courses?: string[]
           hide_empty_semesters?: boolean
           id?: boolean
           updated_at?: string | null
           updated_by?: string | null
         }
         Update: {
+          hidden_courses?: string[]
           hide_empty_semesters?: boolean
           id?: boolean
           updated_at?: string | null

@@ -63,16 +63,46 @@ export type Health = z.infer<typeof Health>;
 export const HIGHLIGHT_START = '⟦';
 export const HIGHLIGHT_END = '⟧';
 
-/** Not material: it changes at once, without going through the draft. */
+/** Not material: it changes at once, without going through the draft. A course in `hiddenCourses` is off for everybody. */
 export const SiteSettings = z.object({
   hideEmptySemesters: z.boolean(),
+  hiddenCourses: z.array(z.string()).default([]),
   updatedAt: z.iso.datetime({ offset: true }).nullable(),
   updatedBy: z.string().nullable(),
 });
 export type SiteSettings = z.infer<typeof SiteSettings>;
 
-export const SiteSettingsUpdate = z.object({ hideEmptySemesters: z.boolean() }).strict();
+/** What the panel changes: the keys it sends, at least one. `hiddenCourses` is the whole list. */
+export const SiteSettingsUpdate = z
+  .object({
+    hideEmptySemesters: z.boolean().optional(),
+    hiddenCourses: z.array(z.string().min(1).max(100)).max(200).optional(),
+  })
+  .strict()
+  .refine((u) => u.hideEmptySemesters !== undefined || u.hiddenCourses !== undefined);
 export type SiteSettingsUpdate = z.infer<typeof SiteSettingsUpdate>;
+
+/** A course of the panel's list, with what turning it off would hide. */
+export const SiteCourse = z.object({
+  id: z.string(),
+  name: z.string(),
+  emoji: z.string(),
+  notes: z.number().int().nonnegative(),
+  quizzes: z.number().int().nonnegative(),
+  cards: z.number().int().nonnegative(),
+});
+export type SiteCourse = z.infer<typeof SiteCourse>;
+
+export const SiteSemester = z.object({
+  number: z.number().int(),
+  name: z.string(),
+  courses: z.array(SiteCourse),
+});
+export type SiteSemester = z.infer<typeof SiteSemester>;
+
+/** `GET /admin/site-settings`: the settings and every course that has material or is off, by semester. */
+export const SiteSettingsView = SiteSettings.extend({ semesters: z.array(SiteSemester) });
+export type SiteSettingsView = z.infer<typeof SiteSettingsView>;
 
 export const UnpublishedKind = z.enum(['note', 'deck', 'quiz', 'image']);
 export type UnpublishedKind = z.infer<typeof UnpublishedKind>;

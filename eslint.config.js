@@ -1,6 +1,7 @@
 // ESLint for the whole repository. The rules are errors; what the code broke before they existed is listed in
 // eslint-suppressions.json, whose total may only go down (`npm run suppressions`).
 import js from '@eslint/js';
+import eslintReact from '@eslint-react/eslint-plugin';
 import qv from '@qv/eslint-plugin';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -81,6 +82,15 @@ const LITERAL_TEXT = {
 const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];
 const OTHER_FILES = ['**/*.css', '**/*.{yml,yaml}', '**/*.sh', '**/*.jsonc', '.githooks/pre-push'];
 const onCode = (config) => ({ ...config, files: config.files ?? CODE });
+
+// The React plugin's recommended preset with types, every warning an error like the rest of the rules.
+const reactPreset = eslintReact.configs['recommended-type-checked'];
+const reactRules = Object.fromEntries(
+  Object.entries(reactPreset.rules).map(([rule, level]) => [
+    rule,
+    level === 'warn' ? 'error' : level,
+  ]),
+);
 
 const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
 
@@ -275,6 +285,13 @@ export default tseslint.config(
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks },
     rules: reactHooks.configs.recommended.rules,
+  },
+  {
+    files: ['apps/web/**/*.{ts,tsx}'],
+    plugins: reactPreset.plugins,
+    settings: reactPreset.settings,
+    // react-hooks already checks the dependency arrays, and the code explains where it leaves one out.
+    rules: { ...reactRules, '@eslint-react/exhaustive-deps': 'off' },
   },
   {
     // The specs take `test` from e2e/test.ts, which pins the page's clock at midday.

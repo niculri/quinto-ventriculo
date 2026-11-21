@@ -191,7 +191,7 @@ describe('access', () => {
     expect(picture).toHaveTextContent('NU');
     expect(picture).toHaveClass('size-24');
     const thanks = screen.getByRole('heading', { level: 2, name: 'Agradecimientos' })
-      .parentElement as HTMLElement;
+      .parentElement!;
     expect(
       within(thanks)
         .getAllByRole('listitem')

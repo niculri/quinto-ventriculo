@@ -88,7 +88,7 @@ describe('the table of the cards page (Anki’s browser)', () => {
       'Extras',
     ]);
 
-    await searchFor(`${searchTerm('deck', `${DECK.fullName}::Extras`)}`);
+    await searchFor(searchTerm('deck', `${DECK.fullName}::Extras`));
     expect(await rowNames()).toEqual(['La columna tiene 7 vértebras cervicales']);
     await searchFor(searchTerm('deck', DECK.fullName));
     expect(await rowNames()).toHaveLength(4);

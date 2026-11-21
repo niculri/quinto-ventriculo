@@ -39,7 +39,7 @@ const DAY_MS = 86_400_000;
 // rollover hour the scheduler's `today` is still yesterday.
 export function dayOfDate(date: string): number {
   const [y, m, d] = date.split('-').map(Number);
-  return Date.UTC(y!, m! - 1, d!) / DAY_MS;
+  return Date.UTC(y!, m! - 1, d) / DAY_MS;
 }
 
 export function dateOfDay(day: number): string {

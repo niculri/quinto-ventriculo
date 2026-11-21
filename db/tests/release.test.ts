@@ -159,7 +159,7 @@ const basic = (guid: string, f: Partial<Record<string, string>>, version = 1) =>
       Creación: '8-10-2026',
       Actualización: '',
       ...f,
-    } as Record<string, string>,
+    },
     [0],
     version,
   );
@@ -323,7 +323,7 @@ describe('what the draft changes', () => {
     await touch('003');
     await q(`update draft.anki_cards set deck_id = $1 where note_guid = '004'`, [leafOf(BC)]);
     await touch('004');
-    await card('005', 'back_html', `<div><b>${'¿Cuántas vértebras cervicales hay?'}</b></div>`);
+    await card('005', 'back_html', `<div><b>¿Cuántas vértebras cervicales hay?</b></div>`);
     await q(`update public.anki_cards set back_html = '<div>¿Cuántas vértebras cervicales hay?</div>'
               where note_guid = '005'`);
     await touch('005');

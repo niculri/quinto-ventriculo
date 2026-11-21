@@ -21,7 +21,7 @@ function catalog(names: string[]): Catalog {
     noteCount: 0,
     cardCount: 0,
   })) as AnkiTreeDeck[];
-  return { semesters: [], anki: { decks, presets: [], noteTypes: [] } } as unknown as Catalog;
+  return { semesters: [], anki: { decks, presets: [], noteTypes: [] } };
 }
 
 describe('buildAnkiTree', () => {

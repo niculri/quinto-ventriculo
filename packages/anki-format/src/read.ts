@@ -134,7 +134,7 @@ type Row = Record<string, unknown>;
 function all(db: DatabaseSync, sql: string): Row[] {
   const statement = db.prepare(sql);
   statement.setReadBigInts(true);
-  return statement.all() as Row[];
+  return statement.all();
 }
 
 const str = (v: unknown): string => (v === null || v === undefined ? '' : String(v));

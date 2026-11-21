@@ -18,7 +18,7 @@ import { useQuizDetail, useQuizSection, useSavedQuiz } from './useQuizData';
 type Found = NonNullable<ReturnType<typeof findCourse>>;
 
 export type QuizPageView =
-  | { kind: 'error'; query: UseQueryResult<unknown> }
+  | { kind: 'error'; query: UseQueryResult }
   | { kind: 'loading' }
   | { kind: 'notFound' }
   | { kind: 'canonical'; path: string }

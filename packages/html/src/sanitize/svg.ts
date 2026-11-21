@@ -73,7 +73,7 @@ const SVG_OPTIONS: sanitizeHtml.IOptions = {
       tagName,
       attribs: Object.fromEntries(
         Object.entries(attribs).filter(([, v]) => SVG_SAFE_VALUE.test(v)),
-      ) as Record<string, string>,
+      ),
     }),
   },
 };

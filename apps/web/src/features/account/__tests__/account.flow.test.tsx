@@ -37,7 +37,7 @@ describe('/privacy and /terms', () => {
     await screen.findByRole('heading', { level: 1, name: 'Política de privacidad' });
     const part = (name: RegExp) => {
       const h = screen.getByRole('heading', { level: 2, name });
-      return h.parentElement as HTMLElement;
+      return h.parentElement!;
     };
     expect(part(/Quién es el responsable/)).toHaveTextContent(DATA_CONTROLLER);
     expect(

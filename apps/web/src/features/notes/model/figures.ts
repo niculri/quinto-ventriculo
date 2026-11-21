@@ -46,8 +46,8 @@ export function rowWidths(sizes: FigureSize[]): number[] {
   if (!sizes.length) return [];
   const free = COLUMN_PX - ROW_GAP_PX * (sizes.length - 1);
   if (!sizes.every(known)) return sizes.map(() => free / sizes.length);
-  const ratios = sizes.map((s) => s.width! / s.height!);
-  const height = Math.min(free / ratios.reduce((a, b) => a + b, 0), ...sizes.map((s) => s.height!));
+  const ratios = sizes.map((s) => s.width / s.height);
+  const height = Math.min(free / ratios.reduce((a, b) => a + b, 0), ...sizes.map((s) => s.height));
   return ratios.map((r) => r * height);
 }
 

@@ -128,7 +128,7 @@ describe('the table’s keyboard', () => {
     expect(await screen.findByText('Sin bandera')).toBeInTheDocument();
     await waitFor(async () => expect((await study.allCards())[0]?.flag).toBe(0));
 
-    await press('n', { ctrlKey: true, altKey: true, code: 'KeyN' } as Partial<KeyboardEventInit>);
+    await press('n', { ctrlKey: true, altKey: true, code: 'KeyN' });
     const dialog = await screen.findByRole('dialog', { name: 'Olvidar' });
     expect(dialog).toHaveTextContent(
       'La tarjeta vuelve a ser nueva, en su posición original, sin su historial de memoria. El historial de repasos se conserva.',

@@ -54,9 +54,6 @@
     "@typescript-eslint/consistent-type-definitions": {
       "count": 2
     },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "max-lines": {
       "count": 1
     },
@@ -85,9 +82,6 @@
     }
   },
   "apps/api/src/client-errors.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 7
-    },
     "@typescript-eslint/require-await": {
       "count": 1
     }
@@ -177,9 +171,6 @@
     }
   },
   "apps/api/src/repositories/supabase.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 2
-    },
     "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
@@ -197,11 +188,6 @@
       "count": 2
     }
   },
-  "apps/api/src/session.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 3
-    }
-  },
   "apps/api/src/usage.test.ts": {
     "@typescript-eslint/no-base-to-string": {
       "count": 1
@@ -213,9 +199,6 @@
   "apps/api/src/usage.ts": {
     "@typescript-eslint/consistent-type-definitions": {
       "count": 1
-    },
-    "@typescript-eslint/dot-notation": {
-      "count": 14
     },
     "@typescript-eslint/no-base-to-string": {
       "count": 1
@@ -248,11 +231,6 @@
       "count": 2
     }
   },
-  "apps/web/e2e/account.spec.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
   "apps/web/e2e/card-index.spec.ts": {
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
@@ -268,11 +246,6 @@
       "count": 1
     },
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/home.spec.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
@@ -310,11 +283,6 @@
   "apps/web/public/error-report.js": {
     "@typescript-eslint/no-empty-function": {
       "count": 1
-    }
-  },
-  "apps/web/src/app/AnkiRoute.tsx": {
-    "@typescript-eslint/dot-notation": {
-      "count": 3
     }
   },
   "apps/web/src/app/AppShell.tsx": {
@@ -372,16 +340,6 @@
     },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 5
-    }
-  },
-  "apps/web/src/app/web.test.tsx": {
-    "@typescript-eslint/non-nullable-type-assertion-style": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/account/__tests__/account.flow.test.tsx": {
-    "@typescript-eslint/non-nullable-type-assertion-style": {
-      "count": 1
     }
   },
   "apps/web/src/features/account/api/context.ts": {
@@ -476,11 +434,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/api/repository/supabase.ts": {
-    "@typescript-eslint/no-unnecessary-boolean-literal-compare": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/admin/components/access/InviteResultDialog.tsx": {
     "@eslint-react/no-array-index-key": {
       "count": 1
@@ -502,11 +455,6 @@
   "apps/web/src/features/admin/components/releases/SiteChanges.tsx": {
     "@eslint-react/no-array-index-key": {
       "count": 1
-    }
-  },
-  "apps/web/src/features/admin/components/usage/UsageChart.tsx": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 2
     }
   },
   "apps/web/src/features/admin/components/usage/UsageSummary.tsx": {
@@ -545,16 +493,6 @@
   "apps/web/src/features/admin/pages/SitePage.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/cards/__tests__/card-table.flow.test.tsx": {
-    "@typescript-eslint/no-unnecessary-template-expression": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/__tests__/table-shortcuts.flow.test.tsx": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
     }
   },
   "apps/web/src/features/cards/api/demo.ts": {
@@ -614,21 +552,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/hooks/useCardsData.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 5
-    }
-  },
   "apps/web/src/features/cards/hooks/useGridScroll.ts": {
     "@eslint-react/naming-convention-ref-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/hooks/useListKeys.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
@@ -672,11 +597,6 @@
   },
   "apps/web/src/features/cards/pages/PracticePage.tsx": {
     "@typescript-eslint/prefer-optional-chain": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/catalog/model/__tests__/tree.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
@@ -763,9 +683,6 @@
     }
   },
   "apps/web/src/features/decks/model/shapes.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 15
-    },
     "@typescript-eslint/prefer-nullish-coalescing": {
       "count": 1
     }
@@ -773,11 +690,6 @@
   "apps/web/src/features/decks/strings.ts": {
     "@eslint-react/no-unnecessary-use-prefix": {
       "count": 1
-    }
-  },
-  "apps/web/src/features/home/__tests__/home-parts.flow.test.tsx": {
-    "@typescript-eslint/non-nullable-type-assertion-style": {
-      "count": 2
     }
   },
   "apps/web/src/features/home/hooks/useAddFocus.ts": {
@@ -854,11 +766,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/notes/model/figures.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 3
-    }
-  },
   "apps/web/src/features/notes/model/placeThumbs.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
@@ -902,9 +809,6 @@
     }
   },
   "apps/web/src/features/progress/api/repository/supabase-settings.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 12
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
     }
@@ -933,9 +837,6 @@
     }
   },
   "apps/web/src/features/quiz/__tests__/quiz-parts.flow.test.tsx": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 2
-    },
     "@typescript-eslint/unbound-method": {
       "count": 3
     }
@@ -1011,20 +912,12 @@
       "count": 3
     }
   },
-  "apps/web/src/features/quiz/components/WrongAnswer.tsx": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/quiz/hooks/useCoverState.ts": {
     "@eslint-react/naming-convention-ref-name": {
       "count": 1
     }
   },
   "apps/web/src/features/quiz/hooks/useQuizPage.ts": {
-    "@typescript-eslint/no-unnecessary-type-arguments": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 1
     },
@@ -1050,17 +943,11 @@
   "apps/web/src/features/quiz/model/theme.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
     }
   },
   "apps/web/src/features/reports/__tests__/reports.flow.test.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 5
-    },
-    "@typescript-eslint/non-nullable-type-assertion-style": {
-      "count": 1
     },
     "@typescript-eslint/prefer-includes": {
       "count": 1
@@ -1110,11 +997,6 @@
   "apps/web/src/features/session/api/demo.ts": {
     "@typescript-eslint/require-await": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/session/api/service.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 4
     }
   },
   "apps/web/src/features/session/context.tsx": {
@@ -1175,21 +1057,11 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/__tests__/exam-mode-session.flow.test.tsx": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/study/__tests__/exam-mode.flow.test.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
     "@typescript-eslint/unbound-method": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/full-mode.flow.test.tsx": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
@@ -1366,9 +1238,6 @@
   "apps/web/src/test/dom.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
     }
   },
   "apps/web/src/test/setup.ts": {
@@ -1406,9 +1275,6 @@
     },
     "@typescript-eslint/consistent-type-definitions": {
       "count": 1
-    },
-    "@typescript-eslint/dot-notation": {
-      "count": 3
     }
   },
   "db/tests/admin-access.test.ts": {
@@ -1418,16 +1284,6 @@
   },
   "db/tests/admin-owner.test.ts": {
     "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
-  "db/tests/assessment-mode.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 2
-    }
-  },
-  "db/tests/browse.test.ts": {
-    "@typescript-eslint/dot-notation": {
       "count": 1
     }
   },
@@ -1462,18 +1318,8 @@
       "count": 1
     }
   },
-  "db/tests/deck-tree.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 1
-    }
-  },
   "db/tests/draft.test.ts": {
     "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    }
-  },
-  "db/tests/flashcards.test.ts": {
-    "@typescript-eslint/dot-notation": {
       "count": 1
     }
   },
@@ -1497,9 +1343,6 @@
     "@typescript-eslint/consistent-type-definitions": {
       "count": 1
     },
-    "@typescript-eslint/dot-notation": {
-      "count": 2
-    },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 2
     }
@@ -1512,11 +1355,6 @@
       "count": 1
     }
   },
-  "db/tests/invite-lists.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 9
-    }
-  },
   "db/tests/moved-cards.test.ts": {
     "@typescript-eslint/consistent-type-definitions": {
       "count": 1
@@ -1527,34 +1365,12 @@
       "count": 1
     }
   },
-  "db/tests/postgrest.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 3
-    }
-  },
   "db/tests/publish.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/use-unknown-in-catch-callback-variable": {
       "count": 3
     }
   },
-  "db/tests/release-speed.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-arguments": {
-      "count": 1
-    }
-  },
   "db/tests/release.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 5
-    },
-    "@typescript-eslint/no-unnecessary-template-expression": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 4
     }
@@ -1562,9 +1378,6 @@
   "db/tests/reports.test.ts": {
     "@typescript-eslint/consistent-type-definitions": {
       "count": 1
-    },
-    "@typescript-eslint/dot-notation": {
-      "count": 3
     },
     "@typescript-eslint/no-base-to-string": {
       "count": 1
@@ -1584,18 +1397,10 @@
     }
   },
   "db/tests/unpublish.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-type-conversion": {
       "count": 1
     },
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 1
-    }
-  },
-  "db/tests/upgrade-1.3.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
@@ -1610,18 +1415,7 @@
     }
   },
   "packages/anki-format/src/read.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 47
-    },
     "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
-  "packages/anki-format/test/read.test.ts": {
-    "@typescript-eslint/dot-notation": {
       "count": 1
     }
   },
@@ -1639,33 +1433,8 @@
     }
   },
   "packages/anki-search/src/text.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-plus-operands": {
       "count": 1
-    }
-  },
-  "packages/db-types/src/content.ts": {
-    "@typescript-eslint/consistent-indexed-object-style": {
-      "count": 6
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "@typescript-eslint/no-redundant-type-constituents": {
-      "count": 2
-    }
-  },
-  "packages/db-types/src/users.ts": {
-    "@typescript-eslint/consistent-indexed-object-style": {
-      "count": 3
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "@typescript-eslint/no-redundant-type-constituents": {
-      "count": 2
     }
   },
   "packages/eslint-plugin/src/comments-language.js": {
@@ -1673,28 +1442,12 @@
       "count": 1
     }
   },
-  "packages/html/src/sanitize/card.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 2
-    }
-  },
-  "packages/html/src/sanitize/svg.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
   "packages/html/test/golden.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 5
-    },
     "@typescript-eslint/no-unsafe-return": {
       "count": 1
     }
   },
   "packages/importer/src/__tests__/decks.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 5
-    },
     "@typescript-eslint/prefer-includes": {
       "count": 2
     }
@@ -1726,15 +1479,7 @@
       "count": 1
     }
   },
-  "packages/importer/src/credits.ts": {
-    "@typescript-eslint/non-nullable-type-assertion-style": {
-      "count": 1
-    }
-  },
   "packages/importer/src/decks.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 2
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
     },
@@ -1747,11 +1492,6 @@
   },
   "packages/importer/src/images.ts": {
     "@typescript-eslint/require-await": {
-      "count": 1
-    }
-  },
-  "packages/importer/src/importer.test.ts": {
-    "@typescript-eslint/dot-notation": {
       "count": 1
     }
   },
@@ -1798,9 +1538,6 @@
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 4
     },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 3
     },
@@ -1829,9 +1566,6 @@
   "packages/importer/src/quizzes.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 4
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 5
     },
     "@typescript-eslint/no-unnecessary-type-conversion": {
       "count": 1
@@ -1997,13 +1731,7 @@
     }
   },
   "packages/quiz/src/state.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/non-nullable-type-assertion-style": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
@@ -2058,15 +1786,7 @@
       "count": 1
     }
   },
-  "packages/schema/src/importer/taxonomy.test.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 1
-    }
-  },
   "packages/schema/src/importer/taxonomy.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 2
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
@@ -2075,21 +1795,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
-    }
-  },
-  "packages/srs/src/config.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 59
-    }
-  },
-  "packages/srs/src/timing.ts": {
-    "@typescript-eslint/dot-notation": {
-      "count": 6
-    }
-  },
-  "packages/srs/test/queue-tree.test.ts": {
-    "@typescript-eslint/no-unnecessary-template-expression": {
-      "count": 2
     }
   },
   "packages/study/src/congrats.ts": {
@@ -2102,9 +1807,6 @@
   },
   "packages/study/src/heatmap.ts": {
     "@typescript-eslint/no-confusing-non-null-assertion": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     },
     "@typescript-eslint/restrict-template-expressions": {
@@ -2125,9 +1827,6 @@
     }
   },
   "packages/study/src/pace.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
     },

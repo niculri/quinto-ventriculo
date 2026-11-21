@@ -22,7 +22,7 @@ export interface HeatmapData {
 
 export function dayNumber(iso: string): number {
   const [y, m, d] = iso.split('-').map(Number);
-  return Math.round(Date.UTC(y!, m! - 1, d!) / MS_DAY);
+  return Math.round(Date.UTC(y!, m! - 1, d) / MS_DAY);
 }
 
 export function isoOfDay(day: number): string {

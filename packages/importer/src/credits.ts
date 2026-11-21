@@ -28,7 +28,7 @@ export function checkCredits(data: unknown, today: string): string[] {
     if (typeof p.name !== 'string' || !p.name.trim()) problems.push(`${who}: sin nombre`);
     else if (seen.has(p.name.trim().toLowerCase())) problems.push(`${who}: repetido`);
     else seen.add(p.name.trim().toLowerCase());
-    if (!CREDIT_GROUPS.includes(p.group as CreditGroup)) {
+    if (!CREDIT_GROUPS.includes(p.group!)) {
       problems.push(`${who}: grupo «${String(p.group)}» (${CREDIT_GROUPS.join(', ')})`);
     }
     const date = p.permission?.date;

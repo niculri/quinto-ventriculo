@@ -20,7 +20,7 @@ export async function cardText(label: RegExp) {
 export async function pageLoad() {
   const group = await screen.findByRole('group', { name: 'Para hoy' });
   const button = await within(group).findByRole('button');
-  return Number(/(\d+) para hoy/.exec(button.textContent!)?.[1] ?? 0);
+  return Number(/(\d+) para hoy/.exec(button.textContent)?.[1] ?? 0);
 }
 
 export async function chooseIn(trigger: HTMLElement, option: string | RegExp) {

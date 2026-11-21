@@ -9,5 +9,5 @@ export function themeStyle(quiz: QuizDetail): CSSProperties {
     style[`--t-${t}-l`] = quiz.theme.light[t] ?? '';
     style[`--t-${t}-d`] = quiz.theme.dark[t] ?? '';
   }
-  return style as CSSProperties;
+  return style;
 }

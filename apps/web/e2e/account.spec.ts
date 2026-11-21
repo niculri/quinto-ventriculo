@@ -97,7 +97,7 @@ test('«Descargar mis datos» saves a JSON file with the account', async ({ page
   expect(download.suggestedFilename()).toMatch(
     /^el-quinto-ventriculo-mis-datos-\d{4}-\d{2}-\d{2}\.json$/,
   );
-  const data = JSON.parse(await readFile((await download.path())!, 'utf8')) as {
+  const data = JSON.parse(await readFile(await download.path(), 'utf8')) as {
     site: string;
     account: { email: string };
   };

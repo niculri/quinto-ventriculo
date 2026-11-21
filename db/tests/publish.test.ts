@@ -303,7 +303,7 @@ describe('undoing the last publication', () => {
       `select public.unpublish_content('note', 'AP-BC-C2-09', 'Revisar', 'dueño', true)`,
     );
     const before = await publicContent();
-    expect(JSON.parse(before.unpublished_note_versions!)).toHaveLength(1);
+    expect(JSON.parse(before.unpublished_note_versions)).toHaveLength(1);
     await save(draft, everything());
     const { id } = (await publish()) as { id: number };
     expect(await q(`select version from public.notes where id = 'AP-BC-C2-09'`)).toEqual([

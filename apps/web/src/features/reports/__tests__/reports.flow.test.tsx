@@ -288,7 +288,7 @@ describe('«Reportar error» in a test', () => {
 
     await user.click(screen.getByRole('button', { name: 'Terminar ahora' }));
     const results = await screen.findByRole('heading', { name: /Para repasar/ });
-    const wrong = results.closest('.repaso') as HTMLElement;
+    const wrong = results.closest<HTMLElement>('.repaso')!;
     await user.click(within(wrong).getByRole('button', { name: 'Reportar error' }));
     const again = await screen.findByRole('dialog', { name: 'Reportar error' });
     await user.type(within(again).getByLabelText('¿Qué está mal?'), 'Desde el resultado');

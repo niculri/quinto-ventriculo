@@ -39,7 +39,7 @@ export function useListKeys({
   const go = (from: number, to: number) => {
     const target = Math.max(0, Math.min(positions.length - 1, to));
     if (target === from || !positions[target] || !boxRef.current) return;
-    const it = positions[target]!.item;
+    const it = positions[target].item;
     const listTop = boxRef.current.getBoundingClientRect().top + window.scrollY;
     const y = listTop + it.top;
     const viewTop = window.scrollY + BAR + metrics.lecture;

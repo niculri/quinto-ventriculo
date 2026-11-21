@@ -10,7 +10,7 @@ import {
   schedTiming,
   schedulingStates,
 } from '@qv/srs';
-import type { CardRecord, QueueEntry, Rating } from '@qv/srs';
+import type { CardRecord, Rating } from '@qv/srs';
 import type { CardSummary, DeckDetail } from '@qv/schema';
 import {
   answerRound,
@@ -561,7 +561,7 @@ function answered(ratings: Rating[]) {
     const timing = schedTiming(t, 'America/Santiago', 4);
     const kind =
       card.queue === 'new' ? ('new' as const) : card.queue === 'review' ? 'review' : 'learning';
-    const entry = { ...key, kind } as QueueEntry;
+    const entry = { ...key, kind };
     const states = schedulingStates(entry, card, config, timing);
     card = answerCard(key, card, rating, config, timing, {}, states).card;
     t += card.queue === 'review' ? card.interval * 86_400 : 600;

@@ -26,8 +26,8 @@ export function UsageChart({ report }: { report: UsageReport | null }) {
   const [period, setPeriod] = useState<Period>('day');
   const opens = report?.opens ?? null;
   const metrics = [
-    ...ROWS.map((r) => ({ value: r.key as Metric, label: r.label })),
-    ...(opens ? OPEN_ROWS.map((r) => ({ value: r.key as Metric, label: r.label })) : []),
+    ...ROWS.map((r) => ({ value: r.key, label: r.label })),
+    ...(opens ? OPEN_ROWS.map((r) => ({ value: r.key, label: r.label })) : []),
   ];
   const byWeek = period === 'week' && !isOpenKey(metric);
   const students = ROWS.find((r) => r.key === metric)?.students ?? false;

@@ -417,7 +417,7 @@ export function createApp(deps: Dependencies) {
     if (AcceptsGzip.safeParse(c.req.header('Accept-Encoding') ?? '').success) {
       headers.set('Content-Encoding', 'gzip');
       // Without `encodeBody: 'manual'`, Cloudflare would compress the already gzipped body again.
-      return new Response(body, { headers, encodeBody: 'manual' } as ResponseInit);
+      return new Response(body, { headers, encodeBody: 'manual' });
     }
     return new Response(body.pipeThrough(new DecompressionStream('gzip')), { headers });
   });

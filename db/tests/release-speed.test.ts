@@ -369,7 +369,7 @@ describe('the migration on a database like production', () => {
     return out;
   }
   const releases = () =>
-    q<Record<string, unknown>>(
+    q(
       `select id, status, title, schema_version, fingerprint, before_fingerprint, public_fingerprint, shape, checks,
               changes, published_by, published_at, reverted_by, reverted_at
          from public.releases order by id`,

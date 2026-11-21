@@ -68,7 +68,7 @@ export function supabaseAdminRepository(client: SupabaseClient<Database>): Admin
     async isAdmin() {
       const { data, error } = await client.rpc('is_admin');
       if (error) throw error;
-      return data === true;
+      return data;
     },
     async deckImpact(deckIds) {
       const { data, error } = await client.rpc('admin_deck_impact', { deck_ids: [...deckIds] });

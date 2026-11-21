@@ -98,7 +98,7 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
       const cards = sc.cards.map(queueCard);
       for (const d of decks) {
         const c = build(d.id, cards, sc.timing, [], true).counts();
-        expect([c.new, c.learning, c.review], `${d.name}`).toEqual(sc.counts[d.id]);
+        expect([c.new, c.learning, c.review], d.name).toEqual(sc.counts[d.id]);
       }
     });
 
@@ -157,7 +157,7 @@ describe('a deck tree against Anki: from the assessment and from the root', () =
       const cards = sc.endCards.map(queueCard);
       for (const d of decks) {
         const c = build(d.id, cards, sc.endTiming, answers, true).counts();
-        expect([c.new, c.learning, c.review], `${d.name}`).toEqual(sc.endCounts[d.id]);
+        expect([c.new, c.learning, c.review], d.name).toEqual(sc.endCounts[d.id]);
       }
     });
   }

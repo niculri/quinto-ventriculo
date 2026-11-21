@@ -657,7 +657,7 @@ function compare(
               ...(t.titulo ? { title: t.titulo } : {}),
               rows: t.filas.map((row: unknown[], i: number) =>
                 row.map((c, j) => {
-                  const o: Page = c !== null && typeof c === 'object' ? (c as Page) : { t: c };
+                  const o: Page = c !== null && typeof c === 'object' ? c : { t: c };
                   return {
                     html: o.t ?? '',
                     header: i < head || (!!t.col_cab && j === 0),

@@ -251,7 +251,7 @@ describe('the cover', () => {
       '¿Dónde se une TBP?': ['A la caja TATA', 'Al ribosoma'],
       '¿Qué es la lámina?': ['Filamentos intermedios', 'Microtúbulos'],
     };
-    expect(all[prompt!]![step.answer!.chosen!]).toBe(text);
+    expect(all[prompt]![step.answer!.chosen!]).toBe(text);
   });
 
   it('«Descartar» asks once more, for four seconds', async () => {
@@ -424,7 +424,7 @@ describe('the keys', () => {
     await screen.findByRole('dialog', { name: 'Reportar error' });
     const position = screen.getByLabelText('Pregunta actual').textContent;
     await user.keyboard('{Enter}');
-    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent(position!);
+    expect(screen.getByLabelText('Pregunta actual')).toHaveTextContent(position);
   });
 
   it('a short answer: Enter shows it, then 1 says you knew it and Enter goes on', async () => {

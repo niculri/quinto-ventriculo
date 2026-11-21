@@ -121,7 +121,7 @@ export function likeMatcher(pattern: string): TextMatcher {
     return anchoredStart && anchoredEnd ? (t) => t === '' : () => true;
   }
   if (body.every((p) => 'lit' in p)) {
-    const lit = body.map((p) => (p as { lit: string }).lit).join('');
+    const lit = body.map((p) => p.lit).join('');
     if (anchoredStart && anchoredEnd) return (t) => t === lit;
     if (anchoredStart) return (t) => t.startsWith(lit);
     if (anchoredEnd) return (t) => t.endsWith(lit);

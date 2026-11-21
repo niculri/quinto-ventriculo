@@ -45,7 +45,7 @@ async function homeLoad(page: Page) {
 
 async function studyLoad(page: Page) {
   const line = page.getByText(/para hoy · ~\d+ min/).first();
-  const text = (await line.evaluate((e) => e.firstChild?.textContent ?? ''))!;
+  const text = await line.evaluate((e) => e.firstChild?.textContent ?? '');
   const breakdown = /Nuevas: (\d+) · Aprendiendo: (\d+) · A repasar: (\d+)/.exec(
     (await line.textContent())!,
   )!;

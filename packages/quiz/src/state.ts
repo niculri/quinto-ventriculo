@@ -42,12 +42,12 @@ export function restoreRound(
   }
   const savedTop = clamp(raw.top, 0, saved.length - 1);
   const savedIndex = clamp(raw.index, 0, savedTop);
-  const kept = saved.flatMap((id, i) => (questions.has(id as string) ? [i] : []));
+  const kept = saved.flatMap((id, i) => (questions.has(id) ? [i] : []));
   if (!kept.length) return null;
   const removed = kept.length < saved.length;
   const newPosition = new Map(kept.map((old, i) => [old, i]));
   const moved = (old: number) => kept.filter((k) => k < old).length;
-  const queue = kept.map((i) => saved[i] as string);
+  const queue = kept.map((i) => saved[i]!);
   const n = queue.length;
   const top = Math.min(moved(savedTop), n - 1);
   const index = Math.min(moved(savedIndex), top);

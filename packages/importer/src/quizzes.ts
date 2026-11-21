@@ -455,7 +455,7 @@ export async function convertQuiz(
 
   const imageCache = new Map<string, ProcessedImage>();
   async function figure(f: Json, at: string): Promise<QuizFigure> {
-    const caption = textOk(f.pie) ? (f.pie as string) : undefined;
+    const caption = textOk(f.pie) ? f.pie : undefined;
     const displayWidth = typeof f.ancho === 'number' && f.ancho > 0 ? f.ancho : undefined;
     if (f.tipo === 'imagen') {
       const src = String(f.src);
@@ -509,7 +509,7 @@ export async function convertQuiz(
       ...(t.titulo ? { title: inlineHtml(t.titulo) } : {}),
       rows: (t.filas as unknown[][]).map((row, i) =>
         row.map((c, j) => {
-          const o: Json = c !== null && typeof c === 'object' ? (c as Json) : { t: c };
+          const o: Json = c !== null && typeof c === 'object' ? c : { t: c };
           return {
             html: o.t === undefined || o.t === null ? '' : inlineHtml(o.t),
             header: i < head || (colHead && j === 0),
@@ -586,9 +586,7 @@ export async function convertQuiz(
     );
   };
   const generalNotice = textOk(cfg.aviso) ? inlineHtml(cfg.aviso) : undefined;
-  const generalGroupsTitle = textOk(cfg.grupos_titulo)
-    ? (cfg.grupos_titulo as string)
-    : 'Qué ensayar';
+  const generalGroupsTitle = textOk(cfg.grupos_titulo) ? cfg.grupos_titulo : 'Qué ensayar';
 
   const sectionsIn: { id: string; s: Json | null; list: LoadedGroup[] }[] =
     Array.isArray(cfg.secciones) && cfg.secciones.length
@@ -625,7 +623,7 @@ export async function convertQuiz(
       ...(s?.etiqueta ? { label: inlineHtml(s.etiqueta) } : {}),
       description: describe(s?.descripcion || cfg.descripcion, list),
       ...(notice ? { notice } : {}),
-      groupsTitle: textOk(s?.grupos_titulo) ? (s!.grupos_titulo as string) : generalGroupsTitle,
+      groupsTitle: textOk(s?.grupos_titulo) ? s.grupos_titulo : generalGroupsTitle,
       ...(listing ? { listing } : {}),
       questionCount: all.length,
       hasChoices: all.some((q) => q.kind === 'choice'),

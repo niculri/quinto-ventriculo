@@ -60,7 +60,7 @@ describe('the space while it loads', () => {
     window.localStorage.setItem('qv-home-height', '1500');
     const { container, unmount } = renderApp('/home', { study: never() });
     await screen.findByRole('heading', { level: 1 });
-    const busy = () => container.querySelector('[aria-busy="true"]') as HTMLElement;
+    const busy = () => container.querySelector<HTMLElement>('[aria-busy="true"]')!;
     await waitFor(() => expect(busy()).not.toBeNull());
     expect(busy().style.minHeight).toBe('1500px');
     expect(busy().className).toBe('flow-root');
@@ -70,7 +70,7 @@ describe('the space while it loads', () => {
     const second = renderApp('/home', { study: never() });
     await waitFor(() =>
       expect(
-        (second.container.querySelector('[aria-busy="true"]') as HTMLElement).style.minHeight,
+        second.container.querySelector<HTMLElement>('[aria-busy="true"]')!.style.minHeight,
       ).toBe('1100px'),
     );
   });

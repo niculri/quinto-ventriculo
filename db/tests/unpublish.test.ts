@@ -808,7 +808,7 @@ describe('the database side', () => {
     const [v2] = await q(versions, ['AP-BC-C2-08']);
     expect(v2!.version).toBe(2);
     await run(p, { kind: 'note', id: 'AP-BC-C2-08' });
-    const { updatedAt: _u, media: _m, ...n } = p.notes[0]!;
+    const { updatedAt: _u, media: _m, ...n } = p.notes[0];
     expect((await rpc.rpc('save_note', { n })).error).toBeNull();
     expect(await q(versions, ['AP-BC-C2-08'])).toEqual([v2]);
   });

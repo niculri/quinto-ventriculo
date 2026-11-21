@@ -18,7 +18,7 @@ export function WrongAnswer({
   const q = e.question;
   const why = (i: number) =>
     q.kind === 'choice' && q.optionExplanations?.[i] ? (
-      <Html className="fexp" html={q.optionExplanations[i]!} />
+      <Html className="fexp" html={q.optionExplanations[i]} />
     ) : null;
   return (
     <div className="fallo">

@@ -58,12 +58,12 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     if (!ready) return undefined;
     return cardsData({
       list: indexes.data!,
-      rows: rows.data!,
-      prefs: prefs!,
+      rows: rows.data,
+      prefs: prefs,
       authorPresets,
-      presets: presets.data!,
-      settings: settings.data!,
-      tree: tree!,
+      presets: presets.data,
+      settings: settings.data,
+      tree: tree,
       nowMs,
     });
     // `nowMs` changes every minute: the cards' due dates follow it.

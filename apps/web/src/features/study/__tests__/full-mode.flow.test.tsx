@@ -12,7 +12,7 @@ import { cardText } from '../../../test/dom';
 function counts() {
   const group = screen.getByRole('group', { name: 'Tarjetas que quedan' });
   return [/Nuevas/, /Aprendiendo/, /A repasar/].map((name) =>
-    Number(within(group).getByTitle(name.source).textContent!.replace(/\D/g, '')),
+    Number(within(group).getByTitle(name.source).textContent.replace(/\D/g, '')),
   );
 }
 

@@ -38,7 +38,9 @@ async function student() {
   const client = createClient<Database>(rest.url, rest.key, rest.options);
   const study = supabaseStudyRepository(client);
   const quiz = supabaseQuizRepository(client);
-  await study.savePreferences({ ...defaultPreferences('America/Santiago'), welcomeSeen: true });
+  // The browser's own zone: the site saves it on opening, and this test is not about that.
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  await study.savePreferences({ ...defaultPreferences(zone), welcomeSeen: true });
   await study.setDeckActivation('5', true);
   await study.saveAssessmentSetting({
     deckId: '4',

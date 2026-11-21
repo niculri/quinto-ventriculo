@@ -8,6 +8,8 @@ import {
   directivesByRule,
   newLocalRules,
   suppressionsByRule,
+  START_FILE,
+  startingDebt,
   SUPPRESSIONS_FILE,
 } from './suppressions';
 import type { Snapshot } from './suppressions';
@@ -53,9 +55,14 @@ if (!baseExists(root, args.base)) {
       (file) => readAtBase(root, args.base, file) !== null,
       (file) => existsSync(join(root, file)),
     ),
+    startingDebt(readIfThere(join(root, START_FILE)), readAtBase(root, args.base, START_FILE)),
   );
   for (const line of result.lines) (result.ok ? console.log : console.error)(line);
   if (!result.ok) process.exitCode = 1;
+}
+
+function readIfThere(path: string): string | null {
+  return existsSync(path) ? readFileSync(path, 'utf8') : null;
 }
 
 function rulesOf(current: Snapshot): string[] {

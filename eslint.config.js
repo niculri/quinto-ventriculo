@@ -3,11 +3,11 @@
 import js from '@eslint/js';
 import qv from '@qv/eslint-plugin';
 import globals from 'globals';
-import boundaries from 'eslint-plugin-boundaries';
 import reactHooks from 'eslint-plugin-react-hooks';
 import sonarjs from 'eslint-plugin-sonarjs';
 import tseslint from 'typescript-eslint';
 import { domainPackages } from './eslint.domain-packages.js';
+import { webLayers } from './eslint.web-layers.js';
 
 // Files that the size and complexity rules do not apply to: tests, their fixtures and helpers, and scripts.
 const TESTS_AND_SCRIPTS = [
@@ -82,10 +82,6 @@ const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];
 const OTHER_FILES = ['**/*.css', '**/*.{yml,yaml}', '**/*.sh', '**/*.jsonc', '.githooks/pre-push'];
 const onCode = (config) => ({ ...config, files: config.files ?? CODE });
 
-// The web's data features: what the page features share (the catalog and its deck tree, the user's progress). They sit
-// under the page features and import none of them.
-const DATA_FEATURES = ['catalog', 'progress'];
-
 const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
 
 export default tseslint.config(
@@ -101,7 +97,11 @@ export default tseslint.config(
   },
   // An `eslint-disable` that no longer silences anything is an error; the ones that do are counted by the ratchet.
   { linterOptions: { reportUnusedDisableDirectives: 'error' } },
-  ...[js.configs.recommended, ...tseslint.configs.strict].map(onCode),
+  ...[
+    js.configs.recommended,
+    ...tseslint.configs.strictTypeChecked,
+    ...tseslint.configs.stylisticTypeChecked,
+  ].map(onCode),
   {
     files: CODE,
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
@@ -122,17 +122,41 @@ export default tseslint.config(
   },
   { files: OTHER_FILES, language: 'qv/comments' },
   {
-    // Configuration files outside every tsconfig are linted without type information.
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/vitest.config.ts', 'vitest.config.ts'],
     languageOptions: {
       parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
     },
     rules: {
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      // A number in a template is fine; `undefined`, `null` and objects are what the rule is for.
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        {
+          allowAny: false,
+          allowBoolean: false,
+          allowNullish: false,
+          allowNumber: true,
+          allowRegExp: false,
+          allowNever: false,
+        },
+      ],
+      // `onClick={() => setOpen(true)}` is how handlers are written; a void value mixed into an expression is not.
+      '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
     },
+  },
+  {
+    // A test double implements an async port without awaiting anything, and a mock that does nothing is `() => {}`.
+    files: TESTS_AND_SCRIPTS,
+    rules: {
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+    },
+  },
+  // Configuration files outside every tsconfig, and plain JavaScript, are linted without type information.
+  {
+    ...tseslint.configs.disableTypeChecked,
+    files: ['**/*.{js,mjs,cjs}', '**/vitest.config.ts', 'vitest.config.ts'],
   },
   {
     files: ['**/*.{ts,tsx,js,mjs}'],
@@ -235,107 +259,7 @@ export default tseslint.config(
     },
   },
   ...domainPackages,
-  {
-    // Layers of the web: shared → data features → page features → app, each importing only from itself and the ones
-    // below. A file at the root of src other than the entry point and Vite's types has no layer.
-    files: ['apps/web/src/**/*.{ts,tsx}'],
-    ignores: ['**/*.test.{ts,tsx}', 'apps/web/src/test/**'],
-    plugins: { boundaries },
-    settings: {
-      'import/resolver': { node: { extensions: ['.ts', '.tsx', '.js'] } },
-      'boundaries/include': ['apps/web/src/**/*'],
-      'boundaries/elements': [
-        { type: 'shared', pattern: 'apps/web/src/shared' },
-        {
-          type: 'feature-part',
-          pattern: 'apps/web/src/features/*/(api|model|hooks|components|pages)',
-          capture: ['feature', 'part'],
-        },
-        {
-          type: 'feature',
-          pattern: 'apps/web/src/features/*',
-          capture: ['feature'],
-        },
-        { type: 'app', pattern: 'apps/web/src/app' },
-      ],
-      'boundaries/files': [{ pattern: 'apps/web/src/{main.tsx,vite-env.d.ts}', category: 'entry' }],
-    },
-    rules: {
-      'boundaries/no-unknown-files': 'error',
-      'boundaries/dependencies': [
-        'error',
-        {
-          default: 'allow',
-          policies: [
-            {
-              disallow: { to: { file: { categories: 'entry' } } },
-              message: 'Nothing imports the entry point.',
-            },
-            {
-              from: { element: { type: 'shared' } },
-              disallow: { to: { element: { types: ['feature', 'feature-part', 'app'] } } },
-              message: 'shared/ does not import a feature nor app.',
-            },
-            {
-              from: { element: { types: ['feature', 'feature-part'] } },
-              disallow: { to: { element: { type: 'app' } } },
-              message: 'A feature does not import app.',
-            },
-            {
-              from: {
-                element: {
-                  types: ['feature', 'feature-part'],
-                  captured: { feature: `{${DATA_FEATURES.join(',')}}` },
-                },
-              },
-              disallow: {
-                to: {
-                  element: {
-                    types: ['feature', 'feature-part'],
-                    captured: { feature: `!(${DATA_FEATURES.join('|')})` },
-                  },
-                },
-              },
-              message: 'A data feature (catalog, progress) does not import a page feature.',
-            },
-            {
-              from: { element: { type: 'feature-part', captured: { part: 'model' } } },
-              disallow: {
-                to: {
-                  element: {
-                    type: 'feature-part',
-                    captured: { part: '{api,hooks,components,pages}' },
-                  },
-                },
-              },
-              message: 'model/ is pure: it does not import api, hooks, components or pages.',
-            },
-            {
-              from: { element: { type: 'feature-part', captured: { part: 'api' } } },
-              disallow: {
-                to: {
-                  element: { type: 'feature-part', captured: { part: '{hooks,components,pages}' } },
-                },
-              },
-              message: 'api/ does not import hooks, components or pages.',
-            },
-            {
-              from: { element: { type: 'feature-part', captured: { part: 'hooks' } } },
-              disallow: {
-                to: { element: { type: 'feature-part', captured: { part: '{components,pages}' } } },
-              },
-              message: 'hooks/ does not import components or pages.',
-            },
-            {
-              from: { element: { type: 'feature-part', captured: { part: 'components' } } },
-              disallow: { to: { element: { type: 'feature-part', captured: { part: 'pages' } } } },
-              message: 'components/ does not import pages.',
-            },
-          ],
-        },
-      ],
-    },
-  },
+  ...webLayers,
   {
     // The text a person reads goes in a strings.ts; pages that are only fixed text are their own document.
     files: ['apps/web/src/**/*.tsx'],

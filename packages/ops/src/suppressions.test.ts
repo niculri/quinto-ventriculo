@@ -10,6 +10,7 @@ import {
   directivesByRule,
   localRuleFile,
   newLocalRules,
+  startingDebt,
   suppressionsByRule,
   total,
 } from './suppressions';
@@ -45,6 +46,24 @@ describe('suppressionsByRule', () => {
     expect(() => suppressionsByRule('[]')).toThrow();
     expect(() => suppressionsByRule('{"a.ts": {"max-lines": {"count": -1}}}')).toThrow();
     expect(() => suppressionsByRule('{"a.ts": {"max-lines": {}}}')).toThrow();
+  });
+});
+
+describe('startingDebt', () => {
+  it('lists the rules of the working tree that the base did not list', () => {
+    const now = JSON.stringify({ 'rule/a': 4, 'rule/b': 1 });
+    expect([...startingDebt(now, JSON.stringify({ 'rule/a': 9 }))]).toEqual([['rule/b', 1]]);
+    expect([...startingDebt(now, null)]).toEqual([
+      ['rule/a', 4],
+      ['rule/b', 1],
+    ]);
+    expect([...startingDebt(null, now)]).toEqual([]);
+  });
+
+  it('rejects a file that is not a rule → count object', () => {
+    expect(() => startingDebt('[]', null)).toThrow(/no es un objeto/);
+    expect(() => startingDebt('{"rule/a": -1}', null)).toThrow(/número válido/);
+    expect(() => startingDebt('{"rule/a": "3"}', null)).toThrow(/número válido/);
   });
 });
 
@@ -158,6 +177,30 @@ describe('checkRatchet', () => {
     expect(inFile.ok).toBe(true);
     expect(inline.ok).toBe(false);
     expect(inline.lines.join('\n')).toContain('qv/new: 0 → 1');
+  });
+
+  it('a rule listed as starting may have that much debt once, only if the base had none of it', () => {
+    const starts = new Map([['@typescript-eslint/no-unsafe-call', 3]]);
+    const base = file({ 'a.ts': { 'max-lines': 1 } });
+    const at = (n: number) =>
+      file({ 'a.ts': { 'max-lines': 1, '@typescript-eslint/no-unsafe-call': n } });
+    const within = checkRatchet(snap(at(3)), snap(base), 'main', new Set(), starts);
+    expect(within.ok).toBe(true);
+    expect(within.lines.join('\n')).toContain('@typescript-eslint/no-unsafe-call: 3');
+    const over = checkRatchet(snap(at(4)), snap(base), 'main', new Set(), starts);
+    expect(over.ok).toBe(false);
+    expect(over.lines.join('\n')).toContain('@typescript-eslint/no-unsafe-call: 0 → 4');
+    const inline = checkRatchet(
+      snap(at(2), { '@typescript-eslint/no-unsafe-call': 1 }),
+      snap(base),
+      'main',
+      new Set(),
+      starts,
+    );
+    expect(inline.ok).toBe(false);
+    const once = checkRatchet(snap(at(3)), snap(at(2)), 'main', new Set(), starts);
+    expect(once.ok).toBe(false);
+    expect(once.lines.join('\n')).toContain('@typescript-eslint/no-unsafe-call: 2 → 3');
   });
 
   it('an inline directive counts as a suppression of its rule', () => {

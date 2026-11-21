@@ -2,6 +2,9 @@
 // up, with respect to a base commit. Counting per rule, not per file, lets a file move with its suppressions.
 
 export const SUPPRESSIONS_FILE = 'eslint-suppressions.json';
+// `{ rule: count }`: the debt a rule starts with in the change that turns it on, not growth. It counts once: a rule
+// the base already lists there, or that already had suppressions in the base, is checked as any other.
+export const START_FILE = 'eslint-suppressions-start.json';
 export const ALL_RULES = '*';
 
 export type Counts = Map<string, number>;
@@ -26,6 +29,24 @@ export function newLocalRules(
       return file !== null && inTree(file) && !inBase(file);
     }),
   );
+}
+
+// The rules of START_FILE that the base's START_FILE did not list, with the debt each may start with.
+export function startingDebt(current: string | null, base: string | null): Map<string, number> {
+  const read = (json: string | null) => {
+    const parsed: unknown = json === null ? {} : JSON.parse(json);
+    if (!isRecord(parsed)) throw new Error(`${START_FILE} no es un objeto JSON.`);
+    return parsed;
+  };
+  const listed = read(base);
+  const starts = new Map<string, number>();
+  for (const [rule, count] of Object.entries(read(current))) {
+    if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
+      throw new Error(`${START_FILE}: «${rule}» no tiene un número válido.`);
+    }
+    if (!(rule in listed)) starts.set(rule, count);
+  }
+  return starts;
 }
 
 // ESLint writes { file: { rule: { count } } }.
@@ -84,20 +105,26 @@ export function checkRatchet(
   base: Snapshot,
   baseName: string,
   newRules: ReadonlySet<string> = new Set(),
+  starts: ReadonlyMap<string, number> = new Map(),
 ): RatchetResult {
   const withFile = base.suppressions !== null;
   const now = combined(current, withFile);
   const before = combined(base, withFile);
+  // A rule starts with debt only if the base had none of it; `allowed` is how much.
+  const allowance = (rule: string) =>
+    (before.all.get(rule) ?? 0) === 0 ? starts.get(rule) : undefined;
   const started = [...now.all]
-    .filter(([rule]) => newRules.has(rule))
+    .filter(([rule]) => newRules.has(rule) || allowance(rule) !== undefined)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([rule, count]) => `${rule}: ${count}`);
+  const inlineGrew = (rule: string) => (now.inline.get(rule) ?? 0) > (before.inline.get(rule) ?? 0);
   const grown = [...now.all]
-    .filter(([rule, count]) =>
-      newRules.has(rule)
-        ? (now.inline.get(rule) ?? 0) > (before.inline.get(rule) ?? 0)
-        : count > (before.all.get(rule) ?? 0),
-    )
+    .filter(([rule, count]) => {
+      if (newRules.has(rule)) return inlineGrew(rule);
+      const allowed = allowance(rule);
+      if (allowed !== undefined) return inlineGrew(rule) || count > allowed;
+      return count > (before.all.get(rule) ?? 0);
+    })
     .sort(([a], [b]) => a.localeCompare(b))
     .map(
       ([rule, count]) =>

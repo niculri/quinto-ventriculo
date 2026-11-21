@@ -289,7 +289,8 @@ export default tseslint.config(
   {
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks },
-    rules: reactHooks.configs.recommended.rules,
+    // A dependency array that is not complete is an error: React Compiler skips what disables the rule.
+    rules: { ...reactHooks.configs.recommended.rules, 'react-hooks/exhaustive-deps': 'error' },
   },
   {
     files: ['apps/web/**/*.{ts,tsx}'],

@@ -19,19 +19,22 @@ const DEFAULT_VIEW: ViewPrefs = {
   sort: { column: 'sortField', descending: false },
 };
 
-export function useViewPrefs() {
-  const [view, setView] = useState<ViewPrefs>(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(PREFS_KEY) ?? 'null') as ViewPrefs | null;
-      const known = new Set(COLUMNS.map((c) => c.key));
-      if (saved && Array.isArray(saved.columns) && saved.columns.every((c) => known.has(c))) {
-        return { ...DEFAULT_VIEW, ...saved };
-      }
-    } catch {
-      // nothing saved, or blocked storage
+// Outside the hook: React Compiler does not compile a conditional inside `try`.
+function savedView(): ViewPrefs {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PREFS_KEY) ?? 'null') as ViewPrefs | null;
+    const known = new Set(COLUMNS.map((c) => c.key));
+    if (saved && Array.isArray(saved.columns) && saved.columns.every((c) => known.has(c))) {
+      return { ...DEFAULT_VIEW, ...saved };
     }
-    return DEFAULT_VIEW;
-  });
+  } catch {
+    // nothing saved, or blocked storage
+  }
+  return DEFAULT_VIEW;
+}
+
+export function useViewPrefs() {
+  const [view, setView] = useState<ViewPrefs>(savedView);
   const update = (patch: Partial<ViewPrefs>) =>
     setView((v) => {
       const next = { ...v, ...patch };

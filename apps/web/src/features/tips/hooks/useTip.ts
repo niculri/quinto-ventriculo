@@ -25,6 +25,17 @@ function shownOnThisDevice(): string[] {
   }
 }
 
+// Outside the hook: React Compiler does not compile a conditional inside `try`.
+function rememberTip(id: TipId) {
+  try {
+    storage('session')?.setItem(SESSION_KEY, id);
+    const shown = shownOnThisDevice();
+    if (!shown.includes(id)) storage('local')?.setItem(SHOWN_KEY, JSON.stringify([...shown, id]));
+  } catch {
+    // may show again
+  }
+}
+
 export function useTip(id: TipId, done: boolean) {
   const { prefs } = usePreferences();
   const save = useSavePreferences();
@@ -40,14 +51,7 @@ export function useTip(id: TipId, done: boolean) {
   if (eligible && !slot) setSlot(true);
   if (done && eligible && !show) setShow(true);
   useEffect(() => {
-    if (!show) return;
-    try {
-      storage('session')?.setItem(SESSION_KEY, id);
-      const shown = shownOnThisDevice();
-      if (!shown.includes(id)) storage('local')?.setItem(SHOWN_KEY, JSON.stringify([...shown, id]));
-    } catch {
-      // may show again
-    }
+    if (show) rememberTip(id);
   }, [id, show]);
   return {
     // Both keep the tip's room in the page for the whole visit, so closing it moves nothing.

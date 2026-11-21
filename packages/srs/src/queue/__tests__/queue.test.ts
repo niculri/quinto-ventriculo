@@ -6,8 +6,9 @@ import { describe, expect, it } from 'vitest';
 import { answerCard, newCard } from '../../card';
 import type { CardKey, CardRecord, Rating } from '../../card';
 import { defaultConfig } from '../../config';
+import type { DeckConfig } from '../../config';
 import type { SchedTiming } from '../../timing';
-import type { QueueCard, QueueDeck, QueueEntry } from '../base';
+import type { QueueCard, QueueDeck, QueueEntry, QueueInput } from '../base';
 import {
   StudyQueue,
   answeredIn,
@@ -208,6 +209,101 @@ describe('moveToFrontIn', () => {
   });
 });
 
+describe('learning cards at the edge of the learn-ahead window', () => {
+  const answerFirst = (q: QueueState, steps: number[], at = timing.now) => {
+    const first = nextOf(q)!;
+    const t = { ...timing, now: at };
+    const stepped = { ...config, learnSteps: steps };
+    const { card: after } = answerCard(first, newCard(0), 1, stepped, t, { fuzz: false });
+    return { first, after, answered: answeredIn(q, first, after, t), t };
+  };
+  const withLearningAhead = () =>
+    deepFreeze(buildQueue(input([card('n1', null, 0), card('l-ahead', learning(NOW + 600), 1)])));
+
+  it('a card requeued beyond the window is not counted, and undoing it does not uncount anything', () => {
+    const q = withLearningAhead();
+    const { after, answered } = answerFirst(q, [30]);
+    expect(after.due).toBe(NOW + 1800);
+    expect(countsOf(answered.queue)).toEqual({ new: 0, review: 0, learning: 1 });
+    expect(undoIn(answered.queue, answered.update)).toEqual(q);
+  });
+
+  it('a card requeued exactly at the edge of the window is counted', () => {
+    const q = withLearningAhead();
+    const { after, answered } = answerFirst(q, [20]);
+    expect(after.due).toBe(NOW + 1200);
+    expect(countsOf(answered.queue).learning).toBe(2);
+    expect(undoIn(answered.queue, answered.update)).toEqual(q);
+  });
+
+  it('undoing judges the card by the window of the answer, not by the cutoff the answer moved', () => {
+    const q = withLearningAhead();
+    // The answer comes ten minutes later: a quarter of an hour ahead is out of the old window and inside the new one.
+    const { after, answered } = answerFirst(q, [15], NOW + 600);
+    expect(after.due).toBe(NOW + 1500);
+    expect(countsOf(answered.queue).learning).toBe(2);
+    expect(undoIn(answered.queue, answered.update)).toEqual(q);
+  });
+
+  it('a card that would be shown twice in a row waits behind the next one, unless that one is at the edge of the window', () => {
+    const learningOrderAfterAgain = (nextDue: number) => {
+      const q = deepFreeze(
+        buildQueue(input([card('x', learning(NOW - 60), 0), card('l', learning(nextDue), 1)])),
+      );
+      const first = nextOf(q)!;
+      const again = answerCard(first, learning(NOW - 60), 1, config, timing, { fuzz: false });
+      return answeredIn(q, first, again.card, timing).queue.learning.map((e) => e.noteGuid);
+    };
+    expect(learningOrderAfterAgain(NOW + 1000)).toEqual(['l', 'x']);
+    expect(learningOrderAfterAgain(NOW + 1198)).toEqual(['l', 'x']);
+    expect(learningOrderAfterAgain(NOW + 1199)).toEqual(['x', 'l']);
+  });
+
+  it('a learning card moved to the front from beyond the window never takes the count below zero', () => {
+    const q = deepFreeze(buildQueue(input([card('l-late', learning(NOW + 5000), 0)])));
+    expect(countsOf(q).learning).toBe(0);
+    const moved = moveToFrontIn(q, key('l-late'))!;
+    const first = nextOf(moved)!;
+    const again = answerCard(first, learning(NOW + 5000), 1, config, timing, { fuzz: false });
+    const { queue } = answeredIn(moved, first, again.card, timing);
+    expect(countsOf(queue).learning).toBe(1);
+  });
+});
+
+describe('the pure functions leave their arguments alone', () => {
+  it('buildQueue does not touch the cards, the decks or the settings it is given', () => {
+    const frozen = deepFreeze(
+      input([card('n1', null, 0), card('r1', review(), 1), card('l-now', learning(NOW - 60), 2)]),
+    );
+    expect(() => buildQueue(frozen)).not.toThrow();
+  });
+
+  it('is read-only down to its entries, and to what an answer takes out of it', () => {
+    const q = deepFreeze(buildQueue(input([card('n1', null, 0), card('n2', null, 1)])));
+    const first = nextOf(q)!;
+    const { update } = answeredIn(
+      q,
+      first,
+      answerCard(first, newCard(0), 1, config, timing).card,
+      timing,
+    );
+    expect(() => {
+      // @ts-expect-error the entries of a queue cannot be assigned to
+      q.main[0]!.kind = 'review';
+    }).toThrow(TypeError);
+    expect(() => {
+      // @ts-expect-error nor the entry an answer took out
+      update.removed!.kind = 'review';
+    }).toThrow(TypeError);
+  });
+
+  it('what the reads hand out is a copy: changing it does not change the queue', () => {
+    const q = sample();
+    for (const e of [nextOf(q)!, ...entriesOf(q), ...upcomingOf(q, 3)]) e.noteGuid = 'changed';
+    expect(order(q)).toEqual(order(sample()));
+  });
+});
+
 describe('the StudyQueue object', () => {
   it('answers, undoes and moves cards like the pure functions', () => {
     const queue = StudyQueue.build(input([card('n1', null, 0), card('n2', null, 1)]));
@@ -260,121 +356,190 @@ const snapshot = (read: {
   kinds: unknown[];
 }) => read;
 
+/** What the old class holds, private fields included: the strictest thing to compare the new values against. */
+const heldBy = (queue: ReferenceStudyQueue) => ({
+  main: Reflect.get(queue, 'main') as QueueEntry[],
+  learning: Reflect.get(queue, 'learning') as QueueEntry[],
+  counts: Reflect.get(queue, 'counts_') as unknown,
+  cutoff: Reflect.get(queue, 'cutoff') as number,
+});
+
+interface World {
+  label: string;
+  config: DeckConfig;
+  timing: SchedTiming;
+  learnAheadSecs: number;
+}
+
+const worldOf = (
+  label: string,
+  over: Partial<DeckConfig>,
+  learnAheadSecs: number,
+  dayEnds: number,
+): World => ({
+  label,
+  config: { ...config, ...over },
+  timing: { ...timing, nextDayAt: NOW + dayEnds },
+  learnAheadSecs,
+});
+
+const DEFAULT_WORLD = worldOf('the default steps', {}, 1200, 30_000);
+const OTHER_WORLDS = [
+  worldOf(
+    'steps around the learn-ahead limit',
+    { learnSteps: [1, 15, 20], relearnSteps: [20] },
+    1200,
+    30_000,
+  ),
+  worldOf(
+    'steps beyond the learn-ahead limit',
+    { learnSteps: [5, 25, 45], relearnSteps: [30] },
+    1200,
+    30_000,
+  ),
+  worldOf(
+    'the day ending during the session',
+    { learnSteps: [1, 10, 25], relearnSteps: [30] },
+    1200,
+    2500,
+  ),
+  worldOf('no learn-ahead', {}, 0, 30_000),
+];
+
+function runSession(seed: number, world: World) {
+  const rand = random(seed);
+  const cards = randomCards(rand);
+  const base: QueueInput = {
+    rootDeckId: '1',
+    decks: [{ ...deck, config: world.config }],
+    cards,
+    studiedToday: new Map(),
+    timing: world.timing,
+    settings: {
+      learnAheadSecs: world.learnAheadSecs,
+      newCardsIgnoreReviewLimit: false,
+      applyAllParentLimits: false,
+    },
+  };
+  const reference = ReferenceStudyQueue.build(base);
+  const wrapper = StudyQueue.build(base);
+  let pure = deepFreeze(buildQueue(base));
+  const records = new Map(
+    cards.map((c) => [`${c.noteGuid}/${c.ord}`, c.record ?? newCard(c.index)]),
+  );
+  const undoStack: {
+    before: CardRecord;
+    key: CardKey;
+    ref: ReturnType<ReferenceStudyQueue['answered']>;
+    wrap: QueueUpdate;
+    pure: QueueUpdate;
+  }[] = [];
+  let now = NOW;
+
+  const readAll = (keys: CardKey[]) => ({
+    reference: snapshot({
+      entries: reference.entries(),
+      next: reference.next(),
+      counts: reference.counts(),
+      learningDue: reference.nextLearningDue(),
+      kinds: keys.map((k) => reference.kindOf(k)),
+    }),
+    wrapper: snapshot({
+      entries: wrapper.entries(),
+      next: wrapper.next(),
+      counts: wrapper.counts(),
+      learningDue: wrapper.nextLearningDue(),
+      kinds: keys.map((k) => wrapper.kindOf(k)),
+    }),
+    pure: snapshot({
+      entries: entriesOf(pure),
+      next: nextOf(pure),
+      counts: countsOf(pure),
+      learningDue: nextLearningDue(pure),
+      kinds: keys.map((k) => kindOf(pure, k)),
+    }),
+  });
+  const keys = cards.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord }));
+  const same = (step: string) => {
+    const read = readAll(keys);
+    expect(read.wrapper, step).toEqual(read.reference);
+    expect(read.pure, step).toEqual(read.reference);
+    const held = heldBy(reference);
+    expect(
+      { main: pure.main, learning: pure.learning, counts: pure.counts, cutoff: pure.cutoff },
+      step,
+    ).toEqual(held);
+  };
+  same('built');
+
+  for (let step = 0; step < 60; step++) {
+    const roll = rand();
+    const label = `step ${step}`;
+    if (roll < 0.6) {
+      const entry = reference.next();
+      if (!entry) break;
+      const k = { noteGuid: entry.noteGuid, ord: entry.ord };
+      now += Math.floor(rand() * 300);
+      const t = { ...world.timing, now };
+      const before = records.get(`${k.noteGuid}/${k.ord}`)!;
+      const rating = (1 + Math.floor(rand() * 4)) as Rating;
+      const result = answerCard(k, before, rating, world.config, t, { fuzz: false });
+      records.set(`${k.noteGuid}/${k.ord}`, result.card);
+      // With a moved learning card the next card may not be at the front of its list: all three refuse it alike.
+      let ref: ReturnType<ReferenceStudyQueue['answered']>;
+      try {
+        ref = reference.answered(k, result.card, t);
+      } catch {
+        records.set(`${k.noteGuid}/${k.ord}`, before);
+        expect(() => wrapper.answered(k, result.card, t), label).toThrow();
+        expect(() => answeredIn(pure, k, result.card, t), label).toThrow();
+        continue;
+      }
+      const wrap = wrapper.answered(k, result.card, t);
+      const answered = answeredIn(pure, k, result.card, t);
+      pure = deepFreeze(answered.queue);
+      expect(wrap, label).toEqual(ref);
+      expect(answered.update, label).toEqual(ref);
+      undoStack.push({ before, key: k, ref, wrap, pure: answered.update });
+    } else if (roll < 0.75) {
+      const undo = undoStack.pop();
+      if (!undo) continue;
+      records.set(`${undo.key.noteGuid}/${undo.key.ord}`, undo.before);
+      reference.undo(undo.ref);
+      wrapper.undo(undo.wrap);
+      pure = deepFreeze(undoIn(pure, undo.pure));
+      // After an undo the cutoff is the one from before the answer, which the clock has moved past.
+      now = heldBy(reference).cutoff;
+    } else if (roll < 0.9) {
+      const target = keys[Math.floor(rand() * keys.length)]!;
+      const expected = reference.moveToFront(target);
+      expect(wrapper.moveToFront(target), label).toBe(expected);
+      const moved = moveToFrontIn(pure, target);
+      expect(moved !== null, label).toBe(expected);
+      if (moved) pure = deepFreeze(moved);
+    } else {
+      now += Math.floor(rand() * 1500);
+      reference.updateCutoff(now);
+      wrapper.updateCutoff(now);
+      pure = deepFreeze(withCutoff(pure, now));
+    }
+    same(label);
+  }
+}
+
 describe('random sessions', () => {
   // The same answers, undos, moves and clock jumps run on the copy of the mutable queue, on the object and on frozen
-  // pure values; after every step the three read the same.
+  // pure values; after every step the three read the same, and the pure values hold what the old class holds.
   for (let seed = 1; seed <= 150; seed++) {
     it(`session ${seed} reads the same in the copy of the old queue, the object and the pure values`, () => {
-      const rand = random(seed);
-      const cards = randomCards(rand);
-      const base = {
-        ...input(cards),
-        settings: {
-          learnAheadSecs: 1200,
-          newCardsIgnoreReviewLimit: false,
-          applyAllParentLimits: false,
-        },
-      };
-      const reference = ReferenceStudyQueue.build(base);
-      const wrapper = StudyQueue.build(base);
-      let pure = deepFreeze(buildQueue(base));
-      const records = new Map(
-        cards.map((c) => [`${c.noteGuid}/${c.ord}`, c.record ?? newCard(c.index)]),
-      );
-      const undoStack: {
-        before: CardRecord;
-        key: CardKey;
-        ref: ReturnType<ReferenceStudyQueue['answered']>;
-        wrap: QueueUpdate;
-        pure: QueueUpdate;
-      }[] = [];
-      let now = NOW;
-
-      const readAll = (keys: CardKey[]) => ({
-        reference: snapshot({
-          entries: reference.entries(),
-          next: reference.next(),
-          counts: reference.counts(),
-          learningDue: reference.nextLearningDue(),
-          kinds: keys.map((k) => reference.kindOf(k)),
-        }),
-        wrapper: snapshot({
-          entries: wrapper.entries(),
-          next: wrapper.next(),
-          counts: wrapper.counts(),
-          learningDue: wrapper.nextLearningDue(),
-          kinds: keys.map((k) => wrapper.kindOf(k)),
-        }),
-        pure: snapshot({
-          entries: entriesOf(pure),
-          next: nextOf(pure),
-          counts: countsOf(pure),
-          learningDue: nextLearningDue(pure),
-          kinds: keys.map((k) => kindOf(pure, k)),
-        }),
-      });
-      const keys = cards.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord }));
-      const same = (step: string) => {
-        const read = readAll(keys);
-        expect(read.wrapper, step).toEqual(read.reference);
-        expect(read.pure, step).toEqual(read.reference);
-        expect(pure.cutoff, step).toBe(Math.max(NOW, now));
-      };
-      same('built');
-
-      for (let step = 0; step < 60; step++) {
-        const roll = rand();
-        const label = `step ${step}`;
-        if (roll < 0.6) {
-          const entry = reference.next();
-          if (!entry) break;
-          const k = { noteGuid: entry.noteGuid, ord: entry.ord };
-          now += Math.floor(rand() * 300);
-          const t = { ...timing, now };
-          const before = records.get(`${k.noteGuid}/${k.ord}`)!;
-          const rating = (1 + Math.floor(rand() * 4)) as Rating;
-          const result = answerCard(k, before, rating, config, t, { fuzz: false });
-          records.set(`${k.noteGuid}/${k.ord}`, result.card);
-          // With a moved learning card the next card may not be at the front of its list: all three refuse it alike.
-          let ref: ReturnType<ReferenceStudyQueue['answered']>;
-          try {
-            ref = reference.answered(k, result.card, t);
-          } catch {
-            records.set(`${k.noteGuid}/${k.ord}`, before);
-            expect(() => wrapper.answered(k, result.card, t), label).toThrow();
-            expect(() => answeredIn(pure, k, result.card, t), label).toThrow();
-            continue;
-          }
-          const wrap = wrapper.answered(k, result.card, t);
-          const answered = answeredIn(pure, k, result.card, t);
-          pure = deepFreeze(answered.queue);
-          expect(wrap, label).toEqual(ref);
-          expect(answered.update, label).toEqual(ref);
-          undoStack.push({ before, key: k, ref, wrap, pure: answered.update });
-        } else if (roll < 0.75) {
-          const undo = undoStack.pop();
-          if (!undo) continue;
-          records.set(`${undo.key.noteGuid}/${undo.key.ord}`, undo.before);
-          reference.undo(undo.ref);
-          wrapper.undo(undo.wrap);
-          pure = deepFreeze(undoIn(pure, undo.pure));
-          // After an undo the cutoff is the one from before the answer, which the clock has moved past.
-          now = pure.cutoff;
-        } else if (roll < 0.9) {
-          const target = keys[Math.floor(rand() * keys.length)]!;
-          const expected = reference.moveToFront(target);
-          expect(wrapper.moveToFront(target), label).toBe(expected);
-          const moved = moveToFrontIn(pure, target);
-          expect(moved !== null, label).toBe(expected);
-          if (moved) pure = deepFreeze(moved);
-        } else {
-          now += Math.floor(rand() * 1500);
-          reference.updateCutoff(now);
-          wrapper.updateCutoff(now);
-          pure = deepFreeze(withCutoff(pure, now));
-        }
-        same(label);
-      }
+      runSession(seed, DEFAULT_WORLD);
     });
+  }
+  for (const world of OTHER_WORLDS) {
+    for (let seed = 1; seed <= 50; seed++) {
+      it(`session ${seed} with ${world.label} reads the same in the copy of the old queue, the object and the pure values`, () => {
+        runSession(seed, world);
+      });
+    }
   }
 });

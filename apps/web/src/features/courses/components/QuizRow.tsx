@@ -5,6 +5,7 @@ import type { QuizSummary } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import type { CourseRef } from '../../../shared/lib/paths';
 import { button } from '../../../shared/ui/styles';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { assessmentStrings as s } from '../assessment.strings';
 
 export function QuizRow({ course, quiz }: { course: CourseRef; quiz: QuizSummary }) {
@@ -15,6 +16,7 @@ export function QuizRow({ course, quiz }: { course: CourseRef; quiz: QuizSummary
         <Link to={paths.quiz(course, quiz)} className="font-medium text-ink hover:underline">
           {quiz.title}
         </Link>
+        <ListMark thing={['quiz', quiz.id]} holder={['assessment', quiz.assessmentId]} />
         <p className="text-sm text-muted">
           {s.questions(quiz.questionCount)}
           {quiz.sectionCount > 1 ? s.sections(quiz.sectionCount) : ''}

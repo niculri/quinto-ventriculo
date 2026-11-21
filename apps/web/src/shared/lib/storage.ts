@@ -2,7 +2,7 @@
 export const storageKeys = {
   theme: 'qv-theme',
   signInNext: 'qv-next',
-  preview: 'qv-preview',
+  adminMode: 'qv-admin-mode',
   lastNote: 'qv-last-note',
   tipThisVisit: 'qv-tip',
   tipsShown: 'qv-tips-shown',

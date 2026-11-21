@@ -3,6 +3,7 @@ import type { AssessmentWithNotes, Catalog, CourseWithAssessments } from '@qv/sc
 import { paths } from '../../../shared/lib/paths';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { assessmentAnchor } from '../../../shared/lib/paths';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import type { CourseDecks } from '../hooks/useCourseDecks';
 import { assessmentDeck, notesLine } from '../model/material';
 import { AnkiArt, NotesArt, TestsArt } from './SectionArt';
@@ -30,6 +31,7 @@ export function AssessmentCards({
     <section className="mt-10" aria-labelledby={assessmentAnchor(a.id)}>
       <h2 id={assessmentAnchor(a.id)} className="scroll-mt-24 text-xl font-semibold">
         {a.name}
+        <ListMark thing={['assessment', a.id]} holder={['course', course.id]} />
       </h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {a.notes.length ? (

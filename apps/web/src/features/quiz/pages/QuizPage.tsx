@@ -5,6 +5,7 @@ import { Canonical } from '../../../shared/ui/Canonical';
 import { Loading } from '../../../shared/ui/Loading';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { PageTag } from '../../catalog/components/AdminMarks';
 import { QuizScreen } from '../components/QuizScreen';
 import { useQuizPage } from '../hooks/useQuizPage';
 import type { QuizPageView } from '../hooks/useQuizPage';
@@ -18,7 +19,8 @@ function Crumbs({ view }: { view: Ready }) {
   const { semester, course } = view.found;
   const { assessment, onlyTest } = view;
   return (
-    <div className="wrap wide qz-crumbs">
+    <div className="wrap wide qz-crumbs relative">
+      <PageTag thing={['quiz', view.quiz.id]} />
       <Breadcrumbs
         items={[
           { label: s.crumbs.home, to: paths.home },

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BookOpen, Layers, ListChecks } from 'lucide-react';
 import type { CourseWithAssessments, NoteSummary } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { menuNoteBlocks } from '../model/where';
 import type { Where } from '../model/where';
@@ -38,6 +39,7 @@ export function AssessmentParts({
         >
           <NoteLinks
             course={course}
+            assessmentId={assessment.id}
             notes={assessment.notes}
             where={where}
             onNavigate={onNavigate}
@@ -53,6 +55,10 @@ export function AssessmentParts({
             onNavigate={onNavigate}
           >
             {navStrings.tests}
+            <ListMark
+              thing={['quiz', assessment.quizzes[0]!.id]}
+              holder={['assessment', assessment.id]}
+            />
           </NavLink>
         </li>
       ) : assessment.quizzes.length ? (
@@ -71,6 +77,7 @@ export function AssessmentParts({
                 onNavigate={onNavigate}
               >
                 {q.title}
+                <ListMark thing={['quiz', q.id]} holder={['assessment', assessment.id]} />
               </NavLink>
             </li>
           ))}
@@ -86,6 +93,7 @@ export function AssessmentParts({
             onNavigate={onNavigate}
           >
             {navStrings.anki}
+            <ListMark thing={['deck', deck.id]} holder={['assessment', assessment.id]} />
           </NavLink>
         </li>
       ) : null}
@@ -95,11 +103,13 @@ export function AssessmentParts({
 
 function NoteLinks({
   course,
+  assessmentId,
   notes,
   where,
   onNavigate,
 }: {
   course: CourseWithAssessments;
+  assessmentId: string;
   notes: readonly NoteSummary[];
   where: Where;
   onNavigate?: (() => void) | undefined;
@@ -122,6 +132,7 @@ function NoteLinks({
               onNavigate={onNavigate}
             >
               {n.title}
+              <ListMark thing={['note', n.id]} holder={['assessment', assessmentId]} />
             </NavLink>
           </li>
         )),

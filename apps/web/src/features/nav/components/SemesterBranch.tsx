@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { CalendarDays, ChevronRight } from 'lucide-react';
 import type { CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { hasMaterial } from '../model/where';
@@ -40,6 +41,7 @@ export function SemesterBranch({
           onNavigate={onNavigate}
         >
           {semester.name}
+          <ListMark thing={['semester', semester.number]} />
         </NavLink>
         {course ? null : (
           <Nested>
@@ -54,6 +56,7 @@ export function SemesterBranch({
                     onNavigate={onNavigate}
                   >
                     {c.name}
+                    <ListMark thing={['course', c.id]} holder={['semester', semester.number]} />
                   </NavLink>
                 </li>
               ))}
@@ -71,6 +74,7 @@ export function SemesterBranch({
               onNavigate={onNavigate}
             >
               {course.name}
+              <ListMark thing={['course', course.id]} holder={['semester', semester.number]} />
             </NavLink>
           </li>
           <CourseAssessments course={course} where={where} tree={tree} onNavigate={onNavigate} />
@@ -114,7 +118,10 @@ function CourseAssessments({
               aria-expanded={open}
               className="mt-3 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-xs font-semibold tracking-wide text-muted uppercase transition-colors hover:text-ink"
             >
-              <span className="min-w-0 flex-1">{a.name}</span>
+              <span className="min-w-0 flex-1">
+                {a.name}
+                <ListMark thing={['assessment', a.id]} holder={['course', course.id]} />
+              </span>
               <ChevronRight
                 className={`size-3.5 flex-none transition-transform ${open ? 'rotate-90' : ''}`}
                 aria-hidden="true"

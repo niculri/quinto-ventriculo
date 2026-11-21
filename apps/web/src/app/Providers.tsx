@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
-import { PreviewSwitch } from './PreviewSwitch';
+import { AdminModeSwitch } from './AdminModeSwitch';
 import { SessionProvider } from './SessionProvider';
 import { createQueryClient } from './queryClient';
 import { ServicesProvider } from './services';
@@ -19,12 +19,12 @@ export function Providers({
   queryClient?: QueryClient;
 }) {
   const [client] = useState(() => queryClient ?? createQueryClient());
-  const [previewClient] = useState(() => createQueryClient());
+  const [adminClient] = useState(() => createQueryClient());
   return (
-    <PreviewSwitch
+    <AdminModeSwitch
       services={services}
       client={client}
-      previewClient={previewClient}
+      adminClient={adminClient}
       render={(parts) => (
         <ServicesProvider services={parts.services}>
           <QueryClientProvider client={parts.client}>

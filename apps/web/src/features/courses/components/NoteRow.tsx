@@ -5,6 +5,7 @@ import type { AssessmentWithNotes, NoteSummary } from '@qv/schema';
 import type { Counts } from '@qv/srs';
 import { paths } from '../../../shared/lib/paths';
 import type { CourseRef } from '../../../shared/lib/paths';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { kindStrings } from '../../notes/kinds.strings';
 import { findPracticeDeck, practiceLink } from '../../notes/model/practice';
@@ -44,7 +45,10 @@ export function NoteRow({
           {number}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-medium text-ink">{note.title}</span>
+          <span className="block font-medium text-ink">
+            {note.title}
+            <ListMark thing={['note', note.id]} holder={['assessment', assessment.id]} />
+          </span>
           <span className="mt-0.5 block text-sm text-muted">{noteLine(note)}</span>
         </span>
       </Link>

@@ -4,6 +4,7 @@ import type { AssessmentWithNotes, CourseWithAssessments, SemesterWithCourses } 
 import { paths } from '../../../shared/lib/paths';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
+import { PageTag } from '../../catalog/components/AdminMarks';
 import { assessmentStrings as s } from '../assessment.strings';
 
 export function SectionFrame({
@@ -21,6 +22,7 @@ export function SectionFrame({
 }) {
   return (
     <div className={page}>
+      <PageTag thing={['assessment', assessment.id]} />
       <Breadcrumbs
         items={[
           { label: s.home, to: paths.home },

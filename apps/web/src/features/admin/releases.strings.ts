@@ -1,4 +1,4 @@
-// The texts of «Publicaciones»: the preview, the review list, what changes, the changes one by one, publishing,
+// The texts of «Publicaciones»: the review list, what changes, the changes one by one, publishing,
 // undoing and the record.
 import type { ReleaseClass, ReleaseOp } from '@qv/schema';
 
@@ -13,11 +13,6 @@ const verb = (op: 'added' | 'removed' | 'changed', isNew: string) =>
 export const releasesStrings = {
   title: 'Publicaciones',
   plural,
-  preview: {
-    title: 'Vista previa del borrador',
-    help: 'Todo el sitio con el borrador, como lo verán los alumnos cuando se publique. Lo que estudies o respondas mientras tanto no se guarda.',
-    toggle: 'Ver el sitio con el borrador',
-  },
   empty: 'El borrador es igual a lo publicado: no hay nada que revisar.',
   changes: 'Qué cambia',
   review: {

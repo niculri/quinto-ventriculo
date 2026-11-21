@@ -7,7 +7,7 @@ import { AppNav } from '../features/nav/components/AppNav';
 import { SiteFooter } from '../features/nav/components/SiteFooter';
 import { FocusContext } from '../shared/ui/focus';
 import { RailContext } from '../shared/ui/rail';
-import { usePreview } from '../features/preview/preview';
+import { useAdminMode } from '../features/adminMode/adminMode';
 import { isAnswerScreen } from '../shared/ui/answerScreen';
 import { appStrings } from './strings';
 import { TopBar } from './shell/TopBar';
@@ -19,7 +19,7 @@ export function AppShell() {
   const [focus, setFocus] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [rail, setRail] = useState<HTMLElement | null>(null);
-  const preview = usePreview();
+  const adminMode = useAdminMode();
   const { pathname } = useLocation();
   const studying = isAnswerScreen(pathname);
   // Studying a deck is as answering a test: nothing but the card (no menu, no right column, no footer, and on a phone
@@ -38,7 +38,7 @@ export function AppShell() {
       </a>
       <TopBar
         hideNav={hideNav}
-        preview={preview.active}
+        adminMode={adminMode.active}
         onMenu={() => setMenuOpen(true)}
         onSearch={() => setSearching(true)}
       />
@@ -75,6 +75,17 @@ export function AppShell() {
       <PhoneMenu open={menuOpen && !hideNav} onOpenChange={setMenuOpen} />
 
       <SiteFooter hidden={hideNav} />
+
+      {/* Where one answers nothing is saved in the admin mode: a line in the corner, over the screen (it moves nothing). */}
+      {adminMode.active && hideNav ? (
+        <p
+          aria-hidden="true"
+          data-admin-note=""
+          className="pointer-events-none fixed bottom-0.5 left-2 z-30 text-[0.65rem] leading-3 font-medium text-[#9a4a12] dark:text-accent"
+        >
+          {appStrings.adminModeNote}
+        </p>
+      ) : null}
 
       <SearchPalette open={searching} onOpenChange={setSearching} />
     </div>

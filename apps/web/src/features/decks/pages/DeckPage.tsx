@@ -6,6 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { page } from '../../../shared/ui/styles';
+import { PageTag } from '../../catalog/components/AdminMarks';
 import { deckCrumbs } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { AssessmentOptions } from '../components/AssessmentOptions';
@@ -19,6 +20,7 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
 
   return (
     <div className={page}>
+      <PageTag thing={['deck', node.id]} />
       <Breadcrumbs items={deckCrumbs(node)} />
       <DeckHeader node={node} />
 

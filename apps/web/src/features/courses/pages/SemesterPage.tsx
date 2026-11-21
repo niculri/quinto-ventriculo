@@ -7,6 +7,7 @@ import { Loading } from '../../../shared/ui/Loading';
 import { card, linkCard, page } from '../../../shared/ui/styles';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
+import { PageTag, ListMark } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { semesterStrings as s } from '../semester.strings';
@@ -22,6 +23,7 @@ export function SemesterPage() {
 
   return (
     <div className={page}>
+      <PageTag thing={['semester', semester.number]} />
       <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: semester.name }]} />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{semester.name}</h1>
       {semester.courses.length === 0 ? (
@@ -37,7 +39,10 @@ export function SemesterPage() {
                 <span className="text-3xl" aria-hidden="true">
                   {c.emoji}
                 </span>
-                <span className="mt-3 block text-lg font-semibold">{c.name}</span>
+                <span className="mt-3 block text-lg font-semibold">
+                  {c.name}
+                  <ListMark thing={['course', c.id]} holder={['semester', semester.number]} />
+                </span>
                 <span className="mt-1 block text-sm text-muted">
                   {material
                     ? `${material} · ${c.assessments.map((a) => a.name).join(', ')}`

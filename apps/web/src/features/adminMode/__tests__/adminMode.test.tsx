@@ -1,17 +1,17 @@
-// Tests previewStudyRepository: studying in the preview reads the user's choices and writes nothing.
+// Tests adminStudyRepository: studying in the admin mode reads the user's choices and writes nothing.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { localStudyRepository } from '../../progress/api/repository';
-import { previewStudyRepository, sharedWithPreview } from '../preview';
+import { adminStudyRepository, sharedWithAdminMode } from '../adminMode';
 import { adminKeys } from '../../admin/api/queries';
 import { releaseKeys } from '../../admin/api/releases';
 import { reportKeys } from '../../reports/api/queries';
 import { studyKeys } from '../../progress/queries';
 
-afterEach(() => window.sessionStorage.clear());
+afterEach(() => window.localStorage.clear());
 
-describe('the preview of the draft', () => {
-  it('studying in the preview writes nothing in the real repository, and starts from what the user chose', async () => {
+describe('the admin mode', () => {
+  it('studying in the admin mode writes nothing in the real repository, and starts from what the user chose', async () => {
     const real = fullAnkiStudy();
     await real.setDeckActivation('20', true);
     const activations = await real.deckActivations();
@@ -27,7 +27,7 @@ describe('the preview of the draft', () => {
         };
       },
     });
-    const preview = previewStudyRepository(spied);
+    const preview = adminStudyRepository(spied);
     expect((await preview.preferences())?.fullAnki).toBe(true);
     expect(await preview.deckActivations()).toEqual(activations);
     await preview
@@ -54,7 +54,7 @@ describe('the preview of the draft', () => {
     await preview.setDeckActivation('21', true);
     expect(writes).not.toHaveBeenCalled();
     expect(await real.deckActivations()).toEqual(activations);
-    const again = previewStudyRepository(localStudyRepository(null));
+    const again = adminStudyRepository(localStudyRepository(null));
     expect(await again.deckActivations()).toEqual([]);
   });
 
@@ -69,7 +69,7 @@ describe('the preview of the draft', () => {
       reportKeys.mine,
       studyKeys.preferences,
     ]) {
-      expect(sharedWithPreview(key)).toBe(true);
+      expect(sharedWithAdminMode(key)).toBe(true);
     }
     for (const key of [
       adminKeys.siteSettings,
@@ -78,7 +78,7 @@ describe('the preview of the draft', () => {
       studyKeys.plan,
       studyKeys.cards('20'),
     ]) {
-      expect(sharedWithPreview(key)).toBe(false);
+      expect(sharedWithAdminMode(key)).toBe(false);
     }
   });
 });

@@ -61,26 +61,26 @@ export function LogoMark({ className = 'size-8' }: { className?: string }) {
 }
 
 /**
- * `preview` marks the draft's preview without moving anything: its text in the subtitle's cell (the subtitle stays
+ * `adminMode` marks the admin mode without moving anything: its text in the subtitle's cell (the subtitle stays
  * there, invisible, keeping its width) and a dot over the icon, since the phone has no subtitle.
  */
 export function Logo({
   compact = false,
   tagline = false,
-  preview = false,
+  adminMode = false,
 }: {
   compact?: boolean;
   tagline?: boolean;
-  preview?: boolean;
+  adminMode?: boolean;
 }) {
   return (
     <span className="flex items-center gap-2.5">
       <span className="relative flex-none">
         <LogoMark />
-        {preview ? (
+        {adminMode ? (
           <span
             aria-hidden="true"
-            data-preview-mark=""
+            data-admin-mode-mark=""
             className="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-accent ring-2 ring-chrome"
           />
         ) : null}
@@ -95,12 +95,12 @@ export function Logo({
             <span
               data-text={sharedStrings.logo.motto}
               className={`col-start-1 row-start-1 font-serif text-[0.78rem] leading-none text-muted italic before:content-[attr(data-text)] ${
-                preview ? 'invisible' : ''
+                adminMode ? 'invisible' : ''
               }`}
             />
-            {preview ? (
+            {adminMode ? (
               <span
-                data-text={sharedStrings.logo.preview}
+                data-text={sharedStrings.logo.adminMode}
                 className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-accent before:content-[attr(data-text)]"
               />
             ) : null}

@@ -44,7 +44,7 @@ export interface Services {
   admin: AdminRepository;
   reports: ReportsRepository;
   account: AccountRepository;
-  previewApi?: ApiClient;
+  adminApi?: ApiClient;
 }
 
 export function createServices(): Services {
@@ -59,7 +59,7 @@ export function createServices(): Services {
     return {
       session,
       api,
-      previewApi: createApiClient(token, '', PREVIEW_HEADERS),
+      adminApi: createApiClient(token, '', PREVIEW_HEADERS),
       study: withDemoHistory(demo.study, () => api.catalog()),
       quiz: localQuizRepository(),
       // The demo's user is the site owner, to see the whole panel; `qv-demo-role` = `student` makes it a student, and
@@ -101,7 +101,7 @@ export function createServices(): Services {
   return {
     session,
     api,
-    previewApi: createApiClient(token, '', PREVIEW_HEADERS),
+    adminApi: createApiClient(token, '', PREVIEW_HEADERS),
     // Before reading their progress, the student's cards follow what the author moved or took out.
     study: withCardSync(supabaseStudyRepository(client), api, userOf(session)),
     quiz: supabaseQuizRepository(client),

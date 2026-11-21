@@ -1,51 +1,58 @@
-// The preview of the draft for an administrator: whether it is on, how a tab remembers it, what it shares with the
-// site's cache and the study repository it uses (app/PreviewSwitch.tsx switches the site).
+// The admin mode for an administrator: whether it is on, how the browser remembers it, what it shares with the site's
+// cache and the study repository it uses (app/AdminModeSwitch.tsx switches the site).
 import { createContext, use } from 'react';
 import { localStudyRepository } from '../progress/api/repository';
 import type { StudyRepository } from '../progress/api/repository';
 import { studyKeys } from '../progress/queries';
 import { storageKeys } from '../../shared/lib/storage';
 
-/** In sessionStorage: a reload stays in the preview; another tab does not start in it. */
-const KEY = storageKeys.preview;
+/** The last mode this browser used, in localStorage: the first time, and for anybody else, it is the student's. */
+const KEY = storageKeys.adminMode;
 
-export interface Preview {
+export interface AdminMode {
+  /** The draft and what is off for the students, and nothing is saved. */
   active: boolean;
+  /** The site can offer it: it has the API client for it. Only an administrator is given it by the API. */
   available: boolean;
-  enter(): void;
-  exit(): void;
+  set(active: boolean): void;
 }
 
-export const PreviewContext = createContext<Preview>({
+export const AdminModeContext = createContext<AdminMode>({
   active: false,
   available: false,
-  enter() {},
-  exit() {},
+  set: () => undefined,
 });
 
-export const usePreview = () => use(PreviewContext);
+export const useAdminMode = () => use(AdminModeContext);
 
-export const storedPreview = () => {
+export const storedAdminMode = () => {
   try {
-    return window.sessionStorage.getItem(KEY) === 'draft';
+    return window.localStorage.getItem(KEY) === 'admin';
   } catch {
     return false;
   }
 };
-export const storePreview = (on: boolean) => {
+/** This browser has already had the mode chosen: somebody here is, or was, an administrator. */
+export const hasStoredAdminMode = () => {
   try {
-    if (on) window.sessionStorage.setItem(KEY, 'draft');
-    else window.sessionStorage.removeItem(KEY);
+    return window.localStorage.getItem(KEY) !== null;
+  } catch {
+    return false;
+  }
+};
+export const storeAdminMode = (on: boolean) => {
+  try {
+    window.localStorage.setItem(KEY, on ? 'admin' : 'student');
   } catch {
     // blocked storage: it lasts until a reload
   }
 };
 
 /**
- * The cache entries that are the same in the preview: the user, their preferences and the administration panel's (their
+ * The cache entries that are the same in the admin mode: the user, their preferences and the administration panel's (their
  * first elements are the admin and reports keys', written here so the startup does not load those pages' reads).
  */
-export const sharedWithPreview = (key: readonly unknown[]) =>
+export const sharedWithAdminMode = (key: readonly unknown[]) =>
   key[0] === 'is-admin' ||
   key[0] === 'release' ||
   key[0] === 'report-queue' ||
@@ -58,7 +65,7 @@ export const sharedWithPreview = (key: readonly unknown[]) =>
  * In memory, seeded once from the real one's preferences, activations and settings; the real one is never synced, which
  * would write the published site's card changes.
  */
-export function previewStudyRepository(real: StudyRepository): StudyRepository {
+export function adminStudyRepository(real: StudyRepository): StudyRepository {
   const local = localStudyRepository(null);
   let ready: Promise<void> | null = null;
   const seed = () =>

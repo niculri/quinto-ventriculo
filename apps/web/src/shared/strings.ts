@@ -13,7 +13,13 @@ export const sharedStrings = {
   breadcrumbs: 'Ruta',
   logo: {
     motto: 'El ventrículo que no aparece en el Netter.',
-    preview: 'Vista previa del borrador',
+    adminMode: 'Modo admin',
+  },
+  /** Why an administrator sees what a student does not. */
+  adminOnly: {
+    draft: 'Borrador',
+    hiddenSemester: 'Semestre oculto',
+    hiddenCourse: 'Ramo apagado',
   },
   theme: {
     label: 'Tema',

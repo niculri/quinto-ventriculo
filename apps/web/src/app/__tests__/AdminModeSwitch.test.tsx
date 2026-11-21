@@ -1,4 +1,4 @@
-// Tests PreviewSwitch: in the preview, no write reaches the real repositories of study, tests or reports.
+// Tests AdminModeSwitch: in the admin mode, no write reaches the real repositories of study, tests or reports.
 import { act, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -8,17 +8,17 @@ import { fakeSession } from '../../test/fakes/session';
 import { SESSION_ANA } from '../../test/fixtures/session';
 import type { Services } from '../services';
 import { localQuizRepository } from '../../features/quiz/api/repository';
-import { PreviewSwitch } from '../PreviewSwitch';
-import type { PreviewParts } from '../PreviewSwitch';
-import { usePreview } from '../../features/preview/preview';
-import type { Preview } from '../../features/preview/preview';
+import { AdminModeSwitch } from '../AdminModeSwitch';
+import type { AdminModeParts } from '../AdminModeSwitch';
+import { useAdminMode } from '../../features/adminMode/adminMode';
+import type { AdminMode } from '../../features/adminMode/adminMode';
 import { localAdminRepository } from '../../features/admin/api/repository';
 import { localReportsRepository } from '../../features/reports/api/repository';
 
-afterEach(() => window.sessionStorage.clear());
+afterEach(() => window.localStorage.clear());
 
-describe('the preview of the draft', () => {
-  it('nothing done in the preview reaches the real repositories (study, tests, reports)', async () => {
+describe('the admin mode', () => {
+  it('nothing done in the admin mode reaches the real repositories (study, tests, reports)', async () => {
     const calls: string[] = [];
     const spy = <T extends object>(name: string, o: T): T =>
       new Proxy(o, {
@@ -34,33 +34,33 @@ describe('the preview of the draft', () => {
     const services: Services = {
       session: fakeSession(SESSION_ANA),
       api: fakeApi(),
-      previewApi: fakeApi(),
+      adminApi: fakeApi(),
       study: spy('study', fullAnkiStudy()),
       quiz: spy('quiz', localQuizRepository(null)),
       admin: spy('admin', localAdminRepository({ admin: true })),
       reports: spy('reports', localReportsRepository({ admin: true })),
       account: acceptedAccount(),
     };
-    let parts: PreviewParts | null = null;
-    let preview: Preview | null = null;
+    let parts: AdminModeParts | null = null;
+    let preview: AdminMode | null = null;
     function Probe() {
-      preview = usePreview();
+      preview = useAdminMode();
       return null;
     }
     render(
-      <PreviewSwitch
+      <AdminModeSwitch
         services={services}
         client={new QueryClient()}
-        previewClient={new QueryClient()}
+        adminClient={new QueryClient()}
         render={(p) => {
           parts = p;
           return <Probe />;
         }}
       />,
     );
-    act(() => preview!.enter());
+    act(() => preview!.set(true));
     const s = parts!.services;
-    expect(s.api).toBe(services.previewApi);
+    expect(s.api).toBe(services.adminApi);
     const card = { noteGuid: 'g', ord: 0, deckId: '20' };
     const attempts: (() => Promise<unknown>)[] = [
       () => s.quiz.save({ quizId: 'q', sectionId: 's' } as never),

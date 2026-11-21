@@ -5,6 +5,7 @@ import { CalendarDays, House } from 'lucide-react';
 import { useLocation } from 'react-router';
 import type { Catalog } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { catalogStrings } from '../../catalog/strings';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { buildAnkiTree } from '../../catalog/model/tree';
@@ -90,6 +91,7 @@ function NavTree({
                 {...link}
               >
                 {s.name}
+                <ListMark thing={['semester', s.number]} />
               </NavLink>
             </li>
           ))}

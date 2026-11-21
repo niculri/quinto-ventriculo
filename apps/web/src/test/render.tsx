@@ -31,7 +31,7 @@ export function renderApp(
     admin?: AdminRepository;
     reports?: ReportsRepository;
     account?: AccountRepository;
-    previewApi?: ApiClient;
+    adminApi?: ApiClient;
   } = {},
 ) {
   const session = fakeSession(op.session === undefined ? SESSION_ANA : op.session);
@@ -43,7 +43,7 @@ export function renderApp(
     admin: op.admin ?? localAdminRepository(),
     reports: op.reports ?? localReportsRepository({ admin: true }),
     account: op.account ?? acceptedAccount(),
-    ...(op.previewApi ? { previewApi: op.previewApi } : {}),
+    ...(op.adminApi ? { adminApi: op.adminApi } : {}),
   };
   const router = createMemoryRouter(routes, { initialEntries: [route] });
   const r = render(

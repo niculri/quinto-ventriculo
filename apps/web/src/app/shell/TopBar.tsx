@@ -1,21 +1,22 @@
 // The top bar of the signed-in app: the phone's menu button, the logo, the search box and the account menu, with the
-// draft preview's line over it.
+// admin mode's line over it.
 import { Menu, Search } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
 import { Logo } from '../../shared/ui/Logo';
 import { keys } from '../../shared/ui/keys';
 import { UserMenu } from '../../features/nav/components/UserMenu';
+import { ModeSwitch } from './ModeSwitch';
 import { appStrings } from '../strings';
 
 export function TopBar({
   hideNav,
-  preview,
+  adminMode,
   onMenu,
   onSearch,
 }: {
   hideNav: boolean;
-  preview: boolean;
+  adminMode: boolean;
   onMenu: () => void;
   onSearch: () => void;
 }) {
@@ -23,16 +24,16 @@ export function TopBar({
     <header
       className={`sticky top-0 z-40 border-b border-border bg-chrome/85 backdrop-blur-md ${hideNav ? 'max-sm:hidden' : ''}`}
     >
-      {/* The preview of the draft: a line over the bar and its mark in the logo, both on top of what is there (nothing
-          moves when it comes or goes). */}
-      {preview ? (
+      {/* The admin mode: a line over the bar and its mark in the logo, both on top of what is there (nothing moves when
+          it comes or goes). */}
+      {adminMode ? (
         <>
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-accent"
           />
           <p role="status" className="sr-only">
-            {appStrings.previewActive}
+            {appStrings.adminModeActive}
           </p>
         </>
       ) : null}
@@ -48,7 +49,7 @@ export function TopBar({
           </button>
         )}
         <Link to={paths.home} className="rounded-md" aria-label={appStrings.homeLink}>
-          <Logo compact tagline preview={preview} />
+          <Logo compact tagline adminMode={adminMode} />
         </Link>
         <button
           type="button"
@@ -61,6 +62,7 @@ export function TopBar({
             {keys('Ctrl+K')}
           </kbd>
         </button>
+        <ModeSwitch />
         <UserMenu />
       </div>
     </header>

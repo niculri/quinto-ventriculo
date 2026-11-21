@@ -1,4 +1,4 @@
-// Tests the preview of the draft from «Publicaciones»: the site read with the preview API, and how it is left.
+// Tests the admin mode from the top bar: the site read with the admin API, how it is left and how it is remembered.
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -9,54 +9,53 @@ import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 import { RELEASE_OVERVIEW, RELEASE_SUMMARY, releaseApi } from '../../../test/releases';
 
-afterEach(() => window.sessionStorage.clear());
+afterEach(() => window.localStorage.clear());
 
-describe('the preview of the draft', () => {
-  it('reads the site with the preview API, in a cache of its own, and leaves nothing when it ends', async () => {
+const SWITCH = { name: 'Modo admin' };
+const ACTIVE =
+  'Modo admin: ves el borrador y lo que está apagado para los alumnos, y nada se guarda.';
+
+describe('the admin mode', () => {
+  it('reads the site with the admin API, in a cache of its own, and leaves nothing when it ends', async () => {
     const published = vi.fn(async () => CATALOG);
     const draft = vi.fn(async () => CATALOG);
     const { router } = renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: releaseApi({ catalog: published }),
-      previewApi: releaseApi({ catalog: draft }),
+      adminApi: releaseApi({ catalog: draft }),
     });
-    await userEvent.click(
-      await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' }),
-    );
-    expect(window.sessionStorage.getItem('qv-preview')).toBe('draft');
-    expect(screen.getByText('Estás viendo el borrador, no lo publicado.')).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    expect(window.localStorage.getItem('qv-admin-mode')).toBe('admin');
+    expect(screen.getByText(ACTIVE)).toBeInTheDocument();
     await waitFor(() => expect(draft).toHaveBeenCalled());
     published.mockClear();
     await act(() => router.navigate('/home'));
     await waitFor(() => expect(draft).toHaveBeenCalled());
     expect(published).not.toHaveBeenCalled();
     await act(() => router.navigate('/admin/releases'));
-    await userEvent.click(
-      await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' }),
-    );
-    await waitFor(() =>
-      expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull(),
-    );
-    expect(window.sessionStorage.getItem('qv-preview')).toBeNull();
+    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    await waitFor(() => expect(screen.queryByText(ACTIVE)).toBeNull());
+    expect(window.localStorage.getItem('qv-admin-mode')).toBe('student');
     draft.mockClear();
     await act(() => router.navigate('/home'));
     expect(await screen.findByRole('heading', { name: /Hola/ })).toBeInTheDocument();
     expect(draft).not.toHaveBeenCalled();
   });
 
-  it('a tab left in the preview, where somebody who is not an administrator signs in, leaves it', async () => {
-    window.sessionStorage.setItem('qv-preview', 'draft');
+  it('a browser left in the admin mode, where somebody who is not an administrator signs in, leaves it', async () => {
+    window.localStorage.setItem('qv-admin-mode', 'admin');
     const published = vi.fn(async () => CATALOG);
     const draft = vi.fn(async () => CATALOG);
     const study = fullAnkiStudy();
     const progress = vi.spyOn(study, 'deckProgress');
     const { router } = renderApp('/home', {
       api: fakeApi({ catalog: published }),
-      previewApi: fakeApi({ catalog: draft }),
+      adminApi: fakeApi({ catalog: draft }),
       study,
     });
-    await waitFor(() => expect(window.sessionStorage.getItem('qv-preview')).toBeNull());
-    expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull();
+    await waitFor(() => expect(window.localStorage.getItem('qv-admin-mode')).toBe('student'));
+    expect(screen.queryByText(ACTIVE)).toBeNull();
+    expect(screen.queryByRole('switch', SWITCH)).toBeNull();
     await waitFor(() => expect(published).toHaveBeenCalled());
     await waitFor(() => expect(progress).toHaveBeenCalled());
     draft.mockClear();
@@ -66,7 +65,7 @@ describe('the preview of the draft', () => {
     expect(draft).not.toHaveBeenCalled();
   });
 
-  it('a mark checked in the preview is checked after leaving it', async () => {
+  it('a mark checked in the admin mode is checked after leaving it', async () => {
     let marks: {
       mark: 'phone' | 'answers' | 'announcement';
       checkedBy: string;
@@ -91,51 +90,69 @@ describe('the preview of the draft', () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: releaseApi(server),
-      previewApi: releaseApi(server),
+      adminApi: releaseApi(server),
     });
-    const toggle = await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' });
-    await userEvent.click(toggle);
+    await userEvent.click(await screen.findByRole('switch', SWITCH));
     const phone = await screen.findByRole('switch', { name: 'Vi lo nuevo en el teléfono' });
     await userEvent.click(phone);
     expect(await screen.findByText('Marcada por ana@ug.uchile.cl')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('switch', { name: 'Ver el sitio con el borrador' }));
-    await waitFor(() =>
-      expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull(),
-    );
+    await userEvent.click(screen.getByRole('switch', SWITCH));
+    await waitFor(() => expect(screen.queryByText(ACTIVE)).toBeNull());
     await waitFor(() =>
       expect(screen.getByRole('switch', { name: 'Vi lo nuevo en el teléfono' })).toBeChecked(),
     );
     expect(screen.getByText('Marcada por ana@ug.uchile.cl')).toBeInTheDocument();
   });
 
-  it('signing out leaves the preview', async () => {
+  it('signing out keeps the mode this browser had: it is only remembered', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: releaseApi(),
-      previewApi: releaseApi(),
+      adminApi: releaseApi(),
     });
-    await userEvent.click(
-      await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' }),
-    );
-    expect(
-      await screen.findByText('Estás viendo el borrador, no lo publicado.'),
-    ).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    expect(await screen.findByText(ACTIVE)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /tu cuenta$/i }));
     await userEvent.click(await screen.findByRole('menuitem', { name: /Cerrar sesión/ }));
-    expect(screen.queryByText('Estás viendo el borrador, no lo publicado.')).toBeNull();
-    await waitFor(() => expect(window.sessionStorage.getItem('qv-preview')).toBeNull());
+    expect(window.localStorage.getItem('qv-admin-mode')).toBe('admin');
   });
 
-  it('without the preview API (a build that cannot), the switch is off and does nothing', async () => {
+  it('starts as a student, and in the mode the browser remembered', async () => {
+    const draft = vi.fn(async () => CATALOG);
+    const published = vi.fn(async () => CATALOG);
+    const first = renderApp('/home', {
+      admin: localAdminRepository({ admin: true }),
+      api: fakeApi({ catalog: published }),
+      adminApi: fakeApi({ catalog: draft }),
+    });
+    expect(await screen.findByRole('switch', SWITCH)).not.toBeChecked();
+    await waitFor(() => expect(published).toHaveBeenCalled());
+    expect(draft).not.toHaveBeenCalled();
+    first.unmount();
+
+    window.localStorage.setItem('qv-admin-mode', 'admin');
+    renderApp('/home', {
+      admin: localAdminRepository({ admin: true }),
+      api: fakeApi({ catalog: published }),
+      adminApi: fakeApi({ catalog: draft }),
+    });
+    expect(await screen.findByRole('switch', SWITCH)).toBeChecked();
+    await waitFor(() => expect(draft).toHaveBeenCalled());
+  });
+
+  it('is offered only to an administrator', async () => {
+    renderApp('/home', { admin: localAdminRepository({ admin: false }) });
+    expect(await screen.findByRole('heading', { name: /Hola/ })).toBeInTheDocument();
+    expect(screen.queryByRole('switch', SWITCH)).toBeNull();
+  });
+
+  it('without the API for it (a build that cannot), the switch is not there', async () => {
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
       api: releaseApi(),
     });
-    const toggle = await screen.findByRole('switch', { name: 'Ver el sitio con el borrador' });
-    expect(toggle).toBeDisabled();
-    await act(async () => {
-      toggle.click();
-    });
-    expect(window.sessionStorage.getItem('qv-preview')).toBeNull();
+    expect(await screen.findByRole('heading', { name: 'Publicaciones' })).toBeInTheDocument();
+    expect(screen.queryByRole('switch', SWITCH)).toBeNull();
+    expect(window.localStorage.getItem('qv-admin-mode')).toBeNull();
   });
 });

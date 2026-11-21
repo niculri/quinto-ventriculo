@@ -19,7 +19,7 @@ import { sharedStrings } from '../../../shared/strings';
 
 export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyData }) {
   const [round, setRound] = useState<Round | null>(null);
-  const [marks, setMarks] = useState<ReadonlyMap<string, number>>(new Map());
+  const [marks, setMarks] = useState<ReadonlyMap<string, number>>(() => new Map());
   // Only to choose: a mark made in a round counts for the next one.
   const choosing = round === null;
   const pools = useMemo(

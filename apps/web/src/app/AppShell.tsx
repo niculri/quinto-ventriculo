@@ -43,8 +43,8 @@ export function AppShell() {
         onSearch={() => setSearching(true)}
       />
 
-      <FocusContext.Provider value={setFocus}>
-        <RailContext.Provider value={rail}>
+      <FocusContext value={setFocus}>
+        <RailContext value={rail}>
           {/* Menu | page | right column: the same three columns on every page (only the questions of a test
               and studying a deck take the whole width). At least a screen tall below the bar, so the footer never
               shows while a page loads and then jumps away. */}
@@ -69,8 +69,8 @@ export function AppShell() {
               </aside>
             )}
           </div>
-        </RailContext.Provider>
-      </FocusContext.Provider>
+        </RailContext>
+      </FocusContext>
 
       <PhoneMenu open={menuOpen && !hideNav} onOpenChange={setMenuOpen} />
 

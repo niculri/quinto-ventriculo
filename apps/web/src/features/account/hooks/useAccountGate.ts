@@ -63,7 +63,7 @@ export function useAccountGate() {
     () =>
       queryClient.getQueryCache().subscribe((event) => {
         if (event.type !== 'updated' || event.action.type !== 'error') return;
-        const e = event.action.error;
+        const e: unknown = event.action.error;
         if (!(e instanceof ApiRequestError) || e.code !== ErrorCode.enum.terms_not_accepted) return;
         if (accepted) setStaleBundle(true);
         else void refetch();

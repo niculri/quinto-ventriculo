@@ -266,7 +266,7 @@ function syntheticCard(note: CardIndexNote, ord: number, deckId: string): CardDe
     note.kind === 'cloze'
       ? note.front.replace(
           /\{\{c\d::([^:}]*)(::([^}]*))?\}\}/g,
-          (_, _a, _h, hint) => `[${hint ?? '…'}]`,
+          (_, _a, _h, hint: string | undefined) => `[${hint ?? '…'}]`,
         )
       : note.front;
   return {

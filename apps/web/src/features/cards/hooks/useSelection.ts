@@ -25,7 +25,7 @@ export function useSelection({
   params: URLSearchParams;
   setParams: SetURLSearchParams;
 }) {
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [anchor, setAnchor] = useState<string | null>(null);
   const urlCard = params.get('note')
     ? cardKey({ noteGuid: params.get('note')!, ord: Number(params.get('ord') ?? '0') })

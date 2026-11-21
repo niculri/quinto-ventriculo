@@ -154,7 +154,10 @@ export function checkRatchet(
 }
 
 function combined(s: Snapshot, withFile: boolean) {
-  const file = withFile && s.suppressions !== null ? suppressionsByRule(s.suppressions) : new Map();
+  const file =
+    withFile && s.suppressions !== null
+      ? suppressionsByRule(s.suppressions)
+      : new Map<string, number>();
   const all: Counts = new Map(file);
   for (const [rule, count] of s.inline) add(all, rule, count);
   return { file, inline: s.inline, all };

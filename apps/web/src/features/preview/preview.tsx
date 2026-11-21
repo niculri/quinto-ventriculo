@@ -1,6 +1,6 @@
 // The preview of the draft for an administrator: whether it is on, how a tab remembers it, what it shares with the
 // site's cache and the study repository it uses (app/PreviewSwitch.tsx switches the site).
-import { createContext, useContext } from 'react';
+import { createContext, use } from 'react';
 import { localStudyRepository } from '../progress/api/repository';
 import type { StudyRepository } from '../progress/api/repository';
 import { studyKeys } from '../progress/queries';
@@ -23,7 +23,7 @@ export const PreviewContext = createContext<Preview>({
   exit() {},
 });
 
-export const usePreview = () => useContext(PreviewContext);
+export const usePreview = () => use(PreviewContext);
 
 export const storedPreview = () => {
   try {

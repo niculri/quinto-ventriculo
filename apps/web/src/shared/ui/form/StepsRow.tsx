@@ -21,7 +21,7 @@ export function StepsRow({
   onChange: (v: number[]) => void;
 }) {
   const id = useId();
-  const [text, setText] = useState(stepsToString(value));
+  const [text, setText] = useState(() => stepsToString(value));
   const [shown, setShown] = useState(value);
   if (shown !== value) {
     setShown(value);

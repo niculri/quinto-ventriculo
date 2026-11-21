@@ -51,7 +51,7 @@ export function restoreRound(
   const n = queue.length;
   const top = Math.min(moved(savedTop), n - 1);
   const index = Math.min(moved(savedIndex), top);
-  const ordersRaw = Array.isArray(raw.orders) ? raw.orders : [];
+  const ordersRaw: unknown[] = Array.isArray(raw.orders) ? raw.orders : [];
   const orders = kept.map((old, i) => {
     const o = ordersRaw[old];
     const q = questions.get(queue[i]!)!;

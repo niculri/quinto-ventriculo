@@ -245,11 +245,6 @@
       "count": 1
     }
   },
-  "apps/web/src/app/AppShell.tsx": {
-    "@eslint-react/no-context-provider": {
-      "count": 2
-    }
-  },
   "apps/web/src/app/PreviewSwitch.tsx": {
     "@typescript-eslint/no-empty-function": {
       "count": 1
@@ -286,11 +281,6 @@
       "count": 5
     }
   },
-  "apps/web/src/features/account/api/context.ts": {
-    "@eslint-react/no-use-context": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/account/api/repository/memory.ts": {
     "@typescript-eslint/require-await": {
       "count": 4
@@ -302,9 +292,6 @@
     }
   },
   "apps/web/src/features/account/hooks/useAccountGate.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
     "@typescript-eslint/unbound-method": {
       "count": 1
     }
@@ -342,11 +329,6 @@
   },
   "apps/web/src/features/admin/__tests__/reports-parts.flow.test.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/api/context.ts": {
-    "@eslint-react/no-use-context": {
       "count": 1
     }
   },
@@ -437,9 +419,6 @@
   "apps/web/src/features/cards/api/demo.ts": {
     "@typescript-eslint/prefer-nullish-coalescing": {
       "count": 1
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
     }
   },
   "apps/web/src/features/cards/components/CardHistory.tsx": {
@@ -507,9 +486,6 @@
     }
   },
   "apps/web/src/features/cards/hooks/useSelection.ts": {
-    "@eslint-react/use-state": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
     }
@@ -604,11 +580,6 @@
     },
     "@typescript-eslint/no-deprecated": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/decks/hooks/usePresetDrafts.ts": {
-    "@eslint-react/use-state": {
-      "count": 1
     }
   },
   "apps/web/src/features/decks/model/deckTree.ts": {
@@ -716,16 +687,8 @@
     }
   },
   "apps/web/src/features/preview/preview.tsx": {
-    "@eslint-react/no-use-context": {
-      "count": 1
-    },
     "@typescript-eslint/no-empty-function": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/progress/api/context.ts": {
-    "@eslint-react/no-use-context": {
-      "count": 1
     }
   },
   "apps/web/src/features/progress/api/repository/memory.ts": {
@@ -783,11 +746,6 @@
   "apps/web/src/features/quiz/__tests__/quiz.flow.test.tsx": {
     "@typescript-eslint/unbound-method": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/quiz/api/context.ts": {
-    "@eslint-react/no-use-context": {
-      "count": 1
     }
   },
   "apps/web/src/features/quiz/api/repository/memory-contract.test.ts": {
@@ -857,9 +815,6 @@
     }
   },
   "apps/web/src/features/quiz/hooks/useQuizPage.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
     "@typescript-eslint/prefer-optional-chain": {
       "count": 1
     }
@@ -887,11 +842,6 @@
   "apps/web/src/features/reports/__tests__/reports.flow.test.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 5
-    }
-  },
-  "apps/web/src/features/reports/api/context.ts": {
-    "@eslint-react/no-use-context": {
-      "count": 1
     }
   },
   "apps/web/src/features/reports/api/repository/memory-contract.test.ts": {
@@ -925,19 +875,9 @@
       "count": 2
     }
   },
-  "apps/web/src/features/session/api/context.ts": {
-    "@eslint-react/no-use-context": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/session/api/demo.ts": {
     "@typescript-eslint/require-await": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/session/context.tsx": {
-    "@eslint-react/no-use-context": {
-      "count": 1
     }
   },
   "apps/web/src/features/session/model/destination.ts": {
@@ -1033,9 +973,6 @@
     "@eslint-react/naming-convention-ref-name": {
       "count": 1
     },
-    "@eslint-react/use-state": {
-      "count": 1
-    },
     "@typescript-eslint/prefer-optional-chain": {
       "count": 1
     }
@@ -1063,11 +1000,6 @@
       "count": 1
     },
     "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
-    }
-  },
-  "apps/web/src/shared/hooks/useApi.ts": {
-    "@eslint-react/no-use-context": {
       "count": 1
     }
   },
@@ -1139,25 +1071,12 @@
     }
   },
   "apps/web/src/shared/ui/focus.tsx": {
-    "@eslint-react/no-use-context": {
-      "count": 1
-    },
     "@typescript-eslint/no-empty-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/shared/ui/form/StepsRow.tsx": {
-    "@eslint-react/use-state": {
       "count": 1
     }
   },
   "apps/web/src/shared/ui/keys.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/shared/ui/rail.tsx": {
-    "@eslint-react/no-use-context": {
       "count": 1
     }
   },
@@ -1581,18 +1500,7 @@
       "count": 2
     }
   },
-  "packages/ops/src/suppressions.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
-    }
-  },
   "packages/quiz/src/state.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }

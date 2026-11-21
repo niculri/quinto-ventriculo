@@ -123,7 +123,7 @@ function useSaveOptions() {
 }
 
 function useDraftState(savedPrefs: StudyPreferences) {
-  const [drafts, setDrafts] = useState<Map<string, DeckConfig>>(new Map());
+  const [drafts, setDrafts] = useState<Map<string, DeckConfig>>(() => new Map());
   const [prefs, setPrefs] = useState<StudyPreferences>(savedPrefs);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

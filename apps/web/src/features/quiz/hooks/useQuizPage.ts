@@ -52,7 +52,7 @@ function useArrival(sectionId: string | undefined) {
       const text = rest.toString();
       void navigate(
         { pathname: location.pathname, search: text ? `?${text}` : '', hash: location.hash },
-        { replace: true, state: location.state },
+        { replace: true, state: location.state as unknown },
       );
     }
   }, [search, navigate, location]);

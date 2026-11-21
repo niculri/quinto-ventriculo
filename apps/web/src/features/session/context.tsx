@@ -1,5 +1,5 @@
 // The session the page reads (its state, signing in and out), given by app/SessionProvider.tsx.
-import { createContext, useContext } from 'react';
+import { createContext, use } from 'react';
 import type { SessionUser } from './api/service';
 
 export type SessionState =
@@ -16,7 +16,7 @@ interface SessionValue {
 export const SessionContext = createContext<SessionValue | null>(null);
 
 export function useSession(): SessionValue {
-  const v = useContext(SessionContext);
+  const v = use(SessionContext);
   if (!v) throw new Error('useSession outside <SessionProvider>');
   return v;
 }

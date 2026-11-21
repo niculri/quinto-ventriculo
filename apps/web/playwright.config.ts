@@ -20,6 +20,12 @@ const IPHONE_SPECS = [
   'viewer.spec.ts',
 ];
 
+/**
+ * Specs that change what everybody sees on the demo server (a course turned off): they run alone, after the others,
+ * since the others read the same server at the same time.
+ */
+const ALONE = ['hidden-courses.spec.ts'];
+
 export default defineConfig({
   testDir: 'e2e',
   fullyParallel: true,
@@ -53,9 +59,15 @@ export default defineConfig({
     },
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'phone', use: { ...devices['Pixel 7'] } },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: ALONE },
+    { name: 'phone', use: { ...devices['Pixel 7'] }, testIgnore: ALONE },
     { name: 'iphone', use: { ...devices['iPhone 15'] }, testMatch: IPHONE_SPECS },
+    {
+      name: 'alone',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: ALONE,
+      dependencies: ['desktop', 'phone', 'iphone'],
+    },
   ],
   webServer: {
     command: `npx vite --mode demo --port ${PORT} --strictPort`,

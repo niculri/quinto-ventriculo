@@ -1,7 +1,7 @@
 // E2e tests of the switch that turns a course off for everybody: it leaves the catalog, the menu, the home page and
 // the search, its links give «no existe», its routes answer 404, and turning it on again gives it all back.
 import { expect, test } from './test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
 
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/10-nucleo-celular';
@@ -16,11 +16,15 @@ async function forgetCache(page: Page) {
   await cdp.send('Network.clearBrowserCache');
 }
 
-test.describe('a course turned off', () => {
-  // One list for the whole demo server: only one project changes it, and it is emptied at the end.
-  test.describe.configure({ mode: 'serial' });
-  test.skip(({ isMobile }) => isMobile, 'the list is the same for the whole demo server');
+/** Where it is on the page, not on the screen: a click that scrolls does not count as moving it. */
+const place = (e: Locator) =>
+  e.evaluate((x) => {
+    const b = x.getBoundingClientRect();
+    return [b.x, b.y + window.scrollY, b.width, b.height].map(Math.round);
+  });
 
+test.describe('a course turned off', () => {
+  // One list for the whole demo server: this spec runs alone (playwright.config.ts), and it is emptied at the end.
   test.afterEach(async ({ page }) => {
     await page.request.put('/api/admin/site-settings', {
       headers: AUTH,
@@ -45,6 +49,7 @@ test.describe('a course turned off', () => {
     const save = page.getByRole('button', { name: 'Guardar' });
     await expect(bio).toBeChecked();
     await expect(save).toBeDisabled();
+    const places = [await place(bio), await place(anatomy), await place(save)];
     await bio.click();
     await anatomy.click();
     await expect(page.getByText('Sin guardar')).toBeVisible();
@@ -55,6 +60,7 @@ test.describe('a course turned off', () => {
     await save.click();
     await expect(page.getByText('Guardado')).toBeVisible();
     await expect(bio).not.toBeChecked();
+    expect([await place(bio), await place(anatomy), await place(save)]).toEqual(places);
 
     expect(
       (await page.request.get('/api/notes/10-nucleo-celular', { headers: AUTH })).status(),

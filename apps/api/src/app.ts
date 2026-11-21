@@ -549,7 +549,11 @@ export function createApp(deps: Dependencies) {
     }
     const { hiddenCourses } = body.data;
     if (hiddenCourses) {
-      const known = new Set((await deps.repository.courses()).map((course) => course.id));
+      // A course that is already off stays valid even if it left the catalog: the panel sends the whole list back.
+      const known = new Set([
+        ...(await deps.repository.courses()).map((course) => course.id),
+        ...(await deps.settings!.get()).hiddenCourses,
+      ]);
       if (!hiddenCourses.every((id) => known.has(id))) {
         return c.json(apiError('invalid_settings', 'Ese ramo no existe.'), 400);
       }

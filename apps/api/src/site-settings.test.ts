@@ -217,6 +217,17 @@ describe('turning off courses', () => {
     expect(kept).toMatchObject({ hideEmptySemesters: true, hiddenCourses: ['fisica'] });
   });
 
+  it('keeps a course that is off even when it left the catalog, and refuses one that was never there', async () => {
+    const settings = memorySiteSettings({ hiddenCourses: ['ya-no-esta'] });
+    const app = appWith(settings);
+    expect((await put(app, ADMIN, { hiddenCourses: ['ya-no-esta', 'fisica'] })).status).toBe(200);
+    expect((await settings.get()).hiddenCourses).toEqual(['fisica', 'ya-no-esta']);
+    expect((await put(app, ADMIN, { hiddenCourses: ['fisica', 'nunca-estuvo'] })).status).toBe(400);
+    expect((await put(app, ADMIN, { hiddenCourses: ['fisica'] })).status).toBe(200);
+    expect((await settings.get()).hiddenCourses).toEqual(['fisica']);
+    expect((await put(app, ADMIN, { hiddenCourses: ['ya-no-esta'] })).status).toBe(400);
+  });
+
   it('refuses a course that does not exist, and a student cannot change it', async () => {
     const settings = memorySiteSettings();
     const app = appWith(settings);

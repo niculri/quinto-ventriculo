@@ -6,6 +6,7 @@ import { missingBase, parseBaseArgs } from './git-base';
 import { repositoryRoot } from './repository-root';
 import {
   ALL_RULES,
+  changesLintSetup,
   checkRatchet,
   directivesByRule,
   localRuleFile,
@@ -64,6 +65,29 @@ describe('startingDebt', () => {
     expect(() => startingDebt('[]', null)).toThrow(/no es un objeto/);
     expect(() => startingDebt('{"rule/a": -1}', null)).toThrow(/número válido/);
     expect(() => startingDebt('{"rule/a": "3"}', null)).toThrow(/número válido/);
+  });
+});
+
+describe('changesLintSetup', () => {
+  it('is true when the change touches the ESLint configuration, its plugin or a dependency', () => {
+    expect(changesLintSetup(['apps/web/src/a.ts', 'eslint.config.js'])).toBe(true);
+    expect(changesLintSetup(['eslint.web-layers.js'])).toBe(true);
+    expect(changesLintSetup(['packages/eslint-plugin/src/file-header.js'])).toBe(true);
+    expect(changesLintSetup(['package-lock.json'])).toBe(true);
+    expect(changesLintSetup(['apps/web/package.json'])).toBe(true);
+  });
+
+  it('is false when it touches only code, tests and the two suppression files', () => {
+    expect(
+      changesLintSetup([
+        'eslint-suppressions.json',
+        'eslint-suppressions-start.json',
+        'apps/web/src/a.ts',
+        'packages/ops/src/suppressions.ts',
+        'docs/eslint.config.js.md',
+      ]),
+    ).toBe(false);
+    expect(changesLintSetup([])).toBe(false);
   });
 });
 

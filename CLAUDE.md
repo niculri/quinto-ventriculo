@@ -72,8 +72,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   un error. Al arreglar algo, `npx eslint . --prune-suppressions` (si queda una supresión sobrante, `npm run lint`
   falla). Mover un archivo con supresiones obliga a anotarlas de nuevo, pero ninguna regla puede subir. Una regla que
   se enciende por primera vez puede empezar con deuda: se anota su cifra en `eslint-suppressions-start.json`, cuenta
-  una sola vez (la rama de comparación no debe tener nada de esa regla) y desde ahí la regla baja como las demás; nunca
-  con un `eslint-disable`.
+  una sola vez (la rama de comparación no debe tener nada de esa regla) y solo si el mismo cambio toca la configuración
+  de ESLint o las dependencias; desde ahí la regla baja como las demás. Nunca con un `eslint-disable`.
 - **Herramientas estrictas:** ESLint con `strictTypeChecked` y `stylisticTypeChecked` de typescript-eslint y el preset
   `recommended-type-checked` de `@eslint-react/eslint-plugin` en la web (los desvíos, con su razón, están en
   `eslint.config.js`); `exactOptionalPropertyTypes` en todos los paquetes (un `x?: T` no recibe `undefined`: si de verdad

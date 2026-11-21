@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { baseExists, git, missingBase, parseBaseArgs, readAtBase } from './git-base';
 import { repositoryRoot } from './repository-root';
 import {
+  changesLintSetup,
   checkRatchet,
   directivesByRule,
   newLocalRules,
@@ -55,10 +56,16 @@ if (!baseExists(root, args.base)) {
       (file) => readAtBase(root, args.base, file) !== null,
       (file) => existsSync(join(root, file)),
     ),
-    startingDebt(readIfThere(join(root, START_FILE)), readAtBase(root, args.base, START_FILE)),
+    changesLintSetup(changedFiles(args.base))
+      ? startingDebt(readIfThere(join(root, START_FILE)), readAtBase(root, args.base, START_FILE))
+      : new Map(),
   );
   for (const line of result.lines) (result.ok ? console.log : console.error)(line);
   if (!result.ok) process.exitCode = 1;
+}
+
+function changedFiles(base: string): string[] {
+  return (git(root, ['diff', '--name-only', base]) ?? '').split('\n').filter(Boolean);
 }
 
 function readIfThere(path: string): string | null {

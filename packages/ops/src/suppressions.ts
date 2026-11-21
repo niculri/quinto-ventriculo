@@ -49,6 +49,15 @@ export function startingDebt(current: string | null, base: string | null): Map<s
   return starts;
 }
 
+// Starting debt belongs to the change that turns a rule on, which touches the ESLint configuration or a dependency.
+// Without that, an entry in START_FILE would be a way to raise the total of any rule that has no suppressions yet.
+const LINT_SETUP =
+  /^(?:eslint[^/]*\.js|packages\/eslint-plugin\/.+|(?:.+\/)?package(?:-lock)?\.json)$/;
+
+export function changesLintSetup(changed: readonly string[]): boolean {
+  return changed.some((path) => LINT_SETUP.test(path));
+}
+
 // ESLint writes { file: { rule: { count } } }.
 export function suppressionsByRule(json: string): Counts {
   const parsed: unknown = JSON.parse(json);

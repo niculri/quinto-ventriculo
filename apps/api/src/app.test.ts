@@ -561,7 +561,7 @@ describe('cards that moved or were taken out', () => {
 describe('images', () => {
   const signedUrl = async () => {
     const n = Note.parse(await (await get('/api/notes/11-traduccion', await token())).json());
-    return n.html.match(/src="([^"]+)"/)![1]!.replace(/&amp;/g, '&');
+    return /src="([^"]+)"/.exec(n.html)![1]!.replace(/&amp;/g, '&');
   };
 
   it('are served with the signed URL, without a session', async () => {

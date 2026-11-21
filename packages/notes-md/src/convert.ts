@@ -82,12 +82,12 @@ export function convertNote(
 
   const body: string[] = [];
   for (const line of lines) {
-    const t = line.match(/^#\s+(.+?)\s*$/);
+    const t = /^#\s+(.+?)\s*$/.exec(line);
     if (t && title === null && body.every((l) => !l.trim())) {
       title = t[1]!;
       continue;
     }
-    const c = line.match(/^\s*<!--\s*creado:\s*(\d{4}-\d{2}-\d{2})\s*-->\s*$/);
+    const c = /^\s*<!--\s*creado:\s*(\d{4}-\d{2}-\d{2})\s*-->\s*$/.exec(line);
     if (c) {
       createdOn ??= c[1]!;
       continue;
@@ -132,14 +132,14 @@ function convertBlocks(lines: string[], ctx: Context): string {
   let i = 0;
   while (i < lines.length) {
     const line = lines[i]!;
-    const side = line.trim().match(SIDE_RE);
+    const side = SIDE_RE.exec(line.trim());
     if (side) {
       let j = i + 1;
       while (j < lines.length && lines[j]!.trim() !== ':::') j++;
       if (j === lines.length) {
         ctx.errors.push(`Bloque «:::» sin su cierre «:::»: «${excerpt(line)}»`);
       }
-      const [, caption, path, width] = side[2]!.match(LONE_IMG_RE)!;
+      const [, caption, path, width] = LONE_IMG_RE.exec(side[2]!)!;
       const fig = figure(caption!, path!, width, ctx, {
         className: 'figure-float',
         defaultWidth: 40,
@@ -163,7 +163,7 @@ function convertBlocks(lines: string[], ctx: Context): string {
       i++;
       continue;
     }
-    const question = ctx.options.guideQuestions ? line.trim().match(ITALIC_QUESTION_RE) : null;
+    const question = ctx.options.guideQuestions ? ITALIC_QUESTION_RE.exec(line.trim()) : null;
     if (question) {
       reserve(callout([`> **Pregunta ${question[1]!}.** *${question[2]!}*`], ctx));
       i++;
@@ -254,14 +254,14 @@ function figureRow(line: string, ctx: Context): string {
 function callout(lines: string[], ctx: Context): string {
   const inner = lines.map((l) => l.replace(/^>\s?/, ''));
   let type = 'note';
-  const marker = inner[0]!.match(/^\[!(\w+)\]\s*(.*)$/);
+  const marker = /^\[!(\w+)\]\s*(.*)$/.exec(inner[0]!);
   if (marker) {
     type = marker[1]!.toLowerCase();
     inner[0] = marker[2]!;
   }
   if (type === 'dato') type = 'note';
   let tag = '';
-  const question = type === 'note' ? inner[0]!.match(QUESTION_RE) : null;
+  const question = type === 'note' ? QUESTION_RE.exec(inner[0]!) : null;
   if (question) {
     type = 'question';
     const name = question[1]!.trim();
@@ -273,7 +273,7 @@ function callout(lines: string[], ctx: Context): string {
   let fig = '';
   const ix = inner.findIndex((x) => LONE_IMG_RE.test(x.trim()));
   if (ix >= 0) {
-    const [, caption, path, width] = inner.splice(ix, 1)[0]!.trim().match(LONE_IMG_RE)!;
+    const [, caption, path, width] = LONE_IMG_RE.exec(inner.splice(ix, 1)[0]!.trim())!;
     const wide = !!width && Number.parseInt(width, 10) >= 55;
     fig = figure(caption!, path!, width, ctx, {
       className: wide ? 'figure-wide' : 'figure-float',
@@ -285,7 +285,7 @@ function callout(lines: string[], ctx: Context): string {
   let label = calloutLabel(type);
   let labelHtml = escapeAttribute(label);
   if (type === 'error') {
-    const title = body.match(/^\s*<p><strong>(.*?)<\/strong>\s*/s);
+    const title = /^\s*<p><strong>(.*?)<\/strong>\s*/s.exec(body);
     if (title) {
       labelHtml = title[1]!.replace(/:\s*$/, '');
       label = plainText(labelHtml);

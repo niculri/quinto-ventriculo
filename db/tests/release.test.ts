@@ -132,9 +132,7 @@ const medNote = (
         ord,
         deckId: deck,
         frontHtml: `<div>${fields.Frente ?? fields.Texto ?? fields['Oclusión'] ?? ''}${
-          fields.Imagen && type === BASIC && fields.Frente?.includes('imagen')
-            ? fields.Imagen
-            : ''
+          fields.Imagen && type === BASIC && fields.Frente?.includes('imagen') ? fields.Imagen : ''
         }</div>`,
         backHtml: `<div>${Object.values(fields).join(' ')}</div>`,
         sortField: fields[type.fields[0]!] ?? '',

@@ -24,9 +24,6 @@
     }
   },
   "apps/api/src/admin.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-base-to-string": {
       "count": 1
     },
@@ -42,17 +39,9 @@
       "count": 1
     }
   },
-  "apps/api/src/app.test.ts": {
-    "@typescript-eslint/prefer-regexp-exec": {
-      "count": 1
-    }
-  },
   "apps/api/src/app.ts": {
     "@typescript-eslint/await-thenable": {
       "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
     },
     "max-lines": {
       "count": 1
@@ -165,11 +154,6 @@
       "count": 1
     }
   },
-  "apps/api/src/repositories/supabase-calls.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
   "apps/api/src/repositories/supabase.test.ts": {
     "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
@@ -183,11 +167,6 @@
       "count": 1
     }
   },
-  "apps/api/src/repository.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    }
-  },
   "apps/api/src/usage.test.ts": {
     "@typescript-eslint/no-base-to-string": {
       "count": 1
@@ -197,9 +176,6 @@
     }
   },
   "apps/api/src/usage.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-base-to-string": {
       "count": 1
     },
@@ -213,11 +189,6 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/build/licenses.ts": {
-    "@typescript-eslint/prefer-string-starts-ends-with": {
       "count": 1
     }
   },
@@ -236,15 +207,7 @@
       "count": 2
     }
   },
-  "apps/web/e2e/cards.spec.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
   "apps/web/e2e/exam.spec.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     }
@@ -258,9 +221,6 @@
     }
   },
   "apps/web/e2e/reading.spec.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     }
@@ -314,9 +274,6 @@
     }
   },
   "apps/web/src/app/__tests__/error-report.flow.test.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-implied-eval": {
       "count": 1
     },
@@ -324,20 +281,7 @@
       "count": 1
     }
   },
-  "apps/web/src/app/__tests__/queryClient.test.ts": {
-    "@typescript-eslint/prefer-includes": {
-      "count": 1
-    }
-  },
-  "apps/web/src/app/ankiScreens.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
   "apps/web/src/app/supabase-calls.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 5
     }
@@ -477,11 +421,6 @@
   },
   "apps/web/src/features/admin/hooks/useSiteSettings.ts": {
     "@typescript-eslint/no-deprecated": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/model/access.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
       "count": 1
     }
   },
@@ -948,9 +887,6 @@
   "apps/web/src/features/reports/__tests__/reports.flow.test.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 5
-    },
-    "@typescript-eslint/prefer-includes": {
-      "count": 1
     }
   },
   "apps/web/src/features/reports/api/context.ts": {
@@ -1161,11 +1097,6 @@
       "count": 1
     }
   },
-  "apps/web/src/shared/lib/__tests__/reportError.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/lib/api.ts": {
     "max-lines-per-function": {
       "count": 1
@@ -1272,19 +1203,6 @@
   "db/tests/account.test.ts": {
     "@typescript-eslint/await-thenable": {
       "count": 2
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
-  "db/tests/admin-access.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
-  "db/tests/admin-owner.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
     }
   },
   "db/tests/card-index.test.ts": {
@@ -1302,15 +1220,7 @@
       "count": 1
     }
   },
-  "db/tests/content.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
   "db/tests/database-errors.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
@@ -1324,9 +1234,6 @@
     }
   },
   "db/tests/heatmap.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
     }
@@ -1340,23 +1247,12 @@
     }
   },
   "db/tests/home.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 2
     }
   },
   "db/tests/incremental-import.test.ts": {
-    "@typescript-eslint/consistent-indexed-object-style": {
-      "count": 1
-    },
     "@typescript-eslint/unbound-method": {
-      "count": 1
-    }
-  },
-  "db/tests/moved-cards.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
       "count": 1
     }
   },
@@ -1376,9 +1272,6 @@
     }
   },
   "db/tests/reports.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-base-to-string": {
       "count": 1
     },
@@ -1391,26 +1284,11 @@
       "count": 1
     }
   },
-  "db/tests/unpublish-log-entries.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
   "db/tests/unpublish.test.ts": {
     "@typescript-eslint/no-unnecessary-type-conversion": {
       "count": 1
     },
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 1
-    }
-  },
-  "db/tests/usage.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    }
-  },
-  "db/tests/user-contracts.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
       "count": 1
     }
   },
@@ -1445,11 +1323,6 @@
   "packages/html/test/golden.test.ts": {
     "@typescript-eslint/no-unsafe-return": {
       "count": 1
-    }
-  },
-  "packages/importer/src/__tests__/decks.test.ts": {
-    "@typescript-eslint/prefer-includes": {
-      "count": 2
     }
   },
   "packages/importer/src/build.ts": {
@@ -1506,9 +1379,6 @@
     }
   },
   "packages/importer/src/quiz-charts.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-base-to-string": {
       "count": 1
     },
@@ -1601,11 +1471,6 @@
       "count": 3
     }
   },
-  "packages/importer/src/site-note-types.ts": {
-    "@typescript-eslint/prefer-includes": {
-      "count": 1
-    }
-  },
   "packages/importer/src/targets.ts": {
     "@typescript-eslint/prefer-optional-chain": {
       "count": 3
@@ -1696,9 +1561,6 @@
     }
   },
   "packages/notes-md/src/convert.ts": {
-    "@typescript-eslint/prefer-regexp-exec": {
-      "count": 9
-    },
     "sonarjs/cognitive-complexity": {
       "count": 2
     }
@@ -1715,9 +1577,6 @@
     }
   },
   "packages/ops/src/smoke.test.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-base-to-string": {
       "count": 2
     }
@@ -1744,9 +1603,6 @@
     }
   },
   "packages/release-review/src/review.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },

@@ -151,6 +151,8 @@ export default tseslint.config(
           allowNever: false,
         },
       ],
+      // A `type` alias is assignable to an index signature (`Json`, `Record`) and an interface is not.
+      '@typescript-eslint/consistent-type-definitions': 'off',
       // `onClick={() => setOpen(true)}` is how handlers are written; a void value mixed into an expression is not.
       '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
     },

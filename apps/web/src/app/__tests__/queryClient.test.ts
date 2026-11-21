@@ -38,7 +38,7 @@ describe('the site client', () => {
 
   it('is the only place that picks a network mode for the writes', () => {
     const own = join(import.meta.dirname, '../..');
-    const picking = sourceFiles(own).filter((f) => /networkMode/.test(readFileSync(f, 'utf8')));
+    const picking = sourceFiles(own).filter((f) => readFileSync(f, 'utf8').includes('networkMode'));
     expect(picking.map((f) => f.slice(own.length + 1))).toEqual(['app/queryClient.ts']);
   });
 });

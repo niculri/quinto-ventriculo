@@ -130,7 +130,7 @@ describe('publishing the deck tree on the production content database', () => {
       'select id, card_count from anki_deck_tree()',
     );
     expect(tree.rows.map((r) => r.id)).toEqual(bundle.ankiDecks.map((d) => d.id));
-    const total = (cardsBefore).length;
+    const total = cardsBefore.length;
     expect(tree.rows.find((r) => r.id === root)!.card_count).toBe(total);
     const detail = await db.query<{ d: { cards: unknown[]; subdecks: unknown[] } }>(
       'select anki_deck_detail($1) as d',

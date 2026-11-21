@@ -180,7 +180,7 @@ describe('the incremental importer', () => {
     expect(version(after, 'AP-BC-C2-09')).toBe(2);
     expect(version(after, 'AP-BC-C2-08')).toBe(1);
     expect(version(after, 'AP-A1-S3-01')).toBe(1);
-    const others = <T extends { [k: string]: unknown }>(rows: T[], key: string, id: string) =>
+    const others = <T extends Record<string, unknown>>(rows: T[], key: string, id: string) =>
       rows.filter((x) => x[key] !== id);
     expect(others(after.notes, 'id', 'AP-BC-C2-09')).toEqual(
       others(before.notes, 'id', 'AP-BC-C2-09'),

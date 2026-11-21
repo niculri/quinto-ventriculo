@@ -99,7 +99,7 @@ function repositoryOf(pkg: PackageJson): string | null {
     .replace(/^git:\/\//, 'https://')
     .replace(/^ssh:\/\/git@/, 'https://')
     .replace(/^git@github\.com:/, 'https://github.com/');
-  return /^github:/.test(url)
+  return url.startsWith('github:')
     ? url.replace(/^github:/, 'https://github.com/')
     : /^[\w.-]+\/[\w.-]+$/.test(url)
       ? `https://github.com/${url}`

@@ -345,9 +345,9 @@ describe('access_report', () => {
       ['sin.cuenta@ug.uchile.cl', 'Prueba', false, false],
     ]);
     expect(invited[0]!.last_sign_in_at).toMatch(/^2026-11-08T12:00:00/);
-    expect(
-      (r.accounts_without_invite as { email: string }[]).map((a) => a.email).sort(),
-    ).toEqual([ANA.email, LUIS.email, STRAY.email].sort());
+    expect((r.accounts_without_invite as { email: string }[]).map((a) => a.email).sort()).toEqual(
+      [ANA.email, LUIS.email, STRAY.email].sort(),
+    );
   });
 });
 

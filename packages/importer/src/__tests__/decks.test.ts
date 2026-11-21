@@ -67,7 +67,7 @@ describe('buildDecks note types', () => {
     expect(basic).toHaveLength(1);
     expect(basic[0]!.css).toContain('.version-nueva');
     expect(basic[0]!.fields.at(-1)).toBe('Prioridad');
-    expect(warnings.filter((w) => /tipo de nota/.test(w))).toEqual([]);
+    expect(warnings.filter((w) => w.includes('tipo de nota'))).toEqual([]);
     const fromOld = notes.filter(
       (n) => n.guid.startsWith('Viejo-') && n.noteTypeId === basic[0]!.id,
     );
@@ -98,7 +98,7 @@ describe('buildDecks note types', () => {
     const backward = await run({ 'B.apkg': b, 'A.apkg': a });
     const css = (r: typeof forward) => r.noteTypes.find((t) => t.name === BASIC)!.css;
     expect(css(forward)).toBe(css(backward));
-    expect(forward.warnings.filter((w) => /misma fecha/.test(w))).toHaveLength(1);
+    expect(forward.warnings.filter((w) => w.includes('misma fecha'))).toHaveLength(1);
   });
 
   it('puts the site footer on the newest version, which the notes of every package render', async () => {

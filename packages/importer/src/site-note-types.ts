@@ -28,7 +28,7 @@ export function hasAuthorFooter(type: Omit<FooterNoteType, 'css'>): boolean {
   return (
     type.fields.includes('Código') &&
     type.fields.includes('Creación') &&
-    type.templates.some((t) => /<div class="pie">/.test(t.qfmt + t.afmt))
+    type.templates.some((t) => (t.qfmt + t.afmt).includes('<div class="pie">'))
   );
 }
 

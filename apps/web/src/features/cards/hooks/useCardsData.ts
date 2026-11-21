@@ -14,6 +14,7 @@ import { cardsData } from '../model/cardsData';
 import type { CardsData } from '../model/cardsData';
 import { cardIndexQuery, scopeRowsQuery } from '../api/queries';
 
+// One empty list while the catalog loads: a new one in each render would build the data again each time.
 const NO_PRESETS: never[] = [];
 
 function useCardIndexes(scope: CardsScope | null) {

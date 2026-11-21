@@ -29,6 +29,7 @@ export function useCardTable(sources: TableSources) {
   const [savedView, setView] = useViewPrefs();
   const view: ViewPrefs = full ? savedView : { ...savedView, mode: 'cards' };
   const now = useNow(30_000);
+  // The same object until the preferences or the time change: the search is built again when it does.
   const timing = useMemo(() => timingFor(data.prefs, now), [data.prefs, now]);
   const search = useCardSearch({ data, query, view, timing, now });
   const { list } = search;

@@ -5,9 +5,20 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { actionLabel } from '@qv/study';
 import { studyKeys } from '../../progress/queries';
+import { errorText } from '../../../shared/lib/errorText';
+import type { StudyRepository } from '../../progress/api/repository';
 import type { CardWrite } from '../api/cardWrites';
 import { useCardWrite, useUndoWrite } from './useCardWrites';
 import { cardsStrings } from '../strings';
+
+type Undone = Awaited<ReturnType<StudyRepository['undo']>>;
+
+// Outside the hook: React Compiler does not compile a conditional inside `try`.
+function undoneText(done: Undone, full: boolean) {
+  return done
+    ? cardsStrings.toasts.undone(actionLabel(done.action, full))
+    : cardsStrings.toasts.nothingToUndo;
+}
 
 export function useActionRunner(full: boolean) {
   const write = useCardWrite();
@@ -25,10 +36,9 @@ export function useActionRunner(full: boolean) {
       await client.invalidateQueries({ queryKey: studyKeys.all });
       setToast(what);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : cardsStrings.toasts.failed);
-    } finally {
-      setBusy(false);
+      setProblem(errorText(e, cardsStrings.toasts.failed));
     }
+    setBusy(false);
   };
   const undo = () =>
     void (async () => {
@@ -37,16 +47,11 @@ export function useActionRunner(full: boolean) {
       try {
         const done = await undoWrite.mutateAsync();
         await client.invalidateQueries({ queryKey: studyKeys.all });
-        setToast(
-          done
-            ? cardsStrings.toasts.undone(actionLabel(done.action, full))
-            : cardsStrings.toasts.nothingToUndo,
-        );
+        setToast(undoneText(done, full));
       } catch (e) {
-        setProblem(e instanceof Error ? e.message : cardsStrings.toasts.undoFailed);
-      } finally {
-        setBusy(false);
+        setProblem(errorText(e, cardsStrings.toasts.undoFailed));
       }
+      setBusy(false);
     })();
 
   useEffect(() => {

@@ -14,6 +14,7 @@ import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { studyKeys } from '../../progress/queries';
 import type { DeckSetting, StudyPreferences, UserPreset } from '../../progress/api/repository';
 import { useTitle } from '../../../shared/hooks/useTitle';
+import { errorText } from '../../../shared/lib/errorText';
 import { savePresetDraft } from '../api/savePresets';
 import { changedDrafts, isDirty, prefsChanged } from '../model/presetDrafts';
 import { initialRef, refKey } from '../model/presets';
@@ -71,7 +72,7 @@ export function usePresetDrafts(d: OptionsData) {
       await what();
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : p.notSaved);
+      setError(errorText(e, p.notSaved));
     }
   };
   const actions = usePresetActions({ choices, choice, setSelected, setDrafts, run });
@@ -80,18 +81,14 @@ export function usePresetDrafts(d: OptionsData) {
     state.setSaving(true);
     setError(null);
     try {
-      await saveAll.mutateAsync({
-        changed: changedDrafts(drafts, choices),
-        prefs: prefsChanged(prefs, d.prefs) ? prefs : null,
-      });
+      await saveAll.mutateAsync(changesToSave(drafts, choices, prefs, d.prefs));
       await refresh();
       setDrafts(new Map());
       setSaved(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : p.notSaved);
-    } finally {
-      state.setSaving(false);
+      setError(errorText(e, p.notSaved));
     }
+    state.setSaving(false);
   };
 
   return {
@@ -105,6 +102,19 @@ export function usePresetDrafts(d: OptionsData) {
     users,
     save,
     dirty: isDirty(drafts, choices, prefs, d.prefs),
+  };
+}
+
+// Outside the hook: React Compiler does not compile a conditional inside `try`.
+function changesToSave(
+  drafts: Map<string, DeckConfig>,
+  choices: PresetChoice[],
+  prefs: StudyPreferences,
+  saved: StudyPreferences,
+) {
+  return {
+    changed: changedDrafts(drafts, choices),
+    prefs: prefsChanged(prefs, saved) ? prefs : null,
   };
 }
 

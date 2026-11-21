@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { presetChoices, presetOf } from '@qv/study';
+import type { PresetChoice } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
+import { errorText } from '../../../shared/lib/errorText';
 import type { StudyRepository } from '../../progress/api/repository';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { studyKeys, useDeckSettings, useUserPresets } from '../../progress/queries';
@@ -12,6 +14,12 @@ import { refKey } from '../model/presets';
 import { presetsStrings as p } from '../presets.strings';
 
 type DeckPresetChoice = Parameters<StudyRepository['setDeckPreset']>[1];
+
+// Outside the hook: React Compiler does not compile a conditional inside `try`.
+function presetToSave(choice: PresetChoice, deckPreset: DeckNode['preset']): DeckPresetChoice {
+  if (choice.ref.kind === 'user') return { presetId: choice.ref.id };
+  return choice.ref.name === deckPreset ? null : { authorPreset: choice.ref.name };
+}
 
 export function useDeckPreset(node: DeckNode) {
   const study = useStudyRepository();
@@ -37,19 +45,13 @@ export function useDeckPreset(node: DeckNode) {
     try {
       await setDeckPreset.mutateAsync({
         deckId: node.id,
-        preset:
-          choice.ref.kind === 'user'
-            ? { presetId: choice.ref.id }
-            : choice.ref.name === node.preset
-              ? null
-              : { authorPreset: choice.ref.name },
+        preset: presetToSave(choice, node.preset),
       });
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch (e) {
-      setError(e instanceof Error ? e.message : p.notSaved);
-    } finally {
-      setSaving(false);
+      setError(errorText(e, p.notSaved));
     }
+    setSaving(false);
   };
 
   return { choices, current, error, saving, choose };

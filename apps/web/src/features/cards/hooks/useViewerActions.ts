@@ -34,9 +34,8 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     } catch {
       undo();
       setMessage(cardsStrings.viewer.saveFailed);
-    } finally {
-      setBusy(false);
     }
+    setBusy(false);
   };
   const toggleFlag = () => {
     const before = flag;

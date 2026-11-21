@@ -46,6 +46,13 @@ describe('a tip', () => {
     expect(JSON.parse(localStorage.getItem(SHOWN)!)).toEqual(['tip-material', 'tip-search']);
   });
 
+  it('shown again in the same visit, it is not added to the device’s list a second time', () => {
+    renderHook(() => useTip('tip-search', true));
+    const { result } = renderHook(() => useTip('tip-search', true));
+    expect(result.current.show).toBe(true);
+    expect(JSON.parse(localStorage.getItem(SHOWN)!)).toEqual(['tip-search']);
+  });
+
   it('does not show a second time on this device, in another visit', () => {
     localStorage.setItem(SHOWN, JSON.stringify(['tip-search']));
     const { result } = renderHook(() => useTip('tip-search', true));

@@ -3,7 +3,7 @@
 
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { defaultConfig } from '@qv/srs';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { renderApp } from '../../../test/render';
@@ -244,5 +244,32 @@ describe('«Guardar» of the Anki options', () => {
     await userEvent.type(perDay, '30{Enter}');
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     await waitFor(() => expect(disabledAtCall).toEqual([true]));
+  });
+
+  it('«Configuración de mazos» saves the preset alone, not the preferences', async () => {
+    const study = fullAnkiStudy();
+    const savePreset = vi.spyOn(study, 'savePreset');
+    const savePreferences = vi.spyOn(study, 'savePreferences');
+    renderApp('/settings/deck-options?preset=Default', { study });
+    const perDay = await screen.findByLabelText('Tarjetas nuevas/día');
+    await userEvent.clear(perDay);
+    await userEvent.type(perDay, '30{Enter}');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() => expect(savePreset).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getAllByRole('status')[0]!.textContent).toBe(' Guardado'));
+    expect(savePreferences).not.toHaveBeenCalled();
+  });
+
+  it('«Anki general» saves the preferences alone, not a preset', async () => {
+    const study = fullAnkiStudy();
+    const savePreset = vi.spyOn(study, 'savePreset');
+    const savePreferences = vi.spyOn(study, 'savePreferences');
+    renderApp('/settings/anki', { study });
+    await screen.findByRole('heading', { level: 2, name: 'Anki general' });
+    await userEvent.click(screen.getByRole('switch', { name: 'Mostrar los 4 botones' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() => expect(savePreferences).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getAllByRole('status')[0]!.textContent).toBe(' Guardado'));
+    expect(savePreset).not.toHaveBeenCalled();
   });
 });

@@ -114,22 +114,25 @@ export class ReferenceStudySession {
     }, 3000);
   }
 
-  private rebuild() {
+  // A new day: yesterday's answers no longer count against the limits (`carried`, an answer given just now, is
+  // today's) and buried cards come back. Whatever rebuilds the queue goes through here first.
+  private rebuild(carried?: AnswerToday) {
+    if (timingFor(this.data.prefs).today !== this.queue.today) {
+      if (this.data.progress) {
+        this.data.progress = rollProgress(this.data.progress, this.data.answers);
+      }
+      this.data.answers = carried ? [carried] : [];
+    }
     this.configs = configsFor(this.data);
     this.queue = queueOf(this.data, this.rootId);
   }
 
-  showNext() {
+  showNext(carried?: AnswerToday) {
     const now = Date.now();
     this.now = now;
     const timing = timingFor(this.data.prefs, now);
     if (timing.today !== this.queue.today) {
-      // A new day: yesterday's answers no longer count against the limits; buried cards come back.
-      if (this.data.progress) {
-        this.data.progress = rollProgress(this.data.progress, this.data.answers);
-      }
-      this.data.answers = [];
-      this.rebuild();
+      this.rebuild(carried);
     }
     this.queue.updateCutoff(timing.now);
     const entry = this.queue.next();
@@ -218,7 +221,9 @@ export class ReferenceStudySession {
       this.data.rows.set(cardKey(b), { ...row, buriedUntil });
     }
     const answered: AnswerToday = { deckId: ref.deckId, queueBefore: QUEUE_NAMES[record.queue] };
-    this.data.answers.push(answered);
+    // The first answer after the day turned over is today's: `showNext` adds it once it has rolled the day.
+    const newDay = timing.today !== this.queue.today;
+    if (!newDay) this.data.answers.push(answered);
     // A card the answer suspends (a leech) does not come back today.
     const update = this.queue.answered(
       ref,
@@ -266,7 +271,7 @@ export class ReferenceStudySession {
         result.suspend ? studyStrings.session.leechSuspended : studyStrings.session.leech,
       );
     }
-    this.showNext();
+    this.showNext(newDay ? answered : undefined);
   }
 
   hide(action: HideAction) {

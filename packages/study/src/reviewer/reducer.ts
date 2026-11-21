@@ -109,8 +109,25 @@ function withToast(state: StudyState, toast: ToastKind): StudyState {
   };
 }
 
-function withData(state: StudyState, data: StudyData, now: number): StudyState {
-  return { ...state, data, ...queueOf(data, state.rootId, now) };
+// A new day: yesterday's answers no longer count against the limits (`carried`, an answer given just now, is today's)
+// and buried cards come back. Whatever rebuilds the queue goes through here, or it would hide the change from
+// `showNext`, which would then count yesterday's answers against today's limits.
+function withData(
+  state: StudyState,
+  data: StudyData,
+  now: number,
+  carried?: AnswerToday,
+): StudyState {
+  let rolled = data;
+  if (timingFor(data.prefs, now).today !== state.queue.today) {
+    const { progress, ...rest } = data;
+    rolled = {
+      ...rest,
+      ...(progress ? { progress: rollProgress(progress, data.answers) } : {}),
+      answers: carried ? [carried] : [],
+    };
+  }
+  return { ...state, data: rolled, ...queueOf(rolled, state.rootId, now) };
 }
 
 const currentRef = (state: StudyState): CardRef | null => {
@@ -119,22 +136,9 @@ const currentRef = (state: StudyState): CardRef | null => {
   return { noteGuid, ord, deckId };
 };
 
-function showNext(state: StudyState, now: number): StudyState {
+function showNext(state: StudyState, now: number, carried?: AnswerToday): StudyState {
   const timing = timingFor(state.data.prefs, now);
-  let s = state;
-  if (timing.today !== s.queue.today) {
-    // A new day: yesterday's answers no longer count against the limits; buried cards come back.
-    const { progress, ...rest } = s.data;
-    s = withData(
-      s,
-      {
-        ...rest,
-        ...(progress ? { progress: rollProgress(progress, s.data.answers) } : {}),
-        answers: [],
-      },
-      now,
-    );
-  }
+  const s = timing.today !== state.queue.today ? withData(state, state.data, now, carried) : state;
   const queue = withCutoff(s.queue, timing.now);
   const entry = nextOf(queue);
   if (!entry) return { ...s, queue, now, revealed: false, started: true, shown: null };
@@ -190,6 +194,8 @@ function answer(state: StudyState, rating: Rating, now: number): StudyState {
     changed.push({ ...(data.rows.get(cardKey(b)) ?? blankRow(b)), buriedUntil });
   }
   const answered: AnswerToday = { deckId: ref.deckId, queueBefore: QUEUE_NAMES[record.queue] };
+  // The first answer after the day turned over is today's: `showNext` adds it once it has rolled the day.
+  const newDay = timing.today !== state.queue.today;
   // A card the answer suspends (a leech) does not come back today.
   const { queue, update } = answeredIn(
     state.queue,
@@ -203,7 +209,11 @@ function answer(state: StudyState, rating: Rating, now: number): StudyState {
   let next = emit(
     {
       ...state,
-      data: { ...data, rows: withRows(data.rows, changed), answers: [...data.answers, answered] },
+      data: {
+        ...data,
+        rows: withRows(data.rows, changed),
+        answers: newDay ? data.answers : [...data.answers, answered],
+      },
       queue,
       history: [
         ...state.history,
@@ -233,7 +243,7 @@ function answer(state: StudyState, rating: Rating, now: number): StudyState {
   if (result.leech && data.prefs.fullAnki) {
     next = withToast(next, { kind: result.suspend ? 'leechSuspended' : 'leech' });
   }
-  return showNext(next, now);
+  return showNext(next, now, newDay ? answered : undefined);
 }
 
 function hide(state: StudyState, action: HideAction, now: number): StudyState {

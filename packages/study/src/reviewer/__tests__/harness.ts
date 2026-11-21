@@ -36,7 +36,7 @@ export interface Stats {
   undoStreaks: number;
   /** Undoing an answer whose count of the day is gone because the day turned over. */
   undoneAfterDayChange: number;
-  /** The day turned over inside something that rebuilds the queue but is not a look for the next card. */
+  /** The day turned over inside something that rebuilds the queue first (burying, suspending, undoing, skipping). */
   dayRebuiltAside: number;
   failures: number;
   prefetches: number;
@@ -204,12 +204,7 @@ class Pair {
       this.undoStreak = 0;
     }
     const aside = step.kind === 'hide' || step.kind === 'skipMissing' || step.kind === 'undo';
-    if (
-      aside &&
-      before.data.answers.length > 0 &&
-      state.queue.today !== before.queue.today &&
-      state.data.answers.length >= before.data.answers.length
-    ) {
+    if (aside && before.data.answers.length > 0 && state.queue.today !== before.queue.today) {
       stats.dayRebuiltAside++;
     }
   }

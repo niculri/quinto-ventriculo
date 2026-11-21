@@ -289,19 +289,64 @@ describe('a deck with nothing to study', () => {
 });
 
 describe('the day turning over', () => {
-  // The day is rolled over only by a look for the next card; what rebuilds the queue first (hiding, undoing a
-  // hide, skipping a missing card) rebuilds it for the new day with the old day's answers still counted.
-  it.fails('rolls the day whatever the first thing done after it is', () => {
-    const scenario = SCENARIOS[3]!;
-    const state = opened(scenario);
-    expect(state.data.answers.length).toBeGreaterThan(0);
-    const after = run(state, {
-      type: 'hide',
-      action: 'bury_card',
-      now: scenario.start + 20 * 60_000,
-    });
-    expect(after.queue.today).toBe(state.queue.today + 1);
+  const scenario = SCENARIOS[3]!;
+  const AFTER = scenario.start + 20 * 60_000;
+  const before = () => opened(scenario);
+
+  function turnedOver(after: StudyState, first: StudyState) {
+    expect(after.queue.today).toBe(first.queue.today + 1);
+    expect(after.data.progress!.every((p) => p.newToday === 0)).toBe(true);
+  }
+
+  it('rolls the day whatever the first thing done after it is: burying', () => {
+    const first = before();
+    expect(first.data.answers.length).toBeGreaterThan(0);
+    const after = run(first, { type: 'hide', action: 'bury_card', now: AFTER });
+    turnedOver(after, first);
     expect(after.data.answers).toEqual([]);
+  });
+
+  it('suspending a note', () => {
+    const first = before();
+    const after = run(first, { type: 'hide', action: 'suspend_note', now: AFTER });
+    turnedOver(after, first);
+    expect(after.data.answers).toEqual([]);
+  });
+
+  it('undoing a burying', () => {
+    const first = run(before(), { type: 'hide', action: 'bury_card', now: scenario.start });
+    expect(first.data.answers.length).toBeGreaterThan(0);
+    const after = run(first, { type: 'undo', now: AFTER });
+    turnedOver(after, first);
+    expect(after.data.answers).toEqual([]);
+  });
+
+  it('skipping a card that is no longer on the site', () => {
+    const first = before();
+    const after = run(first, { type: 'skipMissing', card: first.shown!.entry, now: AFTER });
+    turnedOver(after, first);
+    expect(after.data.answers).toEqual([]);
+  });
+
+  it('the first answer after it counts for the new day, not the one that ended', () => {
+    const first = run(before(), reveal);
+    const yesterday = first.data.answers;
+    const after = run(first, answer(3, AFTER));
+    turnedOver(after, first);
+    expect(after.data.answers).toEqual([
+      { deckId: first.shown!.entry.deckId, queueBefore: expect.any(String) as string },
+    ]);
+    expect(yesterday.length).toBeGreaterThan(0);
+    expect(after.history.at(-1)).toMatchObject({ kind: 'answer', answer: after.data.answers[0] });
+    const back = run(after, { type: 'undo', now: AFTER });
+    expect(back.data.answers).toEqual([]);
+  });
+
+  it('answering before it keeps counting for the day that is not over', () => {
+    const first = run(before(), reveal);
+    const after = run(first, answer(3, scenario.start));
+    expect(after.queue.today).toBe(first.queue.today);
+    expect(after.data.answers).toHaveLength(first.data.answers.length + 1);
   });
 });
 

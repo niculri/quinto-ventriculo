@@ -58,6 +58,15 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, con
   una entrada de esa lista que ya lo cumple o no existe, y si la lista se alargó respecto de `origin/main`; `npm run
   test-names:baseline` la rehace, para sacar las que ya lo cumplen.
+- **El estudio es un reductor puro: la hora va en la acción.** `studyReducer` de `@qv/study` no llama a `Date.now()` ni a
+  `setTimeout`: cada acción trae su `now`, y lo que hay que guardar sale como órdenes numeradas en su bandeja, que un
+  efecto del hook pasa a la `SaveQueue`. La pantalla recibe datos y `dispatch`, nunca un objeto mutable que lea mientras
+  dibuja.
+- **El compilador de React está encendido** (`apps/web/build/react-compiler.ts`, en el build y en Vitest): sin
+  `useMemo`, `useCallback` ni `memo` nuevos a mano, salvo la dependencia de un efecto o de una suscripción, con una línea
+  que diga por qué. 0 componentes ni hooks sin compilar: `apps/web/build/__tests__/react-compiler.test.ts` falla con uno
+  que el compilador salte (un hook condicional, un `try … finally`, un `eslint-disable` de `react-hooks/exhaustive-deps`)
+  y con un `"use no memo"`, que nunca se deja.
 - **Textos de la interfaz:** lo que lee una persona (texto en JSX, `aria-label`, `title`, `placeholder`, `alt`,
   `label`…) sale del `strings.ts` de su feature (`features/<x>/strings.ts`, `app/strings.ts`) o, si es común, de
   `shared/strings.ts` (un componente de `shared/ui` que no carga al inicio lleva el suyo, `X.strings.ts`, para no

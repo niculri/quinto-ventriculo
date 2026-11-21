@@ -22,11 +22,19 @@ export const AnkiCatalog = z.object({
 });
 export type AnkiCatalog = z.infer<typeof AnkiCatalog>;
 
-/** `anki` defaults to empty so that an older catalog still cached by a browser parses, without decks. */
+/** Why something an administrator sees is not shown to a student. */
+export const AdminReason = z.enum(['draft', 'hiddenSemester', 'hiddenCourse']);
+export type AdminReason = z.infer<typeof AdminReason>;
+
+/**
+ * `anki` defaults to empty so that an older catalog still cached by a browser parses, without decks. `adminOnly` is only
+ * in what an administrator in the admin mode gets: for each thing a student does not see, why (key: `adminKey()`).
+ */
 export const Catalog = z.object({
   semesters: z.array(SemesterWithCourses),
   anki: AnkiCatalog.default({ decks: [], presets: [], noteTypes: [] }),
   hiddenSemesters: z.number().int().positive().optional(),
+  adminOnly: z.record(z.string(), z.array(AdminReason).min(1)).optional(),
 });
 export type Catalog = z.infer<typeof Catalog>;
 export type SemesterWithCourses = z.infer<typeof SemesterWithCourses>;

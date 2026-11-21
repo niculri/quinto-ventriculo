@@ -1,5 +1,6 @@
 // The API's request and response contracts, its error codes, header and routes: `@qv/schema/http`.
 export {
+  AdminReason,
   AnkiCatalog,
   ApiError,
   AssessmentWithNotes,
@@ -22,6 +23,8 @@ export {
   withoutEmptySemesters,
 } from './api';
 export { siteSemesters, withoutCourses } from './visibility';
+export { adminKey, markAdminOnly } from './admin-only';
+export type { AdminKind } from './admin-only';
 export { ErrorCode } from './errors';
 export { PREVIEW_HEADER, PREVIEW_VALUE } from './headers';
 export {

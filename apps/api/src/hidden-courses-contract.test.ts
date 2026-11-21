@@ -357,16 +357,15 @@ describe('a course turned off', () => {
     }
   });
 
-  it('is the same for an administrator, and in the draft', async () => {
+  it('is the same for an administrator, unless they are in the admin mode (see admin-mode-contract.test.ts)', async () => {
     const { app } = appWith([OFF]);
-    for (const headers of [{}, { [PREVIEW_HEADER]: 'draft' }]) {
-      const r = await call(app, '/api/notes/ap-fi-1', ADMIN, { headers });
-      expect(r.status).toBe(404);
-      const catalog = Catalog.parse(
-        await (await call(app, '/api/catalog', ADMIN, { headers })).json(),
-      );
-      expect(catalog.semesters.flatMap((s) => s.courses.map((c) => c.id))).toEqual([SHOWN]);
-    }
+    const mine = await call(app, '/api/notes/ap-fi-1', ADMIN);
+    expect(mine.status).toBe(404);
+    const catalog = Catalog.parse(await (await call(app, '/api/catalog', ADMIN)).json());
+    expect(catalog.semesters.flatMap((s) => s.courses.map((c) => c.id))).toEqual([SHOWN]);
+    // A student gets nothing more by sending the header.
+    const sent = { [PREVIEW_HEADER]: 'draft' };
+    expect((await call(app, '/api/notes/ap-fi-1', STUDENT, { headers: sent })).status).toBe(404);
   });
 
   it('comes back as it was when it is turned on', async () => {

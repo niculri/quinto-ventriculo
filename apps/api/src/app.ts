@@ -55,6 +55,7 @@ import {
   ReleasePageQuery,
   SearchQuery,
   UsageOpenBody,
+  markAdminOnly,
   siteSemesters,
   withoutEmptySemesters,
 } from '@qv/schema/http';
@@ -111,7 +112,7 @@ type AppEnv = {
     repository: ContentRepository;
     settings: SiteSettings;
     hidden: ReadonlySet<string>;
-    /** The administrator is reading the draft. */
+    /** The administrator is in the admin mode: the draft, and what is off for the students. */
     preview: boolean;
   };
 };
@@ -371,8 +372,9 @@ export function createApp(deps: Dependencies) {
         503,
       );
     }
-    const hidden = new Set(settings.hiddenCourses);
     c.set('settings', settings);
+    // The administrator in the admin mode sees what is off too (the catalog says which is which).
+    const hidden = new Set(c.get('preview') ? [] : settings.hiddenCourses);
     c.set('hidden', hidden);
     c.set('repository', hideCourses(c.get('repository'), hidden));
     await next();
@@ -397,6 +399,13 @@ export function createApp(deps: Dependencies) {
   app.get(R.me.pattern, requireSession, (c) => c.json(c.get('user') satisfies User));
 
   app.get(R.catalog.pattern, requireSession, visibleContent, async (c) => {
+    if (c.get('preview')) {
+      const [draft, published] = await Promise.all([
+        c.get('repository').catalog(),
+        deps.repository.catalog(),
+      ]);
+      return c.json(markAdminOnly(draft, published, c.get('settings')) satisfies Catalog);
+    }
     const catalog = await c.get('repository').catalog();
     return c.json(
       (c.get('settings').hideEmptySemesters

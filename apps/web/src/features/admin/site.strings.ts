@@ -11,7 +11,6 @@ export const siteStrings = {
   courses: {
     title: 'Ramos',
     help: 'Un ramo apagado no se ve en ninguna parte del sitio, para nadie, y su material no se abre ni por su enlace. Lo que los alumnos ya estudiaron se conserva y vuelve al encenderlo.',
-    list: 'Ramos',
     notSaved: 'No se pudo guardar los ramos. Inténtalo de nuevo.',
     empty: 'Todavía no hay ramos con material publicado.',
     noMaterial: 'Sin material publicado',

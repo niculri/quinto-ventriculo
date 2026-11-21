@@ -1,11 +1,13 @@
 // Tests the study reducer against the mutable session it replaces, on random sequences of what a student does, and
 // the guarantees the web will lean on: it changes nothing it is given, reads no clock and numbers what it asks to save.
 import { describe, expect, it, vi } from 'vitest';
+import { entriesOf } from '@qv/srs';
+import { rollProgress } from '../../pace';
 import { cardKey } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { CardChangedError } from './reference-save';
 import { createStudyState, studyReducer } from '../reducer';
-import { commandsAfter, isDone } from '../selectors';
+import { commandsAfter, countsOf, isDone } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
 import { CommandSaver } from './command-saver';
 import { deepFreeze } from './freeze';
@@ -340,6 +342,29 @@ describe('the day turning over', () => {
     expect(after.history.at(-1)).toMatchObject({ kind: 'answer', answer: after.data.answers[0] });
     const back = run(after, { type: 'undo', now: AFTER });
     expect(back.data.answers).toEqual([]);
+  });
+
+  it('a new card answered just after it counts against the limit of the new day', () => {
+    let first = run(before(), reveal);
+    for (let i = 0; i < 60 && first.shown?.entry.kind !== 'new'; i++) {
+      first = run(first, answer(3, scenario.start), reveal);
+    }
+    expect(first.shown?.entry.kind).toBe('new');
+    const untouched = run(createStudyState({ ...first.data, answers: [] }, first.rootId, AFTER), {
+      type: 'opened',
+      now: AFTER,
+    });
+    const after = run(first, answer(3, AFTER));
+    expect(countsOf(untouched).new).toBeGreaterThan(1);
+    expect(countsOf(after).new).toBe(countsOf(untouched).new - 1);
+    // Yesterday's figures hold what was answered before the cut, not this answer.
+    expect(after.data.progress).toEqual(rollProgress(first.data.progress!, first.data.answers));
+    const again = run(createStudyState(after.data, after.rootId, AFTER), {
+      type: 'opened',
+      now: AFTER,
+    });
+    expect(countsOf(after)).toEqual(countsOf(again));
+    expect(entriesOf(after.queue)).toEqual(entriesOf(again.queue));
   });
 
   it('answering before it keeps counting for the day that is not over', () => {

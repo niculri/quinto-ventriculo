@@ -156,6 +156,21 @@ describe('undo', () => {
   });
 });
 
+describe('the marks of the cards that were written', () => {
+  it('a card flagged and then answered is saved: its mark is read again after the flag', async () => {
+    const local = localStudyRepository(null);
+    const s = session(local);
+    s.showNext();
+    s.flag(2);
+    answer(s);
+    await s.saved();
+    expect(s.failure).toBeNull();
+    expect(await local.cards(['20', '21'])).toEqual([
+      expect.objectContaining({ flag: 2, reps: 1 }),
+    ]);
+  });
+});
+
 describe('what an answer saves for the statistics', () => {
   it('the recall FSRS predicted just before (none for a new card) and the card’s version', async () => {
     const DAY = 86_400_000;

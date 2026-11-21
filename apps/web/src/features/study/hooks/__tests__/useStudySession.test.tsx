@@ -14,6 +14,7 @@ import { fakeApi } from '../../../../test/fakes/api';
 import { StudyRepositoryContext } from '../../../progress/api/context';
 import { defaultPreferences, localStudyRepository } from '../../../progress/api/repository';
 import type { StudyRepository } from '../../../progress/api/repository';
+import { cardQuery } from '../../../decks/api/queries';
 import { useSessionLifecycle, useStudySession } from '../useStudySession';
 
 const data = (): StudyData => ({
@@ -28,8 +29,11 @@ const data = (): StudyData => ({
   plan: { ...EMPTY_PLAN, activations: [{ deckId: '5', active: true }] },
 });
 
-function mount(repository: StudyRepository, strict = true) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function mount(
+  repository: StudyRepository,
+  strict = true,
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+) {
   const wrapper = ({ children }: { children: ReactNode }) => {
     const tree = (
       <ApiClientContext value={fakeApi()}>
@@ -108,6 +112,58 @@ describe('the study session hook in StrictMode', () => {
     unmount();
     await settle();
     expect(invalidate).toHaveBeenCalled();
+  });
+});
+
+describe('the cards that come up soon', () => {
+  const prefetched = (client: QueryClient) =>
+    vi.spyOn(client, 'prefetchQuery').mockResolvedValue(undefined);
+
+  it('asks for the content of each of them when the session looks for a card, once per request, also in StrictMode', async () => {
+    for (const strict of [false, true]) {
+      const client = new QueryClient();
+      const prefetch = prefetched(client);
+      const { result } = mount(localStudyRepository(null), strict, client);
+      await settle();
+      act(() => result.current.act.reveal());
+      act(() => result.current.act.answer(3));
+      await settle();
+      const asked = result.current.state.outbox.flatMap((c) =>
+        c.kind === 'prefetch' ? c.entries : [],
+      );
+      expect(asked.length).toBeGreaterThan(0);
+      expect(prefetch.mock.calls.map(([options]) => options.queryKey)).toEqual(
+        asked.map((e) => cardQuery(fakeApi(), e.noteGuid, e.ord).queryKey),
+      );
+    }
+  });
+});
+
+describe('an answer lost to the connection', () => {
+  it('is tried again after 1 s and then after 3 s more, and the session goes on if one gets through', async () => {
+    const local = localStudyRepository(null);
+    let calls = 0;
+    const flaky: StudyRepository = {
+      ...local,
+      recordReview: (input) =>
+        ++calls < 3
+          ? Promise.reject(new Error('No se pudo guardar tu respuesta: red'))
+          : local.recordReview(input),
+    };
+    const { result } = mount(flaky);
+    await settle();
+    act(() => result.current.act.reveal());
+    act(() => result.current.act.answer(3));
+    await act(() => vi.advanceTimersByTimeAsync(999));
+    expect(calls).toBe(1);
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    expect(calls).toBe(2);
+    await act(() => vi.advanceTimersByTimeAsync(2999));
+    expect(calls).toBe(2);
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    await act(() => result.current.saves.saved());
+    expect(calls).toBe(3);
+    expect(result.current.state.failure).toBeNull();
   });
 });
 

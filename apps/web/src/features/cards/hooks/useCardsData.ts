@@ -14,6 +14,8 @@ import { cardsData } from '../model/cardsData';
 import type { CardsData } from '../model/cardsData';
 import { cardIndexQuery, scopeRowsQuery } from '../api/queries';
 
+const NO_PRESETS: never[] = [];
+
 function useCardIndexes(scope: CardsScope | null) {
   const api = useApi();
   const refs = (scope?.assessments ?? []).flatMap((a) =>
@@ -42,7 +44,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
   const preferences = usePreferences();
   const presets = useUserPresets();
   const settings = useDeckSettings();
-  const authorPresets = useCatalog().data?.anki.presets ?? [];
+  const authorPresets = useCatalog().data?.anki.presets ?? NO_PRESETS;
   // An assessment whose decks have no cards has no index, and is not missing one.
   const missing = !!scope && scope.assessments.some((a) => !a.cardIndex && a.cardCount > 0);
   const prefs = preferences.prefs;
@@ -66,9 +68,17 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
       tree: tree,
       nowMs,
     });
-    // `nowMs` changes every minute: the cards' due dates follow it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, indexes.data, rows.data, prefs, presets.data, settings.data, tree, nowMs]);
+  }, [
+    ready,
+    indexes.data,
+    rows.data,
+    prefs,
+    authorPresets,
+    presets.data,
+    settings.data,
+    tree,
+    nowMs,
+  ]);
   const parts = [rows, preferences, presets, settings];
   const error = indexes.error ?? parts.find((p) => p.isError)?.error ?? null;
   return {

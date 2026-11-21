@@ -1,7 +1,7 @@
 // The cards page's search box: its text follows the URL's, and what is typed goes to the URL a moment after typing
 // stops.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 
 export function useQueryBox(query: string, onQuery: (q: string) => void) {
   const [text, setText] = useState(query);
@@ -10,11 +10,12 @@ export function useQueryBox(query: string, onQuery: (q: string) => void) {
     setShown(query);
     setText(query);
   }
-  useEffect(() => {
-    if (text.trim() === query.trim()) return;
-    const id = setTimeout(() => onQuery(text.trim()), 250);
+  // Reads the URL's query and `onQuery` of the render that changed the text, without the effect following them.
+  const searchSoon = useEffectEvent((typed: string) => {
+    if (typed === query.trim()) return undefined;
+    const id = setTimeout(() => onQuery(typed), 250);
     return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text]);
+  });
+  useEffect(() => searchSoon(text.trim()), [text]);
   return [text, setText] as const;
 }

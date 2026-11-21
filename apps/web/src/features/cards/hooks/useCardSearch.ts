@@ -56,15 +56,12 @@ export function useCardSearch({
       history.introduced,
     );
     return matchCards(parsed.node, ctx, cards);
-    // `timing` changes every 30 s with `now`, as `cards`.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parsed.node, waiting, cards, history.rated, history.introduced, data]);
+  }, [parsed.node, waiting, cards, history.rated, history.introduced, data, timing]);
   const searchError = parsed.error ?? (found instanceof SearchError ? found.message : null);
-  const matched = found instanceof SearchError ? [] : found;
   const list = useMemo(() => {
+    const matched = found instanceof SearchError ? [] : found;
     const base = view.mode === 'notes' ? notesOf(matched) : matched;
     return sortCards(base, view.sort.column, view.sort.descending, timing);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matched, view.mode, view.sort.column, view.sort.descending]);
+  }, [found, view.mode, view.sort.column, view.sort.descending, timing]);
   return { text, setText, waiting, searchError, list };
 }

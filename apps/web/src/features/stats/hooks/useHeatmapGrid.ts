@@ -44,9 +44,7 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
     const max = box.scrollWidth - box.clientWidth;
     if (max <= 0) return;
     box.scrollLeft = gridScroll({ max, width: box.clientWidth }, today, grid);
-    // Not while the student scrolls.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year, today, ready]);
+  }, [year, today, ready, grid]);
 
   const valueOf = (day: number): CellValue | null =>
     ready && today !== null ? cellValue(day, today, studied, due, scale) : null;

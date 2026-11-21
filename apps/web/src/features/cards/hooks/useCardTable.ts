@@ -29,7 +29,7 @@ export function useCardTable(sources: TableSources) {
   const [savedView, setView] = useViewPrefs();
   const view: ViewPrefs = full ? savedView : { ...savedView, mode: 'cards' };
   const now = useNow(30_000);
-  const timing = timingFor(data.prefs, now);
+  const timing = useMemo(() => timingFor(data.prefs, now), [data.prefs, now]);
   const search = useCardSearch({ data, query, view, timing, now });
   const { list } = search;
   const selection = useSelection({ list, mode: view.mode, params, setParams });

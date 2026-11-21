@@ -76,4 +76,40 @@ describe('default privileges of new functions in public', () => {
              has_function_privilege('authenticated', 'public.granted_on_purpose()', 'execute') as authenticated`);
     expect(rows).toEqual([{ anon: false, authenticated: true }]);
   });
+
+  it('before the migration the same function was open to anon, authenticated and public', async () => {
+    const old = await createDatabase('users', [], MIGRATION);
+    await old.exec(`
+      create function public.created_without() returns integer language sql stable set search_path = '' as 'select 1';`);
+    expect((await grants(old)).filter((g) => g.fn === 'created_without()')).toEqual([
+      { fn: 'created_without()', grantee: 'anon' },
+      { fn: 'created_without()', grantee: 'authenticated' },
+      { fn: 'created_without()', grantee: 'postgres' },
+      { fn: 'created_without()', grantee: 'public' },
+      { fn: 'created_without()', grantee: 'service_role' },
+    ]);
+  });
+
+  it('the revoke from public reaches every schema, not only public', async () => {
+    await db.exec(`
+      create schema helpers;
+      create function helpers.created_later() returns integer language sql stable set search_path = '' as 'select 1';`);
+    const { rows } = await db.query<{ acl: string }>(
+      `select proacl::text as acl from pg_proc where oid = 'helpers.created_later()'::regprocedure`,
+    );
+    expect(rows).toEqual([{ acl: '{postgres=X/postgres}' }]);
+  });
+});
+
+describe('tables of public', () => {
+  it('each has row level security on, and anon can do nothing with any', async () => {
+    const { rows } = await db.query<{ name: string }>(`
+      select c.relname as name
+        from pg_class c
+        join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'public'
+       where c.relkind in ('r', 'p')
+         and (not c.relrowsecurity
+              or has_table_privilege('anon', c.oid, 'select, insert, update, delete, truncate, references, trigger'))`);
+    expect(rows).toEqual([]);
+  });
 });

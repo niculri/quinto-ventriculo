@@ -6,6 +6,9 @@ export const PORT = 5174;
 /** A second demo server, for the spec that changes what everybody sees on it (a course turned off). */
 export const OWN_SERVER_PORT = 5175;
 
+/** And a third, for the spec of the admin mode, which also changes the settings. */
+export const ADMIN_MODE_PORT = 5176;
+
 /** Every test starts with it, so that the popup on entering is only e2e/account.spec.ts's. */
 export const ACCEPTED_ACCOUNT = {
   name: 'qv-demo-account',

@@ -33,8 +33,8 @@ export function ModeSwitch() {
       className={`flex flex-none items-center gap-2 text-sm ${admin ? '' : 'invisible'}`}
       title={mode.active ? s.adminHelp : s.studentHelp}
     >
-      <Reserved longest={s.student} className="max-md:hidden">
-        <span className={`font-medium ${mode.active ? 'text-accent' : 'text-muted'}`}>
+      <Reserved longest={s.student} className="font-medium max-md:hidden">
+        <span className={mode.active ? 'text-accent' : 'text-muted'}>
           {mode.active ? s.admin : s.student}
         </span>
       </Reserved>

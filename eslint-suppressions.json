@@ -242,11 +242,6 @@
       "count": 1
     }
   },
-  "apps/web/src/app/PreviewSwitch.tsx": {
-    "@typescript-eslint/no-empty-function": {
-      "count": 1
-    }
-  },
   "apps/web/src/app/Redirects.tsx": {
     "@typescript-eslint/prefer-nullish-coalescing": {
       "count": 1
@@ -671,11 +666,6 @@
   "apps/web/src/features/notes/model/selection.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    }
-  },
-  "apps/web/src/features/preview/preview.tsx": {
-    "@typescript-eslint/no-empty-function": {
-      "count": 2
     }
   },
   "apps/web/src/features/progress/api/repository/memory.ts": {

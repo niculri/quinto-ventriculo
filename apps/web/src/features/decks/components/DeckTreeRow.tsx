@@ -14,7 +14,7 @@ import { totalCards, UNIT_DEPTH } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { DayLoad } from '../../progress/components/DeckCounts';
 import { MasteryMeter } from '../../progress/components/MasteryMeter';
-import { ListMark } from '../../catalog/components/AdminMarks';
+import { DeckMark } from '../../catalog/components/AdminMarks';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { isOn, visibleChildren } from '../model/deckTree';
@@ -62,10 +62,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
             className={`block py-0.5 font-medium break-words ${off ? 'text-muted' : 'text-ink'}`}
           >
             {d.label}
-            <ListMark
-              thing={['deck', d.id]}
-              holder={d.parentId ? ['deck', d.parentId] : undefined}
-            />
+            <DeckMark deck={d} />
           </span>
           <span className="block text-xs text-muted sm:hidden">{load}</span>
           {unit ? (

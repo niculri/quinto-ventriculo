@@ -14,7 +14,7 @@ export interface AdminMode {
   active: boolean;
   /** The site can offer it: it has the API client for it. Only an administrator is given it by the API. */
   available: boolean;
-  set(active: boolean): void;
+  set: (active: boolean) => void;
 }
 
 export const AdminModeContext = createContext<AdminMode>({

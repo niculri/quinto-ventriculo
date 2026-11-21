@@ -49,7 +49,7 @@ export function AdminModeSwitch({
             ...services,
             ...repos,
             api: services.adminApi,
-            reports: { ...services.reports, send: async () => {} },
+            reports: { ...services.reports, send: () => Promise.resolve() },
           }
         : null,
     [repos, services],
@@ -84,9 +84,29 @@ export function AdminModeSwitch({
     adminClient.clear();
   }, [client, adminClient]);
 
-  // What this browser remembers is not about whoever signs in: somebody who is not an administrator leaves the mode,
-  // or would study without anything saved. Signed out, the mode is only remembered.
-  const active = !!repos;
+  useLeaveIfNotAdmin(!!repos, services, exit);
+
+  const value: AdminMode = {
+    active: !!adminServices,
+    available,
+    set: (on) => (on ? enter() : exit()),
+  };
+  return (
+    <AdminModeContext value={value}>
+      {render(
+        adminServices
+          ? { services: adminServices, client: adminClient, site: 'admin' }
+          : { services, client, site: 'student' },
+      )}
+    </AdminModeContext>
+  );
+}
+
+/**
+ * What this browser remembers is not about whoever signs in: somebody who is not an administrator leaves the mode, or
+ * would study without anything saved. Signed out, the mode is only remembered.
+ */
+function useLeaveIfNotAdmin(active: boolean, services: Services, exit: () => void) {
   useEffect(() => {
     if (!active) return;
     let gone = false;
@@ -111,19 +131,4 @@ export function AdminModeSwitch({
       off();
     };
   }, [active, services, exit]);
-
-  const value: AdminMode = {
-    active: !!adminServices,
-    available,
-    set: (on) => (on ? enter() : exit()),
-  };
-  return (
-    <AdminModeContext value={value}>
-      {render(
-        adminServices
-          ? { services: adminServices, client: adminClient, site: 'admin' }
-          : { services, client, site: 'student' },
-      )}
-    </AdminModeContext>
-  );
 }

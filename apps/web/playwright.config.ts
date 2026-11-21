@@ -1,7 +1,7 @@
 // Playwright configuration: the end-to-end tests in demo mode, with the test content of e2e/content.
 import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
-import { OWN_SERVER_PORT, PORT, demoState } from './e2e/accepted';
+import { ADMIN_MODE_PORT, OWN_SERVER_PORT, PORT, demoState } from './e2e/accepted';
 
 /**
  * WebKit (Safari on the iPhone) runs only what a student does most on a phone, plus axe: running every spec a third time
@@ -20,7 +20,7 @@ const IPHONE_SPECS = [
   'viewer.spec.ts',
 ];
 
-/** Specs that change the server's settings: they run in `desktop` only, on a server of their own, so no other spec sees it. */
+/** Specs that change the server's settings: they run in `desktop` only, each on a server of its own, so no other spec sees it. */
 const OWN_SERVER = ['hidden-courses.spec.ts'];
 
 const demoServer = (port: number) => ({
@@ -50,5 +50,5 @@ export default defineConfig({
     { name: 'phone', use: { ...devices['Pixel 7'] }, testIgnore: OWN_SERVER },
     { name: 'iphone', use: { ...devices['iPhone 15'] }, testMatch: IPHONE_SPECS },
   ],
-  webServer: [demoServer(PORT), demoServer(OWN_SERVER_PORT)],
+  webServer: [demoServer(PORT), demoServer(OWN_SERVER_PORT), demoServer(ADMIN_MODE_PORT)],
 });

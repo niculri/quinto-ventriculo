@@ -201,9 +201,9 @@ describe('the admin mode', () => {
       'ap-fi-1',
       'ap-qu-1',
     ]);
-    expect(QuizIndex.parse(await (await call(app, '/api/quizzes', ADMIN, ADMIN_MODE)).json())).toEqual(
-      { quizzes: [] },
-    );
+    expect(
+      QuizIndex.parse(await (await call(app, '/api/quizzes', ADMIN, ADMIN_MODE)).json()),
+    ).toEqual({ quizzes: [] });
   });
 
   it('changes nothing without the header, and never for a student', async () => {
@@ -216,9 +216,9 @@ describe('the admin mode', () => {
     expect(student).not.toMatch(/fisica|Física|AP-FI|AP-A2-2|AP-QU|quimica|Química/);
     expect((await call(app, '/api/notes/ap-fi-1', STUDENT, ADMIN_MODE)).status).toBe(404);
     expect((await call(app, '/api/notes/ap-a2-2', STUDENT, ADMIN_MODE)).status).toBe(404);
-    expect(await (await call(app, '/api/search?q=laringe', STUDENT, ADMIN_MODE)).text()).not.toMatch(
-      /ap-fi-1|ap-a2-2|ap-qu-1/,
-    );
+    expect(
+      await (await call(app, '/api/search?q=laringe', STUDENT, ADMIN_MODE)).text(),
+    ).not.toMatch(/ap-fi-1|ap-a2-2|ap-qu-1/);
   });
 
   it('is never kept by the browser, and does not count what it opens', async () => {

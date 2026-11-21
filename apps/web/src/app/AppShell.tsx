@@ -81,7 +81,7 @@ export function AppShell() {
         <p
           aria-hidden="true"
           data-admin-note=""
-          className="pointer-events-none fixed bottom-0.5 left-2 z-30 text-[0.65rem] leading-3 font-medium text-[#9a4a12] dark:text-accent"
+          className="pointer-events-none fixed bottom-0 left-2 z-30 text-[0.6rem] leading-[0.65rem] font-medium text-[#9a4a12] dark:text-accent"
         >
           {appStrings.adminModeNote}
         </p>

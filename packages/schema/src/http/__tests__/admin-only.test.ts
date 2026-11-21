@@ -77,10 +77,10 @@ describe('markAdminOnly', () => {
   });
 
   it('marks a course turned off and all that it holds', () => {
-    const c = catalog([{ number: 1, courses: [course('a', ['n1']), course('b', ['n2'], 4)] }], [
-      deck('d1', 'b', 4),
-      deck('d2', 'a', 1),
-    ]);
+    const c = catalog(
+      [{ number: 1, courses: [course('a', ['n1']), course('b', ['n2'], 4)] }],
+      [deck('d1', 'b', 4), deck('d2', 'a', 1)],
+    );
     const marks = markAdminOnly(c, c, { ...OPEN, hiddenCourses: ['b'] }).adminOnly;
     expect(marks).toEqual({
       [adminKey('course', 'b')]: ['hiddenCourse'],

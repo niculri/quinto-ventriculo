@@ -1,4 +1,4 @@
-// E2e tests of the release panel, publishing and undoing, and the preview of the draft, with the draft of
+// E2e tests of the release panel, publishing and undoing, and the admin mode (the draft), with the draft of
 // e2e/content/draft and what the database gives for it (e2e/content/release, written by db/tests/release.test.ts).
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
@@ -84,7 +84,7 @@ test('the panel: the review list and what changes, by assessment, with its befor
   expect(await noSideScroll(page)).toBeLessThanOrEqual(0);
 });
 
-test('the preview: the whole site with the draft, entered and left from the panel, without moving anything', async ({
+test('the admin mode: the whole site with the draft, entered and left from the top bar, without moving anything', async ({
   page,
 }) => {
   await openPanel(page);
@@ -92,19 +92,20 @@ test('the preview: the whole site with the draft, entered and left from the pane
   const before = await study();
   const barBefore = await bar(page);
   const title = await box(page.getByRole('heading', { level: 2, name: 'Publicaciones' }));
-  const toggle = page.getByRole('switch', { name: 'Ver el sitio con el borrador' });
+  const toggle = page.getByRole('switch', { name: 'Modo admin' });
 
+  await expect(toggle).not.toBeChecked();
   await toggle.check();
-  await expect(page.locator('[data-preview-mark]')).toBeVisible();
+  await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
   await expect(
-    page.getByRole('status').filter({ hasText: 'Estás viendo el borrador' }),
+    page.getByRole('status').filter({ hasText: 'Modo admin: ves el borrador' }),
   ).toBeAttached();
   expect(await bar(page)).toEqual(barBefore);
   expect(await box(page.getByRole('heading', { level: 2, name: 'Publicaciones' }))).toEqual(title);
 
   await page.goto(ARTICLE);
   await expect(page.getByText(DRAFT_TEXT)).toBeVisible();
-  await expect(page.locator('[data-preview-mark]')).toBeVisible();
+  await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
 
   await page.goto(`${DECK_URL}/study`);
   await page.getByRole('button', { name: 'Mostrar respuesta' }).click();
@@ -115,7 +116,7 @@ test('the preview: the whole site with the draft, entered and left from the pane
     .click();
   expect(await study()).toBe(before);
 
-  // Out, from the panel: the published site again, and nothing of the draft stays. The article is read in the preview
+  // Out, from the top bar: the published site again, and nothing of the draft stays. The article is read in the admin mode
   // without loading the page again, and after leaving, again without loading it: what the app keeps in memory (its
   // cache) is not the draft's.
   await page.goto(PANEL);
@@ -124,10 +125,10 @@ test('the preview: the whole site with the draft, entered and left from the pane
   await within(page, PANEL);
   await expect(page.getByRole('heading', { level: 2, name: 'Publicaciones' })).toBeVisible();
   const barIn = await bar(page);
-  await page.getByRole('switch', { name: 'Ver el sitio con el borrador' }).uncheck();
-  await expect(page.locator('[data-preview-mark]')).toHaveCount(0);
+  await toggle.uncheck();
+  await expect(page.locator('[data-admin-mode-mark]')).toHaveCount(0);
   expect(await bar(page)).toEqual(barIn);
-  expect(await page.evaluate(() => window.sessionStorage.getItem('qv-preview'))).toBeNull();
+  expect(await page.evaluate(() => window.localStorage.getItem('qv-admin-mode'))).toBe('student');
   await within(page, ARTICLE);
   await expect(page.getByRole('heading', { level: 1, name: /Traducción/ })).toBeVisible();
   await expect(page.getByText(DRAFT_TEXT)).toHaveCount(0);
@@ -177,15 +178,15 @@ async function movedWhile(page: Page, act: () => Promise<void>) {
   return [...new Set(frames.flatMap((f) => before.filter((x) => !f.includes(x))))];
 }
 
-test('entering and leaving the preview moves nothing at any frame, also after a reload', async ({
+test('entering and leaving the admin mode moves nothing at any frame, also after a reload', async ({
   page,
 }) => {
   await openPanel(page);
-  const toggle = page.getByRole('switch', { name: 'Ver el sitio con el borrador' });
+  const toggle = page.getByRole('switch', { name: 'Modo admin' });
   await page.waitForTimeout(800);
   expect(await movedWhile(page, () => toggle.check())).toEqual([]);
   expect(await movedWhile(page, () => toggle.uncheck())).toEqual([]);
-  // Opened in the preview (the site's cache is empty): leaving it does not take the page off the screen.
+  // Opened in the admin mode (the site's cache is empty): leaving it does not take the page off the screen.
   await toggle.check();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Lista de revisión' })).toBeVisible();
@@ -193,18 +194,24 @@ test('entering and leaving the preview moves nothing at any frame, also after a 
   expect(await movedWhile(page, () => toggle.uncheck())).toEqual([]);
 });
 
-test('a reload in the preview stays in it, and in a new tab it is not', async ({
+test('the admin mode is remembered by the browser: a reload and a new tab start in it, and the student mode too', async ({
   page,
   context,
 }) => {
   await openPanel(page);
-  await page.getByRole('switch', { name: 'Ver el sitio con el borrador' }).check();
+  await page.getByRole('switch', { name: 'Modo admin' }).check();
   await page.reload();
-  await expect(page.locator('[data-preview-mark]')).toBeVisible();
+  await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
   const other = await context.newPage();
   await other.goto(ARTICLE);
+  await expect(other.getByText(DRAFT_TEXT)).toBeVisible();
+  await expect(other.locator('[data-admin-mode-mark]')).toBeVisible();
+  await expect(other.getByRole('switch', { name: 'Modo admin' })).toBeChecked();
+
+  await other.getByRole('switch', { name: 'Modo admin' }).uncheck();
+  await other.reload();
   await expect(other.getByRole('heading', { level: 1, name: /Traducción/ })).toBeVisible();
-  await expect(other.locator('[data-preview-mark]')).toHaveCount(0);
+  await expect(other.locator('[data-admin-mode-mark]')).toHaveCount(0);
   await expect(other.getByText(DRAFT_TEXT)).toHaveCount(0);
 });
 
@@ -316,11 +323,7 @@ test('publishing and undoing, each from its own popup, without moving what is ab
   });
 
   await signIn(page);
-  const ABOVE = [
-    'main h2.font-serif',
-    'main section[aria-labelledby="preview"]',
-    'main section[aria-labelledby="last-release"]',
-  ];
+  const ABOVE = ['main h2.font-serif', 'main section[aria-labelledby="last-release"]'];
   // Loading (going there inside the app, as a link does): the last publication's card is there from the start, with
   // its height.
   const loading = await boxesWhile(page, ABOVE, async () => {

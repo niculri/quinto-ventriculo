@@ -70,7 +70,15 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   regla, las supresiones de ese archivo más los `eslint-disable` en línea no pueden subir respecto de `origin/main`:
   `npm run suppressions` (en `npm run check`, la CI y el `pre-push`). Un `eslint-disable` que ya no silencia nada es
   un error. Al arreglar algo, `npx eslint . --prune-suppressions` (si queda una supresión sobrante, `npm run lint`
-  falla). Mover un archivo con supresiones obliga a anotarlas de nuevo, pero ninguna regla puede subir.
+  falla). Mover un archivo con supresiones obliga a anotarlas de nuevo, pero ninguna regla puede subir. Una regla que
+  se enciende por primera vez puede empezar con deuda: se anota su cifra en `eslint-suppressions-start.json`, cuenta
+  una sola vez (la rama de comparación no debe tener nada de esa regla) y desde ahí la regla baja como las demás; nunca
+  con un `eslint-disable`.
+- **Herramientas estrictas:** ESLint con `strictTypeChecked` y `stylisticTypeChecked` de typescript-eslint y el preset
+  `recommended-type-checked` de `@eslint-react/eslint-plugin` en la web (los desvíos, con su razón, están en
+  `eslint.config.js`); `exactOptionalPropertyTypes` en todos los paquetes (un `x?: T` no recibe `undefined`: si de verdad
+  se pasa, el tipo dice `x?: T | undefined`); el formato lo hace solo Biome, también el de lo que se genera
+  (`db/scripts/db-types.ts`).
 - **En la raíz de `apps/web/src`** solo van `main.tsx` (la entrada, que nadie importa) y los tipos de Vite: otro archivo
   ahí no tiene capa y es un error.
 - **Comentarios:** cada archivo empieza con un comentario breve (una o dos líneas) que dice qué hace; en los portados,

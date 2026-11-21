@@ -2,7 +2,7 @@
 import babel from '@rolldown/plugin-babel';
 import react from '@vitejs/plugin-react';
 import { defineProject } from 'vitest/config';
-import { compilerPreset } from './build/react-compiler';
+import { compilerPreset } from './build/react-compiler.ts';
 
 export default defineProject({
   plugins: [react(), babel({ presets: [compilerPreset] })],

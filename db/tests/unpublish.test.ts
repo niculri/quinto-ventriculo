@@ -130,7 +130,6 @@ const apiReads = async () => ({
     'select id, card_count from public.anki_deck_tree() order by id',
   ),
   deck: (await q<{ r: unknown }>(`select public.anki_deck_detail($1) as r`, [leafOf(BC)]))[0]!.r,
-  browse: JSON.stringify((await q<{ r: unknown }>('select public.anki_browse_notes() as r'))[0]!.r),
   card: (await q<{ r: unknown }>(`select public.anki_card('bc-1', 0) as r`))[0]!.r,
 });
 
@@ -274,7 +273,6 @@ describe('the command (npm run unpublish)', () => {
     expect(reads.deck).toBeNull();
     expect(reads.card).toBeNull();
     expect(reads.tree.map((d) => d.id)).not.toContain(leafOf(BC));
-    expect(reads.browse).not.toContain('bc-1');
     const changes = (
       await q<{ r: { changes: { noteGuid: string; deckId: string | null }[] } }>(
         `select public.anki_card_changes_since($1, 100) as r`,

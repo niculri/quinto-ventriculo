@@ -214,51 +214,6 @@ describe('the deck tree migration', () => {
     expect(d.subdecks).toHaveLength(6);
   });
 
-  it('anki_browse_notes: plain-text fields in order, tags, code, creation and cards', async () => {
-    await asService((tx) =>
-      tx.query('select public.save_anki_note($1)', [
-        {
-          guid: 'nota-1',
-          noteTypeId: noteType.id,
-          fields: { Reverso: 'C1 &amp; C2<br>', Frente: '<b>Atlas</b>&nbsp;y axis', Código: '' },
-          tags: ['columna'],
-          code: 'T-A1-S3-01-001',
-          version: 2,
-          createdAt: '2026-10-08T12:00:00.000Z',
-          hash: 'h1b',
-          cards: [card(0, DECK)],
-        },
-      ]),
-    );
-    const r = await asService((tx) =>
-      tx.query<{ n: { notes: unknown[] } }>('select public.anki_browse_notes() as n'),
-    );
-    expect(r.rows[0]!.n.notes).toEqual([
-      {
-        guid: 'nota-1',
-        noteTypeId: noteType.id,
-        tags: ['columna'],
-        code: 'T-A1-S3-01-001',
-        version: 2,
-        createdAt: '2026-10-08T12:00:00+00:00',
-        fields: ['Atlas y axis', 'C1 & C2', ''],
-        sortField: 'tarjeta 0',
-        cards: [{ ord: 0, deckId: DECK }],
-      },
-      {
-        guid: 'nota-2',
-        noteTypeId: noteType.id,
-        tags: [],
-        code: 'T-A1-S3-01-002',
-        version: 1,
-        createdAt: null,
-        fields: ['Extra', '', ''],
-        sortField: 'tarjeta 0',
-        cards: [{ ord: 0, deckId: EXTRAS }],
-      },
-    ]);
-  });
-
   it('anki_deck_detail: the DeckDetail of the API, as the Worker before the deck tree built it from anki_deck', async () => {
     const leaf = (name: string) => name.split('::').at(-1)!;
     for (const id of [ROOT, ASSESSMENT, DECK, EXTRAS]) {
@@ -300,7 +255,6 @@ describe('the deck tree migration', () => {
       for (const call of [
         'select public.anki_deck_tree()',
         `select public.anki_deck_detail('${ROOT}')`,
-        'select public.anki_browse_notes()',
         `select public.anki_plain_text('x')`,
       ]) {
         await expect(asUser(db, claims, (tx) => tx.query(call))).rejects.toThrow(

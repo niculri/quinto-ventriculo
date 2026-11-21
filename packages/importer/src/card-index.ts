@@ -39,7 +39,7 @@ function cardOrigins(tags: readonly string[]): CardOrigin[] {
 
 const occlusionShapes = (field: string) => (field.match(/image-occlusion:/g) ?? []).length;
 
-/** The order of `anki_browse_notes()`: by code (`collate "C"`, codes first), then guid. */
+/** The browser's order: by code (`collate "C"`, codes first), then guid. */
 const byCode = (
   a: { code: string | null; guid: string },
   b: { code: string | null; guid: string },

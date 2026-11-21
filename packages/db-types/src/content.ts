@@ -589,7 +589,6 @@ export type Database = {
     }
     Functions: {
       anki_browse_indexes: { Args: never; Returns: Json }
-      anki_browse_notes: { Args: never; Returns: Json }
       anki_card: {
         Args: { card_ord: number; note_guid: string }
         Returns: Json
@@ -1483,7 +1482,6 @@ export type Database = {
     }
     Functions: {
       anki_browse_indexes: { Args: never; Returns: Json }
-      anki_browse_notes: { Args: never; Returns: Json }
       anki_card: {
         Args: { card_ord: number; note_guid: string }
         Returns: Json

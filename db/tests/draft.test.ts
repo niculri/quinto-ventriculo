@@ -105,7 +105,6 @@ async function reads(schema: 'public' | 'draft') {
   out.summaries = await one(`select * from @.anki_deck_summaries() order by id`);
   out.deck = await one(`select @.anki_deck_detail($1) as r`, [leafOf(BC)]);
   out.oldDeck = await one(`select @.anki_deck($1) as r`, [leafOf(AN)]);
-  out.browse = await one(`select @.anki_browse_notes() as r`);
   out.card = await one(`select @.anki_card('bc-1', 0) as r`);
   out.state = await one(`select @.import_state(null, null) as r`);
   out.changes = await one(`select @.anki_card_changes_since(0, 5000) as r`);

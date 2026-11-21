@@ -67,6 +67,10 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   que diga por qué. 0 componentes ni hooks sin compilar: `apps/web/build/__tests__/react-compiler.test.ts` falla con uno
   que el compilador salte (un hook condicional, un `try … finally`, un `eslint-disable` de `react-hooks/exhaustive-deps`)
   y con un `"use no memo"`, que nunca se deja.
+- **Lo que viene de afuera se pasa como valor.** Una llamada sin argumentos que lee algo externo (la hora,
+  `localStorage`) dentro de un componente o hook el compilador la guarda una sola vez: léela en un efecto o con lo que
+  la hace nueva (`readClock(...causas)`) y pásala como valor a la función pura. Una dependencia que no se lee no se
+  deja como `void x`: el compilador la descarta.
 - **Textos de la interfaz:** lo que lee una persona (texto en JSX, `aria-label`, `title`, `placeholder`, `alt`,
   `label`…) sale del `strings.ts` de su feature (`features/<x>/strings.ts`, `app/strings.ts`) o, si es común, de
   `shared/strings.ts` (un componente de `shared/ui` que no carga al inicio lleva el suyo, `X.strings.ts`, para no

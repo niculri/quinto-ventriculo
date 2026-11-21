@@ -10,7 +10,7 @@ describe('the cards a command touches', () => {
   it('an answer touches its card and the siblings it buries', () => {
     const answer: Command = {
       kind: 'saveAnswer',
-      seq: 1,
+      id: '1.0',
       review: {
         card: a,
         rating: 3,
@@ -40,16 +40,29 @@ describe('the cards a command touches', () => {
   });
 
   it('burying and suspending touch the cards they name, a flag its card', () => {
-    expect(touchedBy({ kind: 'bury', seq: 2, cards: [a, b], untilMs: 0, note: true })).toEqual([
-      a,
-      b,
-    ]);
-    expect(touchedBy({ kind: 'suspend', seq: 3, cards: [b], note: false })).toEqual([b]);
-    expect(touchedBy({ kind: 'setFlag', seq: 4, card: a, flag: 2 })).toEqual([a]);
+    expect(
+      touchedBy({
+        kind: 'bury',
+        id: '2.0',
+        cards: [a, b],
+        untilMs: 0,
+        note: true,
+      }),
+    ).toEqual([a, b]);
+    expect(touchedBy({ kind: 'suspend', id: '3.0', cards: [b], note: false })).toEqual([b]);
+    expect(touchedBy({ kind: 'setFlag', id: '4.0', card: a, flag: 2 })).toEqual([a]);
   });
 
   it('an undo and a prefetch touch none', () => {
-    expect(touchedBy({ kind: 'undo', seq: 5, undoes: 4, action: 'flag', card: a })).toEqual([]);
-    expect(touchedBy({ kind: 'prefetch', seq: 6, entries: [] })).toEqual([]);
+    expect(
+      touchedBy({
+        kind: 'undo',
+        id: '5.0',
+        undoes: '4.0',
+        action: 'flag',
+        card: a,
+      }),
+    ).toEqual([]);
+    expect(touchedBy({ kind: 'prefetch', id: '6.0', entries: [] })).toEqual([]);
   });
 });

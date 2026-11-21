@@ -7,7 +7,8 @@ import { cardKey } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { CardChangedError } from './reference-save';
 import { createStudyState, studyReducer } from '../reducer';
-import { commandsAfter, countsOf, isDone } from '../selectors';
+import type { CommandId } from '../commands';
+import { commandsNotIn, countsOf, isDone } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
 import { CommandSaver } from './command-saver';
 import { deepFreeze } from './freeze';
@@ -131,7 +132,7 @@ describe('what the web leans on', () => {
     expect(open.revealed).toBe(false);
   });
 
-  it('what it asks to save is numbered 1, 2, 3… in the order it was asked, and `commandsAfter` gives the rest', () => {
+  it('what it asks to save is identified by the action’s number and its place in it, and `commandsNotIn` gives the rest', () => {
     const first = opened();
     const state = run(
       first,
@@ -140,7 +141,8 @@ describe('what the web leans on', () => {
       { type: 'flag', value: 2 },
       { type: 'undo', now: AT },
     );
-    expect(state.outbox.map((c) => c.seq)).toEqual(state.outbox.map((_, i) => i + 1));
+    // Each action is numbered by the reducer when it comes without a number (opened 1, reveal 2, answer 3…).
+    expect(state.outbox.map((c) => c.id)).toEqual(['1.0', '3.0', '3.1', '4.0', '5.0']);
     expect(state.outbox.map((c) => c.kind)).toEqual([
       'prefetch',
       'saveAnswer',
@@ -148,8 +150,11 @@ describe('what the web leans on', () => {
       'setFlag',
       'undo',
     ]);
-    expect(commandsAfter(state, 2).map((c) => c.seq)).toEqual([3, 4, 5]);
-    expect(commandsAfter(state, 5)).toEqual([]);
+    const [a, b, ...rest] = state.outbox;
+    expect(commandsNotIn(state, new Set([a!.id, b!.id])).map((c) => c.id)).toEqual(
+      rest.map((c) => c.id),
+    );
+    expect(commandsNotIn(state, new Set(state.outbox.map((c) => c.id)))).toEqual([]);
   });
 
   it('an answer carries everything the repository takes but the mark of the card', () => {
@@ -248,7 +253,11 @@ describe('what the web leans on', () => {
   it('an undo says which command it takes back', () => {
     const state = run(opened(), { type: 'flag', value: 3 }, { type: 'undo', now: AT });
     const [flagged, undone] = state.outbox.filter((c) => c.kind !== 'prefetch');
-    expect(undone).toMatchObject({ kind: 'undo', undoes: flagged!.seq, action: 'flag' });
+    expect(undone).toMatchObject({
+      kind: 'undo',
+      undoes: flagged!.id,
+      action: 'flag',
+    });
   });
 
   it('crossing the hour the day turns over empties the answers of the day and brings the buried back', () => {
@@ -432,8 +441,11 @@ describe('undoing before what was done is saved', () => {
       old.showNext();
       const first = old.shown!.entry;
 
-      let state = studyReducer(createStudyState(b, START.rootId, AT), { type: 'opened', now: AT });
-      let taken = 0;
+      let state = studyReducer(createStudyState(b, START.rootId, AT), {
+        type: 'opened',
+        now: AT,
+      });
+      const taken = new Set<CommandId>();
       const saver = new CommandSaver(
         new FakeRepository([...b.rows.values()], undefined, true),
         marksOf(b),
@@ -446,9 +458,9 @@ describe('undoing before what was done is saved', () => {
       const send = (...actions: StudyAction[]) => {
         for (const action of actions) {
           state = studyReducer(state, action);
-          for (const c of commandsAfter(state, taken)) {
+          for (const c of commandsNotIn(state, taken)) {
             saver.handle(c);
-            taken = c.seq;
+            taken.add(c.id);
           }
         }
       };

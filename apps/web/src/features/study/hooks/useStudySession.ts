@@ -1,11 +1,10 @@
 // A deck's study session on screen: the reducer's state, the actions the screen can take, and what runs around it
 // (saving what the reducer asks for, the clock, the toast's timer and the browser's «leave?» while it saves).
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from 'react';
-import type { Dispatch } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Rating } from '@qv/srs';
-import { commandsAfter, createStudyState, studyReducer } from '@qv/study';
-import type { HideAction, StudyAction, StudyData } from '@qv/study';
+import { commandsNotIn, createStudyState, studyReducer } from '@qv/study';
+import type { CommandId, HideAction, StudyAction, StudyData } from '@qv/study';
 import { useApi } from '../../../shared/hooks/useApi';
 import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
@@ -28,7 +27,7 @@ export interface StudyActions {
   skipMissing: (card: { noteGuid: string; ord: number }) => void;
 }
 
-function actionsOf(dispatch: Dispatch<StudyAction>): StudyActions {
+function actionsOf(dispatch: (action: StudyAction) => void): StudyActions {
   return {
     open: () => dispatch({ type: 'opened', now: Date.now() }),
     tick: () => dispatch({ type: 'tick', now: Date.now() }),
@@ -49,14 +48,20 @@ export function useStudySession(initial: StudyData, rootId: string) {
   const [state, dispatch] = useReducer(studyReducer, undefined, () =>
     createStudyState(initial, rootId, Date.now()),
   );
-  const [act] = useState(() => actionsOf(dispatch));
+  // Every action gets its number here, outside the reducer: React may run the reducer again for an action it set
+  // aside under a more urgent one, and the commands it asks for must have the same ids then.
+  const dispatchCountRef = useRef(0);
+  const [numbered] = useState(
+    () => (action: StudyAction) => dispatch({ ...action, dispatch: ++dispatchCountRef.current }),
+  );
+  const [act] = useState(() => actionsOf(numbered));
   const [saves] = useState(
     () =>
       new SaveQueue(
         study,
         new Map([...initial.rows].map(([k, r]) => [k, r.updatedAt])),
         RETRY_DELAYS_MS,
-        (failure) => dispatch({ type: 'saveFailed', failure }),
+        (failure) => numbered({ type: 'saveFailed', failure }),
         (entries) => {
           for (const e of entries) void client.prefetchQuery(cardQuery(api, e.noteGuid, e.ord));
         },
@@ -64,21 +69,22 @@ export function useStudySession(initial: StudyData, rootId: string) {
   );
   const saving = useSyncExternalStore(saves.subscribe, () => saves.pending > 0);
 
-  // Each command goes to the save queue once, by its number, whatever the number of times this runs.
-  const takenRef = useRef(0);
+  // Each command goes to the save queue once, by its id, whatever the number of times this runs or the state is
+  // drawn again with the same action replayed.
+  const takenRef = useRef(new Set<CommandId>());
   useEffect(() => {
-    for (const command of commandsAfter(state, takenRef.current)) {
+    for (const command of commandsNotIn(state, takenRef.current)) {
+      takenRef.current.add(command.id);
       saves.handle(command);
-      takenRef.current = command.seq;
     }
   }, [state, saves]);
 
   const toastId = state.toast?.id;
   useEffect(() => {
     if (toastId === undefined) return;
-    const timer = setTimeout(() => dispatch({ type: 'toastExpired', id: toastId }), TOAST_MS);
+    const timer = setTimeout(() => numbered({ type: 'toastExpired', id: toastId }), TOAST_MS);
     return () => clearTimeout(timer);
-  }, [toastId]);
+  }, [toastId, numbered]);
 
   // Reloading or closing while an answer is still being saved (or retried) would lose it: the browser asks.
   useEffect(() => {

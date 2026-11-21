@@ -3,7 +3,7 @@ import type { DeckConfig, QueueState, QueueUpdate, Rating } from '@qv/srs';
 import type { ActionName, AnswerToday, CardRef, StoredCard } from '@qv/schema/user';
 import type { StudyData } from '../scheduler';
 import type { HideAction, Shown } from '../session';
-import type { Command } from './commands';
+import type { Command, CommandId } from './commands';
 
 /** What a toast says; the screen turns it into words (the package has no interface texts). */
 export type ToastKind =
@@ -27,11 +27,11 @@ export type SaveFailure =
 /** The rows a history item puts back: a card's key and its row before (undefined: it had none). */
 export type RowsBefore = readonly (readonly [string, StoredCard | undefined])[];
 
-/** What an answer or action changed, kept to put it back. `id` is the number of the command that saved it. */
+/** What an answer or action changed, kept to put it back. `id` is the id of the command that saved it. */
 export type HistoryItem =
   | {
       readonly kind: 'answer';
-      readonly id: number;
+      readonly id: CommandId;
       readonly card: CardRef;
       readonly before: RowsBefore;
       readonly update: QueueUpdate;
@@ -39,7 +39,7 @@ export type HistoryItem =
     }
   | {
       readonly kind: 'action';
-      readonly id: number;
+      readonly id: CommandId;
       readonly action: ActionName;
       readonly card: CardRef;
       readonly before: RowsBefore;
@@ -61,13 +61,14 @@ export interface StudyState {
   readonly history: readonly HistoryItem[];
   readonly answeredInSession: number;
   readonly failure: SaveFailure | null;
-  /** Every write and prefetch the session asked for, in order; `seq` grows by one with each. */
+  /** Every write and prefetch the session asked for, in order. */
   readonly outbox: readonly Command[];
-  readonly nextSeq: number;
+  /** The action being reduced and how many commands it has asked for so far: what the next command's id is made of. */
+  readonly turn: { readonly dispatch: number; readonly emitted: number };
   readonly nextToastId: number;
 }
 
-export type StudyAction =
+type StudyIntent =
   | { readonly type: 'opened'; readonly now: number }
   | { readonly type: 'showNext'; readonly now: number }
   | { readonly type: 'tick'; readonly now: number }
@@ -83,3 +84,9 @@ export type StudyAction =
     }
   | { readonly type: 'toastExpired'; readonly id: number }
   | { readonly type: 'saveFailed'; readonly failure: SaveFailure };
+
+/**
+ * An action as it is dispatched. `dispatch` numbers it, from outside the reducer: a replay of the action keeps the
+ * number, so the commands it asks for keep their ids. Without it the reducer gives the next number after the last.
+ */
+export type StudyAction = StudyIntent & { readonly dispatch?: number };

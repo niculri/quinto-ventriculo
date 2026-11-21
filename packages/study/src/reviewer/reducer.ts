@@ -34,11 +34,12 @@ import {
 import type { StudyData } from '../scheduler';
 import { asNew, blankRow } from '../session';
 import type { HideAction } from '../session';
-import type { Command } from './commands';
+import { commandId } from './commands';
+import type { Command, CommandId } from './commands';
 import { restoreRows, snapshotRows, withRows } from './history';
 import type { StudyAction, StudyState, ToastKind } from './state';
 
-type NewCommand = Command extends infer C ? (C extends Command ? Omit<C, 'seq'> : never) : never;
+type NewCommand = Command extends infer C ? (C extends Command ? Omit<C, 'id'> : never) : never;
 
 /** The session of a deck as it opens, before it looks for its first card (`opened`). */
 export function createStudyState(initial: StudyData, rootId: string, now: number): StudyState {
@@ -60,12 +61,21 @@ export function createStudyState(initial: StudyData, rootId: string, now: number
     answeredInSession: 0,
     failure: null,
     outbox: [],
-    nextSeq: 1,
+    turn: { dispatch: 0, emitted: 0 },
     nextToastId: 1,
   };
 }
 
 export function studyReducer(state: StudyState, action: StudyAction): StudyState {
+  const turned: StudyState = {
+    ...state,
+    turn: { dispatch: action.dispatch ?? state.turn.dispatch + 1, emitted: 0 },
+  };
+  const next = reduce(turned, action);
+  return next === turned ? state : next;
+}
+
+function reduce(state: StudyState, action: StudyAction): StudyState {
   switch (action.type) {
     case 'opened':
     case 'showNext':
@@ -96,9 +106,17 @@ function queueOf(data: StudyData, rootId: string, now: number) {
   return { configs, queue: buildQueueState(queueInput(data, rootId, now, configs)) };
 }
 
+// The id the next command will have.
+const nextId = (state: StudyState): CommandId => commandId(state.turn.dispatch, state.turn.emitted);
+
 function emit(state: StudyState, command: NewCommand): StudyState {
-  const full = { ...command, seq: state.nextSeq } as Command;
-  return { ...state, outbox: [...state.outbox, full], nextSeq: state.nextSeq + 1 };
+  const full = { ...command, id: nextId(state) } as Command;
+  const { dispatch, emitted } = state.turn;
+  return {
+    ...state,
+    outbox: [...state.outbox, full],
+    turn: { dispatch, emitted: emitted + 1 },
+  };
 }
 
 function withToast(state: StudyState, toast: ToastKind): StudyState {
@@ -203,7 +221,7 @@ function answer(state: StudyState, rating: Rating, now: number): StudyState {
     result.suspend ? { ...result.card, queue: 'review' } : result.card,
     timing,
   );
-  const id = state.nextSeq;
+  const id = nextId(state);
   // Anki caps the time on a card to the preset's maximum.
   const durationMs = Math.round(Math.min(now - shownAt, config.capAnswerTimeToSecs * 1000));
   let next = emit(
@@ -263,7 +281,7 @@ function hide(state: StudyState, action: HideAction, now: number): StudyState {
       ? { ...row, buriedUntil: until.toISOString() }
       : { ...row, suspended: true, buriedUntil: null };
   });
-  const id = state.nextSeq;
+  const id = nextId(state);
   const saved = emit(
     {
       ...state,
@@ -288,7 +306,7 @@ function flag(state: StudyState, value: number): StudyState {
   const row = data.rows.get(cardKey(ref)) ?? blankRow(ref);
   const next = row.flag === value ? 0 : value;
   const before = snapshotRows(data.rows, [ref]);
-  const id = state.nextSeq;
+  const id = nextId(state);
   return emit(
     {
       ...state,

@@ -6,7 +6,7 @@ import { createStudyState, studyReducer } from '../reducer';
 import {
   answeredToday,
   canUndo,
-  commandsAfter,
+  commandsNotIn,
   congrats,
   countsOf,
   flagOf,
@@ -88,11 +88,11 @@ describe('the end screens', () => {
 });
 
 describe('the writes asked for', () => {
-  it('`commandsAfter` gives those with a number above the one the saving side has taken', () => {
+  it('`commandsNotIn` gives those whose ids the saving side has not taken', () => {
     const state = run(opened(), { type: 'flag', value: 1 });
     const all = state.outbox;
-    expect(commandsAfter(state, 0)).toEqual(all);
-    expect(commandsAfter(state, all.at(-1)!.seq)).toEqual([]);
-    expect(commandsAfter(state, all[0]!.seq)).toEqual(all.slice(1));
+    expect(commandsNotIn(state, new Set())).toEqual(all);
+    expect(commandsNotIn(state, new Set(all.map((c) => c.id)))).toEqual([]);
+    expect(commandsNotIn(state, new Set([all[0]!.id]))).toEqual(all.slice(1));
   });
 });

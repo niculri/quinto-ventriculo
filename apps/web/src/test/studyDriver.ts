@@ -5,7 +5,7 @@ import type { Rating } from '@qv/srs';
 import {
   answeredToday,
   canUndo,
-  commandsAfter,
+  commandsNotIn,
   congrats,
   countsOf,
   createStudyState,
@@ -13,7 +13,7 @@ import {
   rowOf,
   studyReducer,
 } from '@qv/study';
-import type { HideAction, StudyAction, StudyData, StudyState } from '@qv/study';
+import type { CommandId, HideAction, StudyAction, StudyData, StudyState } from '@qv/study';
 import { SaveQueue } from '../features/study/api/saveQueue';
 import { failureText, toastText } from '../features/study/model/messages';
 import type { StudyRepository } from '../features/progress/api/repository';
@@ -21,7 +21,7 @@ import type { StudyRepository } from '../features/progress/api/repository';
 export class StudyDriver {
   state: StudyState;
   private readonly saves: SaveQueue;
-  private taken = 0;
+  private readonly taken = new Set<CommandId>();
 
   constructor(
     initial: StudyData,
@@ -42,9 +42,9 @@ export class StudyDriver {
 
   dispatch(action: StudyAction) {
     this.state = studyReducer(this.state, action);
-    for (const command of commandsAfter(this.state, this.taken)) {
+    for (const command of commandsNotIn(this.state, this.taken)) {
       this.saves.handle(command);
-      this.taken = command.seq;
+      this.taken.add(command.id);
     }
   }
 

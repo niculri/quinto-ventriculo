@@ -1,7 +1,7 @@
 // How a study session saves the reducer's commands: one write after another, with each card's concurrency mark filled
 // in as the write runs, an answer retried twice if the connection fails and nothing written after a failure.
 import { cardKey, touchedBy } from '@qv/study';
-import type { Command, SaveFailure } from '@qv/study';
+import type { Command, CommandId, SaveFailure } from '@qv/study';
 import type { QueueEntry } from '@qv/srs';
 import { CardChangedError } from '../../progress/api/repository';
 import type { CardRef, ReviewInput, StudyRepository } from '../../progress/api/repository';
@@ -12,7 +12,7 @@ export class SaveQueue {
   private chain: Promise<unknown> = Promise.resolve();
   private readonly listeners = new Set<() => void>();
   /** The marks of the cards a command changed, as they were when its write began: an undo puts them back. */
-  private readonly before = new Map<number, Map<string, string | null>>();
+  private readonly before = new Map<CommandId, Map<string, string | null>>();
   private readonly stamps: Map<string, string | null>;
 
   constructor(
@@ -100,7 +100,7 @@ export class SaveQueue {
   private remember(command: Command) {
     const kept = new Map<string, string | null>();
     for (const r of touchedBy(command)) kept.set(cardKey(r), this.stamps.get(cardKey(r)) ?? null);
-    this.before.set(command.seq, kept);
+    this.before.set(command.id, kept);
   }
 
   private enqueue(write: () => Promise<unknown>) {

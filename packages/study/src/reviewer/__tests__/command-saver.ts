@@ -3,7 +3,7 @@
 import type { CardRef } from '@qv/schema/user';
 import { cardKey } from '../../scheduler';
 import { touchedBy } from '../commands';
-import type { Command } from '../commands';
+import type { Command, CommandId } from '../commands';
 import type { SaveFailure } from '../state';
 import { CardChangedError, refreshStamps, saveAnswer } from './reference-save';
 import type { SessionRepository } from './reference-save';
@@ -13,7 +13,7 @@ export class CommandSaver {
   pending = 0;
   failure: SaveFailure | null = null;
   private chain: Promise<unknown> = Promise.resolve();
-  private readonly before = new Map<number, Map<string, string | null>>();
+  private readonly before = new Map<CommandId, Map<string, string | null>>();
 
   constructor(
     private readonly repository: SessionRepository,
@@ -88,7 +88,7 @@ export class CommandSaver {
   private remember(command: Command) {
     const kept = new Map<string, string | null>();
     for (const r of touchedBy(command)) kept.set(cardKey(r), this.stamps.get(cardKey(r)) ?? null);
-    this.before.set(command.seq, kept);
+    this.before.set(command.id, kept);
   }
 
   private enqueue(write: () => Promise<unknown>) {

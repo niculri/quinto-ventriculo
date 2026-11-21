@@ -5,8 +5,9 @@ import { expect, vi } from 'vitest';
 import { cardKey, siblingsOf } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { actionLabel } from '../../session';
+import type { CommandId } from '../commands';
 import { createStudyState, studyReducer } from '../reducer';
-import { answeredToday, canUndo, commandsAfter, congrats, countsOf, hasSeen } from '../selectors';
+import { answeredToday, canUndo, commandsNotIn, congrats, countsOf, hasSeen } from '../selectors';
 import type { SaveFailure, StudyAction, StudyState, Toast } from '../state';
 import { CommandSaver } from './command-saver';
 import { FakeRepository } from './fake-repository';
@@ -108,7 +109,7 @@ class Pair {
   private readonly repos: [FakeRepository, FakeRepository];
   private readonly prefetches: [QueueEntry[][], QueueEntry[][]] = [[], []];
   private readonly full: boolean;
-  private lastSeq = 0;
+  private readonly taken = new Set<CommandId>();
   private lastToast = 0;
   private undoStreak = 0;
 
@@ -148,10 +149,10 @@ class Pair {
     vi.setSystemTime(clockWas);
     this.state = deepFreeze(next);
     this.count(before);
-    for (const c of commandsAfter(this.state, this.lastSeq)) {
+    for (const c of commandsNotIn(this.state, this.taken)) {
       this.countCommand(c);
       this.saver.handle(c);
-      this.lastSeq = c.seq;
+      this.taken.add(c.id);
     }
     const toast = this.state.toast;
     if (toast && toast.id > this.lastToast) {

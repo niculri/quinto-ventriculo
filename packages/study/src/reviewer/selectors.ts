@@ -5,7 +5,7 @@ import type { StoredCard } from '@qv/schema/user';
 import { answeredTodayIn, congratsInfo, hasSeenAssessment } from '../congrats';
 import { cardKey } from '../scheduler';
 import type { CongratsInfo } from '../session';
-import type { Command } from './commands';
+import type { Command, CommandId } from './commands';
 import type { StudyState } from './state';
 
 /** What is left to see in the queue: new, learning and review. */
@@ -36,6 +36,8 @@ export const answeredToday = (state: StudyState, deckIds: ReadonlySet<string>): 
 export const hasSeen = (state: StudyState, assessmentId: string): boolean =>
   hasSeenAssessment(state.data, assessmentId);
 
-/** The commands after number `seq`: what the saving side has not taken yet. */
-export const commandsAfter = (state: StudyState, seq: number): readonly Command[] =>
-  state.outbox.filter((c) => c.seq > seq);
+/** The commands whose ids are not in `taken`: what the saving side has not taken yet. */
+export const commandsNotIn = (
+  state: StudyState,
+  taken: ReadonlySet<CommandId>,
+): readonly Command[] => state.outbox.filter((c) => !taken.has(c.id));

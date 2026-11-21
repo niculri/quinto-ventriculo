@@ -98,7 +98,7 @@ export { createStudyState, studyReducer } from './reviewer/reducer';
 export {
   answeredToday,
   canUndo,
-  commandsAfter,
+  commandsNotIn,
   congrats,
   countsOf,
   flagOf,
@@ -110,6 +110,7 @@ export { touchedBy } from './reviewer/commands';
 export type {
   BuryCommand,
   Command,
+  CommandId,
   PrefetchCommand,
   SaveAnswerCommand,
   SetFlagCommand,

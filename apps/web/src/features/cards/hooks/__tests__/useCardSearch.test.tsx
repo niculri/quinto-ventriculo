@@ -109,8 +109,9 @@ describe('the list', () => {
   });
 
   it('is built again with new data', () => {
+    // The compiler tracks the parts of `data` each step reads, so what changes has to be one of them.
     const { rerender } = search();
-    rerender({ ...PROPS, data: { ...DATA } });
+    rerender({ ...PROPS, data: { ...DATA, notes: [] } });
     expect(calls()).toEqual([2, 2, 2]);
   });
 });

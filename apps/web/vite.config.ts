@@ -1,11 +1,13 @@
 // Vite configuration of the web: its plugins, the demo and local modes (the API inside Vite) and the security headers.
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
+import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
 import { creatorPhoto } from './build/creator-photo';
+import { compilerPreset } from './build/react-compiler';
 import { preloadFont } from './build/preload-font';
 import { thirdPartyLicenses } from './build/licenses';
 
@@ -127,6 +129,7 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [
       react(),
+      babel({ presets: [compilerPreset] }),
       tailwindcss(),
       ...(demo ? [demoApi()] : []),
       ...(local ? [demoApi(env.VITE_USERS_SUPABASE_URL)] : []),

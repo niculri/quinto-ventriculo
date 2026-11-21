@@ -67,25 +67,60 @@ function sourceFiles(dir: string): string[] {
 }
 
 describe('the React Compiler', () => {
-  it('reports a component it cannot compile', () => {
-    const report = compileReport(
+  it.each([
+    [
+      'a hook called conditionally',
       `import { useState } from 'react';
        export function Bad({ on }: { on: boolean }) {
          if (on) useState(0);
          return null;
        }`,
-      'Bad.tsx',
-    );
+    ],
+    [
+      'a try … finally',
+      `import { useState } from 'react';
+       export function useBad() {
+         const [n, setN] = useState(0);
+         const run = () => {
+           try {
+             setN(1);
+           } finally {
+             setN(2);
+           }
+         };
+         return [n, run] as const;
+       }`,
+    ],
+    [
+      'a disabled react-hooks rule',
+      `import { useEffect } from 'react';
+       export function Bad({ a }: { a: number }) {
+         useEffect(() => {
+           console.log(a);
+           // eslint-disable-next-line react-hooks/exhaustive-deps
+         }, []);
+         return <div />;
+       }`,
+    ],
+    [
+      'a "use no memo" in a component',
+      `export function Bad({ a }: { a: number }) {
+         'use no memo';
+         return <div>{a}</div>;
+       }`,
+    ],
+  ])('reports %s', (_name, code) => {
+    const report = compileReport(code, 'Bad.tsx');
     expect(report.problems).toHaveLength(1);
-    expect(report.problems[0]).toMatch(/^Bad\.tsx:2 /);
+    expect(report.problems[0]).toMatch(/^Bad\.tsx:\d+ /);
   });
 
-  it('does not log a component that opts out, so the opt-out is looked for in the code', () => {
-    const code = `export function Out() {
+  it('does not log a "use no memo" in a function that is no component, so the text of the file is looked for it', () => {
+    const code = `export function plain() {
          'use no memo';
-         return null;
+         return 1;
        }`;
-    expect(compileReport(code, 'Out.tsx').problems).toEqual([]);
+    expect(compileReport(code, 'plain.ts').problems).toEqual([]);
     expect(OPT_OUT.test(code)).toBe(true);
   });
 

@@ -30,7 +30,7 @@ for (const file of [join(CONTENT, 'content.json'), join(CONTENT, 'draft', 'conte
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, p.body);
   }
-  // The file as it was (in its order), with the indexes; Prettier formats it afterwards.
+  // The file as it was (in its order), with the indexes; Biome formats it afterwards.
   await writeFile(
     file,
     `${JSON.stringify({ ...raw, ankiBrowseIndexes: packs.map((p) => p.record) }, null, 2)}\n`,

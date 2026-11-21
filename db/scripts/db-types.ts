@@ -1,8 +1,8 @@
 // The `Database` type of each database, read from PGlite with every migration applied, in the format of
 // `supabase gen types typescript`: `npm run db:types` writes packages/db-types/src/<name>.ts.
+import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { format } from 'prettier';
 import { createDatabase } from '../tests/pglite';
 import type { PGlite } from '../tests/pglite';
 
@@ -19,6 +19,27 @@ const ORDER: Record<DatabaseName, string[]> = {
 
 /** The version of PostgREST of both projects: supabase-js decides by it which methods the client has. */
 const POSTGREST_VERSION = '14.18';
+
+const ROOT = join(import.meta.dirname, '..', '..');
+const BIOME = join(ROOT, 'node_modules', '@biomejs', 'biome', 'bin', 'biome');
+
+/** Biome with the Supabase CLI's style (double quotes, no semicolons, 80 columns), whatever the repository's own. */
+function format(source: string): string {
+  return execFileSync(
+    BIOME,
+    [
+      'format',
+      '--stdin-file-path=database.ts',
+      '--indent-style=space',
+      '--indent-width=2',
+      '--line-width=80',
+      '--javascript-formatter-quote-style=double',
+      '--semicolons=as-needed',
+      '--trailing-commas=all',
+    ],
+    { cwd: ROOT, input: source, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+  );
+}
 
 export const OUTPUT = (name: DatabaseName) =>
   join(import.meta.dirname, '..', '..', 'packages', 'db-types', 'src', `${name}.ts`);
@@ -310,7 +331,7 @@ export const Constants = {
   ${schemas.map((s) => `${key(s)}: {\nEnums: {},\n},`).join('\n')}
 } as const
 `;
-    return await format(source, { parser: 'typescript', semi: false });
+    return format(source);
   } finally {
     await db.close();
   }

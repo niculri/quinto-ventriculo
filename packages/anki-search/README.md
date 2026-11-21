@@ -36,7 +36,7 @@ mazos, etiquetas y tipos de nota no cambian, igual que en Anki. La web la usa en
 encontró Anki 25.9.5 en una colección de prueba. La prueba exige las mismas tarjetas (o error donde Anki da
 error). `test/golden/search-ignore-accents.json` es la misma colección con «Ignorar acentos» encendido: las
 mismas búsquedas y 56 más que la opción podría cambiar (449). Para rehacerlos (también deja el JSON con el
-formato de Prettier; hace falta el paquete `anki` 25.9.x de PyPI):
+formato de Biome; hace falta el paquete `anki` 25.9.x de PyPI):
 
 ```bash
 python3 packages/anki-search/scripts/anki_search.py \

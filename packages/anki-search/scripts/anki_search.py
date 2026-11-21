@@ -380,8 +380,16 @@ def main(out_path, ignore_accents=False):
         json.dump(out, f, ensure_ascii=False, indent=1)
         f.write("\n")
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..")
-    subprocess.run(["npx", "prettier", "--print-width", "100", "--write", os.path.abspath(out_path)], cwd=root, check=False,
-                   stdout=subprocess.DEVNULL)
+    with open(out_path, encoding="utf-8") as f:
+        raw = f.read()
+    formatted = subprocess.run(
+        ["npx", "biome", "format", "--stdin-file-path=search.json", "--line-width=100", "--indent-style=space",
+         "--indent-width=2"],
+        cwd=root, input=raw, capture_output=True, text=True, check=False,
+    )
+    if formatted.returncode == 0:
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(formatted.stdout)
     errors = sum(1 for r in results if "error" in r)
     print(f"{len(results)} searches ({errors} errors), {len(terms)} terms, {len(out_cards)} cards → {out_path}")
 

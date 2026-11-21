@@ -1,8 +1,8 @@
 // The ratchet of the React Compiler: every component and hook of the web has to compile. One that the compiler skips
 // would go on working, but without the memoization the rest of the site has, and nobody would notice.
 import { readdirSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join, relative, resolve } from 'node:path';
+import { transformSync } from '@babel/core';
 import compiler from 'babel-plugin-react-compiler';
 import type { LoggerEvent } from 'babel-plugin-react-compiler';
 import { describe, expect, it } from 'vitest';
@@ -10,23 +10,8 @@ import { compilerOptions } from '../react-compiler';
 
 const SRC = resolve(import.meta.dirname, '../../src');
 
-// The Babel the build's plugin runs on (its peer): the web does not declare it, and has no types for it.
-const babel = createRequire(createRequire(import.meta.url).resolve('@rolldown/plugin-babel'))(
-  '@babel/core',
-) as {
-  transformSync(
-    code: string,
-    options: {
-      filename: string;
-      babelrc: false;
-      configFile: false;
-      parserOpts: { plugins: string[] };
-      plugins: unknown[];
-    },
-  ): unknown;
-};
-
-// The compiler skips a function with this directive without a word in its log.
+// The compiler logs a component or hook with this directive as skipped, but not a function that is neither: the text
+// of each file is looked for it as well.
 const OPT_OUT = /^\s*['"]use no memo['"]/m;
 
 interface Report {
@@ -47,7 +32,7 @@ function compileReport(code: string, filename: string): Report {
       else if (event.kind === 'PipelineError') report.problems.push(`${line(event)} ${event.data}`);
     },
   };
-  babel.transformSync(code, {
+  transformSync(code, {
     filename,
     babelrc: false,
     configFile: false,

@@ -30,6 +30,7 @@ export type {
   QueueCard,
   QueueDeck,
   QueueEntry,
+  QueueInput,
   StudiedToday,
 } from './queue/base';
 export { countStudiedToday, sortDecksByName } from './queue/limits';

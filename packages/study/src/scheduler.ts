@@ -18,6 +18,7 @@ import type {
   GlobalSettings,
   QueueCard,
   QueueDeck,
+  QueueInput,
   SchedTiming,
   StudiedToday,
 } from '@qv/srs';
@@ -284,6 +285,31 @@ export function queueCards(data: StudyData, nowMs = Date.now()): QueueCard[] {
 }
 
 // Every deck of the collection goes in: those above the root only count with «Límites empiezan desde arriba».
+export function queueInput(
+  data: StudyData,
+  rootDeckId: string,
+  nowMs = Date.now(),
+  configs = configsFor(data, nowMs),
+  studied = studiedToday(data.answers, data.decks),
+  cards = queueCards(data, nowMs),
+  deckList = false,
+): QueueInput {
+  const decks: QueueDeck[] = data.decks.map((d) => ({
+    id: d.id,
+    name: d.name,
+    config: configs.get(d.id)!,
+  }));
+  return {
+    rootDeckId,
+    decks,
+    cards,
+    studiedToday: studied,
+    timing: timingFor(data.prefs, nowMs),
+    settings: globalSettings(data.prefs),
+    deckList,
+  };
+}
+
 export function buildQueue(
   data: StudyData,
   rootDeckId: string,
@@ -293,20 +319,7 @@ export function buildQueue(
   cards = queueCards(data, nowMs),
   deckList = false,
 ): StudyQueue {
-  const decks: QueueDeck[] = data.decks.map((d) => ({
-    id: d.id,
-    name: d.name,
-    config: configs.get(d.id)!,
-  }));
-  return StudyQueue.build({
-    rootDeckId,
-    decks,
-    cards,
-    studiedToday: studied,
-    timing: timingFor(data.prefs, nowMs),
-    settings: globalSettings(data.prefs),
-    deckList,
-  });
+  return StudyQueue.build(queueInput(data, rootDeckId, nowMs, configs, studied, cards, deckList));
 }
 
 export function siblingsOf(deck: DeckDetail, card: CardRef): CardRef[] {

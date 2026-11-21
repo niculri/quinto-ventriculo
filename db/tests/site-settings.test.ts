@@ -126,6 +126,18 @@ describe('the site settings', () => {
     });
   });
 
+  it('save even if the row is gone, as the function did before', async () => {
+    await db.exec('delete from public.site_settings');
+    const r = (
+      await service<{ r: { hiddenCourses: string[] } }>(
+        'select public.set_site_settings($1::jsonb) as r',
+        [{ hiddenCourses: ['fisica'], by: 'dueno@ug.uchile.cl' }],
+      )
+    )[0]!.r;
+    expect(r.hiddenCourses).toEqual(['fisica']);
+    expect(await q('select count(*)::int as n from public.site_settings')).toEqual([{ n: 1 }]);
+  });
+
   it('refuse what is not a boolean, a list of courses and somebody', async () => {
     for (const p of [
       {},

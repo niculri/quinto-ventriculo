@@ -15,7 +15,7 @@
 -- keeps working.
 
 alter table public.site_settings
-  add column hidden_courses text[] not null default '{}'
+  add column if not exists hidden_courses text[] not null default '{}'
   check (cardinality(hidden_courses) <= 200);
 
 create or replace function public.site_settings()
@@ -71,6 +71,7 @@ begin
   if p ? 'hideEmptySemesters' then
     semesters := (p ->> 'hideEmptySemesters')::boolean;
   end if;
+  insert into public.site_settings (id) values (true) on conflict (id) do nothing;
   update public.site_settings s set
     hide_empty_semesters = coalesce(semesters, s.hide_empty_semesters),
     hidden_courses = coalesce(courses, s.hidden_courses),
@@ -81,7 +82,7 @@ begin
 end;
 $$;
 
-create function public.search_notes_except(query text, max_results integer, excluded_courses text[])
+create or replace function public.search_notes_except(query text, max_results integer, excluded_courses text[])
 returns table (
   note_id text,
   note_slug text,

@@ -46,6 +46,22 @@ describe('turning courses off, on a database like production', () => {
     expect((await db.query('select * from public.draft_pending_changes()')).rows).toEqual([]);
   });
 
+  it('applied again, it changes nothing: not the list, nor the functions', async () => {
+    await service('select public.set_site_settings($1::jsonb)', [
+      { hiddenCourses: ['fisica'], by: 'dueno@ug.uchile.cl' },
+    ]);
+    const before = await settings();
+    await applyMigration(db, 'content', MIGRATION);
+    expect(await settings()).toEqual(before);
+    expect(await service(`select * from public.search_notes_except('columna', 5, '{}')`)).toEqual(
+      await service(`select * from public.search_notes('columna', 5)`),
+    );
+    expect((await db.query('select * from public.draft_drift()')).rows).toEqual([]);
+    await service('select public.set_site_settings($1::jsonb)', [
+      { hiddenCourses: [], by: 'dueno@ug.uchile.cl' },
+    ]);
+  });
+
   it('the call the Worker made before still works, and does not touch the list', async () => {
     await service('select public.set_site_settings($1::jsonb)', [
       { hiddenCourses: ['fisica'], by: 'dueno@ug.uchile.cl' },

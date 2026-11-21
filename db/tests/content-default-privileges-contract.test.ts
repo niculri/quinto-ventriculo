@@ -24,6 +24,15 @@ const grants = async (d: PGlite, schema: 'public' | 'draft') =>
     )
   ).rows;
 
+/** The grants of the functions that `was` already had, and those of the functions the later migrations made. */
+function split<T extends { fn: string; grantee: string }>(was: T[], is: T[]) {
+  const existing = new Set(was.map((g) => g.fn));
+  return {
+    existing: is.filter((g) => existing.has(g.fn)),
+    later: is.filter((g) => !existing.has(g.fn)),
+  };
+}
+
 beforeAll(async () => {
   before = await createDatabase('content', [], MIGRATION);
   db = await createDatabase('content');
@@ -36,16 +45,20 @@ afterAll(async () => {
 describe('default privileges of new functions in the content database', () => {
   it('the functions that already existed keep the grants they had, in public and in draft', async () => {
     for (const schema of ['public', 'draft'] as const) {
-      const [was, is] = [await grants(before, schema), await grants(db, schema)];
+      const was = await grants(before, schema);
+      const { existing, later } = split(was, await grants(db, schema));
       expect(was.length).toBeGreaterThan(10);
-      expect(is).toEqual(was);
+      expect(existing).toEqual(was);
+      // The functions the later migrations made are the new default's: only postgres and service_role.
+      expect(later.filter((g) => !['postgres', 'service_role'].includes(g.grantee))).toEqual([]);
     }
   });
 
   it('a draft rebuilt after the migration has the same grants as one rebuilt before it', async () => {
     await before.query('select public.rebuild_draft()');
     await db.query('select public.rebuild_draft()');
-    expect(await grants(db, 'draft')).toEqual(await grants(before, 'draft'));
+    const was = await grants(before, 'draft');
+    expect(split(was, await grants(db, 'draft')).existing).toEqual(was);
   });
 
   it('a function created afterwards is executable only by postgres and service_role', async () => {

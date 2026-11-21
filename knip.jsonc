@@ -15,6 +15,10 @@
       // Run by hand with `npx tsx` to write the content the e2e tests read.
       "entry": ["scripts/*.ts"],
     },
+    "packages/srs": {
+      // Run by hand to time the queue.
+      "entry": ["scripts/*.ts"],
+    },
     "packages/ops": {
       // The command-line programs behind npm run deploy, smoke, suppressions and deps (root package.json).
       "entry": ["src/*-cli.ts"],

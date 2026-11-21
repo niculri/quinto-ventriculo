@@ -1,9 +1,9 @@
 // Tests the words of a session's toasts and of the failure that stops it.
 import { describe, expect, it } from 'vitest';
-import type { HideAction, SaveFailure, Toast } from '@qv/study';
+import type { HideAction, SaveFailure, Toast, ToastKind } from '@qv/study';
 import { failureText, toastText } from '../messages';
 
-const toast = (rest: Omit<Toast, 'id'>): Toast => ({ ...rest, id: 1 }) as Toast;
+const toast = (kind: ToastKind): Toast => ({ ...kind, id: 1 });
 
 describe('the words of a toast', () => {
   it('says what was hidden, in the full mode and in the simple one', () => {

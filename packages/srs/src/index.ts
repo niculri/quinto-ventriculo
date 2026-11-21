@@ -33,5 +33,18 @@ export type {
   StudiedToday,
 } from './queue/base';
 export { countStudiedToday, sortDecksByName } from './queue/limits';
-export { StudyQueue } from './queue/queue';
-export type { QueueUpdate } from './queue/queue';
+export {
+  StudyQueue,
+  answeredIn,
+  buildQueue,
+  countsOf,
+  entriesOf,
+  kindOf,
+  moveToFrontIn,
+  nextLearningDue,
+  nextOf,
+  undoIn,
+  upcomingOf,
+  withCutoff,
+} from './queue/queue';
+export type { LearningEntry, QueueState, QueueUpdate } from './queue/queue';

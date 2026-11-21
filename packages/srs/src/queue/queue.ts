@@ -2,8 +2,8 @@
 // Portions derived from Anki (https://github.com/ankitects/anki), © Ankitects Pty Ltd and contributors,
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 /**
- * The study queue of a deck and its subdecks, as Anki's v3 scheduler builds and walks it (rslib/src/scheduler/queue/:
- * builder/mod.rs, learning.rs, main.rs, undo.rs).
+ * The study queue of a deck and its subdecks, as Anki's v3 scheduler builds and walks it (rslib/src/scheduler/queue/),
+ * as an immutable value: every function returns a new queue and leaves its argument alone.
  */
 import type { CardKey, CardRecord } from '../card';
 import type { SchedTiming } from '../timing';
@@ -17,196 +17,241 @@ import { reviewOrder, sortNew } from './sort';
 
 const keyOf = (c: CardKey) => `${c.noteGuid}\u001f${c.ord}`;
 
-export class StudyQueue {
-  private main: QueueEntry[] = [];
-  private learning: (QueueEntry & { due: number })[] = [];
-  private counts_: Counts = { new: 0, learning: 0, review: 0 };
-  private cutoff: number;
+export type LearningEntry = QueueEntry & { readonly due: number };
+
+export interface QueueState {
+  readonly main: readonly QueueEntry[];
+  /** Cards in (re)learning today, ordered by due time (not strictly, after `moveToFrontIn`). */
+  readonly learning: readonly LearningEntry[];
+  readonly counts: Readonly<Counts>;
+  readonly cutoff: number;
   readonly learnAheadSecs: number;
   readonly today: number;
+}
 
-  private constructor(timing: SchedTiming, learnAheadSecs: number) {
-    this.cutoff = timing.now;
-    this.learnAheadSecs = learnAheadSecs;
-    this.today = timing.today;
-  }
+/** What `answeredIn` took out of the queue and put back in, and what `undoIn` needs to reverse it. */
+export interface QueueUpdate {
+  readonly removed: QueueEntry | null;
+  readonly fromLearning: LearningEntry | null;
+  readonly requeued: LearningEntry | null;
+  readonly snapshot: { readonly cutoff: number; readonly learningCount: number };
+}
 
-  /** QueueBuilder::new + gather_cards + build: gathering, burying, sorting and mixing, in Anki's order. */
-  static build(input: QueueInput): StudyQueue {
-    const settings = input.settings ?? DEFAULT_GLOBAL_SETTINGS;
-    const { timing } = input;
-    const byId = new Map(input.decks.map((d) => [d.id, d]));
-    const root = byId.get(input.rootDeckId);
-    if (!root) throw new Error(`Mazo ${input.rootDeckId} no encontrado`);
-    const queue = new StudyQueue(timing, settings.learnAheadSecs);
+/** QueueBuilder::new + gather_cards + build: gathering, burying, sorting and mixing, in Anki's order. */
+export function buildQueue(input: QueueInput): QueueState {
+  const settings = input.settings ?? DEFAULT_GLOBAL_SETTINGS;
+  const { timing } = input;
+  const byId = new Map(input.decks.map((d) => [d.id, d]));
+  const root = byId.get(input.rootDeckId);
+  if (!root) throw new Error(`Mazo ${input.rootDeckId} no encontrado`);
 
-    const { active, limits } = activeLimits(input.decks, root, input.studiedToday, settings);
-    const options = root.config;
-    const activeIds = new Set(active.map((d) => d.id));
-    const deckRank = new Map(active.map((d, i) => [d.id, i]));
-    const cards = input.cards.filter((c) => activeIds.has(c.deckId) && !c.hidden);
-    const g: Gathering = { cards, limits, timing, byId, deckList: input.deckList, seen: new Map() };
+  const { active, limits } = activeLimits(input.decks, root, input.studiedToday, settings);
+  const options = root.config;
+  const activeIds = new Set(active.map((d) => d.id));
+  const deckRank = new Map(active.map((d, i) => [d.id, i]));
+  const cards = input.cards.filter((c) => activeIds.has(c.deckId) && !c.hidden);
+  const g: Gathering = { cards, limits, timing, byId, deckList: input.deckList, seen: new Map() };
 
-    const learning = gatherIntradayLearning(g);
-    const noteRank = noteRanks(input.cards);
-    const reviewKey = reviewOrder(options, timing, deckRank, noteRank);
-    const dayLearning: QueueEntry[] = [];
-    const reviews: QueueEntry[] = [];
-    gatherDue(g, 'dayLearn', dayLearning, 'learning', reviewKey);
-    gatherDue(g, 'review', reviews, 'review', reviewKey);
-    const news = gatherNew(g, options.newCardGatherPriority, active, noteRank);
-    sortNew(news, options.newCardSortOrder, timing.today);
+  const learning = gatherIntradayLearning(g);
+  const noteRank = noteRanks(input.cards);
+  const reviewKey = reviewOrder(options, timing, deckRank, noteRank);
+  const dayLearning: QueueEntry[] = [];
+  const reviews: QueueEntry[] = [];
+  gatherDue(g, 'dayLearn', dayLearning, 'learning', reviewKey);
+  gatherDue(g, 'review', reviews, 'review', reviewKey);
+  const news = gatherNew(g, options.newCardGatherPriority, active, noteRank);
+  sortNew(news, options.newCardSortOrder, timing.today);
 
-    const newEntries: QueueEntry[] = news.map(({ noteGuid, ord, deckId }) => ({
-      noteGuid,
-      ord,
-      deckId,
-      kind: 'new',
-    }));
-    const withDayLearning = mix(reviews, dayLearning, options.interdayLearningMix);
-    queue.main = mix(withDayLearning, newEntries, options.newMix);
-    queue.learning = learning;
-    const cutoff = timing.now + queue.learnAheadSecs;
-    queue.counts_ = {
+  const newEntries: QueueEntry[] = news.map(({ noteGuid, ord, deckId }) => ({
+    noteGuid,
+    ord,
+    deckId,
+    kind: 'new',
+  }));
+  const withDayLearning = mix(reviews, dayLearning, options.interdayLearningMix);
+  const main = mix(withDayLearning, newEntries, options.newMix);
+  const cutoff = timing.now + settings.learnAheadSecs;
+  return {
+    main,
+    learning,
+    counts: {
       new: newEntries.length,
       review: reviews.length,
       learning: learning.filter((e) => e.due <= cutoff).length + dayLearning.length,
-    };
-    return queue;
-  }
+    },
+    cutoff: timing.now,
+    learnAheadSecs: settings.learnAheadSecs,
+    today: timing.today,
+  };
+}
 
-  private aheadCutoff(): number {
-    return this.cutoff + this.learnAheadSecs;
-  }
+const aheadCutoff = (q: QueueState) => q.cutoff + q.learnAheadSecs;
 
-  /** The queue in order: learning due now, then the main queue, then learning within the learn-ahead limit. */
-  entries(): QueueEntry[] {
-    const now = this.learning.filter((e) => e.due <= this.cutoff);
-    const ahead = this.learning.filter((e) => e.due > this.cutoff && e.due <= this.aheadCutoff());
-    return [...now, ...this.main, ...ahead].map(({ noteGuid, ord, deckId, kind }) => ({
-      noteGuid,
-      ord,
-      deckId,
-      kind,
-    }));
-  }
+const plain = ({ noteGuid, ord, deckId, kind }: QueueEntry): QueueEntry => ({
+  noteGuid,
+  ord,
+  deckId,
+  kind,
+});
 
-  next(): QueueEntry | null {
-    return this.entries()[0] ?? null;
-  }
+/** The queue in order: learning due now, then the main queue, then learning within the learn-ahead limit. */
+export function entriesOf(q: QueueState): QueueEntry[] {
+  const ahead = aheadCutoff(q);
+  const now = q.learning.filter((e) => e.due <= q.cutoff);
+  const later = q.learning.filter((e) => e.due > q.cutoff && e.due <= ahead);
+  return [...now, ...q.main, ...later].map(plain);
+}
 
-  upcoming(n: number): QueueEntry[] {
-    return this.entries().slice(0, n);
-  }
+/** The first of `entriesOf`, without building the whole list. */
+export function nextOf(q: QueueState): QueueEntry | null {
+  const due = q.learning.find((e) => e.due <= q.cutoff);
+  if (due) return plain(due);
+  const first = q.main[0];
+  if (first) return plain(first);
+  const ahead = aheadCutoff(q);
+  const later = q.learning.find((e) => e.due > q.cutoff && e.due <= ahead);
+  return later ? plain(later) : null;
+}
 
-  counts(): Counts {
-    if (this.counts_.new === 0 && this.counts_.learning === 0 && this.counts_.review === 0) {
-      this.updateCutoff(this.cutoff);
-    }
-    return { ...this.counts_ };
-  }
+export function upcomingOf(q: QueueState, n: number): QueueEntry[] {
+  return entriesOf(q).slice(0, n);
+}
 
-  updateCutoff(now: number): void {
-    const lastAhead = this.aheadCutoff();
-    this.cutoff = Math.max(this.cutoff, now);
-    const nextAhead = this.aheadCutoff();
-    this.counts_.learning += this.learning.filter(
-      (e) => e.due > lastAhead && e.due <= nextAhead,
-    ).length;
-  }
+export function countsOf(q: QueueState): Counts {
+  return { ...q.counts };
+}
 
-  answered(key: CardKey, card: CardRecord, timing: SchedTiming): QueueUpdate {
-    const k = keyOf(key);
-    let removed: QueueEntry | null = null;
-    let fromLearning: (QueueEntry & { due: number }) | null = null;
-    const firstLearning = this.learning[0];
-    if (firstLearning && keyOf(firstLearning) === k) {
-      fromLearning = this.learning.shift()!;
-      this.counts_.learning = Math.max(0, this.counts_.learning - 1);
-    } else if (this.main[0] && keyOf(this.main[0]) === k) {
-      removed = this.main.shift()!;
-      if (removed.kind === 'new') this.counts_.new -= 1;
-      else if (removed.kind === 'review') this.counts_.review -= 1;
-      else this.counts_.learning = Math.max(0, this.counts_.learning - 1);
-    } else {
-      throw new Error('La tarjeta no está al principio de la cola');
-    }
-    let requeued: (QueueEntry & { due: number }) | null = null;
-    if (card.queue === 'learn' && card.due < timing.nextDayAt) {
-      const deckId = (removed ?? fromLearning)!.deckId;
-      requeued = this.requeueLearning({ ...key, deckId, kind: 'learning', due: card.due });
-    }
-    const snapshot = { cutoff: this.cutoff, learningCount: this.counts_.learning };
-    this.updateCutoff(timing.now);
-    return { removed, fromLearning, requeued, snapshot };
-  }
+/** Moves the cutoff forward (never back) and counts the learning cards the new learn-ahead window reaches. */
+export function withCutoff(q: QueueState, now: number): QueueState {
+  const lastAhead = aheadCutoff(q);
+  const cutoff = Math.max(q.cutoff, now);
+  const nextAhead = cutoff + q.learnAheadSecs;
+  const reached = q.learning.filter((e) => e.due > lastAhead && e.due <= nextAhead).length;
+  if (cutoff === q.cutoff && reached === 0) return q;
+  return {
+    ...q,
+    cutoff,
+    counts: { ...q.counts, learning: q.counts.learning + reached },
+  };
+}
 
-  /** learning.rs `requeue_learning_entry`: with only learning left, the card waits not to show twice in a row. */
-  private requeueLearning(entry: QueueEntry & { due: number }): QueueEntry & { due: number } {
-    const cutoff = this.aheadCutoff();
-    if (entry.due <= cutoff && this.main.length === 0) {
-      const next = this.learning[0];
-      if (next && next.due >= entry.due && next.due + 1 < cutoff)
-        entry = { ...entry, due: next.due + 1 };
-    }
-    if (entry.due <= cutoff) this.counts_.learning += 1;
-    this.learning.splice(insertionIndex(this.learning, entry.due), 0, entry);
-    return entry;
+export function answeredIn(
+  q: QueueState,
+  key: CardKey,
+  card: CardRecord,
+  timing: SchedTiming,
+): { queue: QueueState; update: QueueUpdate } {
+  const k = keyOf(key);
+  let main = q.main;
+  let learning = q.learning;
+  let counts = q.counts;
+  let removed: QueueEntry | null = null;
+  let fromLearning: LearningEntry | null = null;
+  const firstLearning = learning[0];
+  const firstMain = main[0];
+  if (firstLearning && keyOf(firstLearning) === k) {
+    fromLearning = firstLearning;
+    learning = learning.slice(1);
+    counts = { ...counts, learning: Math.max(0, counts.learning - 1) };
+  } else if (firstMain && keyOf(firstMain) === k) {
+    removed = firstMain;
+    main = main.slice(1);
+    if (removed.kind === 'new') counts = { ...counts, new: counts.new - 1 };
+    else if (removed.kind === 'review') counts = { ...counts, review: counts.review - 1 };
+    else counts = { ...counts, learning: Math.max(0, counts.learning - 1) };
+  } else {
+    throw new Error('La tarjeta no está al principio de la cola');
   }
+  let requeued: LearningEntry | null = null;
+  if (card.queue === 'learn' && card.due < timing.nextDayAt) {
+    const deckId = (removed ?? fromLearning)!.deckId;
+    const placed = requeueLearning(
+      { ...q, main, learning, counts },
+      { ...key, deckId, kind: 'learning', due: card.due },
+    );
+    ({ learning, counts, entry: requeued } = placed);
+  }
+  const snapshot = { cutoff: q.cutoff, learningCount: counts.learning };
+  const queue = withCutoff({ ...q, main, learning, counts }, timing.now);
+  return { queue, update: { removed, fromLearning, requeued, snapshot } };
+}
 
-  /** queue/undo.rs. */
-  undo(update: QueueUpdate): void {
-    this.cutoff = update.snapshot.cutoff;
-    this.counts_.learning = update.snapshot.learningCount;
-    if (update.requeued) {
-      const k = keyOf(update.requeued);
-      const i = this.learning.findIndex((e) => keyOf(e) === k);
-      if (i >= 0) {
-        const [e] = this.learning.splice(i, 1);
-        if (e!.due <= this.aheadCutoff()) {
-          this.counts_.learning = Math.max(0, this.counts_.learning - 1);
-        }
+/** learning.rs `requeue_learning_entry`: with only learning left, the card waits not to show twice in a row. */
+function requeueLearning(
+  q: QueueState,
+  wanted: LearningEntry,
+): { learning: readonly LearningEntry[]; counts: Readonly<Counts>; entry: LearningEntry } {
+  let entry = wanted;
+  const cutoff = aheadCutoff(q);
+  if (entry.due <= cutoff && q.main.length === 0) {
+    const next = q.learning[0];
+    if (next && next.due >= entry.due && next.due + 1 < cutoff)
+      entry = { ...entry, due: next.due + 1 };
+  }
+  const at = insertionIndex(q.learning, entry.due);
+  return {
+    learning: [...q.learning.slice(0, at), entry, ...q.learning.slice(at)],
+    counts: entry.due <= cutoff ? { ...q.counts, learning: q.counts.learning + 1 } : q.counts,
+    entry,
+  };
+}
+
+/** queue/undo.rs. */
+export function undoIn(q: QueueState, update: QueueUpdate): QueueState {
+  let learning = q.learning;
+  let main = q.main;
+  let counts: Counts = { ...q.counts, learning: update.snapshot.learningCount };
+  if (update.requeued) {
+    const k = keyOf(update.requeued);
+    const i = learning.findIndex((e) => keyOf(e) === k);
+    if (i >= 0) {
+      const e = learning[i]!;
+      learning = [...learning.slice(0, i), ...learning.slice(i + 1)];
+      if (e.due <= update.snapshot.cutoff + q.learnAheadSecs) {
+        counts = { ...counts, learning: Math.max(0, counts.learning - 1) };
       }
     }
-    if (update.fromLearning) {
-      this.learning.unshift(update.fromLearning);
-      this.counts_.learning += 1;
-    } else if (update.removed) {
-      this.main.unshift(update.removed);
-      if (update.removed.kind === 'new') this.counts_.new += 1;
-      else if (update.removed.kind === 'review') this.counts_.review += 1;
-      else this.counts_.learning += 1;
-    }
   }
+  if (update.fromLearning) {
+    learning = [update.fromLearning, ...learning];
+    counts = { ...counts, learning: counts.learning + 1 };
+  } else if (update.removed) {
+    main = [update.removed, ...main];
+    const kind = update.removed.kind;
+    if (kind === 'new') counts = { ...counts, new: counts.new + 1 };
+    else if (kind === 'review') counts = { ...counts, review: counts.review + 1 };
+    else counts = { ...counts, learning: counts.learning + 1 };
+  }
+  return { ...q, main, learning, counts, cutoff: update.snapshot.cutoff };
+}
 
-  moveToFront(key: CardKey): boolean {
-    const k = keyOf(key);
-    const i = this.main.findIndex((e) => keyOf(e) === k);
-    if (i >= 0) {
-      this.main.unshift(...this.main.splice(i, 1));
-      return true;
-    }
-    const j = this.learning.findIndex((e) => keyOf(e) === k);
-    if (j >= 0) {
-      const [e] = this.learning.splice(j, 1);
-      // The first entry of the learning list is shown first only if it is due: make it due now.
-      this.learning.unshift({ ...e!, due: Math.min(e!.due, this.cutoff) });
-      return true;
-    }
-    return false;
+/** Puts a card at the front of the queue; `null` if it is not in it. */
+export function moveToFrontIn(q: QueueState, key: CardKey): QueueState | null {
+  const k = keyOf(key);
+  const i = q.main.findIndex((e) => keyOf(e) === k);
+  if (i >= 0) {
+    return { ...q, main: [q.main[i]!, ...q.main.slice(0, i), ...q.main.slice(i + 1)] };
   }
+  const j = q.learning.findIndex((e) => keyOf(e) === k);
+  if (j >= 0) {
+    const e = q.learning[j]!;
+    // The first entry of the learning list is shown first only if it is due: make it due now.
+    const first = { ...e, due: Math.min(e.due, q.cutoff) };
+    return { ...q, learning: [first, ...q.learning.slice(0, j), ...q.learning.slice(j + 1)] };
+  }
+  return null;
+}
 
-  kindOf(key: CardKey): EntryKind | null {
-    const k = keyOf(key);
-    return (
-      this.main.find((e) => keyOf(e) === k)?.kind ??
-      (this.learning.some((e) => keyOf(e) === k) ? 'learning' : null)
-    );
-  }
+export function kindOf(q: QueueState, key: CardKey): EntryKind | null {
+  const k = keyOf(key);
+  return (
+    q.main.find((e) => keyOf(e) === k)?.kind ??
+    (q.learning.some((e) => keyOf(e) === k) ? 'learning' : null)
+  );
+}
 
-  nextLearningDue(): number | null {
-    return this.learning[0]?.due ?? null;
-  }
+export function nextLearningDue(q: QueueState): number | null {
+  return q.learning[0]?.due ?? null;
 }
 
 /** Rust's `binary_search_by` on the due time, as Anki inserts a learning card: the first equal one it probes. */
@@ -225,9 +270,71 @@ function insertionIndex(list: readonly { due: number }[], due: number): number {
   return left;
 }
 
-export interface QueueUpdate {
-  removed: QueueEntry | null;
-  fromLearning: (QueueEntry & { due: number }) | null;
-  requeued: (QueueEntry & { due: number }) | null;
-  snapshot: { cutoff: number; learningCount: number };
+/**
+ * The queue as an object with methods, over the pure functions above. The study screen still holds one of these; it
+ * goes away when the study session becomes a reducer.
+ */
+export class StudyQueue {
+  private state: QueueState;
+
+  private constructor(state: QueueState) {
+    this.state = state;
+  }
+
+  static build(input: QueueInput): StudyQueue {
+    return new StudyQueue(buildQueue(input));
+  }
+
+  get learnAheadSecs(): number {
+    return this.state.learnAheadSecs;
+  }
+
+  get today(): number {
+    return this.state.today;
+  }
+
+  entries(): QueueEntry[] {
+    return entriesOf(this.state);
+  }
+
+  next(): QueueEntry | null {
+    return nextOf(this.state);
+  }
+
+  upcoming(n: number): QueueEntry[] {
+    return upcomingOf(this.state, n);
+  }
+
+  counts(): Counts {
+    return countsOf(this.state);
+  }
+
+  updateCutoff(now: number): void {
+    this.state = withCutoff(this.state, now);
+  }
+
+  answered(key: CardKey, card: CardRecord, timing: SchedTiming): QueueUpdate {
+    const { queue, update } = answeredIn(this.state, key, card, timing);
+    this.state = queue;
+    return update;
+  }
+
+  undo(update: QueueUpdate): void {
+    this.state = undoIn(this.state, update);
+  }
+
+  moveToFront(key: CardKey): boolean {
+    const moved = moveToFrontIn(this.state, key);
+    if (!moved) return false;
+    this.state = moved;
+    return true;
+  }
+
+  kindOf(key: CardKey): EntryKind | null {
+    return kindOf(this.state, key);
+  }
+
+  nextLearningDue(): number | null {
+    return nextLearningDue(this.state);
+  }
 }

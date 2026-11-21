@@ -2308,6 +2308,7 @@ exports[`the answer to each input stays the same > the release panel 1`] = `
   },
   "settings": {
     "body": {
+      "hiddenCourses": [],
       "hideEmptySemesters": true,
       "updatedAt": "2026-11-14T12:00:00.000Z",
       "updatedBy": "admin-token@ug.uchile.cl",
@@ -2331,7 +2332,69 @@ exports[`the answer to each input stays the same > the release panel 1`] = `
     },
     "status": 400,
   },
+  "settingsCourseEmptyId": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Esos ajustes no son válidos.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settingsCourseText": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Esos ajustes no son válidos.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settingsCourseUnknown": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Ese ramo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settingsCourses": {
+    "body": {
+      "hiddenCourses": [],
+      "hideEmptySemesters": true,
+      "updatedAt": "2026-11-14T12:00:00.000Z",
+      "updatedBy": "admin-token@ug.uchile.cl",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
   "settingsExtra": {
+    "body": {
+      "error": "invalid_settings",
+      "message": "Esos ajustes no son válidos.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "settingsNothing": {
     "body": {
       "error": "invalid_settings",
       "message": "Esos ajustes no son válidos.",

@@ -1,6 +1,6 @@
 // Tests for the administrators' switch that hides the semesters without material from the catalog.
 import { describe, expect, it } from 'vitest';
-import { Catalog, PREVIEW_HEADER, SiteSettings } from '@qv/schema';
+import { Catalog, PREVIEW_HEADER, SiteSettings, SiteSettingsView } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { createApp } from './app';
 import { MediaSigner } from './media';
@@ -140,11 +140,14 @@ describe('hiding the semesters without material', () => {
     }
   });
 
-  it('without settings, or if they cannot be read, nothing is hidden (and the panel has no switch)', async () => {
+  it('without settings nothing is hidden (and the panel has no switch)', async () => {
     expect(await semesters(await get(appWith(), '/api/catalog', STUDENT))).toMatchObject({
       numbers: [1, 2, 3],
     });
     expect((await get(appWith(), '/api/admin/site-settings', ADMIN)).status).toBe(404);
+  });
+
+  it('if they cannot be read, the material is not given: a course turned off could show', async () => {
     const broken: SiteSettingsRepository = {
       get: async () => {
         throw new Error('function public.site_settings() does not exist');
@@ -157,10 +160,70 @@ describe('hiding the semesters without material', () => {
     console.error = () => {};
     try {
       const r = await get(appWith(broken), '/api/catalog', STUDENT);
-      expect(r.status).toBe(200);
-      expect(await semesters(r)).toMatchObject({ numbers: [1, 2, 3] });
+      expect(r.status).toBe(503);
+      expect(await r.json()).toMatchObject({ error: 'settings_unavailable' });
     } finally {
       console.error = errors;
     }
+  });
+});
+
+describe('turning off courses', () => {
+  const courses = async (app: ReturnType<typeof createApp>, who = STUDENT) =>
+    Catalog.parse(await (await get(app, '/api/catalog', who)).json()).semesters.flatMap((s) =>
+      s.courses.map((c) => c.id),
+    );
+
+  it('the panel lists the courses with material by semester, and changing the list shows at once to everybody', async () => {
+    const app = appWith(memorySiteSettings());
+    const view = SiteSettingsView.parse(
+      await (await get(app, '/api/admin/site-settings', ADMIN)).json(),
+    );
+    expect(view.semesters).toEqual([
+      {
+        number: 1,
+        name: '1° Semestre',
+        courses: [
+          { id: 'anatomia-1', name: 'Anatomía I', emoji: '🦴', notes: 1, quizzes: 0, cards: 0 },
+        ],
+      },
+    ]);
+    expect(await courses(app)).toEqual(['anatomia-1', 'fisica']);
+    const off = await put(app, ADMIN, { hiddenCourses: ['anatomia-1'] });
+    expect(off.status).toBe(200);
+    expect(SiteSettings.parse(await off.json())).toMatchObject({
+      hiddenCourses: ['anatomia-1'],
+      hideEmptySemesters: false,
+      updatedBy: ADMIN,
+    });
+    expect(await courses(app)).toEqual(['fisica']);
+    expect(await courses(app, ADMIN)).toEqual(['fisica']);
+    const listed = SiteSettingsView.parse(
+      await (await get(app, '/api/admin/site-settings', ADMIN)).json(),
+    );
+    expect(listed.hiddenCourses).toEqual(['anatomia-1']);
+    expect(listed.semesters[0]!.courses.map((c) => c.id)).toEqual(['anatomia-1']);
+    await put(app, ADMIN, { hiddenCourses: [] });
+    expect(await courses(app)).toEqual(['anatomia-1', 'fisica']);
+  });
+
+  it('changing one setting leaves the other as it was', async () => {
+    const app = appWith(memorySiteSettings());
+    await put(app, ADMIN, { hiddenCourses: ['fisica'] });
+    await put(app, ADMIN, { hideEmptySemesters: true });
+    const kept = SiteSettings.parse(
+      await (await get(app, '/api/admin/site-settings', ADMIN)).json(),
+    );
+    expect(kept).toMatchObject({ hideEmptySemesters: true, hiddenCourses: ['fisica'] });
+  });
+
+  it('refuses a course that does not exist, and a student cannot change it', async () => {
+    const settings = memorySiteSettings();
+    const app = appWith(settings);
+    const r = await put(app, ADMIN, { hiddenCourses: ['no-existe'] });
+    expect(r.status).toBe(400);
+    expect(await r.json()).toMatchObject({ error: 'invalid_settings' });
+    expect((await put(app, STUDENT, { hiddenCourses: ['fisica'] })).status).toBe(404);
+    expect((await settings.get()).hiddenCourses).toEqual([]);
   });
 });

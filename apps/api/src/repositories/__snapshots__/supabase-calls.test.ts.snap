@@ -300,6 +300,36 @@ exports[`content database: the calls of each adapter > content (draft) 1`] = `
     ],
     "step": "search",
   },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/courses?select=id,semester,name,emoji,position",
+      },
+    ],
+    "result": [],
+    "step": "courses",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "draft",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_decks?select=course_id&id=eq.1",
+      },
+    ],
+    "result": "biologia-celular",
+    "step": "deckCourse",
+  },
 ]
 `;
 
@@ -601,6 +631,36 @@ exports[`content database: the calls of each adapter > content (public) 1`] = `
     ],
     "step": "search",
   },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/courses?select=id,semester,name,emoji,position",
+      },
+    ],
+    "result": [],
+    "step": "courses",
+  },
+  {
+    "calls": [
+      {
+        "headers": {
+          "accept-profile": "public",
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+        },
+        "method": "GET",
+        "path": "/rest/v1/anki_decks?select=course_id&id=eq.1",
+      },
+    ],
+    "result": "biologia-celular",
+    "step": "deckCourse",
+  },
 ]
 `;
 
@@ -851,6 +911,9 @@ exports[`content database: the calls of each adapter > site settings and the unp
       },
     ],
     "result": {
+      "hiddenCourses": [
+        "fisica",
+      ],
       "hideEmptySemesters": true,
       "updatedAt": "2026-11-10T07:00:00.000Z",
       "updatedBy": "admin@ug.uchile.cl",
@@ -877,11 +940,45 @@ exports[`content database: the calls of each adapter > site settings and the unp
       },
     ],
     "result": {
+      "hiddenCourses": [
+        "fisica",
+      ],
       "hideEmptySemesters": true,
       "updatedAt": "2026-11-10T07:00:00.000Z",
       "updatedBy": "admin@ug.uchile.cl",
     },
     "step": "set",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p": {
+            "by": "admin@ug.uchile.cl",
+            "hiddenCourses": [
+              "fisica",
+            ],
+          },
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/set_site_settings",
+      },
+    ],
+    "result": {
+      "hiddenCourses": [
+        "fisica",
+      ],
+      "hideEmptySemesters": true,
+      "updatedAt": "2026-11-10T07:00:00.000Z",
+      "updatedBy": "admin@ug.uchile.cl",
+    },
+    "step": "set courses",
   },
   {
     "calls": [

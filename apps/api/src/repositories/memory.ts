@@ -8,19 +8,7 @@ import { buildCatalog } from './build-catalog';
 import { memoryDecks } from './memory-decks';
 
 export function memoryRepository(bundle: ContentBundle): ContentRepository {
-  const summaries = bundle.notes.map(
-    ({
-      html: _h,
-      toc: _t,
-      sources: _s,
-      createdOn: _c,
-      sections: _se,
-      hash: _ha,
-      versionHash: _vh,
-      media: _m,
-      ...r
-    }) => r,
-  );
+  const summaries = noteSummaries(bundle);
   const courses = new Map(bundle.courses.map((c) => [c.id, c]));
   const decks = memoryDecks(bundle);
 
@@ -36,6 +24,10 @@ export function memoryRepository(bundle: ContentBundle): ContentRepository {
         bundle.ankiBrowseIndexes ?? [],
       );
     },
+
+    courses: () => Promise.resolve(bundle.courses),
+
+    deckCourse: (id) => Promise.resolve(decks.courseOf(id)),
 
     async quizzes() {
       return bundle.quizzes.map(quizSummary);
@@ -106,6 +98,22 @@ export function memoryRepository(bundle: ContentBundle): ContentRepository {
       return results.sort((x, y) => y.score - x.score).slice(0, limit);
     },
   };
+}
+
+function noteSummaries(bundle: ContentBundle) {
+  return bundle.notes.map(
+    ({
+      html: _h,
+      toc: _t,
+      sources: _s,
+      createdOn: _c,
+      sections: _se,
+      hash: _ha,
+      versionHash: _vh,
+      media: _m,
+      ...r
+    }) => r,
+  );
 }
 
 function normalize(t: string): string {

@@ -8,14 +8,20 @@ export function memorySiteSettings(
 ): SiteSettingsRepository {
   let settings: SiteSettings = {
     hideEmptySemesters: false,
+    hiddenCourses: [],
     updatedAt: null,
     updatedBy: null,
     ...start,
   };
   return {
     get: async () => settings,
-    async set({ hideEmptySemesters, by }) {
-      settings = { hideEmptySemesters, updatedAt: now().toISOString(), updatedBy: by };
+    async set({ by, hideEmptySemesters, hiddenCourses }) {
+      settings = {
+        hideEmptySemesters: hideEmptySemesters ?? settings.hideEmptySemesters,
+        hiddenCourses: hiddenCourses ? [...new Set(hiddenCourses)].sort() : settings.hiddenCourses,
+        updatedAt: now().toISOString(),
+        updatedBy: by,
+      };
       return settings;
     },
   };

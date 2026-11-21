@@ -137,6 +137,8 @@ describe('content database: the calls of each adapter', () => {
           ['card', () => repo.card('g1', 0)],
           ['note', () => repo.note('n1')],
           ['search', () => repo.search('nucleo', 10)],
+          ['courses', () => repo.courses()],
+          ['deckCourse', () => repo.deckCourse('1')],
         ],
         calls,
       );
@@ -192,6 +194,7 @@ describe('content database: the calls of each adapter', () => {
         return {
           body: {
             hideEmptySemesters: true,
+            hiddenCourses: ['fisica'],
             updatedAt: '2026-11-10T07:00:00+00:00',
             updatedBy: 'admin@ug.uchile.cl',
           },
@@ -223,6 +226,10 @@ describe('content database: the calls of each adapter', () => {
       [
         ['get', () => settings.get()],
         ['set', () => settings.set({ hideEmptySemesters: false, by: 'admin@ug.uchile.cl' })],
+        [
+          'set courses',
+          () => settings.set({ hiddenCourses: ['fisica'], by: 'admin@ug.uchile.cl' }),
+        ],
         ['log', () => unpublished.log()],
       ],
       calls,

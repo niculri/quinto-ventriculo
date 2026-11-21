@@ -437,6 +437,15 @@ describe('the answer to each input stays the same', () => {
         ),
         settingsText: admin('/api/admin/site-settings', 'PUT', '{"hideEmptySemesters":"true"}'),
         settingsBroken: admin('/api/admin/site-settings', 'PUT', '{'),
+        settingsNothing: admin('/api/admin/site-settings', 'PUT', '{}'),
+        settingsCourses: admin('/api/admin/site-settings', 'PUT', '{"hiddenCourses":[]}'),
+        settingsCourseUnknown: admin(
+          '/api/admin/site-settings',
+          'PUT',
+          '{"hiddenCourses":["no-existe"]}',
+        ),
+        settingsCourseText: admin('/api/admin/site-settings', 'PUT', '{"hiddenCourses":"a"}'),
+        settingsCourseEmptyId: admin('/api/admin/site-settings', 'PUT', '{"hiddenCourses":[""]}'),
       }),
     ).toMatchSnapshot();
   });

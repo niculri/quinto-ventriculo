@@ -27,8 +27,8 @@ export function supabaseSiteSettingsRepository(
       if (r.error) throw new Error(`Content database (site_settings): ${r.error.message}`);
       return parse('site_settings', r.data);
     },
-    async set({ hideEmptySemesters, by }) {
-      const r = await db.rpc('set_site_settings', { p: { hideEmptySemesters, by } });
+    async set(change) {
+      const r = await db.rpc('set_site_settings', { p: change });
       if (r.error) throw new Error(`Content database (set_site_settings): ${r.error.message}`);
       return parse('set_site_settings', r.data);
     },

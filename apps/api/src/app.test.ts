@@ -709,6 +709,8 @@ describe('errors', () => {
         quizzes: async () => [],
         quiz: async () => null,
         quizSectionJson: async () => null,
+        courses: async () => [],
+        deckCourse: async () => null,
       },
       media,
       signer,

@@ -15,7 +15,6 @@ import {
   Slug,
   THUMB_PREFIX,
   cardIndexKey,
-  withoutEmptySemesters,
 } from '@qv/schema';
 import type {
   ApiError,
@@ -32,6 +31,7 @@ import type {
   RevertResult,
   SearchResponse,
   SiteSettings,
+  SiteSettingsView,
   ThumbSignature,
   UnpublishedLog,
   UsageOpenAck,
@@ -55,12 +55,15 @@ import {
   ReleasePageQuery,
   SearchQuery,
   UsageOpenBody,
+  siteSemesters,
+  withoutEmptySemesters,
 } from '@qv/schema/http';
 import type { ErrorCode, Health } from '@qv/schema/http';
 import type { AccessChecker } from './access';
 import type { AdminChecker } from './admin';
 import type { DeepHealth, DeepHealthResult } from './health';
 import { isValidKey } from './media';
+import { hideCourses } from './repositories/hide-courses';
 import type { MediaStore, MediaSigner } from './media';
 import type {
   ContentRepository,
@@ -93,13 +96,32 @@ export interface Dependencies {
   usageOpens?: UsageOpensReader | null;
   usageEvents?: UsageRecorder;
   usageTtl?: number;
+  /** Milliseconds a read of the settings is kept (3000 by default); a change through the panel drops it at once. */
+  settingsTtl?: number;
   /** Without it the errors are answered and not kept. */
   clientErrors?: ClientErrorRecorder;
   clientErrorsReader?: ClientErrorsReader | null;
   deepHealth?: DeepHealth;
 }
 
-type AppEnv = { Variables: { user: User; token: string; repository: ContentRepository } };
+type AppEnv = {
+  Variables: {
+    user: User;
+    token: string;
+    repository: ContentRepository;
+    settings: SiteSettings;
+    hidden: ReadonlySet<string>;
+    /** The administrator is reading the draft. */
+    preview: boolean;
+  };
+};
+
+const NO_SETTINGS: SiteSettings = {
+  hideEmptySemesters: false,
+  hiddenCourses: [],
+  updatedAt: null,
+  updatedBy: null,
+};
 
 const apiError = (code: ErrorCode, message: string): ApiError => ({ error: code, message });
 const JSON_TYPE = { 'Content-Type': 'application/json; charset=UTF-8' };
@@ -257,6 +279,7 @@ export function createApp(deps: Dependencies) {
     // The preview header is part of the cache key, so a cached answer of the draft never stands for the published one.
     c.header('Vary', `Authorization, ${PREVIEW_HEADER}`);
     let repository = deps.repository;
+    let preview = false;
     if (
       PreviewRequest.safeParse(c.req.header(PREVIEW_HEADER)).success &&
       deps.preview &&
@@ -264,12 +287,14 @@ export function createApp(deps: Dependencies) {
       (await deps.admins.isAdmin(token!))
     ) {
       repository = deps.preview;
+      preview = true;
       c.header('Cache-Control', 'no-store');
       c.header(PREVIEW_HEADER, PREVIEW_VALUE);
     } else {
       c.header('Cache-Control', 'private, max-age=60');
     }
     c.set('repository', repository);
+    c.set('preview', preview);
     await next();
   });
 
@@ -311,8 +336,8 @@ export function createApp(deps: Dependencies) {
   const requireUsageAdmin = adminOnly(() => !!deps.usageStats);
 
   /** Only `POST /usage/open` calls it: the content GETs are also made by other pages, and cached. */
-  const track = (repository: ContentRepository, event: UsageEvent) => {
-    if (!deps.usageEvents || repository !== deps.repository) return;
+  const track = (preview: boolean, event: UsageEvent) => {
+    if (!deps.usageEvents || preview) return;
     try {
       deps.usageEvents.record(event);
     } catch (e) {
@@ -320,16 +345,38 @@ export function createApp(deps: Dependencies) {
     }
   };
 
-  /** Fails open: an empty semester shown is better than a site without catalog. */
-  const settingsOrDefault = async () => {
-    if (!deps.settings) return null;
+  let settingsKept: { until: number; settings: SiteSettings } | null = null;
+  /** Null when they cannot be read: what a course turned off hides must not show then. */
+  const siteSettings = async (): Promise<SiteSettings | null> => {
+    if (!deps.settings) return NO_SETTINGS;
+    const t = Date.now();
+    if (settingsKept && settingsKept.until > t) return settingsKept.settings;
     try {
-      return await deps.settings.get();
+      const settings = await deps.settings.get();
+      settingsKept = { until: t + (deps.settingsTtl ?? 3000), settings };
+      return settings;
     } catch (e) {
       console.error(e);
       return null;
     }
   };
+
+  /** After `requireSession`, on every route that gives material: it answers as if the courses turned off were gone. */
+  const visibleContent = createMiddleware<AppEnv>(async (c, next) => {
+    const settings = await siteSettings();
+    if (!settings) {
+      c.header('Cache-Control', 'no-store');
+      return c.json(
+        apiError('settings_unavailable', 'No se pudo leer el sitio. Intenta de nuevo en un rato.'),
+        503,
+      );
+    }
+    const hidden = new Set(settings.hiddenCourses);
+    c.set('settings', settings);
+    c.set('hidden', hidden);
+    c.set('repository', hideCourses(c.get('repository'), hidden));
+    await next();
+  });
 
   app.get(R.health.pattern, (c) =>
     c.json((deps.version ? { ok: true, version: deps.version } : { ok: true }) satisfies Health),
@@ -349,17 +396,16 @@ export function createApp(deps: Dependencies) {
 
   app.get(R.me.pattern, requireSession, (c) => c.json(c.get('user') satisfies User));
 
-  app.get(R.catalog.pattern, requireSession, async (c) => {
-    const [catalog, settings] = await Promise.all([
-      c.get('repository').catalog(),
-      settingsOrDefault(),
-    ]);
+  app.get(R.catalog.pattern, requireSession, visibleContent, async (c) => {
+    const catalog = await c.get('repository').catalog();
     return c.json(
-      (settings?.hideEmptySemesters ? withoutEmptySemesters(catalog) : catalog) satisfies Catalog,
+      (c.get('settings').hideEmptySemesters
+        ? withoutEmptySemesters(catalog)
+        : catalog) satisfies Catalog,
     );
   });
 
-  app.get(R.note.pattern, requireSession, async (c) => {
+  app.get(R.note.pattern, requireSession, visibleContent, async (c) => {
     const slug = Slug.safeParse(c.req.param('slug'));
     if (!slug.success) return c.json(apiError('invalid_slug', 'Ese apunte no existe.'), 400);
     const note = await c.get('repository').note(slug.data);
@@ -368,7 +414,7 @@ export function createApp(deps: Dependencies) {
     return c.json({ ...note, html } satisfies Note);
   });
 
-  app.get(R.search.pattern, requireSession, async (c) => {
+  app.get(R.search.pattern, requireSession, visibleContent, async (c) => {
     const { q: query, limit } = SearchQuery.parse({
       q: c.req.query('q'),
       limit: c.req.query('limit'),
@@ -378,7 +424,7 @@ export function createApp(deps: Dependencies) {
   });
 
   // Passed through unparsed (the web validates it): from the root it is every card, too big to parse in a Worker.
-  app.get(R.deck.pattern, requireSession, async (c) => {
+  app.get(R.deck.pattern, requireSession, visibleContent, async (c) => {
     const id = DeckId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_deck', 'Ese mazo no existe.'), 400);
     const deck = await c.get('repository').deckJson(id.data);
@@ -386,18 +432,20 @@ export function createApp(deps: Dependencies) {
     return c.body(deck, 200, JSON_TYPE);
   });
 
-  app.get(R.cardIndex.pattern, requireSession, async (c) => {
+  app.get(R.cardIndex.pattern, requireSession, visibleContent, async (c) => {
     const params = CardIndexParams.safeParse(c.req.param());
     if (!params.success) return c.json(apiError('invalid_index', 'Ese índice no existe.'), 400);
     const { course, assessment, hash } = params.data;
-    const object = await deps.media.get(cardIndexKey(`${course}/${assessment}`, hash));
+    const object = c.get('hidden').has(course)
+      ? null
+      : await deps.media.get(cardIndexKey(`${course}/${assessment}`, hash));
     if (!object) {
       return c.json(
         apiError('not_found', 'Las tarjetas de este certamen cambiaron: recarga la página.'),
         404,
       );
     }
-    const preview = c.get('repository') !== deps.repository;
+    const preview = c.get('preview');
     const headers = new Headers({
       'Content-Type': 'application/json; charset=UTF-8',
       'Cache-Control': preview ? 'no-store' : `private, max-age=${MEDIA_MAX_AGE}`,
@@ -437,7 +485,7 @@ export function createApp(deps: Dependencies) {
   });
 
   // Anki's guid is base91 and may have «/», «%» or «?»: the web sends it with encodeURIComponent.
-  app.get(R.card.pattern, requireSession, async (c) => {
+  app.get(R.card.pattern, requireSession, visibleContent, async (c) => {
     const params = CardParams.safeParse(c.req.param());
     if (!params.success) return c.json(apiError('invalid_card', 'Esa tarjeta no existe.'), 400);
     const card = await c.get('repository').card(params.data.noteGuid, Number(params.data.ord));
@@ -449,7 +497,7 @@ export function createApp(deps: Dependencies) {
     return c.json({ ...card, front, back } satisfies CardDetail);
   });
 
-  app.get(R.quizzes.pattern, requireSession, async (c) => {
+  app.get(R.quizzes.pattern, requireSession, visibleContent, async (c) => {
     const { course, assessment } = QuizzesQuery.parse({
       course: c.req.query('course'),
       assessment: c.req.query('assessment'),
@@ -462,7 +510,7 @@ export function createApp(deps: Dependencies) {
     return c.json({ quizzes } satisfies QuizIndex);
   });
 
-  app.get(R.quiz.pattern, requireSession, async (c) => {
+  app.get(R.quiz.pattern, requireSession, visibleContent, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_quiz', 'Ese test no existe.'), 400);
     const quiz = await c.get('repository').quiz(id.data);
@@ -471,7 +519,7 @@ export function createApp(deps: Dependencies) {
   });
 
   // Not parsed (about a megabyte with its SVG figures): the photos are signed on the text.
-  app.get(R.quizSection.pattern, requireSession, async (c) => {
+  app.get(R.quizSection.pattern, requireSession, visibleContent, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     const section = QuizSectionId.safeParse(c.req.param('sectionId'));
     if (!id.success || !section.success) {
@@ -484,7 +532,14 @@ export function createApp(deps: Dependencies) {
   });
 
   app.get(R.siteSettings.pattern, requireSession, requireSettingsAdmin, async (c) => {
-    return c.json((await deps.settings!.get()) satisfies SiteSettings);
+    const [settings, catalog] = await Promise.all([
+      deps.settings!.get(),
+      deps.repository.catalog(),
+    ]);
+    return c.json({
+      ...settings,
+      semesters: siteSemesters(catalog, new Set(settings.hiddenCourses)),
+    } satisfies SiteSettingsView);
   });
 
   app.put(R.setSiteSettings.pattern, requireSession, requireSettingsAdmin, async (c) => {
@@ -492,7 +547,15 @@ export function createApp(deps: Dependencies) {
     if (!body.success) {
       return c.json(apiError('invalid_settings', 'Esos ajustes no son válidos.'), 400);
     }
+    const { hiddenCourses } = body.data;
+    if (hiddenCourses) {
+      const known = new Set((await deps.repository.courses()).map((course) => course.id));
+      if (!hiddenCourses.every((id) => known.has(id))) {
+        return c.json(apiError('invalid_settings', 'Ese ramo no existe.'), 400);
+      }
+    }
     const saved = await deps.settings!.set({ ...body.data, by: c.get('user').email });
+    settingsKept = null;
     return c.json(saved satisfies SiteSettings);
   });
 
@@ -525,21 +588,21 @@ export function createApp(deps: Dependencies) {
   });
 
   // Only published ids are counted, so no text sent by a student ever goes into a point.
-  let publishedKept: { until: number; ids: Set<string> } | null = null;
-  const published = async (): Promise<Set<string>> => {
+  let publishedKept: { until: number; ids: Map<string, string | null> } | null = null;
+  const published = async (): Promise<Map<string, string | null>> => {
     const t = now();
     if (publishedKept && publishedKept.until > t) return publishedKept.ids;
     const catalog = await deps.repository.catalog();
-    const ids = new Set<string>();
+    const ids = new Map<string, string | null>();
     for (const s of catalog.semesters) {
       for (const course of s.courses) {
         for (const a of course.assessments) {
-          for (const n of a.notes) ids.add(`note:${n.slug}`);
-          for (const q of a.quizzes) ids.add(`quiz:${q.id}`);
+          for (const n of a.notes) ids.set(`note:${n.slug}`, course.id);
+          for (const q of a.quizzes) ids.set(`quiz:${q.id}`, course.id);
         }
       }
     }
-    for (const d of catalog.anki.decks) ids.add(`deck:${d.id}`);
+    for (const d of catalog.anki.decks) ids.set(`deck:${d.id}`, d.courseId);
     publishedKept = { until: t + 300, ids };
     return ids;
   };
@@ -551,15 +614,15 @@ export function createApp(deps: Dependencies) {
     clientErrorHandler(deps.clientErrors, () => now() * 1000),
   );
 
-  app.post(R.usageOpen.pattern, requireSession, async (c) => {
+  app.post(R.usageOpen.pattern, requireSession, visibleContent, async (c) => {
     c.header('Cache-Control', 'no-store');
     const open = UsageOpenBody.safeParse(await c.req.text().catch(() => ''));
     if (!open.success) return c.json(apiError('invalid_open', 'Eso no se puede contar.'), 400);
     const o = open.data;
-    if (!deps.usageEvents || c.get('repository') !== deps.repository)
+    if (!deps.usageEvents || c.get('preview'))
       return c.json({ ok: true as const } satisfies UsageOpenAck);
     if (o.kind !== 'search') {
-      let known: Set<string>;
+      let known: Map<string, string | null>;
       try {
         known = await published();
       } catch (e) {
@@ -569,12 +632,14 @@ export function createApp(deps: Dependencies) {
           503,
         );
       }
-      if (!known.has(`${o.kind}:${o.id}`)) {
+      const key = `${o.kind}:${o.id}`;
+      const course = known.get(key);
+      if (course === undefined || (course !== null && c.get('hidden').has(course))) {
         return c.json(apiError('not_found', 'Eso no está publicado.'), 404);
       }
     }
     track(
-      c.get('repository'),
+      c.get('preview'),
       o.kind === 'search'
         ? { kind: 'search', path: '/api/search', context: o.from }
         : {

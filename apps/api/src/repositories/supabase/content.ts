@@ -190,6 +190,16 @@ export function supabaseRepository(
       );
     },
 
+    async courses() {
+      const r = await db.from('courses').select('id, semester, name, emoji, position');
+      return unwrap(r, 'courses').map((x) => Course.parse(x));
+    },
+
+    async deckCourse(id) {
+      const r = await db.from('anki_decks').select('course_id').eq('id', id).maybeSingle();
+      return unwrap(r, 'deck course')?.course_id ?? null;
+    },
+
     async quizzes() {
       return unwrap(await db.from('quizzes').select(QUIZ_COLUMNS), 'quizzes').map(quizSummary);
     },

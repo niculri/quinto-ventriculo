@@ -3,6 +3,7 @@ import type {
   CardChanges,
   CardDetail,
   Catalog,
+  Course,
   Note,
   PublishResult,
   QuizDetail,
@@ -13,6 +14,7 @@ import type {
   RevertResult,
   SearchResult,
   SiteSettings,
+  SiteSettingsUpdate,
   UnpublishedLog,
 } from '@qv/schema';
 
@@ -29,6 +31,10 @@ export interface ContentRepository {
   quizzes(): Promise<QuizSummary[]>;
   quiz(id: string): Promise<QuizDetail | null>;
   quizSectionJson(id: string, sectionId: string): Promise<JsonBody | null>;
+  /** Only what tells a course apart, without its material: a switch of a course checks against it. */
+  courses(): Promise<Course[]>;
+  /** The course a deck belongs to; null for the root and the semesters' decks, and for a deck that does not exist. */
+  deckCourse(id: string): Promise<string | null>;
 }
 
 export interface ReleaseRepository {
@@ -67,7 +73,8 @@ export type Refused = { ok: false; reason: string; detail: string | null };
 /** Outside the draft (it is not material): always the published schema's. */
 export interface SiteSettingsRepository {
   get(): Promise<SiteSettings>;
-  set(input: { hideEmptySemesters: boolean; by: string }): Promise<SiteSettings>;
+  /** Changes only the keys it is given. */
+  set(input: SiteSettingsUpdate & { by: string }): Promise<SiteSettings>;
 }
 
 export interface UnpublishedRepository {

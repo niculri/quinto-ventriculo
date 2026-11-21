@@ -44,6 +44,8 @@ export function memoryDecks(bundle: ContentBundle) {
   const leaf = (name: string) => name.split('::').at(-1)!;
 
   return {
+    courseOf: (id: string): string | null => decks.get(id)?.courseId ?? null,
+
     tree(): AnkiCatalog {
       return {
         decks: bundle.ankiDecks.map((d) => ({

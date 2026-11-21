@@ -1,15 +1,20 @@
 // Tests the study reducer against the mutable session it replaces, on random sequences of what a student does, and
 // the guarantees the web will lean on: it changes nothing it is given, reads no clock and numbers what it asks to save.
-import { describe, expect, it } from 'vitest';
-import { CardChangedError } from './reference-save';
+import { describe, expect, it, vi } from 'vitest';
+import { cardKey } from '../../scheduler';
+import type { StudyData } from '../../scheduler';
+import { CardChangedError, studyStrings } from './reference-save';
 import { createStudyState, studyReducer } from '../reducer';
 import { commandsAfter, isDone } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
+import { CommandSaver } from './command-saver';
 import { deepFreeze } from './freeze';
 import { emptyStats, runDifferential } from './harness';
 import type { Stats } from './harness';
 import { SCENARIOS } from './scenarios';
+import { FakeRepository } from './fake-repository';
 import type { Failures } from './fake-repository';
+import { ReferenceStudySession } from './reference-session';
 
 const SEEDS = 36;
 const STEPS = 100;
@@ -281,4 +286,136 @@ describe('a deck with nothing to study', () => {
     expect(state.started).toBe(true);
     expect(isDone(state)).toBe(true);
   });
+});
+
+describe('the day turning over', () => {
+  // The day is rolled over only by a look for the next card; what rebuilds the queue first (hiding, undoing a
+  // hide, skipping a missing card) rebuilds it for the new day with the old day's answers still counted.
+  it.fails('rolls the day whatever the first thing done after it is', () => {
+    const scenario = SCENARIOS[3]!;
+    const state = opened(scenario);
+    expect(state.data.answers.length).toBeGreaterThan(0);
+    const after = run(state, {
+      type: 'hide',
+      action: 'bury_card',
+      now: scenario.start + 20 * 60_000,
+    });
+    expect(after.queue.today).toBe(state.queue.today + 1);
+    expect(after.data.answers).toEqual([]);
+  });
+});
+
+// The marks of concurrency are filled in by the saving side. An answer, flag, burying or suspension that is still
+// being saved when it is undone has its card's mark overwritten by the end of that save, after the undo put it back;
+// the database then holds the old mark and the next answer of the card is refused as «changed elsewhere».
+describe('undoing before what was done is saved', () => {
+  interface Doing {
+    name: string;
+    old: (s: ReferenceStudySession) => void;
+    actions: StudyAction[];
+  }
+  const DOINGS: Doing[] = [
+    {
+      name: 'an answer',
+      old: (s) => {
+        s.reveal();
+        s.answer(3);
+      },
+      actions: [reveal, answer(3)],
+    },
+    { name: 'a flag', old: (s) => s.flag(2), actions: [{ type: 'flag', value: 2 }] },
+    {
+      name: 'burying the card',
+      old: (s) => s.hide('bury_card'),
+      actions: [{ type: 'hide', action: 'bury_card', now: AT }],
+    },
+    {
+      name: 'suspending the note',
+      old: (s) => s.hide('suspend_note'),
+      actions: [{ type: 'hide', action: 'suspend_note', now: AT }],
+    },
+  ];
+
+  const marksOf = (d: StudyData) =>
+    new Map([...d.rows.values()].map((r) => [cardKey(r), r.updatedAt]));
+
+  async function settle(pending: () => number) {
+    for (let i = 0; pending() > 0; i++) {
+      if (i > 100) throw new Error('the saves did not finish');
+      await vi.advanceTimersByTimeAsync(0);
+    }
+  }
+
+  /** What each side says after doing `doing`, undoing it, and answering the card that comes back. */
+  async function afterQuickUndo(doing: Doing, waitFirst: boolean) {
+    vi.useFakeTimers({ now: AT, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+    try {
+      const a = START.data();
+      const b = START.data();
+      const old = new ReferenceStudySession(
+        a,
+        START.rootId,
+        new FakeRepository([...a.rows.values()], undefined, true),
+        undefined,
+        [0, 0],
+      );
+      old.showNext();
+      const first = old.shown!.entry;
+
+      let state = studyReducer(createStudyState(b, START.rootId, AT), { type: 'opened', now: AT });
+      let taken = 0;
+      const saver = new CommandSaver(
+        new FakeRepository([...b.rows.values()], undefined, true),
+        marksOf(b),
+        [0, 0],
+        (failure) => {
+          state = studyReducer(state, { type: 'saveFailed', failure });
+        },
+        () => undefined,
+      );
+      const send = (...actions: StudyAction[]) => {
+        for (const action of actions) {
+          state = studyReducer(state, action);
+          for (const c of commandsAfter(state, taken)) {
+            saver.handle(c);
+            taken = c.seq;
+          }
+        }
+      };
+      const pending = () => old.pending + saver.pending;
+
+      doing.old(old);
+      send(...doing.actions);
+      if (waitFirst) await settle(pending);
+      old.undo();
+      send({ type: 'undo', now: AT });
+      await settle(pending);
+      expect(old.shown?.entry).toEqual(first);
+      expect(state.shown?.entry).toEqual(first);
+      old.reveal();
+      old.answer(3);
+      send(reveal, answer(3));
+      await settle(pending);
+      return { old: old.failure, now: saver.failure };
+    } finally {
+      vi.useRealTimers();
+    }
+  }
+
+  for (const doing of DOINGS) {
+    it(`${doing.name} undone after it was saved leaves the card answerable`, async () => {
+      expect(await afterQuickUndo(doing, true)).toEqual({ old: null, now: null });
+    });
+
+    it(`today, ${doing.name} undone before it was saved makes the next answer of that card fail`, async () => {
+      expect(await afterQuickUndo(doing, false)).toEqual({
+        old: studyStrings.session.changedElsewhere,
+        now: { kind: 'changedElsewhere' },
+      });
+    });
+
+    it.fails(`${doing.name} undone before it was saved leaves the card answerable`, async () => {
+      expect((await afterQuickUndo(doing, false)).now).toBeNull();
+    });
+  }
 });

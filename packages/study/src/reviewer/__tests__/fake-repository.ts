@@ -1,5 +1,5 @@
-// An in-memory repository that writes down each call it gets, with the marks of concurrency a real one keeps: each
-// write changes the `updatedAt` of the cards it touches, and an undo puts them back.
+// An in-memory repository that writes down each call and keeps the marks of concurrency (`strict`: it refuses an
+// answer that names another mark than the card's, as the database does). Each write changes them, an undo puts them back.
 import type { CardRef, ReviewInput, StoredCard, UndoResult } from '@qv/schema/user';
 import { cardKey } from '../../scheduler';
 import { CardChangedError } from './reference-save';
@@ -30,6 +30,7 @@ export class FakeRepository implements SessionRepository {
   constructor(
     rows: readonly StoredCard[],
     private readonly failures: Failures = new Map(),
+    private readonly strict = false,
   ) {
     for (const r of rows) {
       this.marks.set(cardKey(r), r.updatedAt);
@@ -59,6 +60,9 @@ export class FakeRepository implements SessionRepository {
       this.call('recordReview', input);
     } catch (e) {
       return Promise.reject(e instanceof Error ? e : new CardChangedError());
+    }
+    if (this.strict && input.expectedUpdatedAt !== (this.marks.get(cardKey(input.card)) ?? null)) {
+      return Promise.reject(new CardChangedError());
     }
     this.touch([input.card, ...input.bury], 'answer');
     this.last.set(cardKey(input.card), {

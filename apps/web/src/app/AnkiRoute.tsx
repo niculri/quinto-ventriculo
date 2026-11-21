@@ -46,8 +46,8 @@ export function AnkiRoute() {
   const splat = (params['*'] ?? '').split('/').filter(Boolean);
   const resolved = resolveCourseDeck(
     tree,
-    params['number'] ?? '',
-    params['courseId'] ?? '',
+    params.number ?? '',
+    params.courseId ?? '',
     splat,
     search.get('subdeck'),
   );
@@ -108,7 +108,7 @@ function screenPath(node: CourseDeckNode, screen: DeckScreen, search: URLSearchP
     case 'practice': {
       const scope = node.depth > 3 ? (scopeNodeOf(node) ?? node) : node;
       const query = Object.fromEntries(search);
-      if (scope !== node) query['unit'] = unitOf(scope, node) ?? '';
+      if (scope !== node) query.unit = unitOf(scope, node) ?? '';
       return screen === 'cards'
         ? paths.cards(scope.ref, query)
         : paths.cardsPractice(scope.ref, query);

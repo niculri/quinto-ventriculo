@@ -226,7 +226,7 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
         const fields = Object.fromEntries(
           type.fields.map((name, i) => [name, note.fields[i] ?? '']),
         );
-        const codeField = fields['Código'] ?? fields['Codigo'] ?? fields['Code'] ?? '';
+        const codeField = fields['Código'] ?? fields.Codigo ?? fields.Code ?? '';
         const parsedCode = parseCardCode(codeField);
         const sortField = noteSortText(note.fields, type.sortField);
 

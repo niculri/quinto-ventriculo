@@ -223,7 +223,7 @@ export function askedHow(
 }
 
 export function subtopicOf(fields: Readonly<Record<string, string>>): string | null {
-  const raw = fields['Tema'] ?? fields['Encabezado'] ?? '';
+  const raw = fields.Tema ?? fields.Encabezado ?? '';
   const text = raw
     // A line break or a block (Anki's editor writes «A<div>B</div>») separates words; an inline tag does not.
     .replace(/<(?:br|\/?(?:div|p|li|ul|ol|tr|td|h[1-6]))\b[^>]*>/gi, ' ')

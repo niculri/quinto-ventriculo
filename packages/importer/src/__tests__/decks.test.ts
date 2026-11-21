@@ -72,7 +72,7 @@ describe('buildDecks note types', () => {
       (n) => n.guid.startsWith('Viejo-') && n.noteTypeId === basic[0]!.id,
     );
     expect(fromOld.length).toBeGreaterThan(0);
-    expect(fromOld.every((n) => n.fields['Prioridad'] === '')).toBe(true);
+    expect(fromOld.every((n) => n.fields.Prioridad === '')).toBe(true);
   });
 
   it('maps a note with fewer fields by name, and renders it with the newest templates', async () => {
@@ -86,7 +86,7 @@ describe('buildDecks note types', () => {
       (n) => (n.fields = n.fields.slice(0, 2)),
     );
     const { notes } = await run({ 'Viejo.apkg': viejo, 'Nuevo.apkg': nuevo });
-    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.fields['Frente'])!;
+    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.fields.Frente)!;
     expect(old.fields['Código']).toBe('');
     expect(old.cards[0]!.frontHtml).toContain('de-la-nueva');
   });
@@ -125,8 +125,8 @@ describe('buildDecks note types', () => {
     });
     const viejo = await variant('Viejo', () => {});
     const { notes } = await run({ 'Viejo.apkg': viejo, 'Nuevo.apkg': nuevo });
-    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.fields['Frente'])!;
-    expect(old.fields['Pista']).toBeUndefined();
+    const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.fields.Frente)!;
+    expect(old.fields.Pista).toBeUndefined();
     expect(old.fields['Código']).toMatch(/^T-PR-/);
     expect(old.code).toBe('T-PR-01-001');
   });
@@ -146,7 +146,7 @@ describe('buildDecks note types', () => {
     const occlusion = noteTypes.find((t) => t.name === 'Prueba · Oclusión')!;
     expect(occlusion.occlusion).toBe(true);
     const old = notes.find((n) => n.guid.startsWith('Viejo-') && n.noteTypeId === occlusion.id)!;
-    expect(old.fields['Prioridad']).toBe('');
+    expect(old.fields.Prioridad).toBe('');
     expect(old.cards[0]!.frontHtml).toContain('image-occlusion-container');
   });
 

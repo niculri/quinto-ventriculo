@@ -276,7 +276,7 @@ describe('the deck tree migration', () => {
       });
       // That Worker parsed it with DeckDetail, which drops the deck's own `parent`.
       const { parent: _parent, ...old } = r.old;
-      const subdecks = r.old['subdecks'] as { parent: string | null; name: string }[];
+      const subdecks = r.old.subdecks as { parent: string | null; name: string }[];
       expect(r.detail).toEqual({
         ...old,
         name: leaf(r.old.name),

@@ -186,8 +186,8 @@ describe('the big reads of the content database', () => {
     const call = seen.at(-1)!;
     expect(call.path).toBe('/rest/v1/rpc/anki_deck_detail');
     expect(JSON.parse(call.body)).toEqual({ deck_id: '20' });
-    expect(call.headers['apikey']).toBe(KEY);
-    expect(call.headers['authorization']).toBe(`Bearer ${KEY}`);
+    expect(call.headers.apikey).toBe(KEY);
+    expect(call.headers.authorization).toBe(`Bearer ${KEY}`);
   });
 
   it('a section of a test goes out as the database wrote it, with its photos signed', async () => {

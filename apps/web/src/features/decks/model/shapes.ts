@@ -45,15 +45,15 @@ const storedToAngle = (v: string | undefined) => {
 /** The shape of one rendered cloze (Anki's `extractShapeFromRenderedCloze`). */
 export function shapeFromElement(el: HTMLElement): Shape | null {
   const d = el.dataset;
-  const type = d['shape'];
+  const type = d.shape;
   const base = {
-    left: position(d['left']),
-    top: position(d['top']),
-    angle: storedToAngle(d['angle']),
-    occludeInactive: d['occludeinactive'] === '1',
-    ordinal: Number.parseInt(d['ordinal'] ?? '', 10),
+    left: position(d.left),
+    top: position(d.top),
+    angle: storedToAngle(d.angle),
+    occludeInactive: d.occludeinactive === '1',
+    ordinal: Number.parseInt(d.ordinal ?? '', 10),
   };
-  const fill = d['fill'];
+  const fill = d.fill;
   if (type === undefined) return null;
   switch (type) {
     case 'rect':
@@ -61,19 +61,19 @@ export function shapeFromElement(el: HTMLElement): Shape | null {
         ...base,
         type,
         fill: fill ?? SHAPE_MASK_COLOR,
-        width: float(d['width']),
-        height: float(d['height']),
+        width: float(d.width),
+        height: float(d.height),
       };
     case 'ellipse':
       return {
         ...base,
         type,
         fill: fill ?? SHAPE_MASK_COLOR,
-        rx: float(d['rx']),
-        ry: float(d['ry']),
+        rx: float(d.rx),
+        ry: float(d.ry),
       };
     case 'polygon': {
-      const raw = d['points'] ?? '';
+      const raw = d.points ?? '';
       const points = raw
         ? raw.split(' ').map((p) => {
             const [x, y] = p.split(',');
@@ -83,13 +83,13 @@ export function shapeFromElement(el: HTMLElement): Shape | null {
       return { ...base, type, fill: fill ?? SHAPE_MASK_COLOR, points };
     }
     case 'text': {
-      const scale = float(d['scale']);
-      const fs = d['fontSize'];
+      const scale = float(d.scale);
+      const fs = d.fontSize;
       return {
         ...base,
         type,
         fill: fill ?? TEXT_COLOR,
-        text: d['text'] ?? '',
+        text: d.text ?? '',
         scaleX: scale,
         scaleY: scale,
         fontSize: fs ? float(fs) : undefined,

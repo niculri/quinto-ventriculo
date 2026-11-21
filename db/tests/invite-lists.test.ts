@@ -333,20 +333,20 @@ describe('access_report', () => {
     ]);
     await invite({ emails: ['sin.cuenta@ug.uchile.cl'], list: 'Prueba', by: 'dueño' });
     const r = await report();
-    expect(r['open_to_domain']).toBe(false);
-    expect(r['lists']).toEqual([
+    expect(r.open_to_domain).toBe(false);
+    expect(r.lists).toEqual([
       { list: 'Equipo', invited: 2, with_account: 2 },
       { list: 'Prueba', invited: 1, with_account: 0 },
     ]);
-    const invited = r['invited'] as Record<string, unknown>[];
-    expect(invited.map((i) => [i['email'], i['list'], i['has_account'], i['admin']])).toEqual([
+    const invited = r.invited as Record<string, unknown>[];
+    expect(invited.map((i) => [i.email, i.list, i.has_account, i.admin])).toEqual([
       ['dueno@ug.uchile.cl', 'Equipo', true, true],
       ['invitado@ug.uchile.cl', 'Equipo', true, false],
       ['sin.cuenta@ug.uchile.cl', 'Prueba', false, false],
     ]);
-    expect(invited[0]!['last_sign_in_at']).toMatch(/^2026-11-08T12:00:00/);
+    expect(invited[0]!.last_sign_in_at).toMatch(/^2026-11-08T12:00:00/);
     expect(
-      (r['accounts_without_invite'] as { email: string }[]).map((a) => a.email).sort(),
+      (r.accounts_without_invite as { email: string }[]).map((a) => a.email).sort(),
     ).toEqual([ANA.email, LUIS.email, STRAY.email].sort());
   });
 });

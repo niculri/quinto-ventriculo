@@ -82,7 +82,7 @@ describe('readApkg', () => {
     const swapped = zipSync({
       'collection.anki2': strToU8('roto'),
       'collection.anki21': files['collection.anki2']!,
-      media: files['media']!,
+      media: files.media!,
     });
     expect(readApkg(swapped).collection.notes).toHaveLength(7);
   });

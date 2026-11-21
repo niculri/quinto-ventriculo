@@ -62,7 +62,7 @@ describe('TaxonomyFile', () => {
 
   it('a field with another name is an error, not something ignored (merged_into would leave the topic active)', () => {
     const t = tree();
-    (t.units[0]!.topics[1] as Record<string, unknown>)['merged_into'] = 't1';
+    (t.units[0]!.topics[1] as Record<string, unknown>).merged_into = 't1';
     expect(TaxonomyFile.safeParse(t).success).toBe(false);
   });
 

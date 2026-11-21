@@ -129,19 +129,19 @@ export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensRea
       ]);
       return {
         hourly: hourly.flatMap((r) =>
-          isKind(r['kind']) && typeof r['hour'] === 'string'
-            ? [{ hour: aeTime(r['hour']), kind: r['kind'], count: num(r['n']) }]
+          isKind(r.kind) && typeof r.hour === 'string'
+            ? [{ hour: aeTime(r.hour), kind: r.kind, count: num(r.n) }]
             : [],
         ),
         items: items.flatMap((r) =>
-          (r['kind'] === 'note' || r['kind'] === 'deck' || r['kind'] === 'quiz') &&
-          typeof r['path'] === 'string'
-            ? [{ kind: r['kind'], path: r['path'], count: num(r['n']) }]
+          (r.kind === 'note' || r.kind === 'deck' || r.kind === 'quiz') &&
+          typeof r.path === 'string'
+            ? [{ kind: r.kind, path: r.path, count: num(r.n) }]
             : [],
         ),
         searches: searches.map((r) => ({
-          context: String(r['context'] ?? ''),
-          count: num(r['n']),
+          context: String(r.context ?? ''),
+          count: num(r.n),
         })),
       };
     },

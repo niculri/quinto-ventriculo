@@ -43,12 +43,12 @@ export function utcOffset(unixSecs: number, timeZone: string): number {
   );
   const wall =
     Date.UTC(
-      Number(parts['year']),
-      Number(parts['month']) - 1,
-      Number(parts['day']),
-      Number(parts['hour']),
-      Number(parts['minute']),
-      Number(parts['second']),
+      Number(parts.year),
+      Number(parts.month) - 1,
+      Number(parts.day),
+      Number(parts.hour),
+      Number(parts.minute),
+      Number(parts.second),
     ) / 1000;
   return wall - Math.floor(unixSecs);
 }

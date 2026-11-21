@@ -44,8 +44,8 @@ export function supabaseVerifier(op: VerifierOptions): SessionVerifier {
       } catch {
         return null;
       }
-      const email = typeof payload['email'] === 'string' ? payload['email'] : null;
-      if (payload['role'] !== 'authenticated' || !payload.sub || !isAllowedEmail(email))
+      const email = typeof payload.email === 'string' ? payload.email : null;
+      if (payload.role !== 'authenticated' || !payload.sub || !isAllowedEmail(email))
         return null;
       return { id: payload.sub, email: email!.trim().toLowerCase() };
     },

@@ -120,7 +120,7 @@ export async function sanitizeCard(
     allowedAttributes: { img: ['src'] },
     transformTags: {
       img: (tag, attribs) => {
-        if (attribs['src']) names.add(attribs['src']);
+        if (attribs.src) names.add(attribs.src);
         return { tagName: tag, attribs };
       },
     },

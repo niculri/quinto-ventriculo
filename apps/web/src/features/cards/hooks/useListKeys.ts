@@ -50,7 +50,7 @@ export function useListKeys({
     setFocusAt(target);
   };
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    const at = Number((e.target as HTMLElement).dataset['position'] ?? NaN);
+    const at = Number((e.target as HTMLElement).dataset.position ?? NaN);
     if (Number.isNaN(at)) return;
     const step: Record<string, number> = {
       ArrowDown: 1,

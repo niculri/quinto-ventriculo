@@ -131,9 +131,9 @@ const medNote = (
       cards: ords.map((ord) => ({
         ord,
         deckId: deck,
-        frontHtml: `<div>${fields['Frente'] ?? fields['Texto'] ?? fields['Oclusión'] ?? ''}${
-          fields['Imagen'] && type === BASIC && fields['Frente']?.includes('imagen')
-            ? fields['Imagen']
+        frontHtml: `<div>${fields.Frente ?? fields.Texto ?? fields['Oclusión'] ?? ''}${
+          fields.Imagen && type === BASIC && fields.Frente?.includes('imagen')
+            ? fields.Imagen
             : ''
         }</div>`,
         backHtml: `<div>${Object.values(fields).join(' ')}</div>`,

@@ -36,19 +36,19 @@ export function preferencesAndPresets(ctx: StudyContext): PreferenceAndPresets {
       if (!data) return null;
       const r = data;
       return {
-        timeZone: r['time_zone'],
-        dayStartsAt: r['day_starts_at'],
-        learnAheadMinutes: r['learn_ahead_minutes'],
-        newCardsIgnoreReviewLimit: r['new_cards_ignore_review_limit'],
-        applyAllParentLimits: r['apply_all_parent_limits'],
-        fullAnki: r['full_anki'],
-        fourButtons: r['four_buttons'],
-        welcomeSeen: r['welcome_seen'],
+        timeZone: r.time_zone,
+        dayStartsAt: r.day_starts_at,
+        learnAheadMinutes: r.learn_ahead_minutes,
+        newCardsIgnoreReviewLimit: r.new_cards_ignore_review_limit,
+        applyAllParentLimits: r.apply_all_parent_limits,
+        fullAnki: r.full_anki,
+        fourButtons: r.four_buttons,
+        welcomeSeen: r.welcome_seen,
         // A users' database from before these columns does not send them.
-        semester: r['semester'] ?? null,
-        addedCourses: r['added_courses'] ?? [],
-        removedCourses: r['removed_courses'] ?? [],
-        dismissed: r['dismissed'] ?? [],
+        semester: r.semester ?? null,
+        addedCourses: r.added_courses ?? [],
+        removedCourses: r.removed_courses ?? [],
+        dismissed: r.dismissed ?? [],
       };
     },
     async savePreferences(p) {

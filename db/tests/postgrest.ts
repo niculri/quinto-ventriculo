@@ -89,8 +89,8 @@ async function answer(
       empty: false,
     };
   }
-  const returning = (headers['prefer'] ?? '').includes('return=representation');
-  const value = await write(tx, method, table, url, body, headers['prefer'] ?? '');
+  const returning = (headers.prefer ?? '').includes('return=representation');
+  const value = await write(tx, method, table, url, body, headers.prefer ?? '');
   return {
     value: returning ? pick(value as Record<string, unknown>[], url) : null,
     list: true,
@@ -153,7 +153,7 @@ async function signature(tx: Tx, fn: string, given: string[]) {
 function respond(rows: Rows, method: string, headers: Record<string, string>): Response {
   if (rows.empty) return new Response(null, { status: method === 'POST' ? 201 : 204 });
   let value = rows.value;
-  if ((headers['accept'] ?? '').startsWith('application/vnd.pgrst.object+json') && rows.list) {
+  if ((headers.accept ?? '').startsWith('application/vnd.pgrst.object+json') && rows.list) {
     const list = value as unknown[];
     if (list.length !== 1) {
       return json(406, {

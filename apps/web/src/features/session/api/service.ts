@@ -35,8 +35,8 @@ function toSession(s: SupabaseSession | null): Session | null {
     user: {
       id: s.user.id,
       email: s.user.email ?? '',
-      name: text(m['full_name']) ?? text(m['name']),
-      avatar: text(m['avatar_url']) ?? text(m['picture']),
+      name: text(m.full_name) ?? text(m.name),
+      avatar: text(m.avatar_url) ?? text(m.picture),
       createdAt: text(s.user.created_at),
       lastSignInAt: text(s.user.last_sign_in_at),
     },

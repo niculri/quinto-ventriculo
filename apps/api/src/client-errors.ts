@@ -60,12 +60,12 @@ export function analyticsEngineErrorsReader(op: AnalyticsReaderOptions): ClientE
       );
       return rows.flatMap((r) => {
         const g = ClientErrorGroup.safeParse({
-          kind: r['kind'],
-          page: r['page'],
-          message: r['message'],
-          version: r['version'],
-          count: num(r['n']),
-          lastSeen: typeof r['latest'] === 'string' ? aeTime(r['latest']) : '',
+          kind: r.kind,
+          page: r.page,
+          message: r.message,
+          version: r.version,
+          count: num(r.n),
+          lastSeen: typeof r.latest === 'string' ? aeTime(r.latest) : '',
         });
         return g.success ? [g.data] : [];
       });

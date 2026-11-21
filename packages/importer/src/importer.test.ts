@@ -514,7 +514,7 @@ describe('decks', () => {
     expect(containerDeckId(week)).toMatch(/^[1-9]\d{18}$/);
     expect(containerDeckId(week)).not.toBe(containerDeckId(`${week} `));
     expect(
-      bundle.ankiPresets.map((p) => [p.name, (p.config['new'] as { perDay: number }).perDay]),
+      bundle.ankiPresets.map((p) => [p.name, (p.config.new as { perDay: number }).perDay]),
     ).toEqual([
       ['Default', 20],
       ['Extras', 0],

@@ -397,8 +397,8 @@ describe('downloading my data', () => {
   it('a person removed from the invitations can still download it', async () => {
     await db.query(`select public.remove_invites($1)`, [{ emails: [LUIS.email] }]);
     const again = await signIn(db, LUIS);
-    expect((await exportData(db, again)).tables['invited_emails']).toEqual([]);
-    expect((await exportData(db, again)).tables['card_states']).toHaveLength(1);
+    expect((await exportData(db, again)).tables.invited_emails).toEqual([]);
+    expect((await exportData(db, again)).tables.card_states).toHaveLength(1);
   });
 
   it('has 30 seconds, not the 8 of the API', async () => {
@@ -541,7 +541,7 @@ describe('deleting my account', () => {
     await db.query(`insert into public.admin_emails (email) values ($1)`, [LUIS.email]);
     await sevenDaysLater(db, LUIS);
     expect(await purge(db)).toEqual({ deleted: 0, cancelled: 0, kept_admins: 1, failed: 0 });
-    expect((await rowsOf(db, LUIS))['profiles']).toBe(1);
+    expect((await rowsOf(db, LUIS)).profiles).toBe(1);
   });
 
   it('an account that cannot be deleted does not hold back the others, says why and is tried again', async () => {

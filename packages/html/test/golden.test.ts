@@ -43,26 +43,26 @@ describe('sanitizers', () => {
   it('a card', async () => {
     const out: Record<string, unknown> = {};
     for (const c of corpus.html) out[c.id] = await sanitizeCard(c.html, resolve);
-    expect(out).toEqual(golden.sanitize['card']);
+    expect(out).toEqual(golden.sanitize.card);
   });
 
   it('a note', () => {
-    expect(each(sanitizeNote)).toEqual(golden.sanitize['note']);
+    expect(each(sanitizeNote)).toEqual(golden.sanitize.note);
   });
 
   it("a test's SVG figure", () => {
-    expect(each(sanitizeSvg)).toEqual(golden.sanitize['svg']);
+    expect(each(sanitizeSvg)).toEqual(golden.sanitize.svg);
   });
 });
 
 describe('CSS values', () => {
   it("a card's inline style", () => {
-    expect(CARD_SAFE_VALUE.toString()).toBe(golden.css.sources['card']);
+    expect(CARD_SAFE_VALUE.toString()).toBe(golden.css.sources.card);
     expect(golden.css.card.map(([v]) => [v, CARD_SAFE_VALUE.test(v)])).toEqual(golden.css.card);
   });
 
   it('an SVG presentation attribute', () => {
-    expect(SVG_SAFE_VALUE.toString()).toBe(golden.css.sources['svg']);
+    expect(SVG_SAFE_VALUE.toString()).toBe(golden.css.sources.svg);
     expect(golden.css.svg.map(([v]) => [v, SVG_SAFE_VALUE.test(v)])).toEqual(golden.css.svg);
   });
 });

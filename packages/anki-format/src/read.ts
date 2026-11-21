@@ -46,7 +46,7 @@ export function readApkg(data: Uint8Array): AnkiPackage {
     filter: (f) => f.name === collectionName || f.name === 'media',
   });
   const collection = readCollection(files[collectionName]!);
-  const mediaMap = parseMediaMap(files['media']);
+  const mediaMap = parseMediaMap(files.media);
   const entryByName = new Map(Object.entries(mediaMap).map(([entry, name]) => [name, entry]));
 
   return {
@@ -143,36 +143,36 @@ const num = (v: unknown): number => Number(v ?? 0);
 function readTables(db: DatabaseSync): AnkiCollection {
   const [col] = all(db, 'select ver, models, decks, dconf from col');
   if (!col) throw new ApkgError('La colección del .apkg está vacía (sin tabla col).');
-  const schemaVersion = num(col['ver']);
+  const schemaVersion = num(col.ver);
   if (schemaVersion !== 11) {
     throw new ApkgError(
       `La colección del .apkg tiene el esquema ${schemaVersion}; solo se lee el clásico (11). ` +
         'Expórtalo con «Compatibilidad con versiones antiguas de Anki» activado.',
     );
   }
-  const noteTypes = Object.values(parseJson(col['models'], 'models')).map(toNoteType);
-  const decks = Object.values(parseJson(col['decks'], 'decks')).map(toDeck);
-  const presets = Object.values(parseJson(col['dconf'], 'dconf')).map(toPreset);
+  const noteTypes = Object.values(parseJson(col.models, 'models')).map(toNoteType);
+  const decks = Object.values(parseJson(col.decks, 'decks')).map(toDeck);
+  const presets = Object.values(parseJson(col.dconf, 'dconf')).map(toPreset);
 
   const notes: AnkiNote[] = all(db, 'select id, guid, mid, tags, flds from notes order by id').map(
     (r) => ({
-      id: str(r['id']),
-      guid: str(r['guid']),
-      noteTypeId: str(r['mid']),
-      fields: str(r['flds']).split('\x1f'),
-      tags: canonicalTags(str(r['tags'])),
+      id: str(r.id),
+      guid: str(r.guid),
+      noteTypeId: str(r.mid),
+      fields: str(r.flds).split('\x1f'),
+      tags: canonicalTags(str(r.tags)),
     }),
   );
   const cards: AnkiCard[] = all(
     db,
     'select id, nid, ord, did, odid, flags from cards order by nid, ord',
   ).map((r) => ({
-    id: str(r['id']),
-    noteId: str(r['nid']),
-    ord: num(r['ord']),
-    deckId: str(r['did']),
-    originalDeckId: num(r['odid']) ? str(r['odid']) : null,
-    flags: num(r['flags']),
+    id: str(r.id),
+    noteId: str(r.nid),
+    ord: num(r.ord),
+    deckId: str(r.did),
+    originalDeckId: num(r.odid) ? str(r.odid) : null,
+    flags: num(r.flags),
   }));
 
   return { schemaVersion, noteTypes, decks, presets, notes, cards };
@@ -204,46 +204,46 @@ function parseJson(value: unknown, what: string): Record<string, Record<string, 
 }
 
 function toNoteType(m: Record<string, unknown>): AnkiNoteType {
-  const fields = (Array.isArray(m['flds']) ? (m['flds'] as Row[]) : [])
+  const fields = (Array.isArray(m.flds) ? (m.flds as Row[]) : [])
     .slice()
-    .sort((a, b) => num(a['ord']) - num(b['ord']))
-    .map((f) => str(f['name']));
-  const templates: AnkiTemplate[] = (Array.isArray(m['tmpls']) ? (m['tmpls'] as Row[]) : [])
+    .sort((a, b) => num(a.ord) - num(b.ord))
+    .map((f) => str(f.name));
+  const templates: AnkiTemplate[] = (Array.isArray(m.tmpls) ? (m.tmpls as Row[]) : [])
     .slice()
-    .sort((a, b) => num(a['ord']) - num(b['ord']))
+    .sort((a, b) => num(a.ord) - num(b.ord))
     .map((t) => ({
-      name: str(t['name']),
-      ord: num(t['ord']),
-      qfmt: str(t['qfmt']),
-      afmt: str(t['afmt']),
-      bqfmt: str(t['bqfmt']),
-      bafmt: str(t['bafmt']),
+      name: str(t.name),
+      ord: num(t.ord),
+      qfmt: str(t.qfmt),
+      afmt: str(t.afmt),
+      bqfmt: str(t.bqfmt),
+      bafmt: str(t.bafmt),
     }));
-  const stock = m['originalStockKind'];
+  const stock = m.originalStockKind;
   return {
-    id: str(m['id']),
-    name: str(m['name']),
-    kind: num(m['type']) === 1 ? 'cloze' : 'normal',
+    id: str(m.id),
+    name: str(m.name),
+    kind: num(m.type) === 1 ? 'cloze' : 'normal',
     fields,
     templates,
-    css: str(m['css']),
-    sortField: num(m['sortf']),
-    mod: num(m['mod']),
+    css: str(m.css),
+    sortField: num(m.sortf),
+    mod: num(m.mod),
     originalStockKind: stock === undefined || stock === null ? null : num(stock),
   };
 }
 
 function toDeck(d: Record<string, unknown>): AnkiDeck {
-  const filtered = num(d['dyn']) === 1;
+  const filtered = num(d.dyn) === 1;
   return {
-    id: str(d['id']),
-    name: str(d['name']),
-    description: str(d['desc']),
-    presetId: filtered || d['conf'] === undefined ? null : str(d['conf']),
+    id: str(d.id),
+    name: str(d.name),
+    description: str(d.desc),
+    presetId: filtered || d.conf === undefined ? null : str(d.conf),
     filtered,
   };
 }
 
 function toPreset(c: Record<string, unknown>): AnkiPreset {
-  return { id: str(c['id']), name: str(c['name']), config: c };
+  return { id: str(c.id), name: str(c.name), config: c };
 }

@@ -203,7 +203,7 @@ describe('reads', () => {
       subdecks: [{ id: EXTRAS, parent: ROOT, preset: 'Extras', cardCount: 1 }],
     });
     expect(
-      (deck['cards'] as { code: string; ord: number; kind: string }[]).map((c) => [
+      (deck.cards as { code: string; ord: number; kind: string }[]).map((c) => [
         c.code,
         c.ord,
         c.kind,

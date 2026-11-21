@@ -434,8 +434,8 @@ describe('the panel', () => {
       ana,
       'select public.export_my_data() as r',
     );
-    expect(data.tables['report_blocks']).toHaveLength(1);
-    expect(data.tables['content_reports']).toHaveLength(1);
+    expect(data.tables.report_blocks).toHaveLength(1);
+    expect(data.tables.content_reports).toHaveLength(1);
     await db.query(`delete from auth.users where id = $1`, [ana.sub]);
     const left = await db.query<{ user_id: string | null; blocks: number }>(
       `select r.user_id, (select count(*)::int from public.report_blocks b where b.user_id = $1) as blocks
@@ -622,7 +622,7 @@ describe('the copy of card_reports', () => {
       ana,
       'select public.export_my_data() as r',
     );
-    expect(exported.tables['content_reports']).toHaveLength(3);
+    expect(exported.tables.content_reports).toHaveLength(3);
     expect(Object.hasOwn(exported.tables, 'card_reports')).toBe(false);
     await report(db, ana, card('Después de la segunda', 'z:0'));
     expect(await mine(db, ana)).toHaveLength(4);

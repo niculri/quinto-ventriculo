@@ -58,7 +58,7 @@ const card = (user: typeof ANA, noteGuid: string) =>
 const log = (user: typeof ANA) =>
   asUser(db, user, async (tx) =>
     (await tx.query<Row>('select action from public.review_log order by id')).rows.map(
-      (r) => r['action'],
+      (r) => r.action,
     ),
   );
 

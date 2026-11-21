@@ -233,8 +233,8 @@ describe('deck_progress', () => {
     const before = (await progress(ANA))[0]!;
     await record(ANA, answer('u1'));
     expect((await progress(ANA))[0]).toMatchObject({
-      seen: (before['seen'] as number) + 1,
-      new_today: (before['new_today'] as number) + 1,
+      seen: (before.seen as number) + 1,
+      new_today: (before.new_today as number) + 1,
     });
     await asUser(db, ANA, (tx) => tx.query('select public.undo_last_review()'));
     expect((await progress(ANA))[0]).toEqual(before);

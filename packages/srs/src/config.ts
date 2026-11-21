@@ -176,43 +176,43 @@ const numbers = (v: unknown, fallback: number[]): number[] =>
 
 /** An .apkg's «schema 11» preset → our config, as Anki converts it on import (DeckConfSchema11 → DeckConfig). */
 export function configFromAnki(raw: Json): DeckConfig {
-  const nw = obj(raw['new']);
-  const rev = obj(raw['rev']);
-  const lapse = obj(raw['lapse']);
-  const ints = numbers(nw['ints'], [1, 4]);
-  const params = [raw['fsrsParams6'], raw['fsrsParams5'], raw['fsrsWeights']]
+  const nw = obj(raw.new);
+  const rev = obj(raw.rev);
+  const lapse = obj(raw.lapse);
+  const ints = numbers(nw.ints, [1, 4]);
+  const params = [raw.fsrsParams6, raw.fsrsParams5, raw.fsrsWeights]
     .map((p) => numbers(p, []))
     .find((p) => p.length > 0);
   return repairConfig({
-    learnSteps: numbers(nw['delays'], DEFAULT_CONFIG.learnSteps.slice()),
-    relearnSteps: numbers(lapse['delays'], DEFAULT_CONFIG.relearnSteps.slice()),
-    newPerDay: num(nw['perDay'], 20),
-    reviewsPerDay: num(rev['perDay'], 200),
-    initialEase: num(nw['initialFactor'], 2500) / 1000,
-    easyMultiplier: num(rev['ease4'], 1.3),
-    hardMultiplier: num(rev['hardFactor'], 1.2),
-    lapseMultiplier: num(lapse['mult'], 0),
-    intervalMultiplier: num(rev['ivlFct'], 1),
-    maximumReviewInterval: num(rev['maxIvl'], 36_500),
-    minimumLapseInterval: num(lapse['minInt'], 1),
+    learnSteps: numbers(nw.delays, DEFAULT_CONFIG.learnSteps.slice()),
+    relearnSteps: numbers(lapse.delays, DEFAULT_CONFIG.relearnSteps.slice()),
+    newPerDay: num(nw.perDay, 20),
+    reviewsPerDay: num(rev.perDay, 200),
+    initialEase: num(nw.initialFactor, 2500) / 1000,
+    easyMultiplier: num(rev.ease4, 1.3),
+    hardMultiplier: num(rev.hardFactor, 1.2),
+    lapseMultiplier: num(lapse.mult, 0),
+    intervalMultiplier: num(rev.ivlFct, 1),
+    maximumReviewInterval: num(rev.maxIvl, 36_500),
+    minimumLapseInterval: num(lapse.minInt, 1),
     graduatingIntervalGood: ints[0] ?? 1,
     graduatingIntervalEasy: ints[1] ?? 4,
-    newCardGatherPriority: GATHER[num(raw['newGatherPriority'], 0)] ?? 'deck',
-    newCardSortOrder: SORT[num(raw['newSortOrder'], 0)] ?? 'template',
-    reviewOrder: REVIEW_ORDER[num(raw['reviewOrder'], 0)] ?? 'day',
-    newMix: MIX[num(raw['newMix'], 0)] ?? 'mixWithReviews',
-    interdayLearningMix: MIX[num(raw['interdayLearningMix'], 0)] ?? 'mixWithReviews',
+    newCardGatherPriority: GATHER[num(raw.newGatherPriority, 0)] ?? 'deck',
+    newCardSortOrder: SORT[num(raw.newSortOrder, 0)] ?? 'template',
+    reviewOrder: REVIEW_ORDER[num(raw.reviewOrder, 0)] ?? 'day',
+    newMix: MIX[num(raw.newMix, 0)] ?? 'mixWithReviews',
+    interdayLearningMix: MIX[num(raw.interdayLearningMix, 0)] ?? 'mixWithReviews',
     // Schema 11: 0 = suspend, 1 = tag only.
-    leechAction: num(lapse['leechAction'], 1) === 0 ? 'suspend' : 'tagOnly',
-    leechThreshold: num(lapse['leechFails'], 8),
-    capAnswerTimeToSecs: Math.max(0, num(raw['maxTaken'], 60)),
+    leechAction: num(lapse.leechAction, 1) === 0 ? 'suspend' : 'tagOnly',
+    leechThreshold: num(lapse.leechFails, 8),
+    capAnswerTimeToSecs: Math.max(0, num(raw.maxTaken, 60)),
     fillNewWithSiblings: false,
-    buryNew: bool(nw['bury'], false),
-    buryReviews: bool(rev['bury'], false),
-    buryInterdayLearning: bool(raw['buryInterdayLearning'], false),
+    buryNew: bool(nw.bury, false),
+    buryReviews: bool(rev.bury, false),
+    buryInterdayLearning: bool(raw.buryInterdayLearning, false),
     fsrsParams: params ?? [],
-    desiredRetention: num(raw['desiredRetention'], 0),
-    historicalRetention: num(raw['sm2Retention'], 0),
+    desiredRetention: num(raw.desiredRetention, 0),
+    historicalRetention: num(raw.sm2Retention, 0),
   });
 }
 
@@ -251,38 +251,38 @@ export function parseConfig(value: unknown): DeckConfig {
   const pick = <T extends string>(x: unknown, all: readonly T[], fallback: T): T =>
     typeof x === 'string' && (all as readonly string[]).includes(x) ? (x as T) : fallback;
   return repairConfig({
-    learnSteps: numbers(v['learnSteps'], d.learnSteps.slice()),
-    relearnSteps: numbers(v['relearnSteps'], d.relearnSteps.slice()),
-    newPerDay: num(v['newPerDay'], d.newPerDay),
-    reviewsPerDay: num(v['reviewsPerDay'], d.reviewsPerDay),
-    initialEase: num(v['initialEase'], d.initialEase),
-    easyMultiplier: num(v['easyMultiplier'], d.easyMultiplier),
-    hardMultiplier: num(v['hardMultiplier'], d.hardMultiplier),
-    lapseMultiplier: num(v['lapseMultiplier'], d.lapseMultiplier),
-    intervalMultiplier: num(v['intervalMultiplier'], d.intervalMultiplier),
-    maximumReviewInterval: num(v['maximumReviewInterval'], d.maximumReviewInterval),
-    minimumLapseInterval: num(v['minimumLapseInterval'], d.minimumLapseInterval),
-    graduatingIntervalGood: num(v['graduatingIntervalGood'], d.graduatingIntervalGood),
-    graduatingIntervalEasy: num(v['graduatingIntervalEasy'], d.graduatingIntervalEasy),
+    learnSteps: numbers(v.learnSteps, d.learnSteps.slice()),
+    relearnSteps: numbers(v.relearnSteps, d.relearnSteps.slice()),
+    newPerDay: num(v.newPerDay, d.newPerDay),
+    reviewsPerDay: num(v.reviewsPerDay, d.reviewsPerDay),
+    initialEase: num(v.initialEase, d.initialEase),
+    easyMultiplier: num(v.easyMultiplier, d.easyMultiplier),
+    hardMultiplier: num(v.hardMultiplier, d.hardMultiplier),
+    lapseMultiplier: num(v.lapseMultiplier, d.lapseMultiplier),
+    intervalMultiplier: num(v.intervalMultiplier, d.intervalMultiplier),
+    maximumReviewInterval: num(v.maximumReviewInterval, d.maximumReviewInterval),
+    minimumLapseInterval: num(v.minimumLapseInterval, d.minimumLapseInterval),
+    graduatingIntervalGood: num(v.graduatingIntervalGood, d.graduatingIntervalGood),
+    graduatingIntervalEasy: num(v.graduatingIntervalEasy, d.graduatingIntervalEasy),
     newCardGatherPriority: pick(
-      v['newCardGatherPriority'],
+      v.newCardGatherPriority,
       Object.values(GATHER),
       d.newCardGatherPriority,
     ),
-    newCardSortOrder: pick(v['newCardSortOrder'], Object.values(SORT), d.newCardSortOrder),
-    reviewOrder: pick(v['reviewOrder'], Object.values(REVIEW_ORDER), d.reviewOrder),
-    newMix: pick(v['newMix'], Object.values(MIX), d.newMix),
-    interdayLearningMix: pick(v['interdayLearningMix'], Object.values(MIX), d.interdayLearningMix),
-    leechAction: pick(v['leechAction'], ['suspend', 'tagOnly'] as const, d.leechAction),
-    leechThreshold: num(v['leechThreshold'], d.leechThreshold),
-    capAnswerTimeToSecs: num(v['capAnswerTimeToSecs'], d.capAnswerTimeToSecs),
-    buryNew: bool(v['buryNew'], d.buryNew),
-    buryReviews: bool(v['buryReviews'], d.buryReviews),
-    buryInterdayLearning: bool(v['buryInterdayLearning'], d.buryInterdayLearning),
-    fillNewWithSiblings: bool(v['fillNewWithSiblings'], d.fillNewWithSiblings),
-    fsrsParams: numbers(v['fsrsParams'], []),
-    desiredRetention: num(v['desiredRetention'], d.desiredRetention),
-    historicalRetention: num(v['historicalRetention'], d.historicalRetention),
+    newCardSortOrder: pick(v.newCardSortOrder, Object.values(SORT), d.newCardSortOrder),
+    reviewOrder: pick(v.reviewOrder, Object.values(REVIEW_ORDER), d.reviewOrder),
+    newMix: pick(v.newMix, Object.values(MIX), d.newMix),
+    interdayLearningMix: pick(v.interdayLearningMix, Object.values(MIX), d.interdayLearningMix),
+    leechAction: pick(v.leechAction, ['suspend', 'tagOnly'] as const, d.leechAction),
+    leechThreshold: num(v.leechThreshold, d.leechThreshold),
+    capAnswerTimeToSecs: num(v.capAnswerTimeToSecs, d.capAnswerTimeToSecs),
+    buryNew: bool(v.buryNew, d.buryNew),
+    buryReviews: bool(v.buryReviews, d.buryReviews),
+    buryInterdayLearning: bool(v.buryInterdayLearning, d.buryInterdayLearning),
+    fillNewWithSiblings: bool(v.fillNewWithSiblings, d.fillNewWithSiblings),
+    fsrsParams: numbers(v.fsrsParams, []),
+    desiredRetention: num(v.desiredRetention, d.desiredRetention),
+    historicalRetention: num(v.historicalRetention, d.historicalRetention),
   });
 }
 

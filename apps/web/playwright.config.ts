@@ -1,7 +1,7 @@
 // Playwright configuration: the end-to-end tests in demo mode, with the test content of e2e/content.
 import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
-import { ACCEPTED_ACCOUNT, PORT } from './e2e/accepted';
+import { OWN_SERVER_PORT, PORT, demoState } from './e2e/accepted';
 
 /**
  * WebKit (Safari on the iPhone) runs only what a student does most on a phone, plus axe: running every spec a third time
@@ -20,11 +20,15 @@ const IPHONE_SPECS = [
   'viewer.spec.ts',
 ];
 
-/**
- * Specs that change what everybody sees on the demo server (a course turned off): they run alone, after the others,
- * since the others read the same server at the same time.
- */
-const ALONE = ['hidden-courses.spec.ts'];
+/** Specs that change the server's settings: they run in `desktop` only, on a server of their own, so no other spec sees it. */
+const OWN_SERVER = ['hidden-courses.spec.ts'];
+
+const demoServer = (port: number) => ({
+  command: `npx vite --mode demo --port ${port} --strictPort`,
+  url: `http://localhost:${port}`,
+  reuseExistingServer: !process.env.CI,
+  env: { QV_OUTPUT: resolve(import.meta.dirname, 'e2e/content') },
+});
 
 export default defineConfig({
   testDir: 'e2e',
@@ -39,40 +43,12 @@ export default defineConfig({
     // Most of the tests exercise the advanced mode (the four buttons, the limits and the presets), with the week of
     // the test content turned on; a student who just arrived is e2e/simple.spec.ts. The terms and the privacy policy
     // in force are already accepted; the popup is e2e/account.spec.ts.
-    storageState: {
-      cookies: [],
-      origins: [
-        {
-          origin: `http://localhost:${PORT}`,
-          localStorage: [
-            {
-              name: 'qv-demo-study',
-              value: JSON.stringify({
-                preferences: { fullAnki: true, fourButtons: true, welcomeSeen: true },
-                activations: [{ deckId: '1006809718735317183', active: true }],
-              }),
-            },
-            ACCEPTED_ACCOUNT,
-          ],
-        },
-      ],
-    },
+    storageState: demoState(PORT),
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: ALONE },
-    { name: 'phone', use: { ...devices['Pixel 7'] }, testIgnore: ALONE },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    { name: 'phone', use: { ...devices['Pixel 7'] }, testIgnore: OWN_SERVER },
     { name: 'iphone', use: { ...devices['iPhone 15'] }, testMatch: IPHONE_SPECS },
-    {
-      name: 'alone',
-      use: { ...devices['Desktop Chrome'] },
-      testMatch: ALONE,
-      dependencies: ['desktop', 'phone', 'iphone'],
-    },
   ],
-  webServer: {
-    command: `npx vite --mode demo --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    env: { QV_OUTPUT: resolve(import.meta.dirname, 'e2e/content') },
-  },
+  webServer: [demoServer(PORT), demoServer(OWN_SERVER_PORT)],
 });

@@ -2,6 +2,7 @@
 // the search, its links give «no existe», its routes answer 404, and turning it on again gives it all back.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
+import { OWN_SERVER_PORT, demoState } from './accepted';
 import { DECK_URL, signIn } from './helpers';
 
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/10-nucleo-celular';
@@ -23,8 +24,13 @@ const place = (e: Locator) =>
     return [b.x, b.y + window.scrollY, b.width, b.height].map(Math.round);
   });
 
+// The list of courses turned off is one for the whole demo server: this spec has a server of its own.
+test.use({
+  baseURL: `http://localhost:${OWN_SERVER_PORT}`,
+  storageState: demoState(OWN_SERVER_PORT),
+});
+
 test.describe('a course turned off', () => {
-  // One list for the whole demo server: this spec runs alone (playwright.config.ts), and it is emptied at the end.
   test.afterEach(async ({ page }) => {
     await page.request.put('/api/admin/site-settings', {
       headers: AUTH,

@@ -3,6 +3,9 @@ import { LEGAL_VERSIONS } from '@qv/schema';
 
 export const PORT = 5174;
 
+/** A second demo server, for the spec that changes what everybody sees on it (a course turned off). */
+export const OWN_SERVER_PORT = 5175;
+
 /** Every test starts with it, so that the popup on entering is only e2e/account.spec.ts's. */
 export const ACCEPTED_ACCOUNT = {
   name: 'qv-demo-account',
@@ -20,3 +23,26 @@ export const ONLY_ACCEPTED = {
   cookies: [],
   origins: [{ origin: `http://localhost:${PORT}`, localStorage: [ACCEPTED_ACCOUNT] }],
 };
+
+/**
+ * What every test starts with in a server at `port`: the advanced mode (the four buttons, the limits and the presets)
+ * and the week of the test content turned on, with the terms and the privacy policy in force accepted.
+ */
+export const demoState = (port: number) => ({
+  cookies: [],
+  origins: [
+    {
+      origin: `http://localhost:${port}`,
+      localStorage: [
+        {
+          name: 'qv-demo-study',
+          value: JSON.stringify({
+            preferences: { fullAnki: true, fourButtons: true, welcomeSeen: true },
+            activations: [{ deckId: '1006809718735317183', active: true }],
+          }),
+        },
+        ACCEPTED_ACCOUNT,
+      ],
+    },
+  ],
+});

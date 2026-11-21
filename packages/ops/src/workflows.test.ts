@@ -99,6 +99,19 @@ describe('GitHub workflows', () => {
     expect(ci).toContain('name: playwright-report-${{ matrix.shard }}');
   });
 
+  it('every project of the end to end config is run by the CI, and none waits for another', () => {
+    const config = readFileSync(
+      join(repositoryRoot(), 'apps', 'web', 'playwright.config.ts'),
+      'utf8',
+    );
+    const projects = [...config.matchAll(/\bname: '(\w+)'/g)].map((m) => m[1]!).sort();
+    const named = [...new Set([...ci.matchAll(/--project=(\w+)/g)].map((m) => m[1]!))].sort();
+    expect(projects).toEqual(['desktop', 'iphone', 'phone']);
+    expect(named).toEqual(projects);
+    // A project that depends on others would run all of them again in every part.
+    expect(config).not.toContain('dependencies:');
+  });
+
   it('the pre-push hook does not run in the CI', () => {
     const hook = readFileSync(join(repositoryRoot(), '.githooks', 'pre-push'), 'utf8');
     expect(hook).toContain('CI');

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { DeckDetail } from '@qv/schema';
 import { deckCounts, masteryByDeck, nextCountChange } from '@qv/study';
+import { readClock } from '../../../shared/lib/clock';
 import { useStudyData } from '../queries';
 
 export function useDeckCounts(deck: DeckDetail | undefined) {
@@ -16,13 +17,15 @@ export function useDeckCounts(deck: DeckDetail | undefined) {
     const id = setTimeout(() => setTick((t) => t + 1), Math.min(at - Date.now() + 50, 2 ** 31 - 1));
     return () => clearTimeout(id);
   }, [study.data, tick]);
-  const counts = useMemo(() => {
-    void tick;
-    return study.data ? deckCounts(study.data) : undefined;
-  }, [study.data, tick]);
-  const mastery = useMemo(() => {
-    void tick;
-    return study.data ? masteryByDeck(study.data) : undefined;
-  }, [study.data, tick]);
+  // The counts read the clock: it is read again with new data and with each tick, and kept for any other render.
+  const now = useMemo(() => readClock(study.data, tick), [study.data, tick]);
+  const counts = useMemo(
+    () => (study.data ? deckCounts(study.data, now) : undefined),
+    [study.data, now],
+  );
+  const mastery = useMemo(
+    () => (study.data ? masteryByDeck(study.data, now) : undefined),
+    [study.data, now],
+  );
   return { ...study, counts, mastery };
 }

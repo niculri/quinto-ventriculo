@@ -609,11 +609,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/home/hooks/useTodayCounts.ts": {
-    "@typescript-eslint/no-meaningless-void-operator": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/landing/hooks/useSignIn.ts": {
     "@typescript-eslint/unbound-method": {
       "count": 1
@@ -718,11 +713,6 @@
     },
     "@typescript-eslint/unbound-method": {
       "count": 6
-    }
-  },
-  "apps/web/src/features/progress/hooks/useDeckCounts.ts": {
-    "@typescript-eslint/no-meaningless-void-operator": {
-      "count": 2
     }
   },
   "apps/web/src/features/progress/hooks/useOutsideClose.ts": {

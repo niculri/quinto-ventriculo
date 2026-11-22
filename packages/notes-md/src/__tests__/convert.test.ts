@@ -364,7 +364,7 @@ describe('figures and the blocks around them', () => {
     expect(message).toBe(`Figura que no se reconoce: «${'x'.repeat(140)}…»`);
     const exact = `${'y'.repeat(120)} ![a](a.png) ${'z'.repeat(7)}`;
     expect(exact.length).toBe(140);
-    expect(convert(exact).errors[0]).toContain(exact);
+    expect(convert(exact).errors[0]).toBe(`Figura que no se reconoce: «${exact}»`);
   });
 
   it('a lone image that cannot be found is an error and shows a placeholder', () => {

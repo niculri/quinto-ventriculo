@@ -27,7 +27,8 @@ export function ConfirmDialog({
   onConfirm: () => void;
 }) {
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (busy ? undefined : onOpenChange(o))}>
+    // While busy, «Cancelar» is off and Escape and a click outside are stopped, so nothing asks to close.
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <DimBackdrop />
         <Dialog.Content

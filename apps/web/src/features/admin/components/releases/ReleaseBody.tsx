@@ -34,7 +34,6 @@ export function ReleaseBody() {
 
 function Release({ overview }: { overview: ReleaseOverview }) {
   const { review, errors } = useReleaseReview(overview);
-  if (!review) return null;
   if (review.empty) {
     return <p className={`${card} mt-8 p-5 text-muted`}>{s.empty}</p>;
   }

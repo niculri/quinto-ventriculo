@@ -32,38 +32,32 @@ function useMissingImages(fingerprint: string | undefined) {
   return useQuery(missingImagesQuery(api, fingerprint));
 }
 
-export function useReleaseImpact(overview: ReleaseOverview | undefined) {
+export function useReleaseImpact(overview: ReleaseOverview) {
   const admin = useAdminRepository();
   const ids = useMemo(
-    () => [
-      ...new Set(
-        (overview?.summary.assessments ?? []).flatMap((a) => a.impactDecks.map((d) => d.id)),
-      ),
-    ],
+    () => [...new Set(overview.summary.assessments.flatMap((a) => a.impactDecks.map((d) => d.id)))],
     [overview],
   );
   return useQuery(impactQuery(admin, overview, ids));
 }
 
-export function useReleaseReview(overview: ReleaseOverview | undefined): {
-  review: ReviewList | null;
+export function useReleaseReview(overview: ReleaseOverview): {
+  review: ReviewList;
   errors: unknown[];
 } {
-  const fp = overview?.summary.fingerprint;
+  const fp = overview.summary.fingerprint;
   const phrases = useReleasePhrases(fp);
   const missing = useMissingImages(fp);
   const review = useMemo(
     () =>
-      overview
-        ? buildReview({
-            summary: overview.summary,
-            browseIndexes: overview.browseIndexes,
-            supportedSchemaVersion: overview.supportedSchemaVersion,
-            missingImages: missing.data ?? null,
-            phrases: phrases.data ?? null,
-            today: santiagoToday(),
-          })
-        : null,
+      buildReview({
+        summary: overview.summary,
+        browseIndexes: overview.browseIndexes,
+        supportedSchemaVersion: overview.supportedSchemaVersion,
+        missingImages: missing.data ?? null,
+        phrases: phrases.data ?? null,
+        today: santiagoToday(),
+      }),
     [overview, missing.data, phrases.data],
   );
   return { review, errors: [phrases.error, missing.error].filter(Boolean) };

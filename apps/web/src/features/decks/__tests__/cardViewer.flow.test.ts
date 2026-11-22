@@ -3,7 +3,9 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
+import { fakeApi } from '../../../test/fakes/api';
 import { renderApp } from '../../../test/render';
+import { ApiRequestError } from '../../../shared/lib/api';
 import { BASE_CSS, cardShadowRoot } from '../components/CardFrame';
 
 afterEach(() => document.documentElement.classList.remove('dark'));
@@ -137,5 +139,37 @@ describe('card viewer (a row of the cards page)', () => {
     expect(
       within(dialog).getByRole('toolbar', { name: 'Acciones de la tarjeta' }),
     ).toBeInTheDocument();
+  });
+
+  it('«Ver el frente» turns the card back, and «Anterior» goes to the card before, on its front', async () => {
+    renderApp(viewing('cloze-1', 0));
+    await cardRoot();
+    const dialog = screen.getByRole('dialog');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Mostrar respuesta' }));
+    await cardRoot(/Reverso/, dialog);
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Ver el frente' }));
+    await cardRoot(/Frente/, dialog);
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Mostrar respuesta' }));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Tarjeta anterior' }));
+    expect(await screen.findByRole('dialog', { name: 'T-PR-01-001.2' })).toBeInTheDocument();
+    await cardRoot(/Frente/);
+  });
+
+  it('a card that does not load says so, and «Reintentar» asks for it again', async () => {
+    let fail = true;
+    const base = fakeApi();
+    const api = fakeApi({
+      card: async (guid, ord) => {
+        if (fail) throw new ApiRequestError(500, 'internal', 'Falló el servidor.');
+        return base.card(guid, ord);
+      },
+    });
+    renderApp(viewing('cloze-1', 0), { api });
+    const dialog = await screen.findByRole('dialog');
+    const retry = await within(dialog).findByRole('button', { name: 'Reintentar' });
+    expect(within(dialog).queryByRole('region', { name: /Frente/ })).toBeNull();
+    fail = false;
+    await userEvent.click(retry);
+    await cardRoot(/Frente/, dialog);
   });
 });

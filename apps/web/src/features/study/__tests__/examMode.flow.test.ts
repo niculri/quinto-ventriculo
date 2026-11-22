@@ -201,6 +201,49 @@ describe('the date of a test, on the assessment’s page', () => {
     expect(await study.assessmentSettings()).toEqual([]);
   });
 
+  it('emptying the field and leaving it takes the saved date away', async () => {
+    const study = await withDate(await student(), 6);
+    renderApp(ASSESSMENT_PATH, { study });
+    const box = await options();
+    await waitFor(() => expect(dateField(box)).toHaveValue(inDays(6)));
+    fireEvent.change(dateField(box), { target: { value: '' } });
+    expect((await study.assessmentSettings())[0]).toMatchObject({ examDate: inDays(6) });
+    fireEvent.blur(dateField(box));
+    await waitFor(async () =>
+      expect((await study.assessmentSettings())[0]).toMatchObject({ examDate: null }),
+    );
+    await waitFor(() => expect(numberField(box)).toBeEnabled());
+  });
+
+  it('a number field left empty goes back to the number it had, without saving', async () => {
+    const study = await student();
+    const save = vi.spyOn(study, 'saveAssessmentSetting');
+    renderApp(ASSESSMENT_PATH, { study });
+    const box = await options();
+    await waitFor(() => expect(numberField(box)).toBeEnabled());
+    const before = (numberField(box) as HTMLInputElement).value;
+    await userEvent.clear(numberField(box));
+    await userEvent.keyboard('{Enter}');
+    expect(numberField(box)).toHaveValue(Number(before));
+    await userEvent.type(numberField(box), '{Backspace}{Backspace}{Backspace}x');
+    await userEvent.tab();
+    expect(numberField(box)).toHaveValue(Number(before));
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('with the storage blocked, the date still shows once the plan loads', async () => {
+    const getItem = localStorage.getItem.bind(localStorage);
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key.startsWith('qv-exam-date:')) throw new DOMException('blocked', 'SecurityError');
+      return getItem(key);
+    });
+    const study = await withDate(await student(), 8);
+    renderApp(ASSESSMENT_PATH, { study });
+    const box = await options();
+    await waitFor(() => expect(dateField(box)).toHaveValue(inDays(8)));
+    vi.restoreAllMocks();
+  });
+
   it('a failure to save says so', async () => {
     const study = await student();
     study.saveAssessmentSetting = () => Promise.reject(new Error('sin conexión'));
@@ -233,6 +276,22 @@ describe('the date the author suggests', () => {
     await waitFor(() => expect(dateField(box)).toHaveValue(inDays(9)));
     expect((await study.assessmentSettings())[0]).toMatchObject({ examDate: inDays(9) });
     expect(use).toHaveClass('invisible');
+  });
+
+  it('using it again when it is already the date saves nothing more', async () => {
+    const study = await student();
+    const save = vi.spyOn(study, 'saveAssessmentSetting');
+    renderApp(ASSESSMENT_PATH, {
+      study,
+      api: fakeApi({ catalog: async () => suggesting(inDays(9)) }),
+    });
+    const box = await options();
+    await waitFor(() => expect(numberField(box)).toBeEnabled());
+    const use = within(box).getByRole('button', { name: /^Usar el \d+ de \w+/ });
+    await userEvent.click(use);
+    await waitFor(() => expect(use).toHaveClass('invisible'));
+    await userEvent.click(use);
+    expect(save).toHaveBeenCalledOnce();
   });
 
   it('one that passed does not show', async () => {

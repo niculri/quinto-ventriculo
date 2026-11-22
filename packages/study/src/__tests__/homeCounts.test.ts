@@ -278,6 +278,24 @@ describe('the cards due today', () => {
     expect(counts(loose, split, sure).counts).toBeNull();
   });
 
+  it('a note only buries what its due cards’ presets say: a due card of a preset that does not bury leaves the others’ new cards', () => {
+    const mixed = [
+      { name: 'Default', config: { new: { perDay: 8, bury: true }, rev: { perDay: 9999 } } },
+      { name: 'Loose', config: { new: { perDay: 8, bury: false }, rev: { perDay: 9999 } } },
+    ];
+    const b = base({ own: { [UNIT1]: 8 }, active: [UNIT1, UNIT2], full: true, presets: mixed });
+    const loose = {
+      ...b,
+      decks: b.decks.map((d) => (d.id === UNIT2 ? { ...d, authorPreset: 'Loose' } : d)),
+    };
+    const cat = catalog({ [UNIT1]: { closed: 8, exclusive: 8, own: 8 } });
+    const home = homeOf(
+      deckCounts(UNIT1, { due: [due('x', 1, 'r', dueSecs + 86_400)] }),
+      deckCounts(UNIT2, { due: [due('x', 0, 'r')] }),
+    );
+    expect(counts(loose, home, cat).counts).toMatchObject({ new: 8, review: 1 });
+  });
+
   it('a card of a note in a bury-new preset takes that note’s new cards out of the count', () => {
     const cat = catalog({ [UNIT1]: { closed: 5, exclusive: 5, own: 10 } });
     const home = homeOf(deckCounts(UNIT1, { due: [due('x', 0, 'r')] }));

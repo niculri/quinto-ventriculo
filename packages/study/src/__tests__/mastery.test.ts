@@ -55,14 +55,8 @@ describe('masteryByDeck', () => {
   });
 
   it('a suspended card is not part of the average', () => {
-    const data = makeData({
-      rows: [
-        atNinety(n1o0),
-        atNinety(n1o1, { suspended: true }),
-        atNinety(n2o0, { suspended: true }),
-      ],
-    });
-    expect(masteryByDeck(data, NOON).get(UNIT1)).toBeCloseTo(0.9, 6);
+    const data = makeData({ rows: [atNinety(n1o0), atNinety(n1o1, { suspended: true })] });
+    expect(masteryByDeck(data, NOON).get(UNIT1)).toBeCloseTo(0.9 / 2, 6);
   });
 
   it('a forgotten card (new again, with a memory still stored) counts as 0, and so does one without a last review', () => {

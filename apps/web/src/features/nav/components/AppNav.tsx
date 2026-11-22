@@ -72,7 +72,7 @@ function NavTree({
         <SettingsBranch pathname={pathname} onNavigate={onNavigate} />
       ) : where.admin ? (
         <AdminBranch pathname={pathname} onNavigate={onNavigate} />
-      ) : semester ? (
+      ) : semester && tree ? (
         <SemesterBranch
           semester={semester}
           where={where}

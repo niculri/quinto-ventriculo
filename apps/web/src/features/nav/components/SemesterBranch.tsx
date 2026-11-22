@@ -20,7 +20,7 @@ export function SemesterBranch({
 }: {
   semester: SemesterWithCourses;
   where: Where;
-  tree: AnkiTree | null;
+  tree: AnkiTree;
   pathname: string;
   onNavigate?: (() => void) | undefined;
 }) {
@@ -92,10 +92,10 @@ function CourseAssessments({
 }: {
   course: CourseWithAssessments;
   where: Where;
-  tree: AnkiTree | null;
+  tree: AnkiTree;
   onNavigate?: (() => void) | undefined;
 }) {
-  const decks = (tree?.nodes ?? []).filter(
+  const decks = tree.nodes.filter(
     (n): n is CourseDeckNode => n.depth === 3 && hasPage(n) && n.courseId === course.id,
   );
   const assessments = course.assessments.filter(

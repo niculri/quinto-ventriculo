@@ -91,4 +91,11 @@ describe('initExtras', () => {
     expect(panel('x').hidden).toBe(true);
     expect(panel('a').hidden).toBe(false);
   });
+
+  it('an image marker outside any panel opens nothing', () => {
+    const { panel } = show(
+      '<div class="extras"><span class="abrir-imagen"></span><div class="panel" data-k="a" hidden>a</div></div>',
+    );
+    expect(panel('a').hidden).toBe(true);
+  });
 });

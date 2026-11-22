@@ -9,15 +9,20 @@ import { countsOf } from '@qv/srs';
 import { buildQueue, cardKey, configsFor, globalSettings } from '../scheduler';
 import type { StudyData, TreeDeck } from '../scheduler';
 import { blankRow } from '../session';
+import { defaultConfig } from '@qv/srs';
 import {
   DEFAULT_NEW_PER_DAY,
   EMPTY_PLAN,
   NO_LIMIT,
   activeUnits,
+  breakdownText,
   decksGivingNew,
   estimateMinutes,
+  extrasOff,
   loadText,
   minutesText,
+  simpleConfigs,
+  totalCards,
 } from '../simple';
 import type { StudyPlan } from '../simple';
 
@@ -367,5 +372,188 @@ describe('the load in minutes', () => {
     expect(minutesText(45)).toBe('~45 min');
     expect(minutesText(60)).toBe('~1 h');
     expect(minutesText(80)).toBe('~1 h 20 min');
+  });
+});
+
+describe('the units a student studied without turning them on', () => {
+  const names = [
+    { id: 'a', name: 'R::S::C::A' },
+    { id: 'u', name: 'R::S::C::A::U' },
+    { id: 'u-sub', name: 'R::S::C::A::U::Sub' },
+    { id: 'v', name: 'R::S::C::A::V' },
+  ];
+
+  it('count as on only if the unit itself is in the list, and decks that are not under a unit say nothing', () => {
+    const plan = (answeredDecks: string[]): StudyPlan => ({ ...EMPTY_PLAN, answeredDecks });
+    expect([...activeUnits(names, plan(['u-sub']))]).toEqual(['u']);
+    expect([...activeUnits(names, plan(['a', 'nobody']))]).toEqual([]);
+    expect([
+      ...activeUnits(
+        names.filter((d) => d.id !== 'u'),
+        plan(['u-sub']),
+      ),
+    ]).toEqual([]);
+  });
+
+  it('a switch made by hand beats what was studied, in both directions', () => {
+    const off: StudyPlan = {
+      ...EMPTY_PLAN,
+      answeredDecks: ['u-sub'],
+      activations: [{ deckId: 'u', active: false }],
+    };
+    const on: StudyPlan = { ...EMPTY_PLAN, activations: [{ deckId: 'v', active: true }] };
+    expect([...activeUnits(names, off)]).toEqual([]);
+    expect([...activeUnits(names, on)]).toEqual(['v']);
+  });
+});
+
+describe('who gives new cards when the tree is incomplete', () => {
+  const onPlan: StudyPlan = { ...EMPTY_PLAN, activations: [{ deckId: 'u', active: true }] };
+
+  it('a deck under a unit missing from the list gives none, since nothing turns it on', () => {
+    const decks = [{ id: 'x', name: 'R::S::C::A::U::Sub' }];
+    expect([...decksGivingNew(decks, onPlan)]).toEqual([]);
+  });
+
+  it('an Extras whose assessment is missing from the list is left out', () => {
+    const decks = [
+      { id: 'u', name: 'R::S::C::A::U' },
+      { id: 'e', name: 'R::S::C::A::U::Extras' },
+    ];
+    expect([...decksGivingNew(decks, onPlan)]).toEqual(['u']);
+  });
+});
+
+describe('extrasOff', () => {
+  const list = [
+    { id: 'a', name: 'R::S::C::A' },
+    { id: 'u', name: 'R::S::C::A::U' },
+    { id: 'e', name: 'R::S::C::A::U::Extras' },
+  ];
+  const include = (includeExtras: boolean): StudyPlan => ({
+    ...EMPTY_PLAN,
+    assessments: [{ deckId: 'a', includeExtras, newPerDay: null }],
+  });
+
+  it('is true for an Extras deck of an assessment that does not include them, and false once it does', () => {
+    expect(extrasOff(list, include(false), 'e')).toBe(true);
+    expect(extrasOff(list, EMPTY_PLAN, 'e')).toBe(true);
+    expect(extrasOff(list, include(true), 'e')).toBe(false);
+  });
+
+  it('is false for a deck that is not Extras and for one that does not exist', () => {
+    expect(extrasOff(list, include(false), 'u')).toBe(false);
+    expect(extrasOff(list, include(false), 'missing')).toBe(false);
+  });
+});
+
+describe('simpleConfigs', () => {
+  const names = [
+    { id: 'r', name: 'R' },
+    { id: 'a', name: 'R::S::C::A' },
+    { id: 'u', name: 'R::S::C::A::U' },
+    { id: 'e', name: 'R::S::C::A::U::Extras' },
+    { id: 'o', name: 'R::S::C::B::U' },
+  ];
+  const presets = new Map(
+    names.map((d) => [d.id, { ...defaultConfig(), newPerDay: 7, reviewsPerDay: 33 }]),
+  );
+  const plan: StudyPlan = {
+    ...EMPTY_PLAN,
+    assessments: [{ deckId: 'a', includeExtras: false, newPerDay: 12 }],
+  };
+
+  it('in simple mode the assessment’s number goes on each deck of it, the decks above have no limit and reviews have none', () => {
+    const out = simpleConfigs(names, presets, plan);
+    expect(out.get('u')).toMatchObject({ newPerDay: 12, reviewsPerDay: NO_LIMIT });
+    expect(out.get('a')!.newPerDay).toBe(12);
+    expect(out.get('r')!.newPerDay).toBe(NO_LIMIT);
+    expect(out.get('o')!.newPerDay).toBe(DEFAULT_NEW_PER_DAY);
+  });
+
+  it('simple mode buries siblings and never suspends a leech, whatever the preset says', () => {
+    const strict = new Map(
+      names.map((d) => [d.id, { ...defaultConfig(), leechAction: 'suspend' as const }]),
+    );
+    expect(simpleConfigs(names, strict, plan).get('u')).toMatchObject({
+      leechAction: 'tagOnly',
+      buryNew: true,
+      buryReviews: true,
+      buryInterdayLearning: true,
+    });
+  });
+
+  it('a pace worked out from a date beats the student’s number, and a deadline fills the day with siblings', () => {
+    const out = simpleConfigs(names, presets, plan, new Map([['a', 31]]), new Set(['a']));
+    expect(out.get('u')).toMatchObject({ newPerDay: 31, fillNewWithSiblings: true });
+    expect(out.get('o')).toMatchObject({
+      newPerDay: DEFAULT_NEW_PER_DAY,
+      fillNewWithSiblings: false,
+    });
+  });
+
+  describe('in the advanced mode', () => {
+    const out = (paces = new Map<string, number>(), deadlines = new Set<string>()) =>
+      simpleConfigs(names, presets, plan, paces, deadlines, true);
+
+    it('keeps each preset’s own limits except for the assessment itself and its Extras', () => {
+      const configs = out();
+      expect(configs.get('a')!.newPerDay).toBe(12);
+      expect(configs.get('e')!.newPerDay).toBe(12);
+      expect(configs.get('u')).toMatchObject({ newPerDay: 7, reviewsPerDay: 33, buryNew: false });
+      expect(configs.get('r')!.newPerDay).toBe(7);
+    });
+
+    it('every deck of an assessment with a worked-out pace follows it, and a deadline fills with siblings', () => {
+      const configs = out(new Map([['a', 40]]), new Set(['a']));
+      expect(configs.get('u')).toMatchObject({ newPerDay: 40, fillNewWithSiblings: true });
+      expect(configs.get('o')).toMatchObject({ newPerDay: 7, fillNewWithSiblings: false });
+    });
+  });
+
+  it('a deck whose assessment is missing from the list gets the default number, or its own preset’s in the advanced mode, not a crash', () => {
+    const lone = [{ id: 'u', name: 'R::S::C::A::U' }];
+    expect(
+      simpleConfigs(lone, new Map([['u', defaultConfig()]]), EMPTY_PLAN).get('u')!.newPerDay,
+    ).toBe(DEFAULT_NEW_PER_DAY);
+    expect(
+      simpleConfigs(
+        lone,
+        new Map([['u', { ...defaultConfig(), newPerDay: 3 }]]),
+        EMPTY_PLAN,
+        undefined,
+        undefined,
+        true,
+      ).get('u')!.newPerDay,
+    ).toBe(3);
+  });
+});
+
+describe('the counts as text', () => {
+  it('adds the three kinds of card', () => {
+    expect(totalCards({ new: 3, learning: 1, review: 2 })).toBe(6);
+  });
+
+  it('spells them out one by one', () => {
+    expect(breakdownText({ new: 3, learning: 1, review: 2 })).toBe(
+      'Nuevas: 3 · Aprendiendo: 1 · A repasar: 2',
+    );
+  });
+
+  it('hours and minutes read as «~1 h 5 min», and a full hour has no minutes', () => {
+    expect(minutesText(59)).toBe('~59 min');
+    expect(minutesText(65)).toBe('~1 h 5 min');
+    expect(minutesText(120)).toBe('~2 h');
+  });
+});
+
+describe('extrasOff with an assessment that is not in the list', () => {
+  it('counts the Extras as off, since nothing includes them', () => {
+    const lone = [{ id: 'e', name: 'R::S::C::A::U::Extras' }];
+    const plan: StudyPlan = {
+      ...EMPTY_PLAN,
+      assessments: [{ deckId: 'a', includeExtras: true, newPerDay: null }],
+    };
+    expect(extrasOff(lone, plan, 'e')).toBe(true);
   });
 });

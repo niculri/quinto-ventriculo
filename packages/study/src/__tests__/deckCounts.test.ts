@@ -1,8 +1,9 @@
 // Tests the deck list's counts over a tree like the published one, with the study queue's limits through it.
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { CardSummary, DeckDetail } from '@qv/schema/anki';
-import { deckCounts } from '../deckCounts';
+import { deckCounts, nextCountChange } from '../deckCounts';
+import { CARDS, NOON, makeData, reviewRow, rowFor } from './studyData';
 import { defaultPreferences } from '../preferences';
 import type { StoredCard } from '@qv/schema/user';
 import { blankRow } from '../session';
@@ -120,5 +121,84 @@ describe('the counts of the deck list', () => {
     expect(counts.get('611')!.new).toBeGreaterThan(0);
     expect(counts.get('711')!.new).toBe(0);
     expect(counts.get('8')).toEqual({ new: 0, learning: 0, review: 0 });
+  });
+});
+
+const [n1o0, n1o1, n2o0, n3o0] = CARDS as [
+  (typeof CARDS)[0],
+  (typeof CARDS)[0],
+  (typeof CARDS)[0],
+  (typeof CARDS)[0],
+];
+
+describe('when the counts change by themselves', () => {
+  const learningAt = (c: (typeof CARDS)[number], minutes: number, over = {}) =>
+    rowFor(c, {
+      phase: 'learning',
+      due: new Date(NOON + minutes * 60_000).toISOString(),
+      lastReview: new Date(NOON).toISOString(),
+      ...over,
+    });
+  const data = (rows: ReturnType<typeof rowFor>[]) => makeData({ rows });
+  // The sample preferences look 20 minutes ahead.
+
+  it('is the moment the first learning step enters the learn-ahead limit', () => {
+    const rows = [learningAt(n1o0, 90), learningAt(n1o1, 50), learningAt(n2o0, 70)];
+    expect(nextCountChange(data(rows), NOON)).toBe(NOON + 30 * 60_000);
+  });
+
+  it('ignores steps that are already inside the window or exactly at its edge', () => {
+    const rows = [learningAt(n1o0, 10), learningAt(n1o1, 20), learningAt(n2o0, 45)];
+    expect(nextCountChange(data(rows), NOON)).toBe(NOON + 25 * 60_000);
+  });
+
+  it('a burial that ends counts too, whichever comes first', () => {
+    const buried = reviewRow(n3o0, { buriedUntil: new Date(NOON + 10 * 60_000).toISOString() });
+    expect(nextCountChange(data([buried, learningAt(n1o0, 90)]), NOON)).toBe(NOON + 10 * 60_000);
+  });
+
+  it('ignores new cards, cards due a whole day later and cards without a date', () => {
+    const forgotten = rowFor(n1o0, { due: new Date(NOON + 90 * 60_000).toISOString() });
+    const nodate = rowFor(n1o1, { phase: 'learning', due: null });
+    const review = reviewRow(n2o0, { dueInDays: 3 });
+    expect(nextCountChange(data([forgotten, nodate, review]), NOON)).toBeNull();
+  });
+
+  it('a longer learn-ahead limit brings the change forward', () => {
+    const rows = [learningAt(n1o0, 90)];
+    const longer = makeData({
+      rows,
+      over: { prefs: { ...defaultPreferences('America/Santiago'), learnAheadMinutes: 60 } },
+    });
+    expect(nextCountChange(longer, NOON)).toBe(NOON + 30 * 60_000);
+  });
+
+  it('without a given time it uses the clock', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOON);
+    try {
+      expect(nextCountChange(data([learningAt(n1o0, 90)]))).toBe(NOON + 70 * 60_000);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('a deck the tree does not know', () => {
+  it('gets no counts, while the rest of the tree does', () => {
+    const data = makeData({ rows: [reviewRow(n1o0, { dueInDays: 0 })] });
+    const withGhost = {
+      ...data,
+      deck: {
+        ...data.deck,
+        subdecks: [
+          ...data.deck.subdecks,
+          { id: 'ghost', name: 'G', parentId: null, preset: null, cardCount: 0 },
+        ],
+      },
+    };
+    const counts = deckCounts(withGhost, NOON);
+    expect(counts.has('ghost')).toBe(false);
+    expect(counts.get('5')?.review).toBe(1);
   });
 });

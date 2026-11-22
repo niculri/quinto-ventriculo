@@ -5,6 +5,7 @@ import {
   cellLabel,
   cellValue,
   countsByDay,
+  dateText,
   dayNumber,
   dueByDay,
   heatmapStats,
@@ -248,5 +249,55 @@ describe('what each cell shows', () => {
       },
     );
     expect(yearRange(new Map(), new Map(), today)).toEqual({ from: 2026, to: 2026 });
+  });
+});
+
+describe('what a day says', () => {
+  it('a day with no answers and no practice is not a studied day, even if a row exists', () => {
+    const days: HeatmapDay[] = [
+      { day: D('2026-11-01'), deckId: 'a', answers: 0, practice: 0 },
+      { day: D('2026-11-02'), deckId: 'a', answers: 0, practice: 3 },
+    ];
+    expect([...countsByDay(days, D('2026-11-03'))]).toEqual([[D('2026-11-02'), 3]]);
+  });
+
+  it('a day after today with nothing due is a due day of 0, not a studied one', () => {
+    const today = D('2026-11-03');
+    expect(cellValue(today + 4, today, new Map(), new Map(), 20)).toEqual({
+      kind: 'due',
+      value: 0,
+      level: 0,
+    });
+    expect(cellValue(today + 4, today, new Map(), new Map([[today + 4, 20]]), 20)).toMatchObject({
+      kind: 'due',
+      value: 20,
+    });
+  });
+
+  it('says the weekday only when asked, with Monday as the first day', () => {
+    expect(dateText(D('2026-11-09'))).toBe('9 de noviembre de 2026');
+    expect(dateText(D('2026-11-09'), true)).toBe('lunes 9 de noviembre de 2026');
+    expect(dateText(D('2026-11-08'), true)).toMatch(/^domingo /);
+  });
+
+  it('labels each kind of cell: studied, a day without study, due and nothing due, and marks today', () => {
+    const today = D('2026-11-03');
+    const label = (day: number, cell: Parameters<typeof cellLabel>[1]) =>
+      cellLabel(day, cell, today);
+    expect(label(today - 1, { kind: 'past', value: 1, level: 1 })).toBe(
+      '2 de noviembre de 2026: 1 respuesta',
+    );
+    expect(label(today - 1, { kind: 'past', value: 0, level: 0 })).toBe(
+      '2 de noviembre de 2026: sin estudio',
+    );
+    expect(label(today, { kind: 'past', value: 1200, level: 5 })).toBe(
+      '3 de noviembre de 2026 (hoy): 1.200 respuestas',
+    );
+    expect(label(today + 1, { kind: 'due', value: 7, level: 1 })).toBe(
+      '4 de noviembre de 2026: 7 por repasar',
+    );
+    expect(label(today + 1, { kind: 'due', value: 0, level: 0 })).toBe(
+      '4 de noviembre de 2026: nada por repasar',
+    );
   });
 });

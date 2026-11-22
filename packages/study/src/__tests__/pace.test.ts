@@ -560,3 +560,130 @@ describe('a new day with a session open', () => {
     expect(after.find((p) => p.deckId === L2)).toMatchObject({ seen: 1, newYesterday: 1 });
   });
 });
+
+describe('what is left out of the reading', () => {
+  const view = (p: StudyPlan, progress: DeckProgress[] = [], assessmentId = ASSESSMENT) =>
+    assessmentView({
+      decks: DECKS,
+      plan: p,
+      progress,
+      assessmentId,
+      today: TODAY,
+      prefs: defaultPreferences(),
+    });
+
+  it('an assessment that is not in the tree has no facts, and no pace to compute', () => {
+    expect(assessmentFacts(DECKS, plan(), [], 'missing')).toEqual(
+      facts({
+        newLeft: 0,
+        anyOn: false,
+      }),
+    );
+  });
+
+  it('a pace compared with a baseline of no days is always a rise', () => {
+    const setting = { finalReviewDays: 3 };
+    const pace = { kind: 'computed' as const, newPerDay: 5, daysLeft: 2 };
+    expect(paceRose(pace, setting, facts({ newLeft: 10 }), TODAY - 2, TODAY)).toBe(true);
+  });
+
+  it('with everything already seen it says so, and counts what is turned off', () => {
+    const f = [row(L1, { seen: 100 })];
+    const done = view(plan({ assessments: [dated(12)] }), f);
+    expect(done.pace.kind).toBe('finished');
+    expect(done.status).toBe(
+      'Faltan 12 días · ya viste todo lo activado · 1 clase sin activar no cuenta.',
+    );
+  });
+
+  it('with one new card left it says «nueva», not «nuevas»', () => {
+    const v = view(plan({ assessments: [dated(2)] }), [row(L1, { seen: 99 })]);
+    expect(v.status).toMatch(/Quedan 1 nueva sin ver/);
+  });
+
+  it('with nothing new left in the final review it does not talk about new cards', () => {
+    const v = view(plan({ assessments: [dated(2)] }), [row(L1, { seen: 100 })]);
+    expect(v.status).toBe('Faltan 2 días: son días de repaso final, sin tarjetas nuevas.');
+  });
+
+  it('on the day of the test it says no new cards come', () => {
+    expect(view(plan({ assessments: [dated(0)] }), [row(L1, { seen: 100 })]).status).toBe(
+      'Hoy es la prueba: no salen tarjetas nuevas.',
+    );
+  });
+
+  it('if no shorter review would leave new cards, it does not suggest one', () => {
+    const v = view(plan({ assessments: [dated(2, { finalReviewDays: 1 })] }));
+    expect(v.status).not.toMatch(/si dejas menos días/);
+  });
+
+  it('says how many units are left out in the singular and the plural, as weeks or as lectures', () => {
+    const status = (units: string[], active: string[]) => {
+      const decks = [
+        { id: 'a', name: 'R::S::C::A', ownCards: 0 },
+        ...units.map((u, i) => ({ id: `u${i}`, name: `R::S::C::A::${u}`, ownCards: 10 })),
+      ];
+      return assessmentView({
+        decks,
+        plan: {
+          ...EMPTY_PLAN,
+          activations: active.map((deckId) => ({ deckId, active: true })),
+          assessments: [{ deckId: 'a', includeExtras: false, newPerDay: 10, examDate: inDays(30) }],
+        },
+        progress: [],
+        assessmentId: 'a',
+        today: TODAY,
+        prefs: defaultPreferences(),
+      }).status;
+    };
+    expect(status(['S1 - A', 'S2 - B'], ['u0'])).toMatch(/1 semana sin activar no cuenta\.$/);
+    expect(status(['S1 - A', 'S2 - B', 'S3 - C'], ['u0'])).toMatch(
+      /2 semanas sin activar no cuentan\.$/,
+    );
+    expect(status(['A', 'B', 'C'], ['u0'])).toMatch(/2 clases sin activar no cuentan\.$/);
+  });
+
+  it('the nearest exam ignores assessments that are not in the list and the ones already past', () => {
+    const p = plan({
+      assessments: [
+        { ...dated(5), deckId: 'unlisted' },
+        { ...dated(-1), deckId: ASSESSMENT },
+        { ...dated(20), deckId: OTHER },
+        { ...dated(7), deckId: ASSESSMENT, examDate: null },
+      ],
+    });
+    expect(nearestExamText(DECKS, p, [], [ASSESSMENT, OTHER], TODAY, defaultPreferences())).toBe(
+      'B · Faltan 20 días · nada activado',
+    );
+  });
+
+  it('on a tie the first assessment of the list is the nearest', () => {
+    const p = plan({ assessments: [dated(9), { ...dated(9), deckId: OTHER }] });
+    expect(nearestExamText(DECKS, p, [], [ASSESSMENT, OTHER], TODAY, defaultPreferences())).toMatch(
+      /^A · /,
+    );
+  });
+});
+
+describe('a computed pace once the day’s new cards are answered', () => {
+  it('keeps saying the number of the day and that everything active was seen', () => {
+    const decks = [
+      { id: 'a', name: 'R::S::C::A', ownCards: 0 },
+      { id: 'u', name: 'R::S::C::A::U', ownCards: 40 },
+    ];
+    const v = assessmentView({
+      decks,
+      plan: {
+        ...EMPTY_PLAN,
+        activations: [{ deckId: 'u', active: true }],
+        assessments: [{ deckId: 'a', includeExtras: false, newPerDay: 10, examDate: inDays(23) }],
+      },
+      progress: [row('u', { seen: 40, newToday: 8 })],
+      assessmentId: 'a',
+      today: TODAY,
+      prefs: defaultPreferences(),
+    });
+    expect(v.pace).toMatchObject({ kind: 'computed', newPerDay: 1 });
+    expect(v.status).toBe('Faltan 23 días · ya viste todo lo activado.');
+  });
+});

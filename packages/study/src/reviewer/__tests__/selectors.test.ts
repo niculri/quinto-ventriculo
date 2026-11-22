@@ -15,6 +15,8 @@ import {
   rowOf,
 } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
+import { cardKey } from '../../scheduler';
+import { blankRow } from '../../session';
 import { deepFreeze } from './freeze';
 import { ASSESSMENT, L1 } from './fixtures';
 import { SCENARIOS } from './scenarios';
@@ -94,5 +96,18 @@ describe('the writes asked for', () => {
     expect(commandsNotIn(state, new Set())).toEqual(all);
     expect(commandsNotIn(state, new Set(all.map((c) => c.id)))).toEqual([]);
     expect(commandsNotIn(state, new Set([all[0]!.id]))).toEqual(all.slice(1));
+  });
+});
+
+describe('the flag of the card shown', () => {
+  it('is 0 for a card that has no row yet, and the row’s flag once it has one', () => {
+    const state = opened();
+    const entry = state.shown!.entry;
+    const without = { ...state, data: { ...state.data, rows: new Map() } };
+    expect(flagOf(without)).toBe(0);
+    const row = { ...blankRow(entry), flag: 4 };
+    const withRow = { ...state, data: { ...state.data, rows: new Map([[cardKey(entry), row]]) } };
+    expect(flagOf(withRow)).toBe(4);
+    expect(flagOf({ ...state, shown: null })).toBe(0);
   });
 });

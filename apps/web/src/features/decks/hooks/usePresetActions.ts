@@ -53,6 +53,8 @@ export function usePresetActions({
     });
   };
   const renamePreset = (name: string) => {
+    // Only a user's preset (which has its row) is editable.
+    /* v8 ignore next */
     if (choice.ref.kind !== 'user' || !choice.row) return;
     const row = choice.row;
     void run(() =>
@@ -61,6 +63,8 @@ export function usePresetActions({
   };
   const removePreset = () => {
     setRemoving(false);
+    // «Remover» is disabled on an author's preset.
+    /* v8 ignore next */
     if (choice.ref.kind !== 'user' || !choice.row) return;
     const id = choice.row.id;
     void run(async () => {
@@ -69,6 +73,8 @@ export function usePresetActions({
     });
   };
   const backToAuthor = () => {
+    // The menu offers it only on an author's preset the user changed.
+    /* v8 ignore next */
     if (choice.ref.kind !== 'author' || !choice.row) return;
     const id = choice.row.id;
     void run(async () => {

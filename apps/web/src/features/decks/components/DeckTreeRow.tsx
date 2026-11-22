@@ -83,11 +83,9 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
         </span>
       </div>
       <span className="hidden flex-none text-right text-sm sm:block">{load}</span>
-      {p.root.depth < UNIT_DEPTH ? (
-        <span className="hidden w-[5.5rem] flex-none sm:block">
-          {unit ? <RowMeter mastery={p.mastery} id={d.id} align="right" /> : null}
-        </span>
-      ) : null}
+      <span className="hidden w-[5.5rem] flex-none sm:block">
+        {unit ? <RowMeter mastery={p.mastery} id={d.id} align="right" /> : null}
+      </span>
       <span className="flex w-10 flex-none justify-center">
         {unit && !p.plan ? <Skeleton className="h-6 w-10 rounded-full" /> : null}
         {unit && p.plan ? (

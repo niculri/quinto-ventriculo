@@ -52,7 +52,8 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
   const onKeyDown = (e: KeyboardEvent) => viewerKeyDown(e, content.current, toggleAnswer, go);
 
   return (
-    <Dialog.Root open onOpenChange={(open) => (open ? null : onClose())}>
+    // Always open and without a trigger: Radix only calls it to close.
+    <Dialog.Root open onOpenChange={onClose}>
       <Dialog.Portal>
         <DimBackdrop />
         <Dialog.Content

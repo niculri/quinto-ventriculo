@@ -30,3 +30,4 @@ create policy "update own name" on public.profiles
 
 grant select on table public.profiles to authenticated;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.profiles to service_role;
+grant update (name) on table public.profiles to authenticated;

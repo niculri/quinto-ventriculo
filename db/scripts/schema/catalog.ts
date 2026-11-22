@@ -22,6 +22,13 @@ export interface CatalogFunction {
   comment: string | null;
 }
 
+/** `enabled` is `pg_trigger.tgenabled`: O (fires), D (disabled), R (only in replicas) or A (always). */
+export interface CatalogTrigger {
+  name: string;
+  definition: string;
+  enabled: string;
+}
+
 export interface CatalogTable {
   name: string;
   relkind: 'r' | 'p' | 'v' | 'm';
@@ -32,10 +39,11 @@ export interface CatalogTable {
     default: string | null;
     identity: string;
     generated: string;
+    acl: Grant[];
   }[];
   constraints: { name: string; definition: string }[];
   indexes: { name: string; definition: string }[];
-  triggers: { name: string; definition: string }[];
+  triggers: CatalogTrigger[];
   policies: {
     name: string;
     command: string;
@@ -65,27 +73,31 @@ export interface DefaultPrivilege {
 
 export interface Catalog {
   extensions: string[];
-  externalTriggers: { table: string; name: string; definition: string }[];
+  externalTriggers: (CatalogTrigger & { table: string })[];
   functions: CatalogFunction[];
   tables: CatalogTable[];
   sequences: CatalogSequence[];
   defaultPrivileges: DefaultPrivilege[];
 }
 
-/** The privileges of an ACL (the default one when it is null) of the roles in SNAPSHOT_ROLES, as rows of `grantee, privilege`. */
-const grants = (acl: string, kind: string, owner: string) => `
+/** The privileges of an ACL expression for the roles in SNAPSHOT_ROLES, as rows of `grantee, privilege`. */
+const grantsOf = (acl: string) => `
   coalesce((select jsonb_agg(jsonb_build_object('grantee', g.name, 'privilege', g.privilege)
       order by g.name, g.privilege)
-    from (select case when a.grantee = 0 then 'public' else r.rolname end as name, a.privilege_type as privilege
-      from aclexplode(coalesce(${acl}, acldefault('${kind}', ${owner}))) a
-      left join pg_roles r on r.oid = a.grantee) g
+    from (select case when x.grantee = 0 then 'public' else r.rolname end as name, x.privilege_type as privilege
+      from aclexplode(${acl}) x
+      left join pg_roles r on r.oid = x.grantee) g
     where g.name = any($roles)), '[]')`;
+
+/** The privileges of an object: its ACL, or the default one when it is null. */
+const grants = (acl: string, kind: string, owner: string) =>
+  grantsOf(`coalesce(${acl}, acldefault('${kind}', ${owner}))`);
 
 const list = (select: string) => `coalesce((${select}), '[]')`;
 
 /**
- * The document of one schema. `search_path` is empty while it runs, so that every `pg_get_*def` qualifies its names
- * and the text does not depend on the connection. `$schema` and `$roles` are filled by `catalogQuery`.
+ * The document of one schema. `search_path` is `pg_catalog` while it runs, so that every `pg_get_*def` qualifies its
+ * names and the text does not depend on the connection. `$schema` and `$roles` are filled by `catalogStatements`.
  */
 const QUERY = `
 select jsonb_build_object(
@@ -93,6 +105,7 @@ select jsonb_build_object(
   'externalTriggers', ${list(`select jsonb_agg(jsonb_build_object(
       'table', n.nspname || '.' || c.relname,
       'name', t.tgname,
+      'enabled', t.tgenabled,
       'definition', pg_get_triggerdef(t.oid)) order by n.nspname, c.relname, t.tgname)
     from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace
       join pg_proc p on p.oid = t.tgfoid
@@ -115,7 +128,8 @@ select jsonb_build_object(
           'notNull', a.attnotnull,
           'default', pg_get_expr(d.adbin, d.adrelid),
           'identity', a.attidentity,
-          'generated', a.attgenerated) order by a.attnum)
+          'generated', a.attgenerated,
+          'acl', ${grantsOf('a.attacl')}) order by a.attnum)
         from pg_attribute a left join pg_attrdef d on d.adrelid = a.attrelid and d.adnum = a.attnum
         where a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped`)},
       'constraints', ${list(`select jsonb_agg(jsonb_build_object('name', k.conname,
@@ -126,7 +140,7 @@ select jsonb_build_object(
         from pg_index i join pg_class ic on ic.oid = i.indexrelid
         where i.indrelid = c.oid and not exists (
           select 1 from pg_constraint k where k.conindid = i.indexrelid and k.conrelid = c.oid)`)},
-      'triggers', ${list(`select jsonb_agg(jsonb_build_object('name', t.tgname,
+      'triggers', ${list(`select jsonb_agg(jsonb_build_object('name', t.tgname, 'enabled', t.tgenabled,
           'definition', pg_get_triggerdef(t.oid)) order by t.tgname)
         from pg_trigger t where t.tgrelid = c.oid and not t.tgisinternal`)},
       'policies', ${list(`select jsonb_agg(jsonb_build_object(
@@ -159,11 +173,7 @@ select jsonb_build_object(
       'schema', n.nspname,
       'objects', case a.defaclobjtype when 'f' then 'functions' when 'r' then 'tables' when 'S' then 'sequences'
         when 'T' then 'types' else 'schemas' end,
-      'grants', coalesce((select jsonb_agg(jsonb_build_object('grantee', g.name, 'privilege', g.privilege)
-          order by g.name, g.privilege)
-        from (select case when x.grantee = 0 then 'public' else r.rolname end as name, x.privilege_type as privilege
-          from aclexplode(a.defaclacl) x left join pg_roles r on r.oid = x.grantee) g
-        where g.name = any($roles)), '[]')) order by n.nspname nulls first, a.defaclobjtype)
+      'grants', ${grantsOf('a.defaclacl')}) order by n.nspname nulls first, a.defaclobjtype)
     from pg_default_acl a left join pg_namespace n on n.oid = a.defaclnamespace
     where a.defaclrole = 'postgres'::regrole and (n.nspname is null or n.nspname = $schema)`)}
 )::text as document`;

@@ -5,6 +5,7 @@ import type {
   CatalogFunction,
   CatalogSequence,
   CatalogTable,
+  CatalogTrigger,
   DefaultPrivilege,
   Grant,
 } from './catalog';
@@ -42,6 +43,32 @@ function groupGrants(grants: Grant[]): Map<string, string[]> {
 function grantLines(on: string, grants: Grant[]): string[] {
   return [...groupGrants(grants)].map(
     ([role, privileges]) => `grant ${privileges.join(', ')} on ${on} to ${role};`,
+  );
+}
+
+const TRIGGER_STATES: Record<string, string> = {
+  D: 'disable trigger',
+  R: 'enable replica trigger',
+  A: 'enable always trigger',
+};
+
+/** The trigger's definition, and a line for the state of one that does not fire as usual (a disabled one). */
+function triggerLines(table: string, trigger: CatalogTrigger): string[] {
+  const state = TRIGGER_STATES[trigger.enabled];
+  return [
+    `${trigger.definition};`,
+    ...(state ? [`alter table ${table} ${state} ${quote(trigger.name)};`] : []),
+  ];
+}
+
+function columnGrantLines(table: string, columns: CatalogTable['columns']): string[] {
+  return columns.flatMap((column) =>
+    [...groupGrants(column.acl)].map(([role, privileges]) => {
+      const columnPrivileges = privileges.map(
+        (privilege) => `${privilege} (${quote(column.name)})`,
+      );
+      return `grant ${columnPrivileges.join(', ')} on table ${table} to ${role};`;
+    }),
   );
 }
 
@@ -90,14 +117,19 @@ function tableFile(table: CatalogTable): string {
   const withOptions = table.options.length ? ` with (${table.options.join(', ')})` : '';
   const blocks = [HEADER, `create table ${name} (\n${body.join(',\n')}\n)${withOptions};`];
   if (table.indexes.length) blocks.push(table.indexes.map((i) => `${i.definition};`).join('\n'));
-  if (table.triggers.length) blocks.push(table.triggers.map((t) => `${t.definition};`).join('\n'));
+  if (table.triggers.length) {
+    blocks.push(table.triggers.flatMap((t) => triggerLines(name, t)).join('\n'));
+  }
   if (table.rowSecurity) {
     const force = table.forceRowSecurity ? `\nalter table ${name} force row level security;` : '';
     blocks.push(`alter table ${name} enable row level security;${force}`);
   }
   if (table.policies.length)
     blocks.push(table.policies.map((p) => policyStatement(name, p)).join('\n\n'));
-  const grants = grantLines(`table ${name}`, table.acl);
+  const grants = [
+    ...grantLines(`table ${name}`, table.acl),
+    ...columnGrantLines(name, table.columns),
+  ];
   if (grants.length) blocks.push(grants.join('\n'));
   if (table.comment) {
     blocks.push(`comment on table ${name} is '${table.comment.replaceAll("'", "''")}';`);
@@ -134,7 +166,7 @@ function databaseFile(catalog: Catalog): string {
     blocks.push(catalog.extensions.map((e) => `create extension if not exists "${e}";`).join('\n'));
   }
   if (catalog.externalTriggers.length) {
-    blocks.push(catalog.externalTriggers.map((t) => `${t.definition};`).join('\n'));
+    blocks.push(catalog.externalTriggers.flatMap((t) => triggerLines(t.table, t)).join('\n'));
   }
   blocks.push(catalog.defaultPrivileges.flatMap(defaultPrivilegeLine).join('\n'));
   return `${blocks.join('\n\n')}\n`;

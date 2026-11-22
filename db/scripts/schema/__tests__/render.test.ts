@@ -9,6 +9,7 @@ const catalog: Catalog = {
     {
       table: 'auth.users',
       name: 'on_sign_up',
+      enabled: 'O',
       definition:
         'CREATE TRIGGER on_sign_up AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.create_profile()',
     },
@@ -30,14 +31,37 @@ const catalog: Catalog = {
       name: 'notes',
       relkind: 'r',
       columns: [
-        { name: 'id', type: 'text', notNull: true, default: null, identity: '', generated: '' },
-        { name: 'n', type: 'integer', notNull: false, default: '0', identity: '', generated: '' },
+        {
+          name: 'id',
+          type: 'text',
+          notNull: true,
+          default: null,
+          identity: '',
+          generated: '',
+          acl: [],
+        },
+        {
+          name: 'n',
+          type: 'integer',
+          notNull: false,
+          default: '0',
+          identity: '',
+          generated: '',
+          acl: [{ grantee: 'authenticated', privilege: 'UPDATE' }],
+        },
       ],
       constraints: [{ name: 'notes_pkey', definition: 'PRIMARY KEY (id)' }],
       indexes: [
         { name: 'notes_n', definition: 'CREATE INDEX notes_n ON public.notes USING btree (n)' },
       ],
-      triggers: [],
+      triggers: [
+        {
+          name: 'count_notes',
+          enabled: 'D',
+          definition:
+            'CREATE TRIGGER count_notes AFTER INSERT ON public.notes FOR EACH ROW EXECUTE FUNCTION public.count_notes()',
+        },
+      ],
       policies: [
         {
           name: 'own',
@@ -90,6 +114,22 @@ describe('renderSnapshot', () => {
       'create policy "own" on public.notes\n  as permissive\n  for select\n  to authenticated\n  using (true);',
     );
     expect(table).toContain('grant select on table public.notes to service_role;');
+  });
+
+  it('keeps the privileges given on one column and the triggers that do not fire', () => {
+    const table = files.get('content/tables/notes.sql')!;
+    expect(table).toContain('grant update (n) on table public.notes to authenticated;');
+    expect(table).toContain('alter table public.notes disable trigger count_notes;');
+  });
+
+  it('says the state of a trigger on another schema only when it is not the usual one', () => {
+    const disabled = {
+      ...catalog,
+      externalTriggers: catalog.externalTriggers.map((t) => ({ ...t, enabled: 'A' })),
+    };
+    const database = renderSnapshot(disabled, domainOf).get('_database.sql')!;
+    expect(database).toContain('alter table auth.users enable always trigger on_sign_up;');
+    expect(files.get('_database.sql')).not.toContain('alter table auth.users');
   });
 
   it('writes the extensions, the triggers on other schemas and the default privileges that nobody gets', () => {

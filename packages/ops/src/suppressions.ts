@@ -82,7 +82,7 @@ export function directivesByRule(source: string): Counts {
   const byRule: Counts = new Map();
   const directive = /(?:\/\/|\/\*)\s*eslint-disable(?:-next-line|-line)?(?=[\s*]|$)([^\n]*)/g;
   for (const match of source.matchAll(directive)) {
-    const list = (match[1] ?? '')
+    const list = match[1]!
       .split('*/')[0]!
       .split(/\s--\s|\s--$/)[0]!
       .trim();

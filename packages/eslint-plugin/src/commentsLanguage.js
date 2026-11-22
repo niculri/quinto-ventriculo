@@ -25,12 +25,13 @@ export function syntaxOf(path) {
  */
 function locator(text) {
   const starts = [0];
+  const start = (/** @type {number} */ line) => /** @type {number} */ (starts[line]);
   for (let i = 0; i < text.length; i++) if (text[i] === '\n') starts.push(i + 1);
   /** @param {number} index */
   return (index) => {
     let line = starts.length - 1;
-    while ((starts[line] ?? 0) > index) line--;
-    return { line: line + 1, column: index - (starts[line] ?? 0) };
+    while (start(line) > index) line--;
+    return { line: line + 1, column: index - start(line) };
   };
 }
 
@@ -43,7 +44,7 @@ function stringEnd(text, i, syntax) {
   const quote = text[i];
   if (quote !== '"' && quote !== "'") return null;
   const hash = syntax.line === '#';
-  if (hash && i > 0 && !/[\s[{(:,=$]/.test(text[i - 1] ?? '')) return null;
+  if (hash && i > 0 && !/[\s[{(:,=$]/.test(text.charAt(i - 1))) return null;
   let j = i + 1;
   while (j < text.length && text[j] !== quote && !(hash && text[j] === '\n')) {
     j += text[j] === '\\' && quote === '"' ? 2 : 1;
@@ -68,7 +69,7 @@ function commentAt(text, i, syntax) {
   }
   const line = syntax.line;
   if (!line || !text.startsWith(line, i)) return null;
-  if (line === '#' && i > 0 && !/\s/.test(text[i - 1] ?? '')) return null;
+  if (line === '#' && i > 0 && !/\s/.test(text.charAt(i - 1))) return null;
   const newline = text.indexOf('\n', i);
   const end = newline < 0 ? text.length : newline;
   const type = i === 0 && text.startsWith('#!') ? 'Shebang' : 'Line';
@@ -94,7 +95,7 @@ export function scanComments(text, syntax) {
       i = end;
       continue;
     }
-    if (codeStart < 0 && !/\s/.test(text[i] ?? '')) codeStart = i;
+    if (codeStart < 0 && !/\s/.test(text.charAt(i))) codeStart = i;
     i = stringEnd(text, i, syntax) ?? i + 1;
   }
   return { comments, codeStart: codeStart < 0 ? text.length : codeStart };

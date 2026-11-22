@@ -67,7 +67,7 @@ export function parseArgs(argv: readonly string[], defaultSmokeUrl: string): Par
       try {
         normalizeBase(options.smokeUrl);
       } catch (e) {
-        return { kind: 'error', message: e instanceof Error ? e.message : String(e) };
+        return { kind: 'error', message: (e as Error).message };
       }
     } else return { kind: 'error', message: `No conozco la opción «${arg}».` };
   }

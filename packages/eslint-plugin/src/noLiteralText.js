@@ -32,7 +32,7 @@ function readsAsText(/** @type {string} */ s) {
 }
 
 const cooked = (/** @type {any} */ t) =>
-  t.quasis.map((/** @type {any} */ q) => q.value.cooked ?? '').join(' ');
+  t.quasis.map((/** @type {any} */ q) => q.value.cooked).join(' ');
 
 /** The last name of a callee: `plural`, `n.toLocaleString` → `toLocaleString`. */
 function calleeName(/** @type {any} */ callee) {
@@ -193,7 +193,7 @@ export const noLiteralText = {
         const parent = node.parent;
         if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') {
           rendered(node.expression, true, o, report);
-        } else if (parent.type === 'JSXAttribute') {
+        } else {
           const kind = propKind(parent);
           if (kind) rendered(node.expression, kind === 'text', o, report);
         }

@@ -56,9 +56,8 @@ export const fileHeader = {
       }
       const lines = textLines(header);
       if (lines > max) {
-        const first = header[0];
-        const last = header.at(-1);
-        if (!first || !last) return;
+        const first = /** @type {Comment} */ (header[0]);
+        const last = /** @type {Comment} */ (header.at(-1));
         context.report({
           loc: { start: first.loc.start, end: last.loc.end },
           messageId: 'long',

@@ -202,8 +202,7 @@ export const fileName = {
     let jsxSeen = false;
     const markJsx = (/** @type {any} */ node) => {
       jsxSeen = true;
-      const top = context.sourceCode.getAncestors(node)[1];
-      if (top) withJsx.add(top);
+      withJsx.add(context.sourceCode.getAncestors(node)[1]);
     };
     return {
       JSXElement: markJsx,

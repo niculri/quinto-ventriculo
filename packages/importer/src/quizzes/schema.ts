@@ -237,15 +237,50 @@ export interface ParsedTest {
   groups: ParsedGroup[];
 }
 
-/** A zod message of its own names where it is (a chart whose data has the wrong type); the skill's messages are whole. */
-const withPath = (issue: z.core.$ZodIssue) =>
-  issue.message.startsWith('Invalid input') && issue.path.length
-    ? `${issue.message} (${issue.path.join('.')})`
-    : issue.message;
+const TYPE_NAMES: Record<string, string> = {
+  number: 'un número',
+  string: 'un texto',
+  boolean: 'verdadero o falso',
+  array: 'una lista',
+  tuple: 'una lista de largo fijo',
+  object: 'un objeto',
+};
+
+const typeOfValue = (v: unknown): string =>
+  v === null
+    ? 'vacío (null)'
+    : v === undefined
+      ? 'nada'
+      : (TYPE_NAMES[Array.isArray(v) ? 'array' : typeof v] ?? typeof v);
+
+/** Where a zod issue is: the figure (counted from 1, as the skill's errors count questions) and the field inside it. */
+function placeOf(path: readonly PropertyKey[] | undefined): string {
+  const [head, index, ...inside] = path ?? [];
+  if (head === 'fig' && typeof index === 'number') {
+    return ` (figura ${index + 1}${inside.length ? `, «${inside.join('.')}»` : ''})`;
+  }
+  return path?.length ? ` (${path.join('.')})` : '';
+}
+
+/**
+ * The words for what zod itself found (a chart whose data has the wrong type): in Spanish and saying where. The skill's
+ * own messages are whole and never come here, because a message set on a schema outranks this one.
+ */
+function nativeMessage(iss: z.core.$ZodRawIssue): string | undefined {
+  const at = placeOf(iss.path);
+  if (iss.code === 'invalid_type') {
+    return `se esperaba ${TYPE_NAMES[iss.expected] ?? iss.expected} y llegó ${typeOfValue(iss.input)}${at}`;
+  }
+  if (iss.code === 'too_small')
+    return `la lista tiene menos de ${String(iss.minimum)} elementos${at}`;
+  if (iss.code === 'too_big') return `la lista tiene más de ${String(iss.maximum)} elementos${at}`;
+  if (iss.code === 'invalid_union') return `el valor no es de un tipo que se acepte aquí${at}`;
+  return undefined;
+}
 
 const issuesOf = (schema: z.ZodType, value: unknown, where: string): string[] => {
-  const r = schema.safeParse(value);
-  return r.success ? [] : r.error.issues.map((i) => `${where}: ${withPath(i)}`);
+  const r = schema.safeParse(value, { error: nativeMessage });
+  return r.success ? [] : r.error.issues.map((i) => `${where}: ${i.message}`);
 };
 
 function sectionErrors(cfg: Record<string, unknown>, groups: LoadedGroup[]): string[] {

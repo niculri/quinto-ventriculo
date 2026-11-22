@@ -91,9 +91,35 @@ describe('validateTest', () => {
     expect(errors[1]).toBe(
       'preguntas/01.json #2: la figura «barras» necesita valores, y_max, y_paso',
     );
-    expect(errors[2]).toMatch(
-      /^preguntas\/01\.json #3: Invalid input: expected number.*\(fig\.0\.valores\.0\)$/,
+    expect(errors[2]).toBe(
+      'preguntas/01.json #3: se esperaba un número y llegó un texto (figura 1, «valores.0»)',
     );
+  });
+
+  it('what is wrong with the data of a chart is said in Spanish, with the figure and the field', () => {
+    const chart = (extra: Record<string, unknown>) => ({
+      q: 'a',
+      r: 'b',
+      fig: [
+        { tipo: 'imagen', src: 'data:image/png;base64,AA==' },
+        { tipo: 'dispersion', puntos: [[1, 2]], x: [0, 1], y: [0, 1], ...extra },
+      ],
+    });
+    const errors = errorsOf({}, [
+      group([
+        chart({ puntos: [[1, null]] }),
+        chart({ puntos: [[1, 2, 3]] }),
+        chart({ puntos: [[1]] }),
+        chart({ radio: 'grande', tendencia: 'recta' }),
+      ]),
+    ]);
+    expect(errors).toEqual([
+      'preguntas/01.json #1: se esperaba un número y llegó vacío (null) (figura 2, «puntos.0.1»)',
+      'preguntas/01.json #2: la lista tiene más de 2 elementos (figura 2, «puntos.0»)',
+      'preguntas/01.json #3: la lista tiene menos de 2 elementos (figura 2, «puntos.0»)',
+      'preguntas/01.json #4: se esperaba una lista de largo fijo y llegó un texto (figura 2, «tendencia»)',
+      'preguntas/01.json #4: se esperaba un número y llegó un texto (figura 2, «radio»)',
+    ]);
   });
 
   it('the sections: a list with a section each, a short id, a name and the folder with its questions', () => {

@@ -73,6 +73,7 @@ describe('«Hoy» with a course answered but nothing on', () => {
         leech: false,
       },
       bury: [],
+      buriedUntil: null,
     });
     await study.setDeckActivation('5', false);
     renderApp('/home', { study });

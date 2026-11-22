@@ -49,7 +49,7 @@ function wrapTables(root: DocumentFragment) {
 
 function markOwnGlyphs(root: DocumentFragment) {
   for (const script of root.querySelectorAll('sup, sub')) {
-    if (!script.children.length && OWN_GLYPHS.test(script.textContent ?? '')) {
+    if (!script.children.length && OWN_GLYPHS.test(script.textContent)) {
       script.classList.add('own-glyphs');
     }
   }

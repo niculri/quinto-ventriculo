@@ -16,7 +16,7 @@ export function sectionAt(
     else break;
   }
   if (!found) return {};
-  const title = found.textContent?.replace(/\s+/g, ' ').trim();
+  const title = found.textContent.replace(/\s+/g, ' ').trim();
   return { section: found.id, ...(title ? { sectionTitle: title.slice(0, 200) } : {}) };
 }
 

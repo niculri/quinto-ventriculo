@@ -17,7 +17,6 @@ const card =
 export function Practice({ note, location }: { note: Note; location: NoteLocation }) {
   const { quiz, deck, section } = usePractice(note, location);
   const detail = useQuizDetail(quiz?.id ?? null);
-  if (!quiz && !deck) return null;
 
   const course = location.course;
   const wanted = note.practice?.groups ?? [];

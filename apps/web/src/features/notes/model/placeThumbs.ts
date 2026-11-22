@@ -61,7 +61,7 @@ function measure(figure: HTMLElement): Size {
   const width = parseFloat(figure.style.getPropertyValue('--fig')) * 16;
   const img = figure.querySelector('img');
   const ratio = Number(img?.getAttribute('width')) / Number(img?.getAttribute('height')) || 4 / 3;
-  const caption = figure.querySelector('figcaption')?.textContent?.length ?? 0;
+  const caption = figure.querySelector('figcaption')?.textContent.length ?? 0;
   return {
     tall:
       width / ratio + Math.ceil(caption / (width / CAPTION_LETTER_PX)) * CAPTION_LINE_PX + FRAME_PX,
@@ -88,7 +88,7 @@ function missingFrom(blocks: Element[], start: number, size: Size) {
 function textHeight(el: Element, perLine: number): number {
   const parts = el.matches('ul, ol') ? [...el.children] : [el];
   const lines = parts.reduce(
-    (sum, part) => sum + Math.max(1, Math.ceil((part.textContent?.length ?? 0) / perLine)),
+    (sum, part) => sum + Math.max(1, Math.ceil(part.textContent.length / perLine)),
     0,
   );
   return lines * LINE_PX + 17;

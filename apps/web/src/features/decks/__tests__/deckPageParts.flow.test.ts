@@ -63,6 +63,19 @@ describe('a deck’s page, what it says', () => {
   });
 });
 
+describe('the load of a week or lecture', () => {
+  it('says «Sin activar» while it is off, and no longer once it is on', async () => {
+    renderApp(ASSESSMENT_PATH, { study: localStudyRepository(null, { welcomeSeen: true }) });
+    const tree = await screen.findByRole('list', { name: 'Submazos' });
+    const week = within(tree).getByText('S1 - Semana de prueba').closest('li')!;
+    await waitFor(() => expect(within(week).getAllByText('Sin activar')).not.toHaveLength(0));
+    await userEvent.click(
+      within(week).getByRole('switch', { name: 'Activar S1 - Semana de prueba' }),
+    );
+    await waitFor(() => expect(within(week).queryAllByText('Sin activar')).toHaveLength(0));
+  });
+});
+
 describe('the dialog of a deck’s configuration', () => {
   it('says what a configuration is, and a change that fails says so', async () => {
     const study = fullAnkiStudy();

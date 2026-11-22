@@ -42,6 +42,7 @@ export function CardsTable({
         presets: presets.data,
         settings: settings.data,
         roots: [scope.node],
+        draftOnly: data.draftOnly,
       }}
     />
   );

@@ -31,6 +31,7 @@ export function TableToolbar({
   onMode,
   busy,
   count,
+  blocked,
   focus,
   actions,
 }: {
@@ -40,10 +41,13 @@ export function TableToolbar({
   onMode: (mode: ViewPrefs['mode']) => void;
   busy: boolean;
   count: number;
+  /** The selection has a card that only the draft has: it is not suspended, buried, marked nor forgotten. */
+  blocked: boolean;
   focus: BrowseCard | null;
   actions: ToolbarActions;
 }) {
-  const off = busy || !count;
+  const off = busy || !count || blocked;
+  const why = blocked ? cardsStrings.table.draftOnly : undefined;
   return (
     <div
       className="mt-3 flex flex-wrap items-center gap-2"
@@ -56,6 +60,7 @@ export function TableToolbar({
       <ActionButton
         onClick={actions.toggleSuspend}
         disabled={off}
+        title={why}
         icon={<Ban className="size-4" aria-hidden="true" />}
         label={cardsStrings.table.suspend(focus?.queue === 'suspended', full)}
         shortcut="Ctrl+J"
@@ -63,6 +68,7 @@ export function TableToolbar({
       <ActionButton
         onClick={actions.toggleBury}
         disabled={off}
+        title={why}
         icon={<Shovel className="size-4" aria-hidden="true" />}
         label={cardsStrings.table.bury(focus?.queue === 'buried', full)}
         shortcut="Ctrl+Mayús+J"
@@ -71,6 +77,7 @@ export function TableToolbar({
         <ActionButton
           onClick={() => actions.flag(focus?.flag || REVIEW_FLAG)}
           disabled={off}
+          title={why}
           icon={<Flag className="size-4" aria-hidden="true" />}
           label={focus?.flag ? cardsStrings.unmark : cardsStrings.table.markForReview}
         />
@@ -80,6 +87,7 @@ export function TableToolbar({
         <ActionButton
           onClick={actions.askForget}
           disabled={off}
+          title={why}
           icon={<RotateCcw className="size-4" aria-hidden="true" />}
           label={cardsStrings.table.forget}
           shortcut="Ctrl+Alt+N"

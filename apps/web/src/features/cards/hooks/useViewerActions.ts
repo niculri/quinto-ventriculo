@@ -24,6 +24,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     const id = setTimeout(() => setMessage(null), 3000);
     return () => clearTimeout(id);
   }, [message]);
+  const blocked = !!info?.draftOnly;
   const ref = { noteGuid: card.noteGuid, ord: card.ord, deckId: card.deckId };
   const run = async (w: CardWrite, done: string, undo: () => void) => {
     setBusy(true);
@@ -38,6 +39,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     setBusy(false);
   };
   const toggleFlag = () => {
+    if (blocked) return;
     const before = flag;
     const next = flag ? 0 : REVIEW_FLAG;
     setFlag(next);
@@ -48,6 +50,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     );
   };
   const toggleHidden = () => {
+    if (blocked) return;
     const before = hidden;
     setHidden(!hidden);
     void run(
@@ -56,5 +59,5 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
       () => setHidden(before),
     );
   };
-  return { ref, flag, hidden, busy, message, setMessage, toggleFlag, toggleHidden };
+  return { ref, flag, hidden, busy, blocked, message, setMessage, toggleFlag, toggleHidden };
 }

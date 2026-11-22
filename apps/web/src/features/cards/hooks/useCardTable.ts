@@ -7,22 +7,18 @@ import { timingFor } from '@qv/study';
 import { useNow } from '../../../shared/hooks/useNow';
 import { combineSearch } from '../model/search';
 import type { Combine } from '../model/search';
-import { tableData } from '../model/tableData';
 import type { TableSources } from '../model/tableData';
 import { useActionRunner } from './useActionRunner';
 import { useCardActions } from './useCardActions';
 import { useCardSearch } from './useCardSearch';
 import { useSelection } from './useSelection';
+import { useTableData } from './useTableData';
 import { useTableShortcuts } from './useTableShortcuts';
 import { useViewPrefs } from './useViewPrefs';
 import type { ViewPrefs } from './useViewPrefs';
 
 export function useCardTable(sources: TableSources) {
-  const { notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings, roots } = sources;
-  const data = useMemo(
-    () => tableData({ notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings }),
-    [notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings],
-  );
+  const data = useTableData(sources);
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
   const full = data.prefs.fullAnki;
@@ -64,11 +60,11 @@ export function useCardTable(sources: TableSources) {
     toggleBury: actions.toggleBury,
     flag: actions.flag,
     forget: () => {
-      if (chosen().length) actions.setForgetting(true);
+      if (chosen().length && !actions.blocked) actions.setForgetting(true);
     },
   });
   return {
-    roots,
+    roots: sources.roots,
     data,
     params,
     setParams,

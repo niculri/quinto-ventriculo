@@ -35,6 +35,7 @@ export function TableMain({ t }: { t: CardTableState }) {
         }}
         busy={runner.busy}
         count={count}
+        blocked={actions.blocked}
         focus={selection.focus}
         actions={{ ...actions, askForget: () => actions.setForgetting(true), undo: runner.undo }}
       />
@@ -48,6 +49,7 @@ export function TableMain({ t }: { t: CardTableState }) {
         {search.waiting
           ? cardsStrings.table.searching
           : cardsStrings.table.found(list.length, noun, count)}
+        {actions.blocked ? ` ${cardsStrings.table.draftOnly}` : ''}
       </p>
       <CardGrid
         list={list}

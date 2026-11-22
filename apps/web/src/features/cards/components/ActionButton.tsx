@@ -10,12 +10,14 @@ export function ActionButton({
   icon,
   label,
   shortcut,
+  title,
 }: {
   onClick: () => void;
   disabled: boolean;
   icon: ReactNode;
   label: string;
   shortcut?: string;
+  title?: string | undefined;
 }) {
   return (
     <button
@@ -23,6 +25,7 @@ export function ActionButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
+      title={title}
       aria-keyshortcuts={shortcut ? keys(shortcut) : undefined}
       className={`${button.base} ${button.secondary} px-3 py-1.5`}
     >

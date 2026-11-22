@@ -39,6 +39,7 @@ export function useCardSearch({
         data.prefs,
         data.decayOf,
         now,
+        data.draftOnly,
       ),
     [data, now],
   );

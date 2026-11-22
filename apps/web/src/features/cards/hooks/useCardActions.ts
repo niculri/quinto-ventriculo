@@ -24,9 +24,11 @@ export function useCardActions({
   act: (what: string, w: CardWrite) => Promise<void>;
 }) {
   const [forgetting, setForgetting] = useState(false);
+  // What only the draft has is looked at: the buttons are off for it, and the shortcuts do nothing.
+  const blocked = chosen().some((c) => c.draftOnly);
   const toggleSuspend = () => {
     const cs = chosen();
-    if (!cs.length) return;
+    if (!cs.length || blocked) return;
     if (focus?.queue === 'suspended') {
       void act(cardsStrings.toasts.unsuspended(full), {
         kind: 'unsuspend',
@@ -41,7 +43,7 @@ export function useCardActions({
   };
   const toggleBury = () => {
     const cs = chosen();
-    if (!cs.length) return;
+    if (!cs.length || blocked) return;
     if (focus?.queue === 'buried') {
       void act(cardsStrings.toasts.unburied(full), {
         kind: 'unbury',
@@ -56,7 +58,7 @@ export function useCardActions({
   };
   const flag = (n: number) => {
     const cs = chosen();
-    if (!cs.length) return;
+    if (!cs.length || blocked) return;
     const value = focus?.flag === n ? 0 : n;
     void act(value ? cardsStrings.toasts.flagged : cardsStrings.toasts.unflagged(full), {
       kind: 'flags',
@@ -67,8 +69,8 @@ export function useCardActions({
   const forget = (reset: boolean) => {
     const cs = chosen().filter((c) => c.row);
     setForgetting(false);
-    if (!cs.length) return;
+    if (!cs.length || blocked) return;
     void act(cardsStrings.toasts.forgotten, { kind: 'forget', cards: refs(cs), reset });
   };
-  return { forgetting, setForgetting, toggleSuspend, toggleBury, flag, forget };
+  return { blocked, forgetting, setForgetting, toggleSuspend, toggleBury, flag, forget };
 }

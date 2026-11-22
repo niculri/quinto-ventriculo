@@ -28,6 +28,7 @@ const SOURCES: TableSources = {
   presets: [],
   settings: [],
   roots: [],
+  draftOnly: new Set(),
 };
 
 function table() {

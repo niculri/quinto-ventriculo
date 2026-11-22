@@ -19,6 +19,8 @@ export interface CardsData {
   noteTypes: NoteTypeSummary[];
   rows: StoredCard[];
   prefs: StudyPreferences;
+  /** The keys of the cards only the draft has (the admin mode); empty for a student. */
+  draftOnly: ReadonlySet<string>;
 }
 
 function uniqueTypes(indexes: readonly CardIndex[]): NoteTypeSummary[] {
@@ -36,7 +38,9 @@ export function cardsData({
   settings,
   tree,
   nowMs,
+  draftOnly,
 }: {
+  draftOnly: ReadonlySet<string>;
   list: CardIndex[];
   rows: StoredCard[];
   prefs: StudyPreferences;
@@ -68,6 +72,7 @@ export function cardsData({
     prefs,
     (id) => decay.get(id) ?? 0.5,
     nowMs,
+    draftOnly,
   );
   return {
     indexes: list,
@@ -77,5 +82,6 @@ export function cardsData({
     noteTypes,
     rows,
     prefs,
+    draftOnly,
   };
 }

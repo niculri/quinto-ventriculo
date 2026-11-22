@@ -19,6 +19,8 @@ export interface BrowseCard extends SearchCard {
   row: StoredCard | undefined;
   dueAt: number | null;
   intraday: boolean;
+  /** Only the draft has it (admin mode): it is looked at, and nothing is done to it. */
+  draftOnly: boolean;
 }
 
 export type DecayOf = (deckId: string) => number;
@@ -33,6 +35,7 @@ export function decayFromParams(params: readonly number[]): number {
 }
 
 interface CardSources {
+  draftOnly: ReadonlySet<string>;
   rows: Map<string, StoredCard>;
   decks: Map<string, DeckNode>;
   prefs: StudyPreferences;
@@ -54,7 +57,7 @@ function browseCard(
   index: number,
   type: NoteTypeSummary | undefined,
   c: BrowseNote['cards'][number],
-  { rows, decks, prefs, decayOf, nowMs }: CardSources,
+  { rows, decks, prefs, decayOf, nowMs, draftOnly }: CardSources,
 ): BrowseCard {
   const createdMs = note.createdAt ? Date.parse(note.createdAt) : null;
   const key = cardKey({ noteGuid: note.guid, ord: c.ord });
@@ -78,6 +81,7 @@ function browseCard(
     position: index + 1,
     row,
     intraday: record?.queue === 'learn',
+    draftOnly: draftOnly.has(key),
     dueAt: dueOf(record, prefs),
     noteGuid: note.guid,
     ord: c.ord,
@@ -108,9 +112,10 @@ export function buildBrowseCards(
   prefs: StudyPreferences,
   decayOf: DecayOf,
   nowMs: number,
+  draftOnly: ReadonlySet<string>,
 ): BrowseCard[] {
   const types = new Map(noteTypes.map((t) => [t.id, t]));
-  const sources: CardSources = { rows, decks, prefs, decayOf, nowMs };
+  const sources: CardSources = { rows, decks, prefs, decayOf, nowMs, draftOnly };
   return notes.flatMap((note, index) =>
     note.cards.map((c) => browseCard(note, index, types.get(note.noteTypeId), c, sources)),
   );
@@ -135,6 +140,7 @@ export function notesOf(cards: BrowseCard[]): BrowseNoteRow[] {
       ...first,
       key: `note:${first.noteGuid}`,
       cards: list,
+      draftOnly: list.some((c) => c.draftOnly),
       template: cardsStrings.table.cardsOfNote(list.length),
       reps: list.reduce((t, c) => t + c.reps, 0),
       lapses: list.reduce((t, c) => t + c.lapses, 0),

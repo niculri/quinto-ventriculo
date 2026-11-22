@@ -15,6 +15,7 @@ import type { StudyPlan } from '@qv/study';
 import { DayLoad } from '../../progress/components/DeckCounts';
 import { MasteryMeter } from '../../progress/components/MasteryMeter';
 import { DeckMark } from '../../catalog/components/AdminMarks';
+import { useDraftOnly } from '../../catalog/hooks/useDraftOnly';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { isOn, visibleChildren } from '../model/deckTree';
@@ -38,6 +39,8 @@ export interface DeckTreeRowProps {
 
 export function DeckTreeRow(p: DeckTreeRowProps) {
   const d = p.deck;
+  // What only the draft has is looked at, not turned on: nothing would be saved of it.
+  const draftOnly = useDraftOnly(['deck', d.id]);
   const unit = d.depth === UNIT_DEPTH;
   const off = !!p.plan && d.depth >= UNIT_DEPTH && !isOn(d, p.active);
   const nothingOn =
@@ -84,6 +87,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
           <Switch
             label={s.tree.turnOn(d.label)}
             checked={p.active.has(d.id)}
+            disabled={draftOnly}
             onChange={p.onActivate}
           />
         ) : null}

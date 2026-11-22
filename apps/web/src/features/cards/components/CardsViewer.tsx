@@ -65,7 +65,7 @@ function Actions({
   prefs: StudyPreferences;
 }) {
   const material = useCardMaterial(card.deckId);
-  const { ref, flag, hidden, busy, message, setMessage, toggleFlag, toggleHidden } =
+  const { ref, flag, hidden, busy, blocked, message, setMessage, toggleFlag, toggleHidden } =
     useViewerActions(card, info);
   const [reporting, setReporting] = useState(false);
   const [history, setHistory] = useState(false);
@@ -74,7 +74,8 @@ function Actions({
       <button
         type="button"
         onClick={toggleFlag}
-        disabled={busy}
+        disabled={busy || blocked}
+        title={blocked ? cardsStrings.viewer.draftOnly : undefined}
         className={ACTION}
         aria-label={flag ? cardsStrings.unmark : cardsStrings.viewer.mark}
       >
@@ -84,7 +85,8 @@ function Actions({
       <button
         type="button"
         onClick={toggleHidden}
-        disabled={busy}
+        disabled={busy || blocked}
+        title={blocked ? cardsStrings.viewer.draftOnly : undefined}
         className={ACTION}
         aria-label={hidden ? cardsStrings.hideAgain : cardsStrings.hideForever}
       >
@@ -112,7 +114,7 @@ function Actions({
         <Label>{cardsStrings.viewer.history}</Label>
       </button>
       <span aria-live="polite" className="ml-auto flex-none pr-1 text-xs text-muted">
-        {message ?? ''}
+        {message ?? (blocked ? cardsStrings.viewer.draftOnlyShort : '')}
       </span>
       {reporting ? (
         <ReportEntry

@@ -16,6 +16,7 @@ export interface TableSources {
   presets: UserPreset[];
   settings: DeckSetting[];
   roots: DeckNode[];
+  draftOnly: ReadonlySet<string>;
 }
 
 export type TableData = ReturnType<typeof tableData>;
@@ -29,6 +30,7 @@ export function tableData({
   prefs,
   presets,
   settings,
+  draftOnly,
 }: Omit<TableSources, 'roots'>) {
   const choices = presetChoices(authorPresets, presets);
   const decay = new Map(
@@ -44,5 +46,6 @@ export function tableData({
     prefs,
     rows: new Map(rows.map((r) => [cardKey(r), r])),
     decayOf: (id: string) => decay.get(id) ?? 0.5,
+    draftOnly,
   };
 }

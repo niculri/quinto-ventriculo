@@ -13,6 +13,7 @@ import type { CardsScope } from '../../catalog/model/scope';
 import { cardsData } from '../model/cardsData';
 import type { CardsData } from '../model/cardsData';
 import { cardIndexQuery, scopeRowsQuery } from '../api/queries';
+import { useDraftOnlyKeys } from './useDraftOnlyKeys';
 
 // One empty list while the catalog loads: a new one in each render would build the data again each time.
 const NO_PRESETS: never[] = [];
@@ -41,6 +42,7 @@ function useScopeRows(scope: CardsScope | null) {
 
 export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, nowMs: number) {
   const indexes = useCardIndexes(scope);
+  const draftOnly = useDraftOnlyKeys(scope, indexes.data);
   const rows = useScopeRows(scope);
   const preferences = usePreferences();
   const presets = useUserPresets();
@@ -53,6 +55,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     !!scope &&
     !!tree &&
     !!indexes.data &&
+    !!draftOnly.keys &&
     !!rows.data &&
     !!prefs &&
     !!presets.data &&
@@ -62,6 +65,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     return cardsData({
       list: indexes.data!,
       rows: rows.data,
+      draftOnly: draftOnly.keys!,
       prefs: prefs,
       authorPresets,
       presets: presets.data,
@@ -72,6 +76,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
   }, [
     ready,
     indexes.data,
+    draftOnly.keys,
     rows.data,
     prefs,
     authorPresets,
@@ -81,7 +86,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     nowMs,
   ]);
   const parts = [rows, preferences, presets, settings];
-  const error = indexes.error ?? parts.find((p) => p.isError)?.error ?? null;
+  const error = indexes.error ?? draftOnly.error ?? parts.find((p) => p.isError)?.error ?? null;
   return {
     data,
     missing,
@@ -89,6 +94,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     error: indexes.changed ? null : error,
     retry: () => {
       indexes.refetch();
+      draftOnly.refetch();
       parts.forEach((p) => p.isError && void p.refetch());
     },
   };

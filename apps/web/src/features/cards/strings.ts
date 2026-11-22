@@ -101,6 +101,8 @@ export const cardsStrings = {
     shownAgain: 'Se mostrará de nuevo',
     hidden: 'No se mostrará más',
     saveFailed: 'No se pudo guardar. Intenta de nuevo.',
+    draftOnly: 'Solo está en el borrador: se mira, no se marca ni se oculta.',
+    draftOnlyShort: 'Solo en el borrador',
     note: 'Ver apunte',
     questions: 'Preguntas',
     history: 'Historial',
@@ -174,6 +176,8 @@ export const cardsStrings = {
     sidebar: 'Barra lateral',
     sidebarNav: 'Barra lateral del explorador',
     sidebarHelp: 'Mazos, tipos de nota, etiquetas, estados y banderas para buscar.',
+    draftOnly:
+      'Hay tarjetas que solo están en el borrador: se miran, no se suspenden, entierran ni marcan.',
     searchLabel: (full: boolean) => (full ? 'Buscar (sintaxis de Anki)' : 'Buscar tarjetas'),
     searchHint: (full: boolean) =>
       full ? 'deck:"…" tag:… is:due vértebra' : 'Buscar por texto o código',

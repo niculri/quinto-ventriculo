@@ -531,6 +531,33 @@ describe('a synthetic test in the skill’s format', () => {
     expect((await run({})).label).toBeUndefined();
   });
 
+  it('the title over the groups of a section: its own, else the test’s, else «Qué ensayar»', async () => {
+    const t = join(root, 'Test - Grupos');
+    await mkdir(join(t, 'a'), { recursive: true });
+    await writeFile(
+      join(t, 'a', '01.json'),
+      JSON.stringify({ preguntas: [{ id: 'a', q: 'x', o: ['1', '2'], ok: 'A' }] }),
+    );
+    const run = async (cfg: object, section: object = {}) => {
+      await writeFile(
+        join(t, 'test.json'),
+        JSON.stringify({
+          titulo: 'G',
+          secciones: [{ id: 'a', nombre: 'A', carpeta: 'a', ...section }],
+          ...cfg,
+        }),
+      );
+      const entry = { slug: 'grupos', position: 1, folder: 'Test - Grupos' };
+      return (await convertQuiz(entry, ASSESSMENT, root, recordingProcessor().process)).quiz
+        .sections[0]!.groupsTitle;
+    };
+    expect(await run({ grupos_titulo: 'Del test' }, { grupos_titulo: 'De la sección' })).toBe(
+      'De la sección',
+    );
+    expect(await run({ grupos_titulo: 'Del test' }, { grupos_titulo: '  ' })).toBe('Del test');
+    expect(await run({})).toBe('Qué ensayar');
+  });
+
   it('the listing of a section: plain items and items with their own list, under a title or the default one', async () => {
     const t = join(root, 'Test - Listado');
     await mkdir(join(t, 'a'), { recursive: true });

@@ -152,4 +152,14 @@ describe('convertFigure', () => {
     expect(state.warnings).toHaveLength(1);
     expect(state.warnings[0]).toMatch(/^prueba: p1: figura SVG con /);
   });
+
+  it('a drawn figure keeps its caption under it, and has none when the test gives none', async () => {
+    const { state } = stateOf();
+    const svg = '<svg viewBox="0 0 1 1"><rect width="1"/></svg>';
+    expect(await convert(state, { tipo: 'svg', svg, pie: 'Imagen recreada' })).toMatchObject({
+      kind: 'svg',
+      caption: 'Imagen recreada',
+    });
+    expect(await convert(state, { tipo: 'svg', svg })).not.toHaveProperty('caption');
+  });
 });

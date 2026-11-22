@@ -1084,3 +1084,19 @@ describe('decks above the assessments', () => {
     ]);
   });
 });
+
+describe('how alike two texts must be to be one note', () => {
+  const note = (guid: string, text: string) => ({ guid, code: null, text });
+
+  it('exactly 80 % is enough, and a little less is not', () => {
+    expect(similarity('abcdefghijk', 'abcdefghizz')).toBeCloseTo(0.8, 10);
+    expect(changedGuids([note('a', 'abcdefghijk')], [note('b', 'abcdefghizz')])).toHaveLength(1);
+    expect(changedGuids([note('a', 'abcdefghijk')], [note('b', 'abcdefghzzz')])).toEqual([]);
+  });
+
+  it('a removed text of 7 characters is too short to pair by its text, one of 8 is not', () => {
+    expect(changedGuids([note('a', 'abcdefg')], [note('b', 'abcdefgh')])).toEqual([]);
+    expect(changedGuids([note('a', 'abcdefgh')], [note('b', 'abcdefgh')])).toHaveLength(1);
+    expect(changedGuids([note('a', 'abcdefgh')], [note('b', 'abcdefg')])).toEqual([]);
+  });
+});

@@ -45,6 +45,17 @@ describe('QuickFilters', () => {
     expect(onSearch).toHaveBeenCalledWith('vértebra is:due');
   });
 
+  it('taking a term out of the middle of the search leaves one space between the words around it', async () => {
+    const onSearch = vi.fn();
+    render(<QuickFilters query="vértebra -flag:0 atlas is:new axis" onSearch={onSearch} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Marcadas' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nuevas' }));
+    expect(onSearch.mock.calls).toEqual([
+      ['vértebra atlas is:new axis'],
+      ['vértebra -flag:0 atlas axis'],
+    ]);
+  });
+
   it('explains Anki’s syntax with examples', () => {
     render(<QuickFilters query="" onSearch={() => {}} />);
     expect(screen.getByText('Búsqueda avanzada').tagName).toBe('SUMMARY');

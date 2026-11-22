@@ -59,6 +59,34 @@ describe('the cards page’s model', () => {
     ).toHaveLength(1);
   });
 
+  describe('with the same notes', () => {
+    const tree = buildAnkiTree(CATALOG);
+    const rows = new Map(
+      [
+        storedCard('s@/AqX%n?#', 0, '20'),
+        storedCard('cloze-1', 0, '20', { lapses: 2 }),
+        storedCard('cloze-1', 1, '21', { suspended: true }),
+      ].map((r) => [cardKey(r), r]),
+    );
+    const notes = explorerNotes([CARD_INDEX], (id) => lectureOf(tree.byId.get(id))?.id ?? id, rows);
+    const ords = (f: Partial<typeof NO_FILTERS>) =>
+      applyFilters(notes, { ...NO_FILTERS, ...f }).matched.map((m) => m.cards.map((c) => c.ord));
+
+    it('«failed» leaves out a hidden card, even one that failed', () => {
+      const failed = new Set([
+        cardKey({ noteGuid: 'cloze-1', ord: 0 }),
+        cardKey({ noteGuid: 'cloze-1', ord: 1 }),
+      ]);
+      expect(ords({ state: 'failed', failed })).toEqual([[0]]);
+    });
+
+    it('several origins leave the notes that have any of them, not only those that have all', () => {
+      expect(ords({ origins: ['profe', 'control'] })).toEqual(ords({ origins: ['profe'] }));
+      expect(ords({ origins: ['profe'] })).not.toEqual([]);
+      expect(ords({ origins: ['control'] })).toEqual([]);
+    });
+  });
+
   it('filters 8,000 notes in less than 100 ms', () => {
     const index = syntheticIndex('anatomia-1/certamen-1', CATALOG.anki.decks, 8000);
     const tree = buildAnkiTree(CATALOG);

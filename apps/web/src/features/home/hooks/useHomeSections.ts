@@ -19,8 +19,7 @@ export function useHomeSections(catalog: Catalog, saved: StudyPreferences, plan:
   const tree = useMemo(() => buildAnkiTree(catalog), [catalog]);
   const today = useMemo(() => todayCourses(catalog, plan), [catalog, plan]);
   const mine = useMemo(
-    () =>
-      myCourses(catalog, shown, new Set(today.flatMap((n) => (n.courseId ? [n.courseId] : [])))),
+    () => myCourses(catalog, shown, new Set(today.map((n) => n.ref.course.id))),
     [catalog, shown, today],
   );
   const anyOn = useMemo(() => activeUnits(tree.nodes, plan).size > 0, [tree, plan]);

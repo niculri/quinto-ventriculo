@@ -75,6 +75,9 @@ export function TodayRow({
   failed?: boolean;
 }) {
   const course = node.course;
+  // «Hoy» lists the courses of the catalog, so their deck always has its course.
+  /* v8 ignore next */
+  const name = course?.name ?? node.label;
   const exam = useExamLine(node, base);
   const state = { node, base, counts, failed, left: counts ? totalCards(counts) : 0 };
   return (
@@ -84,7 +87,7 @@ export function TodayRow({
           to={paths.course(node.ref.course)}
           className="block truncate font-medium hover:underline"
         >
-          <span aria-hidden="true">{course?.emoji}</span> {course?.name ?? node.label}
+          <span aria-hidden="true">{course?.emoji}</span> {name}
           <ListMark thing={['course', node.ref.course.id]} />
         </Link>
         <span className="mt-0.5 flex items-center gap-x-2 gap-y-0.5 text-xs text-muted max-sm:flex-col max-sm:items-start sm:h-4">

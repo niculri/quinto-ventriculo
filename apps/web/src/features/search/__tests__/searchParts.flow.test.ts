@@ -74,6 +74,25 @@ describe('the quick search', () => {
   });
 });
 
+describe('choosing a result with the mouse', () => {
+  it('a click opens its note at its section, and the mouse over another selects it', async () => {
+    const user = userEvent.setup();
+    const { router } = renderApp('/home', {
+      api: answering([result({}), result({ anchor: 'polisomas', section: 'Polisomas' })]),
+    });
+    await screen.findByRole('heading', { name: 'Hola, Ana' });
+    await user.keyboard('{Meta>}k{/Meta}');
+    await user.type(await screen.findByRole('combobox', { name: 'Buscar en la página' }), 'ri');
+    const options = await screen.findAllByRole('option');
+    await user.hover(options[1]!);
+    expect(options[1]).toHaveAttribute('aria-selected', 'true');
+    expect(options[0]).toHaveAttribute('aria-selected', 'false');
+    await user.click(options[1]!);
+    await waitFor(() => expect(router.state.location.hash).toBe('#polisomas'));
+    expect(router.state.location.pathname).toMatch(/\/notes\/11-traduccion$/);
+  });
+});
+
 describe('the search page', () => {
   const main = () => within(screen.getByRole('main'));
 
@@ -288,6 +307,17 @@ describe('the quick search by keyboard', () => {
     expect(asked).toEqual([50]);
     expect(router.state.location.search).toBe('?q=rib');
     expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it('erasing the text takes it out of the URL', async () => {
+    const user = userEvent.setup();
+    const { router } = renderApp('/search?q=ribo');
+    const box = await screen.findByRole('searchbox', { name: 'Buscar en todos los apuntes' });
+    await user.clear(box);
+    await waitFor(() => expect(router.state.location.search).toBe(''));
+    expect(
+      await screen.findByText(/^Busca por concepto, estructura o proceso\./),
+    ).toBeInTheDocument();
   });
 });
 

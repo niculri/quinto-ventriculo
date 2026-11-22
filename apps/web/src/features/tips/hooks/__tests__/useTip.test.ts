@@ -95,4 +95,34 @@ describe('a tip', () => {
     expect(result.current.show).toBe(true);
     expect(localStorage.getItem(SHOWN)).toBeNull();
   });
+
+  it('shows when the browser refuses any storage at all, and remembers nothing', () => {
+    const refuse = () => {
+      throw new DOMException('denied', 'SecurityError');
+    };
+    vi.spyOn(window, 'localStorage', 'get').mockImplementation(refuse);
+    vi.spyOn(window, 'sessionStorage', 'get').mockImplementation(refuse);
+    const { result } = renderHook(() => useTip('tip-search', true));
+    expect(result.current).toMatchObject({ slot: true, show: true });
+  });
+
+  it.each([
+    ['is not JSON', '{roto'],
+    ['is not a list', '{"tip-search":true}'],
+  ])('takes the device’s list as empty when it %s, and writes it again', (_, stored) => {
+    localStorage.setItem(SHOWN, stored);
+    const { result } = renderHook(() => useTip('tip-search', true));
+    expect(result.current.show).toBe(true);
+    expect(JSON.parse(localStorage.getItem(SHOWN)!)).toEqual(['tip-search']);
+  });
+
+  it('closing it again, or before the preferences arrive, saves nothing', () => {
+    state.prefs = { dismissed: ['tip-search'] };
+    const { result, rerender } = renderHook(() => useTip('tip-search', true));
+    act(() => result.current.close());
+    state.prefs = undefined;
+    rerender();
+    act(() => result.current.close());
+    expect(state.save).not.toHaveBeenCalled();
+  });
 });

@@ -24,15 +24,11 @@ export function RemoveDialog({ target: t, onClose }: { target: Removing; onClose
       ? normalizeEmail(typed) === normalizeEmail(expected)
       : typed.trim() === expected.trim();
   const busy = remove.isPending;
-  const close = () => {
-    if (busy) return;
-    onClose();
-  };
   const title = t.kind === 'person' ? s.remove.person(t.email) : s.remove.list(t.list);
   return (
-    <AccessDialog open onClose={close} busy={busy} title={done ? s.remove.done : title}>
+    <AccessDialog open onClose={onClose} busy={busy} title={done ? s.remove.done : title}>
       {done ? (
-        <RemoveDone done={done} onClose={close} />
+        <RemoveDone done={done} onClose={onClose} />
       ) : (
         <RemoveForm
           id={id}
@@ -42,7 +38,7 @@ export function RemoveDialog({ target: t, onClose }: { target: Removing; onClose
           matches={matches}
           busy={busy}
           error={remove.isError ? accessFailure(remove.error) : null}
-          onCancel={close}
+          onCancel={onClose}
           onSubmit={() =>
             remove.mutate(t.kind === 'person' ? { emails: [t.email] } : { list: t.list }, {
               onSuccess: setDone,

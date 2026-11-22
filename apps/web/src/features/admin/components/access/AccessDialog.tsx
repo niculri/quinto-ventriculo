@@ -20,7 +20,8 @@ export function AccessDialog({
   children: ReactNode;
 }) {
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (o || busy ? undefined : onClose())}>
+    // Without a trigger it only asks to close; while busy, Escape and a click outside are stopped below.
+    <Dialog.Root open={open} onOpenChange={onClose}>
       <Dialog.Portal>
         <DimBackdrop />
         <Dialog.Content

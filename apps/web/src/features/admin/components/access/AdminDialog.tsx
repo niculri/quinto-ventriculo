@@ -20,20 +20,16 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
   const [done, setDone] = useState<SetAdminResult | null>(null);
   const matches = normalizeEmail(typed) === normalizeEmail(t.email);
   const busy = setAdmin.isPending;
-  const close = () => {
-    if (busy) return;
-    onClose();
-  };
   const action = s.admin.action(t.admin);
   return (
     <AccessDialog
       open
-      onClose={close}
+      onClose={onClose}
       busy={busy}
       title={done ? s.admin.done : s.admin.title(action, t.email)}
     >
       {done ? (
-        <AdminDone done={done} onClose={close} />
+        <AdminDone done={done} onClose={onClose} />
       ) : (
         <form
           onSubmit={(e) => {
@@ -73,7 +69,7 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
           <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={close}
+              onClick={onClose}
               disabled={busy}
               className={`${button.base} ${button.secondary}`}
             >

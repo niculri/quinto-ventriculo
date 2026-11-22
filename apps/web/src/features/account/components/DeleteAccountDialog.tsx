@@ -29,18 +29,18 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
     queryClient.clear();
     void navigate(paths.landing({ notice: 'deletion' }), { replace: true });
   };
-  // While asking, the popup does not close: closing it then would mark the account without the person reading it.
   const busy = request.isPending;
   const close = () => {
-    if (done) return void leave();
-    if (busy) return;
     setEmail('');
     request.reset();
     onClose();
   };
 
+  // Without a trigger, the popup only asks to close. While asking it does not close (closing it then would mark the
+  // account without the person reading it), and once asked only «Entendido» leaves: no ✕, «Cancelar», Escape nor a
+  // click outside.
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (o ? null : close())}>
+    <Dialog.Root open={open} onOpenChange={close}>
       <Dialog.Portal>
         <BlurredBackdrop />
         <Dialog.Content

@@ -17,10 +17,11 @@ export class StepSaver {
     return this.queue.length;
   }
 
-  subscribe(fn: () => void): () => void {
+  // An arrow property, so the same function is passed to `useSyncExternalStore` in every render.
+  subscribe = (fn: () => void): (() => void) => {
     this.listeners.add(fn);
     return () => this.listeners.delete(fn);
-  }
+  };
 
   private emit() {
     for (const fn of this.listeners) fn();

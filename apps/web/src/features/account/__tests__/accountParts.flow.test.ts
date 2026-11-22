@@ -368,6 +368,7 @@ describe('«Datos de usuario»: the corners', () => {
     const email = within(dialog).getByLabelText(/Para confirmar/);
     await user.type(email, 'otra@ug.uchile.cl{Enter}');
     fireEvent.submit(email.closest('form')!);
+    await act(async () => undefined);
     expect(request).not.toHaveBeenCalled();
     await user.clear(email);
     await user.type(email, `${EMAIL}{Enter}`);

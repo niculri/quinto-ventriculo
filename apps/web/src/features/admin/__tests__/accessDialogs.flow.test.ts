@@ -44,6 +44,7 @@ describe('removing someone', () => {
     await user.click(open);
     const dialog = await screen.findByRole('dialog', { name: 'Sacar a luis.soto@ug.uchile.cl' });
     fireEvent.submit(confirmField(dialog).closest('form')!);
+    await act(async () => undefined);
     expect(removeInvites).not.toHaveBeenCalled();
     await user.type(confirmField(dialog), 'luis.soto@ug.uchile.cl');
     await user.click(within(dialog).getByRole('button', { name: 'Sacar' }));
@@ -90,6 +91,7 @@ describe('naming an administrator', () => {
     const dialog = await screen.findByRole('dialog');
     await user.type(confirmField(dialog), 'otra@ug.uchile.cl');
     fireEvent.submit(confirmField(dialog).closest('form')!);
+    await act(async () => undefined);
     expect(setAdmin).not.toHaveBeenCalled();
     await user.clear(confirmField(dialog));
     await user.type(confirmField(dialog), 'ana.perez@ug.uchile.cl{Enter}');
@@ -173,12 +175,14 @@ describe('inviting', () => {
     const user = userEvent.setup();
     const emails = await screen.findByLabelText('Correos @ug.uchile.cl');
     fireEvent.submit(emails.closest('form')!);
+    await act(async () => undefined);
     expect(invite).not.toHaveBeenCalled();
     await user.type(emails, 'a@ug.uchile.cl');
     await user.type(screen.getByLabelText('Nombre de la lista nueva'), 'Nueva');
     await user.click(screen.getByRole('button', { name: 'Invitar' }));
     expect(screen.getByRole('button', { name: 'Invitando…' })).toBeDisabled();
     fireEvent.submit(emails.closest('form')!);
+    await act(async () => undefined);
     expect(invite).toHaveBeenCalledTimes(1);
     await act(async () => answer.resolve({ added: ['a@ug.uchile.cl'], already: [], rejected: [] }));
     expect(

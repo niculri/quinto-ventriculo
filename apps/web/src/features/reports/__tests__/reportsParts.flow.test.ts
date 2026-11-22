@@ -150,6 +150,7 @@ describe('the «Reportar error» popup, opened again', () => {
     expect(within(dialog).getByRole('button', { name: 'Enviar' })).toBeDisabled();
     await user.keyboard('{Enter}');
     fireEvent.submit(within(dialog).getByLabelText('¿Qué está mal?').closest('form')!);
+    await act(async () => undefined);
     expect(sent).toHaveLength(0);
     await user.type(within(dialog).getByLabelText('¿Qué está mal?'), 'una errata');
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));

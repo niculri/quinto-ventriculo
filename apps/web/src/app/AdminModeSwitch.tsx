@@ -1,6 +1,6 @@
 // Switches the whole site to the admin mode for an administrator: the content API and a cache of its own, over the
 // same progress, and back.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import type { Services } from './ServicesProvider';
@@ -53,12 +53,6 @@ export function AdminModeSwitch({
     services.adminApi && storedAdminMode() ? guarded(services, services.adminApi) : null,
   );
 
-  // `render` is called with it: the compiler would leave it new in each render, and the whole site would read it again.
-  const adminServices = useMemo<Services | null>(
-    () => (repos && services.adminApi ? { ...services, ...repos, api: services.adminApi } : null),
-    [repos, services],
-  );
-
   const enter = () => {
     if (!services.adminApi) return;
     adminClient.clear();
@@ -71,8 +65,7 @@ export function AdminModeSwitch({
     setRepos(guarded(services, services.adminApi));
   };
 
-  // An effect depends on it: a new one in each render would check the session again each time.
-  const exit = useCallback(() => {
+  const exit = () => {
     // Back to the site's cache before it is mounted again, so the page does not leave the screen while it is read again;
     // the progress is read again, since it was studied in the other cache.
     for (const q of adminClient
@@ -88,9 +81,12 @@ export function AdminModeSwitch({
     storeAdminMode(false);
     setRepos(null);
     adminClient.clear();
-  }, [client, adminClient]);
+  };
 
   useLeaveIfNotAdmin(!!repos, services, exit);
+
+  const adminServices: Services | null =
+    repos && services.adminApi ? { ...services, ...repos, api: services.adminApi } : null;
 
   const value: AdminMode = {
     active: !!adminServices,
@@ -113,6 +109,7 @@ export function AdminModeSwitch({
  * would study without anything saved. Signed out, the mode is only remembered.
  */
 function useLeaveIfNotAdmin(active: boolean, services: Services, exit: () => void) {
+  const leave = useEffectEvent(exit);
   useEffect(() => {
     if (!active) return;
     let gone = false;
@@ -121,7 +118,7 @@ function useLeaveIfNotAdmin(active: boolean, services: Services, exit: () => voi
         if (!session || gone) return;
         services.admin.isAdmin().then(
           (yes) => {
-            if (!yes && !gone) exit();
+            if (!yes && !gone) leave();
           },
           // A failure is not a «no»: the API gives anybody who is not one what a student gets anyway.
           () => undefined,
@@ -136,5 +133,5 @@ function useLeaveIfNotAdmin(active: boolean, services: Services, exit: () => voi
       gone = true;
       off();
     };
-  }, [active, services, exit]);
+  }, [active, services]);
 }

@@ -101,9 +101,11 @@ describe('a search', () => {
     expect(c.answers).toEqual([
       { noteGuid: 'a', ord: 0, rating: 1, atMs: Date.parse('2026-11-01T00:00:00.000Z') },
     ]);
-    expect([...c.firstAnswerMs.values()]).toEqual([Date.parse('2026-10-01T00:00:00.000Z')]);
+    expect([...(c.firstAnswerMs ?? new Map()).values()]).toEqual([
+      Date.parse('2026-10-01T00:00:00.000Z'),
+    ]);
     expect(ctx().answers).toEqual([]);
-    expect(ctx().firstAnswerMs.size).toBe(0);
+    expect(ctx().firstAnswerMs?.size).toBe(0);
   });
 
   it('finds the cards whose text matches, without the accents', () => {

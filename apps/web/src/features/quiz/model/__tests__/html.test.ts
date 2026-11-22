@@ -2,7 +2,8 @@
 // (packages/html/test) as recorded.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import DOMPurify from 'dompurify';
+import { describe, expect, it, vi } from 'vitest';
 import { cleanSvg, cleanText } from '../html';
 
 describe('the texts and figures of a test, sanitized again in the browser', () => {
@@ -57,4 +58,18 @@ it("a test's texts and SVG figures sanitized again in the browser give what they
   expect({ text: each(cleanText), svg: each(cleanSvg) }).toEqual(
     read(join(import.meta.dirname, 'sanitizeGolden.json')),
   );
+});
+
+describe('the cache of what was cleaned', () => {
+  it('a text is cleaned once, until more than 5000 others start the cache over', () => {
+    const sanitize = vi.spyOn(DOMPurify, 'sanitize');
+    cleanText('<b>una vez</b>');
+    cleanText('<b>una vez</b>');
+    expect(sanitize).toHaveBeenCalledTimes(1);
+    for (let i = 0; i < 5001; i++) cleanText(`otra ${i}`);
+    sanitize.mockClear();
+    cleanText('<b>una vez</b>');
+    expect(sanitize).toHaveBeenCalledTimes(1);
+    sanitize.mockRestore();
+  });
 });

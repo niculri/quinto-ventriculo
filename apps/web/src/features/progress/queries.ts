@@ -139,13 +139,18 @@ export function useAssessmentView(assessmentId: string | null): AssessmentView |
   const progress = useDeckProgress(prefs);
   const today = useToday(prefs);
   const catalog = useStudentCatalog();
-  const decks = catalog.data ? treeDecks(catalog.data.anki.decks) : undefined;
-  return assessmentId === null || !prefs || !plan.data || !progress.data || !decks || today === null
+  // Each `data` is read before the condition: the compiler depends on a property only when it reads it without one,
+  // and it would depend on the whole result of each query, which is new in each render.
+  const catalogData = catalog.data;
+  const planData = plan.data;
+  const progressData = progress.data;
+  const decks = catalogData ? treeDecks(catalogData.anki.decks) : undefined;
+  return assessmentId === null || !prefs || !planData || !progressData || !decks || today === null
     ? null
     : assessmentView({
         decks,
-        plan: plan.data,
-        progress: progress.data,
+        plan: planData,
+        progress: progressData,
         assessmentId,
         today,
         prefs,
@@ -185,7 +190,8 @@ export function useStudyData(shown: DeckDetail | undefined) {
   const progress = useDeckProgress(prefs);
   const parts = [catalog, studied, preferences, cards, answers, presets, settings, plan, progress];
   const error = parts.find((p) => p.isError)?.error ?? null;
-  // By hand, from the `data` of each query: the compiler would depend on the whole results, new in each render.
+  // By hand: `FinalReviewLoader` keeps the last one in state when it is another object, so a new one in each render
+  // would never settle (the coverage run has no compiler).
   const data = useMemo<StudyData | undefined>(() => {
     if (
       !deck ||

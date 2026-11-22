@@ -8,8 +8,7 @@ import { paths } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import { appNavStrings } from './strings/AppNav.strings';
 import { catalogStrings } from '../../../shared/strings/catalog.strings';
-import { useCatalog } from '../../catalog/hooks/useCatalog';
-import { buildAnkiTree } from '../../catalog/model/tree';
+import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { hasMaterial, locate } from '../model/where';
 import type { Where } from '../model/where';
@@ -19,9 +18,8 @@ import { AdminBranch, SettingsBranch } from './SectionBranches';
 
 export function AppNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { pathname } = useLocation();
-  const catalog = useCatalog();
+  const { catalog, tree } = useAnkiTree();
   const data = catalog.data ?? null;
-  const tree = data ? buildAnkiTree(data) : null;
   const where = locate(pathname, data, tree);
   return (
     <nav aria-label={appNavStrings.menu} className="text-[0.86rem] leading-snug">

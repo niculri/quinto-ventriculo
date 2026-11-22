@@ -48,7 +48,14 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
   const foldable =
     (p.upTo === undefined || d.depth < p.upTo) && visibleChildren(d, p.known).length > 0;
   const c = p.plan ? p.counts?.get(d.id) : undefined;
-  const load = <RowLoad counts={c} medianAnswerMs={p.known.medianAnswerMs} nothingOn={nothingOn} />;
+  const load = (
+    <RowLoad
+      counts={c}
+      medianAnswerMs={p.known.medianAnswerMs}
+      nothingOn={nothingOn}
+      lookOnly={draftOnly}
+    />
+  );
   return (
     <li className="flex items-center gap-2 py-1.5">
       <div
@@ -135,11 +142,15 @@ function RowLoad({
   counts,
   medianAnswerMs,
   nothingOn,
+  lookOnly,
 }: {
   counts: Counts | undefined;
   medianAnswerMs: number | null;
   nothingOn: boolean;
+  /** Only the draft has it: there is nothing to study, so no load is waited for. */
+  lookOnly: boolean;
 }) {
+  if (lookOnly) return <span className="text-muted">{s.tree.lookOnly}</span>;
   return counts ? (
     <DayLoad
       counts={counts}

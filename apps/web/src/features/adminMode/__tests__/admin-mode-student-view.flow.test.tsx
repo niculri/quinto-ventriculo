@@ -203,4 +203,17 @@ describe('the admin mode over what the students have', () => {
       }
     });
   });
+
+  it('lists a deck only the draft has as a deck to look at: no switch to turn on, no load waiting', async () => {
+    window.localStorage.setItem('qv-admin-mode', 'admin');
+    renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1', {
+      ...adminMode,
+      study: fullAnkiStudy(),
+    });
+    const row = (await screen.findByText('Solo borrador')).closest('li')!;
+    expect(within(row).getAllByText('Solo para mirar').length).toBeGreaterThan(0);
+    expect(row.querySelector('.animate-pulse')).toBeNull();
+    const switches = within(row).queryAllByRole('switch');
+    for (const turnOn of switches) expect(turnOn).toBeDisabled();
+  });
 });

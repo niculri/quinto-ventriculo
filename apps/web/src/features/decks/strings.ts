@@ -28,6 +28,7 @@ export const decksStrings = {
     studyTitle: 'Estudiar',
     nothingOn: 'Sin activar',
     done: 'Listo por hoy',
+    lookOnly: 'Solo para mirar',
     failed: savedFailed,
   },
   assessment: {

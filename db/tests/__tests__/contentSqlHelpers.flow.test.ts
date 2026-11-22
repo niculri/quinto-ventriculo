@@ -23,6 +23,11 @@ describe('anki_plain_text', () => {
     );
   });
 
+  it('a tag and a non-breaking space separate the words they sit between, with nothing else around them', async () => {
+    expect(await one('anki_plain_text($1)', ['uno<b>dos</b>tres'])).toBe('uno dos tres');
+    expect(await one('anki_plain_text($1)', ['uno&nbsp;dos'])).toBe('uno dos');
+  });
+
   it('decodes &amp; last, so an escaped entity stays escaped', async () => {
     expect(await one('anki_plain_text($1)', ['&amp;lt;'])).toBe('&lt;');
   });

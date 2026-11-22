@@ -2,7 +2,7 @@
 name: CI
 
 on:
-  # The same list as CI_IGNORED_PATHS in packages/ops/src/deploy.ts: none of these goes into the build or a test.
+  # The same list as CI_IGNORED_PATHS in packages/ops/src/deployCi.ts: none of these goes into the build or a test.
   push:
     branches: [main]
     paths-ignore: ['docs/**', '.claude/**', '*.md']

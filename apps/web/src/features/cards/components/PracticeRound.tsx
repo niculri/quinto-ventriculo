@@ -1,6 +1,6 @@
 // A round of «Practicar estas»: the final review's screen over the cards, counted as practice, and its end.
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { BackButton } from '../../../shared/ui/BackButton';
 import { answerBar } from '../../../shared/ui/styles';
 import { usePracticeRecorder } from '../../stats/hooks/usePracticeRecorder';
@@ -12,11 +12,8 @@ import { practiceRoundStrings } from './strings/PracticeRound.strings';
 
 export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string }) {
   const [round, setRound] = useState<Round>(() => startRound(cards));
-  const { add, flush } = usePracticeRecorder();
   const finished = !round.queue[0];
-  useEffect(() => {
-    if (finished) flush();
-  }, [finished, flush]);
+  const { add } = usePracticeRecorder(finished);
   const current = round.queue[0];
   return (
     <>

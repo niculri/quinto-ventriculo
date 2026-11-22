@@ -28,11 +28,8 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
   const deckPath = paths.deck(node.ref);
   const client = useQueryClient();
   const markedRef = useRef(false);
-  const { add: addPractice, flush: flushPractice } = usePracticeRecorder();
   const finished = !!round && !round.queue[0];
-  useEffect(() => {
-    if (finished) flushPractice();
-  }, [finished, flushPractice]);
+  const { add: addPractice } = usePracticeRecorder(finished);
 
   useEffect(() => {
     document.title = sharedStrings.pageTitle(chooseReviewStrings.review.title(node.label));

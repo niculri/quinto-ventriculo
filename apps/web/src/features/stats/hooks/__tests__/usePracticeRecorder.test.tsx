@@ -20,7 +20,13 @@ function recorder(recordPractice: (counts: PracticeCount[]) => Promise<void>, ba
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     </StudyRepositoryContext>
   );
-  return renderHook(() => usePracticeRecorder(batch), { wrapper });
+  const hook = renderHook(({ finished }) => usePracticeRecorder(finished, batch), {
+    wrapper,
+    initialProps: { finished: false },
+  });
+  // The round of the page ends: what waits goes.
+  const flush = () => hook.rerender({ finished: true });
+  return { ...hook, flush };
 }
 
 describe('sending practice', () => {
@@ -86,7 +92,7 @@ describe('what waits after a failure', () => {
   it('is never more than the answers one database batch takes: the rest is dropped', async () => {
     const sent: PracticeCount[][] = [];
     let offline = true;
-    const { result } = recorder(async (counts) => {
+    const { result, flush } = recorder(async (counts) => {
       sent.push(counts);
       if (offline) throw new Error('sin red');
     }, 1001);
@@ -97,7 +103,7 @@ describe('what waits after a failure', () => {
     await waitFor(() => expect(sent).toHaveLength(2));
     expect(sent).toEqual([[{ deckId: '10', n: 1000 }], [{ deckId: '11', n: 1 }]]);
     offline = false;
-    act(() => result.current.flush());
+    act(() => flush());
     await waitFor(() => expect(sent).toHaveLength(3));
     expect(sent[2]).toEqual([{ deckId: '10', n: 1000 }]);
   });
@@ -105,7 +111,7 @@ describe('what waits after a failure', () => {
   it('is never more decks than one database batch takes', async () => {
     const sent: PracticeCount[][] = [];
     let offline = true;
-    const { result } = recorder(async (counts) => {
+    const { result, flush } = recorder(async (counts) => {
       sent.push(counts);
       if (offline) throw new Error('sin red');
     }, 101);
@@ -115,7 +121,7 @@ describe('what waits after a failure', () => {
     await waitFor(() => expect(sent).toHaveLength(2));
     expect(sent.map((s) => s.length)).toEqual([100, 1]);
     offline = false;
-    act(() => result.current.flush());
+    act(() => flush());
     await waitFor(() => expect(sent).toHaveLength(3));
     expect(sent[2]!.map((c) => c.deckId)).toEqual(Array.from({ length: 100 }, (_, d) => `d${d}`));
   });
@@ -129,7 +135,7 @@ describe('what waits after a failure', () => {
     act(() => result.current.add('10'));
     unmount();
     await waitFor(() => expect(sent).toHaveLength(1));
-    act(() => result.current.flush());
+    await act(() => new Promise((r) => setTimeout(r, 0)));
     expect(sent).toHaveLength(1);
   });
 });
@@ -138,6 +144,24 @@ describe('when the answers go before a batch is full', () => {
   const visibility = (state: DocumentVisibilityState) =>
     Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
   afterEach(() => visibility('visible'));
+
+  it('a render that changes nothing sends nothing', () => {
+    const sent: PracticeCount[][] = [];
+    const { result, rerender } = recorder(async (counts) => void sent.push(counts), 10);
+    act(() => result.current.add('10'));
+    rerender({ finished: false });
+    rerender({ finished: false });
+    expect(sent).toHaveLength(0);
+  });
+
+  it('the round ending sends them, once', () => {
+    const sent: PracticeCount[][] = [];
+    const { result, flush, rerender } = recorder(async (counts) => void sent.push(counts), 10);
+    act(() => result.current.add('10'));
+    flush();
+    rerender({ finished: true });
+    expect(sent).toEqual([[{ deckId: '10', n: 1 }]]);
+  });
 
   it('the page being hidden sends them, the page coming back does not', async () => {
     const sent: PracticeCount[][] = [];

@@ -21,14 +21,22 @@ const IPHONE_SPECS = [
 ];
 
 /** Specs that change the server's settings: they run in `desktop` only, each on a server of its own, so no other spec sees it. */
-const OWN_SERVER = ['hidden-courses.spec.ts'];
+const OWN_SERVER = ['hidden-courses.spec.ts', 'admin-mode.spec.ts'];
 
-const demoServer = (port: number) => ({
-  command: `npx vite --mode demo --port ${port} --strictPort`,
-  url: `http://localhost:${port}`,
-  reuseExistingServer: !process.env.CI,
-  env: { QV_OUTPUT: resolve(import.meta.dirname, 'e2e/content') },
-});
+const CONTENT = resolve(import.meta.dirname, 'e2e/content');
+/** The admin mode's server has a note more in its draft: `e2e/admin-mode-content.ts` makes it a copy of the content. */
+const ADMIN_MODE_CONTENT = resolve(import.meta.dirname, 'node_modules/.cache/admin-mode-content');
+
+const demoServer = (port: number, content = CONTENT) => {
+  const prepare =
+    content === CONTENT ? '' : `npx tsx e2e/admin-mode-content.ts "${CONTENT}" "${content}" && `;
+  return {
+    command: `${prepare}npx vite --mode demo --port ${port} --strictPort`,
+    url: `http://localhost:${port}`,
+    reuseExistingServer: !process.env.CI,
+    env: { QV_OUTPUT: content },
+  };
+};
 
 export default defineConfig({
   testDir: 'e2e',
@@ -50,5 +58,9 @@ export default defineConfig({
     { name: 'phone', use: { ...devices['Pixel 7'] }, testIgnore: OWN_SERVER },
     { name: 'iphone', use: { ...devices['iPhone 15'] }, testMatch: IPHONE_SPECS },
   ],
-  webServer: [demoServer(PORT), demoServer(OWN_SERVER_PORT), demoServer(ADMIN_MODE_PORT)],
+  webServer: [
+    demoServer(PORT),
+    demoServer(OWN_SERVER_PORT),
+    demoServer(ADMIN_MODE_PORT, ADMIN_MODE_CONTENT),
+  ],
 });

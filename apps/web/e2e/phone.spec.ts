@@ -317,3 +317,28 @@ test('a long note: the index is always at hand, takes to the section below its b
   expect(heading.y).toBeLessThan(667 / 2);
   if (browserName === 'chromium') expect(await shifts(page)).toBe(0);
 });
+
+test('the admin mode switch is only a switch on the phone: it fits the bar, has its name, and the mode shows elsewhere', async ({
+  page,
+}) => {
+  await signIn(page);
+  const toggle = page.getByRole('switch', { name: 'Modo admin' });
+  await expect(toggle).toBeVisible();
+  const bar = (await page.getByRole('banner').boundingBox())!;
+  const box = (await toggle.locator('xpath=..').boundingBox())!;
+  // No text beside it: the label is the switch alone.
+  expect(box.width).toBeLessThanOrEqual(48);
+  expect(box.height).toBeGreaterThanOrEqual(24);
+  expect(box.x + box.width).toBeLessThanOrEqual(375);
+  expect(box.y).toBeGreaterThanOrEqual(bar.y);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+
+  await toggle.check();
+  await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Modo admin: ves el borrador' }),
+  ).toBeAttached();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  await toggle.uncheck();
+  await expect(page.locator('[data-admin-mode-mark]')).toHaveCount(0);
+});

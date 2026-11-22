@@ -1,6 +1,6 @@
 // The table's state: its data, the URL's search and selection, the view, the actions and the page's shortcuts.
 
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { useSearchParams } from 'react-router';
 import { timingFor } from '@qv/study';
@@ -25,9 +25,7 @@ export function useCardTable(sources: TableSources) {
   const [savedView, setView] = useViewPrefs();
   const view: ViewPrefs = full ? savedView : { ...savedView, mode: 'cards' };
   const now = useNow(30_000);
-  // The same object until the preferences or the time change: the search is built again when it does.
-  // By hand: its test checks it is the same object in each render, and the coverage run has no compiler.
-  const timing = useMemo(() => timingFor(data.prefs, now), [data.prefs, now]);
+  const timing = timingFor(data.prefs, now);
   const search = useCardSearch({ data, query, view, timing, now });
   const { list } = search;
   const selection = useSelection({ list, mode: view.mode, params, setParams });

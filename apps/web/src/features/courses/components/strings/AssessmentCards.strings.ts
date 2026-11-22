@@ -1,10 +1,10 @@
 // The texts of AssessmentCards.
 
-import { plural } from '../../model/plural';
+import { pluralGrouped } from '../../../../shared/lib/plural';
 
 export const assessmentCardsStrings = {
-  tests: (n: number) => plural(n, 'test', 'tests'),
-  questions: (n: number) => plural(n, 'pregunta', 'preguntas'),
+  tests: (n: number) => pluralGrouped(n, 'test', 'tests'),
+  questions: (n: number) => pluralGrouped(n, 'pregunta', 'preguntas'),
   section: {
     notes: 'Apuntes',
     tests: 'Tests',

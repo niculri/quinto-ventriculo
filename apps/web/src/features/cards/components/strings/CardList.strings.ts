@@ -1,10 +1,9 @@
 // The texts of CardList.
 
-const count = (n: number, one: string, many: string) =>
-  `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
+import { pluralGrouped } from '../../../../shared/lib/plural';
 
 export const cardListStrings = {
-  notes: (n: number) => count(n, 'nota', 'notas'),
+  notes: (n: number) => pluralGrouped(n, 'nota', 'notas'),
   list: {
     label: 'Tarjetas',
   },

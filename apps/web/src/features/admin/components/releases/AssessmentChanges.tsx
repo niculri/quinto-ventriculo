@@ -2,13 +2,13 @@
 import { useState } from 'react';
 import { lastName } from '@qv/release-review';
 import type { DeckImpact, ReleaseAssessment, ReleaseOverview } from '@qv/schema';
+import { plural } from '../../../../shared/lib/plural';
 import { Reserved } from '../../../../shared/ui/Reserved';
 import { card } from '../../../../shared/ui/styles';
 import { useReleaseImpact } from '../../hooks/useReleases';
 import { assessmentTitle } from '../../model/releases';
 import type { CountLine } from '../../model/releases';
 import { assessmentChangesStrings } from './strings/AssessmentChanges.strings';
-import { releasesStrings } from '../../model/strings/releases.strings';
 import { ReleaseItems } from './ReleaseItems';
 import type { ItemKind } from './ReleaseItems';
 
@@ -115,9 +115,7 @@ function Counts({ title, lines }: { title: string; lines: CountLine[] }) {
       <p className="text-sm font-semibold text-ink">{title}</p>
       <ul className="mt-1 space-y-0.5 text-sm text-muted">
         {shown.length ? (
-          shown.map(([count, one, many]) => (
-            <li key={one}>{releasesStrings.plural(count, one, many)}</li>
-          ))
+          shown.map(([count, one, many]) => <li key={one}>{plural(count, one, many)}</li>)
         ) : (
           <li>{assessmentChangesStrings.assessment.noChanges}</li>
         )}

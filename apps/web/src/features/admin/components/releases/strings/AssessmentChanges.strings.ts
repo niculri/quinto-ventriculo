@@ -1,8 +1,8 @@
 // The texts of AssessmentChanges.
 
-type Forms = readonly [one: string, many: string];
+import { plural } from '../../../../../shared/lib/plural';
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+type Forms = readonly [one: string, many: string];
 
 export const assessmentChangesStrings = {
   assessment: {

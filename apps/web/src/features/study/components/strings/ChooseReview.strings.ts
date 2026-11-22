@@ -1,6 +1,8 @@
 // The texts of ChooseReview.
 
-const cards = (n: number) => `${n.toLocaleString('es-CL')} ${n === 1 ? 'tarjeta' : 'tarjetas'}`;
+import { pluralGrouped } from '../../../../shared/lib/plural';
+
+const cards = (n: number) => pluralGrouped(n, 'tarjeta', 'tarjetas');
 
 export const chooseReviewStrings = {
   cards,

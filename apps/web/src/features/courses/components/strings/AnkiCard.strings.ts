@@ -1,10 +1,10 @@
 // The texts of AnkiCard.
 
-import { plural } from '../../model/plural';
+import { pluralGrouped } from '../../../../shared/lib/plural';
 
 export const ankiCardStrings = {
-  decks: (n: number) => plural(n, 'mazo', 'mazos'),
-  cards: (n: number) => plural(n, 'tarjeta', 'tarjetas'),
+  decks: (n: number) => pluralGrouped(n, 'mazo', 'mazos'),
+  cards: (n: number) => pluralGrouped(n, 'tarjeta', 'tarjetas'),
   section: {
     anki: 'Anki',
   },

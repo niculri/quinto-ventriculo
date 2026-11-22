@@ -1,14 +1,13 @@
 // The texts of releases.
 
-type Forms = readonly [one: string, many: string];
+import { plural } from '../../../../shared/lib/plural';
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+type Forms = readonly [one: string, many: string];
 
 const verb = (op: 'added' | 'removed' | 'changed', isNew: string) =>
   op === 'added' ? isNew : op === 'removed' ? 'sale' : 'cambia';
 
 export const releasesStrings = {
-  plural,
   review: {
     pending: 'Revisando las imágenes y los textos…',
     blocking: (n: number) =>

@@ -1,6 +1,6 @@
 // The texts of useInviteForm.
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+import { plural } from '../../../../shared/lib/plural';
 
 export const useInviteFormStrings = {
   form: {

@@ -9,6 +9,7 @@ import type {
   ReleaseOverview,
   ReleaseRecord,
 } from '@qv/schema';
+import { plural } from '../../../shared/lib/plural';
 import { releasesStrings } from './strings/releases.strings';
 
 type Summary = ReleaseOverview['summary'];
@@ -94,7 +95,7 @@ export const assessmentTitle = (a: ReleaseAssessment) =>
   releasesStrings.assessment.name(a.courseName ?? a.courseId ?? '', a.name ?? a.id);
 
 const words = (list: CountLine[]) =>
-  list.filter(([n]) => n > 0).map(([n, one, many]) => releasesStrings.plural(n, one, many));
+  list.filter(([n]) => n > 0).map(([n, one, many]) => plural(n, one, many));
 
 function assessmentLine(a: ReleaseAssessment): string {
   // A course without a name or an id reads «null» here, as a template has always written it.

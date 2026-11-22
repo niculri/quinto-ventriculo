@@ -1,13 +1,12 @@
 // The texts of DayLine.
 
-const count = (n: number, one: string, many: string) =>
-  `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
+import { pluralGrouped } from '../../../../shared/lib/plural';
 
 export const dayLineStrings = {
   day: {
     missing: 'Ese día no existe.',
     failed: 'No se pudieron leer las tarjetas de ese día.',
-    answers: (n: number) => count(n, 'respuesta', 'respuestas'),
+    answers: (n: number) => pluralGrouped(n, 'respuesta', 'respuestas'),
     practice: (answers: string) => `${answers} de práctica, que no se guardan por tarjeta`,
     due: (date: string, cardsText: string) => `${date}: ${cardsText} por repasar.`,
     answered: (date: string, cardsText: string, answers: string) =>

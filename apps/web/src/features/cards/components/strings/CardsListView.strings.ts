@@ -1,9 +1,8 @@
 // The texts of CardsListView.
 
-const count = (n: number, one: string, many: string) =>
-  `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
+import { pluralGrouped } from '../../../../shared/lib/plural';
 
-const cards = (n: number) => count(n, 'tarjeta', 'tarjetas');
+const cards = (n: number) => pluralGrouped(n, 'tarjeta', 'tarjetas');
 
 export const cardsListViewStrings = {
   cards,

@@ -1,6 +1,6 @@
 // The texts of StartForm.
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+import { plural } from '../../../../shared/lib/plural';
 
 const questions = (n: number) => plural(n, 'pregunta', 'preguntas');
 

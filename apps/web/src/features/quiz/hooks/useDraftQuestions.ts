@@ -9,6 +9,7 @@ export function useDraftQuestions(quiz: QuizDetail): number {
     .flatMap((s) => s.courses)
     .flatMap((c) => c.assessments)
     .flatMap((a) => a.quizzes)
-    .find((q) => q.id === quiz.id);
-  return Math.max(0, (listed?.questionCount ?? quiz.questionCount) - quiz.questionCount);
+    .filter((q) => q.id === quiz.id)
+    .reduce((t, q) => t + q.questionCount, 0);
+  return Math.max(0, listed - quiz.questionCount);
 }

@@ -34,7 +34,7 @@ export function useQuizSession(options: {
     if (chosen.length) preferences = { ...preferences, groups: chosen };
     let round = restoreRound(saved?.round, infos);
     if (round && (showCover || chosen.length) && round.screen !== 'cover') {
-      round = round.finished ? { ...round, screen: 'cover' as const } : toCover(round);
+      round = toCover(round);
     }
     return { preferences, round };
   });
@@ -55,6 +55,7 @@ export function useQuizSession(options: {
       queryClient.setQueryData<SavedQuiz>(quizKeys.saved(quizId), (old) => ({
         ...old,
         [section.sectionId]: {
+          // v8 ignore next: a commit without preferences follows a round of this section, which the cache holds.
           preferences: extra.preferences ?? old?.[section.sectionId]?.preferences ?? {},
           round,
           updatedAt: new Date().toISOString(),

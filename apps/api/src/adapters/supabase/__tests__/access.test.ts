@@ -6,12 +6,13 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { CONTACT_EMAIL, LEGAL_VERSIONS } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { asUser, createDatabase } from '@qv/db/testing';
-import { ACCESS_TTL, supabaseAccessChecker } from './adapters/supabase/access';
-import { ACCESS_UNAVAILABLE } from './ports/access';
-import { createApp } from './app';
-import { MediaSigner } from './services/media-signer';
-import { memoryRepository } from './adapters/memory/content';
-import { supabaseVerifier } from './adapters/supabase/session';
+import { ACCESS_TTL, supabaseAccessChecker } from '../access';
+import { ACCESS_UNAVAILABLE } from '../../../ports/access';
+import { createApp } from '../../../app';
+import { MediaSigner } from '../../../services/media-signer';
+import { memoryRepository } from '../../memory/content';
+import { supabaseVerifier } from '../session';
+import { bodyOf, urlOf } from '../../../test/fetch';
 
 const SUPABASE = 'https://users.supabase.co';
 const ANA = { sub: '00000000-0000-4000-8000-0000000000c1', email: 'ana@ug.uchile.cl' };
@@ -67,11 +68,11 @@ const postgrest: typeof fetch = async (input, init) => {
   asked++;
   if (down) throw new TypeError('fetch failed');
   if (instead) return instead.clone();
-  expect(String(input)).toBe(`${SUPABASE}/rest/v1/rpc/access_status`);
+  expect(urlOf(input)).toBe(`${SUPABASE}/rest/v1/rpc/access_status`);
   const token = (new Headers(init?.headers).get('Authorization') ?? '').replace(/^Bearer /, '');
   const claims = decodeJwt(token);
   if ((claims.exp ?? 0) * 1000 < clock) return new Response('{"code":"PGRST303"}', { status: 401 });
-  const body = JSON.parse(String(init?.body ?? '{}')) as {
+  const body = JSON.parse(bodyOf(init) || '{}') as {
     terms_version?: string;
     privacy_version?: string;
   };
@@ -153,7 +154,7 @@ describe('a removed student, with a token that is still valid', () => {
       const r = await get(path, t);
       expect(r.status, path).toBe(403);
       expect(r.headers.get('Cache-Control')).toBe('no-store');
-      const body = (await r.json()) as { error: string; message: string };
+      const body = await r.json<{ error: string; message: string }>();
       expect(body.error).toBe('not_invited');
       expect(body.message).toContain(CONTACT_EMAIL);
     }
@@ -171,7 +172,7 @@ describe('a removed student, with a token that is still valid', () => {
     const r = await get('/notes/11-traduccion', t);
     expect(r.status).toBe(401);
     expect(r.headers.get('Cache-Control')).toBe('no-store');
-    const body = (await r.json()) as { error: string; message: string };
+    const body = await r.json<{ error: string; message: string }>();
     expect(body.error).toBe('unauthenticated');
     expect(body.message).toMatch(/sesión se cerró/);
     expect(body.message).not.toContain(CONTACT_EMAIL);
@@ -182,7 +183,7 @@ describe('a removed student, with a token that is still valid', () => {
     clock += 20_000; // within the 30 s of tolerance of the verifier, past its exp
     const r = await get('/catalog', t);
     expect(r.status).toBe(401);
-    expect(((await r.json()) as { error: string }).error).toBe('unauthenticated');
+    expect((await r.json<{ error: string }>()).error).toBe('unauthenticated');
   });
 
   it('asks the database once per token and ACCESS_TTL, not on every request', async () => {
@@ -198,7 +199,7 @@ describe('a removed student, with a token that is still valid', () => {
     try {
       const r = await get('/notes/11-traduccion', t);
       expect(r.status).toBe(503);
-      expect(((await r.json()) as { error: string }).error).toBe('access_unavailable');
+      expect((await r.json<{ error: string }>()).error).toBe('access_unavailable');
     } finally {
       down = false;
     }
@@ -213,7 +214,7 @@ describe('a removed student, with a token that is still valid', () => {
     try {
       const r = await get('/catalog', t);
       expect(r.status).toBe(503);
-      expect(((await r.json()) as { error: string }).error).toBe('access_unavailable');
+      expect((await r.json<{ error: string }>()).error).toBe('access_unavailable');
     } finally {
       instead = null;
       console.error = original;
@@ -314,7 +315,7 @@ describe('the terms and the privacy policy', () => {
       const r = await get(path, eva);
       expect(r.status, path).toBe(403);
       expect(r.headers.get('Cache-Control')).toBe('no-store');
-      const body = (await r.json()) as { error: string; message: string };
+      const body = await r.json<{ error: string; message: string }>();
       expect(body.error).toBe('terms_not_accepted');
       expect(body.message).toMatch(/acepta los términos de uso y la política de privacidad/);
     }
@@ -360,7 +361,7 @@ describe('the terms and the privacy policy', () => {
     });
     const r = await newer.request('/api/catalog', { headers: { Authorization: `Bearer ${ana}` } });
     expect(r.status).toBe(403);
-    expect(((await r.json()) as { error: string }).error).toBe('terms_not_accepted');
+    expect((await r.json<{ error: string }>()).error).toBe('terms_not_accepted');
     expect((await get('/catalog', ana)).status).toBe(200);
   });
 });

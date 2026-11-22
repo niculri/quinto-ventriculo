@@ -1,15 +1,15 @@
 // Records every request the Worker's Supabase adapters make (method, path, query, headers, body) and what each method
 // gives back, on the content database and with the student's token: a change must leave the snapshot as it is.
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { supabaseAccessChecker } from '../adapters/supabase/access';
-import { supabaseAdminChecker } from '../adapters/supabase/admin';
-import { contentDatabaseCheck, usersDatabaseCheck } from '../adapters/supabase/health';
-import { supabaseUsageStats } from '../adapters/supabase/usage-stats';
-import { contentClient } from '../adapters/supabase/client';
-import { supabaseReleaseRepository } from '../adapters/supabase/release';
-import { supabaseRepository } from '../adapters/supabase/content';
-import { supabaseSiteSettingsRepository } from '../adapters/supabase/settings';
-import { supabaseUnpublishedRepository } from '../adapters/supabase/unpublished';
+import { supabaseAccessChecker } from './access';
+import { supabaseAdminChecker } from './admin';
+import { contentDatabaseCheck, usersDatabaseCheck } from './health';
+import { supabaseUsageStats } from './usage-stats';
+import { contentClient } from './client';
+import { supabaseReleaseRepository } from './release';
+import { supabaseRepository } from './content';
+import { supabaseSiteSettingsRepository } from './settings';
+import { supabaseUnpublishedRepository } from './unpublished';
 
 const URL_ = 'https://content.example.test/';
 const KEY = 'service-test-key';

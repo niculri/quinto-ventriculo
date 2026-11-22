@@ -4,11 +4,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { SiteSettings } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { OWNER_EMAIL, asUser, createDatabase } from '@qv/db/testing';
-import { supabaseAdminChecker } from './adapters/supabase/admin';
-import { createApp } from './app';
-import { MediaSigner } from './services/media-signer';
-import { memoryRepository } from './adapters/memory/content';
-import { memorySiteSettings } from './adapters/memory/settings';
+import { supabaseAdminChecker } from '../admin';
+import { createApp } from '../../../app';
+import { MediaSigner } from '../../../services/media-signer';
+import { memoryRepository } from '../../memory/content';
+import { memorySiteSettings } from '../../memory/settings';
+import { urlOf } from '../../../test/fetch';
 
 const SUPABASE = 'https://users.supabase.co';
 type Claims = { sub: string; email: string; session_id?: string };
@@ -46,7 +47,7 @@ let app: ReturnType<typeof createApp>;
 const postgrest: typeof fetch = async (input, init) => {
   asked++;
   if (down) throw new TypeError('fetch failed');
-  expect(String(input)).toBe(`${SUPABASE}/rest/v1/rpc/is_admin`);
+  expect(urlOf(input)).toBe(`${SUPABASE}/rest/v1/rpc/is_admin`);
   const token = (new Headers(init?.headers).get('Authorization') ?? '').replace(/^Bearer /, '');
   const claims = TOKENS[token]!;
   const admin = await asUser(
@@ -150,7 +151,7 @@ describe('an administrator removed by the site owner', () => {
     down = true;
     const r = await put('owner', true);
     expect(r.status).toBe(503);
-    expect(((await r.json()) as { error: string }).error).toBe('admin_unavailable');
+    expect((await r.json<{ error: string }>()).error).toBe('admin_unavailable');
     expect((await settings.get()).hideEmptySemesters).toBe(false);
     clock = 61_000;
     expect((await get('owner')).status).toBe(404);

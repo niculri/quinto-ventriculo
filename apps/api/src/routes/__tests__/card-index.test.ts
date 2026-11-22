@@ -15,12 +15,12 @@ import {
   cardIndexKey,
 } from '@qv/schema';
 import type { CardIndexRecord, ContentBundle, ImportedAnkiNote } from '@qv/schema';
-import { createApp } from './app';
-import { MediaSigner } from './services/media-signer';
-import type { MediaStore } from './ports/media';
-import { memoryRepository } from './adapters/memory/content';
-import type { ContentRepository } from './ports/content';
-import { supabaseVerifier } from './adapters/supabase/session';
+import { createApp } from '../../app';
+import { MediaSigner } from '../../services/media-signer';
+import type { MediaStore } from '../../ports/media';
+import { memoryRepository } from '../../adapters/memory/content';
+import type { ContentRepository } from '../../ports/content';
+import { supabaseVerifier } from '../../adapters/supabase/session';
 
 const SUPABASE = 'https://users.supabase.co';
 const NOW = 1_793_448_000;
@@ -192,9 +192,9 @@ describe('the card browser index', () => {
     expect(r.headers.get('Cache-Control')).toBe('private, max-age=600');
     expect(r.headers.get('Vary')).toMatch(/Authorization/);
     expect(r.headers.get('Vary')).toMatch(/Accept-Encoding/);
-    const bytes = Buffer.from(await r.arrayBuffer());
-    expect(bytes).toEqual(Buffer.from(published.body));
-    const index = CardIndex.parse(JSON.parse(gunzipSync(bytes).toString()));
+    const bytes = new Uint8Array(await r.arrayBuffer());
+    expect(bytes).toEqual(new Uint8Array(published.body));
+    const index = CardIndex.parse(JSON.parse(new TextDecoder().decode(gunzipSync(bytes))));
     expect(index).toEqual(published.index);
     expect(index.notes.map((n) => [n.code, n.kind, n.front, n.back, n.topic, n.origin])).toEqual([
       ['T-PR-01-001', 'basic', '¿Una?', 'Respuesta', 'Tema de prueba', ['profe']],
@@ -249,7 +249,7 @@ describe('the card browser index', () => {
     const headers = { Authorization: `Bearer ${t}`, 'Accept-Encoding': 'gzip' };
     const index = await outside.request(apiPaths.cardIndex(A, published.hash), { headers });
     expect(index.status).toBe(403);
-    expect(((await index.json()) as { error: string }).error).toBe('not_invited');
+    expect((await index.json<{ error: string }>()).error).toBe('not_invited');
     expect((await outside.request('/api/anki/thumbs', { headers })).status).toBe(403);
     expect(requested).toEqual([]);
   });
@@ -262,7 +262,9 @@ describe('the card browser index', () => {
     expect(r.status).toBe(200);
     expect(r.headers.get('Cache-Control')).toBe('no-store');
     expect(
-      CardIndex.parse(JSON.parse(gunzipSync(Buffer.from(await r.arrayBuffer())).toString())).notes,
+      CardIndex.parse(
+        JSON.parse(new TextDecoder().decode(gunzipSync(new Uint8Array(await r.arrayBuffer())))),
+      ).notes,
     ).toHaveLength(3);
   });
 });

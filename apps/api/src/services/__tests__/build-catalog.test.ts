@@ -1,6 +1,6 @@
 // Tests for building the catalog from the content: card counts per assessment and the sorted deck tree.
 import { describe, expect, it } from 'vitest';
-import { buildCatalog } from '../services/build-catalog';
+import { buildCatalog } from '../build-catalog';
 
 describe('buildCatalog', () => {
   it('counts each assessment’s cards and sorts the deck tree by name, parents first', () => {

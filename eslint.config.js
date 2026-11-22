@@ -25,13 +25,14 @@ const SUPABASE_ADAPTERS = [
   'apps/web/src/features/session/api/service.ts',
   'apps/web/src/app/services.tsx',
   'apps/api/src/adapters/supabase/*.ts',
+  'apps/api/src/test/postgrest.ts',
   'packages/importer/src/targets.ts',
   '**/*.test.{ts,tsx}',
 ];
 
 // The web's and the API's adapters, without their tests: what the database answers is checked with its contract.
 const DATA_ADAPTERS = SUPABASE_ADAPTERS.filter(
-  (g) => g.startsWith('apps/') && !g.includes('.test.'),
+  (g) => g.startsWith('apps/') && !g.includes('.test.') && !g.includes('/test/'),
 );
 
 const PORTED_FROM_ANKI = [

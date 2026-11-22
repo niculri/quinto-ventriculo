@@ -1,11 +1,11 @@
 // Tests for the administrators' record of what was taken off the site.
 import { describe, expect, it } from 'vitest';
 import { UnpublishedLog } from '@qv/schema';
-import { createApp } from './app';
-import { MediaSigner } from './services/media-signer';
-import type { MediaStore } from './ports/media';
-import { memoryRepository } from './adapters/memory/content';
-import type { UnpublishedRepository } from './ports/unpublished';
+import { createApp } from '../../../app';
+import { MediaSigner } from '../../../services/media-signer';
+import type { MediaStore } from '../../../ports/media';
+import { memoryRepository } from '../../../adapters/memory/content';
+import type { UnpublishedRepository } from '../../../ports/unpublished';
 
 const ADMIN = 'dueno@ug.uchile.cl';
 const STUDENT = 'ana@ug.uchile.cl';

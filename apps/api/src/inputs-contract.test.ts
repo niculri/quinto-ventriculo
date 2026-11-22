@@ -162,7 +162,7 @@ async function answer(c: Case) {
     body,
     headers: Object.fromEntries(
       ['cache-control', 'vary', 'x-qv-preview', 'content-encoding']
-        .map((h) => [h, r.headers.get(h)])
+        .map((h): [string, string | null] => [h, r.headers.get(h)])
         .filter(([, v]) => v !== null),
     ),
     calls,

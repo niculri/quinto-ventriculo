@@ -1,12 +1,4 @@
 {
-  "apps/api/src/access.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 7
-    }
-  },
   "apps/api/src/adapters/cloudflare/analytics-engine.ts": {
     "@typescript-eslint/no-base-to-string": {
       "count": 1
@@ -77,75 +69,13 @@
       "count": 1
     }
   },
-  "apps/api/src/admin.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
-  "apps/api/src/card-index.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-call": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    }
-  },
   "apps/api/src/dev/demo.ts": {
     "@typescript-eslint/require-await": {
       "count": 2
     }
   },
-  "apps/api/src/health.test.ts": {
-    "@typescript-eslint/await-thenable": {
-      "count": 1
-    }
-  },
-  "apps/api/src/inputs.test.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    }
-  },
-  "apps/api/src/preview.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 6
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 1
-    }
-  },
-  "apps/api/src/repositories/supabase.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
   "apps/api/src/services/usage-report.ts": {
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/api/src/usage.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "@typescript-eslint/no-confusing-void-expression": {
       "count": 1
     }
   },

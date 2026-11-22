@@ -236,6 +236,13 @@ describe('derived dimensions', () => {
     expect(subtopicOf({ Frente: '¿Algo?' })).toBeNull();
   });
 
+  it('the sub-topic: a numeric entity that is not a character stays as it was written', () => {
+    expect(subtopicOf({ Tema: 'a &#0; b &#1114112; c &#x110000; d &#65;' })).toBe(
+      'a &#0; b &#1114112; c &#x110000; d A',
+    );
+    expect(subtopicOf({ Tema: '&#1114111;' })).toBe('\u{10FFFF}');
+  });
+
   it('the sub-topic: a block separates words, an inline tag does not; entities are decoded once', () => {
     expect(subtopicOf({ Tema: 'Estructura<div>del DNA</div>' })).toBe('Estructura del DNA');
     expect(subtopicOf({ Tema: '<b>Nucle</b>ótidos' })).toBe('Nucleótidos');

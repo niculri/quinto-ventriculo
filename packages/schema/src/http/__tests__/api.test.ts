@@ -1,6 +1,6 @@
 // Tests for hiding the semesters without material from the catalog.
 import { describe, expect, it } from 'vitest';
-import { semesterHasMaterial, withoutEmptySemesters } from '../api';
+import { SiteSettingsUpdate, semesterHasMaterial, withoutEmptySemesters } from '../api';
 import type { Catalog } from '../api';
 
 const course = (id: string, semester: number, material: 'note' | 'quiz' | null) => ({
@@ -100,5 +100,28 @@ describe('the semesters without material', () => {
     const full = { ...catalog, semesters: catalog.semesters.slice(0, 2) };
     expect(withoutEmptySemesters(full)).toBe(full);
     expect(withoutEmptySemesters(full).hiddenSemesters).toBeUndefined();
+  });
+});
+
+describe('what the settings panel may change', () => {
+  it('has to change something: an empty change is refused, and so is a key it does not know', () => {
+    expect(SiteSettingsUpdate.safeParse({}).success).toBe(false);
+    expect(SiteSettingsUpdate.safeParse({ hideEmptySemesters: false }).success).toBe(true);
+    expect(SiteSettingsUpdate.safeParse({ hiddenCourses: [] }).success).toBe(true);
+    expect(SiteSettingsUpdate.safeParse({ hiddenCourses: [], other: 1 }).success).toBe(false);
+  });
+
+  it('the list of courses has at most 200 names of 1 to 100 characters', () => {
+    expect(
+      SiteSettingsUpdate.safeParse({ hiddenCourses: Array.from({ length: 200 }, () => 'a') })
+        .success,
+    ).toBe(true);
+    expect(
+      SiteSettingsUpdate.safeParse({ hiddenCourses: Array.from({ length: 201 }, () => 'a') })
+        .success,
+    ).toBe(false);
+    expect(SiteSettingsUpdate.safeParse({ hiddenCourses: [''] }).success).toBe(false);
+    expect(SiteSettingsUpdate.safeParse({ hiddenCourses: ['a'.repeat(101)] }).success).toBe(false);
+    expect(SiteSettingsUpdate.safeParse({ hiddenCourses: ['a'.repeat(100)] }).success).toBe(true);
   });
 });

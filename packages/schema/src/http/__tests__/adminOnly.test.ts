@@ -144,3 +144,37 @@ describe('markAdminOnly', () => {
     expect(markAdminOnly(c, c, OPEN).adminOnly).toEqual({});
   });
 });
+
+describe('quizzes in the admin mode', () => {
+  const quiz = (id: string, course: string) => ({
+    id,
+    slug: id,
+    courseId: course,
+    assessmentId: `${course}/c1`,
+    title: 'Q',
+    position: 1,
+    questionCount: 3,
+    sectionCount: 1,
+    updatedAt: '2026-11-07T12:00:00.000Z',
+  });
+  const withQuizzes = (id: string, quizzes: string[]) => {
+    const c = course(id, []);
+    c.assessments[0]!.quizzes = quizzes.map((q) => quiz(q, id)) as never;
+    return c;
+  };
+
+  it('marks a quiz that the published catalog does not have as draft, and one it has not', () => {
+    const published = catalog([{ number: 1, courses: [withQuizzes('a', ['q1'])] }]);
+    const draft = catalog([{ number: 1, courses: [withQuizzes('a', ['q1', 'q2'])] }]);
+    expect(markAdminOnly(draft, published, OPEN).adminOnly).toEqual({
+      [adminKey('quiz', 'q2')]: ['draft'],
+    });
+  });
+
+  it('a quiz of a course turned off is marked with it', () => {
+    const c = catalog([{ number: 1, courses: [withQuizzes('b', ['q9'])] }]);
+    expect(
+      markAdminOnly(c, c, { ...OPEN, hiddenCourses: ['b'] }).adminOnly?.[adminKey('quiz', 'q9')],
+    ).toEqual(['hiddenCourse']);
+  });
+});

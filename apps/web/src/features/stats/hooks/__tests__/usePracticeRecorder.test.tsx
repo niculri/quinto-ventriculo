@@ -126,17 +126,13 @@ describe('what waits after a failure', () => {
     expect(sent[2]!.map((c) => c.deckId)).toEqual(Array.from({ length: 100 }, (_, d) => `d${d}`));
   });
 
-  it('is not kept once the page that counted it is gone', async () => {
+  it('leaving the page in the middle of a round sends what waits', () => {
     const sent: PracticeCount[][] = [];
-    const { result, unmount } = recorder(async (counts) => {
-      sent.push(counts);
-      throw new Error('sin red');
-    });
+    const { result, unmount } = recorder(async (counts) => void sent.push(counts), 10);
     act(() => result.current.add('10'));
+    expect(sent).toHaveLength(0);
     unmount();
-    await waitFor(() => expect(sent).toHaveLength(1));
-    await act(() => new Promise((r) => setTimeout(r, 0)));
-    expect(sent).toHaveLength(1);
+    expect(sent).toEqual([[{ deckId: '10', n: 1 }]]);
   });
 });
 

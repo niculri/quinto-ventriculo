@@ -20,7 +20,6 @@ export function usePracticeRecorder(finished: boolean, batch = PRACTICE_BATCH) {
   const client = useQueryClient();
   const pendingRef = useRef(new Map<string, number>());
   const sizeRef = useRef(0);
-  const aliveRef = useRef(true);
 
   const flush = () => {
     if (!pendingRef.current.size) return;
@@ -31,7 +30,7 @@ export function usePracticeRecorder(finished: boolean, batch = PRACTICE_BATCH) {
       void study.recordPractice(part).then(
         () => client.invalidateQueries({ queryKey: heatmapKeys.all }),
         (e: unknown) => {
-          if (!aliveRef.current || e instanceof PracticeRefusedError) return;
+          if (e instanceof PracticeRefusedError) return;
           for (const { deckId, n } of part) {
             // What waits is never more than a batch the database takes.
             const keep = Math.min(n, PRACTICE_BATCH_MAX - sizeRef.current);
@@ -60,15 +59,14 @@ export function usePracticeRecorder(finished: boolean, batch = PRACTICE_BATCH) {
   }, [finished]);
 
   useEffect(() => {
-    aliveRef.current = true;
+    const leave = () => flushNow();
     const hidden = () => {
       if (document.visibilityState === 'hidden') flushNow();
     };
-    window.addEventListener('pagehide', flushNow);
+    window.addEventListener('pagehide', leave);
     document.addEventListener('visibilitychange', hidden);
     return () => {
-      aliveRef.current = false;
-      window.removeEventListener('pagehide', flushNow);
+      window.removeEventListener('pagehide', leave);
       document.removeEventListener('visibilitychange', hidden);
       flushNow();
     };

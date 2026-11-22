@@ -117,4 +117,43 @@ describe('image occlusion (like Anki review.ts)', () => {
     expect(calls).toContain('lineTo 300 200');
     expect(calls).toContain(`rotate ${(Math.PI / 2).toFixed(4)}`);
   });
+  it('a border of width 0 fills the shapes without stroking them', () => {
+    const { ctx, calls } = recorder();
+    const noBorder = { ...PROPS, activeBorder: { width: 0, color: '#3d3d3d' } };
+    drawShapes(
+      ctx,
+      shapes(
+        rect('cloze', 1) +
+          '<div class="cloze" data-ordinal="1" data-shape="ellipse" data-rx=".1" data-ry=".1"></div>' +
+          '<div class="cloze" data-ordinal="1" data-shape="polygon" data-points=".1,.1 .2,.2 .1,.3"></div>',
+      ),
+      size,
+      noBorder,
+    );
+    expect(calls.filter((c) => c.startsWith('fill')).length).toBe(3);
+    expect(calls.some((c) => c.startsWith('stroke'))).toBe(false);
+  });
+
+  it('a rotated text turns around its corner, after scaling', () => {
+    const { ctx, calls } = recorder();
+    drawShapes(
+      ctx,
+      shapes(
+        '<div class="cloze" data-ordinal="1" data-shape="text" data-left=".2" data-top=".4" data-text="A\nBB" data-scale="2" data-angle="2500"></div>',
+      ),
+      size,
+      PROPS,
+    );
+    expect(calls).toEqual([
+      'save',
+      'scale 2 2',
+      'translate 100 100',
+      `rotate ${(Math.PI / 2).toFixed(4)}`,
+      'translate -100 -100',
+      'fillRect 100 100 25 35 #ffffff',
+      'fillText A 100 100',
+      'fillText BB 100 115',
+      'restore',
+    ]);
+  });
 });

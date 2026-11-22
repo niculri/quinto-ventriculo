@@ -305,3 +305,87 @@ describe('the history of a round', () => {
     });
   });
 });
+
+describe('what a saved round is missing or has wrong', () => {
+  const saved = () => roundTrip(halfway()) as Record<string, unknown>;
+  const read = (over: Record<string, unknown>) => restoreRound({ ...saved(), ...over }, BY_ID)!;
+
+  it('a round with no list of answers has none, and one whose list is not a list too', () => {
+    expect(read({ answers: undefined }).answers).toEqual([]);
+    expect(read({ answers: 'x' }).answers).toEqual([]);
+  });
+
+  it('an answer without a time takes the epoch, and one with a time keeps it', () => {
+    const answer = (position: number, at: unknown) => {
+      const id = halfway().queue[position]!;
+      const body = BY_ID.get(id)!.options ? { chosen: 0 } : { chosen: null, correct: true };
+      return { position, questionId: id, correct: true, ...body, at };
+    };
+    const answers = [answer(0, 7), answer(1, '2026-11-02T00:00:00.000Z')];
+    const r = read({ answers, finished: false });
+    expect(r.answers.map((a) => a.at)).toEqual([
+      '1970-01-01T00:00:00.000Z',
+      '2026-11-02T00:00:00.000Z',
+    ]);
+  });
+
+  it('a round without a valid id or start time gets neutral ones, and the origin falls back to the cover', () => {
+    const r = read({ id: '', startedAt: 5, origin: 'somewhere' });
+    expect(r).toMatchObject({
+      id: '00000000-0000-4000-8000-000000000000',
+      startedAt: '1970-01-01T00:00:00.000Z',
+      origin: 'cover',
+    });
+    expect(read({ id: 7 }).id).toBe('00000000-0000-4000-8000-000000000000');
+  });
+
+  it('positions that are not numbers are taken as the start, and fractions are cut', () => {
+    const r = read({ top: 'x', index: Number.NaN });
+    expect([r.top, r.index]).toEqual([0, 0]);
+    expect(read({ top: 1.9, index: 0 }).top).toBe(1);
+  });
+
+  it('a short-answer question with a chosen alternative, or without a boolean, drops the answer', () => {
+    const short = BY_ID.get('c')!;
+    const queue = ['c'];
+    const answers = (a: object) => [
+      { position: 0, questionId: 'c', at: '2026-11-02T00:00:00.000Z', ...a },
+    ];
+    const base = {
+      version: 1,
+      queue,
+      index: 0,
+      top: 0,
+      screen: 'question',
+      orders: [null],
+      finished: false,
+    };
+    const restore = (a: object) =>
+      restoreRound({ ...base, answers: answers(a) }, new Map([['c', short]]))!;
+    expect(restore({ chosen: 0, correct: true }).answers).toEqual([]);
+    expect(restore({ chosen: null, correct: 'yes' }).answers).toEqual([]);
+    expect(restore({ chosen: null, correct: false }).answers).toMatchObject([
+      { chosen: null, correct: false },
+    ]);
+  });
+
+  it('an order that is not a list is dropped, and a list that is a permutation of another size too', () => {
+    const r = read({ orders: ['x', [0, 1, 2]] });
+    expect(r.orders[0]).toBeNull();
+    expect(r.orders[1]).toBeNull();
+  });
+
+  it('an unknown screen is the cover, and a finished round at «question» stays so unless a question was removed', () => {
+    expect(read({ screen: 'settings' }).screen).toBe('cover');
+    expect(read({ screen: 'question', finished: true }).screen).toBe('question');
+  });
+});
+
+describe('an order saved for a question that has no alternatives', () => {
+  it('is dropped', () => {
+    const r = roundTrip(halfway()) as { queue: string[]; orders: unknown[] };
+    const at = r.queue.indexOf('c');
+    r.orders[at] = [0, 1];
+    expect(restoreRound(r, BY_ID)!.orders[at]).toBeNull();
+  });
+});

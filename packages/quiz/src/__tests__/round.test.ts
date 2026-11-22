@@ -1,5 +1,5 @@
 // Tests of a practice-test round: starting, answering, moving around, repeating and skipping.
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   LETTERS,
   answerAt,
@@ -26,7 +26,7 @@ import {
   wrongAnswers,
 } from '..';
 import type { QuestionInfo, Round } from '..';
-import { back, canGoBack, letterOf, seededRandom, shuffled } from '../round';
+import { back, canGoBack, letterOf, newRoundId, seededRandom, shuffled } from '../round';
 
 const Q: QuestionInfo[] = [
   { id: 'a', options: 5, correct: 0 },
@@ -390,5 +390,79 @@ describe('«Saltar»', () => {
     wrong = skip(wrong);
     expect(wrong.queue).toEqual(['c', 'e', 'a']);
     expect(currentQuestionId(wrong)).toBe('c');
+  });
+});
+
+describe('round ids', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('is a random UUID when the platform has one', () => {
+    vi.stubGlobal('crypto', { randomUUID: () => 'from-the-platform' });
+    expect(newRoundId()).toBe('from-the-platform');
+  });
+
+  it('is still a version-4 UUID when the platform has none', () => {
+    vi.stubGlobal('crypto', {});
+    const ids = new Set(Array.from({ length: 20 }, () => newRoundId()));
+    expect(ids.size).toBe(20);
+    for (const id of ids)
+      expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  });
+
+  it('is still one when there is no crypto at all', () => {
+    vi.stubGlobal('crypto', undefined);
+    expect(newRoundId()).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4/);
+  });
+});
+
+describe('the letter of an alternative', () => {
+  it('is empty for an alternative that is not in the question, and only the first six have a letter', () => {
+    const q = { id: 'q', options: 3, correct: 0 };
+    const r = startRound([q], { shuffle: false, shuffleOptions: false, id: 'r' });
+    expect(letterOf(r, q, 0)).toBe('A');
+    expect(letterOf(r, q, 2)).toBe('C');
+    expect(letterOf(r, q, 9)).toBe('');
+    const big = { id: 'big', options: 8, correct: 0 };
+    const rb = startRound([big], { shuffle: false, shuffleOptions: false, id: 'r' });
+    expect(letterOf(rb, big, 6)).toBe('');
+  });
+});
+
+describe('answering what is not on screen', () => {
+  it('is refused when the round is not at a question, or the question is another one', () => {
+    const q = { id: 'q', options: 3, correct: 0 };
+    const other = { id: 'other', options: 3, correct: 0 };
+    const r = startRound([q], { shuffle: false, shuffleOptions: false, id: 'r' });
+    expect(() => answerChoice(r, other, 0)).toThrow('La pregunta en pantalla es q, no other.');
+    expect(() => answerChoice(toCover(r), q, 0)).toThrow('No hay una pregunta en pantalla.');
+  });
+});
+
+describe('the title of the results', () => {
+  it('changes at 60 and at 85', () => {
+    expect([59, 60, 84, 85].map(resultTitle)).toEqual([
+      'Hay que repasar',
+      'Vas bien, falta afinar',
+      'Vas bien, falta afinar',
+      'Muy bien preparado',
+    ]);
+  });
+});
+
+describe('what the screen reads from a round it did not build', () => {
+  const q3 = { id: 'q', options: 3, correct: 0 };
+  const round = (over: Partial<Round>): Round => ({
+    ...startRound([q3], { shuffle: false, shuffleOptions: false, id: 'r' }),
+    ...over,
+  });
+
+  it('an order of another size than the alternatives is not used: the original order shows', () => {
+    expect(displayOrder(round({ orders: [[1, 0]] }), q3)).toEqual([0, 1, 2]);
+    expect(displayOrder(round({ orders: [[2, 0, 1]] }), q3)).toEqual([2, 0, 1]);
+    expect(displayOrder(round({ orders: [[0, 0, 1]] }), q3)).toEqual([0, 1, 2]);
+  });
+
+  it('a round with no questions has made no progress', () => {
+    expect(progress(round({ queue: [], orders: [], top: 0 }))).toBe(0);
   });
 });

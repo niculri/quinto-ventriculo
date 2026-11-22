@@ -48,6 +48,12 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   con uniones) se lee con `fromDatabase` y su contrato de `@qv/schema/user` o `/content`, nunca con `as` (lo prohíbe
   `qv/no-cast-on-data`), y cada contrato corre contra el SQL en `db/tests/*-contracts.test.ts`; los rechazos de la
   base se reconocen solo con `databaseError()` de `@qv/schema/database`.
+- **Importador** (`packages/importer/src`): `cli/` es lo único que lee la línea de comandos e imprime; arma el paquete
+  `bundle/` (sus piezas: `notes/`, `decks/`, `quizzes/` con el `test.json` validado con zod, `taxonomy/` con `checks/`,
+  `manifest/`, `media/`, `policy/`) y lo escribe un destino de `targets/` (`folder`, `cloud`, `r2`, `content-database`).
+  Lo que se decide sin tocar disco ni red (qué cambió, qué no puede cambiar una importación parcial, qué índices
+  escribir) está en `sync/plan.ts`, común a los dos destinos; esas carpetas no importan `targets/` ni `cli/` (lo impone
+  ESLint). Lo que la persona tiene que arreglar es un `ImportError` con su `kind` (`errors.ts`).
 - **Contrato web ↔ API:** rutas (`API_ROUTES`, y `apiPaths` para pedirlas), códigos de error (`ErrorCode`), la
   cabecera de la vista previa y lo que acepta cada ruta (`requests.ts`) viven en `@qv/schema/http`. La API valida toda
   entrada con esos schemas y cada respuesta JSON lleva `satisfies` de su schema (los cuerpos que pasan como stream no

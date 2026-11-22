@@ -227,6 +227,12 @@ export default tseslint.config(
           selector: 'Literal[value=/\\/rest\\/v1/], TemplateElement[value.raw=/\\/rest\\/v1/]',
           message: 'PostgREST (/rest/v1) is reached only through a repository (data adapter).',
         },
+        {
+          // The import rule above does not see a member of the default import (`React.useMemo`).
+          selector:
+            'MemberExpression[object.name="React"][property.name=/^(useMemo|useCallback|memo)$/]',
+          message: NO_HAND_MEMO.message,
+        },
       ],
     },
   },

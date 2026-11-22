@@ -7,7 +7,7 @@ import { paths } from '../../../shared/lib/paths';
 import { Skeleton } from '../../../shared/ui/Loading';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { countDecks } from '../../catalog/model/catalog';
-import { CountNumbers, DayLoad } from '../../progress/components/DeckCounts';
+import { DayLoad } from '../../progress/components/DeckCounts';
 import { MasteryMeter } from '../../progress/components/MasteryMeter';
 import type { CourseDecks } from '../hooks/useCourseDecks';
 import { unitsOf } from '../model/material';
@@ -38,6 +38,7 @@ export function AnkiCard({
       ? assessmentView({
           decks: data.decks,
           plan: data.plan,
+          // v8 ignore next: useStudyData always fills progress; the type leaves it optional for other callers.
           progress: data.progress ?? [],
           assessmentId: node.id,
           today,
@@ -65,24 +66,17 @@ export function AnkiCard({
             </span>
           )}
           <span className="flex h-5 items-center">
-            {own ? (
+            {own && plan ? (
               <span
                 role="group"
                 aria-label={s.todayIn(a.name)}
                 className="flex items-center gap-2 text-xs text-muted"
               >
-                {plan ? (
-                  <DayLoad
-                    counts={own}
-                    medianAnswerMs={plan.medianAnswerMs}
-                    empty={emptyLoad(node, plan)}
-                  />
-                ) : (
-                  <>
-                    <CountNumbers counts={own} />
-                    {s.forToday}
-                  </>
-                )}
+                <DayLoad
+                  counts={own}
+                  medianAnswerMs={plan.medianAnswerMs}
+                  empty={emptyLoad(node, plan)}
+                />
               </span>
             ) : failed ? (
               <span className="text-xs text-muted">{s.failed}</span>

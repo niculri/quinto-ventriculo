@@ -9,7 +9,6 @@ export const ankiCardStrings = {
     anki: 'Anki',
   },
   todayIn: (assessment: string) => `Hoy en ${assessment}`,
-  forToday: ' para hoy',
   failed: 'No se pudo cargar.',
   noneOn: 'Sin activar',
   doneToday: 'Listo por hoy',

@@ -233,3 +233,91 @@ describe('html helpers', () => {
     ).toBe('Vértebra');
   });
 });
+
+describe('what a card makes of its note', () => {
+  it('a field of the note type that has the name of a special one is the field, not the special value', () => {
+    const t = { ...basic('{{Deck}}|{{Tags}}', '{{FrontSide}}'), fields: ['Deck', 'Tags'] };
+    const r = renderCard(input({ noteType: t, fields: ['mine', 'also mine'] }));
+    expect(r.question).toBe('mine|also mine');
+  });
+
+  it('a note with fewer values than its type has fields reads the missing ones as empty', () => {
+    const r = renderCard(
+      input({
+        noteType: basic('{{Front}}|{{#Extra}}x{{/Extra}}{{^Extra}}none{{/Extra}}'),
+        fields: ['only'],
+      }),
+    );
+    expect(r.question).toBe('only|none');
+  });
+
+  it('the flag and the id of the card are fields, and without them they are «flag0» and empty', () => {
+    const t = basic('{{CardFlag}}|{{CardID}}');
+    expect(renderCard(input({ noteType: t })).question).toBe('flag0|');
+    expect(renderCard(input({ noteType: t, flags: 2, cardId: '77' })).question).toBe('flag2|77');
+  });
+
+  it('every sound of the question and then of the answer is numbered from 0 on its own side', () => {
+    const t = basic('{{Front}} [sound:q.mp3] {{Back}}', '{{FrontSide}}|[sound:a.mp3]{{Back}}');
+    const r = renderCard(input({ noteType: t, fields: ['[sound:x.mp3]', '[sound:y.mp3]', ''] }));
+    expect(r.question).toBe('[anki:play:q:0] [anki:play:q:1] [anki:play:q:2]');
+    expect(r.answer.startsWith('[anki:play:q:0] [anki:play:q:1] [anki:play:q:2]|')).toBe(true);
+    expect(r.answer.endsWith('[anki:play:a:0][anki:play:a:1]')).toBe(true);
+  });
+});
+
+describe('a card that cannot be shown', () => {
+  it('a front with no field filled is blank, and says so after what was rendered', () => {
+    const r = renderCard(input({ noteType: basic('Only text {{Extra}}') }));
+    expect(r.isEmpty).toBe(true);
+    expect(r.question.startsWith('Only text ')).toBe(true);
+    expect(r.question).toContain('The front of this card is blank.');
+    expect(r.answer).not.toContain('Only text');
+    expect(r.error).toBeNull();
+  });
+
+  it('a cloze card whose number is not in the note is empty, and says which number', () => {
+    const cloze = {
+      name: 'Cloze',
+      kind: 'cloze' as const,
+      fields: ['Text'],
+      templates: [{ name: 'Cloze', qfmt: '{{cloze:Text}}', afmt: '{{cloze:Text}}' }],
+    };
+    const r = renderCard({
+      noteType: cloze,
+      fields: ['{{c1::a}}'],
+      tags: [],
+      ord: 2,
+      deckName: 'D',
+    });
+    expect(r.isEmpty).toBe(true);
+    expect(r.question).toContain('missing cloze number 3');
+    expect(r.answer).toContain('missing cloze number 3');
+  });
+
+  it('a cloze type always uses its first template, whatever the card’s number', () => {
+    const cloze = {
+      name: 'Cloze',
+      kind: 'cloze' as const,
+      fields: ['Text'],
+      templates: [{ name: 'Cloze', qfmt: '{{cloze:Text}}', afmt: '{{cloze:Text}}<i>{{c2}}</i>' }],
+    };
+    const r = renderCard({
+      noteType: cloze,
+      fields: ['{{c1::a}} {{c2::b}}'],
+      tags: [],
+      ord: 1,
+      deckName: 'D',
+    });
+    expect(r.isEmpty).toBe(false);
+    expect(r.answer).toContain('<i>1</i>');
+  });
+
+  it('a template error is the card’s message, and any other failure is not hidden as one', () => {
+    const t = {
+      ...basic('{{Front}}'),
+      templates: [{ name: 'Broken', qfmt: undefined as unknown as string, afmt: '' }],
+    };
+    expect(() => renderCard(input({ noteType: t }))).toThrow(TypeError);
+  });
+});

@@ -12,16 +12,14 @@ export function deckOfSearch(
   tree: AnkiTree,
   q: string,
 ): { node: CourseDeckNode; rest: string } | null {
-  let best: { node: CourseDeckNode; rest: string; length: number } | null = null;
+  // Only one deck can match: a term followed by a space is never another deck's term (a name with a space is quoted).
   for (const n of tree.nodes) {
     if (!hasPage(n)) continue;
     const term = searchTerm('deck', n.name);
-    if (q !== term && !q.startsWith(`${term} `)) continue;
-    if (!best || term.length > best.length) {
-      best = { node: n, rest: q.slice(term.length).trim(), length: term.length };
-    }
+    if (q === term || q.startsWith(`${term} `))
+      return { node: n, rest: q.slice(term.length).trim() };
   }
-  return best && { node: best.node, rest: best.rest };
+  return null;
 }
 
 function cardsOf(node: CourseDeckNode, query: { q?: string; card?: string }) {

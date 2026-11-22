@@ -238,6 +238,10 @@ describe('checkRatchet', () => {
     const once = checkRatchet(snap(at(3)), snap(at(2)), 'main', new Set(), starts);
     expect(once.ok).toBe(false);
     expect(once.lines.join('\n')).toContain('@typescript-eslint/no-unsafe-call: 2 → 3');
+    // One suppression in the base is already debt: the allowance is for a rule the base had none of.
+    const one = checkRatchet(snap(at(3)), snap(at(1)), 'main', new Set(), starts);
+    expect(one.ok).toBe(false);
+    expect(one.lines.join('\n')).toContain('@typescript-eslint/no-unsafe-call: 1 → 3');
   });
 
   it('lists the rules in alphabetical order, both the ones that grew and the new ones', () => {

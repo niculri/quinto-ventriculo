@@ -6,6 +6,9 @@ import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
 import type { SavedQuiz } from './model';
 
+/** The rows of a read: PostgREST sends `[]` when nothing matched, and a response with no body reads the same. */
+const rowsOf = <T>(data: T[] | null): T[] => data ?? [];
+
 export function supabaseQuizRepository(client: SupabaseClient<Database>): QuizRepository {
   return {
     async load(quizId) {
@@ -15,7 +18,7 @@ export function supabaseQuizRepository(client: SupabaseClient<Database>): QuizRe
         .eq('quiz_id', quizId);
       if (r.error) throw new Error(`No se pudo leer tu avance (${r.error.message}).`);
       const out: SavedQuiz = {};
-      for (const row of r.data ?? []) {
+      for (const row of rowsOf(r.data)) {
         out[row.section_id] = {
           preferences: row.preferences,
           round: row.round,
@@ -38,7 +41,7 @@ export function supabaseQuizRepository(client: SupabaseClient<Database>): QuizRe
         .order('updated_at', { ascending: false })
         .limit(OPEN_ROUNDS);
       if (r.error) throw new Error(`No se pudo leer tus tests (${r.error.message}).`);
-      return (r.data ?? []).map((x) => ({
+      return rowsOf(r.data).map((x) => ({
         quizId: x.quiz_id,
         sectionId: x.section_id,
         answered: x.answered,

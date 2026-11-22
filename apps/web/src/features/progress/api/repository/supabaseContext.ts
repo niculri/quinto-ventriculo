@@ -13,6 +13,12 @@ const PAGE = 1000;
 
 export const iso = (t: string | null) => (t === null ? null : new Date(t).toISOString());
 
+/** A bigint as PostgREST carries it: a JSON number, or text when a query casts it with `::text`. */
+export const int8 = (value: number | string) => Number(value);
+
+/** A list that comes as `null` (an aggregate with nothing to add) or not at all (a column the database does not have yet). */
+export const listOf = <T>(list: T[] | null | undefined): T[] => list ?? [];
+
 export function fromRow(r: CardStateRow): StoredCard {
   return {
     noteGuid: r.note_guid,

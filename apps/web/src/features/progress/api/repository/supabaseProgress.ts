@@ -6,6 +6,7 @@ import { fromDatabase } from '../../../../shared/lib/json';
 import { dayNumber } from '@qv/study';
 import type { HomeCounts } from './model';
 import type { StudyRepository } from './port';
+import { listOf } from './supabaseContext';
 import type { StudyContext } from './supabaseContext';
 
 type Functions = Database['public']['Functions'];
@@ -21,7 +22,7 @@ function homeCountsFromJson(data: Functions['home_counts']['Returns'] | null): H
       touched,
       suspended,
       recall,
-      due: (due ?? []).map(([noteGuid, ord, queue, at]) => ({ noteGuid, ord, queue, due: at })),
+      due: listOf(due).map(([noteGuid, ord, queue, at]) => ({ noteGuid, ord, queue, due: at })),
     })),
   };
 }

@@ -3,7 +3,7 @@
 import { UserPreset } from '@qv/schema/user';
 import { fromDatabase, toJson } from '../../../../shared/lib/json';
 import type { StudyRepository } from './port';
-import { iso } from './supabaseContext';
+import { iso, listOf } from './supabaseContext';
 import type { StudyContext } from './supabaseContext';
 
 const PresetConfig = UserPreset.shape.config;
@@ -46,9 +46,9 @@ export function preferencesAndPresets(ctx: StudyContext): PreferenceAndPresets {
         welcomeSeen: r.welcome_seen,
         // A users' database from before these columns does not send them.
         semester: r.semester ?? null,
-        addedCourses: r.added_courses ?? [],
-        removedCourses: r.removed_courses ?? [],
-        dismissed: r.dismissed ?? [],
+        addedCourses: listOf(r.added_courses),
+        removedCourses: listOf(r.removed_courses),
+        dismissed: listOf(r.dismissed),
       };
     },
     async savePreferences(p) {

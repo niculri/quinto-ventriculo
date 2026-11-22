@@ -5,7 +5,7 @@ import { STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../../shared/lib/json';
 import { CardChangedError, PracticeRefusedError } from './model';
 import type { StudyRepository } from './port';
-import { refs } from './supabaseContext';
+import { int8, refs } from './supabaseContext';
 import type { StudyContext } from './supabaseContext';
 
 type Writes = Pick<
@@ -116,16 +116,17 @@ export function cardSync({ client, fail, sync }: StudyContext): CardSync {
       if (error) fail('leer tu avance', error);
       const row = data;
       // Rows a page that was behind created: from there again (reconcile_cards() takes it as the cursor).
-      const stored = Number(row?.repair_from ?? row?.synced_to ?? 0);
-      sync.seenTo = Number(row?.synced_to ?? 0);
+      const stored = int8(row?.repair_from ?? row?.synced_to ?? 0);
+      sync.seenTo = int8(row?.synced_to ?? 0);
       return stored;
     },
     async reconcileCards(input) {
       const { data, error } = await client.rpc('reconcile_cards', { p: input });
       if (error) fail('poner al día tus tarjetas', error);
       const r = fromDatabase('reconcile_cards', STUDY_RPC.reconcile_cards.returns, data);
-      if (r.applied) sync.seenTo = Number(r.syncedTo);
-      return { applied: r.applied, syncedTo: Number(r.syncedTo), changed: r.changed };
+      const syncedTo = int8(r.syncedTo);
+      if (r.applied) sync.seenTo = syncedTo;
+      return { applied: r.applied, syncedTo, changed: r.changed };
     },
   };
 }

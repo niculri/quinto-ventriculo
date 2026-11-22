@@ -118,6 +118,15 @@ describe('readings', () => {
     ).rejects.toThrow(/row-level security/);
   });
 
+  it('cannot hand a row of their own to someone else by changing its user', async () => {
+    await expect(
+      asUser(db, ANA, async (tx) => {
+        // No WHERE: with one, the policy that lets the user read their rows would refuse the new row too.
+        await tx.query(`update public.readings set user_id = $1`, [BETO.sub]);
+      }),
+    ).rejects.toThrow(/row-level security/);
+  });
+
   it("cannot change or delete someone else's", async () => {
     const r = await asUser(db, ANA, async (tx) => {
       const u = await tx.query(`update public.readings set progress = 1 where user_id = $1`, [

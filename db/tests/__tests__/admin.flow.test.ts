@@ -25,6 +25,11 @@ describe('administrators', () => {
     expect(await isAdmin(STUDENT)).toBe(false);
   });
 
+  it('the email of the token is read without capitals or spaces, as the invitation is', async () => {
+    expect(await isAdmin({ ...ADMIN, email: ' Dueno@UG.uchile.CL ' })).toBe(true);
+    expect(await isAdmin({ ...STUDENT, email: ' Invitado@UG.uchile.CL ' })).toBe(false);
+  });
+
   it('nobody signed in can read or change the list', async () => {
     await expect(
       asUser(db, ADMIN, (tx) => tx.query('select * from public.admin_emails')),

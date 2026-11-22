@@ -1,12 +1,11 @@
 // What the home page says is left in a course without loading its decks: the new cards that are sure, when the count is
 // unknown, which due cards make the order matter, the mastery of the course and when the counts change by themselves.
-import { dayStartsAt, schedTiming } from '@qv/srs';
+import { dayStartsAt, fillParameters, schedTiming } from '@qv/srs';
 import type { HomeDeckCounts } from '@qv/schema/user';
 import { describe, expect, it, vi } from 'vitest';
 import { decayByDeck, homeCourseCounts, nextChangeAt } from '../homeCounts';
 import type { HomeStudyBase } from '../homeCounts';
 import { dateOfDay } from '../pace';
-import { fillParametersOf } from './homeParams';
 import {
   ASSESSMENT,
   COURSE,
@@ -379,7 +378,7 @@ describe('decayByDeck', () => {
   });
 
   it('is the default decay when the preset has no parameters', () => {
-    expect(decayByDeck(base(), [UNIT1], NOON)).toEqual({ [UNIT1]: fillParametersOf([])[20] });
+    expect(decayByDeck(base(), [UNIT1], NOON)).toEqual({ [UNIT1]: fillParameters([])[20] });
   });
 
   it('leaves out the decks it does not know, and an empty list gives nothing', () => {

@@ -55,6 +55,10 @@ describe('the guard of the study repository', () => {
     await study.setFlags([real], 1);
     await study.forget([real], false);
     await study.recordPractice([{ deckId: '20', n: 3 }]);
+    await study.unsuspend([real]);
+    await study.unbury([real]);
+    await study.setDeckPreset('20', null);
+    await study.saveAssessmentSetting({ deckId: '20', includeExtras: false, newPerDay: 5 });
     expect(calls).toEqual([
       'recordReview',
       'setDeckActivation',
@@ -64,6 +68,10 @@ describe('the guard of the study repository', () => {
       'setFlags',
       'forget',
       'recordPractice',
+      'unsuspend',
+      'unbury',
+      'setDeckPreset',
+      'saveAssessmentSetting',
     ]);
   });
 
@@ -168,6 +176,15 @@ describe('the guard of the reports', () => {
     const reports = guardReports(proxy, lookup);
     await reports.send(report('note', 'AP-1')).catch(() => undefined);
     await reports.send(report('card', 'a:b:2')).catch(() => undefined);
-    expect(calls).toEqual(['send', 'send']);
+    await reports.send(report('quiz_question', 'qr/q-1')).catch(() => undefined);
+    await reports.send(report('quiz_question', 'qr')).catch(() => undefined);
+    expect(calls).toEqual(['send', 'send', 'send', 'send']);
+  });
+
+  it('a question of a draft test is refused also by the test’s id alone', async () => {
+    const reports = guardReports(localReportsRepository({ admin: true }), lookup);
+    await expect(reports.send(report('quiz_question', DRAFT.quiz))).rejects.toThrow(
+      REPORT_MESSAGES.draftOnly,
+    );
   });
 });

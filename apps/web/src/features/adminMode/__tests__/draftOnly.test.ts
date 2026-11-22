@@ -98,4 +98,13 @@ describe('draftOnly', () => {
     await expect(flaky.card({ noteGuid: 'g', ord: 0 })).rejects.toThrow('caído');
     expect(await flaky.card({ noteGuid: 'g', ord: 0 })).toBe(false);
   });
+
+  it('a failure looking a card up in the draft is not hidden either', async () => {
+    const card = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiRequestError(404, 'not_found', 'no'))
+      .mockRejectedValueOnce(new ApiRequestError(503, 'unavailable', 'caído'));
+    const lookup = draftOnly(fakeApi({ ...catalog(), card }));
+    await expect(lookup.card({ noteGuid: 'g', ord: 1 })).rejects.toThrow('caído');
+  });
 });

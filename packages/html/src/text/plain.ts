@@ -6,7 +6,7 @@ export function releasePlainText(html: string | null | undefined): string {
   return (html ?? '')
     .replace(
       /<(?:img|video|audio|source|embed)\b[^>]*\b(?:data-media|src)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))[^>]*>/gi,
-      (_m, a?: string, b?: string, c?: string) => ` [img ${a ?? b ?? c ?? ''}] `,
+      (_m, a?: string, b?: string, c?: string) => ` [img ${(a ?? b ?? c)!}] `,
     )
     .replace(/<\/?[a-z][^>]*>|<![^>]*>/gi, ' ')
     .replace(/&nbsp;/g, ' ')

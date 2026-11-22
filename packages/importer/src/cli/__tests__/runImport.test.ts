@@ -131,7 +131,7 @@ describe('runImport to the folder', () => {
     const summary = out.at(-1)!;
     expect(summary).toContain('Todas las evaluaciones.');
     expect(summary).toContain('2 apuntes: 2 con cambios, 0 iguales, 0 quitados.');
-    expect(summary).toContain('1 mazos de Anki'.replace('1 mazos', '7 mazos'));
+    expect(summary).toContain('7 mazos de Anki');
     expect(summary).not.toContain('En el borrador');
     expect(process.exitCode).toBeUndefined();
   });

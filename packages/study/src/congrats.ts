@@ -43,7 +43,7 @@ export function congratsInfo(
     }
     const record = toRecord(row, data.prefs);
     if (!record) {
-      if (!givingNew || givingNew.has(c.deckId)) info.newLimitReached = true;
+      if (givingNew.has(c.deckId)) info.newLimitReached = true;
       else if (!extras.has(c.deckId)) info.inactiveNew++;
     } else if (record.queue === 'learn') {
       learnCount++;
@@ -56,9 +56,9 @@ export function congratsInfo(
   return {
     ...info,
     nothingActive: !anyActive,
-    extrasOff: !!givingNew && extrasOff(data.decks, data.plan, rootId),
+    extrasOff: extrasOff(data.decks, data.plan, rootId),
     learnMessage: nextLearnMessage(secs, learnCount),
-    exam: givingNew ? examNotes(data, rootId, timing.today) : null,
+    exam: examNotes(data, rootId, timing.today),
   };
 }
 

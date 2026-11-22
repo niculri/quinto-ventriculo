@@ -14,10 +14,7 @@ export function masteryByDeck(data: StudyData, nowMs = Date.now()): Map<string, 
   const leftOut = new Map<string, boolean>();
   for (const d of data.decks) {
     const assessment = ancestorName(d.name, ASSESSMENT_DEPTH);
-    leftOut.set(
-      d.id,
-      isExtras(d.name) && !includesExtras(data.plan, idOf.get(assessment ?? '') ?? ''),
-    );
+    leftOut.set(d.id, isExtras(d.name) && !includesExtras(data.plan, idOf.get(assessment!) ?? ''));
   }
   const wanted = new Set(deckIds(data.deck));
   const sum = new Map<string, number>();
@@ -44,7 +41,7 @@ export function masteryByDeck(data: StudyData, nowMs = Date.now()): Map<string, 
   const out = new Map<string, number>();
   for (const id of wanted) {
     const n = count.get(id) ?? 0;
-    out.set(id, n === 0 ? 0 : (sum.get(id) ?? 0) / n);
+    out.set(id, n === 0 ? 0 : sum.get(id)! / n);
   }
   return out;
 }

@@ -169,7 +169,7 @@ export function homeCourseCounts(
   // A note's new cards are buried when the preset of a deck of one of its cards due today buries new siblings.
   const buriesNew = new Map<string, boolean>();
   for (const { row } of due) {
-    const buries = configs.get(row.deckId)?.buryNew ?? false;
+    const buries = configs.get(row.deckId)!.buryNew;
     buriesNew.set(row.noteGuid, (buriesNew.get(row.noteGuid) ?? false) || buries);
   }
   const blocked = new Map<string, Set<string>>();
@@ -195,6 +195,7 @@ function dueToday(rows: ReadonlyMap<string, StoredCard>, base: HomeStudyBase, ti
   const out: { row: StoredCard; queue: 'learn' | 'dayLearn' | 'review' }[] = [];
   for (const row of rows.values()) {
     const record = toRecord(row, base.prefs);
+    /* v8 ignore next -- the rows come from dueRow(): never a new card, and always with a due date */
     if (!record || record.queue === 'new') continue;
     if (record.queue === 'learn' ? record.due <= timing.nextDayAt : record.due <= timing.today) {
       out.push({ row, queue: record.queue });
@@ -231,8 +232,7 @@ function dueOrderMatters(
   for (const d of limited) {
     const s = studied.get(d.id);
     // As remainingLimits() of @qv/srs, counting the new cards answered today against the reviews in every case.
-    const left =
-      (configs.get(d.id)?.reviewsPerDay ?? 0) - (s?.reviewCount ?? 0) - (s?.newCount ?? 0);
+    const left = configs.get(d.id)!.reviewsPerDay - (s?.reviewCount ?? 0) - (s?.newCount ?? 0);
     if ((inside.get(d.id) ?? 0) > Math.max(0, left)) return true;
   }
   const flags = new Map<string, boolean>();
@@ -262,7 +262,7 @@ function courseMastery(
   let count = 0;
   for (const d of decks) {
     const assessment = ancestorName(d.name, ASSESSMENT_DEPTH);
-    if (isExtras(d.name) && !includesExtras(base.plan, idOf.get(assessment ?? '') ?? '')) continue;
+    if (isExtras(d.name) && !includesExtras(base.plan, idOf.get(assessment!) ?? '')) continue;
     const h = home.get(d.id);
     count += Math.max(0, (d.ownCards ?? 0) - (h?.suspended ?? 0));
     sum += h?.recall ?? 0;

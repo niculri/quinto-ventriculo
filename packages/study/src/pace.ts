@@ -356,7 +356,7 @@ export function assessmentView(a: {
     ? dayOf(Date.parse(setting.examDateSetAt) / 1000, a.prefs.timeZone, a.prefs.dayStartsAt)
     : null;
   const rose = paceRose(pace, setting, facts, setOn, a.today);
-  const unrealistic = pace.kind === 'computed' && (chosen.minutes ?? 0) > UNREALISTIC_MINUTES;
+  const unrealistic = pace.kind === 'computed' && chosen.minutes! > UNREALISTIC_MINUTES;
   const ahead = pace.daysLeft !== null && pace.daysLeft >= 0 ? pace.daysLeft : null;
   const lastNewDay = pace.kind === 'computed' && pace.daysLeft! - finalDays === 1;
   return {
@@ -436,7 +436,7 @@ function paceStatus(
       return `${daysLeftText(pace.daysLeft!)}. Activa una semana o clase para calcular las nuevas por día.`;
     case 'final-review': {
       const fewer = options.some(
-        (o) => o.finalDays < finalDays && (o.newPerDay ?? 0) > 0 && facts.newLeft > 0,
+        (o) => o.finalDays < finalDays && o.newPerDay! > 0 && facts.newLeft > 0,
       );
       return `${daysLeftText(pace.daysLeft!)}: ${pace.daysLeft === 0 ? 'no salen tarjetas nuevas' : 'son días de repaso final, sin tarjetas nuevas'}.${
         facts.newLeft > 0

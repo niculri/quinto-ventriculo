@@ -92,8 +92,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   efecto del hook pasa a la `SaveQueue`. La pantalla recibe datos y `dispatch`, nunca un objeto mutable que lea mientras
   dibuja.
 - **El compilador de React está encendido** (`apps/web/build/reactCompiler.ts`, en el build y en Vitest): sin
-  `useMemo`, `useCallback` ni `memo` nuevos a mano, salvo la dependencia de un efecto o de una suscripción, con una línea
-  que diga por qué. 0 componentes ni hooks sin compilar: `apps/web/build/__tests__/reactCompiler.test.ts` falla con uno
+  `useMemo`, `useCallback` ni `memo` (lo impone ESLint): si algo parece necesitarlos, se arregla la causa (estado
+  derivado, lógica no reactiva en un efecto → `useEffectEvent`, cálculos después de los hooks). 0 componentes ni hooks sin compilar: `apps/web/build/__tests__/reactCompiler.test.ts` falla con uno
   que el compilador salte (un hook condicional, un `try … finally`, un `eslint-disable` de `react-hooks/exhaustive-deps`)
   y con un `"use no memo"`, que nunca se deja.
 - **Lo que viene de afuera se pasa como valor.** Una llamada sin argumentos que lee algo externo (la hora,

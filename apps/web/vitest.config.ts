@@ -15,6 +15,8 @@ export default defineProject({
   plugins: [react(), ...(measuringCoverage ? [] : [babel({ presets: [compilerPreset] })])],
   test: {
     name: 'web',
+    // Tells the tests whether the compiler is on, so that one of them notices if it stops being applied.
+    env: { QV_COMPILED: measuringCoverage ? '0' : '1' },
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'build/**/*.test.ts'],

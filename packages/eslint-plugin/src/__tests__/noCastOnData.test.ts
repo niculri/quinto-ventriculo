@@ -18,6 +18,13 @@ code.run('qv/no-cast-on-data', noCastOnData, {
     'const a = data satisfies Json;',
     'const a = (data && data.length) as number;',
     'const a = (rows ?? []) as string[];',
+    // A name with no initializer, or one taken out of a list, is not known to come from `data`.
+    'let rows; const a = rows as string[];',
+    'const [rows] = list; const a = rows as string[];',
+    // The key of a computed pattern is an expression, not the name `data`.
+    'const { [data]: rows } = r; const a = rows as string[];',
+    // Known limit: a name taken out of a list that comes from `data` is not followed.
+    'const [rows] = data; const a = rows as string[];',
   ],
   invalid: [
     { code: 'const a = data as string;', errors: cast },

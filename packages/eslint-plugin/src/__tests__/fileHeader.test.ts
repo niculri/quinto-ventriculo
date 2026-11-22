@@ -41,6 +41,7 @@ code.run('qv/file-header', fileHeader, {
     { code: '/** */\nexport const a = 1;', errors: empty },
     { code: '// TODO\nexport const a = 1;', errors: empty },
     { code: '// TODO: x\nexport const a = 1;', errors: empty },
+    { code: '// Parses.\nexport const a = 1;', errors: empty },
     { code: '// ----------\nexport const a = 1;', errors: empty },
     { code: '/* ** -- ## */\nexport const a = 1;', errors: empty },
     { code: '// One.\n// Two.\n// Three.\nexport const a = 1;', errors: long },

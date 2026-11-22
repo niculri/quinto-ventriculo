@@ -53,6 +53,20 @@ jsx.run('qv/no-literal-text', noLiteralText, {
     // A list prop's items that do not read as text, and keys that are not text.
     ok("const a = <SelectRow choices={[['suspend', s.suspend]]} />;"),
     ok("const a = <Select options={[{ value: 'list:all', label: s.all }]} />;"),
+    // Something with no letter is not text, wherever it is; neither is what a comparison or an empty comment renders.
+    ok("const a = <p>{fn('123')}</p>;"),
+    ok("const a = <p>{n === 'Hola mundo'}</p>;"),
+    ok('const a = <p>{/* nothing */}</p>;'),
+    // A namespaced attribute, an attribute that is no text prop and a list prop item that is no text.
+    ok('const a = <p xlink:title="Hola" data-x="Hola mundo" />;'),
+    ok('const a = <Select items="foo" />;'),
+    ok('const a = <Select items={[, "foo-bar"]} />;'),
+    // A spread in an object is not a text, and a key that is not a text key keeps its value free.
+    ok("const a = <p>{row({ ...base, value: 'list:all' })}</p>;"),
+    // The left of `&&` is a condition: it is not what renders.
+    ok("const a = <p>{'Hola' && s.title}</p>;"),
+    // A list prop of an HTML element is nothing: only a component takes its items as text.
+    ok('const a = <div items="Texto largo de ejemplo" />;'),
     // A callback is not what renders.
     ok("const a = <p>{xs.map((x) => fmt(x, 'a'))}</p>;"),
     {
@@ -84,6 +98,7 @@ jsx.run('qv/no-literal-text', noLiteralText, {
     bad("const a = <Emails why={s.why} title={plural(n, 'persona', 'personas')} />;", 2),
     // Arguments of another function that read as text.
     bad("const a = <p>{tab('article', 'Artículos')}</p>;"),
+    bad("const a = <p>{tab('mis notas')}</p>;"),
     bad("const a = <p>{row('Nuevas', n, 'text-state-new')}</p>;"),
     bad("const a = <p>{failure(e, 'No se pudo publicar.')}</p>;"),
     bad("const a = <p>{option('todo lo visto', s.desc, pools.all)}</p>;"),
@@ -93,5 +108,41 @@ jsx.run('qv/no-literal-text', noLiteralText, {
     bad("const a = <SelectRow choices={[['suspend', 'Suspender tarjeta']]} />;"),
     bad("const a = <Breadcrumbs items={[{ label: 'inicio', to: paths.home }]} />;"),
     bad('<Question q="¿Cuesta algo?">No.</Question>;'),
+    // The two sides of `||` and `??` render, and so do casts and non-null assertions.
+    bad("const a = <p>{name || 'Sin nombre'}</p>;"),
+    bad("const a = <p>{name ?? 'Sin nombre'}</p>;"),
+    bad("const a = <p>{'Hola' as string}</p>;"),
+    bad("const a = <p>{'Hola' satisfies string}</p>;"),
+    bad("const a = <p>{'Hola'!}</p>;"),
+    // A function with no name (the result of a call, a computed member) still has its arguments read.
+    bad("const a = <p>{make()('Hola')}</p>;"),
+    bad("const a = <p>{x['y']('Hola')}</p>;"),
+    // A text key may be a string literal, and a spread beside it is skipped.
+    bad("const a = <p>{row({ ...base, 'label': 'Todo' })}</p>;"),
+    // An element with a namespace is not a component: it takes the HTML text props.
+    bad('const a = <svg:rect title="Hola" />;'),
+    bad('const a = <Dialog.Title text="Hola" />;'),
+    // A list prop given as a plain string reads as text only if it does.
+    bad('const a = <Select items="Elegir una opción" />;'),
+  ],
+});
+
+const withoutOptions = new RuleTester({
+  languageOptions: { parser: tseslint.parser, parserOptions: { ecmaFeatures: { jsx: true } } },
+});
+const literal = [{ messageId: 'literal' }];
+
+// With no options, or with an empty object, nothing is a component text prop, a list or a text function.
+withoutOptions.run('qv/no-literal-text without options', noLiteralText, {
+  valid: [
+    { code: 'const a = <Badge help="x" />;' },
+    { code: "const a = <Table columns={['Alumnos']} />;", options: [{}] },
+    { code: "const a = <p>{plural(n, 'dia', 'dias')}</p>;", options: [{}] },
+    { code: "const a = <p>{row({ label: 'todo' })}</p>;" },
+  ],
+  invalid: [
+    { code: 'const a = <p>Hola</p>;', errors: literal },
+    { code: 'const a = <p title="Hola" />;', options: [{}], errors: literal },
+    { code: "const a = <p>{tab('Artículos')}</p>;", errors: literal },
   ],
 });

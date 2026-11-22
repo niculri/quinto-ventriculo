@@ -47,6 +47,20 @@ tester.run('qv/file-name', fileName, {
       filename: '/x/Rail.ts',
       code: 'export const Context = 1;\nexport function Rail() { return null; }',
     },
+    // Statements that declare nothing do not count as exports.
+    { filename: '/x/queryClient.ts', code: 'setup();\nexport const queryClient = 1;' },
+    // A re-export of everything is not the only thing the file exports.
+    { filename: '/x/Bar.ts', code: "export class Foo {}\nexport * from './b';" },
+    // An export that is declared elsewhere: imported, renamed to a string, anonymous or an enum.
+    { filename: '/x/a.ts', code: "import { a } from './other';\nexport { a };" },
+    { filename: '/x/api.ts', code: "const a = 1;\nexport { a as 'b-c' };" },
+    { filename: '/x/queryClient.ts', code: 'export default function () { return 1; }' },
+    { filename: '/x/queryClient.ts', code: 'export default () => 1;' },
+    { filename: '/x/color.ts', code: 'export enum Color { Red }' },
+    {
+      filename: '/x/Panel.tsx',
+      code: 'const Panel = () => <p />;\nexport default Panel;',
+    },
   ],
   invalid: [
     { filename: '/x/panel-row.ts', code: 'export const a = 1;', errors: [{ messageId: 'case' }] },
@@ -84,6 +98,24 @@ tester.run('qv/file-name', fileName, {
       filename: '/x/Panel.test.tsx',
       code: 'export const a = 1;',
       errors: [{ messageId: 'noJsx' }],
+    },
+    // A re-export of types only does not make the file less of a single-export one.
+    {
+      filename: '/x/saver.ts',
+      code: "export class StepSaver {}\nexport type * from './b';",
+      errors: [{ messageId: 'mismatch' }],
+    },
+    // A type-only specifier is no runtime export, even re-exported next to a class.
+    {
+      filename: '/x/saver.ts',
+      code: "export class StepSaver {}\nexport { type A } from './b';",
+      errors: [{ messageId: 'mismatch' }],
+    },
+    // A default export that is a name is judged like a named one.
+    {
+      filename: '/x/panel.tsx',
+      code: 'const Panel = () => <p />;\nexport default Panel;',
+      errors: [{ messageId: 'component' }],
     },
   ],
 });

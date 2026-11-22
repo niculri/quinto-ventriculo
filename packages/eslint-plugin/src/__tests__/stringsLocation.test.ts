@@ -27,8 +27,23 @@ tester.run('qv/strings-location', stringsLocation, {
     { filename: join(root, 'components', 'strings', 'useThing.strings.ts'), code, options },
     { filename: join(root, 'shared', 'strings', 'common.strings.ts'), code, options },
     { filename: join(root, 'components', 'Panel.tsx'), code, options },
+    // Without a list of shared folders, or with an empty one, only the folder above counts.
+    { filename: join(root, 'components', 'strings', 'Panel.strings.ts'), code },
+    { filename: join(root, 'components', 'strings', 'Panel.strings.ts'), code, options: [{}] },
   ],
   invalid: [
+    // A strings folder in a folder that cannot be read has no code above it.
+    {
+      filename: join(root, 'nowhere', 'strings', 'Panel.strings.ts'),
+      code,
+      options,
+      errors: [{ messageId: 'orphan' }],
+    },
+    {
+      filename: join(root, 'components', 'strings', 'common.strings.ts'),
+      code,
+      errors: [{ messageId: 'orphan' }],
+    },
     {
       filename: join(root, 'components', 'strings.ts'),
       code,

@@ -40,7 +40,7 @@ export function withCardSync(
   let done: { user: string | null; promise: Promise<unknown> } | null = null;
   const ready = async () => {
     const user = await userId();
-    if (!done || done.user !== user) {
+    if (done?.user !== user) {
       const promise = syncCards(source, study);
       const mine = { user, promise };
       done = mine;

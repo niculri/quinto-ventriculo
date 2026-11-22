@@ -43,7 +43,7 @@ function LoadWithBreakdown({
   className: string;
 }) {
   const [open, setOpen] = useState(false);
-  const box = useOutsideClose(open, setOpen);
+  const boxRef = useOutsideClose(open, setOpen);
   const row = (label: string, value: number, color: string) => (
     <span className="flex justify-between gap-4">
       <span className={color}>{label}</span>
@@ -51,7 +51,7 @@ function LoadWithBreakdown({
     </span>
   );
   return (
-    <span ref={box} className="group relative inline-flex">
+    <span ref={boxRef} className="group relative inline-flex">
       <button
         type="button"
         aria-expanded={open}

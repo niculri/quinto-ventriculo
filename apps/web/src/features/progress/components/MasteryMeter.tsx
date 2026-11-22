@@ -15,7 +15,7 @@ export function MasteryMeter({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const box = useOutsideClose(open, setOpen);
+  const boxRef = useOutsideClose(open, setOpen);
   const percent = masteryPercent(value);
   const place =
     align === 'above'
@@ -25,7 +25,7 @@ export function MasteryMeter({
         : 'top-full right-0 mt-1';
   return (
     <span
-      ref={box}
+      ref={boxRef}
       data-mastery
       onClick={(e) => {
         e.preventDefault();

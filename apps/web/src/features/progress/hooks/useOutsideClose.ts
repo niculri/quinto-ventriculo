@@ -3,14 +3,14 @@ import { useEffect, useRef } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 
 export function useOutsideClose(open: boolean, setOpen: Dispatch<SetStateAction<boolean>>) {
-  const box = useRef<HTMLSpanElement>(null);
+  const boxRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (!open) return;
     const close = (e: PointerEvent) => {
-      if (!box.current?.contains(e.target as Node)) setOpen(false);
+      if (!boxRef.current?.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
   }, [open, setOpen]);
-  return box;
+  return boxRef;
 }

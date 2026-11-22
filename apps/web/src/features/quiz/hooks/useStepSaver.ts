@@ -5,9 +5,8 @@ import { StepSaver } from '../api/StepSaver';
 
 export function useStepSaver(repository: QuizRepository) {
   const [saver] = useState(() => new StepSaver(repository));
-  const status = useSyncExternalStore(
-    saver.subscribe,
-    () => (saver.failed ? 'failed' : saver.pending ? 'saving' : 'saved'),
+  const status = useSyncExternalStore(saver.subscribe, () =>
+    saver.failed ? 'failed' : saver.pending ? 'saving' : 'saved',
   );
 
   useEffect(() => {

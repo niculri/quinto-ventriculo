@@ -1,5 +1,5 @@
 // The browser copy's settings: preferences, presets and what each deck and assessment chose.
-import { settled } from '../../../../shared/lib/settled';
+import { settle } from '../../../../shared/lib/settle';
 import type { LocalStore } from './localStore';
 import { uuid } from './localStore';
 import { defaultPreferences } from './model';
@@ -24,17 +24,17 @@ type SettingsMethods = Pick<
 export function localSettings({ read, write, stamp }: LocalStore): SettingsMethods {
   return {
     preferences: () =>
-      settled(() => {
+      settle(() => {
         const saved = read().preferences;
         return saved ? { ...defaultPreferences(saved.timeZone), ...saved } : null;
       }),
     savePreferences: (p) =>
-      settled(() => {
+      settle(() => {
         write({ ...read(), preferences: p });
       }),
-    presets: () => settled(() => read().presets),
+    presets: () => settle(() => read().presets),
     savePreset: ({ id, name, replaces, config }) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         if (!id && replaces && d.presets.some((p) => p.replaces === replaces)) {
           throw new Error('No se pudo guardar las opciones: ya existe.');
@@ -49,7 +49,7 @@ export function localSettings({ read, write, stamp }: LocalStore): SettingsMetho
         return preset;
       }),
     deletePreset: (id) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         write({
           ...d,
@@ -57,9 +57,9 @@ export function localSettings({ read, write, stamp }: LocalStore): SettingsMetho
           settings: d.settings.filter((s) => s.presetId !== id),
         });
       }),
-    deckSettings: () => settled(() => read().settings),
+    deckSettings: () => settle(() => read().settings),
     setDeckPreset: (deckId, choice) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const rest = d.settings.filter((s) => s.deckId !== deckId);
         write({
@@ -76,18 +76,18 @@ export function localSettings({ read, write, stamp }: LocalStore): SettingsMetho
             : rest,
         });
       }),
-    deckActivations: () => settled(() => read().activations),
+    deckActivations: () => settle(() => read().activations),
     setDeckActivation: (deckId, active) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         write({
           ...d,
           activations: [...d.activations.filter((a) => a.deckId !== deckId), { deckId, active }],
         });
       }),
-    assessmentSettings: () => settled(() => read().assessments),
+    assessmentSettings: () => settle(() => read().assessments),
     saveAssessmentSetting: (setting) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         write({
           ...d,

@@ -1,5 +1,5 @@
 // The user's practice test progress kept in the browser, for the demo, the admin mode and the tests.
-import { settled } from '../../../../shared/lib/settled';
+import { settle } from '../../../../shared/lib/settle';
 import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
 import type { AnswerInfo, QuizStep, RoundInfo, SavedQuiz } from './model';
@@ -77,9 +77,9 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
       : null;
 
   return {
-    load: (quizId) => settled(() => structuredClone(read().progress[quizId] ?? {})),
+    load: (quizId) => settle(() => structuredClone(read().progress[quizId] ?? {})),
     save: (step) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const at = new Date().toISOString();
         const quiz = (d.progress[step.quizId] ??= {});
@@ -109,7 +109,7 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
         write(d);
       }),
     openRounds: () =>
-      settled(() => {
+      settle(() => {
         const d = read();
         return d.rounds
           .filter((r) => r.status === 'active')

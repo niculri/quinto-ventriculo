@@ -1,5 +1,5 @@
 // What the browser copy reads from its log: the answers given since a moment or between two.
-import { settled } from '../../../../shared/lib/settled';
+import { settle } from '../../../../shared/lib/settle';
 import type { LocalStore, LogRow } from './localStore';
 import type { StudyRepository } from './port';
 
@@ -11,7 +11,7 @@ type AnswerMethods = Pick<
 export function localAnswers({ read }: LocalStore): AnswerMethods {
   return {
     ratedSince: (since) =>
-      settled(() =>
+      settle(() =>
         read()
           .log.filter((l) => l.rating !== null && Date.parse(l.reviewedAt) >= since.getTime())
           .map((l) => ({
@@ -22,7 +22,7 @@ export function localAnswers({ read }: LocalStore): AnswerMethods {
           })),
       ),
     ratedBetween: (from, to) =>
-      settled(() =>
+      settle(() =>
         read()
           .log.filter((l) => {
             const at = Date.parse(l.reviewedAt);
@@ -37,7 +37,7 @@ export function localAnswers({ read }: LocalStore): AnswerMethods {
           })),
       ),
     firstAnswersSince: (since) =>
-      settled(() => {
+      settle(() => {
         const first = new Map<string, LogRow>();
         for (const l of read().log) {
           if (l.rating === null) continue;
@@ -49,7 +49,7 @@ export function localAnswers({ read }: LocalStore): AnswerMethods {
           .map((l) => ({ noteGuid: l.noteGuid, ord: l.ord, at: l.reviewedAt }));
       }),
     answersSince: (since) =>
-      settled(() =>
+      settle(() =>
         read()
           .log.filter((l) => l.rating !== null && Date.parse(l.reviewedAt) >= since.getTime())
           .map((l) => ({ deckId: l.deckId, queueBefore: l.queueBefore! })),

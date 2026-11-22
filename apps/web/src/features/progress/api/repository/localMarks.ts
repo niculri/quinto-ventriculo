@@ -1,5 +1,5 @@
 // The browser copy's marks on cards: buried, suspended, flagged or forgotten, one action for all the cards it touches.
-import { settled } from '../../../../shared/lib/settled';
+import { settle } from '../../../../shared/lib/settle';
 import type { Changes } from './localChanges';
 import type { LocalStore } from './localStore';
 import { same, uuid } from './localStore';
@@ -18,7 +18,7 @@ export function localMarks(
 ): MarkMethods {
   return {
     bury: (cards, until, note) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const actionId = uuid();
         // One moment for the whole action, as the database's now().
@@ -31,7 +31,7 @@ export function localMarks(
         write(d);
       }),
     suspend: (cards, note) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const actionId = uuid();
         const at = new Date().toISOString();
@@ -41,14 +41,14 @@ export function localMarks(
         write(d);
       }),
     setFlag: (card, flag) =>
-      settled(() => {
+      settle(() => {
         if (!validFlag(flag)) throw new Error('No se pudo marcar la tarjeta: invalid_flag');
         const d = read();
         change(d, uuid(), 'flag', card, new Date().toISOString(), { flag });
         write(d);
       }),
     setFlags: (cards, flag) =>
-      settled(() => {
+      settle(() => {
         if (!validFlag(flag)) throw new Error('No se pudo marcar las tarjetas: invalid_flag');
         const d = read();
         const actionId = uuid();
@@ -60,7 +60,7 @@ export function localMarks(
         write(d);
       }),
     unsuspend: (cards) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const actionId = uuid();
         const at = new Date().toISOString();
@@ -68,7 +68,7 @@ export function localMarks(
         write(d);
       }),
     unbury: (cards) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const actionId = uuid();
         const at = new Date().toISOString();
@@ -76,7 +76,7 @@ export function localMarks(
         write(d);
       }),
     forget: (cards, resetCounts) =>
-      settled(() => {
+      settle(() => {
         const d = read();
         const actionId = uuid();
         const at = new Date().toISOString();

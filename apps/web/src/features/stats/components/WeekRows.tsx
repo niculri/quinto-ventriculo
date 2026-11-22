@@ -30,7 +30,7 @@ export function WeekRows({
   const columns = keyed(grid.columns, (week) => String(week.find((d) => d !== null)));
   return (
     <tbody>
-      {keyed(s.weekdays, (label) => label).map(({ key: rowKey, item: label, index: row }) => (
+      {keyed(s.weekdays, (label) => label).map(({ key: rowKey, item: label }, row) => (
         <tr key={rowKey}>
           <th
             scope="row"

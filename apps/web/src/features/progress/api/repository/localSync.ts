@@ -1,5 +1,5 @@
 // The browser copy's reconciling of its cards' decks with the content's changes.
-import { settled } from '../../../../shared/lib/settled';
+import { settle } from '../../../../shared/lib/settle';
 import type { LocalStore } from './localStore';
 import { same } from './localStore';
 import type { StudyRepository } from './port';
@@ -11,9 +11,9 @@ export function localSync({
   write,
 }: LocalStore): Pick<StudyRepository, 'cardsSyncedTo' | 'reconcileCards'> {
   return {
-    cardsSyncedTo: () => settled(() => read().syncedTo ?? 0),
+    cardsSyncedTo: () => settle(() => read().syncedTo ?? 0),
     reconcileCards: ({ since, upTo, changes }) =>
-      settled(() => {
+      settle(() => {
         if (changes.length > MAX_CHANGES) {
           throw new Error('No se pudo poner al día tus tarjetas: too_large');
         }

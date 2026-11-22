@@ -1,6 +1,6 @@
 // The browser copy's answers: a review with its siblings buried, the practice of a day and the undo of the last action.
 import { isoOfDay } from '@qv/study';
-import { settled } from '../../../../shared/lib/settled';
+import { settle } from '../../../../shared/lib/settle';
 import type { Changes } from './localChanges';
 import type { LocalStore } from './localStore';
 import { same, studyDay, uuid } from './localStore';
@@ -30,7 +30,7 @@ function practiceBatch(counts: { deckId: string; n: number }[]) {
 export function localReviews({ read, write }: LocalStore, { change }: Changes): ReviewMethods {
   return {
     recordPractice: (counts) =>
-      settled(() => {
+      settle(() => {
         const decks = practiceBatch(counts);
         if (typeof decks === 'string') {
           throw new PracticeRefusedError(`No se pudo guardar tu repaso: ${decks}`);
@@ -51,7 +51,7 @@ export function localReviews({ read, write }: LocalStore, { change }: Changes): 
         write({ ...d, practice });
       }),
     recordReview: (input) =>
-      settled(() => {
+      settle(() => {
         // In the order record_review() checks them; the answer's time is the device's, within a day of now.
         if (input.bury.length > 100) throw new Error('No se pudo guardar tu respuesta: too_large');
         const d = read();
@@ -88,7 +88,7 @@ export function localReviews({ read, write }: LocalStore, { change }: Changes): 
         return { updatedAt: d.cards.find((c) => same(c, input.card))!.updatedAt };
       }),
     undo: () =>
-      settled(() => {
+      settle(() => {
         const d = read();
         // As review_undo: only what was written in the last 48 hours can be undone.
         const since = Date.now() - UNDO_MS;

@@ -74,4 +74,15 @@ describe('the counts', () => {
     });
     expect(fns.homeCourseCounts).toHaveBeenCalledTimes(1);
   });
+
+  it('with the home counts cut short, no course is counted here: each reads its own deck', () => {
+    home.study = {
+      home: { decks: new Map(), truncated: true },
+      base: { prefs: { learnAheadMinutes: 20 } },
+      catalogDecks: [],
+    };
+    const { result } = renderHook(() => useTodayCounts(COURSES));
+    expect(result.current.results).toEqual(new Map([['course', null]]));
+    expect(fns.homeCourseCounts).not.toHaveBeenCalled();
+  });
 });

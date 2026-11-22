@@ -98,5 +98,6 @@ describe('«Tus ramos»', () => {
       'Anatomía II e Histología y embriología',
     );
     expect(listText(['Física'])).toBe('Física');
+    expect(listText([])).toBe('');
   });
 });

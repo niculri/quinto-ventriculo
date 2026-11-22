@@ -23,7 +23,7 @@ function placeOf(
 ): DeckNode | null {
   let place: DeckNode | null = courseDeck(tree, courseId);
   if (groupBy === 'assessment') {
-    for (let n: DeckNode | null = tree.byId.get(deckId) ?? null; n; n = n.parent) {
+    for (let n: DeckNode | null | undefined = tree.byId.get(deckId); n; n = n.parent) {
       if (n.depth === 3) place = n;
     }
   }

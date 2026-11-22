@@ -92,7 +92,7 @@ function inventedDue(today: number, deckIds: string[], only: ReadonlySet<string>
     const deck = deckIds[Math.floor(random() * deckIds.length)]!;
     if (only && !only.has(deck)) continue;
     const cards = Math.round(160 * Math.exp(-(day - today) / 18) * (0.5 + random()));
-    if (cards > 0) due.push({ day, cards });
+    due.push({ day, cards });
   }
   return due;
 }

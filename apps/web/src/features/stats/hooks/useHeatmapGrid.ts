@@ -49,8 +49,7 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
   const valueOf = (day: number): CellValue | null =>
     ready && today !== null ? cellValue(day, today, studied, due, scale) : null;
 
-  const cellOf = (day: number) =>
-    table.current?.querySelector<HTMLElement>(`[data-day="${day}"]`) ?? null;
+  const cellOf = (day: number) => table.current?.querySelector<HTMLElement>(`[data-day="${day}"]`);
 
   const show = (day: number, pinned: boolean, keyboard = false) => {
     const el = cellOf(day);

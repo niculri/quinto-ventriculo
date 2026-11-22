@@ -26,8 +26,7 @@ export function useDayBox({
   const titleId = useId();
   const bodyId = useId();
   useLayoutEffect(() => {
-    const el = box.current;
-    if (!el) return;
+    const el = box.current!;
     el.style.top = `${boxTop(open.rect, el.offsetHeight, window.innerHeight)}px`;
   });
   useEffect(() => {

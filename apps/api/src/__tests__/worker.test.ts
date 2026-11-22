@@ -202,4 +202,14 @@ describe('worker composition', () => {
     ]);
     expect((await call('/api/admin/usage', ADMIN)).status).toBe(503);
   });
+
+  it('without the shared secret of the tokens an HS256 token opens nothing', async () => {
+    const { call } = await workerWith(['USERS_JWT_SECRET']);
+    expect((await call('/api/catalog', STUDENT)).status).toBe(401);
+  });
+
+  it('without the version binding, /api/health does not say a version', async () => {
+    const { call } = await workerWith(['CF_VERSION_METADATA']);
+    expect(await (await call('/api/health', null)).json()).toEqual({ ok: true });
+  });
 });

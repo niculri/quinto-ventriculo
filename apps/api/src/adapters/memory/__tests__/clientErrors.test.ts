@@ -32,4 +32,27 @@ describe('memoryClientErrors', () => {
     ms += 7 * 86_400_000;
     expect(await errors.read()).toEqual([]);
   });
+
+  it('a point that arrives with an older clock does not move the last seen back', async () => {
+    let ms = Date.parse('2026-11-19T12:00:00Z');
+    const errors = memoryClientErrors({ now: () => ms });
+    errors.record(REPORT);
+    ms -= 60_000;
+    errors.record(REPORT);
+    expect(await errors.read()).toEqual([
+      { ...REPORT, count: 2, lastSeen: '2026-11-19T12:00:00.000Z' },
+    ]);
+  });
+
+  it('only the 50 groups seen last are shown', async () => {
+    let ms = Date.parse('2026-11-19T12:00:00Z');
+    const errors = memoryClientErrors({ now: () => ms });
+    for (let i = 0; i < 55; i++) {
+      ms += 1000;
+      errors.record({ ...REPORT, page: `/p${i}` });
+    }
+    const shown = await errors.read();
+    expect(shown).toHaveLength(50);
+    expect(shown[0]!.page).toBe('/p54');
+  });
 });

@@ -23,4 +23,19 @@ describe('nonNull', () => {
     expect(await text(await nonNull(stream(' ', '{"a":', '1}')))).toBe(' {"a":1}');
     expect(await text(await nonNull(stream('[]')))).toBe('[]');
   });
+
+  it('cancelling what it returns cancels the source, and a source that ends closes the stream', async () => {
+    let cancelled: unknown = null;
+    const source = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(new TextEncoder().encode('{"a":'));
+      },
+      cancel(reason) {
+        cancelled = reason;
+      },
+    });
+    const out = (await nonNull(source))!;
+    await out.cancel('listo');
+    expect(cancelled).toBe('listo');
+  });
 });

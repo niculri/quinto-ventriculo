@@ -178,3 +178,40 @@ describe('supabaseAdminChecker().isAdminNow()', () => {
     expect(await checker.isAdminNow!('owner')).toBeNull();
   });
 });
+
+describe('the memory of the administrator check', () => {
+  it('it remembers 200 tokens at most, forgetting them all when the 201st arrives', async () => {
+    let asked = 0;
+    const checker = supabaseAdminChecker({
+      supabaseUrl: SUPABASE,
+      publishableKey: 'k',
+      now: () => clock,
+      fetch: async () => {
+        asked++;
+        return Response.json(true);
+      },
+    });
+    for (let i = 0; i < 200; i++) await checker.isAdmin(`t${i}`);
+    await checker.isAdmin('t0');
+    expect(asked).toBe(200);
+    await checker.isAdmin('t200');
+    await checker.isAdmin('t1');
+    expect(asked).toBe(202);
+  });
+
+  it('a refusal of the database is «no» for a read, and null for a write, and neither is remembered', async () => {
+    let asked = 0;
+    const checker = supabaseAdminChecker({
+      supabaseUrl: SUPABASE,
+      publishableKey: 'k',
+      now: () => clock,
+      fetch: async () => {
+        asked++;
+        return new Response('{}', { status: 500 });
+      },
+    });
+    expect(await checker.isAdmin('t')).toBe(false);
+    expect(await checker.isAdminNow!('t')).toBeNull();
+    expect(asked).toBe(2);
+  });
+});

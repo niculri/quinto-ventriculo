@@ -66,4 +66,13 @@ describe('analyticsEngineErrorsReader', () => {
     );
     expect(asked[0]).toContain('SUM(_sample_interval) AS n');
   });
+
+  it('a group whose last error has no readable time is dropped, not shown without a date', async () => {
+    const reader = analyticsEngineErrorsReader({
+      accountId: 'cuenta',
+      token: 'token',
+      fetch: async () => Response.json({ data: [{ ...REPORT, n: 2, latest: null }] }),
+    });
+    expect(await reader.read()).toEqual([]);
+  });
 });

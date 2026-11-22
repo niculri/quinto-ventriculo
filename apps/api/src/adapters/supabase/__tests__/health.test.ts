@@ -24,6 +24,11 @@ describe('the database checks of the Worker', () => {
     await expect(
       usersDatabaseCheck(USERS, 'sb_publishable_x', fake(200, false))(signal),
     ).rejects.toThrow();
+    for (const unexpected of ['true', 1, {}, []]) {
+      await expect(
+        usersDatabaseCheck(USERS, 'sb_publishable_x', fake(200, unexpected))(signal),
+      ).rejects.toThrow('unexpected answer');
+    }
     await expect(
       usersDatabaseCheck(USERS, 'sb_publishable_x', fake(404, { message: 'no' }))(signal),
     ).rejects.toThrow();
@@ -40,6 +45,16 @@ describe('the database checks of the Worker', () => {
     expect(url).toBe(`${USERS}/auth/v1/health`);
     const down = (async () => answer(503)) as unknown as typeof fetch;
     await expect(authCheck(USERS, 'sb_publishable_x', down)(signal)).rejects.toThrow();
+  });
+
+  it('auth: without the public key it does not even ask', async () => {
+    let asked = 0;
+    const fake = (async () => {
+      asked++;
+      return answer(200);
+    }) as unknown as typeof fetch;
+    await expect(authCheck(USERS, undefined, fake)(signal)).rejects.toThrow('PUBLISHABLE_KEY');
+    expect(asked).toBe(0);
   });
 
   it('content: site_settings() with the service key', async () => {

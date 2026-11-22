@@ -2,7 +2,7 @@
 import { SignJWT, createLocalJWKSet, decodeJwt, exportJWK, generateKeyPair } from 'jose';
 import type { CryptoKey as JoseKey } from 'jose';
 import type { PGlite } from '@qv/db/testing';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { CONTACT_EMAIL, LEGAL_VERSIONS } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { asUser, createDatabase } from '@qv/db/testing';
@@ -363,5 +363,83 @@ describe('the terms and the privacy policy', () => {
     expect(r.status).toBe(403);
     expect((await r.json<{ error: string }>()).error).toBe('terms_not_accepted');
     expect((await get('/catalog', ana)).status).toBe(200);
+  });
+});
+
+describe('the checker alone, with a fake answer', () => {
+  const NOW = Date.UTC(2026, 10, 19, 12, 0, 0);
+  const jwt = (exp?: number) =>
+    new SignJWT({})
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime(exp ?? 1)
+      .sign(new TextEncoder().encode('clave-de-prueba-0123456789-0123456789'));
+  const unsigned = (claims: object) =>
+    `${btoa('{"alg":"none"}')}.${btoa(JSON.stringify(claims))}.`.replace(/=/g, '');
+
+  const checkerWith = (
+    reply: () => Response | Promise<Response>,
+    clockOf: { now: number } = { now: NOW },
+  ) => {
+    let asked = 0;
+    const checker = supabaseAccessChecker({
+      supabaseUrl: SUPABASE,
+      publishableKey: 'k',
+      now: () => clockOf.now,
+      fetch: async () => {
+        asked++;
+        return reply();
+      },
+    });
+    return { checker, asked: () => asked };
+  };
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('a 401 is «expired» when the token expires within a minute of now, and «unknown» past that', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const gone = checkerWith(() => new Response(null, { status: 401 }));
+    expect(await gone.checker.check(await jwt(NOW / 1000 + 60))).toBe('expired');
+    expect(await gone.checker.check(await jwt(NOW / 1000 + 61))).toBe('unknown');
+  });
+
+  it('a token that cannot be read, or has no expiry, counts as expired on a 401', async () => {
+    const gone = checkerWith(() => new Response(null, { status: 401 }));
+    expect(await gone.checker.check('no-es-un-jwt')).toBe('expired');
+    expect(await gone.checker.check(unsigned({ sub: 'x' }))).toBe('expired');
+    expect(await gone.checker.check(unsigned({ exp: 'mañana' }))).toBe('expired');
+  });
+
+  it('any other failing status is «unknown» and is asked again the next time', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const broken = checkerWith(() => new Response('{}', { status: 500 }));
+    expect(await broken.checker.check('t')).toBe('unknown');
+    expect(await broken.checker.check('t')).toBe('unknown');
+    expect(broken.asked()).toBe(2);
+  });
+
+  it('it remembers 500 tokens at most: the 501st forgets the rest instead of growing', async () => {
+    const ok = checkerWith(() => Response.json('allowed'));
+    for (let i = 0; i < 500; i++) await ok.checker.check(`t${i}`);
+    expect(ok.asked()).toBe(500);
+    await ok.checker.check('t0');
+    expect(ok.asked()).toBe(500);
+    await ok.checker.check('t500');
+    expect(ok.asked()).toBe(501);
+    await ok.checker.check('t1');
+    expect(ok.asked()).toBe(502);
+    await ok.checker.check('t500');
+    expect(ok.asked()).toBe(502);
+  });
+
+  it('it remembers each answer for the ttl and no longer', async () => {
+    const clockOf = { now: NOW };
+    const ok = checkerWith(() => Response.json('not_invited'), clockOf);
+    expect(await ok.checker.check('t')).toBe('denied');
+    clockOf.now += ACCESS_TTL * 1000 - 1;
+    expect(await ok.checker.check('t')).toBe('denied');
+    expect(ok.asked()).toBe(1);
+    clockOf.now += 1;
+    await ok.checker.check('t');
+    expect(ok.asked()).toBe(2);
   });
 });

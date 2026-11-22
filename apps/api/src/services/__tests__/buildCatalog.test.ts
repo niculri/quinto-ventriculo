@@ -46,4 +46,24 @@ describe('buildCatalog', () => {
     expect(c.semesters[0]!.courses[0]!.assessments[1]!.suggestedDate).toBe('2026-11-05');
     expect(c.anki.decks.map((d) => d.id)).toEqual(['1', '2', '3']);
   });
+
+  it('the decks are ordered by code unit, not by the alphabet of a language, and equals keep their order', () => {
+    const deck = (id: string, name: string) => ({
+      id,
+      name,
+      parentId: null,
+      preset: null,
+      semester: null,
+      courseId: null,
+      assessmentId: null,
+      noteCount: 0,
+      cardCount: 0,
+    });
+    const c = buildCatalog([], [], [], [], {
+      decks: [deck('1', 'b'), deck('2', 'Z'), deck('3', 'Ñ'), deck('4', 'a'), deck('5', 'Z')],
+      presets: [],
+      noteTypes: [],
+    });
+    expect(c.anki.decks.map((d) => d.id)).toEqual(['2', '5', '4', '1', '3']);
+  });
 });

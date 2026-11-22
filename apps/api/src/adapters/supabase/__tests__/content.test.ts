@@ -1,7 +1,8 @@
 // Tests for the content repository against a fake PostgREST: the big reads the Worker passes on as they come.
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../../app';
 import { MediaSigner } from '../../../services/mediaSigner';
+import { failed, fakeContentClient, ok } from '../../../test/contentClient';
 import { KEY, DECK, SECTION, startFakePostgrest } from '../../../test/postgrest';
 import { supabaseRepository } from '../content';
 
@@ -143,5 +144,146 @@ describe('the big reads of the content database', () => {
     console.error = original;
     expect(r.status).toBe(500);
     expect(await r.text()).not.toContain('no existe');
+  });
+});
+
+describe('the reads of the repository, with a client that answers what the test says', () => {
+  const NOTE_ROW = {
+    id: 'AP-BC-C2-01',
+    slug: 'uno',
+    course_id: 'curso',
+    assessment_id: 'curso/c1',
+    kind: 'lecture',
+    title: 'Uno',
+    subtitle: null,
+    position: 1,
+    updated_at: '2026-10-31T12:00:00+00:00',
+    code: null,
+    version: 0,
+    published_at: null,
+    version_at: null,
+    document: null as unknown,
+  };
+  const repo = (answers: Parameters<typeof fakeContentClient>[0]) =>
+    supabaseRepository('https://c.example.co', 'k', 'public', fakeContentClient(answers).client);
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('a note without a document is a note without text, sources or index', async () => {
+    const note = await repo({ 'from:notes': ok(NOTE_ROW) }).note('uno');
+    expect(note).toMatchObject({ html: '', toc: [], sources: [] });
+    expect(note).not.toHaveProperty('createdOn');
+    expect(note).not.toHaveProperty('practice');
+  });
+
+  it('a note that is not there is null', async () => {
+    expect(await repo({ 'from:notes': ok(null) }).note('nada')).toBeNull();
+  });
+
+  it('the date of creation and the practice test of a document go to the note', async () => {
+    const document = {
+      html: '<p>x</p>',
+      createdOn: '2026-10-01',
+      practice: { quizId: 'q', section: 's', groups: ['01'] },
+    };
+    const note = await repo({ 'from:notes': ok({ ...NOTE_ROW, document }) }).note('uno');
+    expect(note).toMatchObject({ html: '<p>x</p>', createdOn: '2026-10-01' });
+    expect(note).toMatchObject({ practice: { quizId: 'q' } });
+  });
+
+  it('the courses, a deck’s course (null if it has none or does not exist) and a missing quiz', async () => {
+    const r = repo({
+      'from:courses': ok([{ id: 'curso', semester: 2, name: 'Curso', emoji: '🧬', position: 1 }]),
+      'from:anki_decks': (asked) =>
+        asked.filters.includes('id=con')
+          ? ok({ course_id: 'curso' })
+          : asked.filters.includes('id=raiz')
+            ? ok({ course_id: null })
+            : ok(null),
+      'rpc:quiz_detail': ok(null),
+      'rpc:anki_card': ok(null),
+    });
+    expect(await r.courses()).toEqual([
+      { id: 'curso', semester: 2, name: 'Curso', emoji: '🧬', position: 1 },
+    ]);
+    expect(await r.deckCourse('con')).toBe('curso');
+    expect(await r.deckCourse('raiz')).toBeNull();
+    expect(await r.deckCourse('nada')).toBeNull();
+    expect(await r.quiz('nada')).toBeNull();
+    expect(await r.card('guid', 0)).toBeNull();
+  });
+
+  it('a card is read as the database wrote it, and a row that is not a card is an error', async () => {
+    const card = {
+      noteGuid: 'g1',
+      ord: 0,
+      deckId: '20',
+      code: null,
+      version: null,
+      kind: 'basic',
+      front: '<p>f</p>',
+      back: '<p>b</p>',
+      css: '',
+    };
+    expect(await repo({ 'rpc:anki_card': ok(card) }).card('g1', 0)).toEqual(card);
+    await expect(
+      repo({ 'rpc:anki_card': ok({ ...card, ord: -1 }) }).card('g1', 0),
+    ).rejects.toThrow();
+  });
+
+  it('a quiz row that is not a whole test is an error, not a half-made test', async () => {
+    await expect(repo({ 'rpc:quiz_detail': ok({ id: 'q' }) }).quiz('q')).rejects.toThrow();
+  });
+
+  it('a failed read says which one', async () => {
+    const r = repo({ 'from:courses': failed('caído'), 'rpc:anki_card': failed('caído') });
+    await expect(r.courses()).rejects.toThrow('Content database (courses): caído');
+    await expect(r.card('g', 0)).rejects.toThrow('Content database (card): caído');
+  });
+
+  it('the search for a course list asks the function that names them, and without it the older one', async () => {
+    const { client, calls } = fakeContentClient({
+      'rpc:search_notes_except': ok([]),
+      'rpc:search_notes': ok([]),
+    });
+    const r = supabaseRepository('https://c.example.co', 'k', 'public', client);
+    await r.search('ribo', 5, ['a', 'b']);
+    await r.search('ribo', 5, []);
+    await r.search('ribo', 5);
+    expect(calls.map((c) => [c.key, c.args])).toEqual([
+      ['rpc:search_notes_except', { query: 'ribo', max_results: 5, excluded_courses: ['a', 'b'] }],
+      ['rpc:search_notes', { query: 'ribo', max_results: 5 }],
+      ['rpc:search_notes', { query: 'ribo', max_results: 5 }],
+    ]);
+  });
+
+  const level = (courseId: string | null) => ({
+    'from:anki_decks': ok(courseId === null ? null : { course_id: courseId }),
+  });
+  const stubBody = () => {
+    let cancelled = false;
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(new TextEncoder().encode('{"id":"x"}'));
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    vi.stubGlobal('fetch', async () => new Response(body));
+    return () => cancelled;
+  };
+
+  it('a deck without a course level is null, and its body is not left open', async () => {
+    const cancelled = stubBody();
+    expect(await repo(level(null)).deckJson('raiz')).toBeNull();
+    expect(cancelled()).toBe(true);
+  });
+
+  it('a deck whose level could not be read is an error, and its body is not left open', async () => {
+    const cancelled = stubBody();
+    const r = repo({ 'from:anki_decks': failed('caído') });
+    await expect(r.deckJson('x')).rejects.toThrow('Content database (deck level): caído');
+    expect(cancelled()).toBe(true);
   });
 });

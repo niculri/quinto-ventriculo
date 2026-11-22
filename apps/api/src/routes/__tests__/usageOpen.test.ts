@@ -1,5 +1,5 @@
 // Tests for POST /api/usage/open: what a page says it opened writes one anonymous point, and nothing else does.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { analyticsEngineRecorder, usagePoint } from '../../adapters/cloudflare/analyticsEngine';
 import { memoryUsageEvents } from '../../adapters/memory/usageEvents';
 import type { UsageEvent } from '../../ports/usage';
@@ -115,6 +115,36 @@ describe('the points of Analytics Engine', () => {
       expect(b.status).toBe(200);
       expect(await b.text()).toBe(await a.text());
     }
+  });
+
+  it('a recorder that throws on its own does not change the answer either, and the error is logged', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { app } = appWith({
+      usageEvents: {
+        record: () => {
+          throw new Error('recorder caído');
+        },
+      },
+    });
+    expect((await open(app, OPENS[0])).status).toBe(200);
+    expect(logged).toHaveBeenCalledOnce();
+    logged.mockRestore();
+  });
+
+  it('a body that breaks while it is read is the same as a body that is not an open: 400', async () => {
+    const { app } = appWith();
+    const broken = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.error(new Error('conexión cortada'));
+      },
+    });
+    const r = await app.request('/api/usage/open', {
+      method: 'POST',
+      body: broken,
+      headers: { Authorization: `Bearer ${STUDENT}`, 'Content-Type': 'application/json' },
+      duplex: 'half',
+    } as RequestInit);
+    expect(r.status).toBe(400);
   });
 
   it('the binding gets the kind, the path and the kind of page, and is never awaited', () => {

@@ -90,6 +90,23 @@ describe('POST /api/client-error', () => {
     expect(errors.points).toEqual([]);
   });
 
+  it('a body that announces its size and breaks while it is read is refused with 400 and keeps nothing', async () => {
+    const errors = memoryClientErrors();
+    const broken = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.error(new Error('conexión cortada'));
+      },
+    });
+    const r = await appWith({ clientErrors: errors }).request(`${SITE}/api/client-error`, {
+      method: 'POST',
+      body: broken,
+      headers: { Origin: SITE, 'Content-Length': '40' },
+      duplex: 'half',
+    } as RequestInit);
+    expect(r.status).toBe(400);
+    expect(errors.points).toEqual([]);
+  });
+
   it('takes 1,024 units of JSON and 300 of message, not one more', async () => {
     const json = JSON.stringify(REPORT);
     const padded = (units: number) => json + ' '.repeat(units - json.length);

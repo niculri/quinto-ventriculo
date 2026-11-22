@@ -263,6 +263,14 @@ describe('publishing and undoing', () => {
     }
     state.refusal = null;
     expect((await post('/api/admin/release/revert', ADMIN, { id: 'x' })).status).toBe(400);
+    const notJson = await request(
+      '/api/admin/release/revert',
+      ADMIN,
+      { 'Content-Type': 'application/json' },
+      { method: 'POST', body: 'no es json' },
+    );
+    expect(notJson.status).toBe(400);
+    expect(await notJson.json()).toMatchObject({ error: 'invalid_release' });
   });
 
   it('the log, no-store', async () => {

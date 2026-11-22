@@ -22,10 +22,9 @@ export const linkCard = `${card} block transition hover:border-border-strong hov
 
 /**
  * Every page's column: the same width and padding on every page, centered between the site's menu and the right
- * column, so that the breadcrumbs and the title start at the same place everywhere. It is `relative`: the admin tag
- * (`AdminTag`) hangs from its top without taking any room.
+ * column, so that the breadcrumbs and the title start at the same place everywhere.
  */
-export const page = 'relative mx-auto w-full max-w-[55.5rem] px-4 pt-5 pb-10 sm:px-5';
+export const page = 'mx-auto w-full max-w-[55.5rem] px-4 pt-5 pb-10 sm:px-5';
 
 /**
  * The screens where one answers (studying, the final review, practicing): the window under the site's bar, as Anki's

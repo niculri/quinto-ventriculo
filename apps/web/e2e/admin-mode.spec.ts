@@ -1,14 +1,13 @@
 // E2e tests of the admin mode: an administrator in the student mode sees what a student sees; in the admin mode, the
-// course turned off and the hidden semester, each with its tag, and nothing they do is saved.
+// course turned off and the hidden semester, each with its tag, and what they study is saved as a student's.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { ADMIN_MODE_PORT, demoState } from './accepted';
-import { DECK_URL, signIn } from './helpers';
+import { DECK_URL, adminModeIsOn, setAdminMode, signIn, tagGeometry } from './helpers';
 
 const OFF_COURSE = '/semesters/1/courses/anatomia-1';
 const NOT_FOUND = 'Esta página no aparece ni en el Netter';
 const AUTH = { Authorization: 'Bearer demo-local' };
-const SWITCH = { name: 'Modo admin' };
 
 // The settings are one for the whole demo server: this spec has a server of its own, and its tests go one by one.
 test.use({
@@ -44,7 +43,7 @@ test.afterEach(async ({ page }) => {
 test('as a student: no course turned off, no hidden semester and not a tag, mark or notice', async ({
   page,
 }) => {
-  await expect(page.getByRole('switch', SWITCH)).not.toBeChecked();
+  expect(await adminModeIsOn(page)).toBe(false);
   await page.goto('/courses');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('main').getByText(/Anatomía I|3° Semestre/)).toHaveCount(0);
@@ -57,7 +56,7 @@ test('in the admin mode: what is off is there, each with its tag, and the tag mo
   page,
 }) => {
   await page.goto('/courses');
-  await page.getByRole('switch', SWITCH).check();
+  await setAdminMode(page, true);
   const main = page.getByRole('main');
   await expect(main.getByText('Anatomía I')).toBeVisible();
   await expect(main.getByText('3° Semestre')).toBeVisible();
@@ -81,26 +80,47 @@ test('in the admin mode: what is off is there, each with its tag, and the tag mo
   await expect(page.locator('[data-admin-tag]')).toContainText('Semestre oculto');
 });
 
-test('in the admin mode, studying a card of the course turned off saves nothing, and says so', async ({
+test('the tags are on the row of the breadcrumbs, to the right, centered with them and below the bar', async ({
+  page,
+}) => {
+  await page.goto('/home');
+  await setAdminMode(page, true);
+  // The course turned off, in a semester a student does not see: two tags on one row.
+  await page.goto(OFF_COURSE);
+  await expect(page.locator('main [data-admin-tag] > span')).toHaveCount(2);
+  const g = await tagGeometry(page);
+  expect(Math.abs(g.tag.right - g.row.right)).toBeLessThanOrEqual(1);
+  const first = g.crumbs[0]!;
+  expect(Math.abs((g.tag.y + g.tag.bottom) / 2 - (first.y + first.bottom) / 2)).toBeLessThanOrEqual(
+    1,
+  );
+  expect(g.tag.y - g.bar.bottom).toBeGreaterThanOrEqual(16);
+  expect(g.crumbs.at(-1)!.right).toBeLessThanOrEqual(g.tag.x);
+  expect(g.cut).toBe(false);
+  expect(g.title.y).toBeGreaterThanOrEqual(g.row.bottom);
+});
+
+test('in the admin mode, studying a card of the course turned off is saved as always, and says nothing of it', async ({
   page,
 }) => {
   const study = () => page.evaluate(() => window.localStorage.getItem('qv-demo-study'));
   await page.goto('/home');
-  await page.getByRole('switch', SWITCH).check();
+  await setAdminMode(page, true);
   const before = await study();
   await page.goto(`${DECK_URL}/study`);
-  await expect(page.locator('[data-admin-note]')).toContainText('no se guarda');
+  await expect(page.locator('[data-admin-note]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Mostrar respuesta' }).click();
   await page
     .getByRole('group', { name: 'Responder' })
     .getByRole('button', { name: /^Bien/ })
     .click();
-  expect(await study()).toBe(before);
+  await expect.poll(study).not.toBe(before);
+  const saved = await study();
 
-  // Back as a student: the course is off again, and what was done there left nothing.
+  // Back as a student: the course is off again, and what was studied there is still saved.
   await page.goto('/home');
-  await page.getByRole('switch', SWITCH).uncheck();
-  expect(await study()).toBe(before);
+  await setAdminMode(page, false);
+  expect(await study()).toBe(saved);
   await page.goto(DECK_URL);
   await expect(page.getByRole('heading', { level: 1, name: NOT_FOUND })).toBeVisible();
   await expect(marks(page)).toHaveCount(0);

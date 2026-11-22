@@ -2,9 +2,8 @@
 import type { ReactNode } from 'react';
 import type { AssessmentWithNotes, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
-import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
-import { PageTag } from '../../catalog/components/AdminMarks';
+import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { assessmentStrings as s } from '../assessment.strings';
 
 export function SectionFrame({
@@ -22,8 +21,8 @@ export function SectionFrame({
 }) {
   return (
     <div className={page}>
-      <PageTag thing={['assessment', assessment.id]} />
-      <Breadcrumbs
+      <PageCrumbs
+        thing={['assessment', assessment.id]}
         items={[
           { label: s.home, to: paths.home },
           { label: semester.name, to: paths.semester(semester.number) },

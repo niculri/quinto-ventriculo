@@ -3,12 +3,11 @@
 import { expect, test } from './test';
 import type { Locator } from '@playwright/test';
 import { ADMIN_MODE_PORT, demoState } from './accepted';
-import { signIn } from './helpers';
+import { setAdminMode, signIn, tagGeometry } from './helpers';
 
 const NOT_FOUND = 'Esta página no aparece ni en el Netter';
 const NEW_NOTE = '/semesters/2/courses/biologia-celular/notes/12-regulacion-del-borrador';
 const CHANGED_NOTE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
-const SWITCH = { name: 'Modo admin' };
 
 test.use({
   baseURL: `http://localhost:${ADMIN_MODE_PORT}`,
@@ -29,7 +28,7 @@ test('a note that is only in the draft says «Borrador»; one published with cha
   await signIn(page);
   await page.goto(NEW_NOTE);
   await expect(page.getByRole('heading', { level: 1, name: NOT_FOUND })).toBeVisible();
-  await page.getByRole('switch', SWITCH).check();
+  await setAdminMode(page, true);
   const title = page.getByRole('main').getByRole('heading', { level: 1 });
   await expect(title).toContainText('Regulación');
   await expect(page.locator('[data-admin-tag]')).toHaveText('Borrador');
@@ -44,12 +43,42 @@ test('a note that is only in the draft says «Borrador»; one published with cha
     0,
   );
   if (!isMobile) await expect(menu.locator('[data-admin-mark]')).toHaveCount(1);
+  // The title is where it is under a tag, on a page whose route takes one line as the tagged one does (on a phone, the
+  // route of a note is longer than a line, and the course's is not).
+  if (isMobile) await page.goto('/semesters/2/courses/biologia-celular');
+  await expect(title).toBeVisible();
   expect((await place(title))[1]).toBe(tagged);
 
   await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
   await expect(page.getByRole('main').locator('[data-admin-mark]')).toHaveText('Borrador');
-  await page.getByRole('switch', SWITCH).uncheck();
+  await setAdminMode(page, false);
   await expect(page.getByRole('main').getByText('Regulación')).toHaveCount(0);
   await page.goto(NEW_NOTE);
   await expect(page.getByRole('heading', { level: 1, name: NOT_FOUND })).toBeVisible();
+});
+
+test('the tag is on the row of the breadcrumbs: to the right, centered with them, cutting the route and never covering it', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  await page.goto(NEW_NOTE);
+  await setAdminMode(page, true);
+  await expect(page.locator('[data-admin-tag]')).toHaveText('Borrador');
+  const g = await tagGeometry(page);
+  expect(Math.abs(g.tag.right - g.row.right)).toBeLessThanOrEqual(1);
+  const first = g.crumbs[0]!;
+  expect(Math.abs((g.tag.y + g.tag.bottom) / 2 - (first.y + first.bottom) / 2)).toBeLessThanOrEqual(
+    1,
+  );
+  expect(g.tag.y - g.bar.bottom).toBeGreaterThanOrEqual(16);
+  // Every crumb is on that one row and ends before the tag begins.
+  for (const c of g.crumbs) {
+    expect(c.bottom - c.y).toBeLessThanOrEqual(24);
+    expect(c.right).toBeLessThanOrEqual(g.tag.x);
+  }
+  expect(g.route.right).toBeLessThanOrEqual(g.tag.x);
+  expect(g.sideScroll).toBeLessThanOrEqual(0);
+  // A phone has not room for the whole route and the tag: the route is cut with «…», the tag stays whole.
+  if (isMobile) expect(g.cut).toBe(true);
 });

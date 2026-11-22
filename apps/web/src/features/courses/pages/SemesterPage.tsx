@@ -5,9 +5,8 @@ import { paths } from '../../../shared/lib/paths';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { Loading } from '../../../shared/ui/Loading';
 import { card, linkCard, page } from '../../../shared/ui/styles';
-import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
-import { PageTag, ListMark } from '../../catalog/components/AdminMarks';
+import { ListMark, PageCrumbs } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { semesterStrings as s } from '../semester.strings';
@@ -23,8 +22,10 @@ export function SemesterPage() {
 
   return (
     <div className={page}>
-      <PageTag thing={['semester', semester.number]} />
-      <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: semester.name }]} />
+      <PageCrumbs
+        thing={['semester', semester.number]}
+        items={[{ label: s.home, to: paths.home }, { label: semester.name }]}
+      />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{semester.name}</h1>
       {semester.courses.length === 0 ? (
         <p className="mt-6 text-muted">{s.empty}</p>

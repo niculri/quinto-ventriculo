@@ -1,14 +1,13 @@
 // An article with everything around it: header, index, body, «Ponte a prueba», report line, tip, neighbors, the
 // image viewer and the report popup. The dev reading page shows it without the catalog.
 import type { Note } from '@qv/schema';
-import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
 import { Rail } from '../../../shared/ui/rail';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import { StatusToast } from '../../../shared/ui/Toast';
 import { sharedStrings } from '../../../shared/strings';
 import type { NoteLocation } from '../../catalog/model/catalog';
-import { PageTag } from '../../catalog/components/AdminMarks';
+import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { ReportDialog } from '../../reports/components/ReportDialog';
 import { useNoteView } from '../hooks/useNoteView';
 import type { NoteViewState } from '../hooks/useNoteView';
@@ -50,8 +49,7 @@ export function NoteView({
   const { setReporting, targetOf } = popups;
   return (
     <div className={page}>
-      <PageTag thing={['note', note.id]} />
-      <Breadcrumbs items={noteCrumbs(location, note.title)} />
+      <PageCrumbs thing={['note', note.id]} items={noteCrumbs(location, note.title)} />
       <article className="w-full min-w-0">
         <NoteHeader note={note} />
 

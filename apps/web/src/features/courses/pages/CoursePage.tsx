@@ -7,9 +7,8 @@ import { Canonical } from '../../../shared/ui/Canonical';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { Loading } from '../../../shared/ui/Loading';
 import { button, page } from '../../../shared/ui/styles';
-import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
-import { PageTag } from '../../catalog/components/AdminMarks';
+import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, findCourse } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { Heatmap } from '../../stats/components/Heatmap';
@@ -53,8 +52,8 @@ function CourseView({
 
   return (
     <div className={page}>
-      <PageTag thing={['course', course.id]} />
-      <Breadcrumbs
+      <PageCrumbs
+        thing={['course', course.id]}
         items={[
           { label: s.home, to: paths.home },
           { label: semester.name, to: paths.semester(semester.number) },

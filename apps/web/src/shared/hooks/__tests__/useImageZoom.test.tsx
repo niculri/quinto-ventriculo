@@ -95,11 +95,13 @@ describe('before the image has loaded', () => {
       zoom.toFit();
     });
     expect(key('+')).toBe(true);
+    fireEvent.doubleClick(stageEl(), { clientX: 10, clientY: 10 });
     expect(zoom.view).toBeNull();
   });
 
   it('a stage that is not on the page yet does nothing', () => {
     render(<Harness image={PLATE} detached />);
+    act(() => zoom.toggle());
     expect(zoom.view).toBeNull();
   });
 });
@@ -133,12 +135,22 @@ describe('the view', () => {
     expect(view()).toEqual({ scale: 0.2, x: 0, y: 0 });
     act(() => zoom.toggle());
     expect(view().scale).toBe(1);
+    expect(zoom.atMax).toBe(false);
     act(() => zoom.toggle());
     expect(zoom.fitted).toBe(true);
   });
 });
 
 describe('the wheel', () => {
+  it('adds up several turns that come before the image is drawn again', () => {
+    render(<Harness image={PLATE} />);
+    act(() => {
+      stageEl().dispatchEvent(new WheelEvent('wheel', { deltaY: -100, cancelable: true }));
+      stageEl().dispatchEvent(new WheelEvent('wheel', { deltaY: -100, cancelable: true }));
+    });
+    expect(view().scale).toBeCloseTo(0.2 * Math.exp(0.3));
+  });
+
   it('zooms around the pointer and keeps the page from scrolling', () => {
     render(<Harness image={PLATE} />);
     expect(fireEvent.wheel(stageEl(), { deltaY: -200, clientX: 0, clientY: 0 })).toBe(false);
@@ -243,6 +255,17 @@ describe('two fingers', () => {
     pointer('pointermove', 110, 150, { id: 1 });
     expect(view().x).toBeCloseTo(pinched.x + 10);
     pointer('pointerup', 110, 150, { id: 1 });
+  });
+
+  it('a second finger after a drag zooms from where the drag left the image', () => {
+    render(<Harness image={PLATE} />);
+    act(() => zoom.zoomIn());
+    pointer('pointerdown', 200, 150, { id: 1 });
+    pointer('pointermove', 150, 150, { id: 1 });
+    const dragged = view();
+    pointer('pointerdown', 250, 150, { id: 2 });
+    pointer('pointermove', 250, 150, { id: 2 });
+    expect(view()).toEqual(dragged);
   });
 
   it('are never a tap, even if no finger moved', () => {

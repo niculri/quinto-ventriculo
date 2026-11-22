@@ -34,14 +34,14 @@ describe('a media query', () => {
   });
 
   it('is the fallback where the browser has no matchMedia', () => {
-    const original = window.matchMedia;
+    const original = Object.getOwnPropertyDescriptor(window, 'matchMedia')!;
     // @ts-expect-error: a browser without matchMedia.
     delete window.matchMedia;
     try {
       expect(renderHook(() => useMediaQuery('(hover: hover)', true)).result.current).toBe(true);
       expect(renderHook(() => useMediaQuery('(hover: hover)', false)).result.current).toBe(false);
     } finally {
-      window.matchMedia = original;
+      Object.defineProperty(window, 'matchMedia', original);
     }
   });
 });

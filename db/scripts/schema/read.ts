@@ -14,6 +14,14 @@ export async function readCatalogFromPglite(db: PGlite, schema: string): Promise
   return parseCatalog(document);
 }
 
+/** psql sometimes repeats the connection string in an error (a malformed URI): neither it nor its password is shown. */
+export function withoutSecrets(text: string, url: string): string {
+  const password = /^[a-z]+:\/\/[^:@/]*:([^@]+)@/i.exec(url)?.[1];
+  const clean = text.replaceAll(url, '<connection string>');
+  if (!password) return clean;
+  return clean.replaceAll(password, '***').replaceAll(decodeURIComponent(password), '***');
+}
+
 /** One read-only transaction through `psql`; the connection string goes as an argument, which the runner masks. */
 export function readCatalogWithPsql(url: string, schema: string): Promise<Catalog> {
   const { setup, query } = catalogStatements(schema);
@@ -23,6 +31,8 @@ export function readCatalogWithPsql(url: string, schema: string): Promise<Catalo
   return new Promise((resolve, reject) => {
     const psql = spawn('psql', ['-X', '-q', '-A', '-t', '-v', 'ON_ERROR_STOP=1', url, '-f', '-'], {
       stdio: ['pipe', 'pipe', 'pipe'],
+      // The text of the catalog has accents: it is read as UTF-8 whatever the locale of the machine says.
+      env: { ...process.env, PGCLIENTENCODING: 'UTF8' },
     });
     let out = '';
     let err = '';
@@ -31,7 +41,11 @@ export function readCatalogWithPsql(url: string, schema: string): Promise<Catalo
     psql.on('error', reject);
     psql.on('close', (code) => {
       if (code !== 0)
-        reject(new Error(`psql failed (${String(code)}): ${err.trim().split('\n')[0] ?? ''}`));
+        reject(
+          new Error(
+            `psql failed (${String(code)}): ${withoutSecrets(err.trim().split('\n')[0] ?? '', url)}`,
+          ),
+        );
       else resolve(parseCatalog(out.trim()));
     });
     psql.stdin.end(script);

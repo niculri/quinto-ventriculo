@@ -4,10 +4,10 @@ import type { ReportKind } from '@qv/schema';
 import type { ReportsRepository } from './port';
 import { REPORT_MESSAGES, ReportError } from './model';
 import type { NewReport, Reporter, ReportGroup, Resolution } from './model';
-import { cleanLocation, placeOf, trimSpaces } from './memory-place';
+import { cleanLocation, placeOf, trimSpaces } from './memoryPlace';
 import { storageKeys } from '../../../../shared/lib/storage';
 
-export { placeOf } from './memory-place';
+export { placeOf } from './memoryPlace';
 
 /** report_content() keeps the code trimmed, or none. */
 const codeOf = (code: string | null) => (code === null ? null : trimSpaces(code) || null);

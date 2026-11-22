@@ -6,7 +6,7 @@ import { SearchPalette } from '../features/search/components/SearchPalette';
 import { AppNav } from '../features/nav/components/AppNav';
 import { SiteFooter } from '../features/nav/components/SiteFooter';
 import { FocusContext } from '../shared/ui/focus';
-import { RailContext } from '../shared/ui/rail';
+import { RailContext } from '../shared/ui/Rail';
 import { useAdminMode } from '../features/adminMode/adminMode';
 import { isAnswerScreen } from '../shared/ui/answerScreen';
 import { appStrings } from './strings';

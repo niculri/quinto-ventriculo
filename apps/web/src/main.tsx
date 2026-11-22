@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 import { Providers } from './app/Providers';
 import { routes } from './app/routes';
-import { createServices } from './app/services';
+import { createServices } from './app/ServicesProvider';
 import { ROOT_ERROR_HANDLERS } from './shared/lib/reportError';
 import './styles.css';
 

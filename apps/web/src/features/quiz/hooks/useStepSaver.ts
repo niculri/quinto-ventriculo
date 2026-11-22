@@ -1,7 +1,7 @@
 // The saver of a section's steps (`api/saver.ts`), its state for the page, and the browser's «leave?» while it saves.
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import type { QuizRepository } from '../api/repository';
-import { StepSaver } from '../api/saver';
+import { StepSaver } from '../api/StepSaver';
 
 export function useStepSaver(repository: QuizRepository) {
   const [saver] = useState(() => new StepSaver(repository));

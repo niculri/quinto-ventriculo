@@ -4,7 +4,7 @@ import { MessageSquareWarning } from 'lucide-react';
 import type { QuestionEntry } from '../model/entries';
 import { quizStrings as s } from '../strings';
 import { Html } from './Html';
-import { TextWithStatements } from './Statements';
+import { TextWithStatements } from './TextWithStatements';
 
 export function WrongAnswer({
   entry: e,

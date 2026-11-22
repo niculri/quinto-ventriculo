@@ -24,7 +24,7 @@ const TESTS_AND_SCRIPTS = [
 const SUPABASE_ADAPTERS = [
   'apps/web/src/features/*/api/repository/supabase*.ts',
   'apps/web/src/features/session/api/service.ts',
-  'apps/web/src/app/services.tsx',
+  'apps/web/src/app/ServicesProvider.tsx',
   'apps/api/src/adapters/supabase/*.ts',
   'apps/api/src/test/postgrest.ts',
   'packages/importer/src/targets/content-database.ts',

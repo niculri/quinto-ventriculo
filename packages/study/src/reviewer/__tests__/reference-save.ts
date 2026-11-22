@@ -1,4 +1,4 @@
-// A copy of `apps/web/src/features/study/api/saveQueue.ts` as it is on `main`, which the session tests compare with.
+// A copy of `apps/web/src/features/study/api/SaveQueue.ts` as it is on `main`, which the session tests compare with.
 import type { CardRef, ReviewInput, StoredCard, UndoResult } from '@qv/schema/user';
 import { cardKey } from '../../scheduler';
 

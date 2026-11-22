@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { drawShapes } from '../drawShapes';
 import type { ShapeProperties } from '../shapes';
-import { shapes } from './occlusion-fixtures';
+import { shapes } from './occlusionFixtures';
 
 function recorder() {
   const calls: string[] = [];

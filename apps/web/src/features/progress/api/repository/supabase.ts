@@ -3,13 +3,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import type { StudyRepository } from './port';
-import { studyContext } from './supabase-context';
-import { progressReads } from './supabase-progress';
-import { cardReads, logReads } from './supabase-reads';
-import { deckSettings, preferencesAndPresets } from './supabase-settings';
-import { cardSync, writes } from './supabase-writes';
+import { studyContext } from './supabaseContext';
+import { progressReads } from './supabaseProgress';
+import { cardReads, logReads } from './supabaseReads';
+import { deckSettings, preferencesAndPresets } from './supabaseSettings';
+import { cardSync, writes } from './supabaseWrites';
 
-export { CARDS_OF_DECKS_MAX } from './supabase-reads';
+export { CARDS_OF_DECKS_MAX } from './supabaseReads';
 
 export function supabaseStudyRepository(client: SupabaseClient<Database>): StudyRepository {
   const ctx = studyContext(client);

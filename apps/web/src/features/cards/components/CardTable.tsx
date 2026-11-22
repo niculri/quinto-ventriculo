@@ -1,7 +1,7 @@
 // Anki's browser («Explorar»), the cards page's table in «Modo avanzado»: Anki's search, chosen columns, the
 // selected card's preview and information, and undoable actions on the selection.
 
-import { Rail } from '../../../shared/ui/rail';
+import { Rail } from '../../../shared/ui/Rail';
 import { LiveToast } from '../../../shared/ui/Toast';
 import { cardsOfRows } from '../model/browseCards';
 import type { TableSources } from '../model/tableData';

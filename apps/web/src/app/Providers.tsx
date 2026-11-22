@@ -6,8 +6,8 @@ import type { QueryClient } from '@tanstack/react-query';
 import { AdminModeSwitch } from './AdminModeSwitch';
 import { SessionProvider } from './SessionProvider';
 import { createQueryClient } from './queryClient';
-import { ServicesProvider } from './services';
-import type { Services } from './services';
+import { ServicesProvider } from './ServicesProvider';
+import type { Services } from './ServicesProvider';
 
 export function Providers({
   services,

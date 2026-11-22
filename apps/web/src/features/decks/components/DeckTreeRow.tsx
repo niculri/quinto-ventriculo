@@ -19,7 +19,7 @@ import { useDraftOnly } from '../../catalog/hooks/useDraftOnly';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { isOn, visibleChildren } from '../model/deckTree';
-import { DeckPresetButton } from './DeckPresetDialog';
+import { DeckPresetButton } from './DeckPresetButton';
 import { decksStrings as s } from '../strings';
 
 export interface DeckTreeRowProps {

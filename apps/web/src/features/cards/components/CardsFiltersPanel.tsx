@@ -3,7 +3,7 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import type { CardOrigin } from '@qv/schema';
-import { Rail } from '../../../shared/ui/rail';
+import { Rail } from '../../../shared/ui/Rail';
 import { GhostCloseX } from '../../../shared/ui/Dialog';
 import type { KindFilter, StateFilter } from '../model/filters';
 import type { CardsBodyState } from '../hooks/useCardsBody';

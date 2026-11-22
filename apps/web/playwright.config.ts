@@ -15,21 +15,21 @@ const IPHONE_SPECS = [
   'phone.spec.ts',
   'quiz.spec.ts',
   'reading.spec.ts',
-  'screen-reader.spec.ts',
+  'screenReader.spec.ts',
   'study.spec.ts',
   'viewer.spec.ts',
 ];
 
 /** Specs that change the server's settings: they run in `desktop` only, each on a server of its own, so no other spec sees it. */
-const OWN_SERVER = ['hidden-courses.spec.ts', 'admin-mode.spec.ts'];
+const OWN_SERVER = ['hiddenCourses.spec.ts', 'adminMode.spec.ts'];
 
 const CONTENT = resolve(import.meta.dirname, 'e2e/content');
-/** The admin mode's server has a note more in its draft: `e2e/admin-mode-content.ts` makes it a copy of the content. */
+/** The admin mode's server has a note more in its draft: `e2e/adminModeContent.ts` makes it a copy of the content. */
 const ADMIN_MODE_CONTENT = resolve(import.meta.dirname, 'node_modules/.cache/admin-mode-content');
 
 const demoServer = (port: number, content = CONTENT) => {
   const prepare =
-    content === CONTENT ? '' : `npx tsx e2e/admin-mode-content.ts "${CONTENT}" "${content}" && `;
+    content === CONTENT ? '' : `npx tsx e2e/adminModeContent.ts "${CONTENT}" "${content}" && `;
   return {
     command: `${prepare}npx vite --mode demo --port ${port} --strictPort`,
     url: `http://localhost:${port}`,

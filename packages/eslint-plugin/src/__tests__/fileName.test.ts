@@ -42,6 +42,10 @@ tester.run('qv/file-name', fileName, {
     { filename: '/x/strings/Panel.strings.ts', code: 'export const panelStrings = {};' },
     { filename: '/x/Panel.tsx', code: 'export default function Panel() { return <p />; }' },
     { filename: '/x/Re.tsx', code: 'const Re = () => <p />;\nexport { Re };' },
+    {
+      filename: '/x/Rail.ts',
+      code: 'export const Context = 1;\nexport function Rail() { return null; }',
+    },
   ],
   invalid: [
     { filename: '/x/panel-row.ts', code: 'export const a = 1;', errors: [{ messageId: 'case' }] },
@@ -64,6 +68,11 @@ tester.run('qv/file-name', fileName, {
     },
     { filename: '/x/useThing.ts', code: 'export const a = 1;', errors: [{ messageId: 'notHook' }] },
     { filename: '/x/panel.tsx', code: component, errors: [{ messageId: 'component' }] },
+    {
+      filename: '/x/rail.ts',
+      code: 'export const Context = 1;\nexport function Rail() { return null; }',
+      errors: [{ messageId: 'component' }],
+    },
     { filename: '/x/readingFonts.ts', code: hook, errors: [{ messageId: 'mismatch' }] },
     {
       filename: '/x/saver.ts',

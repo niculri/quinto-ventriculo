@@ -11,7 +11,8 @@ import { fullAnkiStudy } from '../../test/fakes/repositories';
 import { renderApp } from '../../test/render';
 import { buildAnkiTree, hasPage } from '../../features/catalog/model/tree';
 import type { CourseDeckNode } from '../../features/catalog/model/tree';
-import { ankiScreens, lazyScreen, screenOfPath, WarmScreens } from '../ankiScreens';
+import { ankiScreens, lazyScreen, screenOfPath } from '../ankiScreens';
+import { WarmScreens } from '../WarmScreens';
 
 const DECK = '/semesters/1/courses/anatomia-1/anki/certamen-1';
 const NODE = buildAnkiTree(CATALOG).nodes.find((n): n is CourseDeckNode => hasPage(n))!;

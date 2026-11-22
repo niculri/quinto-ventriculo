@@ -1,5 +1,5 @@
 // The API serves exactly the routes of API_ROUTES, with their method, once every optional part is configured. With
-// `app/api-routes.test.ts` of the web, it is the contract between both sides.
+// `app/__tests__/apiRoutes.contract.test.ts` of the web, it is the contract between both sides.
 import { describe, expect, it } from 'vitest';
 import { API_PREFIX, API_ROUTES } from '@qv/schema/http';
 import { createApp } from './app';

@@ -160,14 +160,14 @@ export const routes: RouteObject[] = [
           {
             path: 'settings/anki',
             lazy: page(
-              () => import('../features/decks/pages/AnkiGeneralPage'),
+              () => import('../features/decks/pages/AnkiGeneralSettingsPage'),
               (m) => m.AnkiGeneralSettingsPage,
             ),
           },
           {
             path: 'settings/deck-options',
             lazy: page(
-              () => import('../features/decks/pages/DeckOptionsPage'),
+              () => import('../features/decks/pages/DeckOptionsSettingsPage'),
               (m) => m.DeckOptionsSettingsPage,
             ),
           },

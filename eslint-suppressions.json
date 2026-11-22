@@ -194,26 +194,8 @@
       "count": 1
     }
   },
-  "apps/web/build/__tests__/react-compiler.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/build/creator-photo.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/build/preload-font.ts": {
+  "apps/web/build/preloadFont.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/build/react-compiler.ts": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -222,46 +204,13 @@
       "count": 2
     }
   },
-  "apps/web/e2e/admin-mode-content.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/admin-mode-draft.spec.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/admin-mode.spec.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/answer-bar.spec.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/card-index.spec.ts": {
+  "apps/web/e2e/cardIndex.spec.ts": {
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/done-today.spec.ts": {
-    "qv/file-name": {
-      "count": 1
     }
   },
   "apps/web/e2e/exam.spec.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/e2e/hidden-courses.spec.ts": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -283,12 +232,9 @@
       "count": 2
     }
   },
-  "apps/web/e2e/screen-reader.spec.ts": {
+  "apps/web/e2e/screenReader.spec.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
   "apps/web/e2e/usage.spec.ts": {
@@ -311,11 +257,6 @@
       "count": 2
     }
   },
-  "apps/web/src/app/__tests__/AppShell.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/app/__tests__/ankiScreens.test.tsx": {
     "@typescript-eslint/no-deprecated": {
       "count": 1
@@ -324,62 +265,21 @@
       "count": 3
     }
   },
-  "apps/web/src/app/__tests__/error-report.flow.test.tsx": {
+  "apps/web/src/app/__tests__/errorReport.flow.test.ts": {
     "@typescript-eslint/no-implied-eval": {
       "count": 1
     },
     "@typescript-eslint/no-unsafe-call": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/app/__tests__/routes.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/app/api-routes.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/app/services.tsx": {
-    "qv/file-name": {
-      "count": 1
+  "apps/web/src/app/__tests__/supabaseCalls.contract.test.ts": {
+    "@typescript-eslint/no-unsafe-argument": {
+      "count": 5
     }
   },
   "apps/web/src/app/strings.ts": {
     "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/app/supabase-calls.test.ts": {
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 5
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/creator-photo.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/account/__tests__/account-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/account/__tests__/account.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/account/api/repository/memory-contract.test.ts": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -413,74 +313,34 @@
       "count": 1
     }
   },
-  "apps/web/src/features/admin/__tests__/access.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/__tests__/admin-courses.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/__tests__/admin-mode.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/__tests__/admin-parts.flow.test.tsx": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/__tests__/admin.flow.test.tsx": {
+  "apps/web/src/features/admin/__tests__/admin.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
     "@typescript-eslint/no-useless-default-assignment": {
       "count": 2
-    },
-    "qv/file-name": {
+    }
+  },
+  "apps/web/src/features/admin/__tests__/adminParts.flow.test.ts": {
+    "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     }
   },
-  "apps/web/src/features/admin/__tests__/release-parts.flow.test.tsx": {
+  "apps/web/src/features/admin/__tests__/releaseParts.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/admin/__tests__/releases.flow.test.tsx": {
+  "apps/web/src/features/admin/__tests__/releases.flow.test.ts": {
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/admin/__tests__/reports-parts.flow.test.tsx": {
+  "apps/web/src/features/admin/__tests__/reportsParts.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/__tests__/unpublished.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/__tests__/usage.flow.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -500,11 +360,6 @@
       "count": 1
     },
     "@typescript-eslint/use-unknown-in-catch-callback-variable": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/api/repository/memory-contract.test.ts": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -613,56 +468,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/adminMode/__tests__/admin-mode-database.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/adminMode/__tests__/admin-mode-progress.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/adminMode/__tests__/admin-mode-student-view.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/adminMode/__tests__/adminMode.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/adminMode/adminMode.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/__tests__/card-table.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/__tests__/cards-page-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/__tests__/cards-page.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/__tests__/table-panels.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/__tests__/table-shortcuts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/cards/api/demo.ts": {
     "@typescript-eslint/prefer-nullish-coalescing": {
       "count": 1
@@ -706,11 +511,6 @@
   },
   "apps/web/src/features/cards/components/TableToolbar.tsx": {
     "@typescript-eslint/prefer-nullish-coalescing": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/cards/hooks/__tests__/useCardSearch.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -772,11 +572,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/catalog/__tests__/admin-marks.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/catalog/model/catalog.ts": {
     "@typescript-eslint/prefer-optional-chain": {
       "count": 1
@@ -814,11 +609,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/courses/__tests__/courses-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/courses/assessment.strings.ts": {
     "qv/strings-location": {
       "count": 1
@@ -836,36 +626,6 @@
   },
   "apps/web/src/features/courses/semester.strings.ts": {
     "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/__tests__/card-viewer.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/__tests__/course-decks.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/__tests__/deck-options-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/__tests__/deck-options.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/__tests__/deck-page-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/__tests__/deck-page.flow.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -891,11 +651,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/decks/components/DeckPresetDialog.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/decks/components/__tests__/CardFrame.test.ts": {
     "@typescript-eslint/no-unsafe-return": {
       "count": 1
@@ -912,11 +667,6 @@
     },
     "@typescript-eslint/no-deprecated": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/decks/model/__tests__/occlusion-fixtures.ts": {
-    "qv/file-name": {
-      "count": 1
     }
   },
   "apps/web/src/features/decks/model/deckTree.ts": {
@@ -939,16 +689,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/decks/pages/AnkiGeneralPage.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/pages/DeckOptionsPage.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/decks/presets.strings.ts": {
     "qv/strings-location": {
       "count": 1
@@ -956,36 +696,6 @@
   },
   "apps/web/src/features/decks/strings.ts": {
     "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/home/__tests__/hidden-courses-database.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/home/__tests__/hidden-courses.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/home/__tests__/home-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/home/__tests__/today-counts-harder.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/home/__tests__/today-counts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/home/hooks/__tests__/useTodayCounts.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1009,11 +719,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/landing/__tests__/landing-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/landing/hooks/useSignIn.ts": {
     "@typescript-eslint/unbound-method": {
       "count": 1
@@ -1021,11 +726,6 @@
   },
   "apps/web/src/features/landing/strings.ts": {
     "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/legal/__tests__/legal-parts.flow.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1039,11 +739,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/nav/__tests__/nav-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/nav/components/UserMenu.tsx": {
     "@typescript-eslint/unbound-method": {
       "count": 1
@@ -1051,11 +746,6 @@
   },
   "apps/web/src/features/nav/strings.ts": {
     "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/__tests__/note-parts.flow.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1118,31 +808,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/progress/api/repository/cards-of-decks.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/api/repository/local-repository.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/api/repository/memory-contract-cards.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/api/repository/memory-contract-days.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/api/repository/memory-contract-settings.test.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/progress/api/repository/memory.ts": {
     "@typescript-eslint/require-await": {
       "count": 35
@@ -1157,38 +822,19 @@
       "count": 3
     }
   },
-  "apps/web/src/features/progress/api/repository/supabase-context.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/api/repository/supabase-progress.ts": {
+  "apps/web/src/features/progress/api/repository/supabaseProgress.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/progress/api/repository/supabase-reads.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/api/repository/supabase-settings.ts": {
+  "apps/web/src/features/progress/api/repository/supabaseSettings.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/progress/api/repository/supabase-writes.ts": {
+  "apps/web/src/features/progress/api/repository/supabaseWrites.ts": {
     "@typescript-eslint/no-unnecessary-type-conversion": {
       "count": 4
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
   "apps/web/src/features/progress/api/sync.ts": {
@@ -1197,11 +843,6 @@
     },
     "@typescript-eslint/unbound-method": {
       "count": 6
-    }
-  },
-  "apps/web/src/features/progress/hooks/__tests__/useDeckCounts.test.tsx": {
-    "qv/file-name": {
-      "count": 1
     }
   },
   "apps/web/src/features/progress/hooks/useOutsideClose.ts": {
@@ -1214,27 +855,23 @@
       "count": 1
     }
   },
-  "apps/web/src/features/quiz/__tests__/quiz-parts.flow.test.tsx": {
-    "@typescript-eslint/unbound-method": {
-      "count": 3
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/quiz/__tests__/quiz.flow.test.tsx": {
+  "apps/web/src/features/quiz/__tests__/quiz.flow.test.ts": {
     "@typescript-eslint/unbound-method": {
       "count": 2
-    },
-    "qv/file-name": {
+    }
+  },
+  "apps/web/src/features/quiz/__tests__/quizParts.flow.test.ts": {
+    "@typescript-eslint/unbound-method": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/quiz/api/StepSaver.ts": {
+    "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
-  "apps/web/src/features/quiz/api/repository/memory-contract.test.ts": {
+  "apps/web/src/features/quiz/api/repository/__tests__/memory.contract.test.ts": {
     "@typescript-eslint/no-unsafe-return": {
-      "count": 1
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1249,14 +886,6 @@
   "apps/web/src/features/quiz/api/repository/supabase.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/quiz/api/saver.ts": {
-    "qv/file-name": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
     }
   },
   "apps/web/src/features/quiz/components/Figures.tsx": {
@@ -1287,11 +916,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/quiz/components/Statements.tsx": {
+  "apps/web/src/features/quiz/components/TextWithStatements.tsx": {
     "@eslint-react/no-array-index-key": {
-      "count": 1
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1335,32 +961,13 @@
       "count": 1
     }
   },
-  "apps/web/src/features/reports/__tests__/reports-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/reports/__tests__/reports.flow.test.tsx": {
+  "apps/web/src/features/reports/__tests__/reports.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 5
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/reports/api/repository/memory-contract.test.ts": {
+  "apps/web/src/features/reports/api/repository/__tests__/memory.contract.test.ts": {
     "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/reports/api/repository/memory-place.ts": {
-    "@typescript-eslint/no-misused-spread": {
-      "count": 2
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1373,6 +980,11 @@
     },
     "max-lines-per-function": {
       "count": 1
+    }
+  },
+  "apps/web/src/features/reports/api/repository/memoryPlace.ts": {
+    "@typescript-eslint/no-misused-spread": {
+      "count": 2
     }
   },
   "apps/web/src/features/reports/dialog.strings.ts": {
@@ -1395,11 +1007,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/search/__tests__/search-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/search/components/Snippet.tsx": {
     "@eslint-react/no-array-index-key": {
       "count": 2
@@ -1415,19 +1022,9 @@
       "count": 1
     }
   },
-  "apps/web/src/features/session/__tests__/session-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/session/api/demo.ts": {
     "@typescript-eslint/require-await": {
       "count": 3
-    }
-  },
-  "apps/web/src/features/session/context.tsx": {
-    "qv/file-name": {
-      "count": 1
     }
   },
   "apps/web/src/features/session/model/destination.ts": {
@@ -1445,11 +1042,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/settings/__tests__/settings.flow.test.tsx": {
+  "apps/web/src/features/settings/__tests__/settings.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1463,16 +1057,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/stats/__tests__/heatmap-parts.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/stats/__tests__/heatmap.flow.test.tsx": {
+  "apps/web/src/features/stats/__tests__/heatmap.flow.test.ts": {
     "@typescript-eslint/no-deprecated": {
-      "count": 1
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1514,78 +1100,31 @@
       "count": 1
     }
   },
-  "apps/web/src/features/study/__tests__/exam-mode-session.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/exam-mode.flow.test.tsx": {
+  "apps/web/src/features/study/__tests__/examMode.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
     "@typescript-eslint/unbound-method": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/study/__tests__/final-review-keys.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/full-mode.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/moved-cards.flow.test.tsx": {
+  "apps/web/src/features/study/__tests__/movedCards.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/study/__tests__/reviewer-menus.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/simple-mode-session.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/simple-mode.flow.test.tsx": {
+  "apps/web/src/features/study/__tests__/simpleMode.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
-  "apps/web/src/features/study/__tests__/study-screen-state.flow.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/__tests__/undo-before-saved.flow.test.tsx": {
-    "qv/file-name": {
+  "apps/web/src/features/study/api/SaveQueue.ts": {
+    "@typescript-eslint/prefer-optional-chain": {
       "count": 1
     }
   },
   "apps/web/src/features/study/api/queries.ts": {
     "@typescript-eslint/no-deprecated": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/api/saveQueue.ts": {
-    "@typescript-eslint/prefer-optional-chain": {
-      "count": 1
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1614,16 +1153,6 @@
   },
   "apps/web/src/features/study/strings.ts": {
     "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/tips/hooks/__tests__/useTip.test.tsx": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/usage/api/__tests__/count.test.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1677,11 +1206,6 @@
       "count": 2
     }
   },
-  "apps/web/src/shared/lib/readingFonts.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/lib/reportError.ts": {
     "@typescript-eslint/no-base-to-string": {
       "count": 2
@@ -1725,11 +1249,8 @@
       "count": 1
     }
   },
-  "apps/web/src/shared/ui/focus.tsx": {
+  "apps/web/src/shared/ui/focus.ts": {
     "@typescript-eslint/no-empty-function": {
-      "count": 1
-    },
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1740,11 +1261,6 @@
   },
   "apps/web/src/shared/ui/keys.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/shared/ui/rail.tsx": {
-    "qv/file-name": {
       "count": 1
     }
   },
@@ -1768,21 +1284,6 @@
   },
   "apps/web/src/test/storage.ts": {
     "@typescript-eslint/no-unnecessary-type-conversion": {
-      "count": 1
-    }
-  },
-  "apps/web/src/test/study-contract.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/test/studyDriver.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/third-party-licenses.test.ts": {
-    "qv/file-name": {
       "count": 1
     }
   },

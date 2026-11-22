@@ -5,7 +5,7 @@ import { Canonical } from '../../../shared/ui/Canonical';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
-import { useReadingFonts } from '../../../shared/lib/readingFonts';
+import { useReadingFonts } from '../../../shared/lib/useReadingFonts';
 import { locateNote } from '../../catalog/model/catalog';
 import { useCatalog, useNote } from '../../catalog/hooks/useCatalog';
 import { useCountOpen } from '../../usage/api/count';

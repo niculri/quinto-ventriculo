@@ -6,7 +6,7 @@ import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { besideStyle } from '../model/figures';
 import { quizStrings as s } from '../strings';
 import { Figures, Table } from './Figures';
-import { TextWithStatements } from './Statements';
+import { TextWithStatements } from './TextWithStatements';
 
 export function QuestionBody({
   question,

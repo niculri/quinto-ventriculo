@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { setupOcclusion } from '../occlusion';
-import { shapes } from '../../model/__tests__/occlusion-fixtures';
+import { shapes } from '../../model/__tests__/occlusionFixtures';
 
 describe('image occlusion (like Anki review.ts)', () => {
   const rect = (cls: string, ord: number, extra = 'data-occludeinactive="1"') =>

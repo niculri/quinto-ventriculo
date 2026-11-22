@@ -9,7 +9,7 @@ import { useApi } from '../../../shared/hooks/useApi';
 import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
 import { cardQuery } from '../../decks/api/queries';
-import { SaveQueue } from '../api/saveQueue';
+import { SaveQueue } from '../api/SaveQueue';
 
 const RETRY_DELAYS_MS = [1000, 3000];
 const TOAST_MS = 3000;

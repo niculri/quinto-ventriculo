@@ -6,9 +6,9 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
-import { creatorPhoto } from './build/creator-photo';
-import { compilerPreset } from './build/react-compiler';
-import { preloadFont } from './build/preload-font';
+import { creatorPhoto } from './build/creatorPhoto';
+import { compilerPreset } from './build/reactCompiler';
+import { preloadFont } from './build/preloadFont';
 import { thirdPartyLicenses } from './build/licenses';
 
 const ROOT = resolve(import.meta.dirname, '../..');

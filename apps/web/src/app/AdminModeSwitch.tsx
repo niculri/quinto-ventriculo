@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
-import type { Services } from './services';
+import type { Services } from './ServicesProvider';
 import type { ApiClient } from '../shared/lib/api';
 import { quizKeys } from '../features/quiz/api/queries';
 import { studyKeys } from '../features/progress/queries';

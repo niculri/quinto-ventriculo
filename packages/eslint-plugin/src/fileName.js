@@ -21,26 +21,29 @@ export function parseName(base) {
 }
 
 /**
- * The kind of export a declaration is. `containsJsx` tells if the statement that declares it has JSX inside.
+ * The kind of export a declaration is: a PascalCase function is a component (it needs no JSX to be one, as the
+ * ones that only portal their children), and a hook is a `use` function.
  * @param {string} name
- * @param {boolean} isClass
- * @param {boolean} containsJsx
+ * @param {{ isClass: boolean, isFunction: boolean }} declaration
+ * @param {boolean} containsJsx whether the statement that declares it has JSX inside
  * @returns {'class' | 'hook' | 'component' | 'value'}
  */
-function exportKind(name, isClass, containsJsx) {
-  if (isClass) return 'class';
+function exportKind(name, declaration, containsJsx) {
+  if (declaration.isClass) return 'class';
   if (HOOK.test(name)) return 'hook';
-  if (PASCAL.test(name) && containsJsx) return 'component';
+  if (PASCAL.test(name) && (containsJsx || declaration.isFunction)) return 'component';
   return 'value';
 }
 
 /**
- * The top-level declarations of a file, by name: the statement that declares each and whether it is a class.
+ * The top-level declarations of a file, by name: the statement that declares each, and whether it is a class or a
+ * function.
+ * @typedef {{ statement: any, isClass: boolean, isFunction: boolean }} Declaration
  * @param {any[]} body
- * @returns {Map<string, { statement: any, isClass: boolean }>}
+ * @returns {Map<string, Declaration>}
  */
 function declarations(body) {
-  /** @type {Map<string, { statement: any, isClass: boolean }>} */
+  /** @type {Map<string, Declaration>} */
   const declared = new Map();
   for (const statement of body) {
     const exportsIt =
@@ -48,10 +51,28 @@ function declarations(body) {
     const d = exportsIt ? statement.declaration : statement;
     if (!d) continue;
     for (const name of declaredNames(d)) {
-      declared.set(name, { statement, isClass: d.type === 'ClassDeclaration' });
+      declared.set(name, {
+        statement,
+        isClass: d.type === 'ClassDeclaration',
+        isFunction: isFunctionDeclaration(d, name),
+      });
     }
   }
   return declared;
+}
+
+/**
+ * Whether a declaration is a function: `function f() {}`, or `const f = () => {}` for the name `f`.
+ * @param {any} d
+ * @param {string} name
+ */
+function isFunctionDeclaration(d, name) {
+  if (d.type === 'FunctionDeclaration') return true;
+  if (d.type !== 'VariableDeclaration') return false;
+  const v = d.declarations.find(
+    (/** @type {any} */ x) => x.id.type === 'Identifier' && x.id.name === name,
+  );
+  return v?.init?.type === 'ArrowFunctionExpression' || v?.init?.type === 'FunctionExpression';
 }
 
 /**
@@ -119,7 +140,7 @@ function runtimeExports(body, hasJsx) {
       const d = declared.get(local);
       exported.push({
         name,
-        kind: d ? exportKind(local, d.isClass, hasJsx(d.statement)) : 'value',
+        kind: d ? exportKind(local, d, hasJsx(d.statement)) : 'value',
       });
     }
   }

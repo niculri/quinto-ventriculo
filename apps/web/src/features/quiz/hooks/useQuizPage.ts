@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { QuizDetail, QuizSectionDetail, QuizSectionSummary } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
-import { useReadingFonts } from '../../../shared/lib/readingFonts';
+import { useReadingFonts } from '../../../shared/lib/useReadingFonts';
 import { findCourse } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { useCountOpen } from '../../usage/api/count';

@@ -5,7 +5,7 @@ import { RouterProvider, createMemoryRouter } from 'react-router';
 import { Providers } from '../app/Providers';
 import { WRITE_DEFAULTS } from '../app/queryClient';
 import { routes } from '../app/routes';
-import type { Services } from '../app/services';
+import type { Services } from '../app/ServicesProvider';
 import type { AccountRepository } from '../features/account/api/repository';
 import { localAdminRepository } from '../features/admin/api/repository';
 import type { AdminRepository } from '../features/admin/api/repository';

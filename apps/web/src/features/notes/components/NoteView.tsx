@@ -2,7 +2,7 @@
 // image viewer and the report popup. The dev reading page shows it without the catalog.
 import type { Note } from '@qv/schema';
 import { page } from '../../../shared/ui/styles';
-import { Rail } from '../../../shared/ui/rail';
+import { Rail } from '../../../shared/ui/Rail';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import { StatusToast } from '../../../shared/ui/Toast';
 import { sharedStrings } from '../../../shared/strings';

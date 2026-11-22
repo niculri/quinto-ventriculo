@@ -24,7 +24,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   datos (`catalog`, `progress`) → features de página → `app/` (router, providers, guardas, redirecciones viejas, el
   marco de la app y la composición de servicios). `shared` no importa features ni `app`; una feature no importa `app`;
   una feature de datos no importa features de página. Cada feature que usa un repositorio declara su puerto y su hook
-  en `features/<x>/api/` (`useStudyRepository()`…); `app/services.tsx` solo los compone y los provee. Dentro de una
+  en `features/<x>/api/` (`useStudyRepository()`…); `app/ServicesProvider.tsx` solo los compone y los provee. Dentro de una
   feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés. Una función vive en
   la capa más baja posible: si no usa React ni red, es dominio y va a `model/` o a un paquete.
 - **La API (`apps/api/src`):** `worker.ts` compone las piezas de producción y `app.ts` solo monta: `middleware/` (sesión,
@@ -39,7 +39,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los
   `api/repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
-  `features/session/api/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/adapters/supabase/` (y el PostgREST
+  `features/session/api/service.ts`, `app/ServicesProvider.tsx`, los archivos de `apps/api/src/adapters/supabase/` (y el PostgREST
   falso de las pruebas, `apps/api/src/test/postgrest.ts`; lo nombra `SUPABASE_ADAPTERS` en `eslint.config.js`) y
   `packages/importer/src/targets/content-database.ts`; un `import type`
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
@@ -57,7 +57,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Contrato web ↔ API:** rutas (`API_ROUTES`, y `apiPaths` para pedirlas), códigos de error (`ErrorCode`), la
   cabecera de la vista previa y lo que acepta cada ruta (`requests.ts`) viven en `@qv/schema/http`. La API valida toda
   entrada con esos schemas y cada respuesta JSON lleva `satisfies` de su schema (los cuerpos que pasan como stream no
-  se parsean). `apps/api/src/routes-contract.test.ts` y `apps/web/src/app/api-routes.test.ts` fallan si una ruta queda en un
+  se parsean). `apps/api/src/routes-contract.test.ts` y `apps/web/src/app/__tests__/apiRoutes.contract.test.ts` fallan si una ruta queda en un
   solo lado; `apps/api/src/inputs-contract.test.ts` fija cómo responde la API a cada entrada.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): la meta es 300 líneas por archivo y 80
   por función; el lint solo marca desde 350 y 90, y nadie rehace un archivo por pasarse unas líneas: se parte cuando
@@ -82,9 +82,9 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `setTimeout`: cada acción trae su `now`, y lo que hay que guardar sale como órdenes numeradas en su bandeja, que un
   efecto del hook pasa a la `SaveQueue`. La pantalla recibe datos y `dispatch`, nunca un objeto mutable que lea mientras
   dibuja.
-- **El compilador de React está encendido** (`apps/web/build/react-compiler.ts`, en el build y en Vitest): sin
+- **El compilador de React está encendido** (`apps/web/build/reactCompiler.ts`, en el build y en Vitest): sin
   `useMemo`, `useCallback` ni `memo` nuevos a mano, salvo la dependencia de un efecto o de una suscripción, con una línea
-  que diga por qué. 0 componentes ni hooks sin compilar: `apps/web/build/__tests__/react-compiler.test.ts` falla con uno
+  que diga por qué. 0 componentes ni hooks sin compilar: `apps/web/build/__tests__/reactCompiler.test.ts` falla con uno
   que el compilador salte (un hook condicional, un `try … finally`, un `eslint-disable` de `react-hooks/exhaustive-deps`)
   y con un `"use no memo"`, que nunca se deja.
 - **Lo que viene de afuera se pasa como valor.** Una llamada sin argumentos que lee algo externo (la hora,

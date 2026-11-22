@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHAPE_MASK_COLOR, canvasPixelSize, shapeFromElement, shapeProperties } from '../shapes';
-import { shapes } from './occlusion-fixtures';
+import { shapes } from './occlusionFixtures';
 
 describe('image occlusion (like Anki review.ts)', () => {
   it('reads the shapes like Anki (defaults, fill, angle)', () => {

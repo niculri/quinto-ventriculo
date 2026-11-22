@@ -38,7 +38,7 @@ export async function readUnpublished(file: string): Promise<UnpublishedItem[]> 
 export async function readManifest(
   folder: string,
   options: ReadManifestOptions = {},
-): Promise<Manifest> {
+): Promise<Manifest & { unpublished: UnpublishedItem[] }> {
   const catalog = CatalogManifest.parse(
     JSON.parse(await readFile(join(folder, 'catalog.json'), 'utf8')),
   );

@@ -42,9 +42,7 @@ export async function runImport(argv?: string[]): Promise<void> {
   // After the options, so a wrong one says so even without the private repository.
   const content = requireContentFolder(contentFolder(args.content));
   const manifest = await readManifest(content);
-  // readManifest always brings the list; its type only says it may be missing.
-  /* v8 ignore next */
-  const unpublished = manifest.unpublished ?? [];
+  const { unpublished } = manifest;
   const started = Date.now();
   const cache = await ImageCache.open(cacheFolder);
   const built = await buildBundle({

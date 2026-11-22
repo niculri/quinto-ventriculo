@@ -102,8 +102,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   deja como `void x`: el compilador la descarta.
 - **Textos de la interfaz** (`qv/no-literal-text` y `qv/strings-location`): lo que lee una persona (texto en JSX,
   `aria-label`, `title`, `placeholder`, `alt`, `label`…) sale del archivo de textos del componente o módulo que lo
-  muestra: `strings/<Nombre>.strings.ts` en la misma carpeta que `<Nombre>.tsx` (`components/strings/UsagePanel.strings.ts`
-  para `components/UsagePanel.tsx`, `hooks/strings/useTip.strings.ts` para `hooks/useTip.ts`), un objeto `as const` con
+  muestra: `strings/<Nombre>.strings.ts` en la misma carpeta que `<Nombre>.tsx` (`components/strings/UserMenu.strings.ts`
+  para `components/UserMenu.tsx`, `hooks/strings/useSignIn.strings.ts` para `hooks/useSignIn.ts`), un objeto `as const` con
   funciones para lo que lleva números o nombres. Lo que usan varios componentes de una feature queda en el archivo de
   textos del más bajo de ellos (los demás lo importan); lo común a varias features, en `shared/strings/`. Un archivo de
   un componente que no carga al inicio (`ImageViewer`) lleva el suyo, para no sumarlo al arranque. Las pruebas siguen

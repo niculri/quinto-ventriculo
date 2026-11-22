@@ -78,6 +78,20 @@ const reactRules = Object.fromEntries(
   ]),
 );
 
+const SUPABASE_PATTERN = {
+  group: ['@supabase/*'],
+  allowTypeImports: true,
+  message: 'Supabase is reached only through a repository (data adapter).',
+};
+
+// The web runs with the React Compiler, and its tests with and without it: nothing is kept by hand.
+const NO_HAND_MEMO = {
+  name: 'react',
+  importNames: ['useMemo', 'useCallback', 'memo'],
+  message:
+    'The React Compiler keeps what a render builds: write it plainly, or split the hook so it can.',
+};
+
 const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
 
 export default tseslint.config(
@@ -201,15 +215,7 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        {
-          patterns: [
-            {
-              group: ['@supabase/*'],
-              allowTypeImports: true,
-              message: 'Supabase is reached only through a repository (data adapter).',
-            },
-          ],
-        },
+        { patterns: [SUPABASE_PATTERN], paths: [NO_HAND_MEMO] },
       ],
       'no-restricted-syntax': [
         'error',

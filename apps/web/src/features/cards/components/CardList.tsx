@@ -120,7 +120,6 @@ function Rows({
   );
 }
 
-
 function Item({
   it,
   lectureTitle,

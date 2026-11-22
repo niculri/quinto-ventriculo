@@ -1,6 +1,5 @@
-// Tests the cards pages' data: built once everything is read, from the latest sources, and kept by a render that changes
-// nothing; a gone index means the cards changed, other failures are the error, and a retry asks again only for what
-// failed.
+// Tests the cards pages' data: built from the latest sources once all are read, and kept by a render that changes
+// nothing; a gone index means the cards changed, other failures are the error, and a retry asks only for what failed.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';

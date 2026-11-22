@@ -57,13 +57,16 @@ describe('the table', () => {
   });
 
   // What the compiler gives and the coverage run, without it, does not: typing makes no search.
-  it.skipIf(!compiled)('searches the cards once, and typing in the box does not search them again', () => {
-    search.match.mockReturnValue([]);
-    const { result } = table();
-    expect(search.match).toHaveBeenCalledTimes(1);
-    for (const typed of ['d', 'de', 'dec']) act(() => result.current.search.setText(typed));
-    expect(search.match).toHaveBeenCalledTimes(1);
-  });
+  it.skipIf(!compiled)(
+    'searches the cards once, and typing in the box does not search them again',
+    () => {
+      search.match.mockReturnValue([]);
+      const { result } = table();
+      expect(search.match).toHaveBeenCalledTimes(1);
+      for (const typed of ['d', 'de', 'dec']) act(() => result.current.search.setText(typed));
+      expect(search.match).toHaveBeenCalledTimes(1);
+    },
+  );
 });
 
 describe('a new search', () => {

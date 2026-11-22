@@ -12,7 +12,7 @@ import { listItems } from '../../model/list';
 import { CardList } from '../CardList';
 
 vi.mock('../../model/list', async (original) => {
-  const model = await original<typeof import('../../model/list')>();
+  const model = await original<{ listItems: typeof listItems }>();
   return { ...model, listItems: vi.fn(model.listItems) };
 });
 

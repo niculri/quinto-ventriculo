@@ -105,15 +105,25 @@ function screenPath(node: CourseDeckNode, screen: DeckScreen, search: URLSearchP
       return paths.deck(node.ref);
     case 'cards':
     case 'practice': {
-      // Below an assessment both always exist (the course's deck has a page); the fallbacks only satisfy the types.
-      const scope = node.depth > 3 ? /* v8 ignore next */ (scopeNodeOf(node) ?? node) : node;
+      const scope = node.depth > 3 ? scopeAbove(node) : node;
       const query = Object.fromEntries(search);
-      if (scope !== node) query.unit = /* v8 ignore next */ unitOf(scope, node) ?? '';
+      if (scope !== node) query.unit = unitBelow(scope, node);
       return screen === 'cards'
         ? paths.cards(scope.ref, query)
         : paths.cardsPractice(scope.ref, query);
     }
   }
+}
+
+// Below an assessment both always exist (the course's deck has a page): the fallbacks only satisfy the types.
+function scopeAbove(node: CourseDeckNode): CourseDeckNode {
+  /* v8 ignore next -- @preserve */
+  return scopeNodeOf(node) ?? node;
+}
+
+function unitBelow(scope: CourseDeckNode, node: CourseDeckNode): string {
+  /* v8 ignore next -- @preserve */
+  return unitOf(scope, node) ?? '';
 }
 
 function legacyTarget(

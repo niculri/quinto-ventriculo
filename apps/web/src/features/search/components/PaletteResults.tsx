@@ -1,6 +1,7 @@
 // The quick search's list of results, with the selected one marked.
 import { FileText } from 'lucide-react';
 import type { SearchResult } from '@qv/schema';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { Snippet } from './Snippet';
 import { paletteStrings as s } from '../palette.strings';
 
@@ -32,6 +33,7 @@ export function PaletteResults({
             <p className="truncate text-sm font-medium text-ink">
               {r.section}
               <span className="font-normal text-muted"> · {r.noteTitle}</span>
+              <ListMark thing={['note', r.noteId]} />
             </p>
             <p className="line-clamp-2 text-[0.82rem] leading-snug text-muted">
               <Snippet text={r.snippet} />

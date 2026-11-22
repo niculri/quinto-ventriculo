@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, ListChecks } from 'lucide-react';
 import { Link } from 'react-router';
 import type { Catalog } from '@qv/schema';
 import { linkCard } from '../../../shared/ui/styles';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { lastNote } from '../../notes/api/lastNote';
 import { followItems } from '../model/follow';
 import type { OpenRound } from '../model/follow';
@@ -29,7 +30,10 @@ export function Follow({ catalog, rounds }: { catalog: Catalog; rounds: readonly
                 )}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{it.title}</span>
+                <span className="block truncate font-medium">
+                  {it.title}
+                  <ListMark thing={[it.kind, it.id]} />
+                </span>
                 <span className="block truncate text-sm text-muted">{it.detail}</span>
               </span>
               <ArrowRight

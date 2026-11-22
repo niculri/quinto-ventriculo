@@ -8,6 +8,7 @@ import type { HomeStudyBase } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { button } from '../../../shared/ui/styles';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { DayLoad } from '../../progress/components/DeckCounts';
@@ -83,6 +84,7 @@ export function TodayRow({
           className="block truncate font-medium hover:underline"
         >
           <span aria-hidden="true">{course?.emoji}</span> {course?.name ?? node.label}
+          <ListMark thing={['course', node.ref.course.id]} />
         </Link>
         <span className="mt-0.5 flex items-center gap-x-2 gap-y-0.5 text-xs text-muted max-sm:flex-col max-sm:items-start sm:h-4">
           <span className="flex h-4 flex-none items-center">

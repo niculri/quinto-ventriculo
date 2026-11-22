@@ -6,6 +6,7 @@ import { withContactLink } from '../../../shared/ui/ContactLink';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { card } from '../../../shared/ui/styles';
 import { paths } from '../../../shared/lib/paths';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import type { useSearch } from '../hooks/useSearch';
 import { resultLink } from '../model/results';
 import type { ResultGroup } from '../model/results';
@@ -67,6 +68,7 @@ export function SearchResults({
             >
               {g.noteTitle}
             </Link>
+            <ListMark thing={['note', g.noteId]} />
             <ul className="mt-3 space-y-3 border-l border-border pl-4">
               {g.sections.map((section) => (
                 <li key={section.anchor}>

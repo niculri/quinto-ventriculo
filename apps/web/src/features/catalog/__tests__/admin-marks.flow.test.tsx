@@ -22,7 +22,13 @@ const ADMIN_CATALOG: Catalog = {
   },
 };
 
-const PAGES = ['/home', '/courses', '/semesters/2', '/semesters/2/courses/biologia-celular'];
+const PAGES = [
+  '/home',
+  '/courses',
+  '/semesters/2',
+  '/semesters/2/courses/biologia-celular',
+  '/search?q=ribosomas',
+];
 const MARKS = '[data-admin-tag], [data-admin-mark], [data-admin-note]';
 
 /** The page and the menu as they are, without the ids React gives to what it generates. */
@@ -57,6 +63,25 @@ describe('the admin mode in the pages', () => {
       'Borrador',
       'Borrador',
     ]);
+  });
+
+  it('marks the course of «Hoy» and the notes of the search, as the lists of the career do', async () => {
+    window.localStorage.setItem('qv-admin-mode', 'admin');
+    const { router } = renderApp('/home', {
+      admin: localAdminRepository({ admin: true }),
+      adminApi: fakeApi({ catalog: async () => ADMIN_CATALOG }),
+    });
+    const today = await screen.findByRole('region', { name: 'Hoy' });
+    await waitFor(() => {
+      const marks = [...today.querySelectorAll('[data-admin-mark] > span')].map(
+        (m) => m.textContent,
+      );
+      expect(marks).toEqual(['Semestre oculto', 'Borrador']);
+    });
+    await router.navigate('/search?q=ribosomas');
+    const main = await screen.findByRole('main');
+    await waitFor(() => expect(within(main).getByText('Borrador')).toBeInTheDocument());
+    expect(main.querySelectorAll('[data-admin-mark]')).toHaveLength(1);
   });
 
   it('shows no tag, mark or notice in the student mode, whoever the user is', async () => {

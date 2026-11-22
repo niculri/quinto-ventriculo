@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { linkCard } from '../../../shared/ui/styles';
+import { ListMark } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 
 export function CourseCard({
@@ -24,7 +25,10 @@ export function CourseCard({
         {course.emoji}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-semibold">{course.name}</span>
+        <span className="block truncate font-semibold">
+          {course.name}
+          <ListMark thing={['course', course.id]} />
+        </span>
         <span className="block truncate text-sm text-muted">{material}</span>
       </span>
       <ArrowRight

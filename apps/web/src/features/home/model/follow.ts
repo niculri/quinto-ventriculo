@@ -15,6 +15,8 @@ export interface OpenRound {
 export interface FollowItem {
   key: string;
   kind: 'quiz' | 'note';
+  /** The id of the quiz or the note, for what the admin mode says of it. */
+  id: string;
   title: string;
   detail: string;
   to: string;
@@ -44,6 +46,7 @@ export function followItems(
     tests.push({
       key: `quiz:${r.quizId}:${r.sectionId}`,
       kind: 'quiz',
+      id: found.quiz.id,
       title: found.quiz.title,
       detail: s.follow.quiz(r.answered, r.questionCount),
       to: paths.quiz(found.course, found.quiz, found.quiz.sectionCount > 1 ? r.sectionId : null),
@@ -56,6 +59,7 @@ export function followItems(
     items.push({
       key: `note:${located.note.slug}`,
       kind: 'note',
+      id: located.note.id,
       title: located.note.title,
       detail: s.follow.note(located.course.name),
       to: paths.note(located.course, located.note.slug),

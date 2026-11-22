@@ -4,7 +4,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
-import { dayNumber } from '@qv/study';
+import { dayNumber, isoOfDay, timingFor } from '@qv/study';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudyRepositoryContext } from '../../../progress/api/context';
@@ -67,6 +67,22 @@ describe('the heatmap day', () => {
     const { result } = day(PAST, { scope: null });
     await waitFor(() => expect(result.current.value).not.toBeNull());
     expect(result.current.value).toMatchObject({ kind: 'answered', practice: 0 });
+  });
+
+  it('today with practice in the scope is what was answered, as a past day', async () => {
+    const today = timingFor(PREFS).today;
+    study.heatmap.mockResolvedValue({ days: [{ day: today, deckId: 'd1', practice: 2 }] });
+    const { result } = day(isoOfDay(today));
+    await waitFor(() => expect(result.current.value).not.toBeNull());
+    expect(result.current.value).toMatchObject({ day: today, kind: 'answered', practice: 2 });
+  });
+
+  it('today with nothing done is the cards due today', async () => {
+    const today = timingFor(PREFS).today;
+    const { result } = day(isoOfDay(today));
+    await waitFor(() => expect(result.current.value).not.toBeNull());
+    expect(result.current.value).toMatchObject({ day: today, kind: 'due' });
+    expect(study.ratedBetween).toHaveBeenCalled();
   });
 
   it('in the future is the cards due then, and reads no answers', async () => {

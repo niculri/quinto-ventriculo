@@ -103,6 +103,23 @@ describe('a key in the list', () => {
     expect(Number.isNaN(focused())).toBe(true);
   });
 
+  it('a page is eight notes', () => {
+    const rows: ListItem[] = Array.from({ length: 12 }, (_, i) => ({
+      kind: 'row',
+      key: `r:${i}`,
+      item: m(String(i)),
+      position: i,
+      top: i * 76,
+      height: 76,
+    }));
+    draw(rows.map((_, i) => i));
+    const { press } = keys({ items: rows });
+    press('PageDown', 1);
+    expect(focused()).toBe(9);
+    press('PageUp', 11);
+    expect(focused()).toBe(3);
+  });
+
   it('from a note the list no longer has goes by single steps', () => {
     const { press } = keys();
     press('ArrowDown', 9);
@@ -141,6 +158,16 @@ describe('the scroll before the focus', () => {
     draw([4, 5]);
     rerender({ ...props, view: { top: 1300, height: 768 } });
     expect(focused()).toBe(5);
+  });
+
+  it('focuses once: a later change of the view leaves the focus where the student put it', () => {
+    const { press, rerender, props } = keys();
+    press('ArrowDown', 0);
+    expect(focused()).toBe(1);
+    const other = box.querySelector<HTMLElement>('[data-position="4"]')!;
+    other.focus();
+    rerender({ ...props, view: { top: 50, height: 768 } });
+    expect(focused()).toBe(4);
   });
 
   it('gives up the wait quietly if the list leaves the page', () => {

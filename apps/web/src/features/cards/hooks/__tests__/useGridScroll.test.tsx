@@ -54,12 +54,16 @@ describe('the current row', () => {
     expect(grid(2, 5 * ROW).el().scrollTop).toBe(2 * ROW);
   });
 
-  it('in view leaves the scroll where it is', () => {
-    expect(grid(7, 0).el().scrollTop).toBe(0);
+  it('partly hidden above scrolls up to its top', () => {
+    expect(grid(2, 2 * ROW + 10).el().scrollTop).toBe(2 * ROW);
   });
 
-  it('at the last row of the view scrolls down one row, keeping a row of margin below', () => {
-    expect(grid(8, 0).el().scrollTop).toBe(8 * ROW + 2 * ROW - 10 * ROW);
+  it('in view, up to the row before the margin, leaves the scroll where it is', () => {
+    expect(grid(8, 0).el().scrollTop).toBe(0);
+  });
+
+  it('in the last row of the view scrolls down one row, keeping a row of margin below', () => {
+    expect(grid(9, 0).el().scrollTop).toBe(9 * ROW + 2 * ROW - 10 * ROW);
   });
 
   it('none (−1) never moves the scroll', () => {

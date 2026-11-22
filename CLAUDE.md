@@ -68,7 +68,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   archivo ganó ciclos respecto de `origin/main`. `npm run deps:baseline` lo rehace, pero solo sirve para sacar los
   ciclos que ya se rompieron: uno nuevo no se agrega, se rompe.
 - **Nombres de archivo** (`qv/file-name`, en todo el repositorio): un componente o una clase, `PascalCase`
-  (`AppShell.tsx`, `ApiError.ts`; una función con nombre en `PascalCase` es un componente aunque no tenga JSX); un
+  (`AppShell.tsx`, `SaveQueue.ts`; una función con nombre en `PascalCase` es un componente aunque no tenga JSX); un
   hook, `useCamelCase.ts`; todo lo demás (lógica, datos, rutas, servicios, contextos), `camelCase.ts`
   (`queryClient.ts`, `supabaseSettings.ts`). Nada de kebab-case, guiones bajos ni puntos en el nombre; un `.tsx` solo si
   tiene JSX. Un archivo que exporta una sola cosa (una clase, un componente o un hook) se llama como ella; uno con varios

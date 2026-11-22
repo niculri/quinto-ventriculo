@@ -35,7 +35,7 @@ export function gridScroll(
   grid: YearGrid,
 ) {
   if (today !== null && today >= grid.first && today <= grid.last) {
-    const column = Math.floor((today - grid.columns[0]![0]!) / 7);
+    const column = grid.columns.findIndex((week) => week.includes(today));
     const x = columnLeft(column);
     return Math.min(scroll.max, Math.max(0, x - scroll.width + 4 * PITCH));
   }

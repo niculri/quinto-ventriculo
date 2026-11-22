@@ -6,9 +6,10 @@ import { compilerPreset } from './build/reactCompiler.ts';
 
 // The compiler wraps each component in cache checks (`if ($[0] !== x)`) that v8 reports as branches of the source file
 // and that no source line can reach; the coverage run measures the source as written, the normal run the compiled code.
-const measuringCoverage = process.argv.some(
-  (arg) => arg === '--coverage' || arg.startsWith('--coverage.'),
-);
+// `npm run coverage` sets QV_COVERAGE=1; the flag on the command line counts too, for a run by hand.
+const measuringCoverage =
+  process.env.QV_COVERAGE === '1' ||
+  process.argv.some((arg) => arg === '--coverage' || arg.startsWith('--coverage.'));
 
 export default defineProject({
   plugins: [react(), ...(measuringCoverage ? [] : [babel({ presets: [compilerPreset] })])],

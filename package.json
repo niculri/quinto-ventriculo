@@ -27,7 +27,7 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "test": "vitest run",
-    "coverage": "vitest run --coverage",
+    "coverage": "QV_COVERAGE=1 vitest run --coverage",
     "test:watch": "vitest",
     "e2e": "npm run e2e -w @qv/web",
     "import": "npm run import -w @qv/importer --",

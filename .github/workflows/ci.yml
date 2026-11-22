@@ -53,6 +53,19 @@ jobs:
       - run: npm run format:check
       - run: npm test
 
+  # The tests again without the React Compiler, measuring the source as written: under 100 % it fails.
+  coverage:
+    name: Coverage (100 %)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run coverage
+
   e2e:
     name: End to end (Playwright, ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest

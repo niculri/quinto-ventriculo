@@ -4,8 +4,12 @@ import react from '@vitejs/plugin-react';
 import { defineProject } from 'vitest/config';
 import { compilerPreset } from './build/reactCompiler.ts';
 
+// The compiler wraps each component in cache checks (`if ($[0] !== x)`) that v8 reports as branches of the source file
+// and that no source line can reach; the coverage run measures the source as written, the normal run the compiled code.
+const measuringCoverage = process.argv.some((arg) => arg === '--coverage' || arg.startsWith('--coverage.'));
+
 export default defineProject({
-  plugins: [react(), babel({ presets: [compilerPreset] })],
+  plugins: [react(), ...(measuringCoverage ? [] : [babel({ presets: [compilerPreset] })])],
   test: {
     name: 'web',
     environment: 'jsdom',

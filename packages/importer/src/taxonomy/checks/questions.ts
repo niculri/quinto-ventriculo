@@ -86,7 +86,8 @@ function checkQuestion(
     return;
   }
   const topic = resolveTopic(ctx.topics, entry.topic);
-  if (!topic || topic.id !== entry.topic) return;
+  if (!topic) return;
+  if (topic.id !== entry.topic) return;
   const its = ctx.unitOfTopic.get(entry.topic)!;
   if (units.includes(its)) {
     ctx.counted.push({ unit: its, topic: entry.topic });

@@ -1,6 +1,6 @@
 // Characterizes the site's menu: which assessments are open on each page, and that what was opened or closed by hand
 // is forgotten on going to another page.
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
@@ -91,5 +91,64 @@ describe('the tests of an assessment in the menu', () => {
     expect(menu().getByRole('link', { name: 'Práctica de Biocel' })).not.toHaveAttribute(
       'aria-current',
     );
+  });
+});
+
+describe('the parts of an open assessment', () => {
+  it('«Apuntes» opens on a note and closes and opens again by hand', async () => {
+    const user = userEvent.setup();
+    renderApp(`${COURSE}/notes/11-traduccion`);
+    const notes = await screen.findByRole('button', { name: 'Apuntes' });
+    expect(notes).toHaveAttribute('aria-expanded', 'true');
+    expect(menu().getByRole('link', { name: 'Traducción' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await user.click(notes);
+    expect(notes).toHaveAttribute('aria-expanded', 'false');
+    expect(menu().queryByRole('link', { name: 'Traducción' })).toBeNull();
+    await user.click(notes);
+    expect(menu().getByRole('link', { name: 'Núcleo celular' })).toBeInTheDocument();
+  });
+
+  it('several tests are a branch closed away from them, that opens by hand', async () => {
+    const user = userEvent.setup();
+    const several = fakeApi({
+      catalog: async () => {
+        const c = structuredClone(CATALOG);
+        const a = c.semesters[1]!.courses[0]!.assessments[0]!;
+        a.quizzes = [
+          a.quizzes[0]!,
+          { ...a.quizzes[0]!, id: 'otro-test', slug: 'otro', title: 'Otro test' },
+        ];
+        return c;
+      },
+    });
+    renderApp(`${COURSE}/notes/11-traduccion`, { api: several });
+    const tests = await screen.findByRole('button', { name: 'Tests' });
+    expect(tests).toHaveAttribute('aria-expanded', 'false');
+    await user.click(tests);
+    expect(menu().getByRole('link', { name: 'Otro test' })).not.toHaveAttribute('aria-current');
+    await user.click(tests);
+    expect(menu().queryByRole('link', { name: 'Otro test' })).toBeNull();
+  });
+});
+
+describe('the account menu', () => {
+  it('«Ayuda» goes to the help page', async () => {
+    const user = userEvent.setup();
+    const { router } = renderApp('/home');
+    await user.click(await screen.findByRole('button', { name: /tu cuenta$/i }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Ayuda' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/help'));
+  });
+
+  it('«Cerrar sesión» signs out and goes to the landing page', async () => {
+    const user = userEvent.setup();
+    const { router, session } = renderApp('/home');
+    await user.click(await screen.findByRole('button', { name: /tu cuenta$/i }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Cerrar sesión' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    expect(await session.current()).toBeNull();
   });
 });

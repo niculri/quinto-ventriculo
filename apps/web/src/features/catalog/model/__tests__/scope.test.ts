@@ -76,6 +76,36 @@ describe('unitOptions with several weeks', () => {
   });
 });
 
+describe('a week with several lectures', () => {
+  const week = CATALOG.anki.decks.find((d) => d.id === '5')!;
+  const deck = CATALOG.anki.decks.find((d) => d.id === '20')!;
+  const other = CATALOG.anki.decks.find((d) => d.id === '4')!;
+  const decks = [
+    ...CATALOG.anki.decks,
+    { ...deck, id: '22', name: `${week.name}::Otro mazo`, parentId: '5' },
+    { ...other, id: '30', name: `${other.name.replace('Certamen 1', 'Certamen 9')}` },
+  ];
+  const lectures = buildAnkiTree({ ...CATALOG, anki: { ...CATALOG.anki, decks } });
+
+  it('lists each lecture under its week, and a unit not offered goes after the deepest unit that holds it', () => {
+    expect(
+      unitOptions(lectures.byId.get('4')!, 's1-semana-de-prueba/mazo-de-prueba/extras').map(
+        (o) => o.value,
+      ),
+    ).toEqual([
+      '',
+      's1-semana-de-prueba',
+      's1-semana-de-prueba/mazo-de-prueba',
+      's1-semana-de-prueba/mazo-de-prueba/extras',
+      's1-semana-de-prueba/otro-mazo',
+    ]);
+  });
+
+  it('a lecture outside the scope is titled by the scope', () => {
+    expect(lectureTitle(lectures.byId.get('4')!, lectures.byId.get('30'))).toBe('Certamen 1');
+  });
+});
+
 describe('the units of an address', () => {
   it('a unit is found by its slugs below the scope, and a missing one or none is nothing', () => {
     expect(unitNode(node('4'), 's1-semana-de-prueba/mazo-de-prueba')?.id).toBe('20');

@@ -27,7 +27,8 @@ function PanelDialog({
   children: ReactNode;
 }) {
   return (
-    <Dialog.Root open onOpenChange={(open) => (open || busy ? null : onClose())}>
+    // Always open and without a trigger, it only asks to close: not while it saves.
+    <Dialog.Root open onOpenChange={() => (busy ? null : onClose())}>
       <Dialog.Portal>
         <BlurredBackdrop />
         <Dialog.Content

@@ -10,6 +10,8 @@ import { SESSION_ANA } from '../../../test/fixtures/session';
 import { renderApp } from '../../../test/render';
 import { AccountError, localAccountRepository } from '../api/repository';
 import { textNodes } from '../../../test/dom';
+import { ApiRequestError } from '../../../shared/lib/api';
+import { fakeApi } from '../../../test/fakes/api';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -440,5 +442,39 @@ describe('the popups on entering: what cannot be dismissed', () => {
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', 'noopener');
     }
+  });
+});
+
+describe('the popups after entering', () => {
+  const termsRefused = () =>
+    fakeApi({
+      catalog: async () => {
+        throw new ApiRequestError(403, 'terms_not_accepted', 'Acepta los términos.');
+      },
+    });
+
+  it('«Recargar» reloads the page, and neither Escape nor a click outside closes the notice', async () => {
+    const user = userEvent.setup();
+    renderApp('/home', { api: termsRefused() });
+    const dialog = await screen.findByRole('dialog', { name: 'Hay una versión nueva del sitio' });
+    await user.keyboard('{Escape}');
+    fireEvent.pointerDown(document.body);
+    expect(screen.getByRole('dialog', { name: 'Hay una versión nueva del sitio' })).toBe(dialog);
+    const reload = vi.fn();
+    vi.stubGlobal('location', { href: window.location.href, reload });
+    try {
+      await user.click(within(dialog).getByRole('button', { name: 'Recargar' }));
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('before accepting, a refusal for the terms reads the account state again instead of offering to reload', async () => {
+    const account = localAccountRepository({ email: SESSION_ANA.user.email });
+    const resume = vi.spyOn(account, 'resume');
+    renderApp('/settings/account', { account, api: termsRefused() });
+    await waitFor(() => expect(resume.mock.calls.length).toBeGreaterThan(1));
+    expect(screen.queryByRole('dialog', { name: 'Hay una versión nueva del sitio' })).toBeNull();
   });
 });

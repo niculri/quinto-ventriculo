@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { localAdminRepository, MAX_EMAILS } from '..';
 import type { AccessInvite } from '..';
+import { memoryStorage } from '../../../../../test/storage';
 
 const person = (email: string, list: string, admin = false): AccessInvite => ({
   email,
@@ -154,5 +155,33 @@ describe('naming administrators', () => {
       owner: null,
       youAreOwner: false,
     });
+  });
+});
+
+describe('the invitations in the browser', () => {
+  it('what one tab invites, the next one starting from the same storage reads', async () => {
+    const storage = memoryStorage();
+    await repo({ storage }).invite({ emails: ['nueva@ug.uchile.cl'], list: 'Curso', note: null });
+    const emails = (await repo({ storage }).accessReport()).invited.map((i) => i.email);
+    expect(emails).toContain('nueva@ug.uchile.cl');
+  });
+
+  it('a storage that cannot be read starts from the given invitations; one that cannot be written keeps them in memory', async () => {
+    const storage = memoryStorage();
+    storage.getItem = () => {
+      throw new Error('blocked');
+    };
+    storage.setItem = () => {
+      throw new Error('blocked');
+    };
+    const r = repo({ storage });
+    await r.invite({ emails: ['nueva@ug.uchile.cl'], list: 'Curso', note: null });
+    expect((await r.accessReport()).invited).toHaveLength(4);
+  });
+
+  it('without options it is a student with the demo invitations', async () => {
+    const r = localAdminRepository();
+    expect(await r.isAdmin()).toBe(false);
+    await expect(r.accessReport()).rejects.toThrow('Solo para administradores.');
   });
 });

@@ -1,14 +1,14 @@
 // Tests of the usage counts: only the page that opens a piece counts it, and a search counts once, when completed.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UsageOpenRequest } from '@qv/schema';
 import { fakeApi } from '../../../../test/fakes/api';
 import { fullAnkiStudy } from '../../../../test/fakes/repositories';
 import { DECK_PATH } from '../../../../test/fixtures/deck';
 import { QUIZ } from '../../../../test/fixtures/quiz';
 import { renderApp } from '../../../../test/render';
-import { forgetLastSearch } from '../count';
+import { countSearch, forgetLastSearch } from '../count';
 
 function spyApi() {
   const sent: UsageOpenRequest[] = [];
@@ -142,5 +142,43 @@ describe('what is opened', () => {
     expect(sent).toEqual([]);
     await userEvent.click(screen.getByRole('link', { name: 'Traducción' }));
     expect(sent).toEqual([{ kind: 'search', from: 'search' }]);
+  });
+});
+
+describe('a search, without the page', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('less than two letters is not a search; spaces and case do not make another one', () => {
+    const { api, sent } = spyApi();
+    countSearch(api, ' a ', 'home');
+    expect(sent).toEqual([]);
+    countSearch(api, 'Núcleo  Celular', 'home');
+    countSearch(api, ' núcleo celular', 'search');
+    expect(sent).toEqual([{ kind: 'search', from: 'home' }]);
+  });
+
+  it('the same search counts again after 10 minutes, not before', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    const { api, sent } = spyApi();
+    countSearch(api, 'riñón', 'home');
+    vi.advanceTimersByTime(10 * 60_000 - 1);
+    countSearch(api, 'riñón', 'home');
+    vi.advanceTimersByTime(1);
+    countSearch(api, 'riñón', 'home');
+    expect(sent).toHaveLength(2);
+  });
+
+  it('a count that fails, at once or later, does nothing', async () => {
+    const later = fakeApi({ usageOpen: async () => Promise.reject(new Error('offline')) });
+    const atOnce = fakeApi({
+      usageOpen: () => {
+        throw new Error('offline');
+      },
+    });
+    expect(() => countSearch(later, 'uno', 'home')).not.toThrow();
+    expect(() => countSearch(atOnce, 'dos', 'home')).not.toThrow();
+    await settle();
   });
 });

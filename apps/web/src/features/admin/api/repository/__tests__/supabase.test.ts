@@ -1,6 +1,7 @@
 // Tests the «Acceso» calls to the users database as the web makes them: function names, the `p` argument, the
 // page's names for the answers and the refusals in Spanish.
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
 import { describe, expect, it, vi } from 'vitest';
 import { AccessError, supabaseAdminRepository } from '..';
 
@@ -232,5 +233,28 @@ describe('supabaseAdminRepository: «Acceso»', () => {
       const repo = supabaseAdminRepository(clientWith(refused('42501', 'admin_only')).client);
       await expect(call(repo)).rejects.toThrow('Solo para administradores.');
     }
+  });
+});
+
+describe('supabaseAdminRepository: the impact of a release', () => {
+  it('asks admin_deck_impact() with a copy of the ids and gives the page’s names', async () => {
+    const spy = vi.fn(async (_fn: string, _args?: unknown) => ({
+      data: [{ deck_id: '7', students_seen: 3, cards_seen: 40, students_active: 2 }],
+      error: null,
+    }));
+    const client = { rpc: spy } as unknown as SupabaseClient<Database>;
+    const ids = ['7'];
+    expect(await supabaseAdminRepository(client).deckImpact(ids)).toEqual([
+      { deckId: '7', studentsSeen: 3, cardsSeen: 40, studentsActive: 2 },
+    ]);
+    expect(spy).toHaveBeenCalledWith('admin_deck_impact', { deck_ids: ['7'] });
+    expect((spy.mock.calls[0]![1] as { deck_ids: string[] }).deck_ids).not.toBe(ids);
+  });
+
+  it('a refusal is thrown as the database gave it', async () => {
+    const error = { code: '42501', message: 'admin_only' };
+    const rpc = async () => ({ data: null, error });
+    const repo = supabaseAdminRepository({ rpc } as unknown as SupabaseClient<Database>);
+    await expect(repo.deckImpact(['1'])).rejects.toBe(error);
   });
 });

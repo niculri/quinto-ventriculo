@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { REPORT_LIMITS } from '@qv/schema';
 import { localReportsRepository, placeOf, REPORT_MESSAGES } from '..';
 import type { NewReport } from '..';
+import { memoryStorage } from '../../../../../test/storage';
 
 const NOW = Date.parse('2026-03-10T15:00:00Z');
 const DAY = 86_400_000;
@@ -145,5 +146,74 @@ describe('the panel', () => {
     expect((await repo.queue()).blocked).toHaveLength(0);
     await repo.setBlocked('demo', false);
     await repo.send(cardReport('g1:0'));
+  });
+});
+
+describe('the reports in the browser', () => {
+  const KEY = 'qv-demo-content-reports';
+
+  it('what one tab sends, another one reads; an unreadable storage starts empty', async () => {
+    const storage = memoryStorage();
+    await localReportsRepository({ storage }).send(cardReport('g1:0'));
+    expect(await localReportsRepository({ storage }).mine()).toHaveLength(1);
+    storage.setItem(KEY, '{roto');
+    expect(await localReportsRepository({ storage }).mine()).toEqual([]);
+  });
+
+  it('a person blocked (as another tab left it) cannot send, and the panel lists them as blocked', async () => {
+    const time = clock();
+    const storage = memoryStorage();
+    storage.setItem(KEY, JSON.stringify({ blocked: true }));
+    const repo = localReportsRepository({
+      storage,
+      admin: true,
+      email: 'yo@ug.uchile.cl',
+      now: time.now,
+    });
+    await expect(repo.send(cardReport('g1:0'))).rejects.toThrow(REPORT_MESSAGES.blocked);
+    expect((await repo.queue()).blocked).toEqual([
+      {
+        id: 'demo',
+        name: 'Estudiante de prueba',
+        email: 'yo@ug.uchile.cl',
+        blockedAt: new Date(NOW).toISOString(),
+      },
+    ]);
+  });
+
+  it('a storage that cannot be written keeps the reports in memory', async () => {
+    const storage = memoryStorage();
+    storage.setItem = () => {
+      throw new Error('blocked');
+    };
+    const repo = localReportsRepository({ storage });
+    await repo.send(cardReport('g1:0'));
+    expect(await repo.mine()).toHaveLength(1);
+  });
+
+  it('the resolved ones go newest first', async () => {
+    const time = clock();
+    const repo = localReportsRepository({ admin: true, now: time.now });
+    for (const id of ['g1:0', 'g2:0']) {
+      await repo.send(cardReport(id));
+      time.move(1000);
+      await repo.resolve({
+        kind: 'card',
+        targetId: id,
+        status: 'wont_fix',
+        note: null,
+        fixedVersion: null,
+      });
+    }
+    expect((await repo.queue()).resolved.map((g) => g.targetId)).toEqual(['g2:0', 'g1:0']);
+  });
+});
+
+describe('the place of a note', () => {
+  it('a section or a figure without a quote is a place of its own', () => {
+    const at = (location: NewReport['location']) => placeOf({ kind: 'note', location });
+    expect(at({ section: 's1' })).not.toBe(at({ section: 's2' }));
+    expect(at({ figure: 'f1' })).not.toBe(at({}));
+    expect(at({})).toBe('');
   });
 });

@@ -51,7 +51,7 @@ describe('the draft-only cards', () => {
   it('are always none for a student, who never asks for the students’ deck', () => {
     fake.admin = false;
     const { result } = keys();
-    expect(result.current.keys.size).toBe(0);
+    expect(result.current.keys?.size).toBe(0);
     expect(result.current.error).toBeNull();
     result.current.refetch();
     expect(fake.deck).not.toHaveBeenCalled();

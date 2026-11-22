@@ -3,7 +3,6 @@ export function initials(name: string | null, email: string): string {
   const base = name?.trim() || email.split('@')[0] || '?';
   const parts = base.split(/[\s._-]+/).filter(Boolean);
   return (
-    ((parts[0]?.[0] ?? '') + (parts.length > 1 ? (parts.at(-1)?.[0] ?? '') : '')).toUpperCase() ||
-    '?'
+    ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts.at(-1)!.charAt(0) : '')).toUpperCase() || '?'
   );
 }

@@ -17,7 +17,7 @@ const MAC_KEYS: Record<string, string> = { Ctrl: '⌘', Alt: '⌥', Mayús: '⇧
 export function formatKeys(combo: string, mac: boolean): string {
   if (!mac) return combo;
   const parts = combo.split('+');
-  const key = parts.pop() ?? '';
+  const key = parts.pop()!;
   return parts.map((p) => MAC_KEYS[p] ?? p).join('') + key;
 }
 

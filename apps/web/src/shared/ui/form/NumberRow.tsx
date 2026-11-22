@@ -35,6 +35,7 @@ export function NumberRow({
   }
   const commit = () => {
     const n = Number(text.replace(',', '.'));
+    // v8 ignore next: a number field gives '' (0) or a valid number, never one that is not finite (jsdom, like browsers).
     const valid = Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : value;
     const rounded = step < 1 ? Math.round(valid / step) * step : Math.round(valid);
     const fixed = Number(rounded.toFixed(4));

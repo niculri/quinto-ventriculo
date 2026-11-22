@@ -20,6 +20,7 @@ export function RouteError() {
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
+            // v8 ignore next: jsdom cannot reload, and its `location` cannot be spied on (unforgeable).
             onClick={() => window.location.reload()}
             className={`${button.base} ${button.secondary}`}
           >

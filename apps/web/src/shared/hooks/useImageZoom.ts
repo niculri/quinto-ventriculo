@@ -75,7 +75,8 @@ export function useImageZoom(
     const lines = e.deltaMode === 1 ? 16 : 1;
     const factor = Math.exp(-e.deltaY * lines * (e.ctrlKey ? 0.01 : 0.0015));
     const at = { x: e.clientX - r.left, y: e.clientY - r.top };
-    setView((v) => (v ? zoomAt(v, v.scale * factor, at, ready.image, ready.stage) : v));
+    // The latest view, not the drawn one: several wheel events can come before a render. Once ready, it is never null.
+    setView((v) => zoomAt(v!, v!.scale * factor, at, ready.image, ready.stage));
   });
   useEffect(() => {
     const el = stageRef.current;

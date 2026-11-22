@@ -1,7 +1,7 @@
 // Tests the parts of the cards page around its list: the search box and the unit, the line of a heatmap day, the
 // viewer's actions, moving through the list with the keyboard, the hidden answers and «Practicar».
 
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { dayOf } from '@qv/srs';
@@ -71,6 +71,28 @@ describe('the cards page’s list and table', () => {
   it('in «Modo avanzado» a search it does not understand says why over the list', async () => {
     renderApp(`${PAGE}?q=${encodeURIComponent('(vértebra')}`, { study: fullAnkiStudy() });
     expect(await screen.findByText('No se entiende la búsqueda')).toBeInTheDocument();
+  });
+});
+
+describe('the cards page’s rows', () => {
+  it('a click on a row opens its first card, and «Atrás» closes it', async () => {
+    const { router } = renderApp(PAGE, { study: localStudyRepository(null) });
+    await userEvent.click(await screen.findByRole('button', { name: /^La columna tiene/ }));
+    expect(search(router).get('card')).toBe('0:cloze-1');
+    expect(await screen.findByRole('dialog', { name: /T-PR-01-002\.1/ })).toBeInTheDocument();
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: /T-PR-01-002/ })).toBeNull());
+  });
+
+  it('«Todo el certamen» takes the unit out of the URL', async () => {
+    const { router } = renderApp(`${PAGE}?unit=s1-semana-de-prueba`, {
+      study: localStudyRepository(null),
+    });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Semana o clase: S1 - Semana de prueba' }),
+    );
+    await userEvent.click(screen.getByRole('menuitemradio', { name: 'Todo el certamen' }));
+    expect(search(router).get('unit')).toBeNull();
   });
 });
 

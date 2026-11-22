@@ -158,6 +158,12 @@ describe('resolveCourseDeck', () => {
     expect(r.kind === 'legacy' && r.node.id).toBe('20');
   });
 
+  it('a deck of another course, under its own semester, has moved there', () => {
+    const r = resolveCourseDeck(tree, '1', 'fisica', ['certamen-1', 's1-semana-de-prueba'], null);
+    expect(r.kind).toBe('moved');
+    expect(r.kind === 'moved' && [r.node.id, r.screen]).toEqual(['5', 'page']);
+  });
+
   it('an old address with a subdeck that does not exist opens the deck', () => {
     const r = resolveCourseDeck(tree, '1', 'anatomia-1', ['mazo-de-prueba', 'options'], 'nada');
     expect(r).toMatchObject({ kind: 'legacy', what: 'options' });

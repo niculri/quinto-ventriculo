@@ -134,6 +134,17 @@ describe('arriving at a section', () => {
   );
 });
 
+describe('the index bar of the phone', () => {
+  it('a key other than Escape leaves its panel open', async () => {
+    const user = userEvent.setup();
+    renderApp(PATH);
+    const button = await screen.findByRole('button', { name: /^Índice/ });
+    await user.click(button);
+    await user.keyboard('a');
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+  });
+});
+
 describe('an article without headings', () => {
   it('has no index bar nor index', async () => {
     renderApp(PATH, {

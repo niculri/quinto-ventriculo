@@ -55,6 +55,27 @@ describe('unitOptions', () => {
   });
 });
 
+describe('unitOptions with several weeks', () => {
+  it('a unit the list does not offer goes right after its own week, not after the last one', () => {
+    const decks = [
+      ...CATALOG.anki.decks,
+      {
+        ...CATALOG.anki.decks.find((d) => d.id === '5')!,
+        id: '6',
+        name: `${CATALOG.anki.decks.find((d) => d.id === '4')!.name}::S2 - Otra semana`,
+      },
+    ];
+    const weeks = buildAnkiTree({ ...CATALOG, anki: { ...CATALOG.anki, decks } });
+    const scope = weeks.byId.get('4')!;
+    expect(unitOptions(scope, 's1-semana-de-prueba/mazo-de-prueba').map((o) => o.value)).toEqual([
+      '',
+      's1-semana-de-prueba',
+      's1-semana-de-prueba/mazo-de-prueba',
+      's2-otra-semana',
+    ]);
+  });
+});
+
 describe('the units of an address', () => {
   it('a unit is found by its slugs below the scope, and a missing one or none is nothing', () => {
     expect(unitNode(node('4'), 's1-semana-de-prueba/mazo-de-prueba')?.id).toBe('20');

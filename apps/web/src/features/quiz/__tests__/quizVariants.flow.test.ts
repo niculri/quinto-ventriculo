@@ -66,6 +66,12 @@ describe('a single tab outside its assessment, without kicker, heading, descript
     expect(document.querySelector('.res .kicker')).toHaveTextContent(/^3 de 3 respondidas$/);
   });
 
+  it('the topics of a link choose its only tab’s groups, and leave the address', async () => {
+    const { router } = renderApp(`${BASE}?topics=02`, { api: fakeApi({ quiz: async () => bare }) });
+    expect(await screen.findByText('1 pregunta en total')).toBeInTheDocument();
+    await waitFor(() => expect(router.state.location.search).toBe(''));
+  });
+
   it('a question of a tab without a label shows no tab’s tag', async () => {
     renderApp(BASE, { api: fakeApi({ quiz: async () => bare }) });
     await start();

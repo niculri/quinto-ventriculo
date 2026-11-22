@@ -31,7 +31,10 @@ function sizeFigures(root: DocumentFragment) {
     if (figure.closest('.figure-row')) continue;
     // In a callout the source already says which ones fill it (55 % or more).
     const size = sizeOf(figure);
-    const layout = figureLayout({ ...size, plate: size.plate || figure.matches('.figure-wide') });
+    const layout = figureLayout({
+      ...size,
+      plate: size.plate === true || figure.matches('.figure-wide'),
+    });
     figure.classList.add(layout.kind === 'wide' ? 'is-wide' : 'is-thumb');
     setWidth(figure, layout.width);
   }

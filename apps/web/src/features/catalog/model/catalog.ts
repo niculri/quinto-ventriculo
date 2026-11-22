@@ -90,7 +90,7 @@ export function noteBlocks(
   for (const n of notes) {
     if (!n.group) continue;
     const last = groups.at(-1);
-    if (last && last.title === n.group) last.notes.push(n);
+    if (last?.title === n.group) last.notes.push(n);
     else groups.push({ key: `group:${groups.length}:${n.group}`, title: n.group, notes: [n] });
   }
   const rest = notes.filter((n) => !n.group);

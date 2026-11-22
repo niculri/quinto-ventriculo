@@ -54,38 +54,50 @@ export type GetToken = () => Promise<string | null>;
 /** The header that asks the API for the draft: only an administrator gets it. */
 export const PREVIEW_HEADERS = { [PREVIEW_HEADER]: PREVIEW_VALUE } as const;
 
-/** With the admin mode's `headers`, nothing is taken from nor left in the browser's cache. */
-export function createApiClient(
-  getToken: GetToken,
-  base = '',
-  headers: Record<string, string> = {},
-) {
+interface RequestOptions {
+  method?: string;
+  body?: unknown;
+  fresh?: boolean;
+  keepalive?: boolean;
+}
+
+/** What `fetch` gets: the headers of the mode, the token, the body and how the browser's cache is used. */
+function fetchInit(
+  headers: Record<string, string>,
+  token: string | null,
+  init: RequestOptions,
+  signal?: AbortSignal,
+): RequestInit {
   const preview = Object.keys(headers).length > 0;
-  async function request<T>(
+  return {
+    headers: {
+      ...headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    },
+    ...(init.method ? { method: init.method } : {}),
+    ...(init.body !== undefined ? { body: JSON.stringify(init.body) } : {}),
+    ...(preview
+      ? { cache: 'no-store' as const }
+      : init.fresh
+        ? { cache: 'no-cache' as const }
+        : {}),
+    ...(signal ? { signal } : {}),
+    ...(init.keepalive ? { keepalive: true } : {}),
+  };
+}
+
+function requester(getToken: GetToken, base: string, headers: Record<string, string>) {
+  return async function request<T>(
     path: string,
     schema: z.ZodType<T>,
     signal?: AbortSignal,
-    init: { method?: string; body?: unknown; fresh?: boolean; keepalive?: boolean } = {},
+    init: RequestOptions = {},
   ): Promise<T> {
     const token = await getToken();
     let r: Response;
     try {
-      r = await fetch(`${base}${path}`, {
-        headers: {
-          ...headers,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-        },
-        ...(init.method ? { method: init.method } : {}),
-        ...(init.body !== undefined ? { body: JSON.stringify(init.body) } : {}),
-        ...(preview
-          ? { cache: 'no-store' as const }
-          : init.fresh
-            ? { cache: 'no-cache' as const }
-            : {}),
-        ...(signal ? { signal } : {}),
-        ...(init.keepalive ? { keepalive: true } : {}),
-      });
+      r = await fetch(`${base}${path}`, fetchInit(headers, token, init, signal));
     } catch (e) {
       if ((e as Error).name === 'AbortError') throw e;
       throw new ApiRequestError(0, 'offline', apiStrings.errors.offline);
@@ -100,7 +112,16 @@ export function createApiClient(
       );
     }
     return schema.parse(body);
-  }
+  };
+}
+
+/** With the admin mode's `headers`, nothing is taken from nor left in the browser's cache. */
+export function createApiClient(
+  getToken: GetToken,
+  base = '',
+  headers: Record<string, string> = {},
+) {
+  const request = requester(getToken, base, headers);
 
   return {
     /**

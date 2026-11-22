@@ -58,7 +58,7 @@ export function LegacyDeckRedirect() {
   const node = buildAnkiTree(catalog.data).byId.get(deckId);
   if (!node) return <NotFoundPage />;
   const subdeck = new URLSearchParams(search).get('subdeck');
-  const target = (subdeck && descendants(node).find((n) => n.slug === subdeck)) || node;
+  const target = (subdeck ? descendants(node).find((n) => n.slug === subdeck) : undefined) ?? node;
   if (!hasPage(target)) return <NotFoundPage />;
   return <Navigate to={paths.deck(target.ref)} replace />;
 }

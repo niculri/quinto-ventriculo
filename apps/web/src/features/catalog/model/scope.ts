@@ -31,7 +31,7 @@ export function cardsScope(catalog: Catalog, node: CourseDeckNode): CardsScope {
 
 export function lectureOf(node: DeckNode | undefined): DeckNode | undefined {
   let n = node;
-  while (n && n.label === 'Extras' && n.parent) n = n.parent;
+  while (n?.label === 'Extras' && n.parent) n = n.parent;
   return n;
 }
 

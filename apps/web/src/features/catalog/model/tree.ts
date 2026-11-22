@@ -3,6 +3,7 @@
 import { deckSlugs } from '@qv/schema';
 import { sortDecksByName } from '@qv/srs';
 import type { AnkiTreeDeck, Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
+import { blankToNull } from '../../../shared/lib/blankToNull';
 import { paths } from '../../../shared/lib/paths';
 import type { DeckRef } from '../../../shared/lib/paths';
 import type { Crumb } from '../../../shared/ui/Breadcrumbs';
@@ -102,9 +103,9 @@ export function deckCrumbs(node: CourseDeckNode, last?: Crumb): Crumb[] {
 export function studyBackLabel(node: DeckNode): string {
   const course = node.course?.name ?? deckLabelAt(node, 2) ?? node.label;
   if (node.depth < 3) return course;
-  const assessment =
-    (node.assessmentId && node.course?.assessments.find((a) => a.id === node.assessmentId)?.name) ||
-    (node.assessmentId ? deckLabelAt(node, 3) : null);
+  const id = node.assessmentId;
+  const named = id ? node.course?.assessments.find((a) => a.id === id)?.name : undefined;
+  const assessment = blankToNull(named) ?? (id ? deckLabelAt(node, 3) : null);
   return assessment ? `${course} · ${assessment}` : course;
 }
 
@@ -114,7 +115,7 @@ function deckLabelAt(node: DeckNode, depth: number): string | null {
 
 export function descendants(node: DeckNode): DeckNode[] {
   const out = [node];
-  for (let i = 0; i < out.length; i++) out.push(...out[i]!.children);
+  for (const n of out) out.push(...n.children);
   return out;
 }
 
@@ -159,34 +160,34 @@ export function resolveCourseDeck(
   return r.kind === 'deck' ? { ...r, kind: 'moved' } : r;
 }
 
-function inCourse(
+const SUBSCREENS = ['study', 'review', 'cards'] as const;
+
+/** The screen a path ends in and the path of the deck it belongs to. */
+function screenOf(segments: string[]): { screen: DeckScreen; path: string[] } {
+  const tail = segments.at(-1);
+  if (tail === 'practice' && segments.at(-2) === 'cards') {
+    return { screen: 'practice', path: segments.slice(0, -2) };
+  }
+  const screen = SUBSCREENS.find((s) => s === tail);
+  return screen ? { screen, path: segments.slice(0, -1) } : { screen: 'page', path: segments };
+}
+
+function descend(course: CourseDeckNode, path: string[]): CourseDeckNode | null {
+  let node = course;
+  for (const s of path) {
+    const next = node.children.find((c) => c.slug === s) as CourseDeckNode | undefined;
+    if (!next) return null;
+    node = next;
+  }
+  return node;
+}
+
+/** The deck of an old address (`<deck>`, `<deck>/study` or `<deck>/options`), with its subdeck if it names one. */
+function legacyIn(
   course: CourseDeckNode,
-  semester: string,
   segments: string[],
   subdeck: string | null,
 ): Resolved | null {
-  const tail = segments.at(-1);
-  const practice = tail === 'practice' && segments.at(-2) === 'cards';
-  const screen: DeckScreen = practice
-    ? 'practice'
-    : tail === 'study'
-      ? 'study'
-      : tail === 'review'
-        ? 'review'
-        : tail === 'cards'
-          ? 'cards'
-          : 'page';
-  const path = screen === 'page' ? segments : segments.slice(0, practice ? -2 : -1);
-  let node: CourseDeckNode | null = course;
-  for (const s of path) {
-    node = (node?.children.find((c) => c.slug === s) as CourseDeckNode | undefined) ?? null;
-    if (!node) break;
-  }
-  if (node) {
-    return String(node.semester) === semester
-      ? { kind: 'deck', node, screen }
-      : { kind: 'moved', node, screen };
-  }
   const last = segments.at(-1);
   const what = last === 'study' ? 'study' : last === 'options' ? 'options' : 'page';
   const old = what === 'page' ? segments : segments.slice(0, -1);
@@ -195,6 +196,22 @@ function inCourse(
   if (!deck) return null;
   const sub = subdeck ? descendants(deck).find((n) => n.slug === subdeck) : deck;
   return { kind: 'legacy', node: (sub ?? deck) as CourseDeckNode, what };
+}
+
+function inCourse(
+  course: CourseDeckNode,
+  semester: string,
+  segments: string[],
+  subdeck: string | null,
+): Resolved | null {
+  const { screen, path } = screenOf(segments);
+  const node = descend(course, path);
+  if (node) {
+    return String(node.semester) === semester
+      ? { kind: 'deck', node, screen }
+      : { kind: 'moved', node, screen };
+  }
+  return legacyIn(course, segments, subdeck);
 }
 
 export const deckTitle = (n: DeckNode) => (n.depth === 2 && n.course ? n.course.name : n.label);

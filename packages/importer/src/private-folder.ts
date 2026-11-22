@@ -1,6 +1,7 @@
 // Finds the private repository next to this one (its `content/` and the real-material checks) and the material folder.
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { ImportError } from './errors';
 
 /** The private repository sits next to this one; the material itself is in the folder that contains both. */
 export const PRIVATE_FOLDER_NAME = 'quinto-ventriculo-privado';
@@ -25,7 +26,8 @@ export function contentFolder(
 
 export function requireContentFolder(folder: string): string {
   if (!existsSync(join(folder, 'catalog.json'))) {
-    throw new Error(
+    throw new ImportError(
+      'environment',
       `No encuentro el contenido en ${folder} (falta catalog.json). El contenido vive en el repositorio ` +
         `privado, junto a este: «${PRIVATE_FOLDER_NAME}/content». Usa --content <carpeta> o la variable ` +
         'QV_CONTENT_DIR si está en otro lugar.',
@@ -87,7 +89,8 @@ export function privateMaterial(env: Env = process.env, repository = REPOSITORY)
   if (!here) {
     const reason = `sin el repositorio privado (${folder}); en la CI pública no está`;
     if (env.QV_REQUIRE_PRIVATE === '1') {
-      throw new Error(
+      throw new ImportError(
+        'environment',
         `QV_REQUIRE_PRIVATE=1 y no está el repositorio privado en ${folder} (QV_PRIVATE_DIR para otra carpeta).`,
       );
     }
@@ -98,7 +101,7 @@ export function privateMaterial(env: Env = process.env, repository = REPOSITORY)
     ? (JSON.parse(readFileSync(file, 'utf8')) as RealMaterialConfig)
     : null;
   if (!config && env.QV_REQUIRE_PRIVATE === '1') {
-    throw new Error(`QV_REQUIRE_PRIVATE=1 y falta ${file}.`);
+    throw new ImportError('environment', `QV_REQUIRE_PRIVATE=1 y falta ${file}.`);
   }
   return {
     folder,
@@ -112,7 +115,10 @@ export function privateMaterial(env: Env = process.env, repository = REPOSITORY)
 export function realMaterialHere(paths: string[], env: Env = process.env): boolean {
   const missing = paths.filter((p) => !existsSync(p));
   if (missing.length && env.QV_REQUIRE_PRIVATE === '1') {
-    throw new Error(`QV_REQUIRE_PRIVATE=1 y falta material real: ${missing.join(', ')}`);
+    throw new ImportError(
+      'environment',
+      `QV_REQUIRE_PRIVATE=1 y falta material real: ${missing.join(', ')}`,
+    );
   }
   return missing.length === 0;
 }

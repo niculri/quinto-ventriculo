@@ -3,9 +3,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ContentBundle } from '@qv/schema';
-import { hash } from '../src/build';
-import { processQuizImage } from '../src/images';
-import { convertQuiz } from '../src/quizzes';
+import { hash } from '../src/bundle/hash';
+import { processQuizImage } from '../src/media/images';
+import { convertQuiz } from '../src/quizzes/convert';
 
 const REPO = resolve(import.meta.dirname, '../../..');
 const CONTENT = join(REPO, 'apps/web/e2e/content');

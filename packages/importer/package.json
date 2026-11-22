@@ -9,12 +9,12 @@
     ".": "./src/index.ts"
   },
   "bin": {
-    "qv-import": "./src/cli.ts",
-    "qv-unpublish": "./src/unpublish-cli.ts"
+    "qv-import": "./src/cli/import.ts",
+    "qv-unpublish": "./src/cli/unpublish.ts"
   },
   "scripts": {
-    "import": "tsx src/cli.ts",
-    "unpublish": "tsx src/unpublish-cli.ts",
+    "import": "tsx src/cli/import.ts",
+    "unpublish": "tsx src/cli/unpublish.ts",
     "typecheck": "tsc -p ."
   },
   "dependencies": {

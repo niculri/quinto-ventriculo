@@ -26,7 +26,7 @@ const SUPABASE_ADAPTERS = [
   'apps/web/src/app/services.tsx',
   'apps/api/src/adapters/supabase/*.ts',
   'apps/api/src/test/postgrest.ts',
-  'packages/importer/src/targets.ts',
+  'packages/importer/src/targets/content-database.ts',
   '**/*.test.{ts,tsx}',
 ];
 

@@ -41,7 +41,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `api/repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
   `features/session/api/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/adapters/supabase/` (y el PostgREST
   falso de las pruebas, `apps/api/src/test/postgrest.ts`; lo nombra `SUPABASE_ADAPTERS` en `eslint.config.js`) y
-  `packages/importer/src/targets.ts`; un `import type`
+  `packages/importer/src/targets/content-database.ts`; un `import type`
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
   migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas

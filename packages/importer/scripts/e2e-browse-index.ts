@@ -3,8 +3,8 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ContentBundle } from '@qv/schema';
-import { packCardIndexes } from '../src/browse-index';
-import { makeThumbnail } from '../src/images';
+import { packCardIndexes } from '../src/targets/browse-index';
+import { makeThumbnail } from '../src/media/images';
 
 const REPO = resolve(import.meta.dirname, '../../..');
 const CONTENT = join(REPO, 'apps/web/e2e/content');

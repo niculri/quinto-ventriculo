@@ -1,83 +1,70 @@
 // Public API of @qv/importer.
-export { buildBundle, hash } from './build';
-export type { BuildOptions, BuildResult } from './build';
-export {
-  FolderTarget,
-  CloudTarget,
-  batches,
-  cardMoves,
-  cloudConfigFromEnv,
-  contentDatabase,
-  draftReviewUrl,
-  r2Media,
-} from './targets';
-export { sameUnpublished, withoutUnpublished } from './unpublished';
-export type { Skipped } from './unpublished';
-export {
-  assessmentFileName,
-  checkTaxonomies,
-  compareWithHistory,
-  compareWithPrevious,
-  gitHistory,
-  readTaxonomies,
-  taxonomyLines,
-} from './taxonomy';
+export { buildBundle } from './bundle/build';
+export { hash } from './bundle/hash';
+export type { BuildOptions, BuildResult } from './bundle/types';
+export { FolderTarget } from './targets/folder';
+export { CloudTarget, batches } from './targets/cloud';
+export { cardMoves } from './sync/plan';
+export type { Report } from './sync/report';
+export type { SaveScope } from './sync/scope';
+export type { Target, ThumbMaker } from './targets/target';
+export type { CloudOptions } from './targets/cloud';
+export { cloudConfigFromEnv, draftReviewUrl } from './targets/cloud-config';
+export { contentDatabase } from './targets/content-database';
+export type { ContentDatabase, ContentSchema } from './targets/content-database';
+export { r2Media } from './targets/r2';
+export type { MediaStore } from './targets/r2';
+export { sameUnpublished, withoutUnpublished } from './bundle/unpublished';
+export type { Skipped } from './bundle/unpublished';
+export { assessmentFileName } from './taxonomy/files';
+export { checkTaxonomies } from './taxonomy/check';
+export { compareWithHistory, compareWithPrevious } from './taxonomy/history-rules';
+export { gitHistory } from './taxonomy/git-history';
+export { readTaxonomies } from './taxonomy/read';
+export { taxonomyLines } from './taxonomy/report';
 export type {
   AssessmentTaxonomy,
-  TaxonomyCheck,
   TaxonomyHistory,
   TaxonomyReport,
-} from './taxonomy';
-export { unpublish, restore, canonicalId, describe as describeUnpublish } from './unpublish';
+} from './taxonomy/types';
+export type { TaxonomyCheck } from './taxonomy/checks/context';
+export { unpublish } from './unpublish/unpublish';
+export { canonicalId } from './unpublish/ids';
+export { restore } from './unpublish/list';
+export { describe as describeUnpublish } from './unpublish/describe';
 export type {
   MediaRemover,
   UnpublishOptions,
   UnpublishOutcome,
   UnpublishResult,
-} from './unpublish';
-export { withVersion } from './versions';
-export type {
-  Target,
-  Report,
-  SaveScope,
-  CloudOptions,
-  ContentDatabase,
-  ContentSchema,
-  MediaStore,
-} from './targets';
-export { buildDecks } from './decks';
-export { packCardIndexes, inPool } from './browse-index';
-export { buildCardIndexes } from './card-index';
-export type { PackedIndex } from './browse-index';
-export type { ThumbMaker } from './targets';
-export type { DecksOptions, DecksResult } from './decks';
+} from './unpublish/types';
+export { withVersion } from './sync/versions';
+export { buildDecks } from './decks/build-decks';
+export { packCardIndexes, inPool } from './targets/browse-index';
+export { buildCardIndexes } from './decks/card-index';
+export type { PackedIndex } from './targets/browse-index';
+export type { DecksOptions, DecksResult } from './decks/types';
 export {
-  ImageCache,
-  processImage,
-  processCardImage,
-  processQuizImage,
-  makeThumbnail,
   MAX_WIDTH,
   THUMB_WIDTH,
-} from './images';
-export {
-  convertQuiz,
-  inlineHtml,
-  questionId,
-  stableQuestionId,
-  defaultQuizId,
-  QUIZ_THEMES,
-} from './quizzes';
-export type { ConvertedQuiz, QuizEntry } from './quizzes';
-export type { ProcessedImage, ImageProcessor, ImageDataProcessor } from './images';
-export {
-  readManifest,
-  readUnpublished,
-  validateReferences,
-  UnpublishedItem,
-  UnpublishedList,
-} from './manifest';
-export type { Manifest, ReadManifestOptions, UnpublishedKind } from './manifest';
+  makeThumbnail,
+  processCardImage,
+  processImage,
+  processQuizImage,
+} from './media/images';
+export { ImageCache } from './media/cache';
+export type { ProcessedImage, ImageProcessor, ImageDataProcessor } from './media/images';
+export { convertQuiz } from './quizzes/convert';
+export { defaultQuizId, questionId, stableQuestionId } from './quizzes/ids';
+export { inlineHtml } from './quizzes/inline';
+export { QUIZ_THEMES } from './quizzes/themes';
+export type { ConvertedQuiz, QuizEntry } from './quizzes/convert';
+export { readManifest, readUnpublished } from './manifest/read';
+export { validateReferences } from './manifest/references';
+export { UnpublishedItem, UnpublishedList } from './manifest/schemas';
+export type { Manifest, ReadManifestOptions, UnpublishedKind } from './manifest/schemas';
+export { ImportError } from './errors';
+export type { ImportErrorKind } from './errors';
 export {
   PRIVATE_FOLDER_NAME,
   contentFolder,

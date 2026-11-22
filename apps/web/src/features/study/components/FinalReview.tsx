@@ -1,5 +1,5 @@
 // A final review once its data is read: choosing what to review, its round and its end.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { paths } from '../../../shared/lib/paths';
 import { answerBar, studyScreen } from '../../../shared/ui/styles';
@@ -24,10 +24,7 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
   const [marks, setMarks] = useState<ReadonlyMap<string, number>>(() => new Map());
   // Only to choose: a mark made in a round counts for the next one.
   const choosing = round === null;
-  const pools = useMemo(
-    () => (choosing ? reviewPools(data, marks) : { all: [], hard: [] }),
-    [choosing, data, marks],
-  );
+  const pools = choosing ? reviewPools(data, marks) : { all: [], hard: [] };
   const deckPath = paths.deck(node.ref);
   const client = useQueryClient();
   const markedRef = useRef(false);

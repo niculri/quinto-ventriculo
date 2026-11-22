@@ -1,6 +1,6 @@
 // The state of an article's page: the open image, the report and its thanks, the selection, the index (and its
 // phone panel), the reading position, «Ponte a prueba», the last note, the tip and arriving at a section.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useLocation } from 'react-router';
 import type { Note, ReportCategory } from '@qv/schema';
@@ -49,16 +49,12 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
   const located = location !== null;
   const practice = usePractice(note, location);
   const hasPractice = !!location && !!(practice.quiz ?? practice.deck);
-  const toc = useMemo(
-    () =>
-      hasPractice
-        ? [
-            ...note.toc,
-            { anchor: PRACTICE_ANCHOR, title: useNoteViewStrings.practiceTitle, level: 2 as const },
-          ]
-        : note.toc,
-    [note.toc, hasPractice],
-  );
+  const toc = hasPractice
+    ? [
+        ...note.toc,
+        { anchor: PRACTICE_ANCHOR, title: useNoteViewStrings.practiceTitle, level: 2 as const },
+      ]
+    : note.toc;
 
   useEffect(() => {
     if (remember) rememberNote(note.slug);

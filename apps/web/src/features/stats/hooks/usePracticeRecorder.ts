@@ -22,6 +22,7 @@ export function usePracticeRecorder(batch = PRACTICE_BATCH) {
   const sizeRef = useRef(0);
   const aliveRef = useRef(true);
 
+  // The cleanup of an effect flushes with it, and the pages' effects depend on it.
   const flush = useCallback(() => {
     if (!pendingRef.current.size) return;
     const counts = [...pendingRef.current].map(([deckId, n]) => ({ deckId, n }));
@@ -46,14 +47,11 @@ export function usePracticeRecorder(batch = PRACTICE_BATCH) {
     }
   }, [client, study]);
 
-  const add = useCallback(
-    (deckId: string) => {
-      pendingRef.current.set(deckId, (pendingRef.current.get(deckId) ?? 0) + 1);
-      sizeRef.current++;
-      if (sizeRef.current >= batch) flush();
-    },
-    [batch, flush],
-  );
+  const add = (deckId: string) => {
+    pendingRef.current.set(deckId, (pendingRef.current.get(deckId) ?? 0) + 1);
+    sizeRef.current++;
+    if (sizeRef.current >= batch) flush();
+  };
 
   useEffect(() => {
     aliveRef.current = true;

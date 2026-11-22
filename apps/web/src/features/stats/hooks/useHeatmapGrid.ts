@@ -25,6 +25,7 @@ export interface GridData {
 }
 
 export function useHeatmapGrid({ year, today, ready, studied, due, scale }: GridData) {
+  // By hand: the layout effect below depends on it, and a new grid would scroll to today again.
   const grid = useMemo(() => yearGrid(year), [year]);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLTableElement>(null);

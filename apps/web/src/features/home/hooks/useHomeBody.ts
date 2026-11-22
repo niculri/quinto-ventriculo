@@ -1,7 +1,7 @@
 // When the home page's sections appear: all together, once the catalog, the preferences, the plan and the tests half
 // done are there, in a space as tall as the page was the last time; then it keeps the height for the next visit.
 
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { Catalog } from '@qv/schema';
 import { usePreferences, useStudyPlan } from '../../progress/queries';
 import { saveHeight, savedHeight } from '../api/height';
@@ -11,7 +11,7 @@ export function useHomeBody(catalog: Catalog | undefined) {
   const { prefs } = usePreferences();
   const plan = useStudyPlan();
   const rounds = useOpenRounds();
-  const reserved = useMemo(() => savedHeight(), []);
+  const [reserved] = useState(savedHeight);
   const boxRef = useRef<HTMLDivElement>(null);
   // Once shown it stays: a later refetch changes what is inside, never the whole page.
   const [shown, setShown] = useState(false);

@@ -19,6 +19,7 @@ export function useDeckCounts(deck: DeckDetail | undefined) {
   }, [study.data, tick]);
   // The counts read the clock: it is read again with new data and with each tick, and kept for any other render.
   const now = useMemo(() => readClock(study.data, tick), [study.data, tick]);
+  // By hand, like the clock: they are counted again only when it changes.
   const counts = useMemo(
     () => (study.data ? deckCounts(study.data, now) : undefined),
     [study.data, now],

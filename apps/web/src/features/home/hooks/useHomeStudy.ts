@@ -33,6 +33,7 @@ export function useHomeStudy(courses: readonly CourseDeckNode[]) {
   const answers = useAnswersToday(prefs);
   const presets = useUserPresets();
   const settings = useDeckSettings();
+  // By hand, from the `data` of each query: the compiler would depend on the whole results, new in each render.
   const decks = useMemo(() => (catalog ? treeDecks(catalog.anki.decks) : undefined), [catalog]);
   const base = useMemo<HomeStudyBase | undefined>(
     () =>

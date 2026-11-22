@@ -1,5 +1,5 @@
 // The state of a test section's screen: the session, the history entry of a round, the popups, «revealed» and the keys.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import type { QuizDetail, QuizSectionDetail, QuizSectionSummary } from '@qv/schema';
 import type { CourseRef } from '../../../shared/lib/paths';
@@ -79,7 +79,7 @@ export function useQuizScreen(o: {
       ? `${round.id}/${round.index}/${String(round.queue[round.index])}`
       : screen;
   const revealed = revealedAt === position;
-  const reveal = useCallback(() => setRevealedAt(position), [position]);
+  const reveal = () => setRevealedAt(position);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [position]);

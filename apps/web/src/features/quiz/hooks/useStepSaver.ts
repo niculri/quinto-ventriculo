@@ -6,6 +6,7 @@ import { StepSaver } from '../api/StepSaver';
 export function useStepSaver(repository: QuizRepository) {
   const [saver] = useState(() => new StepSaver(repository));
   const status = useSyncExternalStore(
+    // A new function would subscribe again in each render.
     useCallback((fn) => saver.subscribe(fn), [saver]),
     () => (saver.failed ? 'failed' : saver.pending ? 'saving' : 'saved'),
   );

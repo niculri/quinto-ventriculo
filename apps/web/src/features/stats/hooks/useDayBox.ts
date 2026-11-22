@@ -1,7 +1,7 @@
 // The heatmap's day box: placed above or below its day before it is painted, focused when opened with the keyboard,
 // and, while pinned, closed by Escape, a press outside, a scroll or a resize.
 
-import { useEffect, useId, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import type { CellValue, HeatmapData } from '@qv/study';
 import { dayParts } from '../model/dayParts';
 import { boxTop } from '../model/layout';
@@ -56,9 +56,6 @@ export function useDayBox({
     };
   }, [open.pinned, onClose, onOutside]);
 
-  const parts = useMemo(
-    () => dayParts(cell, data.days, groupOf, open.day),
-    [cell, data.days, groupOf, open.day],
-  );
+  const parts = dayParts(cell, data.days, groupOf, open.day);
   return { boxRef, titleId, bodyId, parts };
 }

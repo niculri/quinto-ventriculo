@@ -32,6 +32,7 @@ export function usePreferences() {
   const client = useQueryClient();
   const query = useQuery(preferencesQuery(study));
   const zone = browserTimeZone();
+  // By hand: other memos depend on it, and each one would be built again in each render without the compiler.
   const prefs = useMemo<StudyPreferences | undefined>(
     () =>
       query.data === undefined
@@ -138,24 +139,17 @@ export function useAssessmentView(assessmentId: string | null): AssessmentView |
   const progress = useDeckProgress(prefs);
   const today = useToday(prefs);
   const catalog = useStudentCatalog();
-  const decks = useMemo(
-    () => (catalog.data ? treeDecks(catalog.data.anki.decks) : undefined),
-    [catalog.data],
-  );
-  return useMemo(
-    () =>
-      assessmentId === null || !prefs || !plan.data || !progress.data || !decks || today === null
-        ? null
-        : assessmentView({
-            decks,
-            plan: plan.data,
-            progress: progress.data,
-            assessmentId,
-            today,
-            prefs,
-          }),
-    [assessmentId, decks, plan.data, prefs, progress.data, today],
-  );
+  const decks = catalog.data ? treeDecks(catalog.data.anki.decks) : undefined;
+  return assessmentId === null || !prefs || !plan.data || !progress.data || !decks || today === null
+    ? null
+    : assessmentView({
+        decks,
+        plan: plan.data,
+        progress: progress.data,
+        assessmentId,
+        today,
+        prefs,
+      });
 }
 
 /** Today's day number before the preferences arrive, with the usual rollover: what a date field can start from. */
@@ -182,11 +176,7 @@ export function useStudyData(shown: DeckDetail | undefined) {
   const catalog = useStudentCatalog();
   const studied = useStudentDeck(shown);
   const deck = studied.data;
-  const decks = useMemo(
-    () => (catalog.data ? treeDecks(catalog.data.anki.decks) : undefined),
-    [catalog.data],
-  );
-  const ids = useMemo(() => (deck ? deckIds(deck) : []), [deck]);
+  const ids = deck ? deckIds(deck) : [];
   const cards = useQuery(studyCardsQuery(study, deck?.id ?? '', ids, !!deck));
   const answers = useAnswersToday(prefs);
   const presets = useUserPresets();
@@ -195,10 +185,10 @@ export function useStudyData(shown: DeckDetail | undefined) {
   const progress = useDeckProgress(prefs);
   const parts = [catalog, studied, preferences, cards, answers, presets, settings, plan, progress];
   const error = parts.find((p) => p.isError)?.error ?? null;
+  // By hand, from the `data` of each query: the compiler would depend on the whole results, new in each render.
   const data = useMemo<StudyData | undefined>(() => {
     if (
       !deck ||
-      !decks ||
       !catalog.data ||
       !prefs ||
       !cards.data ||
@@ -212,7 +202,7 @@ export function useStudyData(shown: DeckDetail | undefined) {
     }
     return {
       deck,
-      decks,
+      decks: treeDecks(catalog.data.anki.decks),
       authorPresets: catalog.data.anki.presets,
       rows: new Map(cards.data.map((r) => [cardKey(r), r])),
       answers: answers.data,
@@ -224,7 +214,6 @@ export function useStudyData(shown: DeckDetail | undefined) {
     };
   }, [
     deck,
-    decks,
     catalog.data,
     prefs,
     cards.data,

@@ -1,5 +1,5 @@
 // The test and the deck of a note's «Ponte a prueba», found in its assessment.
-import { useMemo } from 'react';
+
 import type { Note, QuizSummary } from '@qv/schema';
 import { buildAnkiTree } from '../../catalog/model/tree';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
@@ -15,12 +15,9 @@ export function usePractice(note: Note, location: NoteLocation | null) {
         : location.assessment.quizzes[0]) ?? null)
     : null;
   const deckName = practice?.deck;
-  const deck = useMemo(
-    () =>
-      catalog.data && deckName
-        ? findPracticeDeck(buildAnkiTree(catalog.data), note.assessmentId, deckName)
-        : null,
-    [catalog.data, deckName, note.assessmentId],
-  );
+  const deck =
+    catalog.data && deckName
+      ? findPracticeDeck(buildAnkiTree(catalog.data), note.assessmentId, deckName)
+      : null;
   return { quiz, deck, section: quiz ? practice?.section : undefined };
 }

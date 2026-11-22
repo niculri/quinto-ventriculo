@@ -4,7 +4,7 @@ import { useId } from 'react';
 import type { Catalog } from '@qv/schema';
 import { card } from '../../../shared/ui/styles';
 import { useHeatmap } from '../hooks/useHeatmap';
-import { useHeatmapGroups } from '../hooks/useHeatmapGroups';
+import { heatmapGroups } from '../model/groups';
 import type { GroupBy } from '../model/groups';
 import { heatmapStrings as s } from './strings/Heatmap.strings';
 import { Figures } from './Figures';
@@ -31,7 +31,7 @@ export function Heatmap({
   const headingId = useId();
   const { query, today, data, ready, studied, due, stats, range, thisYear, year, setChosen } =
     useHeatmap(scope, deckIds);
-  const groups = useHeatmapGroups(catalog, groupBy, courseId);
+  const groups = heatmapGroups(catalog, groupBy, courseId);
 
   return (
     <section className={`${card} p-4 sm:p-6 ${className}`} aria-labelledby={headingId}>

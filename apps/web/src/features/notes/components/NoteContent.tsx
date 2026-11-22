@@ -1,6 +1,6 @@
 // The body of an article: its HTML sanitized, laid out, and with each image opening the viewer.
 
-import { useImperativeHandle, useMemo, useRef } from 'react';
+import { useImperativeHandle, useRef } from 'react';
 import type { KeyboardEvent, MouseEvent, Ref } from 'react';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { SafeHtml } from '../../../shared/ui/SafeHtml';
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function NoteContent({ html, onOpenImage, ref }: Props) {
-  const clean = useMemo(() => prepareArticle(sanitizeInBrowser(html)), [html]);
+  const clean = prepareArticle(sanitizeInBrowser(html));
   const ownRef = useRef<HTMLDivElement>(null);
   useScrollableTables(ownRef, clean);
   useImperativeHandle(ref, () => ownRef.current!, []);

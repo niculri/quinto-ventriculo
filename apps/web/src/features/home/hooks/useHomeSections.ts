@@ -1,7 +1,6 @@
 // What the home page's sections show: the preferences as the student just chose them (while they are saved), the
 // courses of «Hoy» and of «Tus ramos», and which first steps are done.
 
-import { useMemo } from 'react';
 import type { Catalog } from '@qv/schema';
 import { activeUnits } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
@@ -16,13 +15,10 @@ import { todayCourses } from '../model/todayCourses';
 export function useHomeSections(catalog: Catalog, saved: StudyPreferences, plan: StudyPlan) {
   const save = useSavePreferences();
   const shown = save.isPending ? save.variables : saved;
-  const tree = useMemo(() => buildAnkiTree(catalog), [catalog]);
-  const today = useMemo(() => todayCourses(catalog, plan), [catalog, plan]);
-  const mine = useMemo(
-    () => myCourses(catalog, shown, new Set(today.map((n) => n.ref.course.id))),
-    [catalog, shown, today],
-  );
-  const anyOn = useMemo(() => activeUnits(tree.nodes, plan).size > 0, [tree, plan]);
+  const tree = buildAnkiTree(catalog);
+  const today = todayCourses(catalog, plan);
+  const mine = myCourses(catalog, shown, new Set(today.map((n) => n.ref.course.id)));
+  const anyOn = activeUnits(tree.nodes, plan).size > 0;
   const withDecks = mine.cards.filter((c) => courseDeck(tree, c.id));
   const choose = withDecks.length >= 1 ? paths.course(withDecks[0]!) : '#tus-ramos';
   const steps = {

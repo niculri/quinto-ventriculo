@@ -59,7 +59,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
  * first appear: two results match when they repeat the same moments and ids in the same places, whatever the clock or
  * the generator gave.
  */
-function normalize<T>(value: T): unknown {
+function normalize(value: unknown): unknown {
   const moments = new Map<number, string>();
   const ids = new Map<string, string>();
   const walk = (v: unknown): unknown => {

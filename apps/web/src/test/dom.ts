@@ -14,7 +14,7 @@ export const textNodes = (el: Node) => {
 export async function cardText(label: RegExp) {
   const region = await screen.findByRole('region', { name: label });
   await waitFor(() => expect(cardShadowRoot(region)?.querySelector('.card')).toBeTruthy());
-  return cardShadowRoot(region)!.querySelector('.card')!.textContent ?? '';
+  return cardShadowRoot(region)!.querySelector('.card')!.textContent;
 }
 
 export async function pageLoad() {

@@ -11,7 +11,7 @@ import { localAdminRepository } from '../api/repository';
 import type { AccessInvite } from '../api/repository';
 
 const AT = '2026-11-01T12:00:00.000Z';
-const text = (el: Element) => el.textContent ?? '';
+const text = (el: Element) => el.textContent;
 
 const person = (email: string, list: string, over: Partial<AccessInvite> = {}): AccessInvite => ({
   email,

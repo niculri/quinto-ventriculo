@@ -2,6 +2,7 @@
 // that did not load, an error nothing caught and a page left blank. It runs the real file in this window.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { runInThisContext } from 'node:vm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const SOURCE = readFileSync(
@@ -24,7 +25,7 @@ function load() {
     listeners.push([type, fn, options]);
     add(type, fn, options);
   });
-  new Function(SOURCE)();
+  runInThisContext(SOURCE);
 }
 
 beforeEach(() => {

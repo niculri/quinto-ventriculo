@@ -70,7 +70,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     expect(
       within(own)
         .getAllByRole('link')
-        .map((l) => [l.textContent?.trim(), l.getAttribute('href')]),
+        .map((l) => [l.textContent.trim(), l.getAttribute('href')]),
     ).toEqual(sections);
     const menu = screen.getByRole('navigation', { name: 'Menú del sitio' });
     for (const [label, href] of sections) {
@@ -115,8 +115,8 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     let settings: SiteSettingsView = { ...NO_SETTINGS };
     const catalogCalls: { fresh?: boolean }[] = [];
     const api = fakeApi({
-      catalog: async (_signal, options = {}) => {
-        catalogCalls.push(options);
+      catalog: async (_signal, options?: { fresh?: boolean }) => {
+        catalogCalls.push(options ?? {});
         return settings.hideEmptySemesters ? { ...CATALOG, hiddenSemesters: 2 } : CATALOG;
       },
       siteSettings: async () => settings,
@@ -145,8 +145,8 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
   it('«Sitio»: saved is saved, even if the catalog does not come right after', async () => {
     let settings: SiteSettingsView = { ...NO_SETTINGS };
     const api = fakeApi({
-      catalog: async (_signal, options = {}) => {
-        if (options.fresh) throw new Error('offline');
+      catalog: async (_signal, options?: { fresh?: boolean }) => {
+        if (options?.fresh) throw new Error('offline');
         return CATALOG;
       },
       siteSettings: async () => settings,

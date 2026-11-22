@@ -136,7 +136,7 @@ const open = (repo = reports()) =>
     api: fakeApi({ catalog: async () => catalog }),
   });
 
-const text = (el: Element) => el.textContent ?? '';
+const text = (el: Element) => el.textContent;
 
 describe('«Reportes», piece by piece', () => {
   it('a card, an article and a question, with their versions and the quote', async () => {

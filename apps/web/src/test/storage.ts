@@ -10,6 +10,6 @@ export function memoryStorage(): Storage {
     getItem: (k) => m.get(k) ?? null,
     key: (i) => [...m.keys()][i] ?? null,
     removeItem: (k) => void m.delete(k),
-    setItem: (k, v) => void m.set(k, String(v)),
+    setItem: (k, v) => void m.set(k, v),
   };
 }

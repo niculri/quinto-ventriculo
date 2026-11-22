@@ -1,6 +1,7 @@
 // Records every request the users-database adapters make through a real supabase-js client (method, path, query,
 // headers and body), and what each method gives back: a change to an adapter must leave the snapshot as it is.
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@qv/db-types/users';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { supabaseAccountRepository } from '../../features/account/api/repository';
 import { supabaseAdminRepository } from '../../features/admin/api/repository';
@@ -43,7 +44,7 @@ function recorder(answer: (call: Call) => Answer | undefined) {
       headers: { 'Content-Type': 'application/json' },
     });
   };
-  const client = createClient(URL_, KEY, {
+  const client = createClient<Database>(URL_, KEY, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { fetch },
   });

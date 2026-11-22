@@ -22,23 +22,24 @@ import {
   releaseApi,
 } from '../../../test/releases';
 
-const page = <T>(assessment: string, kind: string) => ({
-  items: (RELEASE_ITEMS[`${assessment}|${kind}`] ?? []) as T[],
+const page = (assessment: string, kind: string) => ({
+  items: RELEASE_ITEMS[`${assessment}|${kind}`] ?? [],
   next: null,
 });
 
 const adminApi = (changes: Parameters<typeof releaseApi>[0] = {}) =>
   releaseApi({
-    releaseCards: async (a) => page<ReleaseCardItem>(a, 'card'),
-    releaseArticles: async (a) => page<ReleaseArticleItem>(a, 'article'),
-    releaseQuestions: async (a) => page<ReleaseQuestionItem>(a, 'question'),
+    releaseCards: async (a) => page(a, 'card') as { items: ReleaseCardItem[]; next: null },
+    releaseArticles: async (a) => page(a, 'article') as { items: ReleaseArticleItem[]; next: null },
+    releaseQuestions: async (a) =>
+      page(a, 'question') as { items: ReleaseQuestionItem[]; next: null },
     ...changes,
   });
 
 const open = (api: ReturnType<typeof fakeApi>, admin = localAdminRepository({ admin: true })) =>
   renderApp('/admin/releases', { admin, api });
 
-const text = (el: Element) => el.textContent ?? '';
+const text = (el: Element) => el.textContent;
 
 /** The tab's changes came: its list is there and nothing is loading. */
 const loaded = (el: HTMLElement) =>

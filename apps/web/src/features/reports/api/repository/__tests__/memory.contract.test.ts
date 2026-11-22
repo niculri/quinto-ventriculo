@@ -125,7 +125,7 @@ describe('sending and reading', () => {
     );
     const got = await onBoth(sql, memory, steps);
     expect(got.memory).toEqual(got.sql);
-    expect(got.sql).toContainEqual({ error: expect.stringContaining('máximo por día') });
+    expect(got.sql).toContainEqual({ error: expect.stringContaining('máximo por día') as unknown });
   });
 });
 

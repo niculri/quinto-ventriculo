@@ -4,8 +4,7 @@ import { preload, preloadOnIntent, registerPreload, savesData } from '../preload
 
 afterEach(() => vi.unstubAllGlobals());
 
-const saving = (saveData: boolean) =>
-  vi.stubGlobal('navigator', { ...navigator, connection: { saveData } });
+const saving = (saveData: boolean) => vi.stubGlobal('navigator', { connection: { saveData } });
 
 describe('preload', () => {
   it('asks the screen registered under the name to load', () => {

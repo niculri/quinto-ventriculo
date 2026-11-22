@@ -33,12 +33,14 @@ describe('screenOfPath', () => {
   });
 });
 
+const SAVE_DATA = { connection: { saveData: true } };
+
 describe('WarmScreens', () => {
   it('fetches nothing when the browser says the person saves data', () => {
     const idle: (() => void)[] = [];
     vi.stubGlobal('requestIdleCallback', (cb: () => void) => idle.push(cb));
     vi.stubGlobal('cancelIdleCallback', () => undefined);
-    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
+    vi.stubGlobal('navigator', SAVE_DATA);
     const preloads = Object.values(ankiScreens).map((s) =>
       vi.spyOn(s, 'preload').mockResolvedValue(undefined),
     );
@@ -61,10 +63,12 @@ describe('WarmScreens', () => {
     );
     const client = new QueryClient();
     let finish = () => {};
-    void client.prefetchQuery({
-      queryKey: ['slow'],
-      queryFn: () => new Promise<number>((resolve) => (finish = () => resolve(1))),
-    });
+    void client
+      .query({
+        queryKey: ['slow'],
+        queryFn: () => new Promise<number>((resolve) => (finish = () => resolve(1))),
+      })
+      .catch(() => undefined);
     const warm = () => (
       <QueryClientProvider client={client}>
         <WarmScreens />
@@ -100,7 +104,7 @@ describe('the links of a deck’s page', () => {
 
   it('with the data saver on, reaching «Estudiar» fetches nothing', async () => {
     const study = vi.spyOn(ankiScreens.study, 'preload');
-    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
+    vi.stubGlobal('navigator', SAVE_DATA);
     renderApp('/semesters/1/courses/anatomia-1/anki/certamen-1');
     const link = await screen.findByRole('link', { name: 'Estudiar' });
     study.mockClear();
@@ -153,7 +157,7 @@ describe('the links of a deck’s page', () => {
     expect(studyScreen).toHaveBeenCalledTimes(2);
     expect(review).toHaveBeenCalledTimes(2);
 
-    vi.stubGlobal('navigator', { ...navigator, connection: { saveData: true } });
+    vi.stubGlobal('navigator', SAVE_DATA);
     review.mockClear();
     studyScreen.mockClear();
     await userEvent.hover(finalReview);

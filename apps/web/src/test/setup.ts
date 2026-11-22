@@ -14,7 +14,7 @@ afterEach(() => {
 });
 
 // jsdom does not ship these browser APIs.
-if (!window.matchMedia) {
+if (typeof window.matchMedia !== 'function') {
   window.matchMedia = (q: string) =>
     ({
       matches: false,
@@ -22,10 +22,8 @@ if (!window.matchMedia) {
       onchange: null,
       addEventListener: () => {},
       removeEventListener: () => {},
-      addListener: () => {},
-      removeListener: () => {},
       dispatchEvent: () => false,
-    }) as MediaQueryList;
+    }) as unknown as MediaQueryList;
 }
 window.scrollTo = () => {};
 Element.prototype.scrollIntoView = () => {};

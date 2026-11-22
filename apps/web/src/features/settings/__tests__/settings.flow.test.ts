@@ -14,7 +14,7 @@ describe('Opciones: Anki general y Configuración de mazos', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/settings/account'));
     const nav = await screen.findByRole('navigation', { name: 'Secciones de las opciones' });
     const links = within(nav).getAllByRole('link');
-    expect(links.map((l) => [l.textContent?.trim(), l.getAttribute('href')])).toEqual([
+    expect(links.map((l) => [l.textContent.trim(), l.getAttribute('href')])).toEqual([
       ['Datos de usuario', '/settings/account'],
       ['Mis reportes', '/settings/reports'],
       ['General', '/settings/anki'],

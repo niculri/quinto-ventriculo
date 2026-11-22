@@ -175,7 +175,7 @@ describe('publishing and undoing', () => {
     expect(publishRelease).toHaveBeenCalledWith({
       fingerprint: READY.summary.fingerprint,
       title: 'Anatomía I · Certamen 1 y Biología celular · Certamen 2',
-      checks: expect.objectContaining({ blocking: 0, pending: 0, ready: true }),
+      checks: expect.objectContaining({ blocking: 0, pending: 0, ready: true }) as unknown,
     });
     expect(await screen.findByText(/N\.º 1 · Anatomía I/)).toBeInTheDocument();
     expect(await screen.findByText(/El borrador es igual a lo publicado/)).toBeInTheDocument();

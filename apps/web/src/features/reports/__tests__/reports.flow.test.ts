@@ -459,12 +459,12 @@ describe('«Mis reportes»', () => {
     await screen.findByText('Primero');
     const items = screen
       .getAllByRole('listitem')
-      .filter((li) => (li.textContent ?? '').includes('Tarjeta'));
+      .filter((li) => li.textContent.includes('Tarjeta'));
     const text = items.map((li) => li.textContent);
-    expect(text.find((t) => t?.includes('Primero'))).toContain('Corregido (versión 3)');
-    expect(text.find((t) => t?.includes('Segundo'))).toContain('Revisado: no es un error');
-    expect(text.find((t) => t?.includes('Segundo'))).toContain('Así lo dice la clase.');
-    expect(text.find((t) => t?.includes('Tercero'))).toContain('Recibido');
+    expect(text.find((t) => t.includes('Primero'))).toContain('Corregido (versión 3)');
+    expect(text.find((t) => t.includes('Segundo'))).toContain('Revisado: no es un error');
+    expect(text.find((t) => t.includes('Segundo'))).toContain('Así lo dice la clase.');
+    expect(text.find((t) => t.includes('Tercero'))).toContain('Recibido');
     expect(
       studentStatus({ status: 'wont_fix', note: null, fixedVersion: null, resolvedAt: '' }),
     ).toBe('Revisado: no se corregirá');

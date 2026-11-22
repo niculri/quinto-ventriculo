@@ -9,7 +9,7 @@ type Rpc = (fn: string, args?: unknown) => Promise<{ data: unknown; error: unkno
 
 const clientWith = (rpc: Rpc) => {
   const spy = vi.fn(rpc);
-  return { client: { rpc: spy } as unknown as SupabaseClient, spy };
+  return { client: { rpc: spy } as unknown as SupabaseClient<Database>, spy };
 };
 
 const refused =
@@ -222,7 +222,7 @@ describe('supabaseAdminRepository: «Acceso»', () => {
       const repo = supabaseAdminRepository(clientWith(rpc).client);
       const e = await repo
         .invite({ emails: ['x@ug.uchile.cl'], list: 'L', note: null })
-        .catch((x) => x);
+        .catch((x: unknown) => x);
       expect(e).toBeInstanceOf(AccessError);
       expect((e as Error).message).toBe(said);
     }

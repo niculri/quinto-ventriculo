@@ -36,6 +36,7 @@ export function constrainedFuzzBounds(
   let [lower, upper] = fuzzBounds(iv);
   lower = clamp(lower, min, maximum);
   upper = clamp(upper, min, maximum);
+  /* v8 ignore next -- unreachable with whole-day bounds: from 2.5 days the delta is at least 1, so the bounds only meet below 3 */
   if (upper === lower && upper > 2 && upper < maximum) upper = lower + 1;
   return [lower, upper];
 }

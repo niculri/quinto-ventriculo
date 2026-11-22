@@ -139,10 +139,6 @@ export class LimitTree {
     return !node || node.limits[kind] === 0;
   }
 
-  has(deckId: string): boolean {
-    return this.map.has(deckId);
-  }
-
   decrement(deckId: string, kind: 'review' | 'new'): void {
     for (let node = this.map.get(deckId) ?? null; node; node = node.parent) {
       const before = { ...node.limits };

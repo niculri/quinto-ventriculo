@@ -287,13 +287,11 @@ export function parseConfig(value: unknown): DeckConfig {
 }
 
 const UNIT_SECS = { s: 1, m: 60, h: 3600, d: 86_400 } as const;
-const MONTH = (365 * 86_400) / 12;
 
 function stepToString(minutes: number): string {
   const secs = minutes * 60;
   // naturalWholeUnit: the largest unit that divides the seconds (months and years count as days).
-  const natural =
-    secs < 60 ? 's' : secs < 3600 ? 'm' : secs < 86_400 ? 'h' : secs < MONTH ? 'd' : 'd';
+  const natural = secs < 60 ? 's' : secs < 3600 ? 'm' : secs < 86_400 ? 'h' : 'd';
   const order = ['s', 'm', 'h', 'd'] as const;
   let i = order.indexOf(natural);
   while (i > 0) {

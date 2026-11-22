@@ -93,6 +93,35 @@ describe('the guard of the study repository', () => {
     expect(calls).toEqual([]);
   });
 
+  it('passes the students’ cards on with what each write was asked', async () => {
+    const log: unknown[][] = [];
+    const base = fullAnkiStudy();
+    const study = guardStudy(
+      {
+        ...base,
+        bury: async (...args) => void log.push(['bury', ...args]),
+        suspend: async (...args) => void log.push(['suspend', ...args]),
+        forget: async (...args) => void log.push(['forget', ...args]),
+        setFlags: async (...args) => void log.push(['setFlags', ...args]),
+        setFlag: async (...args) => void log.push(['setFlag', ...args]),
+      },
+      lookup,
+    );
+    const until = new Date('2026-11-10T12:00:00Z');
+    await study.bury([real], until, true);
+    await study.suspend([real], true);
+    await study.forget([real], true);
+    await study.setFlags([real], 3);
+    await study.setFlag(real, 4);
+    expect(log).toEqual([
+      ['bury', [real], until, true],
+      ['suspend', [real], true],
+      ['forget', [real], true],
+      ['setFlags', [real], 3],
+      ['setFlag', real, 4],
+    ]);
+  });
+
   it('in a mix, writes only what the students have', async () => {
     const suspended: unknown[] = [];
     const practiced: unknown[] = [];
@@ -179,6 +208,23 @@ describe('the guard of the reports', () => {
     await reports.send(report('quiz_question', 'qr/q-1')).catch(() => undefined);
     await reports.send(report('quiz_question', 'qr')).catch(() => undefined);
     expect(calls).toEqual(['send', 'send', 'send', 'send']);
+  });
+
+  it('a card’s guid may hold colons: its template is only what comes after the last one', async () => {
+    const asked: { noteGuid: string; ord: number }[] = [];
+    const own: DraftOnly = {
+      is: async () => false,
+      card: async (ref) => {
+        asked.push(ref);
+        return ref.noteGuid === 'draft:guid';
+      },
+    };
+    const { proxy, calls } = spied(localReportsRepository({ admin: true }));
+    await expect(guardReports(proxy, own).send(report('card', 'draft:guid:1'))).rejects.toThrow(
+      REPORT_MESSAGES.draftOnly,
+    );
+    expect(asked).toEqual([{ noteGuid: 'draft:guid', ord: 1 }]);
+    expect(calls).toEqual([]);
   });
 
   it('a question of a draft test is refused also by the test’s id alone', async () => {

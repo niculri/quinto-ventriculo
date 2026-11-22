@@ -22,8 +22,67 @@ const SKILL = REAL ? materialPath(MATERIAL, REAL.skill) : '';
 const REAL_FOLDER = REAL?.folder ?? '';
 const REAL_HTML = REAL ? materialPath(MATERIAL, REAL.html) : '';
 
-/* eslint-disable @typescript-eslint/no-explicit-any -- the skill's page data */
-type Page = Record<string, any>;
+/** A figure of the skill's page: a chart spec (checked by `ChartSpec` before it is drawn), an image or a raw SVG. */
+interface PageFigure {
+  [field: string]: unknown;
+  tipo: string;
+  pie?: string;
+  ancho?: number;
+  alt?: string;
+  src?: string;
+  svg?: string;
+}
+type CellObject = { t?: unknown; hl?: unknown; vacia?: unknown; cs?: unknown; rs?: unknown };
+type PageCell = string | number | null | CellObject;
+interface PageTable {
+  titulo?: string;
+  cab?: number;
+  col_cab?: boolean;
+  filas: PageCell[][];
+}
+interface PageQuestion {
+  e?: string;
+  q: string;
+  exp?: string;
+  origen?: string;
+  o?: string[];
+  ok?: number;
+  expo?: string[];
+  fijas?: boolean;
+  r?: string;
+  fig_izq?: boolean;
+  fig?: PageFigure | PageFigure[];
+  tabla?: PageTable;
+}
+interface PageGroup {
+  id: string;
+  nombre: string;
+  tema?: string;
+  preguntas: PageQuestion[];
+}
+interface PageSection {
+  id: string;
+  nombre: string;
+  etiqueta?: string;
+  descripcion?: string;
+  /** Null says «no notice» for this section, where a missing one falls back to the test's. */
+  aviso?: string | null;
+  grupos_titulo?: string;
+  listado?: { titulo: string; items: (string | { titulo: string; items: string[] })[] };
+  grupos: PageGroup[];
+}
+/** What the skill's page and its Python model give for a test, whole. */
+interface Page {
+  titulo: string;
+  kicker?: string;
+  encabezado?: string;
+  pie?: string;
+  descripcion?: string;
+  aviso?: string;
+  grupos_titulo?: string;
+  secciones?: PageSection[];
+  grupos?: PageGroup[];
+}
 
 function pageData(html: string): Page {
   const start = html.indexOf('const TEST=') + 'const TEST='.length;
@@ -48,31 +107,32 @@ function skillNormalized(folder: string): Page {
   return JSON.parse(out.toString('utf8')) as Page;
 }
 
-function pageCharts(): (spec: Page) => string {
+function pageCharts(): (spec: PageFigure) => string {
   const html = readFileSync(join(SKILL, 'plantilla/test.html'), 'utf8');
   const from = html.indexOf('const f1=');
   const to = html.indexOf('function figuraHTML');
-  const sandbox: Page = {};
+  const sandbox: { FIG?: Record<string, (spec: PageFigure) => string> } = {};
   vm.runInNewContext(`${html.slice(from, to)}; this.FIG = FIG;`, sandbox);
-  return (spec) => sandbox.FIG[spec.tipo](spec) as string;
+  return (spec) => sandbox.FIG![spec.tipo]!(spec);
 }
 
 function compare(
   page: Page,
   quiz: Omit<ImportedQuiz, 'hash' | 'updatedAt'>,
   inputs: Map<string, Buffer>,
-  chart: (s: Page) => string,
+  chart: (s: PageFigure) => string,
 ) {
   const diffs: string[] = [];
+  // `JSON.stringify` gives undefined for undefined, whatever its type says.
+  const shown = (v: unknown) =>
+    ((JSON.stringify(v) as string | undefined) ?? 'undefined').slice(0, 160);
   const eq = (where: string, a: unknown, b: unknown) => {
     if (JSON.stringify(a ?? null) !== JSON.stringify(b ?? null))
-      diffs.push(
-        `${where}: página ${JSON.stringify(a)?.slice(0, 160)} ≠ ${JSON.stringify(b)?.slice(0, 160)}`,
-      );
+      diffs.push(`${where}: página ${shown(a)} ≠ ${shown(b)}`);
   };
-  const sections: Page[] = page.secciones?.length
+  const sections: PageSection[] = page.secciones?.length
     ? page.secciones
-    : [{ id: 'all', nombre: '', grupos: page.grupos }];
+    : [{ id: 'all', nombre: '', grupos: page.grupos ?? [] }];
   eq('secciones', sections.length, quiz.sections.length);
   eq('título', page.titulo, quiz.title);
   eq('kicker', page.kicker, quiz.kicker);
@@ -94,7 +154,7 @@ function compare(
         ps.listado
           ? {
               title: ps.listado.titulo,
-              items: ps.listado.items.map((x: any) =>
+              items: ps.listado.items.map((x) =>
                 typeof x === 'string' ? x : { title: x.titulo, items: x.items },
               ),
             }
@@ -107,13 +167,13 @@ function compare(
       eq(`${at} grupos_titulo`, page.grupos_titulo, s.groupsTitle);
     }
     eq(`${at} grupos`, ps.grupos.length, s.groups.length);
-    ps.grupos.forEach((pg: Page, gi: number) => {
+    ps.grupos.forEach((pg, gi) => {
       const g = s.groups[gi]!;
       eq(`${at} grupo ${gi} id`, pg.id, g.id);
       eq(`${at} grupo ${g.id} nombre`, pg.nombre, g.name);
-      eq(`${at} grupo ${g.id} tema`, pg.tema || undefined, g.topic);
+      eq(`${at} grupo ${g.id} tema`, pg.tema === '' ? undefined : pg.tema, g.topic);
       eq(`${at} grupo ${g.id} preguntas`, pg.preguntas.length, g.questions.length);
-      pg.preguntas.forEach((pq: Page, qi: number) => {
+      pg.preguntas.forEach((pq, qi) => {
         count++;
         const q = g.questions[qi]!;
         const w = `${s.id}/${g.id} #${qi + 1} (${q.id})`;
@@ -131,7 +191,7 @@ function compare(
           eq(`${w} r`, pq.r, q.answer);
         }
         eq(`${w} fig_izq`, !!pq.fig_izq, q.figureBeside);
-        const pf: Page[] = pq.fig ? (Array.isArray(pq.fig) ? pq.fig : [pq.fig]) : [];
+        const pf = pq.fig ? (Array.isArray(pq.fig) ? pq.fig : [pq.fig]) : [];
         eq(`${w} figuras`, pf.length, q.figures.length);
         pf.forEach((f, fi) => {
           const ours = q.figures[fi]!;
@@ -149,7 +209,7 @@ function compare(
           } else {
             eq(`${w} fig ${fi} tipo`, 'svg', ours.kind);
             if (ours.kind !== 'svg') return;
-            const raw = f.tipo === 'svg' ? f.svg : chart(f);
+            const raw = f.tipo === 'svg' ? (f.svg ?? '') : chart(f);
             eq(`${w} fig ${fi} svg`, sanitizeSvg(raw).svg, ours.svg);
           }
         });
@@ -162,7 +222,7 @@ function compare(
               ...(t.titulo ? { title: t.titulo } : {}),
               rows: t.filas.map((row: unknown[], i: number) =>
                 row.map((c, j) => {
-                  const o: Page = c !== null && typeof c === 'object' ? c : { t: c };
+                  const o: CellObject = c !== null && typeof c === 'object' ? c : { t: c };
                   return {
                     html: o.t ?? '',
                     header: i < head || (!!t.col_cab && j === 0),
@@ -194,12 +254,15 @@ describe.skipIf(!haveSkill)(
   () => {
     it('the same SVG for every kind of chart of the skill’s examples', async () => {
       const chart = pageCharts();
-      const specs: Page[] = [];
+      const specs: PageFigure[] = [];
       for (const f of [
         'ejemplos/formato/preguntas/muestra.json',
         ...['02', '03', '04', '05'].map((n) => `ejemplos/bioestadistica/preguntas/${n}.json`),
       ]) {
-        for (const q of JSON.parse(readFileSync(join(SKILL, f), 'utf8')).preguntas as Page[]) {
+        const { preguntas } = JSON.parse(readFileSync(join(SKILL, f), 'utf8')) as {
+          preguntas: PageQuestion[];
+        };
+        for (const q of preguntas) {
           for (const fig of q.fig ? (Array.isArray(q.fig) ? q.fig : [q.fig]) : []) {
             if (!['svg', 'imagen'].includes(fig.tipo)) specs.push(fig);
           }
@@ -312,10 +375,12 @@ describe.skipIf(!haveSkill)(
 describe.skipIf(!haveReal)(
   skipped('a real test, compared with its page and the skill', haveReal),
   () => {
-    const want = REAL?.expect as NonNullable<typeof REAL>['expect'];
+    // Set when the suite runs: without the private repository `REAL` is undefined and the suite is only collected.
+    let want: NonNullable<typeof REAL>['expect'];
     let converted: Awaited<ReturnType<typeof convertQuiz>>;
     let inputs: Map<string, Buffer>;
     beforeAll(async () => {
+      want = REAL!.expect;
       const p = recordingProcessor();
       inputs = p.inputs;
       converted = await convertQuiz(

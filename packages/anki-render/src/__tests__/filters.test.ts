@@ -24,6 +24,11 @@ describe('which filter chain runs', () => {
     expect(run('x', ['text', 'cloze', 'type'])).toBe('[[type:Field]]');
   });
 
+  it('«cloze» followed by another filter that is not «type» is an ordinary chain', () => {
+    expect(run('{{c1::a}}', ['cloze', 'text'])).toBe('[...]');
+    expect(run('{{c1::a}}', ['cloze', 'text'], answer)).toBe('a');
+  });
+
   it('the filters run in the order they are listed, each on the last one’s output', () => {
     expect(run('<b>a &amp; b</b>', ['text', 'kanji'])).toBe('a & b');
     expect(run('<b>x</b>', ['text', 'tts en_US'])).toBe('[anki:tts lang=en_US]x[/anki:tts]');

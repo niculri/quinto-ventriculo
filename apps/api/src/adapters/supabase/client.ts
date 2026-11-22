@@ -9,3 +9,6 @@ export function contentClient(url: string, serviceKey: string) {
 }
 
 export type ContentClient = ReturnType<typeof contentClient>;
+
+/** The client of one schema of the content database: `public`, or the draft's mirror. */
+export type SchemaClient = ReturnType<ContentClient['schema']>;

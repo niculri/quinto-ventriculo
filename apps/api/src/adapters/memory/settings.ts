@@ -1,6 +1,7 @@
 // The site's settings in memory, for the demo and the tests: they last as long as the process.
 import type { SiteSettings } from '@qv/schema';
 import type { SiteSettingsRepository } from '../../ports/settings';
+import { resolved } from './resolved';
 
 export function memorySiteSettings(
   start: Partial<SiteSettings> = {},
@@ -14,15 +15,18 @@ export function memorySiteSettings(
     ...start,
   };
   return {
-    get: async () => settings,
-    async set({ by, hideEmptySemesters, hiddenCourses }) {
-      settings = {
-        hideEmptySemesters: hideEmptySemesters ?? settings.hideEmptySemesters,
-        hiddenCourses: hiddenCourses ? [...new Set(hiddenCourses)].sort() : settings.hiddenCourses,
-        updatedAt: now().toISOString(),
-        updatedBy: by,
-      };
-      return settings;
-    },
+    get: () => resolved(() => settings),
+    set: ({ by, hideEmptySemesters, hiddenCourses }) =>
+      resolved(() => {
+        settings = {
+          hideEmptySemesters: hideEmptySemesters ?? settings.hideEmptySemesters,
+          hiddenCourses: hiddenCourses
+            ? [...new Set(hiddenCourses)].sort()
+            : settings.hiddenCourses,
+          updatedAt: now().toISOString(),
+          updatedBy: by,
+        };
+        return settings;
+      }),
   };
 }

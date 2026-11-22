@@ -239,6 +239,25 @@ export default tseslint.config(
     },
   },
   {
+    // The API's routes, middleware, services and ports reach the outside only through a port: the adapters are chosen
+    // where the app is composed (worker.ts and dev/demo.ts).
+    files: ['apps/api/src/{routes,middleware,services,ports}/**/*.ts'],
+    ignores: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/adapters/**', '**/dev/**'],
+              message: 'Routes, middleware and services depend on a port, not on an adapter.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: DATA_ADAPTERS,
     rules: { 'qv/no-cast-on-data': 'error' },
   },

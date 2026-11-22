@@ -6,99 +6,105 @@ import type { ContentBundle, Note, SearchResult } from '@qv/schema';
 import type { ContentRepository } from '../../ports/content';
 import { buildCatalog } from '../../services/build-catalog';
 import { memoryDecks } from './decks';
+import { resolved } from './resolved';
 
 export function memoryRepository(bundle: ContentBundle): ContentRepository {
   const summaries = noteSummaries(bundle);
   const courses = new Map(bundle.courses.map((c) => [c.id, c]));
   const decks = memoryDecks(bundle);
+  const quizOf = (id: string) => bundle.quizzes.find((x) => x.id === id);
 
   return {
-    async catalog() {
-      return buildCatalog(
-        bundle.semesters,
-        bundle.courses,
-        bundle.assessments,
-        summaries,
-        decks.tree(),
-        bundle.quizzes.map(quizSummary),
-        bundle.ankiBrowseIndexes ?? [],
-      );
-    },
+    catalog: () =>
+      resolved(() =>
+        buildCatalog(
+          bundle.semesters,
+          bundle.courses,
+          bundle.assessments,
+          summaries,
+          decks.tree(),
+          bundle.quizzes.map(quizSummary),
+          bundle.ankiBrowseIndexes ?? [],
+        ),
+      ),
 
     courses: () => Promise.resolve(bundle.courses),
 
     deckCourse: (id) => Promise.resolve(decks.courseOf(id)),
 
-    async quizzes() {
-      return bundle.quizzes.map(quizSummary);
-    },
+    quizzes: () => resolved(() => bundle.quizzes.map(quizSummary)),
 
-    async quiz(id) {
-      const q = bundle.quizzes.find((x) => x.id === id);
-      return q ? quizDetail(q) : null;
-    },
+    quiz: (id) =>
+      resolved(() => {
+        const q = quizOf(id);
+        return q ? quizDetail(q) : null;
+      }),
 
-    async quizSectionJson(id, sectionId) {
-      const q = bundle.quizzes.find((x) => x.id === id);
-      const s = q?.sections.find((x) => x.id === sectionId);
-      if (!q || !s) return null;
-      return JSON.stringify({
-        quizId: q.id,
-        sectionId: s.id,
-        groups: s.groups,
-      });
-    },
+    quizSectionJson: (id, sectionId) =>
+      resolved(() => {
+        const q = quizOf(id);
+        const s = q?.sections.find((x) => x.id === sectionId);
+        if (!q || !s) return null;
+        return JSON.stringify({ quizId: q.id, sectionId: s.id, groups: s.groups });
+      }),
 
-    async deckJson(id) {
-      const deck = decks.deck(id);
-      return deck ? JSON.stringify(deck) : null;
-    },
+    deckJson: (id) =>
+      resolved(() => {
+        const deck = decks.deck(id);
+        return deck ? JSON.stringify(deck) : null;
+      }),
 
-    async card(noteGuid, ord) {
-      return decks.card(noteGuid, ord);
-    },
+    card: (noteGuid, ord) => resolved(() => decks.card(noteGuid, ord)),
 
     // A bundle is one import: it knows nothing of what moved before it.
-    async cardChanges(since) {
-      return { changes: [], next: since, latest: 0, more: false };
-    },
+    cardChanges: (since) => resolved(() => ({ changes: [], next: since, latest: 0, more: false })),
 
-    async note(slug) {
-      const n = bundle.notes.find((x) => x.slug === slug);
-      if (!n) return null;
-      const { sections: _s, hash: _h, versionHash: _v, media: _m, ...note } = n;
-      return note satisfies Note;
-    },
+    note: (slug) =>
+      resolved(() => {
+        const n = bundle.notes.find((x) => x.slug === slug);
+        if (!n) return null;
+        const { sections: _s, hash: _h, versionHash: _v, media: _m, ...note } = n;
+        return note satisfies Note;
+      }),
 
-    async search(query, limit, excluded = []) {
-      const words = normalize(query)
-        .split(/\s+/)
-        .filter((w) => w.length > 1);
-      if (!words.length) return [];
-      const results: SearchResult[] = [];
-      for (const n of bundle.notes) {
-        if (excluded.includes(n.courseId)) continue;
-        n.sections.forEach((s) => {
-          const title = normalize(s.title);
-          const text = normalize(s.text);
-          const all = `${title} ${text}`;
-          if (!words.every((w) => containsPrefix(all, w))) return;
-          const score = words.reduce((t, w) => t + (containsPrefix(title, w) ? 1 : 0.1), 0);
-          results.push({
-            noteId: n.id,
-            noteSlug: n.slug,
-            noteTitle: n.title,
-            courseName: courses.get(n.courseId)?.name ?? '',
-            anchor: s.anchor,
-            section: s.title,
-            snippet: snippet(s.text, words),
-            score,
-          });
-        });
-      }
-      return results.sort((x, y) => y.score - x.score).slice(0, limit);
-    },
+    search: (query, limit, excluded = []) =>
+      resolved(() => searchNotes(bundle, courses, query, limit, excluded)),
   };
+}
+
+function searchNotes(
+  bundle: ContentBundle,
+  courses: Map<string, ContentBundle['courses'][number]>,
+  query: string,
+  limit: number,
+  excluded: readonly string[],
+): SearchResult[] {
+  const words = normalize(query)
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+  if (!words.length) return [];
+  const results: SearchResult[] = [];
+  for (const n of bundle.notes) {
+    if (excluded.includes(n.courseId)) continue;
+    n.sections.forEach((s) => {
+      const title = normalize(s.title);
+      const text = normalize(s.text);
+      const all = `${title} ${text}`;
+      if (!words.every((w) => containsPrefix(all, w))) return;
+      const score = words.reduce((t, w) => t + (containsPrefix(title, w) ? 1 : 0.1), 0);
+      results.push({
+        noteId: n.id,
+        noteSlug: n.slug,
+        noteTitle: n.title,
+        courseName: courses.get(n.courseId)?.name ?? '',
+        anchor: s.anchor,
+        section: s.title,
+        snippet: snippet(s.text, words),
+        score,
+      });
+    });
+  }
+  return results.sort((x, y) => y.score - x.score).slice(0, limit);
 }
 
 function noteSummaries(bundle: ContentBundle) {

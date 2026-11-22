@@ -88,7 +88,7 @@ export function supabaseAccessChecker(op: AccessCheckerOptions): AccessChecker {
             ? ANSWERS[answer]
             : undefined;
         if (!access) {
-          console.error(`access_status: unexpected answer ${JSON.stringify(answer)?.slice(0, 60)}`);
+          console.error(`access_status: unexpected answer ${JSON.stringify(answer).slice(0, 60)}`);
           return 'unknown';
         }
       } catch (e) {

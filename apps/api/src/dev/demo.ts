@@ -34,7 +34,7 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
   const draft = await readBundle(join(outputFolder, 'draft', 'content.json')).catch(() => bundle);
   const verifier: SessionVerifier = options.supabaseUrl
     ? supabaseVerifier({ supabaseUrl: options.supabaseUrl })
-    : { verify: async (token) => (token === DEMO_TOKEN ? DEMO_USER : null) };
+    : { verify: (token) => Promise.resolve(token === DEMO_TOKEN ? DEMO_USER : null) };
   const media: MediaStore = {
     async get(key) {
       if (!isValidKey(key)) return null;
@@ -67,7 +67,9 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     releases: await folderReleaseRepository(outputFolder),
     settings: memorySiteSettings(),
     unpublished: await folderUnpublishedRepository(outputFolder),
-    admins: { isAdmin: async (token) => !options.supabaseUrl && token === DEMO_TOKEN },
+    admins: {
+      isAdmin: (token) => Promise.resolve(!options.supabaseUrl && token === DEMO_TOKEN),
+    },
     usageStats: demoUsageStats(),
     usageOpens: usageEvents,
     usageEvents,

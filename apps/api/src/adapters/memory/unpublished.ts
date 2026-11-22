@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { UnpublishedLog } from '@qv/schema';
 import type { UnpublishedRepository } from '../../ports/unpublished';
+import { resolved } from './resolved';
 
 export async function folderUnpublishedRepository(folder: string): Promise<UnpublishedRepository> {
   let log: UnpublishedLog = { total: 0, entries: [] };
@@ -14,5 +15,5 @@ export async function folderUnpublishedRepository(folder: string): Promise<Unpub
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
   }
-  return { log: async () => log };
+  return { log: () => resolved(() => log) };
 }

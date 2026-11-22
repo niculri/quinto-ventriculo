@@ -27,12 +27,19 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   en `features/<x>/api/` (`useStudyRepository()`…); `app/services.tsx` solo los compone y los provee. Dentro de una
   feature (cuando existan): `pages` → `components` → `hooks` → `api` → `model`, nunca al revés. Una función vive en
   la capa más baja posible: si no usa React ni red, es dominio y va a `model/` o a un paquete.
+- **La API (`apps/api/src`):** `worker.ts` compone las piezas de producción y `app.ts` solo monta: `middleware/` (sesión,
+  acceso, vista previa, administrador, ramos apagados), `routes/` (una por dominio; `routes/admin/` el panel), `services/`
+  (lo que un handler hacía además de responder), `ports/` (las interfaces, con su implementación nula) y `adapters/`
+  (`supabase/`, `cloudflare/`, `memory/`). Una parte opcional se pasa a `createApp` como `AppOptions`;
+  `resolveDependencies` la completa con su implementación nula, así que las rutas no preguntan si existe ni usan `!`.
+  Una ruta usa un puerto, nunca un adaptador; un adaptador no importa una ruta.
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los
   `api/repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
-  `features/session/api/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/repositories/supabase/` que nombra
-  `SUPABASE_ADAPTERS` en `eslint.config.js` (no su `index.ts`) y `packages/importer/src/targets.ts`; un `import type`
+  `features/session/api/service.ts`, `app/services.tsx`, los archivos de `apps/api/src/adapters/supabase/` (y el PostgREST
+  falso de las pruebas, `apps/api/src/test/postgrest.ts`; lo nombra `SUPABASE_ADAPTERS` en `eslint.config.js`) y
+  `packages/importer/src/targets.ts`; un `import type`
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
   migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas
@@ -42,8 +49,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Contrato web ↔ API:** rutas (`API_ROUTES`, y `apiPaths` para pedirlas), códigos de error (`ErrorCode`), la
   cabecera de la vista previa y lo que acepta cada ruta (`requests.ts`) viven en `@qv/schema/http`. La API valida toda
   entrada con esos schemas y cada respuesta JSON lleva `satisfies` de su schema (los cuerpos que pasan como stream no
-  se parsean). `apps/api/src/routes.test.ts` y `apps/web/src/app/api-routes.test.ts` fallan si una ruta queda en un
-  solo lado; `apps/api/src/inputs.test.ts` fija cómo responde la API a cada entrada.
+  se parsean). `apps/api/src/routes-contract.test.ts` y `apps/web/src/app/api-routes.test.ts` fallan si una ruta queda en un
+  solo lado; `apps/api/src/inputs-contract.test.ts` fija cómo responde la API a cada entrada.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): la meta es 300 líneas por archivo y 80
   por función; el lint solo marca desde 350 y 90, y nadie rehace un archivo por pasarse unas líneas: se parte cuando
   mezcla responsabilidades. Complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo

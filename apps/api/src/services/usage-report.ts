@@ -20,30 +20,37 @@ const QUIZ_ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 /** «() Medicina UCH::semester::course::assessment::unit»: a unit is the fifth level. */
 const UNIT_LEVEL = 5;
 
-export function usageGroups(catalog: Catalog): UsageGroups {
+function deckGroups(catalog: Catalog): UsageGroups['decks'] {
   const byName = new Map(catalog.anki.decks.map((d) => [d.name, d.id]));
-  const decks: UsageGroups['decks'] = {};
-  for (const d of catalog.anki.decks) {
-    if (!DECK_ID.test(d.id) || (d.courseId === null && d.assessmentId === null)) continue;
-    const parts = d.name.split('::');
-    const unit =
-      parts.length >= UNIT_LEVEL
-        ? (byName.get(parts.slice(0, UNIT_LEVEL).join('::')) ?? null)
-        : null;
-    decks[d.id] = [unit, d.assessmentId, d.courseId];
-  }
-  const quizzes: UsageGroups['quizzes'] = {};
-  for (const s of catalog.semesters) {
-    for (const c of s.courses) {
-      for (const a of c.assessments) {
-        for (const q of a.quizzes) {
-          if (QUIZ_ID.test(q.id)) quizzes[q.id] = [q.assessmentId, q.courseId];
-        }
-      }
-    }
-  }
-  return { decks, quizzes };
+  const unitOf = (name: string) => {
+    const parts = name.split('::');
+    return parts.length >= UNIT_LEVEL
+      ? (byName.get(parts.slice(0, UNIT_LEVEL).join('::')) ?? null)
+      : null;
+  };
+  return Object.fromEntries(
+    catalog.anki.decks
+      .filter((d) => DECK_ID.test(d.id) && !(d.courseId === null && d.assessmentId === null))
+      .map((d): [string, UsageGroups['decks'][string]] => [
+        d.id,
+        [unitOf(d.name), d.assessmentId, d.courseId],
+      ]),
+  );
 }
+
+function quizGroups(catalog: Catalog): UsageGroups['quizzes'] {
+  return Object.fromEntries(
+    catalog.semesters
+      .flatMap((s) => s.courses.flatMap((c) => c.assessments.flatMap((a) => a.quizzes)))
+      .filter((q) => QUIZ_ID.test(q.id))
+      .map((q): [string, UsageGroups['quizzes'][string]] => [q.id, [q.assessmentId, q.courseId]]),
+  );
+}
+
+export const usageGroups = (catalog: Catalog): UsageGroups => ({
+  decks: deckGroups(catalog),
+  quizzes: quizGroups(catalog),
+});
 
 const figures = (f: AdminUsageFigures): UsageFigures => ({
   activeStudents: f.active_students,

@@ -3,14 +3,11 @@ import { FEW } from '@qv/schema';
 import type { AdminUsageRow, ContentBundle } from '@qv/schema';
 import type { UsageEvent, UsageGroups, UsageStatsSource } from '../../ports/usage';
 import { siteDay } from '../../services/usage-report';
+import { resolved } from './resolved';
 import { memoryUsageEvents } from './usage-events';
 
 export function demoUsageStats(now: () => number = Date.now): UsageStatsSource {
-  return {
-    async stats(_token, groups) {
-      return demoUsageRow(groups, now());
-    },
-  };
+  return { stats: (_token, groups) => resolved(() => demoUsageRow(groups, now())) };
 }
 
 const DAY_MS = 86_400_000;
@@ -19,15 +16,31 @@ const DAY_MS = 86_400_000;
 const wave = (i: number, base: number, swing: number) =>
   Math.max(0, Math.round(base + swing * Math.sin(i / 2.3) + (i % 3)));
 
+/** What a count shows: «few» when it is under the minimum and there was any activity, the figure otherwise. */
+const orFew = (active: number, minimum: number, figure: number) =>
+  active < minimum ? (active ? FEW : 0) : figure;
+
 function figures(i: number, scale = 1) {
   const active = wave(i, 9 * scale, 5 * scale);
   return {
     active_students: active >= 1 && active < 5 ? FEW : active,
     new_students: i % 6 === 0 ? 5 : i % 4 === 0 ? FEW : 0,
-    anki_answers: active < 5 ? (active ? FEW : 0) : active * 37,
-    new_cards: active < 5 ? (active ? FEW : 0) : active * 8,
-    rounds_started: active < 5 ? (active ? FEW : 0) : Math.round(active / 2) + 3,
-    rounds_finished: active < 6 ? (active ? FEW : 0) : Math.round(active / 3) + 2,
+    anki_answers: orFew(active, 5, active * 37),
+    new_cards: orFew(active, 5, active * 8),
+    rounds_started: orFew(active, 5, Math.round(active / 2) + 3),
+    rounds_finished: orFew(active, 6, Math.round(active / 3) + 2),
+  };
+}
+
+const present = (values: (string | null)[]) => [...new Set(values)].filter((v): v is string => !!v);
+
+function listsOf(groups: UsageGroups) {
+  const decks = Object.values(groups.decks);
+  return {
+    units: present(decks.map(([unit]) => unit)),
+    courses: present(decks.map(([, , c]) => c)),
+    assessments: [...new Map(decks.flatMap(([, a, c]) => (a && c ? [[a, c] as const] : [])))],
+    quizzes: Object.keys(groups.quizzes),
   };
 }
 
@@ -36,18 +49,7 @@ function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
   const day = (back: number) => siteDay(nowMs - back * DAY_MS);
   const weekday = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
   const monday = (weeksBack: number) => day(weekday + 7 * weeksBack);
-  const units = [...new Set(Object.values(groups.decks).map(([unit]) => unit))].filter(
-    (u): u is string => !!u,
-  );
-  const courses = [...new Set(Object.values(groups.decks).map(([, , c]) => c))].filter(
-    (c): c is string => !!c,
-  );
-  const assessments = [
-    ...new Map(
-      Object.values(groups.decks).flatMap(([, a, c]) => (a && c ? [[a, c] as const] : [])),
-    ),
-  ];
-  const quizzes = Object.keys(groups.quizzes);
+  const { units, courses, assessments, quizzes } = listsOf(groups);
   return {
     generated_at: new Date(nowMs).toISOString(),
     today,

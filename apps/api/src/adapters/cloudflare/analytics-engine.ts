@@ -101,7 +101,7 @@ export function analyticsEngineReader(op: AnalyticsReaderOptions): UsageOpensRea
             : [],
         ),
         searches: searches.map((r) => ({
-          context: String(r.context ?? ''),
+          context: typeof r.context === 'string' ? r.context : '',
           count: num(r.n),
         })),
       };

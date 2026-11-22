@@ -13,7 +13,7 @@ import type {
 import type { ApiClient } from '../../../shared/lib/api';
 import type { AdminRepository } from './repository';
 
-/** Every key starts with «release»: the draft preview shares them. */
+/** Every key starts with «release»: the admin mode shares them. */
 export const releaseKeys = {
   overview: ['release', 'overview'] as const,
   log: ['release', 'log'] as const,

@@ -54,7 +54,7 @@ export type GetToken = () => Promise<string | null>;
 /** The header that asks the API for the draft: only an administrator gets it. */
 export const PREVIEW_HEADERS = { [PREVIEW_HEADER]: PREVIEW_VALUE } as const;
 
-/** With the preview's `headers`, nothing is taken from nor left in the browser's cache. */
+/** With the admin mode's `headers`, nothing is taken from nor left in the browser's cache. */
 export function createApiClient(
   getToken: GetToken,
   base = '',

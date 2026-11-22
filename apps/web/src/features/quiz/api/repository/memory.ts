@@ -1,4 +1,4 @@
-// The user's practice test progress kept in the browser, for the demo, the preview and the tests.
+// The user's practice test progress kept in the browser, for the demo, the admin mode and the tests.
 import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
 import type { AnswerInfo, QuizStep, RoundInfo, SavedQuiz } from './model';

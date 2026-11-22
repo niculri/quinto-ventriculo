@@ -1,4 +1,4 @@
-// The content API client: app/services.tsx provides it; the tests and the admin preview swap it.
+// The content API client: app/services.tsx provides it; the tests and the admin mode swap it.
 import { createContext, use } from 'react';
 import type { ApiClient } from '../lib/api';
 

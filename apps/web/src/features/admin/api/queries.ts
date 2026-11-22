@@ -6,7 +6,7 @@ import { catalogKeys } from '../../catalog/api/queries';
 import { isAdminKey } from './isAdmin';
 import type { AdminRepository } from './repository';
 
-/** The draft preview keeps some of these (`features/preview`): their first element is part of that contract. */
+/** The admin mode keeps some of these (`features/adminMode`): their first element is part of that contract. */
 export const adminKeys = {
   isAdmin: isAdminKey,
   siteSettings: ['site-settings'] as const,

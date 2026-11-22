@@ -1,7 +1,7 @@
 // Remembers the last account state per repository and user, until signing out.
 import type { AccountRepository, AccountState } from './repository';
 
-/** The draft preview mounts the site again with its own cache: asking again would blank the page for a moment. */
+/** The admin mode mounts the site again with its own cache: asking again would blank the page for a moment. */
 let remembered = new WeakMap<AccountRepository, Map<string, AccountState>>();
 
 export function rememberAccount(account: AccountRepository, userId: string, state: AccountState) {

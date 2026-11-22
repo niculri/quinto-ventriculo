@@ -1,4 +1,4 @@
-// The practice test repository: app/services.tsx provides it; the tests and the admin preview swap it.
+// The practice test repository: app/services.tsx provides it; the tests and the admin mode swap it.
 import { createContext, use } from 'react';
 import type { QuizRepository } from './repository';
 

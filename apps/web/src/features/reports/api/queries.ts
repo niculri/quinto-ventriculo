@@ -2,7 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { ReportsRepository } from './repository';
 
-/** The draft preview (features/preview) shares these keys with the site. */
+/** The admin mode (features/adminMode) shares these keys with the site. */
 export const reportKeys = {
   queue: ['report-queue'] as const,
   mine: ['my-reports'] as const,

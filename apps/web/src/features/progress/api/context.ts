@@ -1,4 +1,4 @@
-// The study repository: app/services.tsx provides it; the tests and the admin preview swap it.
+// The study repository: app/services.tsx provides it; the tests and the admin mode swap it.
 import { createContext, use } from 'react';
 import type { StudyRepository } from './repository';
 

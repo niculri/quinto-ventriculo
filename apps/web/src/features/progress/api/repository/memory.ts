@@ -1,5 +1,5 @@
 // A browser copy of the user's study data with the same rules as the database, for the demo, the administrator's
-// preview and the tests.
+// admin mode and the tests.
 import { dayOf, dayOfStart, retrievability } from '@qv/srs';
 import { dayNumber, isoOfDay } from '@qv/study';
 import type { StudyRepository } from './port';

@@ -1,4 +1,4 @@
-// Administrators and invitations kept in the browser, for the demo, the preview and the tests.
+// Administrators and invitations kept in the browser, for the demo, the admin mode and the tests.
 import type { AdminRepository } from './port';
 import { AccessError, MAX_EMAILS, normalizeEmail } from './model';
 import type { AccessInvite, AccessReport, InviteResult } from './model';

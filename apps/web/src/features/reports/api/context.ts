@@ -1,4 +1,4 @@
-// The error reports repository: app/services.tsx provides it; the tests and the admin preview swap it.
+// The error reports repository: app/services.tsx provides it; the tests and the admin mode swap it.
 import { createContext, use } from 'react';
 import type { ReportsRepository } from './repository';
 

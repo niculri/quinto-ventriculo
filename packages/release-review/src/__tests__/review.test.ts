@@ -5,22 +5,12 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { releasePlainText as plainText } from '@qv/html/text';
 import type { ReleaseAssessment, ReleaseFinding, ReleaseSummary } from '@qv/schema/release';
-import {
-  CHECK_RULES,
-  PROCESS_RULES,
-  buildReview,
-  changedGuids,
-  findProcessPhrases,
-  maskOverlap,
-  onlyInCatalog,
-  processPhrases,
-  releaseTitle,
-  renumbered,
-  reviewChecks,
-  similarity,
-  wordDiff,
-} from '../review';
-import type { CheckRule, ReleaseReviewInput } from '../review';
+import { changedGuids, maskOverlap, renumbered, similarity } from '../cardChanges';
+import { PROCESS_RULES, findProcessPhrases, processPhrases } from '../processPhrases';
+import { buildReview, onlyInCatalog, releaseTitle, reviewChecks } from '../review';
+import { CHECK_RULES } from '../reviewTypes';
+import type { CheckRule, ReleaseReviewInput } from '../reviewTypes';
+import { wordDiff } from '../wordDiff';
 
 const FP = 'a'.repeat(32);
 const assessment = (o: Partial<ReleaseAssessment> = {}): ReleaseAssessment => ({

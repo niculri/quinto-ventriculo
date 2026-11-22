@@ -15,7 +15,7 @@ describe('the URLs', () => {
   });
 
   it('a query leaves out its empty parts, and has no «?» when all are empty', () => {
-    expect(paths.cards(ref, { q: 'tag:x', unit: '', day: null, view: undefined })).toBe(
+    expect(paths.cards(ref, { q: 'tag:x', unit: '', day: null })).toBe(
       '/semesters/2/courses/biologia-celular/anki/certamen-2/clase%2010/cards?q=tag%3Ax',
     );
     expect(paths.cardsPractice(ref, {})).toBe(

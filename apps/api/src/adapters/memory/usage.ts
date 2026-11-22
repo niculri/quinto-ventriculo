@@ -17,13 +17,13 @@ const wave = (i: number, base: number, swing: number) =>
   Math.max(0, Math.round(base + swing * Math.sin(i / 2.3) + (i % 3)));
 
 /** What a count shows: «few» when it is under the minimum and there was any activity, the figure otherwise. */
-const orFew = (active: number, minimum: number, figure: number) =>
+export const orFew = (active: number, minimum: number, figure: number) =>
   active < minimum ? (active ? FEW : 0) : figure;
 
 function figures(i: number, scale = 1) {
   const active = wave(i, 9 * scale, 5 * scale);
   return {
-    active_students: active >= 1 && active < 5 ? FEW : active,
+    active_students: orFew(active, 5, active),
     new_students: i % 6 === 0 ? 5 : i % 4 === 0 ? FEW : 0,
     anki_answers: orFew(active, 5, active * 37),
     new_cards: orFew(active, 5, active * 8),

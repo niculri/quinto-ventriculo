@@ -16,10 +16,9 @@ export function mediaRoutes({ deps }: AppContext) {
       p: prefix,
     } = MediaQuery.parse({ e: c.req.query('e'), s: c.req.query('s'), p: c.req.query('p') });
     const now = deps.now();
-    const valid =
-      prefix === undefined
-        ? await deps.signer.isValid(key, expires, signature, now)
-        : await deps.signer.isValidPrefix(key, prefix, expires, signature, now);
+    const valid = await (prefix === undefined
+      ? deps.signer.isValid(key, expires, signature, now)
+      : deps.signer.isValidPrefix(key, prefix, expires, signature, now));
     if (!valid) {
       return c.json(
         apiError('link_expired', 'El enlace de la imagen venció: recarga la página.'),

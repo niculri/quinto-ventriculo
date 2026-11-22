@@ -27,15 +27,9 @@ export interface DemoOptions {
   supabaseUrl?: string;
 }
 
-export async function createDemoApp(outputFolder: string, options: DemoOptions = {}) {
-  const readBundle = async (path: string) =>
-    ContentBundle.parse(JSON.parse(await readFile(path, 'utf8')));
-  const bundle = await readBundle(join(outputFolder, 'content.json'));
-  const draft = await readBundle(join(outputFolder, 'draft', 'content.json')).catch(() => bundle);
-  const verifier: SessionVerifier = options.supabaseUrl
-    ? supabaseVerifier({ supabaseUrl: options.supabaseUrl })
-    : { verify: (token) => Promise.resolve(token === DEMO_TOKEN ? DEMO_USER : null) };
-  const media: MediaStore = {
+/** The images of the importer's folder, `<folder>/media/<key>`. */
+export function folderMedia(outputFolder: string): MediaStore {
+  return {
     async get(key) {
       if (!isValidKey(key)) return null;
       try {
@@ -55,6 +49,17 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
       );
     },
   };
+}
+
+export async function createDemoApp(outputFolder: string, options: DemoOptions = {}) {
+  const readBundle = async (path: string) =>
+    ContentBundle.parse(JSON.parse(await readFile(path, 'utf8')));
+  const bundle = await readBundle(join(outputFolder, 'content.json'));
+  const draft = await readBundle(join(outputFolder, 'draft', 'content.json')).catch(() => bundle);
+  const verifier: SessionVerifier = options.supabaseUrl
+    ? supabaseVerifier({ supabaseUrl: options.supabaseUrl })
+    : { verify: (token) => Promise.resolve(token === DEMO_TOKEN ? DEMO_USER : null) };
+  const media = folderMedia(outputFolder);
   const usageEvents = demoUsageEvents(bundle);
   const clientErrors = memoryClientErrors();
   const repository = memoryRepository(bundle);

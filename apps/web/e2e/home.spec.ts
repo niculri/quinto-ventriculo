@@ -366,7 +366,7 @@ test.describe('one-time tips', () => {
   });
 });
 
-test('the account button says only the first name, the menu the whole name, and the bar does not move with it', async ({
+test('the account button greets by the first name, the menu has the whole name, and the bar does not move with it', async ({
   page,
   isMobile,
 }) => {
@@ -382,9 +382,9 @@ test('the account button says only the first name, the menu the whole name, and 
   const closed = await bar();
   await expect(account).toHaveAccessibleName('Hola, Estudiante, tu cuenta');
   if (!isMobile) {
-    await expect(account).toHaveText('Estudiante');
+    await expect(account).toHaveText('Hola, Estudiante');
     // A name that is long is cut, so that the bar is the same for anybody.
-    expect(closed[1]![2]).toBeLessThanOrEqual(9 * 16 + 80);
+    expect(closed[1]![2]).toBeLessThanOrEqual(12 * 16 + 80);
   }
   await account.click();
   await expect(page.getByRole('menu').getByText('Estudiante de prueba')).toBeVisible();

@@ -9,10 +9,14 @@ import {
   UNIT_DEPTH,
   activeUnits,
   decksGivingNew,
-  minutesText,
   newPerDayOf,
 } from './simple';
 import type { StudyPlan } from './simple';
+import { catchUpPlan } from './catchUp';
+import type { CatchUp } from './catchUp';
+import { dateOfDay, dayOfDate, daysLeftText } from './examDate';
+import { onTrackText, paceStatus } from './paceText';
+import type { AssessmentFacts, Pace, PaceOption } from './paceTypes';
 
 export const FINAL_REVIEW_OPTIONS = [
   { days: 1, name: 'Fácil' },
@@ -21,9 +25,6 @@ export const FINAL_REVIEW_OPTIONS = [
 ];
 export const DEFAULT_FINAL_REVIEW_DAYS = 3;
 export const UNREALISTIC_MINUTES = 120;
-export const LARGE_BACKLOG = 50;
-const CATCH_UP_DAYS = 5;
-const CATCH_UP_MAX_A_DAY = 100;
 
 // Days after its first one at which a card answered «Bien» every time comes back: FSRS's defaults at 90 % retention
 // (a test checks them against the scheduler).
@@ -33,65 +34,10 @@ const SEEN_REVIEWS_PER_DAY = 1 / 14;
 /** About one review in ten fails, and a failed card is answered again the same day (one and a half, with the steps). */
 const ANSWERS_PER_REVIEW = 1.15;
 
-const DAY_MS = 86_400_000;
-
-// A day number is the date in the user's zone counted from 1970, so a calendar day needs no zone; before the
-// rollover hour the scheduler's `today` is still yesterday.
-export function dayOfDate(date: string): number {
-  const [y, m, d] = date.split('-').map(Number);
-  return Date.UTC(y!, m! - 1, d) / DAY_MS;
-}
-
-export function dateOfDay(day: number): string {
-  return new Date(day * DAY_MS).toISOString().slice(0, 10);
-}
-
-/** A complete date that makes sense (while somebody types a year, the field goes through 0002, 0020, 0202…). */
-export function isExamDate(text: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false;
-  const year = Number(text.slice(0, 4));
-  return year >= 2000 && year <= 2100 && dateOfDay(dayOfDate(text)) === text;
-}
-
-const LONG_DATE = new Intl.DateTimeFormat('es-CL', {
-  day: 'numeric',
-  month: 'long',
-  timeZone: 'UTC',
-});
-
-export const longDate = (date: string) => LONG_DATE.format(new Date(dayOfDate(date) * DAY_MS));
-
-const SHORT_DATE = new Intl.DateTimeFormat('es-CL', {
-  day: 'numeric',
-  month: 'short',
-  timeZone: 'UTC',
-});
-
-export const shortDate = (date: string) =>
-  SHORT_DATE.format(new Date(dayOfDate(date) * DAY_MS))
-    .replace(/ de /, ' ')
-    .replace(/\.$/, '');
-
-export function daysLeftText(daysLeft: number): string {
-  if (daysLeft === 0) return 'Hoy es la prueba';
-  return daysLeft === 1 ? 'Falta 1 día' : `Faltan ${daysLeft.toLocaleString('es-CL')} días`;
-}
-
 interface CountedDeck {
   id: string;
   name: string;
   ownCards?: number;
-}
-
-export interface AssessmentFacts {
-  newLeft: number;
-  newToday: number;
-  newYesterday: number;
-  seen: number;
-  overdue: number;
-  anyOn: boolean;
-  unitsOff: number;
-  unitIsWeek: boolean;
 }
 
 const inside = (root: CountedDeck, d: CountedDeck) =>
@@ -145,14 +91,6 @@ export function assessmentFacts(
     if (left > 0) facts.unitsOff++;
   }
   return facts;
-}
-
-type PaceKind = 'none' | 'past' | 'nothing-on' | 'final-review' | 'finished' | 'computed';
-
-export interface Pace {
-  kind: PaceKind;
-  newPerDay: number;
-  daysLeft: number | null;
 }
 
 // Constant while one studies (answering moves a card from left to answered today); turning a lecture on changes it.
@@ -222,13 +160,6 @@ export function planMinutes(a: {
   return Math.max(5, Math.round(minutes / 5) * 5);
 }
 
-export interface PaceOption {
-  finalDays: number;
-  newPerDay: number | null;
-  minutes: number | null;
-  lastNewDate: string | null;
-}
-
 export function paceOptions(
   setting: Pick<AssessmentSetting, 'examDate'> | undefined,
   facts: AssessmentFacts,
@@ -289,28 +220,6 @@ export function assessmentPaces(
     out.set(s.deckId, computePace(s, facts, today, newPerDayOf(plan, s.deckId)).newPerDay);
   }
   return out;
-}
-
-export interface CatchUp {
-  overdue: number;
-  perDay: number;
-  days: number;
-}
-
-// Only information: the scheduler keeps giving every card that is due.
-export function catchUpPlan(overdue: number, daysLeft: number | null): CatchUp | null {
-  // On the day of the test there is no plan to give: it would end after it.
-  if (overdue < LARGE_BACKLOG || daysLeft === 0) return null;
-  let days = CATCH_UP_DAYS;
-  if (overdue / days > CATCH_UP_MAX_A_DAY) days = Math.ceil(overdue / CATCH_UP_MAX_A_DAY);
-  if (daysLeft !== null) days = Math.min(days, daysLeft);
-  const perDay = Math.ceil(overdue / days / 5) * 5;
-  return { overdue, perDay, days };
-}
-
-export function catchUpText(plan: CatchUp): string {
-  const n = (x: number) => x.toLocaleString('es-CL');
-  return `Llevas ${n(plan.overdue)} atrasadas. Con ~${n(plan.perDay)} al día, además de lo de hoy, te pones al día en ${plan.days === 1 ? '1 día' : `${plan.days} días`}.`;
 }
 
 export function examSummary(
@@ -376,13 +285,6 @@ export function assessmentView(a: {
   };
 }
 
-function onTrackText(pace: Pace, facts: AssessmentFacts, rose: boolean): string {
-  if (pace.kind === 'nothing-on') return 'nada activado';
-  if (pace.kind === 'final-review' && facts.newLeft > 0) return 'repaso final';
-  if (rose) return `ahora ${pace.newPerDay.toLocaleString('es-CL')} nuevas al día`;
-  return 'vas al día';
-}
-
 export function nearestExamText(
   decks: readonly CountedDeck[],
   plan: StudyPlan,
@@ -410,94 +312,5 @@ export function nearestExamText(
     .find((d) => d.id === best.id)
     ?.name.split('::')
     .at(-1);
-  return `${label} · ${summary}`;
-}
-
-const unitsOffText = (facts: AssessmentFacts) => {
-  const n = facts.unitsOff;
-  const word = facts.unitIsWeek ? (n === 1 ? 'semana' : 'semanas') : n === 1 ? 'clase' : 'clases';
-  return `${n} ${word} sin activar no ${n === 1 ? 'cuenta' : 'cuentan'}`;
-};
-
-function paceStatus(
-  pace: Pace,
-  facts: AssessmentFacts,
-  options: PaceOption[],
-  finalDays: number,
-  rose: boolean,
-  unrealistic: boolean,
-): string {
-  const off = facts.unitsOff > 0 ? ` · ${unitsOffText(facts)}` : '';
-  const left = `${facts.newLeft.toLocaleString('es-CL')} ${facts.newLeft === 1 ? 'nueva' : 'nuevas'}`;
-  switch (pace.kind) {
-    case 'none':
-      return '';
-    case 'past':
-      return 'Esa fecha ya pasó: salen las nuevas por día que elijas. Pon la fecha de la próxima prueba o saca esta.';
-    case 'nothing-on':
-      return `${daysLeftText(pace.daysLeft!)}. Activa una semana o clase para calcular las nuevas por día.`;
-    case 'final-review': {
-      const fewer = options.some(
-        (o) => o.finalDays < finalDays && o.newPerDay! > 0 && facts.newLeft > 0,
-      );
-      return `${daysLeftText(pace.daysLeft!)}: ${pace.daysLeft === 0 ? 'no salen tarjetas nuevas' : 'son días de repaso final, sin tarjetas nuevas'}.${
-        facts.newLeft > 0
-          ? ` Quedan ${left} sin ver${fewer ? ': si dejas menos días para repasar, siguen saliendo' : ''}.`
-          : ''
-      }`;
-    }
-    case 'finished':
-      return `${daysLeftText(pace.daysLeft!)} · ya viste todo lo activado${off}.`;
-    case 'computed': {
-      const chosen = options.find((o) => o.finalDays === finalDays)!;
-      return [
-        `${daysLeftText(pace.daysLeft!)} · ${facts.newLeft > 0 ? `quedan ${left} en lo activado` : 'ya viste todo lo activado'}${off}.`,
-        // A pace that is too much says more than one that rose (the number is in sight).
-        rose && !unrealistic ? `Para llegar a la fecha, ahora son ${pace.newPerDay} al día.` : '',
-        unrealistic
-          ? `Son ${minutesText(chosen.minutes!)} al día: con menos tiempo no alcanzas a ver todo. Puedes apagar clases o extras, o elegir otra fecha.`
-          : '',
-      ]
-        .filter(Boolean)
-        .join(' ');
-    }
-  }
-}
-
-export const LONGEST_STATUS =
-  'Faltan 120 días · quedan 12.400 nuevas en lo activado · 12 semanas sin activar no cuentan. Son ~3 h 30 min al día: con menos tiempo no alcanzas a ver todo. Puedes apagar clases o extras, o elegir otra fecha.';
-
-export const LONGEST_CATCH_UP = catchUpText({ overdue: 1240, perDay: 100, days: 13 });
-
-// A new day with a session open: its answers stop being new and today's; yesterday's are what was today's.
-export function rollProgress(
-  progress: readonly DeckProgress[],
-  answers: readonly { deckId: string; queueBefore: string }[],
-): DeckProgress[] {
-  const answered = new Map<string, number>();
-  for (const a of answers) {
-    if (a.queueBefore === 'new') answered.set(a.deckId, (answered.get(a.deckId) ?? 0) + 1);
-  }
-  const blank = (deckId: string): DeckProgress => ({
-    deckId,
-    seen: 0,
-    newSuspended: 0,
-    overdue: 0,
-    newToday: 0,
-    newYesterday: 0,
-  });
-  const out = new Map<string, DeckProgress>(
-    progress.map((p) => [p.deckId, { ...p, newToday: 0, newYesterday: 0 }]),
-  );
-  for (const [deckId, n] of answered) {
-    const before = progress.find((p) => p.deckId === deckId);
-    const row = out.get(deckId) ?? blank(deckId);
-    // `seen` already has what was answered before the session (its `newToday`).
-    out.set(deckId, {
-      ...row,
-      seen: row.seen + Math.max(0, n - (before?.newToday ?? 0)),
-      newYesterday: n,
-    });
-  }
-  return [...out.values()];
+  return `${String(label)} · ${String(summary)}`;
 }

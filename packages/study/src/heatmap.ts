@@ -86,7 +86,8 @@ export function heatmapStats(byDay: ReadonlyMap<number, number>, today: number):
   let longest = 0;
   let run = 0;
   for (let i = 0; i < days.length; i++) {
-    run = i > 0 && days[i]! - days[i - 1]! === 1 ? run + 1 : 1;
+    const previous = days[i - 1];
+    run = previous !== undefined && days[i]! - previous === 1 ? run + 1 : 1;
     longest = Math.max(longest, run);
   }
   const last = days.at(-1);
@@ -209,8 +210,8 @@ const number = (n: number) => n.toLocaleString('es-CL');
 
 export function dateText(day: number, withWeekday = false): string {
   const d = new Date(day * MS_DAY);
-  const text = `${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
-  return withWeekday ? `${WEEKDAYS[weekdayOf(day)]} ${text}` : text;
+  const text = `${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]!} de ${d.getUTCFullYear()}`;
+  return withWeekday ? `${WEEKDAYS[weekdayOf(day)]!} ${text}` : text;
 }
 
 export const answersText = (n: number) => `${number(n)} ${n === 1 ? 'respuesta' : 'respuestas'}`;

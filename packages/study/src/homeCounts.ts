@@ -133,13 +133,54 @@ export function homeCourseCounts(
   const due = dueToday(rows, base, timing);
   if (dueOrderMatters(base, decks, rootId, due, configs, studied)) return { counts: null, mastery };
 
-  // Gathered deck by deck, an untouched note with its cards in the deck and below it surely gives one; otherwise only
-  // the notes all in the deck are sure.
+  const plan = newCardPlan(decks, rootId, stats, home, configs);
+  const fresh = (deckId: string, n: number) =>
+    Array.from({ length: n }, (_, i) => summary(`\u0000new:${deckId}:${i}`, 0, deckId));
+  const count = (cards: CardSummary[]) =>
+    buildQueue(
+      { ...data, deck: { ...deck, cards: [...dueCards, ...cards] } },
+      rootId,
+      nowMs,
+      configs,
+      studied,
+    );
+  const least = countsOf(count(plan.flatMap((p) => fresh(p.d.id, p.low))));
+
+  const blocked = blockedNotes(due, rows, configs);
+  const highs = plan.map(({ d, config, cap, low, own }) => {
+    if (config.fillNewWithSiblings) return low;
+    if (!config.buryNew || own === undefined) return cap;
+    return Math.min(cap, Math.max(0, own - (blocked.get(d.id)?.size ?? 0)));
+  });
+  const most = plan.every((p, i) => p.low === highs[i])
+    ? least
+    : countsOf(count(plan.flatMap((p, i) => fresh(p.d.id, highs[i]!))));
+
+  return { counts: least.new === most.new ? least : null, mastery };
+}
+
+type NewCardPlan = {
+  d: TreeDeck;
+  config: DeckConfig;
+  cap: number;
+  low: number;
+  own: number | undefined;
+}[];
+
+// Gathered deck by deck, an untouched note with its cards in the deck and below it surely gives one; otherwise only
+// the notes all in the deck are sure.
+function newCardPlan(
+  decks: TreeDeck[],
+  rootId: string,
+  stats: ReadonlyMap<string, AnkiTreeDeck>,
+  home: ReadonlyMap<string, HomeDeckCounts>,
+  configs: ReadonlyMap<string, DeckConfig>,
+): NewCardPlan {
   const priority = configs.get(rootId)?.newCardGatherPriority;
   const inOrder = priority === 'deck' || priority === 'deckThenRandomNotes';
   const touchedBelow = (d: TreeDeck) =>
     subtree(decks, d.id).reduce((t, x) => t + (home.get(x.id)?.touched ?? 0), 0);
-  const plan = decks.map((d) => {
+  return decks.map((d) => {
     const h = home.get(d.id);
     const fresh = Math.max(0, (d.ownCards ?? 0) - (h?.seen ?? 0) - (h?.hiddenNew ?? 0));
     const config = configs.get(d.id)!;
@@ -154,19 +195,14 @@ export function homeCourseCounts(
     const low = config.fillNewWithSiblings ? cap : Math.min(cap, Math.max(0, sure));
     return { d, config, cap, low, own: s?.ownNoteCount };
   });
-  const fresh = (deckId: string, n: number) =>
-    Array.from({ length: n }, (_, i) => summary(`\u0000new:${deckId}:${i}`, 0, deckId));
-  const count = (cards: CardSummary[]) =>
-    buildQueue(
-      { ...data, deck: { ...deck, cards: [...dueCards, ...cards] } },
-      rootId,
-      nowMs,
-      configs,
-      studied,
-    );
-  const least = countsOf(count(plan.flatMap((p) => fresh(p.d.id, p.low))));
+}
 
-  // A note's new cards are buried when the preset of a deck of one of its cards due today buries new siblings.
+// A note's new cards are buried when the preset of a deck of one of its cards due today buries new siblings.
+function blockedNotes(
+  due: ReturnType<typeof dueToday>,
+  rows: ReadonlyMap<string, StoredCard>,
+  configs: ReadonlyMap<string, DeckConfig>,
+): Map<string, Set<string>> {
   const buriesNew = new Map<string, boolean>();
   for (const { row } of due) {
     const buries = configs.get(row.deckId)!.buryNew;
@@ -179,16 +215,7 @@ export function homeCourseCounts(
     set.add(r.noteGuid);
     blocked.set(r.deckId, set);
   }
-  const highs = plan.map(({ d, config, cap, low, own }) => {
-    if (config.fillNewWithSiblings) return low;
-    if (!config.buryNew || own === undefined) return cap;
-    return Math.min(cap, Math.max(0, own - (blocked.get(d.id)?.size ?? 0)));
-  });
-  const most = plan.every((p, i) => p.low === highs[i])
-    ? least
-    : countsOf(count(plan.flatMap((p, i) => fresh(p.d.id, highs[i]!))));
-
-  return { counts: least.new === most.new ? least : null, mastery };
+  return blocked;
 }
 
 function dueToday(rows: ReadonlyMap<string, StoredCard>, base: HomeStudyBase, timing: SchedTiming) {
@@ -216,6 +243,20 @@ function dueOrderMatters(
   configs: ReadonlyMap<string, DeckConfig>,
   studied: ReadonlyMap<string, StudiedToday>,
 ): boolean {
+  return (
+    reviewLimitCanBeReached(base, decks, rootId, due, configs, studied) ||
+    buryingDisagrees(due, configs)
+  );
+}
+
+function reviewLimitCanBeReached(
+  base: HomeStudyBase,
+  decks: readonly TreeDeck[],
+  rootId: string,
+  due: ReturnType<typeof dueToday>,
+  configs: ReadonlyMap<string, DeckConfig>,
+  studied: ReadonlyMap<string, StudiedToday>,
+): boolean {
   const nameOf = new Map(base.decks.map((d) => [d.id, d.name]));
   const root = nameOf.get(rootId) ?? '';
   const limited = globalSettings(base.prefs).applyAllParentLimits
@@ -229,12 +270,18 @@ function dueOrderMatters(
       inside.set(id, (inside.get(id) ?? 0) + 1);
     }
   }
-  for (const d of limited) {
+  return limited.some((d) => {
     const s = studied.get(d.id);
     // As remainingLimits() of @qv/srs, counting the new cards answered today against the reviews in every case.
     const left = configs.get(d.id)!.reviewsPerDay - (s?.reviewCount ?? 0) - (s?.newCount ?? 0);
-    if ((inside.get(d.id) ?? 0) > Math.max(0, left)) return true;
-  }
+    return (inside.get(d.id) ?? 0) > Math.max(0, left);
+  });
+}
+
+function buryingDisagrees(
+  due: ReturnType<typeof dueToday>,
+  configs: ReadonlyMap<string, DeckConfig>,
+): boolean {
   const flags = new Map<string, boolean>();
   for (const { row, queue } of due) {
     if (queue === 'learn') continue;

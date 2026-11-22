@@ -11,6 +11,70 @@ import type { StudyData } from './scheduler';
 import type { CongratsInfo, ExamNotes } from './session';
 import { ancestorName, ASSESSMENT_DEPTH, decksGivingNew, extrasOff, isExtras } from './simple';
 
+interface Scan {
+  info: Pick<
+    CongratsInfo,
+    'reviewLimitReached' | 'newLimitReached' | 'buried' | 'dueTomorrow' | 'inactiveNew'
+  >;
+  learnCount: number;
+  nextLearn: number | null;
+  anyActive: boolean;
+}
+
+function countCard(
+  scan: Scan,
+  record: ReturnType<typeof toRecord>,
+  today: number,
+  givesNew: boolean,
+  inExtras: boolean,
+): void {
+  const { info } = scan;
+  if (!record) {
+    if (givesNew) info.newLimitReached = true;
+    else if (!inExtras) info.inactiveNew++;
+  } else if (record.queue === 'learn') {
+    scan.learnCount++;
+    scan.nextLearn = scan.nextLearn === null ? record.due : Math.min(scan.nextLearn, record.due);
+  } else if (record.due <= today) info.reviewLimitReached = true;
+  else if (record.due === today + 1) info.dueTomorrow++;
+}
+
+function scanCards(
+  data: StudyData,
+  active: ReadonlySet<string>,
+  extras: ReadonlySet<string>,
+  givingNew: ReadonlySet<string>,
+  now: number,
+  today: number,
+): Scan {
+  const scan: Scan = {
+    info: {
+      reviewLimitReached: false,
+      newLimitReached: false,
+      buried: false,
+      dueTomorrow: 0,
+      inactiveNew: 0,
+    },
+    learnCount: 0,
+    nextLearn: null,
+    anyActive: false,
+  };
+  for (const c of data.deck.cards) {
+    if (!active.has(c.deckId)) continue;
+    const givesNew = givingNew.has(c.deckId);
+    const inExtras = extras.has(c.deckId);
+    if (givesNew && !inExtras) scan.anyActive = true;
+    const row = data.rows.get(cardKey(c));
+    if (row?.suspended) continue;
+    if (isHidden(row, now)) {
+      scan.info.buried = true;
+      continue;
+    }
+    countCard(scan, toRecord(row, data.prefs), today, givesNew, inExtras);
+  }
+  return scan;
+}
+
 export function congratsInfo(
   data: StudyData,
   rootId: string,
@@ -22,35 +86,14 @@ export function congratsInfo(
   const active = new Set(decks.map((d) => d.id));
   const extras = new Set(decks.filter((d) => isExtras(d.name)).map((d) => d.id));
   const givingNew = decksGivingNew(data.decks, data.plan);
-  let learnCount = 0;
-  let nextLearn: number | null = null;
-  const info = {
-    reviewLimitReached: false,
-    newLimitReached: false,
-    buried: false,
-    dueTomorrow: 0,
-    inactiveNew: 0,
-  };
-  let anyActive = false;
-  for (const c of data.deck.cards) {
-    if (!active.has(c.deckId)) continue;
-    if (givingNew.has(c.deckId) && !extras.has(c.deckId)) anyActive = true;
-    const row = data.rows.get(cardKey(c));
-    if (row?.suspended) continue;
-    if (isHidden(row, now)) {
-      info.buried = true;
-      continue;
-    }
-    const record = toRecord(row, data.prefs);
-    if (!record) {
-      if (givingNew.has(c.deckId)) info.newLimitReached = true;
-      else if (!extras.has(c.deckId)) info.inactiveNew++;
-    } else if (record.queue === 'learn') {
-      learnCount++;
-      nextLearn = nextLearn === null ? record.due : Math.min(nextLearn, record.due);
-    } else if (record.due <= timing.today) info.reviewLimitReached = true;
-    else if (record.due === timing.today + 1) info.dueTomorrow++;
-  }
+  const { info, learnCount, nextLearn, anyActive } = scanCards(
+    data,
+    active,
+    extras,
+    givingNew,
+    now,
+    timing.today,
+  );
   // Anki: the next learning card, counted to when it enters the learn-ahead limit (at least a minute).
   const secs = nextLearn === null ? 86_400 : Math.max(60, nextLearn - learnAheadSecs - timing.now);
   return {

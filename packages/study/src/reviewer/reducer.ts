@@ -19,7 +19,7 @@ import {
 } from '@qv/srs';
 import type { Rating } from '@qv/srs';
 import type { AnswerToday, CardRef, StoredCard } from '@qv/schema/user';
-import { rollProgress } from '../pace';
+import { rollProgress } from '../rollProgress';
 import {
   QUEUE_NAMES,
   cardKey,

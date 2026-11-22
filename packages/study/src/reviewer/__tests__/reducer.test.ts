@@ -2,7 +2,7 @@
 // the guarantees the web will lean on: it changes nothing it is given, reads no clock and numbers what it asks to save.
 import { describe, expect, it, vi } from 'vitest';
 import { entriesOf } from '@qv/srs';
-import { rollProgress } from '../../pace';
+import { rollProgress } from '../../rollProgress';
 import { cardKey } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { CardChangedError } from './referenceSave';

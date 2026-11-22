@@ -3,7 +3,7 @@
 import { schedTiming } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
 import { answeredTodayIn, congratsInfo, hasSeenAssessment } from '../congrats';
-import { dateOfDay } from '../pace';
+import { dateOfDay } from '../examDate';
 import {
   ASSESSMENT,
   CARDS,

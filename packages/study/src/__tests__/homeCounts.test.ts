@@ -5,7 +5,7 @@ import type { HomeDeckCounts } from '@qv/schema/user';
 import { describe, expect, it, vi } from 'vitest';
 import { decayByDeck, homeCourseCounts, nextChangeAt } from '../homeCounts';
 import type { HomeStudyBase } from '../homeCounts';
-import { dateOfDay } from '../pace';
+import { dateOfDay } from '../examDate';
 import {
   ASSESSMENT,
   COURSE,

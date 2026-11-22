@@ -7,7 +7,7 @@
 import { newCard } from '@qv/srs';
 import type { QueueEntry, SchedulingStates } from '@qv/srs';
 import type { ActionName, CardRef, StoredCard } from '@qv/schema/user';
-import type { CatchUp } from './pace';
+import type { CatchUp } from './catchUp';
 
 const ACTION_LABELS: Record<ActionName, string> = {
   answer: 'Responder tarjeta',
@@ -30,7 +30,7 @@ const SIMPLE_ACTION_LABELS: Partial<Record<ActionName, string>> = {
 };
 
 export function actionLabel(action: ActionName, fullAnki: boolean): string {
-  return (!fullAnki && SIMPLE_ACTION_LABELS[action]) || ACTION_LABELS[action];
+  return (fullAnki ? undefined : SIMPLE_ACTION_LABELS[action]) ?? ACTION_LABELS[action];
 }
 
 export type HideAction = 'bury_card' | 'bury_note' | 'suspend_card' | 'suspend_note';

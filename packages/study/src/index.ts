@@ -21,21 +21,18 @@ export {
 export type { StudyPlan } from './simple';
 export {
   assessmentView,
-  catchUpText,
-  dateOfDay,
-  dayOfDate,
   DEFAULT_FINAL_REVIEW_DAYS,
   FINAL_REVIEW_OPTIONS,
-  isExamDate,
-  longDate,
-  LONGEST_CATCH_UP,
-  LONGEST_STATUS,
   nearestExamText,
   REVIEW_AT_DAY,
-  rollProgress,
-  shortDate,
 } from './pace';
-export type { AssessmentView, CatchUp, PaceOption } from './pace';
+export type { AssessmentView } from './pace';
+export { LONGEST_CATCH_UP, LONGEST_STATUS } from './paceText';
+export type { PaceOption } from './paceTypes';
+export { catchUpText } from './catchUp';
+export type { CatchUp } from './catchUp';
+export { dateOfDay, dayOfDate, isExamDate, longDate, shortDate } from './examDate';
+export { rollProgress } from './rollProgress';
 export {
   buildQueue,
   cardKey,

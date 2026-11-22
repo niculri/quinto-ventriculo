@@ -9,7 +9,7 @@ import type { DeckConfig, QueueEntry, Rating } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import type { AnswerToday, CardRef, StoredCard } from '@qv/schema/user';
 import { congratsInfo, answeredTodayIn, hasSeenAssessment } from '../../congrats';
-import { rollProgress } from '../../pace';
+import { rollProgress } from '../../rollProgress';
 import {
   QUEUE_NAMES,
   cardKey,

@@ -1,36 +1,27 @@
 // Tests the assessment mode's pure functions: calendar days, the pace, the minutes of a plan, the choices of
-// final-review days, the summaries, the plan to catch up and a new day with a session open.
+// final-review days and the summaries.
 
 import { dayStartsAt, schedTiming } from '@qv/srs';
 import { describe, expect, it } from 'vitest';
 import { defaultPreferences } from '../preferences';
 import type { DeckProgress } from '@qv/schema/user';
 import {
-  LARGE_BACKLOG,
-  LONGEST_CATCH_UP,
-  LONGEST_STATUS,
   UNREALISTIC_MINUTES,
   assessmentFacts,
   assessmentPaces,
   assessmentView,
-  catchUpPlan,
-  catchUpText,
   computePace,
-  dateOfDay,
-  dayOfDate,
-  daysLeftText,
   examSummary,
-  isExamDate,
-  longDate,
-  shortDate,
   nearestExamText,
   newAtDayStart,
   paceOptions,
   paceRose,
   planMinutes,
-  rollProgress,
 } from '../pace';
-import type { AssessmentFacts } from '../pace';
+import { LONGEST_CATCH_UP, LONGEST_STATUS } from '../paceText';
+import type { AssessmentFacts } from '../paceTypes';
+import { catchUpText } from '../catchUp';
+import { dateOfDay, dayOfDate, daysLeftText, isExamDate, longDate, shortDate } from '../examDate';
 import { EMPTY_PLAN } from '../simple';
 import type { StudyPlan } from '../simple';
 
@@ -566,57 +557,6 @@ describe('what the student reads', () => {
     expect(
       nearestExamText(DECKS, plan(), [], [ASSESSMENT], TODAY, defaultPreferences()),
     ).toBeNull();
-  });
-});
-
-describe('catching up', () => {
-  it('a small backlog needs no plan', () => {
-    expect(catchUpPlan(LARGE_BACKLOG - 1, null)).toBeNull();
-    expect(catchUpPlan(LARGE_BACKLOG, null)).not.toBeNull();
-  });
-
-  it('as the example: 300 late, 60 a day, 5 days', () => {
-    const plan = catchUpPlan(300, null)!;
-    expect(plan).toEqual({ overdue: 300, perDay: 60, days: 5 });
-    expect(catchUpText(plan)).toBe(
-      'Llevas 300 atrasadas. Con ~60 al día, además de lo de hoy, te pones al día en 5 días.',
-    );
-  });
-
-  it('a very large one takes more days, not more than 100 a day', () => {
-    expect(catchUpPlan(1000, null)).toEqual({ overdue: 1000, perDay: 100, days: 10 });
-  });
-
-  it('the test comes first: over the days left', () => {
-    expect(catchUpPlan(300, 2)).toEqual({ overdue: 300, perDay: 150, days: 2 });
-    expect(catchUpText(catchUpPlan(100, 1)!)).toMatch(/en 1 día\.$/);
-    expect(catchUpPlan(300, 0)).toBeNull();
-  });
-
-  it('the numbers always reach', () => {
-    for (const overdue of [50, 51, 317, 999, 5000]) {
-      const p = catchUpPlan(overdue, null)!;
-      expect(p.perDay * p.days).toBeGreaterThanOrEqual(overdue);
-    }
-  });
-});
-
-describe('a new day with a session open', () => {
-  it('what was answered stops being new, and only then', () => {
-    const answers = [
-      { deckId: L1, queueBefore: 'new' },
-      { deckId: L1, queueBefore: 'new' },
-      { deckId: L1, queueBefore: 'review' },
-      { deckId: L2, queueBefore: 'new' },
-    ];
-    const before = [row(L1, { seen: 10, newToday: 1, newYesterday: 7 })];
-    const after = rollProgress(before, answers);
-    expect(after.find((p) => p.deckId === L1)).toMatchObject({
-      seen: 11,
-      newToday: 0,
-      newYesterday: 2,
-    });
-    expect(after.find((p) => p.deckId === L2)).toMatchObject({ seen: 1, newYesterday: 1 });
   });
 });
 

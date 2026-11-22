@@ -187,6 +187,18 @@ describe('a review card that passes', () => {
   });
 });
 
+describe('a maximum interval under one day', () => {
+  it('still leaves every pass one day long: an interval is never shorter than that', () => {
+    const next = nextStates(
+      review(10),
+      context({ fsrs: fsrsWith(1, 50, 100, 400), maximumReviewInterval: 0 }),
+    );
+    for (const s of [next.hard, next.good, next.easy]) {
+      expect(s).toMatchObject({ kind: 'review', scheduledDays: 1 });
+    }
+  });
+});
+
 describe('a relearning card with no relearning steps', () => {
   const answers = (fsrs: NextStates, over: Partial<StateContext> = {}) =>
     nextStates(relearning(), context({ fsrs, ...over }));

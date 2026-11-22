@@ -6,10 +6,11 @@ import type { CardRecord } from '../../card';
 import { defaultConfig } from '../../config';
 import type { DeckConfig, NewCardGatherPriority } from '../../config';
 import type { QueueCard, QueueDeck } from '../base';
-import { gatherNew } from '../gather';
+import { gatherIntradayLearning, gatherNew, noteRanks } from '../gather';
 import type { Gathering } from '../gather';
 import { DEFAULT_GLOBAL_SETTINGS } from '../base';
 import { activeLimits } from '../limits';
+import { fnv1a64, sqlFnvHash } from '../../random';
 import { buildQueue, entriesOf } from '../queue';
 
 const NOW = 1_800_000_000;
@@ -75,6 +76,17 @@ describe('the gather priority of new cards decides which ones fit in the day', (
     expect(new Set(cards.map((c) => c.split('/')[0])).size).toBeGreaterThan(3);
   });
 
+  it('«random notes» orders the notes by the hash of the note with the day’s salt: the day times Knuth’s constant, modulo 2³²', () => {
+    const today = 20_123;
+    const salt = (BigInt(today) * 2654435761n) & 0xffffffffn;
+    const order = [...new Set(taken('randomNotes', 24, today).map((c) => c.split('/')[0]!))];
+    const hashed = (note: string) => sqlFnvHash(fnv1a64(note), salt);
+    expect(order).toHaveLength(12);
+    for (let i = 1; i < order.length; i++) {
+      expect(hashed(order[i - 1]!)).toBeLessThan(hashed(order[i]!));
+    }
+  });
+
   it('«deck, then random notes» fills the first deck before touching the next, choosing its notes at random', () => {
     const decks = [
       deckOf({ newCardGatherPriority: 'deckThenRandomNotes', newPerDay: 3 }),
@@ -137,6 +149,16 @@ describe('burying siblings while gathering', () => {
     const cards = [dueReview('a', 0), fresh('a', 1, 0), fresh('b', 0, 1)];
     expect(queueOf([deckOf({ buryNew: true })], cards)).toEqual(['a/0', 'b/0']);
     expect(queueOf([deckOf({ buryNew: false })], cards)).toContain('a/1');
+  });
+
+  it('a note remembers every deck its cards came from: one that buries new cards, even if it is seen second, buries them for a third card', () => {
+    const decks = [deckOf({ buryNew: false }), deckOf({ buryNew: true }, '2', 'A::B')];
+    const review = (ord: number, deckId: string): QueueCard => ({
+      ...dueReview('n', ord),
+      deckId,
+    });
+    const cards = [review(0, '1'), review(1, '2'), fresh('n', 2, 0, '1'), fresh('m', 0, 1, '1')];
+    expect(queueOf(decks, cards).sort()).toEqual(['m/0', 'n/0', 'n/1']);
   });
 
   it('«interday learning» cards bury their siblings only when that option is on', () => {
@@ -257,5 +279,62 @@ describe('new cards that have no position of their own', () => {
 
   it('take their own place in the order they were added when the note has none', () => {
     expect(order(new Map())).toEqual(['x/0', 'y/0', 'x/1']);
+  });
+});
+
+describe('where a note stands among its deck’s notes', () => {
+  const card = (note: string, ord: number, at: number): QueueCard => ({
+    noteGuid: note,
+    ord,
+    deckId: '1',
+    index: at,
+    record: null,
+    hidden: false,
+  });
+
+  it('is where its first card is, whatever order the cards are listed in', () => {
+    const cards = [card('x', 0, 0), card('y', 0, 1), card('x', 1, 2)];
+    expect(noteRanks(cards)).toEqual(
+      new Map([
+        ['x', 0],
+        ['y', 1],
+      ]),
+    );
+    expect(noteRanks([...cards].reverse())).toEqual(
+      new Map([
+        ['x', 0],
+        ['y', 1],
+      ]),
+    );
+  });
+});
+
+describe('intraday learning cards', () => {
+  const learning = (note: string, due: number): QueueCard => ({
+    noteGuid: note,
+    ord: 0,
+    deckId: '1',
+    index: index++,
+    record: { ...newCard(0), phase: 'learning', queue: 'learn', due, remainingSteps: 1, reps: 1 },
+    hidden: false,
+  });
+
+  it('all come before the next day starts, the very second it starts included, by the time they are due', () => {
+    const decks = [deckOf({})];
+    const { limits } = activeLimits(decks, decks[0]!, new Map(), DEFAULT_GLOBAL_SETTINGS);
+    const cards = [
+      learning('late', timing.nextDayAt + 1),
+      learning('last', timing.nextDayAt),
+      learning('first', timing.now - 60),
+    ];
+    const g: Gathering = {
+      cards,
+      limits,
+      timing,
+      byId: new Map(decks.map((d) => [d.id, d])),
+      deckList: undefined,
+      seen: new Map(),
+    };
+    expect(gatherIntradayLearning(g).map((e) => e.noteGuid)).toEqual(['first', 'last']);
   });
 });

@@ -7,3 +7,11 @@ export interface SiteSettingsRepository {
   /** Changes only the keys it is given. */
   set(input: SiteSettingsUpdate & { by: string }): Promise<SiteSettings>;
 }
+
+const notConfigured = () => Promise.reject(new Error('The site settings are not configured'));
+
+/** Nothing is hidden and nothing can be changed: the panel's route answers «no existe» before reaching it. */
+export const NO_SETTINGS_REPOSITORY: SiteSettingsRepository = {
+  get: notConfigured,
+  set: notConfigured,
+};

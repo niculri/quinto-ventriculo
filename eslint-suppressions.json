@@ -96,7 +96,7 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/api/src/card-index.test.ts": {

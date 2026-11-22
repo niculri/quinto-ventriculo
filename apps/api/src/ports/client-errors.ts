@@ -9,5 +9,12 @@ export interface ClientErrorRecorder {
 export interface ClientErrorsReader {
   read(): Promise<ClientErrorGroup[]>;
 }
+
+export const NO_CLIENT_ERRORS: ClientErrorRecorder = { record: () => undefined };
+
+export const NO_CLIENT_ERRORS_READER: ClientErrorsReader = {
+  read: () => Promise.reject(new Error('The browsers’ errors are not configured')),
+};
+
 /** The most groups a reader gives back. */
 export const ERRORS_SHOWN = 50;

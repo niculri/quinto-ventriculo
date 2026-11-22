@@ -4,7 +4,7 @@ import type { ClientErrorReport } from '@qv/schema';
 import { memoryClientErrors } from '../../adapters/memory/client-errors';
 import { memoryRepository } from '../../adapters/memory/content';
 import { createApp } from '../../app';
-import type { Dependencies } from '../../app';
+import type { AppOptions } from '../../dependencies';
 import { MediaSigner } from '../../services/media-signer';
 
 const SITE = 'https://sitio.test';
@@ -28,7 +28,7 @@ const EMPTY = {
   quizzes: [],
 };
 
-function appWith(deps: Partial<Dependencies> = {}, nowSeconds = () => 1_800_000_000) {
+function appWith(deps: Partial<AppOptions> = {}, nowSeconds = () => 1_800_000_000) {
   return createApp({
     verifier: { verify: async () => null },
     repository: memoryRepository(EMPTY),

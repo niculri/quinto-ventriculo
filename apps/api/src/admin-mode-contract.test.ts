@@ -14,7 +14,7 @@ import type { ContentBundle, ImportedAnkiNote, ImportedQuiz } from '@qv/schema';
 import { adminKey } from '@qv/schema/http';
 import type { API_ROUTES } from '@qv/schema/http';
 import { createApp } from './app';
-import type { Dependencies } from './app';
+import type { AppOptions } from './dependencies';
 import { deepHealth } from './services/health';
 import { MediaSigner } from './services/media-signer';
 import { memoryRepository } from './adapters/memory/content';
@@ -461,7 +461,7 @@ const answer = async (r: Response) => ({
 describe('who is not an administrator gets nothing of the admin mode', () => {
   const settings = { hiddenCourses: [OFF], hideEmptySemesters: true };
   const verifier = { verify: async (token: string) => ({ id: token, email: token }) };
-  const deps = (over: Partial<Dependencies> = {}): Dependencies => ({
+  const deps = (over: Partial<AppOptions> = {}): AppOptions => ({
     verifier,
     repository: memoryRepository(base),
     preview: memoryRepository(draft),
@@ -499,7 +499,7 @@ describe('who is not an administrator gets nothing of the admin mode', () => {
   });
 
   /** What each way of being refused the mode gives an administrator who sends the header: what a student gets. */
-  const WAYS: Record<string, () => Partial<Dependencies>> = {
+  const WAYS: Record<string, () => Partial<AppOptions>> = {
     'the administrators’ list says no': () => ({ admins: { isAdmin: async () => false } }),
     'the administrators’ list cannot be asked': () => ({
       admins: {

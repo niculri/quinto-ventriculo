@@ -40,3 +40,18 @@ export type PublishInput = {
 };
 
 export type Refused = { ok: false; reason: string; detail: string | null };
+
+const notConfigured = () => Promise.reject(new Error('The release repository is not configured'));
+
+/** For a Worker without a draft to publish: the routes of the panel answer «no existe» before reaching it. */
+export const NO_RELEASES: ReleaseRepository = {
+  summaryJson: notConfigured,
+  browseIndexesJson: notConfigured,
+  itemsJson: notConfigured,
+  textsJson: notConfigured,
+  media: notConfigured,
+  setMark: notConfigured,
+  publish: notConfigured,
+  revert: notConfigured,
+  log: notConfigured,
+};

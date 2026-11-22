@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { FEW, UsageReport } from '@qv/schema';
 import type { AdminUsageRow, Catalog, Note, QuizDetail } from '@qv/schema';
 import { createApp } from './app';
-import type { Dependencies } from './app';
+import type { AppOptions } from './dependencies';
 import { memoryClientErrors } from './adapters/memory/client-errors';
 import { MediaSigner } from './services/media-signer';
 import type { ContentRepository } from './ports/content';
@@ -132,7 +132,7 @@ function row(groups?: UsageGroups): AdminUsageRow {
   };
 }
 
-function appWith(deps: Partial<Dependencies> = {}) {
+function appWith(deps: Partial<AppOptions> = {}) {
   const asked: { token: string; groups: UsageGroups }[] = [];
   const stats: UsageStatsSource = {
     stats: async (token, groups) => {

@@ -16,3 +16,8 @@ export interface SharedHealthCache {
 export interface DeepHealth {
   run(): Promise<DeepHealthResult>;
 }
+
+/** The route does not exist without the checks. */
+export const NO_DEEP_HEALTH: DeepHealth = {
+  run: () => Promise.reject(new Error('The deep health checks are not configured')),
+};

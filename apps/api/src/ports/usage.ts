@@ -34,3 +34,15 @@ export type UsageGroups = {
 export interface UsageStatsSource {
   stats(token: string, groups: UsageGroups): Promise<unknown>;
 }
+
+export const NO_USAGE_EVENTS: UsageRecorder = {
+  record: () => undefined,
+};
+
+export const NO_USAGE_OPENS: UsageOpensReader = {
+  read: () => Promise.reject(new Error('The opens are not configured')),
+};
+
+export const NO_USAGE_STATS: UsageStatsSource = {
+  stats: () => Promise.reject(new Error('The usage figures are not configured')),
+};

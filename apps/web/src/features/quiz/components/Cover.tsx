@@ -2,8 +2,10 @@
 import { isResumable } from '@qv/quiz';
 import type { Preferences, Round } from '@qv/quiz';
 import type { QuizDetail, QuizSectionSummary } from '@qv/schema';
+import { useDraftOnly } from '../../catalog/hooks/useDraftOnly';
 import { useDiscardArm, useTabFocus } from '../hooks/useCoverState';
 import { chosenCount } from '../model/cover';
+import { DraftOnlyNotice } from '../../../shared/ui/DraftOnlyNotice';
 import { quizStrings as s } from '../strings';
 import { Html } from './Html';
 import { ModeSwitches } from './ModeSwitches';
@@ -63,6 +65,8 @@ export function Cover({
   focusTab?: boolean;
   heading?: string | null;
 }) {
+  // What only the draft has is looked at, not answered.
+  const draftOnly = useDraftOnly(['quiz', quiz.id]);
   const sections = quiz.sections;
   const active = sections.findIndex((x) => x.id === section.id);
   const chosen = chosenCount(section, preferences);
@@ -88,15 +92,27 @@ export function Cover({
         />
       ) : null}
 
-      <StartForm
-        section={section}
-        preferences={preferences}
-        chosen={chosen}
-        onChoose={onChoose}
-        onStart={onStart}
-      />
+      {draftOnly ? (
+        <div className="mt-6">
+          <DraftOnlyNotice kind="quiz" />
+        </div>
+      ) : (
+        <>
+          <StartForm
+            section={section}
+            preferences={preferences}
+            chosen={chosen}
+            onChoose={onChoose}
+            onStart={onStart}
+          />
 
-      <ModeSwitches preferences={preferences} hasChoices={section.hasChoices} onChoose={onChoose} />
+          <ModeSwitches
+            preferences={preferences}
+            hasChoices={section.hasChoices}
+            onChoose={onChoose}
+          />
+        </>
+      )}
 
       {section.notice ? <Html as="p" className="aviso" html={section.notice} /> : null}
       {section.listing?.items.length ? <TopicListing listing={section.listing} /> : null}

@@ -1,23 +1,34 @@
-// Switches the whole site to the admin mode for an administrator: services and a cache of its own, and back.
+// Switches the whole site to the admin mode for an administrator: the content API and a cache of its own, over the
+// same progress, and back.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import type { Services } from './services';
-import { localQuizRepository } from '../features/quiz/api/repository';
+import type { ApiClient } from '../shared/lib/api';
+import { quizKeys } from '../features/quiz/api/queries';
 import { studyKeys } from '../features/progress/queries';
 import {
   AdminModeContext,
   sharedWithAdminMode,
-  adminStudyRepository,
   storeAdminMode,
   storedAdminMode,
 } from '../features/adminMode/adminMode';
 import type { AdminMode } from '../features/adminMode/adminMode';
+import { draftOnly } from '../features/adminMode/draftOnly';
+import { guardQuiz, guardReports, guardStudy } from '../features/adminMode/draftGuard';
 
-const fresh = (services: Services): Pick<Services, 'study' | 'quiz'> => ({
-  study: adminStudyRepository(services.study),
-  quiz: localQuizRepository(null),
-});
+/** The same repositories, with a net under them for what only the draft has. */
+const guarded = (
+  services: Services,
+  adminApi: ApiClient,
+): Pick<Services, 'study' | 'quiz' | 'reports'> => {
+  const draft = draftOnly(adminApi);
+  return {
+    study: guardStudy(services.study, draft),
+    quiz: guardQuiz(services.quiz, draft),
+    reports: guardReports(services.reports, draft),
+  };
+};
 
 export interface AdminModeParts {
   services: Services;
@@ -38,8 +49,8 @@ export function AdminModeSwitch({
   render: (parts: AdminModeParts) => ReactNode;
 }) {
   const available = !!services.adminApi;
-  const [repos, setRepos] = useState<Pick<Services, 'study' | 'quiz'> | null>(() =>
-    available && storedAdminMode() ? fresh(services) : null,
+  const [repos, setRepos] = useState<Pick<Services, 'study' | 'quiz' | 'reports'> | null>(() =>
+    services.adminApi && storedAdminMode() ? guarded(services, services.adminApi) : null,
   );
 
   const adminServices = useMemo<Services | null>(
@@ -49,14 +60,13 @@ export function AdminModeSwitch({
             ...services,
             ...repos,
             api: services.adminApi,
-            reports: { ...services.reports, send: () => Promise.resolve() },
           }
         : null,
     [repos, services],
   );
 
   const enter = useCallback(() => {
-    if (!available) return;
+    if (!services.adminApi) return;
     adminClient.clear();
     for (const q of client
       .getQueryCache()
@@ -64,12 +74,12 @@ export function AdminModeSwitch({
       if (q.state.data !== undefined) adminClient.setQueryData(q.queryKey, q.state.data);
     }
     storeAdminMode(true);
-    setRepos(fresh(services));
-  }, [available, client, adminClient, services]);
+    setRepos(guarded(services, services.adminApi));
+  }, [client, adminClient, services]);
 
   const exit = useCallback(() => {
     // Back to the site's cache before it is mounted again, so the page does not leave the screen while it is read again;
-    // the preferences are read again, since the admin mode may have changed them in memory only.
+    // the progress is read again, since it was studied in the other cache.
     for (const q of adminClient
       .getQueryCache()
       .findAll({ predicate: (q) => sharedWithAdminMode(q.queryKey) })) {
@@ -78,7 +88,8 @@ export function AdminModeSwitch({
         client.setQueryData(q.queryKey, q.state.data);
       }
     }
-    void client.invalidateQueries({ queryKey: studyKeys.preferences });
+    void client.invalidateQueries({ queryKey: studyKeys.all });
+    void client.invalidateQueries({ queryKey: quizKeys.savedAll });
     storeAdminMode(false);
     setRepos(null);
     adminClient.clear();

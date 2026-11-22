@@ -14,7 +14,9 @@ import { StudyLoading } from '../features/study/components/StudyLoading';
 import { answerScreenBack } from '../shared/ui/answerScreen';
 import { ankiScreens, screenOfPath, WarmScreens } from './ankiScreens';
 import { scopeNodeOf, unitOf } from '../features/catalog/model/scope';
-import { resolveCourseDeck } from '../features/catalog/model/tree';
+import { resolveCourseDeck, studyBackLabel } from '../features/catalog/model/tree';
+import { useDraftOnly } from '../features/catalog/hooks/useDraftOnly';
+import { DraftOnlyNotice } from '../shared/ui/DraftOnlyNotice';
 import { useAnkiTree } from '../features/catalog/hooks/useAnkiTree';
 import type { CourseDeckNode, DeckScreen } from '../features/catalog/model/tree';
 
@@ -90,7 +92,9 @@ function deckScreen(
       key={screen}
       fallback={screen === 'study' || screen === 'review' ? <StudyLoading node={node} /> : loading}
     >
-      <Component key={node.id} node={node} />
+      <ScreenGate node={node} screen={screen}>
+        <Component key={node.id} node={node} />
+      </ScreenGate>
       <WarmScreens />
     </Suspense>
   );
@@ -132,4 +136,25 @@ function legacyTarget(
     return screenPath(node, 'cards', params);
   }
   return paths.deck(node.ref);
+}
+
+/** What only the draft has is looked at, never answered: where one answers, the screen is a notice. */
+function ScreenGate({
+  node,
+  screen,
+  children,
+}: {
+  node: CourseDeckNode;
+  screen: DeckScreen;
+  children: ReactNode;
+}) {
+  const draftOnly = useDraftOnly(['deck', node.id]);
+  if (!draftOnly || !['study', 'review', 'practice'].includes(screen)) return children;
+  return (
+    <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
+      <div className="mx-auto w-full max-w-lg py-16">
+        <DraftOnlyNotice kind="deck" />
+      </div>
+    </StudyFallback>
+  );
 }

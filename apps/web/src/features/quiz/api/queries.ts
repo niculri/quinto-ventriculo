@@ -7,6 +7,7 @@ export const quizKeys = {
   detail: (id: string | null) => ['quiz', id] as const,
   section: (id: string | null, sectionId: string | null) =>
     ['quiz-section', id, sectionId] as const,
+  savedAll: ['quiz-progress'] as const,
   saved: (quizId: string) => ['quiz-progress', quizId] as const,
 };
 

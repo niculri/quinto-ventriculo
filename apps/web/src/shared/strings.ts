@@ -21,6 +21,12 @@ export const sharedStrings = {
     hiddenSemester: 'Semestre oculto',
     hiddenCourse: 'Ramo apagado',
   },
+  /** What the admin mode says of what only the draft has: it is looked at, never studied or answered. */
+  draftOnly: {
+    title: 'Esto solo está en el borrador',
+    deck: 'Puedes ver sus tarjetas, pero no estudiarlas: todavía pueden cambiar y ensuciarían tu avance.',
+    quiz: 'Puedes ver de qué trata, pero no responderlo: todavía puede cambiar y ensuciaría tu avance.',
+  },
   theme: {
     label: 'Tema',
     light: 'Claro',

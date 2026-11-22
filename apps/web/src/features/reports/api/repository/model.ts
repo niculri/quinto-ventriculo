@@ -28,6 +28,8 @@ export const REPORT_MESSAGES = {
   sessionClosed: 'Tu sesión se cerró. Sal y vuelve a entrar.',
   adminOnly: 'Solo para administradores.',
   nothingOpen: 'Ya no quedan reportes abiertos de esto. Recarga la página.',
+  draftOnly:
+    'Esto solo está en el borrador: todavía no lo ve ningún alumno, así que no se reporta.',
   adminStays: 'A un administrador no se le bloquea.',
   offline: 'No se pudo. Revisa tu conexión e inténtalo de nuevo.',
 } as const;

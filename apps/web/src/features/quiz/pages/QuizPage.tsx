@@ -1,11 +1,10 @@
 // A practice test page: finds the test in the catalog, picks the section (tab) and runs the cover, rounds and results.
 import { paths } from '../../../shared/lib/paths';
-import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { Canonical } from '../../../shared/ui/Canonical';
 import { Loading } from '../../../shared/ui/Loading';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { PageTag } from '../../catalog/components/AdminMarks';
+import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { QuizScreen } from '../components/QuizScreen';
 import { useQuizPage } from '../hooks/useQuizPage';
 import type { QuizPageView } from '../hooks/useQuizPage';
@@ -19,9 +18,9 @@ function Crumbs({ view }: { view: Ready }) {
   const { semester, course } = view.found;
   const { assessment, onlyTest } = view;
   return (
-    <div className="wrap wide qz-crumbs relative">
-      <PageTag thing={['quiz', view.quiz.id]} />
-      <Breadcrumbs
+    <div className="wrap wide qz-crumbs">
+      <PageCrumbs
+        thing={['quiz', view.quiz.id]}
         items={[
           { label: s.crumbs.home, to: paths.home },
           { label: semester.name, to: paths.semester(semester.number) },

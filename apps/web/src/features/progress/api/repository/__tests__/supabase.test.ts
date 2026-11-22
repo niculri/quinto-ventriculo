@@ -89,6 +89,11 @@ describe('cards(deckIds)', () => {
     ]);
   });
 
+  it('an answer with no rows reads as no cards', async () => {
+    const { client } = fakeClient({ data: null, error: null });
+    expect(await supabaseStudyRepository(client).cards(['1'])).toEqual([]);
+  });
+
   it('another error is said', async () => {
     const { client } = fakeClient({ data: null, error: { code: '42501', message: 'not_allowed' } });
     await expect(supabaseStudyRepository(client).cards(['1'])).rejects.toThrow();

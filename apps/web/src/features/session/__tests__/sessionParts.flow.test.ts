@@ -27,4 +27,18 @@ describe('the return from Google', () => {
       await screen.findByText(/está en prueba y por ahora solo entran personas invitadas/),
     ).toBeInTheDocument();
   });
+
+  it('back without a session nor an error goes to the landing page, without a notice, and forgets the destination', async () => {
+    window.sessionStorage.setItem('qv-next', '/semesters/2');
+    const { router } = renderApp('/auth/callback', { session: null });
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    expect(router.state.location.search).toBe('');
+    expect(window.sessionStorage.getItem('qv-next')).toBeNull();
+  });
+
+  it('a destination outside the site is not followed: home instead', async () => {
+    window.sessionStorage.setItem('qv-next', '//elsewhere.example.test/x');
+    const { router } = renderApp('/auth/callback');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/home'));
+  });
 });

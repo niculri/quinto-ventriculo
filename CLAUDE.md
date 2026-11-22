@@ -31,8 +31,10 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   acceso, vista previa, administrador, ramos apagados), `routes/` (una por dominio; `routes/admin/` el panel), `services/`
   (lo que un handler hacía además de responder), `ports/` (las interfaces, con su implementación nula) y `adapters/`
   (`supabase/`, `cloudflare/`, `memory/`). Una parte opcional se pasa a `createApp` como `AppOptions`;
-  `resolveDependencies` la completa con su implementación nula, así que las rutas no preguntan si existe ni usan `!`.
-  Una ruta usa un puerto, nunca un adaptador; un adaptador no importa una ruta.
+  `resolveDependencies` la completa con su implementación nula, así que las rutas no usan `!` ni preguntan si existe;
+  lo que debe cambiar la respuesta cuando falta una parte (el 404 del panel, `/health/deep`, no contar una apertura)
+  lo decide `deps.configured`, no la identidad del objeto. Una ruta usa un puerto, nunca un adaptador; un adaptador
+  no importa una ruta (ESLint lo impone en los `import`, no en un `import()`).
 - **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los

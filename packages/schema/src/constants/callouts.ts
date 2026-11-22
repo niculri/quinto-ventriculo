@@ -15,5 +15,7 @@ export const CALLOUT_LABELS: Readonly<Record<string, string>> = {
 };
 
 export function calloutLabel(type: string): string {
-  return CALLOUT_LABELS[type] ?? type.charAt(0).toUpperCase() + type.slice(1);
+  return Object.hasOwn(CALLOUT_LABELS, type)
+    ? CALLOUT_LABELS[type]!
+    : type.charAt(0).toUpperCase() + type.slice(1);
 }

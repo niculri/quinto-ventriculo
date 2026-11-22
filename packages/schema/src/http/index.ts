@@ -23,8 +23,8 @@ export {
   withoutEmptySemesters,
 } from './api';
 export { siteSemesters, withoutCourses } from './visibility';
-export { adminKey, markAdminOnly } from './admin-only';
-export type { AdminKind } from './admin-only';
+export { adminKey, markAdminOnly } from './adminOnly';
+export type { AdminKind } from './adminOnly';
 export { ErrorCode } from './errors';
 export { PREVIEW_HEADER, PREVIEW_VALUE } from './headers';
 export {

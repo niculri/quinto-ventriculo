@@ -9,7 +9,7 @@ import { asUser, createDatabase } from '@qv/db/testing';
 import { ACCESS_TTL, supabaseAccessChecker } from '../access';
 import { ACCESS_UNAVAILABLE } from '../../../ports/access';
 import { createApp } from '../../../app';
-import { MediaSigner } from '../../../services/media-signer';
+import { MediaSigner } from '../../../services/mediaSigner';
 import { memoryRepository } from '../../memory/content';
 import { supabaseVerifier } from '../session';
 import { bodyOf, urlOf } from '../../../test/fetch';

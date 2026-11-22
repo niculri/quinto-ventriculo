@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { UnpublishedLog } from '@qv/schema';
 import { createApp } from '../../../app';
-import { MediaSigner } from '../../../services/media-signer';
+import { MediaSigner } from '../../../services/mediaSigner';
 import type { MediaStore } from '../../../ports/media';
 import { memoryRepository } from '../../../adapters/memory/content';
 import type { UnpublishedRepository } from '../../../ports/unpublished';

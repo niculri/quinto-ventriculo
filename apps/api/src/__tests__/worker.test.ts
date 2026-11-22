@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { API_ROUTES } from '@qv/schema/http';
 import type { Env } from '../worker';
 import worker from '../worker';
-import { row } from '../test/usage-app';
+import { row } from '../test/usageApp';
 
 function envWithAssets() {
   const fetch = vi.fn(

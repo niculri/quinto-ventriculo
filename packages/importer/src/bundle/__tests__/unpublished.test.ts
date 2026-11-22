@@ -7,7 +7,7 @@ import { readManifest, readUnpublished } from '../../manifest/read';
 import type { Manifest } from '../../manifest/schemas';
 import { processCardImage, processImage } from '../../media/images';
 import { FolderTarget } from '../../targets/folder';
-import { PRIVATE, createRoot, manifest, privately } from '../../test/importer-fixtures';
+import { PRIVATE, createRoot, manifest, privately } from '../../test/importerFixtures';
 import { buildBundle } from '../build';
 import { hash } from '../hash';
 import { sameUnpublished } from '../unpublished';

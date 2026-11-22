@@ -4,13 +4,13 @@ import type { Dependencies } from './dependencies';
 import type { AppEnv } from './env';
 import { requireAdmin } from './middleware/admin';
 import { requireSession } from './middleware/session';
-import { visibleContent } from './middleware/visible-content';
-import { publishedIds } from './services/published-ids';
-import type { PublishedIds } from './services/published-ids';
-import { siteSettingsReader } from './services/site-settings';
-import type { SiteSettingsReader } from './services/site-settings';
-import { usageReader } from './services/usage-reader';
-import type { UsageReader } from './services/usage-reader';
+import { visibleContent } from './middleware/visibleContent';
+import { publishedIds } from './services/publishedIds';
+import type { PublishedIds } from './services/publishedIds';
+import { siteSettingsReader } from './services/siteSettings';
+import type { SiteSettingsReader } from './services/siteSettings';
+import { usageReader } from './services/usageReader';
+import type { UsageReader } from './services/usageReader';
 
 interface Middlewares {
   session: MiddlewareHandler<AppEnv>;

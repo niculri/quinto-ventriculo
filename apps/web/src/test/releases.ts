@@ -1,4 +1,4 @@
-// The draft of the e2e folder as the database gives it (db/tests/release.test.ts writes it), and an API client that
+// The draft of the e2e folder as the database gives it (db/tests/__tests__/release.flow.test.ts writes it), and an API client that
 // answers «Publicaciones» with it.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

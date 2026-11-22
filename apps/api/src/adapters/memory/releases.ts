@@ -56,7 +56,7 @@ const pageOf = <T>(list: T[], key: (x: T) => string, after: string | null, size:
   return { items, next: rest.length > size ? key(items.at(-1)!) : null };
 };
 
-/** `items.json` is `{ "<assessment>|<kind>": [items] }`; `db/tests/release.test.ts` writes the e2e folder's files. */
+/** `items.json` is `{ "<assessment>|<kind>": [items] }`; `db/tests/__tests__/release.flow.test.ts` writes the e2e folder's files. */
 export async function folderReleaseRepository(folder: string): Promise<ReleaseRepository> {
   return releaseStore(await readFiles(folder));
 }

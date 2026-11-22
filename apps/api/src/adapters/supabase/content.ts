@@ -6,7 +6,7 @@ import { readCatalog } from './catalog';
 import { contentClient } from './client';
 import type { ContentClient } from './client';
 import { fromDatabase } from './json';
-import { rawRpcOf } from './raw-rpc';
+import { rawRpcOf } from './rawRpc';
 import { nonNull } from './stream';
 import { NOTE_COLUMNS, QUIZ_COLUMNS, quizSummary, summary } from './summaries';
 import { unwrap } from './unwrap';

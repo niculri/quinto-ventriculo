@@ -1,9 +1,9 @@
 // Tests for GET /api/admin/usage: the figures only an administrator reads.
 import { describe, expect, it } from 'vitest';
 import { FEW, UsageReport } from '@qv/schema';
-import { memoryClientErrors } from '../../../adapters/memory/client-errors';
-import { memoryUsageEvents } from '../../../adapters/memory/usage-events';
-import { ADMIN, STUDENT, appWith, get, open, row } from '../../../test/usage-app';
+import { memoryClientErrors } from '../../../adapters/memory/clientErrors';
+import { memoryUsageEvents } from '../../../adapters/memory/usageEvents';
+import { ADMIN, STUDENT, appWith, get, open, row } from '../../../test/usageApp';
 
 describe('GET /api/admin/usage', () => {
   it("brings the browsers' errors from their reader, and null without one or when it fails", async () => {

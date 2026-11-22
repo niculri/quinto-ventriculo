@@ -9,9 +9,9 @@ import {
 } from '@qv/schema';
 import { memoryRepository } from '../../../adapters/memory/content';
 import { createApp } from '../../../app';
-import { MediaSigner } from '../../../services/media-signer';
-import { ADMIN, FP, bundle, createDraftApp, releases, state } from '../../../test/draft-app';
-import { titleOf } from '../../../test/draft-app';
+import { MediaSigner } from '../../../services/mediaSigner';
+import { ADMIN, FP, bundle, createDraftApp, releases, state } from '../../../test/draftApp';
+import { titleOf } from '../../../test/draftApp';
 
 let request: Awaited<ReturnType<typeof createDraftApp>>['request'];
 

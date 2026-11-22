@@ -32,4 +32,4 @@ export {
   THUMB_PREFIX,
   thumbKeyOf,
   ThumbSignature,
-} from './browse-index';
+} from './browseIndex';

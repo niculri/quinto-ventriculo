@@ -1,4 +1,4 @@
-// dependency-cruiser for `npm run deps` (packages/ops/src/cycles-cli.ts): the import graph and its cycles between files.
+// dependency-cruiser for `npm run deps` (packages/ops/src/cyclesCli.ts): the import graph and its cycles between files.
 // The cycles between folders of the web are computed on that graph, and both are compared with .import-cycles.json.
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {

@@ -2,7 +2,7 @@
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createRoot } from '../../test/importer-fixtures';
+import { createRoot } from '../../test/importerFixtures';
 import { ImageCache } from '../cache';
 import { processImage } from '../images';
 

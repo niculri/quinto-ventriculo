@@ -7,7 +7,7 @@ import type {
   HistogramSpec,
   LinesSpec,
   ScatterSpec,
-} from './chart-specs';
+} from './chartSpecs';
 import { ImportError } from '../errors';
 
 type Maybe<T> = T | null | undefined;

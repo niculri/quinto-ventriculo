@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildBundle } from '../../bundle/build';
 import type { Manifest } from '../../manifest/schemas';
 import { processImage } from '../../media/images';
-import { createRoot, manifest, twoAssessments } from '../../test/importer-fixtures';
+import { createRoot, manifest, twoAssessments } from '../../test/importerFixtures';
 import { FolderTarget } from '../folder';
 
 let root: string;

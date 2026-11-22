@@ -6,7 +6,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ASSESSMENT, recordingProcessor } from '../../test/quiz-fixtures';
+import { ASSESSMENT, recordingProcessor } from '../../test/quizFixtures';
 import { convertQuiz } from '../convert';
 
 describe('a synthetic test in the skill’s format', () => {

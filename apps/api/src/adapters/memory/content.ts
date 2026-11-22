@@ -4,7 +4,7 @@ import { HIGHLIGHT_END, HIGHLIGHT_START } from '@qv/schema';
 import { quizDetail, quizSummary } from '@qv/schema';
 import type { ContentBundle, Note, SearchResult } from '@qv/schema';
 import type { ContentRepository } from '../../ports/content';
-import { buildCatalog } from '../../services/build-catalog';
+import { buildCatalog } from '../../services/buildCatalog';
 import { memoryDecks } from './decks';
 import { resolved } from './resolved';
 

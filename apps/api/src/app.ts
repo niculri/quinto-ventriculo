@@ -9,19 +9,19 @@ import type { AppOptions } from './dependencies';
 import type { AppEnv } from './env';
 import { apiError } from './http';
 import { releasesRoutes } from './routes/admin/releases';
-import { siteSettingsRoutes } from './routes/admin/site-settings';
+import { siteSettingsRoutes } from './routes/admin/siteSettings';
 import { unpublishedRoutes } from './routes/admin/unpublished';
 import { usageRoutes } from './routes/admin/usage';
 import { ankiRoutes } from './routes/anki';
-import { cardIndexRoutes } from './routes/card-index';
+import { cardIndexRoutes } from './routes/cardIndex';
 import { catalogRoutes } from './routes/catalog';
-import { clientErrorRoutes } from './routes/client-error';
+import { clientErrorRoutes } from './routes/clientError';
 import { healthRoutes } from './routes/health';
 import { mediaRoutes } from './routes/media';
 import { meRoutes } from './routes/me';
 import { notesRoutes } from './routes/notes';
 import { quizzesRoutes } from './routes/quizzes';
-import { usageOpenRoutes } from './routes/usage-open';
+import { usageOpenRoutes } from './routes/usageOpen';
 
 export function createApp(options: AppOptions) {
   const ctx = createContext(resolveDependencies(options));

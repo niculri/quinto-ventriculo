@@ -12,7 +12,7 @@ import {
 } from '@qv/schema';
 import type { Catalog } from '@qv/schema';
 import { CONTENT_RPC, NoteTypeTemplates, PresetRows } from '@qv/schema/content';
-import { buildCatalog } from '../../services/build-catalog';
+import { buildCatalog } from '../../services/buildCatalog';
 import type { SchemaClient } from './client';
 import { fromDatabase } from './json';
 import { QUIZ_COLUMNS, SUMMARY_COLUMNS, quizSummary, summary } from './summaries';

@@ -4,7 +4,7 @@ import { createApp } from '../../app';
 import type { ContentRepository } from '../../ports/content';
 import type { DeepHealthResult, HealthCheck, SharedHealthCache } from '../../ports/health';
 import { deepHealth } from '../../services/health';
-import { MediaSigner } from '../../services/media-signer';
+import { MediaSigner } from '../../services/mediaSigner';
 
 const USERS = 'https://users.example.supabase.co';
 // Built at run time, so that the secret scanner of the repository does not take it for a key.

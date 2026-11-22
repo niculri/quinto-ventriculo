@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { memoryRepository } from '../../adapters/memory/content';
 import { createApp } from '../../app';
 import type { Access } from '../../ports/access';
-import { MediaSigner } from '../../services/media-signer';
+import { MediaSigner } from '../../services/mediaSigner';
 
 const EMPTY = {
   semesters: [],

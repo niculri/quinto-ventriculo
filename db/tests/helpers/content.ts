@@ -1,7 +1,7 @@
 // Saving a bundle of fixtures through the importer's real CloudTarget, for the tests of the content database.
 import type { CloudTarget, SaveScope } from '@qv/importer';
-import { bundleOf } from './import-fixtures';
-import type { Parts } from './import-fixtures';
+import { bundleOf } from './importFixtures';
+import type { Parts } from './importFixtures';
 
 export const saveParts = (target: CloudTarget, parts: Parts, scope?: SaveScope) => {
   const { bundle, media } = bundleOf(parts);

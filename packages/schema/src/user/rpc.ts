@@ -5,9 +5,9 @@ import { AdminUsageRow } from '../http/usage';
 import { ACCESS_RPC } from './access';
 import { ACCOUNT_RPC } from './account';
 import type { UsersContracts } from './functions';
-import { QUIZ_RPC } from './quiz-progress';
-import { REPORTS_RPC } from './reports-rpc';
-import { STUDY_RPC } from './study-rpc';
+import { QUIZ_RPC } from './quizProgress';
+import { REPORTS_RPC } from './reportsRpc';
+import { STUDY_RPC } from './studyRpc';
 
 const Group = z.string().nullable();
 

@@ -3,7 +3,7 @@
 import { access, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ContentBundle } from '@qv/schema';
-import { memoryClientErrors } from '../adapters/memory/client-errors';
+import { memoryClientErrors } from '../adapters/memory/clientErrors';
 import { memoryRepository } from '../adapters/memory/content';
 import { folderReleaseRepository } from '../adapters/memory/releases';
 import { memorySiteSettings } from '../adapters/memory/settings';
@@ -14,7 +14,7 @@ import { createApp } from '../app';
 import type { MediaStore } from '../ports/media';
 import type { SessionVerifier } from '../ports/session';
 import { deepHealth } from '../services/health';
-import { MediaSigner, isValidKey } from '../services/media-signer';
+import { MediaSigner, isValidKey } from '../services/mediaSigner';
 
 export const DEMO_TOKEN = 'demo-local';
 export const DEMO_USER = {

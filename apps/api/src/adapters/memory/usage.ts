@@ -2,9 +2,9 @@
 import { FEW } from '@qv/schema';
 import type { AdminUsageRow, ContentBundle } from '@qv/schema';
 import type { UsageEvent, UsageGroups, UsageStatsSource } from '../../ports/usage';
-import { siteDay } from '../../services/usage-report';
+import { siteDay } from '../../services/usageReport';
 import { resolved } from './resolved';
-import { memoryUsageEvents } from './usage-events';
+import { memoryUsageEvents } from './usageEvents';
 
 export function demoUsageStats(now: () => number = Date.now): UsageStatsSource {
   return { stats: (_token, groups) => resolved(() => demoUsageRow(groups, now())) };

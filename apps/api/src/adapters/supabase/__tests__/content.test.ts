@@ -1,7 +1,7 @@
 // Tests for the content repository against a fake PostgREST: the big reads the Worker passes on as they come.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../../../app';
-import { MediaSigner } from '../../../services/media-signer';
+import { MediaSigner } from '../../../services/mediaSigner';
 import { KEY, DECK, SECTION, startFakePostgrest } from '../../../test/postgrest';
 import { supabaseRepository } from '../content';
 

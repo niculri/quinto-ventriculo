@@ -1,6 +1,6 @@
 // What taking a piece off the site takes and gives.
 import type { UnpublishedKind, Manifest } from '../manifest/schemas';
-import type { ContentDatabase } from '../targets/content-database';
+import type { ContentDatabase } from '../targets/contentDatabase';
 
 export interface MediaRemover {
   has(key: string): Promise<boolean>;

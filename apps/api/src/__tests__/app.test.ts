@@ -15,7 +15,7 @@ import {
 } from '@qv/schema';
 import type { ContentBundle, ImportedQuiz } from '@qv/schema';
 import { createApp } from '../app';
-import { MediaSigner } from '../services/media-signer';
+import { MediaSigner } from '../services/mediaSigner';
 import type { MediaStore } from '../ports/media';
 import { memoryRepository } from '../adapters/memory/content';
 import { supabaseVerifier } from '../adapters/supabase/session';

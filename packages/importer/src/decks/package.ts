@@ -11,11 +11,11 @@ import { ImportError } from '../errors';
 import type { ProcessedImage } from '../media/images';
 import type { DecksManifest } from '../manifest/schemas';
 import { IMAIOS, noteNamesImaios } from '../policy/imaios';
-import { readExcludedCards } from './excluded-cards';
+import { readExcludedCards } from './excludedCards';
 import { checkDeckName, createdAt, levelOf, safeDecode, sameConfig } from './names';
-import { remapNotes } from './note-types';
-import type { NewestNoteTypes } from './note-types';
-import { forSite } from './site-note-types';
+import { remapNotes } from './noteTypes';
+import type { NewestNoteTypes } from './noteTypes';
+import { forSite } from './siteNoteTypes';
 import type { AssessmentPlace, DecksOptions, DecksState } from './types';
 
 type Entry = DecksManifest['decks'][number];

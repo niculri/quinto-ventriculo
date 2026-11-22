@@ -8,7 +8,7 @@ import type { Refused, ReleaseRepository } from '../../ports/releases';
 import { contentClient } from './client';
 import type { ContentClient } from './client';
 import { fromDatabase } from './json';
-import { rawRpcOf } from './raw-rpc';
+import { rawRpcOf } from './rawRpc';
 
 type Functions = Database['public']['Functions'];
 

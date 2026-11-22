@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { TaxonomyFile, TopicMapFile } from '@qv/schema';
 import { ImportError } from '../errors';
 import { assessmentFileName } from './files';
-import { gitHistory } from './git-history';
-import { historyFindings } from './history-rules';
+import { gitHistory } from './gitHistory';
+import { historyFindings } from './historyRules';
 import { Problems } from './problems';
 import type { AssessmentTaxonomy, TaxonomyHistory } from './types';
 

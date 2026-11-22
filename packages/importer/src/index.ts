@@ -9,17 +9,17 @@ export type { Report } from './sync/report';
 export type { SaveScope } from './sync/scope';
 export type { Target, ThumbMaker } from './targets/target';
 export type { CloudOptions } from './targets/cloud';
-export { cloudConfigFromEnv, draftReviewUrl } from './targets/cloud-config';
-export { contentDatabase } from './targets/content-database';
-export type { ContentDatabase, ContentSchema } from './targets/content-database';
+export { cloudConfigFromEnv, draftReviewUrl } from './targets/cloudConfig';
+export { contentDatabase } from './targets/contentDatabase';
+export type { ContentDatabase, ContentSchema } from './targets/contentDatabase';
 export { r2Media } from './targets/r2';
 export type { MediaStore } from './targets/r2';
 export { sameUnpublished, withoutUnpublished } from './bundle/unpublished';
 export type { Skipped } from './bundle/unpublished';
 export { assessmentFileName } from './taxonomy/files';
 export { checkTaxonomies } from './taxonomy/check';
-export { compareWithHistory, compareWithPrevious } from './taxonomy/history-rules';
-export { gitHistory } from './taxonomy/git-history';
+export { compareWithHistory, compareWithPrevious } from './taxonomy/historyRules';
+export { gitHistory } from './taxonomy/gitHistory';
 export { readTaxonomies } from './taxonomy/read';
 export { taxonomyLines } from './taxonomy/report';
 export type {
@@ -39,10 +39,10 @@ export type {
   UnpublishResult,
 } from './unpublish/types';
 export { withVersion } from './sync/versions';
-export { buildDecks } from './decks/build-decks';
-export { packCardIndexes, inPool } from './targets/browse-index';
-export { buildCardIndexes } from './decks/card-index';
-export type { PackedIndex } from './targets/browse-index';
+export { buildDecks } from './decks/buildDecks';
+export { packCardIndexes, inPool } from './targets/browseIndex';
+export { buildCardIndexes } from './decks/cardIndex';
+export type { PackedIndex } from './targets/browseIndex';
 export type { DecksOptions, DecksResult } from './decks/types';
 export {
   MAX_WIDTH,
@@ -73,5 +73,5 @@ export {
   privateMaterial,
   realMaterialHere,
   requireContentFolder,
-} from './private-folder';
-export type { PrivateMaterial, RealMaterialConfig } from './private-folder';
+} from './privateFolder';
+export type { PrivateMaterial, RealMaterialConfig } from './privateFolder';

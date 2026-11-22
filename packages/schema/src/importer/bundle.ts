@@ -8,7 +8,7 @@ import {
   AnkiPresetRecord,
   ImportedAnkiNote,
 } from '../anki/flashcards';
-import { CardIndexRecord } from '../anki/browse-index';
+import { CardIndexRecord } from '../anki/browseIndex';
 import { ImportedQuiz } from '../quiz/quizzes';
 
 const NoteSection = z.object({

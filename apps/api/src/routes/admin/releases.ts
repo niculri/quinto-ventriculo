@@ -17,7 +17,7 @@ import {
 import type { AppContext } from '../../context';
 import type { AppEnv } from '../../env';
 import { JSON_TYPE, apiError } from '../../http';
-import { isOnSite } from '../../services/media-presence';
+import { isOnSite } from '../../services/mediaPresence';
 import { publishRefusal, revertRefusal } from '../../services/releases';
 
 /** Images asked to the store for each page of the new ones. */

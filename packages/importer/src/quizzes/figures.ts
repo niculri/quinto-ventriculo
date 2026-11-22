@@ -6,7 +6,7 @@ import type { QuizFigure } from '@qv/schema';
 import { ImportError } from '../errors';
 import type { ProcessedImage } from '../media/images';
 import { drawChart } from './charts';
-import type { FigureSpec } from './chart-specs';
+import type { FigureSpec } from './chartSpecs';
 import { textOk } from './inline';
 
 export type QuizImageProcessor = (data: Uint8Array) => Promise<ProcessedImage>;

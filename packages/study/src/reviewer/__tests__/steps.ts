@@ -2,7 +2,7 @@
 import type { Rating } from '@qv/srs';
 import type { HideAction } from '../../session';
 import { random } from './fixtures';
-import type { ReferenceStudySession } from './reference-session';
+import type { ReferenceStudySession } from './referenceSession';
 
 export type Step =
   | { kind: 'advance'; ms: number }

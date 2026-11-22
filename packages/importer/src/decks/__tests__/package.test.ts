@@ -11,9 +11,9 @@ import { buildBundle } from '../../bundle/build';
 import { validateReferences } from '../../manifest/references';
 import type { Manifest } from '../../manifest/schemas';
 import { processCardImage, processImage } from '../../media/images';
-import { packCardIndexes } from '../../targets/browse-index';
+import { packCardIndexes } from '../../targets/browseIndex';
 import { FolderTarget } from '../../targets/folder';
-import { createRoot, manifest } from '../../test/importer-fixtures';
+import { createRoot, manifest } from '../../test/importerFixtures';
 import { containerDeckId } from '../names';
 
 let root: string;

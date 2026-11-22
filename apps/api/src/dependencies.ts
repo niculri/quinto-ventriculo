@@ -4,8 +4,8 @@ import { ANYONE_INVITED } from './ports/access';
 import type { AccessChecker } from './ports/access';
 import { NO_ADMINS } from './ports/admin';
 import type { AdminChecker } from './ports/admin';
-import { NO_CLIENT_ERRORS, NO_CLIENT_ERRORS_READER } from './ports/client-errors';
-import type { ClientErrorRecorder, ClientErrorsReader } from './ports/client-errors';
+import { NO_CLIENT_ERRORS, NO_CLIENT_ERRORS_READER } from './ports/clientErrors';
+import type { ClientErrorRecorder, ClientErrorsReader } from './ports/clientErrors';
 import type { ContentRepository } from './ports/content';
 import { NO_DEEP_HEALTH } from './ports/health';
 import type { DeepHealth } from './ports/health';
@@ -19,7 +19,7 @@ import { NO_UNPUBLISHED } from './ports/unpublished';
 import type { UnpublishedRepository } from './ports/unpublished';
 import { NO_USAGE_EVENTS, NO_USAGE_OPENS, NO_USAGE_STATS } from './ports/usage';
 import type { UsageOpensReader, UsageRecorder, UsageStatsSource } from './ports/usage';
-import type { MediaSigner } from './services/media-signer';
+import type { MediaSigner } from './services/mediaSigner';
 
 export interface AppOptions {
   verifier: SessionVerifier;

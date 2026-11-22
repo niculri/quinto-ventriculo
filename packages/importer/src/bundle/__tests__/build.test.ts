@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Manifest } from '../../manifest/schemas';
 import { MAX_WIDTH, processImage } from '../../media/images';
-import { createRoot, manifest, twoAssessments } from '../../test/importer-fixtures';
+import { createRoot, manifest, twoAssessments } from '../../test/importerFixtures';
 import { buildBundle } from '../build';
 import { hash } from '../hash';
 

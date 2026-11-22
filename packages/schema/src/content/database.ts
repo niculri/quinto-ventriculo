@@ -1,9 +1,9 @@
 // The content database's `jsonb` as the Worker reads it: the contracts of the functions it calls and parses, and the
-// `jsonb` columns it selects (db/tests/content-contracts.test.ts runs them in PGlite).
+// `jsonb` columns it selects (db/tests/__tests__/content.contract.test.ts runs them in PGlite).
 import { z } from 'zod';
 import type { Database } from '@qv/db-types/content';
 import { CardChanges, CardDetail } from '../anki/flashcards';
-import { CardIndexRecord } from '../anki/browse-index';
+import { CardIndexRecord } from '../anki/browseIndex';
 import { QuizDetail } from '../quiz/quizzes';
 import {
   PublishResult,

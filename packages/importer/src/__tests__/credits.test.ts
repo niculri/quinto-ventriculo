@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CREDITS_FILE, checkCredits } from '../credits';
-import { privateMaterial } from '../private-folder';
+import { privateMaterial } from '../privateFolder';
 
 const TODAY = '2026-11-09';
 const person = (over: object = {}) => ({

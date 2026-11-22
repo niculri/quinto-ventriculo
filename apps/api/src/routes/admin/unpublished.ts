@@ -4,7 +4,7 @@ import type { UnpublishedLog } from '@qv/schema';
 import { API_ROUTES as R } from '@qv/schema/http';
 import type { AppContext } from '../../context';
 import type { AppEnv } from '../../env';
-import { isOnSite } from '../../services/media-presence';
+import { isOnSite } from '../../services/mediaPresence';
 
 /** At most this many images are asked to the store: each is a subrequest, and a Worker has a limit of them. */
 const IMAGES_CHECKED = 40;

@@ -2,8 +2,8 @@
 // inserts, upserts, updates and deletes with the filters the web uses) run as the signed-in user, as in Supabase.
 import type { PGlite } from '@electric-sql/pglite';
 import { asUser } from './pglite';
-import { pick, query, quote, Sql, Unsupported, write } from './postgrest-sql';
-import type { Tx } from './postgrest-sql';
+import { pick, query, quote, Sql, Unsupported, write } from './postgrestSql';
+import type { Tx } from './postgrestSql';
 
 export interface Person {
   sub: string;

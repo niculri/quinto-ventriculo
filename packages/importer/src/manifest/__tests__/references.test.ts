@@ -1,6 +1,6 @@
 // Tests the checks of the references inside the content folder.
 import { describe, expect, it } from 'vitest';
-import { manifest } from '../../test/importer-fixtures';
+import { manifest } from '../../test/importerFixtures';
 import { validateReferences } from '../references';
 import type { Manifest } from '../schemas';
 

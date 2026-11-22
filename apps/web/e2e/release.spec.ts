@@ -1,5 +1,5 @@
 // E2e tests of the release panel, publishing and undoing, and the admin mode (the draft), with the draft of
-// e2e/content/draft and what the database gives for it (e2e/content/release, written by db/tests/release.test.ts).
+// e2e/content/draft and what the database gives for it (e2e/content/release, written by db/tests/__tests__/release.flow.test.ts).
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, adminModeIsOn, setAdminMode, signIn } from './helpers';
@@ -249,7 +249,7 @@ test('publishing and undoing, each from its own popup, without moving what is ab
     void d.dismiss();
   });
   // The demo's draft has a rule that stops it: here it is the same draft, ready, and publishing and undoing are
-  // answered here (the database's part is db/tests/publish.test.ts), so the other tests keep the demo's draft.
+  // answered here (the database's part is db/tests/__tests__/publish.flow.test.ts), so the other tests keep the demo's draft.
   let state: 'draft' | 'published' | 'reverted' = 'draft';
   const sent: unknown[] = [];
   const record = (status: 'published' | 'reverted') => ({

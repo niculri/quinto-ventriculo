@@ -9,16 +9,16 @@ import type { CommandId } from '../commands';
 import { createStudyState, studyReducer } from '../reducer';
 import { answeredToday, canUndo, commandsNotIn, congrats, countsOf, hasSeen } from '../selectors';
 import type { SaveFailure, StudyAction, StudyState, Toast } from '../state';
-import { CommandSaver } from './command-saver';
-import { FakeRepository } from './fake-repository';
-import type { Failures } from './fake-repository';
+import { CommandSaver } from './commandSaver';
+import { FakeRepository } from './fakeRepository';
+import type { Failures } from './fakeRepository';
 import { deepFreeze } from './freeze';
 import { ASSESSMENT, L1, L2 } from './fixtures';
 import type { Scenario } from './fixtures';
 import { chooseStep } from './steps';
 import type { Step } from './steps';
-import { ReferenceStudySession } from './reference-session';
-import { studyStrings } from './reference-save';
+import { ReferenceStudySession } from './referenceSession';
+import { studyStrings } from './referenceSave';
 
 export interface Stats {
   steps: number;

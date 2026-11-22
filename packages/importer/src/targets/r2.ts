@@ -6,7 +6,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import type { CloudConfig } from './cloud-config';
+import type { CloudConfig } from './cloudConfig';
 
 export interface MediaStore {
   has(key: string): Promise<boolean>;

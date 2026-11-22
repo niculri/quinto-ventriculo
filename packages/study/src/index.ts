@@ -60,7 +60,7 @@ export { browserTimeZone, defaultPreferences } from './preferences';
 export { actionLabel, asNew, blankRow } from './session';
 export type { CongratsInfo, ExamNotes, HideAction, Shown } from './session';
 export { answeredTodayIn, congratsInfo, hasSeenAssessment } from './congrats';
-export { deckCounts, nextCountChange } from './deck-counts';
+export { deckCounts, nextCountChange } from './deckCounts';
 export { masteryByDeck, masteryPercent } from './mastery';
 export {
   answerRound,
@@ -70,8 +70,8 @@ export {
   revealCard,
   reviewPools,
   startRound,
-} from './final-review';
-export type { Round } from './final-review';
+} from './finalReview';
+export type { Round } from './finalReview';
 export {
   answersText,
   cellLabel,
@@ -90,9 +90,9 @@ export {
   yearRange,
 } from './heatmap';
 export type { CellValue, HeatmapData, HeatmapStats } from './heatmap';
-export { correctPercent, daySummary } from './day-summary';
-export { decayByDeck, homeCourseCounts, nextChangeAt } from './home-counts';
-export type { HomeStudyBase } from './home-counts';
+export { correctPercent, daySummary } from './daySummary';
+export { decayByDeck, homeCourseCounts, nextChangeAt } from './homeCounts';
+export type { HomeStudyBase } from './homeCounts';
 export { FLAGS } from './flags';
 export { createStudyState, studyReducer } from './reviewer/reducer';
 export {

@@ -2,7 +2,7 @@
 import { z } from 'zod';
 import { Assessment, Course, NoteSummary, Semester } from '../content/content';
 import { AnkiTreeDeck, AuthorPreset, NoteTypeSummary } from '../anki/flashcards';
-import { CardIndexRef } from '../anki/browse-index';
+import { CardIndexRef } from '../anki/browseIndex';
 import { QuizSummary } from '../quiz/quizzes';
 
 /** `quizzes` defaults to empty so that an older catalog still parses. */

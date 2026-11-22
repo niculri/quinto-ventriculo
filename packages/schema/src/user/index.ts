@@ -24,8 +24,8 @@ export {
   UndoResult,
   UserPreset,
 } from './study';
-export { AnswerTodayRow, CardLogRow, CardStateRow, RatedInDeckRow, RatedRow } from './study-rows';
-export { STUDY_RPC } from './study-rpc';
+export { AnswerTodayRow, CardLogRow, CardStateRow, RatedInDeckRow, RatedRow } from './studyRows';
+export { STUDY_RPC } from './studyRpc';
 export {
   AnswerInfo,
   OpenRound,
@@ -34,7 +34,7 @@ export {
   RoundOrigin,
   SavedQuiz,
   SavedSection,
-} from './quiz-progress';
+} from './quizProgress';
 export { AcceptedVersions, ACCOUNT_RPC, AccountState } from './account';
 export {
   ACCESS_RPC,
@@ -58,5 +58,5 @@ export {
   Resolution,
   ResolveInput,
 } from './reports';
-export { GroupRow, REPORTS_RPC, ResolutionRow } from './reports-rpc';
+export { GroupRow, REPORTS_RPC, ResolutionRow } from './reportsRpc';
 export { USERS_RPC } from './rpc';

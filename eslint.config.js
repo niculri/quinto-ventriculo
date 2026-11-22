@@ -7,9 +7,9 @@ import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import sonarjs from 'eslint-plugin-sonarjs';
 import tseslint from 'typescript-eslint';
-import { domainPackages } from './eslint.domain-packages.js';
+import { domainPackages } from './eslintDomainPackages.js';
 import { fileNames } from './eslintFileNames.js';
-import { webLayers } from './eslint.web-layers.js';
+import { webLayers } from './eslintWebLayers.js';
 
 // Files that the size and complexity rules do not apply to: tests, their fixtures and helpers, and scripts.
 const TESTS_AND_SCRIPTS = [
@@ -27,7 +27,7 @@ const SUPABASE_ADAPTERS = [
   'apps/web/src/app/ServicesProvider.tsx',
   'apps/api/src/adapters/supabase/*.ts',
   'apps/api/src/test/postgrest.ts',
-  'packages/importer/src/targets/content-database.ts',
+  'packages/importer/src/targets/contentDatabase.ts',
   '**/*.test.{ts,tsx}',
 ];
 
@@ -325,6 +325,7 @@ export default tseslint.config(
   },
   {
     files: LEAF_PACKAGES.map((name) => `packages/${name}/src/**/*.ts`),
+    ignores: ['**/__tests__/**'],
     rules: {
       'no-restricted-imports': [
         'error',

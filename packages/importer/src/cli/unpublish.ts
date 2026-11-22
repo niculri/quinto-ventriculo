@@ -5,17 +5,17 @@ import { resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { readManifest, readUnpublished } from '../manifest/read';
 import type { Manifest } from '../manifest/schemas';
-import { contentFolder, requireContentFolder } from '../private-folder';
-import { cloudConfigFromEnv } from '../targets/cloud-config';
-import { contentDatabase } from '../targets/content-database';
+import { contentFolder, requireContentFolder } from '../privateFolder';
+import { cloudConfigFromEnv } from '../targets/cloudConfig';
+import { contentDatabase } from '../targets/contentDatabase';
 import { r2Media } from '../targets/r2';
 import { assessmentOf } from '../unpublish/ids';
 import { restore } from '../unpublish/list';
 import { unpublish } from '../unpublish/unpublish';
 import type { UnpublishOutcome } from '../unpublish/types';
 import { ImportError } from '../errors';
-import { HELP, parseUnpublishArgs, pieceOf } from './unpublish-args';
-import type { UnpublishArgs } from './unpublish-args';
+import { HELP, parseUnpublishArgs, pieceOf } from './unpublishArgs';
+import type { UnpublishArgs } from './unpublishArgs';
 
 type Piece = ReturnType<typeof pieceOf>;
 

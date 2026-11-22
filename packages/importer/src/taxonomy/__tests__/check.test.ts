@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildBundle } from '../../bundle/build';
 import type { Manifest } from '../../manifest/schemas';
 import { processCardImage, processImage } from '../../media/images';
-import { A, QUIZ, createRoot, manifest } from '../../test/taxonomy-fixtures';
+import { A, QUIZ, createRoot, manifest } from '../../test/taxonomyFixtures';
 import { taxonomyLines } from '../report';
 
 let root: string;

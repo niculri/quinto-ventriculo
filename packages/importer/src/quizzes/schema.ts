@@ -3,7 +3,7 @@
 import { isAbsolute, relative, resolve } from 'node:path';
 import { z } from 'zod';
 import { ImportError } from '../errors';
-import { FIGURE_REQUIRED, FigureSpec } from './chart-specs';
+import { FIGURE_REQUIRED, FigureSpec } from './chartSpecs';
 import { asText, textOk } from './inline';
 
 const LETTERS = 'ABCDEF';

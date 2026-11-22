@@ -6,7 +6,7 @@ import type { ContentBundle } from '@qv/schema';
 import { OWNER_EMAIL, asUser, createDatabase } from '@qv/db/testing';
 import { supabaseAdminChecker } from '../admin';
 import { createApp } from '../../../app';
-import { MediaSigner } from '../../../services/media-signer';
+import { MediaSigner } from '../../../services/mediaSigner';
 import { memoryRepository } from '../../memory/content';
 import { memorySiteSettings } from '../../memory/settings';
 import { urlOf } from '../../../test/fetch';

@@ -3,11 +3,11 @@ import { API_PREFIX } from '@qv/schema/http';
 import {
   analyticsEngineReader,
   analyticsEngineRecorder,
-} from './adapters/cloudflare/analytics-engine';
+} from './adapters/cloudflare/analyticsEngine';
 import {
   analyticsEngineErrorRecorder,
   analyticsEngineErrorsReader,
-} from './adapters/cloudflare/client-errors';
+} from './adapters/cloudflare/clientErrors';
 import { cloudflareHealthCache, latestBackupCheck, mediaCheck } from './adapters/cloudflare/health';
 import { r2Store } from './adapters/cloudflare/r2';
 import { supabaseAccessChecker } from './adapters/supabase/access';
@@ -19,12 +19,12 @@ import { supabaseReleaseRepository } from './adapters/supabase/release';
 import { supabaseVerifier } from './adapters/supabase/session';
 import { supabaseSiteSettingsRepository } from './adapters/supabase/settings';
 import { supabaseUnpublishedRepository } from './adapters/supabase/unpublished';
-import { supabaseUsageStats } from './adapters/supabase/usage-stats';
+import { supabaseUsageStats } from './adapters/supabase/usageStats';
 import { createApp } from './app';
 import { ACCESS_UNAVAILABLE } from './ports/access';
 import { NO_ADMINS } from './ports/admin';
 import { deepHealth } from './services/health';
-import { MediaSigner } from './services/media-signer';
+import { MediaSigner } from './services/mediaSigner';
 
 export interface Env {
   ASSETS: Fetcher;

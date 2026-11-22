@@ -13,7 +13,8 @@ export type Counts = Map<string, number>;
 // growth. Any other rule counts as one the base already had.
 export function localRuleFile(rule: string): string | null {
   const name = /^qv\/([a-z][a-z-]*)$/.exec(rule)?.[1];
-  return name ? `packages/eslint-plugin/src/${name}.js` : null;
+  const file = name?.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+  return file ? `packages/eslint-plugin/src/${file}.js` : null;
 }
 
 // The new rules: those of this repository's plugin whose file is in the working tree and not in the base. A rule

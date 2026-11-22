@@ -6,15 +6,15 @@ import { sameUnpublished } from '../bundle/unpublished';
 import { ImportError } from '../errors';
 import { ImageCache } from '../media/cache';
 import { readManifest, readUnpublished } from '../manifest/read';
-import { contentFolder, requireContentFolder } from '../private-folder';
+import { contentFolder, requireContentFolder } from '../privateFolder';
 import { FolderTarget } from '../targets/folder';
 import { CloudTarget } from '../targets/cloud';
-import { cloudConfigFromEnv, draftReviewUrl } from '../targets/cloud-config';
-import { contentDatabase } from '../targets/content-database';
+import { cloudConfigFromEnv, draftReviewUrl } from '../targets/cloudConfig';
+import { contentDatabase } from '../targets/contentDatabase';
 import type { Target } from '../targets/target';
-import { HELP, parseImportArgs } from './import-args';
-import type { ImportArgs } from './import-args';
-import { noticesOf, summaryOf } from './import-report';
+import { HELP, parseImportArgs } from './importArgs';
+import type { ImportArgs } from './importArgs';
+import { noticesOf, summaryOf } from './importReport';
 
 function targetOf(args: ImportArgs, repo: string): Target {
   if (args.target === 'draft') {

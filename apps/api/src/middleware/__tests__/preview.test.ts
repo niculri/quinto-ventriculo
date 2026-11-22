@@ -6,8 +6,8 @@ import { PREVIEW_HEADER } from '@qv/schema';
 import { memoryRepository } from '../../adapters/memory/content';
 import { supabaseAdminChecker } from '../../adapters/supabase/admin';
 import { createApp } from '../../app';
-import { MediaSigner } from '../../services/media-signer';
-import { ADMIN, SUPABASE, bundle, createDraftApp, releases, titleOf } from '../../test/draft-app';
+import { MediaSigner } from '../../services/mediaSigner';
+import { ADMIN, SUPABASE, bundle, createDraftApp, releases, titleOf } from '../../test/draftApp';
 import { urlOf } from '../../test/fetch';
 
 let privateKey: JoseKey;

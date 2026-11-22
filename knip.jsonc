@@ -25,7 +25,7 @@
     },
     "packages/ops": {
       // The command-line programs behind npm run deploy, smoke, suppressions and deps (root package.json).
-      "entry": ["src/*-cli.ts"],
+      "entry": ["src/*Cli.ts"],
     },
   },
 }

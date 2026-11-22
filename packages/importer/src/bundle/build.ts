@@ -1,18 +1,18 @@
 // Builds the content bundle from the manifest: notes converted from Markdown, decks from .apkg files and practice
 // tests, with their images, minus what is unpublished.
 import type { ImportedAnkiNote, ImportedQuiz } from '@qv/schema';
-import { buildDecks } from '../decks/build-decks';
+import { buildDecks } from '../decks/buildDecks';
 import type { DecksResult } from '../decks/types';
 import { ImportError } from '../errors';
 import { processCardImage, processQuizImage } from '../media/images';
 import type { ProcessedImage } from '../media/images';
-import { buildNotes } from '../notes/build-notes';
+import { buildNotes } from '../notes/buildNotes';
 import { IMAIOS } from '../policy/imaios';
 import { convertQuiz } from '../quizzes/convert';
 import { defaultQuizId } from '../quizzes/ids';
 import { checkTaxonomies } from '../taxonomy/check';
 import { hash } from './hash';
-import { checkPractice } from './practice-check';
+import { checkPractice } from './practiceCheck';
 import { buildScope } from './scope';
 import type { BuildScope } from './scope';
 import type { BuildOptions, BuildResult } from './types';

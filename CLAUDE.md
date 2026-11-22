@@ -41,10 +41,10 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `api/repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),
   `features/session/api/service.ts`, `app/ServicesProvider.tsx`, los archivos de `apps/api/src/adapters/supabase/` (y el PostgREST
   falso de las pruebas, `apps/api/src/test/postgrest.ts`; lo nombra `SUPABASE_ADAPTERS` en `eslint.config.js`) y
-  `packages/importer/src/targets/content-database.ts`; un `import type`
+  `packages/importer/src/targets/contentDatabase.ts`; un `import type`
   vale en cualquier lado. El contenido va por la API; los datos del usuario, por esos repositorios. Los clientes van
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
-  migraciones en PGlite; `db/tests/db-types.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas
+  migraciones en PGlite; `db/tests/__tests__/dbTypes.contract.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas
   con uniones) se lee con `fromDatabase` y su contrato de `@qv/schema/user` o `/content`, nunca con `as` (lo prohíbe
   `qv/no-cast-on-data`), y cada contrato corre contra el SQL en `db/tests/*-contracts.test.ts`; los rechazos de la
   base se reconocen solo con `databaseError()` de `@qv/schema/database`.
@@ -57,8 +57,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
 - **Contrato web ↔ API:** rutas (`API_ROUTES`, y `apiPaths` para pedirlas), códigos de error (`ErrorCode`), la
   cabecera de la vista previa y lo que acepta cada ruta (`requests.ts`) viven en `@qv/schema/http`. La API valida toda
   entrada con esos schemas y cada respuesta JSON lleva `satisfies` de su schema (los cuerpos que pasan como stream no
-  se parsean). `apps/api/src/routes-contract.test.ts` y `apps/web/src/app/__tests__/apiRoutes.contract.test.ts` fallan si una ruta queda en un
-  solo lado; `apps/api/src/inputs-contract.test.ts` fija cómo responde la API a cada entrada.
+  se parsean). `apps/api/src/__tests__/routes.contract.test.ts` y `apps/web/src/app/__tests__/apiRoutes.contract.test.ts` fallan si una ruta queda en un
+  solo lado; `apps/api/src/__tests__/inputs.contract.test.ts` fija cómo responde la API a cada entrada.
 - **Umbrales** (sin contar líneas vacías ni comentarios, y sin pruebas ni `scripts/`): la meta es 300 líneas por archivo y 80
   por función; el lint solo marca desde 350 y 90, y nadie rehace un archivo por pasarse unas líneas: se parte cuando
   mezcla responsabilidades. Complejidad cognitiva 15. Excepciones permanentes, con un criterio cada una (en `eslint.config.js`): lo
@@ -75,7 +75,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   test-names:baseline` la rehace, para sacar las que ya lo cumplen.
 - **Foto del esquema:** `db/users/schema/` y `db/content/schema/` guardan lo que dejan las migraciones en `public`, un
   archivo por función y por tabla agrupados por dominio. Se generan con `npm run db:schema` y
-  `db/tests/schema-snapshot-contract.test.ts` falla si una migración cambia algo y no se rehízo; un objeto nuevo se
+  `db/tests/__tests__/schemaSnapshot.contract.test.ts` falla si una migración cambia algo y no se rehízo; un objeto nuevo se
   ubica en `db/scripts/schema/domains.ts`. `npm run db:schema:compare -- <users|content> --url-env VARIABLE` compara una
   base real (solo lectura, con `psql`) con la foto. Los helpers de las pruebas de la base están en `db/tests/helpers/`.
 - **El estudio es un reductor puro: la hora va en la acción.** `studyReducer` de `@qv/study` no llama a `Date.now()` ni a
@@ -111,7 +111,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `recommended-type-checked` de `@eslint-react/eslint-plugin` en la web (los desvíos, con su razón, están en
   `eslint.config.js`); `exactOptionalPropertyTypes` en todos los paquetes (un `x?: T` no recibe `undefined`: si de verdad
   se pasa, el tipo dice `x?: T | undefined`); el formato lo hace solo Biome, también el de lo que se genera
-  (`db/scripts/db-types.ts`).
+  (`db/scripts/dbTypes.ts`).
 - **En la raíz de `apps/web/src`** solo van `main.tsx` (la entrada, que nadie importa) y los tipos de Vite: otro archivo
   ahí no tiene capa y es un error.
 - **Comentarios:** cada archivo empieza con un comentario breve (una o dos líneas) que dice qué hace; en los portados,

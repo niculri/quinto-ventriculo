@@ -96,7 +96,6 @@ const of = (s: Snapshot, assessmentId: string) => ({
     String(n.guid).startsWith(assessmentId === BC ? 'bc' : 'an'),
   ),
 });
-/** now() is the transaction's: a small wait so that two saves do not share it. */
 
 beforeEach(async () => {
   db = await createDatabase('content');

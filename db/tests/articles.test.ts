@@ -30,7 +30,6 @@ const read = async (id = 'AP-BC-C2-08') =>
       [id],
     )
   ).rows[0]!;
-/** now() is the transaction's: a small wait so that two saves do not share it. */
 
 const pdfNote = {
   id: 'AP-BC-C2-08',

@@ -1,6 +1,6 @@
 // «¿Reiniciar la ronda?»: «Reiniciar» takes the focus; Escape, «Cancelar» or a click outside close it.
 import { useEffect, useRef } from 'react';
-import { quizStrings as s } from '../strings';
+import { restartDialogStrings as s } from './strings/RestartDialog.strings';
 
 export function RestartDialog({
   onConfirm,

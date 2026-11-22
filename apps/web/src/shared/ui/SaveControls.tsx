@@ -1,6 +1,6 @@
 // «Guardar» with its status («Sin guardar» / «Guardado»), at the top of an options page.
 import { Check, CircleDot } from 'lucide-react';
-import { saveControlsStrings as s } from './SaveControls.strings';
+import { saveControlsStrings as s } from './strings/SaveControls.strings';
 import { button } from './styles';
 
 export function SaveControls({

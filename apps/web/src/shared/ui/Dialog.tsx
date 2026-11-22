@@ -2,7 +2,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { button } from './styles';
-import { sharedStrings } from '../strings';
+import { sharedStrings } from '../strings/shared.strings';
 
 export function BlurredBackdrop() {
   return <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]" />;

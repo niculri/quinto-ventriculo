@@ -1,6 +1,6 @@
 // The bar to report the passage selected in an article.
 import { MessageSquareWarning } from 'lucide-react';
-import { noteStrings } from '../strings';
+import { selectionReportBarStrings } from './strings/SelectionReportBar.strings';
 
 /** Fixed at the bottom, not next to the selection, where the phone's handles and menu are. */
 export function SelectionReportBar({ onReport }: { onReport: () => void }) {
@@ -14,7 +14,7 @@ export function SelectionReportBar({ onReport }: { onReport: () => void }) {
         className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-base font-medium text-bg shadow-soft sm:text-sm"
       >
         <MessageSquareWarning className="size-4" aria-hidden="true" />
-        {noteStrings.reportSelection}
+        {selectionReportBarStrings.reportSelection}
       </button>
     </div>
   );

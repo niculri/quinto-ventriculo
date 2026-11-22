@@ -3,9 +3,7 @@ import type { UnpublishedEntry } from '@qv/schema';
 import { formatDateTime } from '../../../../shared/lib/dates';
 import { card } from '../../../../shared/ui/styles';
 import { entryState, offNow, removedLine } from '../../model/unpublished';
-import { unpublishedStrings } from '../../unpublished.strings';
-
-const s = unpublishedStrings;
+import { unpublishedEntriesStrings as s } from './strings/UnpublishedEntries.strings';
 
 export function UnpublishedEntries({
   entries,

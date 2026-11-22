@@ -11,7 +11,7 @@ import { Heatmap } from '../../stats/components/Heatmap';
 import { useHomeSections } from '../hooks/useHomeSections';
 import { hideFirstSteps } from '../model/firstSteps';
 import type { OpenRound } from '../model/follow';
-import { homeStrings as s } from '../strings';
+import { sectionsStrings as s } from './strings/Sections.strings';
 import { FirstSteps } from './FirstSteps';
 import { Follow } from './Follow';
 import { MyCourses } from './MyCourses';

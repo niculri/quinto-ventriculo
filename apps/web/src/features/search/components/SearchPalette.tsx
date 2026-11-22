@@ -11,7 +11,7 @@ import { countSearch } from '../../usage/api/count';
 import { useSearch } from '../hooks/useSearch';
 import { resultLink, searchContext } from '../model/results';
 import { PaletteResults } from './PaletteResults';
-import { paletteStrings as s } from '../palette.strings';
+import { searchPaletteStrings as s } from './strings/SearchPalette.strings';
 
 export function SearchPalette({
   open,

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { DimBackdrop } from '../../../../shared/ui/Dialog';
 import { button } from '../../../../shared/ui/styles';
-import { releasesStrings } from '../../releases.strings';
+import { confirmDialogStrings } from './strings/ConfirmDialog.strings';
 
 export function ConfirmDialog({
   open,
@@ -49,7 +49,7 @@ export function ConfirmDialog({
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Dialog.Close className={`${button.base} ${button.secondary}`} disabled={busy}>
-              {releasesStrings.confirm.cancel}
+              {confirmDialogStrings.confirm.cancel}
             </Dialog.Close>
             <button
               type="button"

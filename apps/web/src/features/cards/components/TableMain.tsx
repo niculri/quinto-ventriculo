@@ -5,13 +5,13 @@ import type { CardTableState } from '../hooks/useCardTable';
 import { CardGrid } from './CardGrid';
 import { TableSearch } from './TableSearch';
 import { TableToolbar } from './TableToolbar';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from '../model/strings/columns.strings';
 
 export function TableMain({ t }: { t: CardTableState }) {
   const { view, setView, search, selection, runner, actions } = t;
   const { list } = search;
   const count = selection.effectiveSelection.size;
-  const noun = cardsStrings.table.nouns[view.mode];
+  const noun = columnsStrings.table.nouns[view.mode];
   return (
     <div className="min-w-0">
       <TableSearch
@@ -41,15 +41,15 @@ export function TableMain({ t }: { t: CardTableState }) {
       />
       {runner.problem ? (
         <div className="mt-3">
-          <Notice title={cardsStrings.table.couldNot}>{runner.problem}</Notice>
+          <Notice title={columnsStrings.table.couldNot}>{runner.problem}</Notice>
         </div>
       ) : null}
 
       <p className="mt-3 text-sm text-muted" aria-live="polite">
         {search.waiting
-          ? cardsStrings.table.searching
-          : cardsStrings.table.found(list.length, noun, count)}
-        {actions.blocked ? ` ${cardsStrings.table.draftOnly}` : ''}
+          ? columnsStrings.table.searching
+          : columnsStrings.table.found(list.length, noun, count)}
+        {actions.blocked ? ` ${columnsStrings.table.draftOnly}` : ''}
       </p>
       <CardGrid
         list={list}
@@ -68,7 +68,7 @@ export function TableMain({ t }: { t: CardTableState }) {
         onSelect={selection.select}
         onSelectAll={selection.selectAll}
         timing={t.timing}
-        label={view.mode === 'notes' ? cardsStrings.table.notes : cardsStrings.table.cards}
+        label={view.mode === 'notes' ? columnsStrings.table.notes : columnsStrings.table.cards}
       />
     </div>
   );

@@ -14,7 +14,7 @@ import type { DeckNode } from '../../catalog/model/tree';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
 import { useDeckPreset } from '../hooks/useDeckPreset';
 import { refKey } from '../model/presets';
-import { presetsStrings as p } from '../presets.strings';
+import { deckPresetButtonStrings as p } from './strings/DeckPresetButton.strings';
 
 export function DeckPresetButton({ node }: { node: DeckNode }) {
   const [open, setOpen] = useState(false);

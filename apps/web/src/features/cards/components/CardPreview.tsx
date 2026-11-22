@@ -18,8 +18,9 @@ import { cellText, recall, shortDate } from '../model/columns';
 import { cardLogQuery } from '../api/queries';
 import { CardHistory } from './CardHistory';
 import type { BrowseCard } from '../model/browseCards';
-import { sharedStrings } from '../../../shared/strings';
-import { cardsStrings } from '../strings';
+import { cardPreviewStrings } from './strings/CardPreview.strings';
+import { cardsViewerStrings } from './strings/CardsViewer.strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
 
 export function CardPreview({
   card,
@@ -36,7 +37,11 @@ export function CardPreview({
   const detail = useCard(card.noteGuid, card.ord);
   return (
     <div className="flex min-h-0 flex-col gap-3">
-      <div role="group" aria-label={cardsStrings.preview.side} className="flex flex-wrap gap-1">
+      <div
+        role="group"
+        aria-label={cardPreviewStrings.preview.side}
+        className="flex flex-wrap gap-1"
+      >
         {(['front', 'back'] as const).map((s) => (
           <button
             key={s}
@@ -47,7 +52,7 @@ export function CardPreview({
               side === s ? 'bg-brand-soft text-brand' : 'text-muted hover:bg-surface-2'
             }`}
           >
-            {s === 'front' ? cardsStrings.preview.front : cardsStrings.preview.back}
+            {s === 'front' ? cardPreviewStrings.preview.front : cardPreviewStrings.preview.back}
           </button>
         ))}
         <button
@@ -55,7 +60,7 @@ export function CardPreview({
           onClick={onEnlarge}
           className={`${button.base} ${button.ghost} ml-auto px-3 py-1.5`}
         >
-          <Maximize2 className="size-4" aria-hidden="true" /> {cardsStrings.preview.enlarge}
+          <Maximize2 className="size-4" aria-hidden="true" /> {cardPreviewStrings.preview.enlarge}
         </button>
       </div>
       <div className="h-80 overflow-hidden rounded-xl border border-border">
@@ -71,7 +76,7 @@ export function CardPreview({
           className={`${button.base} ${button.ghost} px-2 py-1 text-xs`}
         >
           <MessageSquareWarning className="size-3.5" aria-hidden="true" />{' '}
-          {cardsStrings.reportError}
+          {cardsViewerStrings.reportError}
         </button>
         {sent ? (
           <p role="status" className="text-xs text-muted">
@@ -106,7 +111,7 @@ function PreviewSide({ card, side }: { card: BrowseCard; side: 'front' | 'back' 
   if (detail.isError) {
     return <ErrorWithRetry error={detail.error} onRetry={() => void detail.refetch()} />;
   }
-  if (!detail.data) return <Loading text={cardsStrings.preview.loading} />;
+  if (!detail.data) return <Loading text={cardPreviewStrings.preview.loading} />;
   return (
     <CardFrame
       html={side === 'front' ? detail.data.front : detail.data.back}
@@ -114,12 +119,12 @@ function PreviewSide({ card, side }: { card: BrowseCard; side: 'front' | 'back' 
       ord={detail.data.ord}
       night={night}
       occlusion={detail.data.kind === 'occlusion'}
-      label={side === 'front' ? cardsStrings.frontOfCard : cardsStrings.backOfCard}
+      label={side === 'front' ? cardPreviewStrings.frontOfCard : cardPreviewStrings.backOfCard}
     />
   );
 }
 
-type Fact = keyof typeof cardsStrings.info.facts;
+type Fact = keyof typeof cardPreviewStrings.info.facts;
 
 const SIMPLE = new Set<Fact>(['firstReview', 'lastReview', 'due', 'reps', 'lapses']);
 
@@ -140,33 +145,35 @@ export function CardInfo({
   const r = recall(card, timing);
   const first = answers.find((e) => e.rating !== null);
   const last = [...answers].reverse().find((e) => e.rating !== null);
-  const none = cardsStrings.info.none;
   const facts: [Fact, string][] = [
-    ['added', card.createdMs === null ? none : shortDate(card.createdMs)],
-    ['firstReview', first ? shortDate(Date.parse(first.reviewedAt)) : none],
-    ['lastReview', last ? shortDate(Date.parse(last.reviewedAt)) : none],
+    ['added', card.createdMs === null ? cardPreviewStrings.info.none : shortDate(card.createdMs)],
+    ['firstReview', first ? shortDate(Date.parse(first.reviewedAt)) : cardPreviewStrings.info.none],
+    ['lastReview', last ? shortDate(Date.parse(last.reviewedAt)) : cardPreviewStrings.info.none],
     ['due', cellText(card, 'due', timing)],
     ['interval', cellText(card, 'interval', timing)],
-    ['stability', cellText(card, 'stability', timing) || none],
-    ['difficulty', cellText(card, 'difficulty', timing) || none],
-    ['recall', r === null ? none : `${Math.round(r * 100)} %`],
+    ['stability', cellText(card, 'stability', timing) || cardPreviewStrings.info.none],
+    ['difficulty', cellText(card, 'difficulty', timing) || cardPreviewStrings.info.none],
+    ['recall', r === null ? cardPreviewStrings.info.none : `${Math.round(r * 100)} %`],
     ['reps', String(card.reps)],
     ['lapses', String(card.lapses)],
-    ['meanTime', timed.length ? timeSpan(total / timed.length / 1000) : none],
-    ['totalTime', timed.length ? timeSpan(total / 1000) : none],
+    [
+      'meanTime',
+      timed.length ? timeSpan(total / timed.length / 1000) : cardPreviewStrings.info.none,
+    ],
+    ['totalTime', timed.length ? timeSpan(total / 1000) : cardPreviewStrings.info.none],
     ['card', card.template],
-    ['noteType', card.noteType?.name ?? none],
-    ['deck', card.deck?.name.split('::').slice(1).join(' › ') || none],
-    ['code', cellText(card, 'code', timing) || none],
+    ['noteType', card.noteType?.name ?? cardPreviewStrings.info.none],
+    ['deck', card.deck?.name.split('::').slice(1).join(' › ') || cardPreviewStrings.info.none],
+    ['code', cellText(card, 'code', timing) || cardPreviewStrings.info.none],
   ];
   const shown = simple ? facts.filter(([k]) => SIMPLE.has(k)) : facts;
   return (
-    <section aria-label={cardsStrings.info.title} className="text-sm">
-      {simple ? null : <h3 className="mb-2 font-semibold">{cardsStrings.info.title}</h3>}
+    <section aria-label={cardPreviewStrings.info.title} className="text-sm">
+      {simple ? null : <h3 className="mb-2 font-semibold">{cardPreviewStrings.info.title}</h3>}
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
         {shown.map(([k, v]) => (
           <div key={k} className="contents">
-            <dt className="text-muted">{cardsStrings.info.facts[k]}</dt>
+            <dt className="text-muted">{cardPreviewStrings.info.facts[k]}</dt>
             <dd className="min-w-0 break-words">{v}</dd>
           </div>
         ))}

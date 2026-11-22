@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
-import { statsStrings as s } from '../strings';
+import { yearNavStrings as s } from './strings/YearNav.strings';
 
 function YearButton({
   label,

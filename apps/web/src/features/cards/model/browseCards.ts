@@ -6,7 +6,7 @@ import type { BrowseNote, CardKind, NoteTypeSummary } from '@qv/schema';
 import type { StoredCard, StudyPreferences } from '@qv/schema/user';
 import { cardKey, isHidden, toRecord } from '@qv/study';
 import type { DeckNode } from '../../catalog/model/tree';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from './strings/columns.strings';
 
 export interface BrowseCard extends SearchCard {
   key: string;
@@ -141,7 +141,7 @@ export function notesOf(cards: BrowseCard[]): BrowseNoteRow[] {
       key: `note:${first.noteGuid}`,
       cards: list,
       draftOnly: list.some((c) => c.draftOnly),
-      template: cardsStrings.table.cardsOfNote(list.length),
+      template: columnsStrings.table.cardsOfNote(list.length),
       reps: list.reduce((t, c) => t + c.reps, 0),
       lapses: list.reduce((t, c) => t + c.lapses, 0),
       interval: Math.round(avg(list.map((c) => (c.type === 'new' ? null : c.interval))) ?? 0),

@@ -36,7 +36,7 @@ import type {
   SiteSettingsUpdate,
   UsageOpenRequest,
 } from '@qv/schema';
-import { sharedStrings } from '../strings';
+import { apiStrings } from './strings/api.strings';
 
 export class ApiRequestError extends Error {
   constructor(
@@ -88,7 +88,7 @@ export function createApiClient(
       });
     } catch (e) {
       if ((e as Error).name === 'AbortError') throw e;
-      throw new ApiRequestError(0, 'offline', sharedStrings.errors.offline);
+      throw new ApiRequestError(0, 'offline', apiStrings.errors.offline);
     }
     const body: unknown = await r.json().catch(() => null);
     if (!r.ok) {
@@ -96,7 +96,7 @@ export function createApiClient(
       throw new ApiRequestError(
         r.status,
         e.success ? e.data.error : 'unknown',
-        e.success ? e.data.message : sharedStrings.errors.server,
+        e.success ? e.data.message : apiStrings.errors.server,
       );
     }
     return schema.parse(body);

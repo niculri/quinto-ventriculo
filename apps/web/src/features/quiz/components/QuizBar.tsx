@@ -3,7 +3,7 @@ import type { Ref } from 'react';
 import { progress, score } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import { BackButton } from '../../../shared/ui/BackButton';
-import { quizStrings as s } from '../strings';
+import { quizBarStrings as s } from './strings/QuizBar.strings';
 
 const ICON = {
   viewBox: '0 0 24 24',

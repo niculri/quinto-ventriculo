@@ -5,7 +5,7 @@ import type { QuizSectionSummary } from '@qv/schema';
 import { button, card } from '../../../shared/ui/styles';
 import { Switch } from '../../../shared/ui/Switch';
 import { plainText, toggledGroups } from '../model/cover';
-import { quizStrings as s } from '../strings';
+import { startFormStrings as s } from './strings/StartForm.strings';
 import { Html } from './Html';
 
 function Groups({

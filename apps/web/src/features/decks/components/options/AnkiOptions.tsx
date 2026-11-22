@@ -15,7 +15,7 @@ import { usePresetDrafts } from '../../hooks/usePresetDrafts';
 import type { OptionsData, OptionsMode } from '../../hooks/usePresetDrafts';
 import { DeckOptions } from './DeckOptions';
 import { GeneralOptions } from './GeneralOptions';
-import { optionsStrings as o } from '../../options.strings';
+import { ankiOptionsStrings as o } from './strings/AnkiOptions.strings';
 
 export function AnkiOptions({ mode }: { mode: OptionsMode }) {
   const { catalog, tree } = useAnkiTree();

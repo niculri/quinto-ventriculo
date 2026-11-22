@@ -1,7 +1,7 @@
 // The table's columns: their names and widths, what each cell of a card says and what it sorts by.
 import { timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from './strings/columns.strings';
 import type { BrowseCard } from './browseCards';
 
 export type ColumnKey =
@@ -23,52 +23,52 @@ export type ColumnKey =
 export const COLUMNS: { key: ColumnKey; label: string; width: string; numeric?: boolean }[] = [
   {
     key: 'sortField',
-    label: cardsStrings.table.columnNames.sortField,
+    label: columnsStrings.table.columnNames.sortField,
     width: 'minmax(12rem, 3fr)',
   },
-  { key: 'code', label: cardsStrings.table.columnNames.code, width: 'minmax(8rem, 1.2fr)' },
-  { key: 'deck', label: cardsStrings.table.columnNames.deck, width: 'minmax(8rem, 1.4fr)' },
-  { key: 'card', label: cardsStrings.table.columnNames.card, width: 'minmax(6rem, 0.9fr)' },
-  { key: 'due', label: cardsStrings.table.columnNames.due, width: 'minmax(7rem, 1fr)' },
+  { key: 'code', label: columnsStrings.table.columnNames.code, width: 'minmax(8rem, 1.2fr)' },
+  { key: 'deck', label: columnsStrings.table.columnNames.deck, width: 'minmax(8rem, 1.4fr)' },
+  { key: 'card', label: columnsStrings.table.columnNames.card, width: 'minmax(6rem, 0.9fr)' },
+  { key: 'due', label: columnsStrings.table.columnNames.due, width: 'minmax(7rem, 1fr)' },
   {
     key: 'interval',
-    label: cardsStrings.table.columnNames.interval,
+    label: columnsStrings.table.columnNames.interval,
     width: 'minmax(5rem, 0.8fr)',
     numeric: true,
   },
   {
     key: 'difficulty',
-    label: cardsStrings.table.columnNames.difficulty,
+    label: columnsStrings.table.columnNames.difficulty,
     width: 'minmax(5rem, 0.7fr)',
     numeric: true,
   },
   {
     key: 'stability',
-    label: cardsStrings.table.columnNames.stability,
+    label: columnsStrings.table.columnNames.stability,
     width: 'minmax(5rem, 0.8fr)',
     numeric: true,
   },
   {
     key: 'retrievability',
-    label: cardsStrings.table.columnNames.retrievability,
+    label: columnsStrings.table.columnNames.retrievability,
     width: 'minmax(6rem, 0.8fr)',
     numeric: true,
   },
   {
     key: 'reps',
-    label: cardsStrings.table.columnNames.reps,
+    label: columnsStrings.table.columnNames.reps,
     width: 'minmax(4rem, 0.6fr)',
     numeric: true,
   },
   {
     key: 'lapses',
-    label: cardsStrings.table.columnNames.lapses,
+    label: columnsStrings.table.columnNames.lapses,
     width: 'minmax(4rem, 0.6fr)',
     numeric: true,
   },
-  { key: 'created', label: cardsStrings.table.columnNames.created, width: 'minmax(6rem, 0.9fr)' },
-  { key: 'noteType', label: cardsStrings.table.columnNames.noteType, width: 'minmax(7rem, 1fr)' },
-  { key: 'tags', label: cardsStrings.table.columnNames.tags, width: 'minmax(7rem, 1.2fr)' },
+  { key: 'created', label: columnsStrings.table.columnNames.created, width: 'minmax(6rem, 0.9fr)' },
+  { key: 'noteType', label: columnsStrings.table.columnNames.noteType, width: 'minmax(7rem, 1fr)' },
+  { key: 'tags', label: columnsStrings.table.columnNames.tags, width: 'minmax(7rem, 1.2fr)' },
 ];
 
 export const DEFAULT_COLUMNS: ColumnKey[] = ['sortField', 'code', 'card', 'due', 'deck'];
@@ -95,14 +95,14 @@ const codeText = (c: BrowseCard) =>
   c.note.code ? `${c.note.code}${c.note.version ? `.${c.note.version}` : ''}` : '';
 
 function dueText(c: BrowseCard): string {
-  if (c.dueAt === null) return cardsStrings.table.newCard(c.position);
+  if (c.dueAt === null) return columnsStrings.table.newCard(c.position);
   const at = new Date(c.dueAt * 1000);
   return c.intraday ? `${SHORT_DATE.format(at)}, ${TIME.format(at)}` : SHORT_DATE.format(at);
 }
 
 function intervalText(c: BrowseCard): string {
-  if (c.type === 'new') return cardsStrings.table.newInterval;
-  if (c.type === 'learn') return cardsStrings.table.learning;
+  if (c.type === 'new') return columnsStrings.table.newInterval;
+  if (c.type === 'learn') return columnsStrings.table.learning;
   return timeSpan(c.interval * 86_400);
 }
 

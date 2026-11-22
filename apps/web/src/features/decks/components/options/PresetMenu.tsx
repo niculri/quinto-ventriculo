@@ -9,7 +9,7 @@ import { Settings2 } from 'lucide-react';
 import { defaultConfig } from '@qv/srs';
 import { button } from '../../../../shared/ui/styles';
 import type { usePresetDrafts } from '../../hooks/usePresetDrafts';
-import { optionsStrings as o } from '../../options.strings';
+import { presetMenuStrings as o } from './strings/PresetMenu.strings';
 
 const menuItem =
   'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:cursor-default data-[disabled]:opacity-50 data-[highlighted]:bg-surface-2';

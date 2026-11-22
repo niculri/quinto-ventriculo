@@ -7,12 +7,10 @@ import { card } from '../../../../shared/ui/styles';
 import { useReleaseImpact } from '../../hooks/useReleases';
 import { assessmentTitle } from '../../model/releases';
 import type { CountLine } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { assessmentChangesStrings } from './strings/AssessmentChanges.strings';
+import { releasesStrings } from '../../model/strings/releases.strings';
 import { ReleaseItems } from './ReleaseItems';
 import type { ItemKind } from './ReleaseItems';
-
-const s = releasesStrings.assessment;
-const c = releasesStrings.counts;
 
 export function AssessmentChanges({
   a,
@@ -39,7 +37,7 @@ export function AssessmentChanges({
           open === kind ? 'bg-brand-soft text-ink' : 'text-muted hover:text-ink'
         }`}
       >
-        {s.tab(label, n[kind])}
+        {assessmentChangesStrings.assessment.tab(label, n[kind])}
       </button>
     ) : null;
   return (
@@ -49,16 +47,20 @@ export function AssessmentChanges({
       </h4>
       {a.suggestedDate ? (
         <p className="mt-0.5 text-xs text-muted">
-          {s.suggested}
+          {assessmentChangesStrings.assessment.suggested}
           {a.suggestedDate}
         </p>
       ) : null}
       <AssessmentCounts a={a} />
       {reached.length ? <Reach reached={reached} failed={impact.isError} /> : null}
-      <div role="group" aria-label={s.tabs} className="mt-4 flex flex-wrap gap-1">
-        {tab('article', s.articles)}
-        {tab('question', s.questions)}
-        {tab('card', s.cards)}
+      <div
+        role="group"
+        aria-label={assessmentChangesStrings.assessment.tabs}
+        className="mt-4 flex flex-wrap gap-1"
+      >
+        {tab('article', assessmentChangesStrings.assessment.articles)}
+        {tab('question', assessmentChangesStrings.assessment.questions)}
+        {tab('card', assessmentChangesStrings.assessment.cards)}
       </div>
       {open ? (
         <ReleaseItems kind={open} assessment={a.id} fingerprint={overview.summary.fingerprint} />
@@ -71,35 +73,35 @@ function AssessmentCounts({ a }: { a: ReleaseAssessment }) {
   return (
     <div className="mt-3 grid gap-4 sm:grid-cols-3">
       <Counts
-        title={s.articles}
+        title={assessmentChangesStrings.assessment.articles}
         lines={[
-          [a.articles.added, ...c.article.added],
-          [a.articles.content, ...c.article.content],
-          [a.articles.format, ...c.article.format],
-          [a.articles.removed, ...c.article.removed],
+          [a.articles.added, ...assessmentChangesStrings.counts.article.added],
+          [a.articles.content, ...assessmentChangesStrings.counts.article.content],
+          [a.articles.format, ...assessmentChangesStrings.counts.article.format],
+          [a.articles.removed, ...assessmentChangesStrings.counts.article.removed],
         ]}
       />
       <Counts
-        title={s.questions}
+        title={assessmentChangesStrings.assessment.questions}
         lines={[
-          [a.questions.added, ...c.question.added],
-          [a.questions.keyChanged, ...c.question.keyChanged],
-          [a.questions.answer, ...c.question.answer],
-          [a.questions.noAnswer, ...c.question.noAnswer],
-          [a.questions.format, ...c.question.format],
-          [a.questions.moved, ...c.question.moved],
-          [a.questions.removed, ...c.question.removed],
+          [a.questions.added, ...assessmentChangesStrings.counts.question.added],
+          [a.questions.keyChanged, ...assessmentChangesStrings.counts.question.keyChanged],
+          [a.questions.answer, ...assessmentChangesStrings.counts.question.answer],
+          [a.questions.noAnswer, ...assessmentChangesStrings.counts.question.noAnswer],
+          [a.questions.format, ...assessmentChangesStrings.counts.question.format],
+          [a.questions.moved, ...assessmentChangesStrings.counts.question.moved],
+          [a.questions.removed, ...assessmentChangesStrings.counts.question.removed],
         ]}
       />
       <Counts
-        title={s.cards}
+        title={assessmentChangesStrings.assessment.cards}
         lines={[
-          [a.cards.added, ...c.card.added],
-          [a.cards.answer, ...c.card.answer],
-          [a.cards.noAnswer, ...c.card.noAnswer],
-          [a.cards.format, ...c.card.format],
-          [a.cards.moved, ...c.card.moved],
-          [a.cards.removed, ...c.card.removed],
+          [a.cards.added, ...assessmentChangesStrings.counts.card.added],
+          [a.cards.answer, ...assessmentChangesStrings.counts.card.answer],
+          [a.cards.noAnswer, ...assessmentChangesStrings.counts.card.noAnswer],
+          [a.cards.format, ...assessmentChangesStrings.counts.card.format],
+          [a.cards.moved, ...assessmentChangesStrings.counts.card.moved],
+          [a.cards.removed, ...assessmentChangesStrings.counts.card.removed],
         ]}
       />
     </div>
@@ -117,7 +119,7 @@ function Counts({ title, lines }: { title: string; lines: CountLine[] }) {
             <li key={one}>{releasesStrings.plural(count, one, many)}</li>
           ))
         ) : (
-          <li>{s.noChanges}</li>
+          <li>{assessmentChangesStrings.assessment.noChanges}</li>
         )}
       </ul>
     </div>
@@ -129,14 +131,20 @@ type Reached = ReleaseAssessment['impactDecks'][number] & { impact: DeckImpact |
 function Reach({ reached, failed }: { reached: Reached[]; failed: boolean }) {
   return (
     <div className="mt-4">
-      <p className="text-sm font-semibold text-ink">{s.reach}</p>
+      <p className="text-sm font-semibold text-ink">{assessmentChangesStrings.assessment.reach}</p>
       <ul className="mt-1 space-y-0.5 text-sm text-muted">
         {reached.map((d) => (
           <li key={d.id}>
-            <Reserved longest={s.reachLongest(lastName(d.name ?? d.id))}>
-              {s.deck(lastName(d.name ?? d.id))}
-              {d.impact ? s.seen(d.impact.studentsSeen) : failed ? s.notCounted : s.counting}{' '}
-              {s.reachCards(d.cards)}
+            <Reserved
+              longest={assessmentChangesStrings.assessment.reachLongest(lastName(d.name ?? d.id))}
+            >
+              {assessmentChangesStrings.assessment.deck(lastName(d.name ?? d.id))}
+              {d.impact
+                ? assessmentChangesStrings.assessment.seen(d.impact.studentsSeen)
+                : failed
+                  ? assessmentChangesStrings.assessment.notCounted
+                  : assessmentChangesStrings.assessment.counting}{' '}
+              {assessmentChangesStrings.assessment.reachCards(d.cards)}
             </Reserved>
           </li>
         ))}

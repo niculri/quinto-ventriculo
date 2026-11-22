@@ -11,9 +11,7 @@ import { BlurredBackdrop, CloseX } from '../../../shared/ui/Dialog';
 import { useSession, useUser } from '../../session/context';
 import { useAccountRepository } from '../api/context';
 import { AccountError } from '../api/repository';
-import { accountStrings } from '../strings';
-
-const s = accountStrings.deletion;
+import { deleteAccountDialogStrings as s } from './strings/DeleteAccountDialog.strings';
 
 export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const account = useAccountRepository();
@@ -59,7 +57,9 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
           ) : (
             <>
               <div className="flex items-start justify-between gap-3">
-                <Dialog.Title className="font-serif text-xl font-semibold">{s.title}</Dialog.Title>
+                <Dialog.Title className="font-serif text-xl font-semibold">
+                  {s.deletion.title}
+                </Dialog.Title>
                 <CloseX disabled={busy} />
               </div>
               <WhatHappens />
@@ -73,7 +73,9 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
                 <ConfirmEmail email={email} setEmail={setEmail} account={user.email} />
                 {request.isError ? (
                   <p role="alert" className="mt-2 text-sm text-state-learn">
-                    {request.error instanceof AccountError ? request.error.message : s.failed}
+                    {request.error instanceof AccountError
+                      ? request.error.message
+                      : s.deletion.failed}
                   </p>
                 ) : null}
                 <div className="mt-5 flex justify-end gap-2">
@@ -83,14 +85,14 @@ export function DeleteAccountDialog({ open, onClose }: { open: boolean; onClose:
                     disabled={busy}
                     className={`${button.base} ${button.secondary}`}
                   >
-                    {s.cancel}
+                    {s.deletion.cancel}
                   </button>
                   <button
                     type="submit"
                     disabled={!matches || request.isPending}
                     className={`${button.base} ${button.danger}`}
                   >
-                    {request.isPending ? s.asking : s.delete}
+                    {request.isPending ? s.deletion.asking : s.deletion.delete}
                   </button>
                 </div>
               </form>
@@ -106,14 +108,14 @@ function WhatHappens() {
   return (
     <Dialog.Description asChild>
       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">
-        <li>{s.sessions}</li>
+        <li>{s.deletion.sessions}</li>
         <li>
-          {s.inDays}
+          {s.deletion.inDays}
           {ACCOUNT_DELETION_DAYS}
-          {s.days}
+          {s.deletion.days}
         </li>
-        <li>{s.before}</li>
-        <li>{s.after}</li>
+        <li>{s.deletion.before}</li>
+        <li>{s.deletion.after}</li>
       </ul>
     </Dialog.Description>
   );
@@ -122,14 +124,16 @@ function WhatHappens() {
 function Requested({ deleteAfter, onLeave }: { deleteAfter: string; onLeave: () => void }) {
   return (
     <>
-      <Dialog.Title className="font-serif text-xl font-semibold">{s.doneTitle}</Dialog.Title>
+      <Dialog.Title className="font-serif text-xl font-semibold">
+        {s.deletion.doneTitle}
+      </Dialog.Title>
       <Dialog.Description className="mt-2 text-sm leading-relaxed text-muted">
-        {s.doneBefore} <strong className="text-ink">{formatDateTime(deleteAfter)}</strong>
-        {s.doneAfter}
+        {s.deletion.doneBefore} <strong className="text-ink">{formatDateTime(deleteAfter)}</strong>
+        {s.deletion.doneAfter}
       </Dialog.Description>
       <div className="mt-6 flex justify-end">
         <button type="button" onClick={onLeave} className={`${button.base} ${button.primary}`}>
-          {s.understood}
+          {s.deletion.understood}
         </button>
       </div>
     </>
@@ -148,7 +152,7 @@ function ConfirmEmail({
   return (
     <>
       <label htmlFor="delete-email" className="text-sm font-medium">
-        {s.confirm}
+        {s.deletion.confirm}
         {account})
       </label>
       <input

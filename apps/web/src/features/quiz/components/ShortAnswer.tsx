@@ -1,5 +1,5 @@
 // A short-answer question: «Mostrar respuesta», then the answer and, until answered, whether one knew it.
-import { quizStrings as s } from '../strings';
+import { shortAnswerStrings as s } from './strings/ShortAnswer.strings';
 import { Html } from './Html';
 
 export function RevealButton({ onReveal }: { onReveal: () => void }) {

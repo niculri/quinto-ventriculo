@@ -9,7 +9,7 @@ import { CATEGORY_LABELS, codeWithVersion } from '../model/labels';
 import { useReportForm } from '../hooks/useReportForm';
 import { ReportError } from '../api/repository';
 import type { ReportTarget } from '../api/repository';
-import { dialogStrings as s } from '../dialog.strings';
+import { reportDialogStrings as s } from './strings/ReportDialog.strings';
 
 export function ReportDialog({
   target,

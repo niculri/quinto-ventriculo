@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { HowToUse } from '../../help/components/HowToUse';
 import { Feature } from './Feature';
-import { landingStrings as s } from '../strings';
+import { sectionsStrings as s } from './strings/Sections.strings';
 
 export function Inside() {
   return (

@@ -9,15 +9,15 @@ import { errorText } from '../../../shared/lib/errorText';
 import type { StudyRepository } from '../../progress/api/repository';
 import type { CardWrite } from '../api/cardWrites';
 import { useCardWrite, useUndoWrite } from './useCardWrites';
-import { cardsStrings } from '../strings';
+import { useActionRunnerStrings } from './strings/useActionRunner.strings';
 
 type Undone = Awaited<ReturnType<StudyRepository['undo']>>;
 
 // Outside the hook: React Compiler does not compile a conditional inside `try`.
 function undoneText(done: Undone, full: boolean) {
   return done
-    ? cardsStrings.toasts.undone(actionLabel(done.action, full))
-    : cardsStrings.toasts.nothingToUndo;
+    ? useActionRunnerStrings.toasts.undone(actionLabel(done.action, full))
+    : useActionRunnerStrings.toasts.nothingToUndo;
 }
 
 export function useActionRunner(full: boolean) {
@@ -36,7 +36,7 @@ export function useActionRunner(full: boolean) {
       await client.invalidateQueries({ queryKey: studyKeys.all });
       setToast(what);
     } catch (e) {
-      setProblem(errorText(e, cardsStrings.toasts.failed));
+      setProblem(errorText(e, useActionRunnerStrings.toasts.failed));
     }
     setBusy(false);
   };
@@ -49,7 +49,7 @@ export function useActionRunner(full: boolean) {
         await client.invalidateQueries({ queryKey: studyKeys.all });
         setToast(undoneText(done, full));
       } catch (e) {
-        setProblem(errorText(e, cardsStrings.toasts.undoFailed));
+        setProblem(errorText(e, useActionRunnerStrings.toasts.undoFailed));
       }
       setBusy(false);
     })();

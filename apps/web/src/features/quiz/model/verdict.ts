@@ -1,7 +1,7 @@
 // What a question says once answered: right or wrong (with the letter of the right one), or known or to review.
 import { LETTERS } from '@qv/quiz';
 import type { QuizQuestion } from '@qv/schema';
-import { quizStrings as s } from '../strings';
+import { verdictStrings as s } from './strings/verdict.strings';
 
 export interface Verdict {
   good: boolean;

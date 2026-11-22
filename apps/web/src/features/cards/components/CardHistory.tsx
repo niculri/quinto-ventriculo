@@ -5,9 +5,9 @@ import { timeSpan } from '@qv/srs';
 import type { CardLogEntry } from '../../progress/api/repository';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { cardsStrings } from '../strings';
+import { cardHistoryStrings } from './strings/CardHistory.strings';
+import { cardPreviewStrings } from './strings/CardPreview.strings';
 
-const RATING = cardsStrings.info.ratings;
 const RATING_COLORS = [
   'text-[#c62828] dark:text-[#ff8a80]',
   'text-muted',
@@ -24,15 +24,15 @@ const DATE_TIME = new Intl.DateTimeFormat('es-CL', {
 
 /** Anki's revlog type of an answer: by the card's phase when it was answered. */
 function kindOf(e: CardLogEntry): string {
-  if (e.action === 'forget') return cardsStrings.info.kinds.manual;
+  if (e.action === 'forget') return cardHistoryStrings.info.kinds.manual;
   switch (e.phaseBefore) {
     case 'new':
     case 'learning':
-      return cardsStrings.info.kinds.learning;
+      return cardHistoryStrings.info.kinds.learning;
     case 'review':
-      return cardsStrings.info.kinds.review;
+      return cardHistoryStrings.info.kinds.review;
     case 'relearning':
-      return cardsStrings.info.kinds.relearning;
+      return cardHistoryStrings.info.kinds.relearning;
   }
 }
 
@@ -45,24 +45,28 @@ export function CardHistory({
 }) {
   return (
     <>
-      <h4 className="mt-4 mb-1 font-semibold">{cardsStrings.info.history}</h4>
+      <h4 className="mt-4 mb-1 font-semibold">{cardHistoryStrings.info.history}</h4>
       {log.isError ? (
         <ErrorWithRetry error={log.error} onRetry={() => void log.refetch()} />
       ) : !log.data ? (
-        <Loading text={cardsStrings.info.loadingHistory} />
+        <Loading text={cardHistoryStrings.info.loadingHistory} />
       ) : answers.length === 0 ? (
-        <p className="text-muted">{cardsStrings.info.notStudied}</p>
+        <p className="text-muted">{cardHistoryStrings.info.notStudied}</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-xs" aria-label={cardsStrings.info.historyTable}>
+          <table className="w-full text-xs" aria-label={cardHistoryStrings.info.historyTable}>
             <thead>
               <tr className="text-left text-muted">
-                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.date}</th>
-                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.kind}</th>
-                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.button}</th>
-                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.interval}</th>
-                <th className="py-1 pr-2 font-medium">{cardsStrings.info.columns.stability}</th>
-                <th className="py-1 font-medium">{cardsStrings.info.columns.time}</th>
+                <th className="py-1 pr-2 font-medium">{cardHistoryStrings.info.columns.date}</th>
+                <th className="py-1 pr-2 font-medium">{cardHistoryStrings.info.columns.kind}</th>
+                <th className="py-1 pr-2 font-medium">{cardHistoryStrings.info.columns.button}</th>
+                <th className="py-1 pr-2 font-medium">
+                  {cardHistoryStrings.info.columns.interval}
+                </th>
+                <th className="py-1 pr-2 font-medium">
+                  {cardHistoryStrings.info.columns.stability}
+                </th>
+                <th className="py-1 font-medium">{cardHistoryStrings.info.columns.time}</th>
               </tr>
             </thead>
             <tbody>
@@ -75,18 +79,24 @@ export function CardHistory({
                   <td
                     className={`py-1 pr-2 font-medium ${e.rating ? RATING_COLORS[e.rating - 1] : ''}`}
                   >
-                    {e.rating ? RATING[e.rating - 1] : cardsStrings.info.none}
+                    {e.rating
+                      ? cardHistoryStrings.info.ratings[e.rating - 1]
+                      : cardPreviewStrings.info.none}
                   </td>
                   <td className="py-1 pr-2">
                     {e.interval === null
-                      ? cardsStrings.info.none
+                      ? cardPreviewStrings.info.none
                       : timeSpan(e.interval < 0 ? -e.interval : e.interval * 86_400)}
                   </td>
                   <td className="py-1 pr-2">
-                    {e.stability === null ? cardsStrings.info.none : timeSpan(e.stability * 86_400)}
+                    {e.stability === null
+                      ? cardPreviewStrings.info.none
+                      : timeSpan(e.stability * 86_400)}
                   </td>
                   <td className="py-1">
-                    {e.durationMs === null ? cardsStrings.info.none : timeSpan(e.durationMs / 1000)}
+                    {e.durationMs === null
+                      ? cardPreviewStrings.info.none
+                      : timeSpan(e.durationMs / 1000)}
                   </td>
                 </tr>
               ))}

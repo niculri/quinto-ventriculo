@@ -9,7 +9,7 @@ import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { ListMark, PageCrumbs } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
-import { semesterStrings as s } from '../semester.strings';
+import { semesterPageStrings as s } from './strings/SemesterPage.strings';
 
 export function SemesterPage() {
   const { number } = useParams();

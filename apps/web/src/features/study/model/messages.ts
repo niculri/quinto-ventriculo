@@ -1,34 +1,33 @@
 // The words of a session's toasts and of the failure that stops it (the reducer only says which).
 import { actionLabel } from '@qv/study';
 import type { SaveFailure, Toast } from '@qv/study';
-import { studyStrings } from '../strings';
+import { messagesStrings } from './strings/messages.strings';
 
 export function toastText(toast: Toast, fullAnki: boolean): string {
-  const text = studyStrings.session;
   switch (toast.kind) {
     case 'leech':
-      return text.leech;
+      return messagesStrings.session.leech;
     case 'leechSuspended':
-      return text.leechSuspended;
+      return messagesStrings.session.leechSuspended;
     case 'hidden':
-      return text.hidden[toast.action];
+      return messagesStrings.session.hidden[toast.action];
     case 'skipped':
-      return text.skipped;
+      return messagesStrings.session.skipped;
     case 'neverAgain':
-      return text.neverAgain;
+      return messagesStrings.session.neverAgain;
     case 'undone':
-      return text.undone(actionLabel(toast.action, fullAnki));
+      return messagesStrings.session.undone(actionLabel(toast.action, fullAnki));
     case 'nothingToUndo':
-      return text.nothingToUndo;
+      return messagesStrings.session.nothingToUndo;
   }
 }
 
 export function failureText(failure: SaveFailure): string {
   switch (failure.kind) {
     case 'changedElsewhere':
-      return studyStrings.session.changedElsewhere;
+      return messagesStrings.session.changedElsewhere;
     case 'notSaved':
-      return studyStrings.session.notSaved;
+      return messagesStrings.session.notSaved;
     case 'message':
       return failure.message;
   }

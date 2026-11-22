@@ -10,7 +10,7 @@ import { countSearch } from '../../usage/api/count';
 import { useSearch } from '../hooks/useSearch';
 import { groupByNote } from '../model/results';
 import { SearchResults } from '../components/SearchResults';
-import { searchStrings as s } from '../strings';
+import { searchPageStrings as s } from './strings/SearchPage.strings';
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();

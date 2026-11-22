@@ -6,13 +6,13 @@ import { useLocation } from 'react-router';
 import type { Catalog } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
-import { catalogStrings } from '../../catalog/strings';
+import { appNavStrings } from './strings/AppNav.strings';
+import { catalogStrings } from '../../../shared/strings/catalog.strings';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { buildAnkiTree } from '../../catalog/model/tree';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { hasMaterial, locate } from '../model/where';
 import type { Where } from '../model/where';
-import { navStrings } from '../strings';
 import { NavLink, icon } from './NavLink';
 import { SemesterBranch } from './SemesterBranch';
 import { AdminBranch, SettingsBranch } from './SectionBranches';
@@ -24,7 +24,7 @@ export function AppNav({ onNavigate }: { onNavigate?: (() => void) | undefined }
   const tree = useMemo(() => (data ? buildAnkiTree(data) : null), [data]);
   const where = useMemo(() => locate(pathname, data, tree), [pathname, data, tree]);
   return (
-    <nav aria-label={navStrings.menu} className="text-[0.86rem] leading-snug">
+    <nav aria-label={appNavStrings.menu} className="text-[0.86rem] leading-snug">
       {/* What was opened or closed by hand is forgotten on going to another page. */}
       <NavTree
         key={pathname}
@@ -65,7 +65,7 @@ function NavTree({
           icon={<House className={icon} aria-hidden="true" />}
           {...link}
         >
-          {navStrings.home}
+          {appNavStrings.home}
         </NavLink>
       </li>
       {where.settings ? (

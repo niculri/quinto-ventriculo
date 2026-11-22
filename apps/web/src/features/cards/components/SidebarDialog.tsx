@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { DimBackdrop, GhostCloseX } from '../../../shared/ui/Dialog';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from '../model/strings/columns.strings';
 
 export function SidebarDialog({
   open,
@@ -20,11 +20,11 @@ export function SidebarDialog({
         <DimBackdrop />
         <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[85vw] max-w-sm overflow-y-auto bg-surface p-4 shadow-soft">
           <div className="mb-3 flex items-center justify-between">
-            <Dialog.Title className="font-semibold">{cardsStrings.table.sidebar}</Dialog.Title>
+            <Dialog.Title className="font-semibold">{columnsStrings.table.sidebar}</Dialog.Title>
             <GhostCloseX />
           </div>
           <Dialog.Description className="sr-only">
-            {cardsStrings.table.sidebarHelp}
+            {columnsStrings.table.sidebarHelp}
           </Dialog.Description>
           {children}
         </Dialog.Content>

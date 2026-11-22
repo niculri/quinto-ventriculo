@@ -10,10 +10,8 @@ import type {
   ReleaseQuestionItem,
 } from '@qv/schema';
 import { classTone, letter, textOf } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { itemChangesStrings } from './strings/ItemChanges.strings';
 import { Badge } from './Badge';
-
-const s = releasesStrings.items;
 
 function Diff({
   before,
@@ -74,9 +72,9 @@ function ItemHead({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="font-mono text-sm font-medium break-all text-ink">{title}</span>
-      <Badge tone={op === 'added' ? 'new' : 'muted'}>{releasesStrings.ops[op]}</Badge>
+      <Badge tone={op === 'added' ? 'new' : 'muted'}>{itemChangesStrings.ops[op]}</Badge>
       {classification ? (
-        <Badge tone={classTone(classification)}>{releasesStrings.classes[classification]}</Badge>
+        <Badge tone={classTone(classification)}>{itemChangesStrings.classes[classification]}</Badge>
       ) : null}
       {children}
     </div>
@@ -90,12 +88,15 @@ function CardMoves({ item: n }: { item: ReleaseCardItem }) {
         .filter((c) => c.op !== 'changed')
         .map((c) => (
           <li key={c.ord}>
-            {s.card(c.ord + 1)}
+            {itemChangesStrings.items.card(c.ord + 1)}
             {c.op === 'moved'
-              ? s.cardMoved(lastName(c.deckNameBefore ?? ''), lastName(c.deckNameAfter ?? ''))
+              ? itemChangesStrings.items.cardMoved(
+                  lastName(c.deckNameBefore ?? ''),
+                  lastName(c.deckNameAfter ?? ''),
+                )
               : c.op === 'added'
-                ? s.cardAdded(lastName(c.deckNameAfter ?? ''))
-                : s.cardRemoved(lastName(c.deckNameBefore ?? ''))}
+                ? itemChangesStrings.items.cardAdded(lastName(c.deckNameAfter ?? ''))
+                : itemChangesStrings.items.cardRemoved(lastName(c.deckNameBefore ?? ''))}
           </li>
         ))}
     </ul>
@@ -105,7 +106,7 @@ function CardMoves({ item: n }: { item: ReleaseCardItem }) {
 export function CardChange({ item: n }: { item: ReleaseCardItem }) {
   const version =
     n.versionBefore && n.versionAfter && n.versionBefore !== n.versionAfter
-      ? s.version(n.versionBefore, n.versionAfter)
+      ? itemChangesStrings.items.version(n.versionBefore, n.versionAfter)
       : '';
   const first = n.noteType?.fields[0];
   const fields =
@@ -123,7 +124,9 @@ export function CardChange({ item: n }: { item: ReleaseCardItem }) {
       />
       {n.op === 'changed' && !n.changedFields.length ? (
         <p className="mt-1 text-sm text-muted">
-          {n.classification === 'answer' ? s.sameFieldsOtherLook : s.sameText}
+          {n.classification === 'answer'
+            ? itemChangesStrings.items.sameFieldsOtherLook
+            : itemChangesStrings.items.sameText}
         </p>
       ) : null}
       {fields.map((f) => (
@@ -139,20 +142,24 @@ export function CardChange({ item: n }: { item: ReleaseCardItem }) {
 export function ArticleChange({ item: a }: { item: ReleaseArticleItem }) {
   return (
     <li className="px-4 py-3">
-      <ItemHead title={s.title2(a.id, a.title)} op={a.op} classification={a.classification} />
+      <ItemHead
+        title={itemChangesStrings.items.title2(a.id, a.title)}
+        op={a.op}
+        classification={a.classification}
+      />
       {a.titleBefore && a.titleBefore !== a.title ? (
-        <Field name={s.title} before={a.titleBefore} after={a.title} />
+        <Field name={itemChangesStrings.items.title} before={a.titleBefore} after={a.title} />
       ) : null}
       {a.sections.map((sec) => (
         <Field
           key={sec.anchor || '_'}
-          name={s.section(sec.title, sec.op)}
+          name={itemChangesStrings.items.section(sec.title, sec.op)}
           before={sec.before}
           after={sec.after}
         />
       ))}
       {a.op === 'changed' && !a.sections.length ? (
-        <p className="mt-1 text-sm text-muted">{s.sameText}</p>
+        <p className="mt-1 text-sm text-muted">{itemChangesStrings.items.sameText}</p>
       ) : null}
     </li>
   );
@@ -169,38 +176,49 @@ export function QuestionChange({ item: q }: { item: ReleaseQuestionItem }) {
   const n = Math.max(optionsOf(b).length, optionsOf(a).length);
   return (
     <li className="px-4 py-3">
-      <ItemHead title={s.title2(q.quizId, q.id)} op={q.op} classification={q.classification}>
-        {q.keyChanged ? <Badge tone="warn">{s.keyChanged}</Badge> : null}
+      <ItemHead
+        title={itemChangesStrings.items.title2(q.quizId, q.id)}
+        op={q.op}
+        classification={q.classification}
+      >
+        {q.keyChanged ? <Badge tone="warn">{itemChangesStrings.items.keyChanged}</Badge> : null}
       </ItemHead>
       {q.keyChanged ? (
         <p className="mt-1 text-sm text-ink">
-          {s.correctWas(letter(b.correct), letter(a.correct))}
+          {itemChangesStrings.items.correctWas(letter(b.correct), letter(a.correct))}
         </p>
       ) : null}
       {q.moved ? (
         <p className="mt-1 text-sm text-muted">
-          {s.movedFrom(
-            s.where(q.sectionBefore, q.groupBefore),
-            s.where(q.sectionAfter, q.groupAfter),
+          {itemChangesStrings.items.movedFrom(
+            itemChangesStrings.items.where(q.sectionBefore, q.groupBefore),
+            itemChangesStrings.items.where(q.sectionAfter, q.groupAfter),
           )}
         </p>
       ) : null}
       {QUESTION_FIELDS.filter((k) => q.op !== 'changed' || textOf(b[k]) !== textOf(a[k]))
         .filter((k) => textOf(b[k]) || textOf(a[k]))
         .map((k) => (
-          <Field key={k} name={s.fields[k]} before={textOf(b[k])} after={textOf(a[k])} />
+          <Field
+            key={k}
+            name={itemChangesStrings.items.fields[k]}
+            before={textOf(b[k])}
+            after={textOf(a[k])}
+          />
         ))}
       {Array.from({ length: n }, (_, i) => i)
         .filter((i) => q.op !== 'changed' || optionsOf(b)[i] !== optionsOf(a)[i])
         .map((i) => (
           <Field
             key={i}
-            name={s.option(letter(i))}
+            name={itemChangesStrings.items.option(letter(i))}
             before={optionsOf(b)[i]}
             after={optionsOf(a)[i]}
           />
         ))}
-      {q.figuresChanged ? <p className="mt-2 text-xs text-muted">{s.figure}</p> : null}
+      {q.figuresChanged ? (
+        <p className="mt-2 text-xs text-muted">{itemChangesStrings.items.figure}</p>
+      ) : null}
     </li>
   );
 }

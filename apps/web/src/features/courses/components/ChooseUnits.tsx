@@ -8,7 +8,7 @@ import { card, tapArea } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { SimpleDeckTree } from '../../decks/components/SimpleDeckTree';
 import { unitsOf } from '../model/material';
-import { courseStrings as s } from '../course.strings';
+import { chooseUnitsStrings as s } from './strings/ChooseUnits.strings';
 
 export function ChooseUnits({
   node,

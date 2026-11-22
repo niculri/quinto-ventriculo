@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { paths } from '../../../../shared/lib/paths';
 import { card } from '../../../../shared/ui/styles';
 import type { CourseDeckNode, DeckNode } from '../../../catalog/model/tree';
-import { optionsStrings as o } from '../../options.strings';
+import { decksUsingStrings as o } from './strings/DecksUsing.strings';
 
 export function DecksUsing({ decks }: { decks: CourseDeckNode[] }) {
   const path = (n: DeckNode) => n.name.split('::').slice(1).join(' › ');

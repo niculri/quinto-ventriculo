@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import { BookOpen, ListChecks } from 'lucide-react';
 import type { CardMaterial } from '../model/material';
-import { studyStrings } from '../strings';
+import { materialRowStrings } from './strings/MaterialRow.strings';
 
 const ROW_LINK =
   'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 hover:bg-surface-2 hover:text-ink';
@@ -23,12 +23,13 @@ export function MaterialRow({
       {revealed && material ? (
         <>
           <MaterialLink href={material.notePath} className={ROW_LINK}>
-            <BookOpen className="size-4" aria-hidden="true" /> {studyStrings.material.note}
+            <BookOpen className="size-4" aria-hidden="true" /> {materialRowStrings.material.note}
           </MaterialLink>
           {children}
           {material.quizPath ? (
             <MaterialLink href={material.quizPath} className={ROW_LINK}>
-              <ListChecks className="size-4" aria-hidden="true" /> {studyStrings.material.quiz}
+              <ListChecks className="size-4" aria-hidden="true" />{' '}
+              {materialRowStrings.material.quiz}
             </MaterialLink>
           ) : null}
         </>

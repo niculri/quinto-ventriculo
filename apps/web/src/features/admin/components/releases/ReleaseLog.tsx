@@ -4,17 +4,16 @@ import { ErrorWithRetry } from '../../../../shared/ui/Notice';
 import { card } from '../../../../shared/ui/styles';
 import { useReleaseLog } from '../../hooks/useReleases';
 import { releaseLine } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { releaseLogStrings as s } from './strings/ReleaseLog.strings';
+import { lastReleaseStrings } from './strings/LastRelease.strings';
 import { Badge } from './Badge';
-
-const s = releasesStrings.log;
 
 export function ReleaseLog() {
   const log = useReleaseLog();
   return (
     <section aria-labelledby="release-log" className="mt-10">
       <h3 id="release-log" className="text-lg font-semibold">
-        {s.title}
+        {s.log.title}
       </h3>
       {log.isError ? (
         <div className="mt-3">
@@ -27,20 +26,20 @@ export function ReleaseLog() {
           {log.data.releases.map((r) => (
             <li key={r.id} className="flex items-start gap-3 px-4 py-3 sm:px-5" data-release={r.id}>
               <span className="w-14 flex-none text-sm font-semibold text-ink">
-                {s.number(r.id)}
+                {s.log.number(r.id)}
               </span>
               <span className="min-w-0 flex-1 text-sm">
                 <span className="block break-words text-ink">{r.title}</span>
                 <span className="block text-muted">{releaseLine(r)}</span>
               </span>
               <Badge tone={r.status === 'published' ? 'new' : 'muted'}>
-                {r.status === 'published' ? s.published : s.reverted}
+                {r.status === 'published' ? s.log.published : s.log.reverted}
               </Badge>
             </li>
           ))}
         </ul>
       ) : (
-        <p className={`${card} mt-3 p-5 text-sm text-muted`}>{releasesStrings.last.none}</p>
+        <p className={`${card} mt-3 p-5 text-sm text-muted`}>{lastReleaseStrings.last.none}</p>
       )}
     </section>
   );

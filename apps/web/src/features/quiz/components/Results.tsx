@@ -2,7 +2,7 @@
 import { resultTitle, score, wrongAnswers } from '@qv/quiz';
 import type { Round } from '@qv/quiz';
 import type { QuestionEntry } from '../model/entries';
-import { quizStrings as s } from '../strings';
+import { resultsStrings as s } from './strings/Results.strings';
 import { Html } from './Html';
 import { WrongAnswer } from './WrongAnswer';
 

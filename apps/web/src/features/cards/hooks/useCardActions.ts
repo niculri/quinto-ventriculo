@@ -5,7 +5,7 @@ import type { SchedTiming } from '@qv/srs';
 import type { CardRef } from '@qv/schema/user';
 import type { BrowseCard } from '../model/browseCards';
 import type { CardWrite } from '../api/cardWrites';
-import { cardsStrings } from '../strings';
+import { useCardActionsStrings } from './strings/useCardActions.strings';
 
 const refs = (cs: BrowseCard[]): CardRef[] =>
   cs.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
@@ -30,12 +30,12 @@ export function useCardActions({
     const cs = chosen();
     if (!cs.length || blocked) return;
     if (focus?.queue === 'suspended') {
-      void act(cardsStrings.toasts.unsuspended(full), {
+      void act(useCardActionsStrings.toasts.unsuspended(full), {
         kind: 'unsuspend',
         cards: refs(cs.filter((c) => c.queue === 'suspended')),
       });
     } else {
-      void act(cardsStrings.toasts.suspended(full), {
+      void act(useCardActionsStrings.toasts.suspended(full), {
         kind: 'suspend',
         cards: refs(cs.filter((c) => c.queue !== 'suspended')),
       });
@@ -45,7 +45,7 @@ export function useCardActions({
     const cs = chosen();
     if (!cs.length || blocked) return;
     if (focus?.queue === 'buried') {
-      void act(cardsStrings.toasts.unburied(full), {
+      void act(useCardActionsStrings.toasts.unburied(full), {
         kind: 'unbury',
         cards: refs(cs.filter((c) => c.queue === 'buried')),
       });
@@ -53,24 +53,31 @@ export function useCardActions({
       const until = new Date(timing.nextDayAt * 1000);
       const toBury = cs.filter((c) => c.queue !== 'buried' && c.queue !== 'suspended');
       if (!toBury.length) return;
-      void act(cardsStrings.toasts.buried(full), { kind: 'bury', cards: refs(toBury), until });
+      void act(useCardActionsStrings.toasts.buried(full), {
+        kind: 'bury',
+        cards: refs(toBury),
+        until,
+      });
     }
   };
   const flag = (n: number) => {
     const cs = chosen();
     if (!cs.length || blocked) return;
     const value = focus?.flag === n ? 0 : n;
-    void act(value ? cardsStrings.toasts.flagged : cardsStrings.toasts.unflagged(full), {
-      kind: 'flags',
-      cards: refs(cs),
-      flag: value,
-    });
+    void act(
+      value ? useCardActionsStrings.toasts.flagged : useCardActionsStrings.toasts.unflagged(full),
+      {
+        kind: 'flags',
+        cards: refs(cs),
+        flag: value,
+      },
+    );
   };
   const forget = (reset: boolean) => {
     const cs = chosen().filter((c) => c.row);
     setForgetting(false);
     if (!cs.length || blocked) return;
-    void act(cardsStrings.toasts.forgotten, { kind: 'forget', cards: refs(cs), reset });
+    void act(useCardActionsStrings.toasts.forgotten, { kind: 'forget', cards: refs(cs), reset });
   };
   return { blocked, forgetting, setForgetting, toggleSuspend, toggleBury, flag, forget };
 }

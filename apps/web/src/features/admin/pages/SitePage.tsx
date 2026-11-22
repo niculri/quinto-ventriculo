@@ -8,9 +8,7 @@ import { card } from '../../../shared/ui/styles';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { CourseSwitches } from '../components/site/CourseSwitches';
 import { useSetSiteSettings, useSiteSettings } from '../hooks/useSiteSettings';
-import { siteStrings } from '../site.strings';
-
-const s = siteStrings;
+import { sitePageStrings as s } from './strings/SitePage.strings';
 
 export function SitePage() {
   const id = useId();

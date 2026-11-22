@@ -6,7 +6,7 @@ import { paths } from '../../shared/lib/paths';
 import { Logo } from '../../shared/ui/Logo';
 import { keys } from '../../shared/ui/keys';
 import { UserMenu } from '../../features/nav/components/UserMenu';
-import { appStrings } from '../strings';
+import { topBarStrings } from './strings/TopBar.strings';
 
 export function TopBar({
   hideNav,
@@ -32,7 +32,7 @@ export function TopBar({
             className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-accent"
           />
           <p role="status" className="sr-only">
-            {appStrings.adminModeActive}
+            {topBarStrings.adminModeActive}
           </p>
         </>
       ) : null}
@@ -41,13 +41,13 @@ export function TopBar({
           <button
             type="button"
             onClick={onMenu}
-            aria-label={appStrings.openMenu}
+            aria-label={topBarStrings.openMenu}
             className="-ml-1.5 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink lg:hidden"
           >
             <Menu className="size-5" aria-hidden="true" />
           </button>
         )}
-        <Link to={paths.home} className="rounded-md" aria-label={appStrings.homeLink}>
+        <Link to={paths.home} className="rounded-md" aria-label={topBarStrings.homeLink}>
           <Logo compact tagline adminMode={adminMode} />
         </Link>
         <button
@@ -56,7 +56,7 @@ export function TopBar({
           className="mx-auto flex h-10 w-full max-w-md min-w-0 items-center gap-2.5 rounded-lg border border-border bg-surface px-3 text-sm text-muted shadow-xs transition hover:border-border-strong"
         >
           <Search className="size-4" aria-hidden="true" />
-          <span className="flex-1 truncate text-left">{appStrings.search}</span>
+          <span className="flex-1 truncate text-left">{topBarStrings.search}</span>
           <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-sans text-[0.7rem] sm:block">
             {keys('Ctrl+K')}
           </kbd>

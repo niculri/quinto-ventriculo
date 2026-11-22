@@ -4,7 +4,7 @@
 import { figureLayout, rowWidths, toRem } from './figures';
 import type { FigureSize } from './figures';
 import { placeThumbs } from './placeThumbs';
-import { noteStrings } from '../strings';
+import { articleHtmlStrings } from './strings/articleHtml.strings';
 
 /** What Inter's superscripts and subscripts (`sups`, `subs`) cover: the glyphs of ⁰–⁹ ⁺ ⁻ ₀–₉ ᵢ and more. */
 const OWN_GLYPHS = /^[a-z0-9()[\]=+−]+$/;
@@ -59,7 +59,7 @@ function labelImages(root: DocumentFragment) {
   for (const img of root.querySelectorAll('figure img')) {
     img.setAttribute('role', 'button');
     img.setAttribute('tabindex', '0');
-    img.setAttribute('aria-label', noteStrings.enlarge(img.getAttribute('alt')));
+    img.setAttribute('aria-label', articleHtmlStrings.enlarge(img.getAttribute('alt')));
   }
 }
 

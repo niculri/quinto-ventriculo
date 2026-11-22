@@ -1,7 +1,7 @@
 // The cards page's scope (a course or an assessment) and its units, the weeks and lectures it can be narrowed to.
 
 import type { AssessmentWithNotes, Catalog } from '@qv/schema';
-import { scopeStrings } from '../scope.strings';
+import { scopeStrings } from './strings/scope.strings';
 import { descendants, hasPage } from './tree';
 import type { CourseDeckNode, DeckNode } from './tree';
 

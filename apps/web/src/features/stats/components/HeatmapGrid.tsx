@@ -3,13 +3,13 @@
 
 import type { HeatmapData } from '@qv/study';
 import { SHORT_MONTHS, cellValue } from '@qv/study';
-import { sharedStrings } from '../../../shared/strings';
+import { heatmapGridStrings as s } from './strings/HeatmapGrid.strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
 import { button } from '../../../shared/ui/styles';
 import { useHeatmapGrid } from '../hooks/useHeatmapGrid';
 import type { GridData } from '../hooks/useHeatmapGrid';
 import type { HeatmapGroups } from '../model/groups';
 import { GAP, GRID_WIDTH, columnLeft } from '../model/layout';
-import { statsStrings as s } from '../strings';
 import { DayBox } from './DayBox';
 import { WeekRows } from './WeekRows';
 

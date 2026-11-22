@@ -3,19 +3,17 @@
 import { Flag } from 'lucide-react';
 import type { CardStatus, ExplorerCard } from '../model/explorer';
 import type { Matched } from '../model/filters';
-import { cardsStrings } from '../strings';
-
-const STATUS_WORDS = cardsStrings.list.status;
+import { cardStatusStrings } from './strings/CardStatus.strings';
 
 export function statusText(cards: readonly ExplorerCard[]): string {
   const by = new Map<CardStatus, number>();
   for (const c of cards) by.set(c.status, (by.get(c.status) ?? 0) + 1);
   const parts = (['new', 'seen', 'hard', 'hidden'] as const)
     .filter((s) => by.get(s))
-    .map((s) => `${by.get(s)} ${STATUS_WORDS[s][by.get(s)! === 1 ? 0 : 1]}`);
+    .map((s) => `${by.get(s)} ${cardStatusStrings.list.status[s][by.get(s)! === 1 ? 0 : 1]}`);
   const marked = cards.filter((c) => c.marked).length;
-  if (marked) parts.push(cardsStrings.list.marked(marked));
-  return cardsStrings.list.statusLine(cards.length, parts);
+  if (marked) parts.push(cardStatusStrings.list.marked(marked));
+  return cardStatusStrings.list.statusLine(cards.length, parts);
 }
 
 export function StatusDot({ status }: { status: CardStatus }) {

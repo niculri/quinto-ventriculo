@@ -21,7 +21,7 @@ import type { DeckNode } from '../../catalog/model/tree';
 import { useAssessmentOptions } from '../hooks/useAssessmentOptions';
 import { MAX_NEW_PER_DAY } from '../model/assessmentOptions';
 import { FinalDaysChoice } from './FinalDaysChoice';
-import { decksStrings as s } from '../strings';
+import { assessmentOptionsStrings as s } from './strings/AssessmentOptions.strings';
 
 type Options = ReturnType<typeof useAssessmentOptions>;
 

@@ -15,7 +15,7 @@ import { usePreferences, useStudyPlan } from '../../progress/queries';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { FinalReviewLink } from './FinalReviewLink';
 import { SimpleDetails } from './SimpleDetails';
-import { decksStrings as s } from '../strings';
+import { deckStudyPanelStrings as s } from './strings/DeckStudyPanel.strings';
 
 /** While the preferences load it is already the simple view, so a student never sees Anki's table flash by. */
 export function DeckStudyPanel({

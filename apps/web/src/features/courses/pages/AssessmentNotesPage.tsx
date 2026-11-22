@@ -8,7 +8,7 @@ import { buildAnkiTree } from '../../catalog/model/tree';
 import { useAssessmentSection } from '../hooks/useAssessmentSection';
 import { SectionFrame } from '../components/SectionFrame';
 import { NoteLists } from '../components/NoteLists';
-import { assessmentStrings as s } from '../assessment.strings';
+import { assessmentNotesPageStrings as s } from './strings/AssessmentNotesPage.strings';
 
 export function AssessmentNotesPage() {
   const { catalog, found, number, assessment } = useAssessmentSection();

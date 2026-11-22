@@ -6,7 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import type { CourseRef } from '../../../shared/lib/paths';
 import { button } from '../../../shared/ui/styles';
 import { ListMark } from '../../catalog/components/AdminMarks';
-import { assessmentStrings as s } from '../assessment.strings';
+import { quizRowStrings as s } from './strings/QuizRow.strings';
 
 export function QuizRow({ course, quiz }: { course: CourseRef; quiz: QuizSummary }) {
   return (

@@ -15,7 +15,8 @@ import { failedOf } from '../model/dayCards';
 import type { CardsBodyState } from '../hooks/useCardsBody';
 import { CardList } from './CardList';
 import { ListSkeleton } from './ListSkeleton';
-import { cardsStrings } from '../strings';
+import { cardsListViewStrings } from './strings/CardsListView.strings';
+import { cardListStrings } from './strings/CardList.strings';
 
 export function CardsListView({
   b,
@@ -40,9 +41,9 @@ export function CardsListView({
           {shown === null ? (
             <Skeleton className="h-4 w-40" />
           ) : (
-            cardsStrings.page.found(
-              cardsStrings.notes(shown.matched.length),
-              cardsStrings.cards(cardCount(shown.matched)),
+            cardsListViewStrings.page.found(
+              cardListStrings.notes(shown.matched.length),
+              cardsListViewStrings.cards(cardCount(shown.matched)),
             )
           )}
         </div>
@@ -51,26 +52,26 @@ export function CardsListView({
             to={paths.cardsPractice(scope.node.ref, queryOf(b.params))}
             className={`${button.base} ${button.primary} h-10 flex-none py-0`}
           >
-            <Dumbbell className="size-4" aria-hidden="true" /> {cardsStrings.page.practice}
+            <Dumbbell className="size-4" aria-hidden="true" /> {cardsListViewStrings.page.practice}
           </Link>
         ) : (
           <span
             aria-disabled="true"
             className={`${button.base} ${button.primary} h-10 flex-none py-0 opacity-50`}
           >
-            <Dumbbell className="size-4" aria-hidden="true" /> {cardsStrings.page.practice}
+            <Dumbbell className="size-4" aria-hidden="true" /> {cardsListViewStrings.page.practice}
           </span>
         )}
       </div>
       {text.error ? (
         <div className="mt-2">
-          <Notice title={cardsStrings.badSearch}>{text.error}</Notice>
+          <Notice title={cardsListViewStrings.badSearch}>{text.error}</Notice>
         </div>
       ) : null}
       {shown === null ? (
         <ListSkeleton />
       ) : shown.matched.length === 0 ? (
-        <p className="mt-8 text-center text-sm text-muted">{cardsStrings.noMatch}</p>
+        <p className="mt-8 text-center text-sm text-muted">{cardsListViewStrings.noMatch}</p>
       ) : (
         <CardList
           lectures={b.lectures}

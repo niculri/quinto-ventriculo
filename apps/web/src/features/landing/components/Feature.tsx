@@ -1,6 +1,6 @@
 // A card of what is inside the site or is coming, with its icon and a mark saying which.
 import type { ReactNode } from 'react';
-import { landingStrings as s } from '../strings';
+import { featureStrings as s } from './strings/Feature.strings';
 
 export function Feature({
   Icon,

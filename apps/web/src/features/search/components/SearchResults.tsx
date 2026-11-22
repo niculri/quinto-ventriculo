@@ -11,7 +11,7 @@ import type { useSearch } from '../hooks/useSearch';
 import { resultLink } from '../model/results';
 import type { ResultGroup } from '../model/results';
 import { Snippet } from './Snippet';
-import { searchStrings as s } from '../strings';
+import { searchResultsStrings as s } from './strings/SearchResults.strings';
 
 export function SearchResults({
   search: { results, active, isPending, isError, error, query },

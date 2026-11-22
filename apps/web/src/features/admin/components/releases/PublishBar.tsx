@@ -8,10 +8,8 @@ import { button } from '../../../../shared/ui/styles';
 import { useIndexLines } from '../../hooks/useIndexLines';
 import { usePublishRelease } from '../../hooks/useReleaseChanges';
 import { failure, releaseLines } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { publishBarStrings as s } from './strings/PublishBar.strings';
 import { ConfirmDialog } from './ConfirmDialog';
-
-const s = releasesStrings.publish;
 
 export function PublishBar({
   review,
@@ -36,19 +34,19 @@ export function PublishBar({
         disabled={!review.ready}
         onClick={() => close(true)}
       >
-        {s.button}
+        {s.publish.button}
       </button>
-      <Reserved longest={s.notReady} className="min-w-0 flex-1 text-sm text-muted">
-        <p>{review.ready ? s.ready : s.notReady}</p>
+      <Reserved longest={s.publish.notReady} className="min-w-0 flex-1 text-sm text-muted">
+        <p>{review.ready ? s.publish.ready : s.publish.notReady}</p>
       </Reserved>
       <ConfirmDialog
         open={open}
         onOpenChange={close}
-        title={s.title}
-        confirm={s.button}
+        title={s.publish.title}
+        confirm={s.publish.button}
         busy={publish.isPending}
-        busyLabel={s.busy}
-        error={publish.isError ? failure(publish.error, s.failed) : null}
+        busyLabel={s.publish.busy}
+        error={publish.isError ? failure(publish.error, s.publish.failed) : null}
         onConfirm={() => publish.mutate({ overview, review }, { onSuccess: () => close(false) })}
       >
         <p className="font-medium text-ink">{releaseTitle(overview.summary)}</p>
@@ -57,8 +55,8 @@ export function PublishBar({
             <li key={l}>{l}</li>
           ))}
         </ul>
-        {warnings ? <p>{s.warnings(warnings)}</p> : null}
-        <p>{s.students}</p>
+        {warnings ? <p>{s.publish.warnings(warnings)}</p> : null}
+        <p>{s.publish.students}</p>
       </ConfirmDialog>
     </div>
   );

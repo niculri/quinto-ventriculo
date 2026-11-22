@@ -9,7 +9,7 @@ import { useAddFocus } from '../hooks/useAddFocus';
 import { addableOptions, semesterOptions } from '../model/courseOptions';
 import { addCourse, listText, removeCourse } from '../model/myCourses';
 import type { MyCourses as MyCourseLists } from '../model/myCourses';
-import { homeStrings as s } from '../strings';
+import { myCoursesStrings as s } from './strings/MyCourses.strings';
 import { CourseCard } from './CourseCard';
 
 export function MyCourses({

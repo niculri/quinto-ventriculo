@@ -7,12 +7,12 @@ import { Layers, X } from 'lucide-react';
 import { answersText, dateText, dueText, isoOfDay } from '@qv/study';
 import type { CellValue, HeatmapData } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
-import { sharedStrings } from '../../../shared/strings';
+import { dayBoxStrings as s } from './strings/DayBox.strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
 import { useDayBox } from '../hooks/useDayBox';
 import type { OpenDay } from '../hooks/useHeatmapGrid';
 import type { HeatmapGroups } from '../model/groups';
 import { BOX_WIDTH, MARGIN, boxLeft } from '../model/layout';
-import { statsStrings as s } from '../strings';
 
 function total(cell: CellValue) {
   if (cell.kind === 'past') return cell.value > 0 ? answersText(cell.value) : s.noStudy;

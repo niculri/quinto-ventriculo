@@ -2,7 +2,7 @@
 import type { Round } from '@qv/quiz';
 import { resumeLine } from '@qv/quiz';
 import { button, card } from '../../../shared/ui/styles';
-import { quizStrings as s } from '../strings';
+import { resumeBannerStrings as s } from './strings/ResumeBanner.strings';
 
 export function ResumeBanner({
   round,

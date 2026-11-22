@@ -3,13 +3,13 @@
 
 import { Notice } from '../../../shared/ui/Notice';
 import { button } from '../../../shared/ui/styles';
-import { cardsStrings } from '../strings';
+import { cardsNoticesStrings } from './strings/CardsNotices.strings';
 
 export function CardsMissing() {
   return (
     <div className="mt-6">
-      <Notice title={cardsStrings.page.missingTitle} tone="info">
-        {cardsStrings.page.missingBody}
+      <Notice title={cardsNoticesStrings.page.missingTitle} tone="info">
+        {cardsNoticesStrings.page.missingBody}
       </Notice>
     </div>
   );
@@ -18,14 +18,14 @@ export function CardsMissing() {
 export function CardsChanged() {
   return (
     <div className="mt-6">
-      <Notice title={cardsStrings.page.changedTitle} tone="info">
-        <p>{cardsStrings.page.changedBody}</p>
+      <Notice title={cardsNoticesStrings.page.changedTitle} tone="info">
+        <p>{cardsNoticesStrings.page.changedBody}</p>
         <button
           type="button"
           onClick={() => window.location.reload()}
           className={`${button.base} ${button.secondary} mt-3`}
         >
-          {cardsStrings.page.reload}
+          {cardsNoticesStrings.page.reload}
         </button>
       </Notice>
     </div>

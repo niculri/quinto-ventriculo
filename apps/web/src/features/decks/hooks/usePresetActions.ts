@@ -10,7 +10,7 @@ import { useStudyRepository } from '../../progress/api/context';
 import type { StudyRepository } from '../../progress/api/repository';
 import { nameProblem } from '../model/presetDrafts';
 import { refKey } from '../model/presets';
-import { optionsStrings as o } from '../options.strings';
+import { usePresetActionsStrings as o } from './strings/usePresetActions.strings';
 
 interface Naming {
   title: string;

@@ -9,7 +9,8 @@ import { useSignIn } from '../hooks/useSignIn';
 import { Hero } from '../components/Hero';
 import { HowItIsUsed, Inside } from '../components/Sections';
 import { Faq } from '../components/Faq';
-import { landingStrings as s } from '../strings';
+import { heroStrings } from '../components/strings/Hero.strings';
+import { landingPageStrings as s } from './strings/LandingPage.strings';
 
 export function LandingPage() {
   const { state, next, error, urlNotice, urlNoticeTitle, signingIn, onSignIn } = useSignIn();
@@ -17,7 +18,7 @@ export function LandingPage() {
   if (state.status === 'loading') return <Loading fullScreen />;
   if (state.status === 'signed-in') return <Navigate to={next} replace />;
   const notice = error ?? urlNotice ?? state.notice;
-  const title = !error && urlNotice ? urlNoticeTitle : s.failed;
+  const title = !error && urlNotice ? urlNoticeTitle : heroStrings.failed;
   const signIn = () => void onSignIn();
 
   return (

@@ -4,7 +4,7 @@ import type { Dispatch, RefObject, SetStateAction } from 'react';
 import { ChevronDown, ListTree } from 'lucide-react';
 import type { TocEntry } from '@qv/schema';
 import { Toc } from './Toc';
-import { noteStrings } from '../strings';
+import { tocBarStrings } from './strings/TocBar.strings';
 
 export function TocBar({
   bar,
@@ -37,7 +37,7 @@ export function TocBar({
         className="flex w-full items-center gap-2 rounded-lg border border-border bg-surface/95 px-3 py-2 text-left text-sm shadow-xs backdrop-blur"
       >
         <ListTree className="size-4 flex-none text-muted" aria-hidden="true" />
-        <span className="flex-none font-medium text-ink">{noteStrings.index}</span>
+        <span className="flex-none font-medium text-ink">{tocBarStrings.index}</span>
         {current ? (
           <span className="min-w-0 truncate text-muted" aria-hidden="true">
             · {current}

@@ -9,7 +9,7 @@ import { FocusContext } from '../shared/ui/focus';
 import { RailContext } from '../shared/ui/Rail';
 import { useAdminMode } from '../features/adminMode/adminMode';
 import { isAnswerScreen } from '../shared/ui/answerScreen';
-import { appStrings } from './strings';
+import { appShellStrings } from './strings/AppShell.strings';
 import { TopBar } from './shell/TopBar';
 import { PhoneMenu } from './shell/PhoneMenu';
 import { useSearchShortcut } from './shell/useSearchShortcut';
@@ -34,7 +34,7 @@ export function AppShell() {
         href="#content"
         className="sr-only z-50 rounded-md bg-brand px-3 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
       >
-        {appStrings.skipToContent}
+        {appShellStrings.skipToContent}
       </a>
       <TopBar
         hideNav={hideNav}
@@ -60,7 +60,10 @@ export function AppShell() {
               <Outlet />
             </main>
             {hideNav ? null : (
-              <aside aria-label={appStrings.rightColumn} className="hidden w-64 flex-none xl:block">
+              <aside
+                aria-label={appShellStrings.rightColumn}
+                className="hidden w-64 flex-none xl:block"
+              >
                 <div
                   ref={setRail}
                   data-toc-scroll

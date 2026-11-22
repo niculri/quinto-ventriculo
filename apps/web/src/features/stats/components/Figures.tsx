@@ -4,7 +4,7 @@
 import type { HeatmapStats } from '@qv/study';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { figureItems } from '../model/figures';
-import { statsStrings as s } from '../strings';
+import { figuresStrings as s } from './strings/Figures.strings';
 
 export function Figures({ stats }: { stats: HeatmapStats | null }) {
   const empty = stats !== null && stats.activeDays === 0;

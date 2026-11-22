@@ -3,7 +3,7 @@ import type { ReportKind } from '@qv/schema';
 import type { MyReport, ReportGroup, ReportLocation, Resolution } from '@qv/schema/user';
 import { paths } from '../../../shared/lib/paths';
 import { splitCardId } from './targets';
-import { reportStrings as s } from '../strings';
+import { labelsStrings as s } from './strings/labels.strings';
 
 export const CATEGORY_LABELS = s.categories;
 export const KIND_LABELS = s.kinds;

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
 import { ContactLink } from '../../../shared/ui/ContactLink';
-import { landingStrings as s } from '../strings';
+import { faqStrings as s } from './strings/Faq.strings';
 
 export function Faq() {
   return (

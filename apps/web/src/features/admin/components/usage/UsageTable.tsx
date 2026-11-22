@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { card } from '../../../../shared/ui/styles';
 import type { Named } from '../../model/usage';
-import { usageStrings } from '../../usage.strings';
+import { usageTableStrings } from './strings/UsageTable.strings';
 
 export interface UsageRow {
   key: string;
@@ -39,7 +39,7 @@ export function UsageTable({
           <thead>
             <tr className="border-b border-border text-xs text-muted">
               <th scope="col" className="px-4 py-2 text-left font-medium sm:px-5">
-                <span className="sr-only">{usageStrings.details.name}</span>
+                <span className="sr-only">{usageTableStrings.details.name}</span>
               </th>
               {columns.map((c) => (
                 <th

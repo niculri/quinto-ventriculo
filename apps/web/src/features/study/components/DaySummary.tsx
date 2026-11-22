@@ -12,7 +12,7 @@ import { scopeNodeOf, unitOf } from '../../catalog/model/scope';
 import { correctPercent, isoOfDay } from '@qv/study';
 import type { StudyPreferences } from '../../progress/api/repository';
 import { daySummaryQuery } from '../api/queries';
-import { studyStrings } from '../strings';
+import { daySummaryStrings } from './strings/DaySummary.strings';
 
 /** Each «Listo por hoy» reads its own summary: coming back to it after more answers never shows the old one. */
 let visits = 0;
@@ -37,13 +37,16 @@ export function DaySummary({
   const summary = data?.summary;
   const percent = summary ? correctPercent(summary) : null;
   const items: [string, string | null][] = [
-    [studyStrings.summary.answers, summary ? summary.answers.toLocaleString('es-CL') : null],
-    [studyStrings.summary.good, summary ? (percent === null ? '—' : `${percent} %`) : null],
-    [studyStrings.summary.streak, summary ? studyStrings.summary.days(summary.streak) : null],
+    [daySummaryStrings.summary.answers, summary ? summary.answers.toLocaleString('es-CL') : null],
+    [daySummaryStrings.summary.good, summary ? (percent === null ? '—' : `${percent} %`) : null],
+    [
+      daySummaryStrings.summary.streak,
+      summary ? daySummaryStrings.summary.days(summary.streak) : null,
+    ],
   ];
   const courseLine =
     summary && summary.courseStreak !== null
-      ? studyStrings.summary.course(summary.courseStreak)
+      ? daySummaryStrings.summary.course(summary.courseStreak)
       : '';
 
   const scope = node.depth > 3 ? (scopeNodeOf(node) ?? node) : node;
@@ -54,7 +57,7 @@ export function DaySummary({
       : null;
 
   return (
-    <section aria-label={studyStrings.summary.region} className="mt-6 w-full max-w-sm">
+    <section aria-label={daySummaryStrings.summary.region} className="mt-6 w-full max-w-sm">
       <dl className="grid grid-cols-3 divide-x divide-border rounded-xl border border-border bg-surface py-3">
         {items.map(([label, value]) => (
           <div key={label} className="min-w-0 px-2">
@@ -62,7 +65,7 @@ export function DaySummary({
             <dd className="mt-1 flex h-7 items-center justify-center truncate text-lg font-semibold text-ink tabular-nums">
               {value ?? (query.isError ? '—' : <Skeleton className="h-5 w-12" />)}
             </dd>
-            {label === studyStrings.summary.streak ? (
+            {label === daySummaryStrings.summary.streak ? (
               <dd className="h-4 truncate text-xs text-muted tabular-nums">{courseLine}</dd>
             ) : null}
           </div>
@@ -71,13 +74,13 @@ export function DaySummary({
       <div className="mt-2 flex h-5 items-center justify-center text-sm">
         {failedLink ? (
           <Link to={failedLink} className="text-brand hover:underline">
-            {studyStrings.summary.failed}
+            {daySummaryStrings.summary.failed}
           </Link>
         ) : query.isError ? (
           <span className="truncate text-muted">
-            {studyStrings.summary.unread}{' '}
+            {daySummaryStrings.summary.unread}{' '}
             <button type="button" onClick={() => void query.refetch()} className="underline">
-              {studyStrings.summary.retry}
+              {daySummaryStrings.summary.retry}
             </button>
           </span>
         ) : null}

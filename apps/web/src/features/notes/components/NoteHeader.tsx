@@ -2,10 +2,8 @@
 import type { Note } from '@qv/schema';
 import { tapArea } from '../../../shared/ui/styles';
 import { headerParts, noteDates, versionedCode } from '../model/header';
-import { kindStrings } from '../kinds.strings';
-import { noteStrings } from '../strings';
-
-const s = noteStrings.header;
+import { kindStrings } from '../../../shared/strings/noteKinds.strings';
+import { noteHeaderStrings as s } from './strings/NoteHeader.strings';
 
 export function NoteHeader({ note }: { note: Note }) {
   const parts = note.header ? headerParts(note.kind, note.header) : [];
@@ -33,7 +31,7 @@ export function NoteHeader({ note }: { note: Note }) {
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
         <span
           className="rounded-md bg-surface-2 px-2 py-0.5 font-mono text-xs text-ink"
-          title={note.code ? s.code : undefined}
+          title={note.code ? s.header.code : undefined}
         >
           {versionedCode(note)}
         </span>
@@ -44,7 +42,7 @@ export function NoteHeader({ note }: { note: Note }) {
       {note.sources.length ? (
         <details className="group mt-4 text-sm">
           <summary className={`cursor-pointer text-muted select-none hover:text-ink ${tapArea}`}>
-            {s.sources}
+            {s.header.sources}
           </summary>
           <ul className="mt-2 space-y-1.5 border-l-2 border-border pl-4 leading-relaxed text-muted">
             {note.sources.map((source) => (

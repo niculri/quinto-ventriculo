@@ -7,9 +7,7 @@ import { Switch } from '../../../../shared/ui/Switch';
 import { card } from '../../../../shared/ui/styles';
 import { useUser } from '../../../session/context';
 import { useSetReleaseMark } from '../../hooks/useReleaseChanges';
-import { releasesStrings } from '../../releases.strings';
-
-const s = releasesStrings.marks;
+import { manualMarksStrings as s } from './strings/ManualMarks.strings';
 
 type Shown = Partial<Record<string, boolean>>;
 
@@ -30,8 +28,8 @@ export function ManualMarks({ review, fingerprint }: { review: ReviewList; finge
           <li key={m.mark} className="flex items-center gap-3 px-4 py-3 sm:px-5">
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-medium text-ink">{m.label}</span>
-              <Reserved longest={s.longest} className="text-xs text-muted">
-                {m.checkedBy ? s.by(m.checkedBy) : s.none}
+              <Reserved longest={s.marks.longest} className="text-xs text-muted">
+                {m.checkedBy ? s.marks.by(m.checkedBy) : s.marks.none}
               </Reserved>
             </span>
             <Switch
@@ -51,8 +49,8 @@ export function ManualMarks({ review, fingerprint }: { review: ReviewList; finge
       {mark.isError ? (
         <p role="alert" className="mt-2 text-sm text-state-learn">
           {mark.error instanceof Error && 'status' in mark.error && mark.error.status === 409
-            ? s.changed
-            : s.failed}
+            ? s.marks.changed
+            : s.marks.failed}
         </p>
       ) : null}
     </>

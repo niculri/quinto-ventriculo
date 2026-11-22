@@ -5,7 +5,7 @@ import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { useQuestionFocus } from '../hooks/useQuestionFocus';
 import type { QuestionEntry } from '../model/entries';
 import { verdictOf } from '../model/verdict';
-import { quizStrings as s } from '../strings';
+import { questionCardStrings as s } from './strings/QuestionCard.strings';
 import { Explanation } from './Explanation';
 import { Html } from './Html';
 import { Options } from './Options';

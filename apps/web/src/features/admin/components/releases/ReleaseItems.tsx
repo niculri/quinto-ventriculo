@@ -4,7 +4,7 @@ import { Skeleton } from '../../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../../shared/ui/Notice';
 import { button } from '../../../../shared/ui/styles';
 import { useReleaseItems } from '../../hooks/useReleases';
-import { releasesStrings } from '../../releases.strings';
+import { releaseItemsStrings } from './strings/ReleaseItems.strings';
 import { ArticleChange, CardChange, QuestionChange } from './ItemChanges';
 
 export type ItemKind = 'article' | 'question' | 'card';
@@ -49,7 +49,7 @@ export function ReleaseItems({
           onClick={() => void q.fetchNextPage()}
           className={`${button.base} ${button.secondary} mt-3 px-3 py-1.5`}
         >
-          {releasesStrings.assessment.more}
+          {releaseItemsStrings.assessment.more}
         </button>
       ) : null}
     </div>

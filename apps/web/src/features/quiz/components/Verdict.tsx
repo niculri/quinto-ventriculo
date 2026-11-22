@@ -2,7 +2,7 @@
 // «Reportar error» beside it.
 import { MessageSquareWarning } from 'lucide-react';
 import type { Verdict as VerdictInfo } from '../model/verdict';
-import { quizStrings as s } from '../strings';
+import { verdictStrings as s } from './strings/Verdict.strings';
 
 export function Verdict({
   verdict,

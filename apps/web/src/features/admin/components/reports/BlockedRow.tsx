@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { formatDateTime } from '../../../../shared/lib/dates';
 import { button } from '../../../../shared/ui/styles';
 import { useSetReportBlock } from '../../../reports/hooks/useReports';
-import { reportsStrings } from '../../reports.strings';
+import { blockedRowStrings } from './strings/BlockedRow.strings';
 
 export function BlockedRow({ id, at, children }: { id: string; at: string; children: ReactNode }) {
   const block = useSetReportBlock();
@@ -11,7 +11,7 @@ export function BlockedRow({ id, at, children }: { id: string; at: string; child
     <li className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
       <span>
         {children}
-        <span className="text-muted">{reportsStrings.since(formatDateTime(at))}</span>
+        <span className="text-muted">{blockedRowStrings.since(formatDateTime(at))}</span>
       </span>
       <button
         type="button"
@@ -19,7 +19,7 @@ export function BlockedRow({ id, at, children }: { id: string; at: string; child
         onClick={() => block.mutate({ userId: id, blocked: false })}
         className={`${button.base} ${button.secondary} px-3 py-1.5`}
       >
-        {reportsStrings.unblock}
+        {blockedRowStrings.unblock}
       </button>
     </li>
   );

@@ -9,7 +9,7 @@ import { useLeave } from '../hooks/useLeave';
 import { AccountCard } from '../components/AccountCard';
 import { DataSection, SessionSection, TermsSection } from '../components/AccountSections';
 import { DeleteAccountDialog } from '../components/DeleteAccountDialog';
-import { accountStrings as s } from '../strings';
+import { accountSettingsPageStrings as s } from './strings/AccountSettingsPage.strings';
 
 export function AccountSettingsPage() {
   const user = useUser();

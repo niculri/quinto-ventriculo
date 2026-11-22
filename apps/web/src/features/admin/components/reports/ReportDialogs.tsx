@@ -13,9 +13,7 @@ import { useResolveReports, useSetReportBlock } from '../../../reports/hooks/use
 import { ReportError } from '../../../reports/api/repository';
 import type { ReportGroup } from '../../../reports/api/repository';
 import { fixedVersionOf, proposedVersion } from '../../model/reports';
-import { reportsStrings } from '../../reports.strings';
-
-const s = reportsStrings.dialog;
+import { reportDialogsStrings } from './strings/ReportDialogs.strings';
 
 function PanelDialog({
   title,
@@ -47,7 +45,8 @@ function PanelDialog({
   );
 }
 
-const refusal = (e: unknown) => (e instanceof ReportError ? e.message : s.failed);
+const refusal = (e: unknown) =>
+  e instanceof ReportError ? e.message : reportDialogsStrings.dialog.failed;
 
 /** Cancel and the action, as the popups end. */
 function DialogButtons({
@@ -67,7 +66,7 @@ function DialogButtons({
         disabled={busy}
         className={`${button.base} ${button.secondary}`}
       >
-        {s.cancel}
+        {reportDialogsStrings.dialog.cancel}
       </button>
       {children}
     </div>
@@ -90,14 +89,14 @@ export function ResolveDialog({
   const n = g.reports.length;
   const fixedVersion = fixedVersionOf(version);
   return (
-    <PanelDialog title={reportsStrings.resolve} onClose={onClose} busy={resolve.isPending}>
+    <PanelDialog title={reportDialogsStrings.resolve} onClose={onClose} busy={resolve.isPending}>
       <p className="mt-1 text-sm text-muted">
-        {s.closes(n)}
-        {s.of}
+        {reportDialogsStrings.dialog.closes(n)}
+        {reportDialogsStrings.dialog.of}
         <span className="font-mono text-xs">
           {codeWithVersion(g.code, g.version) ?? g.targetId}
         </span>
-        {s.seen}
+        {reportDialogsStrings.dialog.seen}
       </p>
       <form
         className="mt-4"
@@ -133,7 +132,11 @@ export function ResolveDialog({
             disabled={resolve.isPending}
             className={`${button.base} ${button.primary}`}
           >
-            {resolve.isPending ? s.saving : n === 1 ? s.resolveOne : s.resolveAll(n)}
+            {resolve.isPending
+              ? reportDialogsStrings.dialog.saving
+              : n === 1
+                ? reportDialogsStrings.dialog.resolveOne
+                : reportDialogsStrings.dialog.resolveAll(n)}
           </button>
         </DialogButtons>
       </form>
@@ -159,22 +162,22 @@ function ResolveFields({
   return (
     <>
       <label htmlFor="resolve-status" className="text-sm font-medium">
-        {s.decided}
+        {reportDialogsStrings.dialog.decided}
       </label>
       <Select
         id="resolve-status"
-        label={s.decided}
+        label={reportDialogsStrings.dialog.decided}
         value={status}
         options={RESOLUTION_STATUSES.map((st) => ({
           value: st,
-          label: reportsStrings.statuses[st],
+          label: reportDialogsStrings.statuses[st],
         }))}
         onChange={onStatus}
         modal
         className="mt-1.5 w-full max-sm:text-base"
       />
       <label htmlFor="resolve-version" className="mt-4 block text-sm font-medium">
-        {s.fixedIn}
+        {reportDialogsStrings.dialog.fixedIn}
       </label>
       <input
         id="resolve-version"
@@ -182,11 +185,15 @@ function ResolveFields({
         value={status === 'fixed' ? version : ''}
         disabled={status !== 'fixed'}
         onChange={(e) => onVersion(e.target.value)}
-        placeholder={status === 'fixed' ? s.noVersion : s.noVersionOff}
+        placeholder={
+          status === 'fixed'
+            ? reportDialogsStrings.dialog.noVersion
+            : reportDialogsStrings.dialog.noVersionOff
+        }
         className="mt-1.5 w-32 rounded-lg border border-border bg-bg px-3 py-2 text-base text-ink disabled:opacity-50 sm:text-sm"
       />
       <label htmlFor="resolve-note" className="mt-4 block text-sm font-medium">
-        {s.note}
+        {reportDialogsStrings.dialog.note}
       </label>
       <textarea
         id="resolve-note"
@@ -211,8 +218,12 @@ export function BlockDialog({
 }) {
   const block = useSetReportBlock();
   return (
-    <PanelDialog title={s.blockTitle} onClose={onClose} busy={block.isPending}>
-      <p className="mt-2 text-sm text-ink">{s.blockWhat(who)}</p>
+    <PanelDialog
+      title={reportDialogsStrings.dialog.blockTitle}
+      onClose={onClose}
+      busy={block.isPending}
+    >
+      <p className="mt-2 text-sm text-ink">{reportDialogsStrings.dialog.blockWhat(who)}</p>
       <p role="alert" className="mt-2 min-h-5 text-sm text-state-learn">
         {block.isError ? refusal(block.error) : null}
       </p>
@@ -223,7 +234,7 @@ export function BlockDialog({
           onClick={() => block.mutate({ userId, blocked: true }, { onSuccess: onClose })}
           className={`${button.base} ${button.danger}`}
         >
-          {reportsStrings.block}
+          {reportDialogsStrings.block}
         </button>
       </DialogButtons>
     </PanelDialog>

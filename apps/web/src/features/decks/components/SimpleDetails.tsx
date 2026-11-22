@@ -13,7 +13,7 @@ import type { CatchUp, StudyPlan } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { visibleChildren } from '../model/deckTree';
 import { SimpleDeckTree } from './SimpleDeckTree';
-import { decksStrings as s } from '../strings';
+import { simpleDetailsStrings as s } from './strings/SimpleDetails.strings';
 
 export function SimpleDetails({
   node,

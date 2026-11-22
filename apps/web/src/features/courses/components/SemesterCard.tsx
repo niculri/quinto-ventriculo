@@ -6,7 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import { card, linkCard } from '../../../shared/ui/styles';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
-import { careerStrings as s } from '../career.strings';
+import { semesterCardStrings as s } from './strings/SemesterCard.strings';
 
 export function SemesterCard({
   semester,

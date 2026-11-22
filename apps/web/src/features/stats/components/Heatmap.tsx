@@ -6,7 +6,7 @@ import { card } from '../../../shared/ui/styles';
 import { useHeatmap } from '../hooks/useHeatmap';
 import { useHeatmapGroups } from '../hooks/useHeatmapGroups';
 import type { GroupBy } from '../model/groups';
-import { statsStrings as s } from '../strings';
+import { heatmapStrings as s } from './strings/Heatmap.strings';
 import { Figures } from './Figures';
 import { HeatmapGrid } from './HeatmapGrid';
 import { YearNav } from './YearNav';

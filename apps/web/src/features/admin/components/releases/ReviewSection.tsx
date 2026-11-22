@@ -6,11 +6,10 @@ import type { ReleaseOverview } from '@qv/schema';
 import { Reserved } from '../../../../shared/ui/Reserved';
 import { card } from '../../../../shared/ui/styles';
 import { reviewStatus } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { reviewSectionStrings as s } from './strings/ReviewSection.strings';
+import { releasesStrings } from '../../model/strings/releases.strings';
 import { ManualMarks } from './ManualMarks';
 import { PublishBar } from './PublishBar';
-
-const s = releasesStrings.review;
 
 export function ReviewSection({
   review,
@@ -27,31 +26,31 @@ export function ReviewSection({
   return (
     <section aria-labelledby="review" className="mt-8">
       <h3 id="review" className="text-lg font-semibold">
-        {s.title}
+        {s.review.title}
       </h3>
-      <Reserved longest={s.marksMissing} className="mt-1 text-sm">
+      <Reserved longest={releasesStrings.review.marksMissing} className="mt-1 text-sm">
         <p role="status" className={review.blocking ? 'text-state-learn' : 'text-muted'}>
           {reviewStatus(review)}
         </p>
       </Reserved>
       {failed ? (
         <p role="alert" className="mt-2 text-sm text-state-learn">
-          {s.failed}
+          {s.review.failed}
         </p>
       ) : null}
-      <h4 className="mt-5 text-sm font-semibold text-muted">{s.blocks}</h4>
+      <h4 className="mt-5 text-sm font-semibold text-muted">{s.review.blocks}</h4>
       <ul className={`${card} mt-2 divide-y divide-border`}>
         {blocks.map((c) => (
           <CheckRow key={c.rule} check={c} />
         ))}
       </ul>
-      <h4 className="mt-5 text-sm font-semibold text-muted">{s.warns}</h4>
+      <h4 className="mt-5 text-sm font-semibold text-muted">{s.review.warns}</h4>
       <ul className={`${card} mt-2 divide-y divide-border`}>
         {warns.map((c) => (
           <CheckRow key={c.rule} check={c} />
         ))}
       </ul>
-      <h4 className="mt-5 text-sm font-semibold text-muted">{s.manual}</h4>
+      <h4 className="mt-5 text-sm font-semibold text-muted">{s.review.manual}</h4>
       <ManualMarks review={review} fingerprint={fingerprint} />
       <PublishBar review={review} overview={overview} />
     </section>
@@ -79,7 +78,7 @@ function CheckRow({ check: c }: { check: Check }) {
         <Icon className={`size-4 flex-none ${tone}`} aria-hidden="true" />
         <span className="min-w-0 flex-1 text-sm font-medium text-ink">{c.title}</span>
         <span className="flex-none text-xs text-muted">
-          {c.pending ? s.checking : failing ? c.items.length : s.fine}
+          {c.pending ? s.review.checking : failing ? c.items.length : s.review.fine}
         </span>
       </div>
       {failing ? <CheckItems check={c} all={all} onToggle={() => setAll((v) => !v)} /> : null}
@@ -111,7 +110,7 @@ function CheckItems({
             onClick={onToggle}
             className="text-sm font-medium text-brand hover:underline"
           >
-            {all ? s.less : s.all(c.items.length)}
+            {all ? s.review.less : s.review.all(c.items.length)}
           </button>
         </li>
       ) : null}

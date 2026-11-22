@@ -1,7 +1,7 @@
 // The end of an article: the line to report an error in it and, once read, the tip about the search.
 import { MessageSquareWarning, Search, X } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
-import { noteStrings as s } from '../strings';
+import { articleEndStrings as s } from './strings/ArticleEnd.strings';
 
 export function ReportLine({ onReport }: { onReport: () => void }) {
   return (

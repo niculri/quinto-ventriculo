@@ -7,7 +7,8 @@ import { useDraftQuestions } from '../hooks/useDraftQuestions';
 import { useDiscardArm, useTabFocus } from '../hooks/useCoverState';
 import { chosenCount } from '../model/cover';
 import { DraftOnlyNotice } from '../../../shared/ui/DraftOnlyNotice';
-import { quizStrings as s } from '../strings';
+import { coverStrings as s } from './strings/Cover.strings';
+import { startFormStrings } from './strings/StartForm.strings';
 import { Html } from './Html';
 import { ModeSwitches } from './ModeSwitches';
 import { ResumeBanner } from './ResumeBanner';
@@ -35,7 +36,7 @@ function CoverTitle({ quiz, heading }: { quiz: QuizDetail; heading: string | nul
       )}
       <p className="mt-1 text-[var(--muted)]">
         {s.cover.subtitle}
-        {s.questions(total)}
+        {startFormStrings.questions(total)}
       </p>
     </>
   );

@@ -19,22 +19,20 @@ import {
 } from '../../model/optionChoices';
 import { OptionsSection as Section, Warning } from './OptionsParts';
 import { ParamsRow } from './ParamsRow';
-import { optionsStrings } from '../../options.strings';
+import { deckOptionSectionsStrings } from './strings/DeckOptionSections.strings';
 
 interface Props {
   config: DeckConfig;
   set: (patch: Partial<DeckConfig>) => void;
 }
 
-const o = optionsStrings;
-const t = o.sections;
 const labelled = <T extends string>(order: readonly T[], labels: Record<T, string>) =>
   order.map((v) => [v, labels[v]] as const);
-const LEECH = labelled(LEECH_ORDER, o.leech);
-const GATHER = labelled(GATHER_ORDER, o.gather);
-const SORT = labelled(SORT_ORDER, o.sort);
-const REVIEW = labelled(REVIEW_ORDER, o.review);
-const MIX = labelled(MIX_ORDER, o.mix);
+const LEECH = labelled(LEECH_ORDER, deckOptionSectionsStrings.leech);
+const GATHER = labelled(GATHER_ORDER, deckOptionSectionsStrings.gather);
+const SORT = labelled(SORT_ORDER, deckOptionSectionsStrings.sort);
+const REVIEW = labelled(REVIEW_ORDER, deckOptionSectionsStrings.review);
+const MIX = labelled(MIX_ORDER, deckOptionSectionsStrings.mix);
 
 const steps = (s: number[]) => s.length > 0 && s.at(-1)! >= 1440;
 
@@ -55,17 +53,17 @@ export function DeckOptionSections(p: Props) {
 
 function DailyLimits({ config, set }: Props) {
   return (
-    <Section title={t.daily}>
+    <Section title={deckOptionSectionsStrings.sections.daily}>
       <NumberRow
-        label={t.newPerDay}
+        label={deckOptionSectionsStrings.sections.newPerDay}
         value={config.newPerDay}
         range={CONFIG_RANGES.newPerDay}
         fallback={DEFAULT_CONFIG.newPerDay}
         onChange={(v) => set({ newPerDay: v })}
-        help={t.newPerDayHelp}
+        help={deckOptionSectionsStrings.sections.newPerDayHelp}
       />
       <NumberRow
-        label={t.reviewsPerDay}
+        label={deckOptionSectionsStrings.sections.reviewsPerDay}
         value={config.reviewsPerDay}
         range={CONFIG_RANGES.reviewsPerDay}
         fallback={DEFAULT_CONFIG.reviewsPerDay}
@@ -73,7 +71,10 @@ function DailyLimits({ config, set }: Props) {
       />
       {Math.min(9999, config.newPerDay * 10) > config.reviewsPerDay ? (
         <Warning>
-          {t.reviewsTooLow(config.newPerDay, Math.min(9999, config.newPerDay * 10))}
+          {deckOptionSectionsStrings.sections.reviewsTooLow(
+            config.newPerDay,
+            Math.min(9999, config.newPerDay * 10),
+          )}
         </Warning>
       ) : null}
     </Section>
@@ -82,38 +83,42 @@ function DailyLimits({ config, set }: Props) {
 
 function NewCards({ config, set }: Props) {
   return (
-    <Section title={t.newCards}>
+    <Section title={deckOptionSectionsStrings.sections.newCards}>
       <StepsRow
-        label={t.learnSteps}
+        label={deckOptionSectionsStrings.sections.learnSteps}
         value={config.learnSteps}
         fallback={DEFAULT_CONFIG.learnSteps}
         onChange={(v) => set({ learnSteps: v })}
       />
-      {steps(config.learnSteps) ? <Warning>{t.longSteps}</Warning> : null}
+      {steps(config.learnSteps) ? (
+        <Warning>{deckOptionSectionsStrings.sections.longSteps}</Warning>
+      ) : null}
     </Section>
   );
 }
 
 function Lapses({ config, set }: Props) {
   return (
-    <Section title={t.lapses}>
+    <Section title={deckOptionSectionsStrings.sections.lapses}>
       <StepsRow
-        label={t.relearnSteps}
+        label={deckOptionSectionsStrings.sections.relearnSteps}
         value={config.relearnSteps}
         fallback={DEFAULT_CONFIG.relearnSteps}
         onChange={(v) => set({ relearnSteps: v })}
       />
-      {steps(config.relearnSteps) ? <Warning>{t.longSteps}</Warning> : null}
+      {steps(config.relearnSteps) ? (
+        <Warning>{deckOptionSectionsStrings.sections.longSteps}</Warning>
+      ) : null}
       <NumberRow
-        label={t.leechThreshold}
+        label={deckOptionSectionsStrings.sections.leechThreshold}
         value={config.leechThreshold}
         range={CONFIG_RANGES.leechThreshold}
         fallback={DEFAULT_CONFIG.leechThreshold}
         onChange={(v) => set({ leechThreshold: v })}
-        help={t.leechThresholdHelp}
+        help={deckOptionSectionsStrings.sections.leechThresholdHelp}
       />
       <SelectRow
-        label={t.leechAction}
+        label={deckOptionSectionsStrings.sections.leechAction}
         value={config.leechAction}
         fallback={DEFAULT_CONFIG.leechAction}
         choices={LEECH}
@@ -125,37 +130,37 @@ function Lapses({ config, set }: Props) {
 
 function DisplayOrder({ config, set }: Props) {
   return (
-    <Section title={t.order}>
+    <Section title={deckOptionSectionsStrings.sections.order}>
       <SelectRow
-        label={t.gather}
+        label={deckOptionSectionsStrings.sections.gather}
         value={config.newCardGatherPriority}
         fallback={DEFAULT_CONFIG.newCardGatherPriority}
         choices={GATHER}
         onChange={(v) => set({ newCardGatherPriority: v })}
       />
       <SelectRow
-        label={t.sort}
+        label={deckOptionSectionsStrings.sections.sort}
         value={config.newCardSortOrder}
         fallback={DEFAULT_CONFIG.newCardSortOrder}
         choices={SORT}
         onChange={(v) => set({ newCardSortOrder: v })}
       />
       <SelectRow
-        label={t.newMix}
+        label={deckOptionSectionsStrings.sections.newMix}
         value={config.newMix}
         fallback={DEFAULT_CONFIG.newMix}
         choices={MIX}
         onChange={(v) => set({ newMix: v })}
       />
       <SelectRow
-        label={t.interdayMix}
+        label={deckOptionSectionsStrings.sections.interdayMix}
         value={config.interdayLearningMix}
         fallback={DEFAULT_CONFIG.interdayLearningMix}
         choices={MIX}
         onChange={(v) => set({ interdayLearningMix: v })}
       />
       <SelectRow
-        label={t.reviewOrder}
+        label={deckOptionSectionsStrings.sections.reviewOrder}
         value={config.reviewOrder}
         fallback={DEFAULT_CONFIG.reviewOrder}
         choices={REVIEW}
@@ -167,15 +172,15 @@ function DisplayOrder({ config, set }: Props) {
 
 function Fsrs({ config, set }: Props) {
   return (
-    <Section title={t.fsrs}>
+    <Section title={deckOptionSectionsStrings.sections.fsrs}>
       <NumberRow
-        label={t.retention}
+        label={deckOptionSectionsStrings.sections.retention}
         value={config.desiredRetention}
         range={CONFIG_RANGES.desiredRetention}
         fallback={DEFAULT_CONFIG.desiredRetention}
         step={0.01}
         onChange={(v) => set({ desiredRetention: v })}
-        help={t.retentionHelp}
+        help={deckOptionSectionsStrings.sections.retentionHelp}
       />
       <ParamsRow value={config.fsrsParams} />
     </Section>
@@ -184,21 +189,21 @@ function Fsrs({ config, set }: Props) {
 
 function Burying({ config, set }: Props) {
   return (
-    <Section title={t.burying}>
+    <Section title={deckOptionSectionsStrings.sections.burying}>
       <SwitchRow
-        label={t.buryNew}
+        label={deckOptionSectionsStrings.sections.buryNew}
         value={config.buryNew}
         fallback={DEFAULT_CONFIG.buryNew}
         onChange={(v) => set({ buryNew: v })}
       />
       <SwitchRow
-        label={t.buryReviews}
+        label={deckOptionSectionsStrings.sections.buryReviews}
         value={config.buryReviews}
         fallback={DEFAULT_CONFIG.buryReviews}
         onChange={(v) => set({ buryReviews: v })}
       />
       <SwitchRow
-        label={t.buryInterday}
+        label={deckOptionSectionsStrings.sections.buryInterday}
         value={config.buryInterdayLearning}
         fallback={DEFAULT_CONFIG.buryInterdayLearning}
         onChange={(v) => set({ buryInterdayLearning: v })}
@@ -209,14 +214,14 @@ function Burying({ config, set }: Props) {
 
 function Timer({ config, set }: Props) {
   return (
-    <Section title={t.timer}>
+    <Section title={deckOptionSectionsStrings.sections.timer}>
       <NumberRow
-        label={t.answerTime}
+        label={deckOptionSectionsStrings.sections.answerTime}
         value={config.capAnswerTimeToSecs}
         range={CONFIG_RANGES.capAnswerTimeToSecs}
         fallback={DEFAULT_CONFIG.capAnswerTimeToSecs}
         onChange={(v) => set({ capAnswerTimeToSecs: v })}
-        help={t.answerTimeHelp}
+        help={deckOptionSectionsStrings.sections.answerTimeHelp}
       />
     </Section>
   );
@@ -224,16 +229,18 @@ function Timer({ config, set }: Props) {
 
 function Advanced({ config, set }: Props) {
   return (
-    <Section title={t.advanced}>
+    <Section title={deckOptionSectionsStrings.sections.advanced}>
       <NumberRow
-        label={t.maxInterval}
+        label={deckOptionSectionsStrings.sections.maxInterval}
         value={config.maximumReviewInterval}
         range={CONFIG_RANGES.maximumReviewInterval}
         fallback={DEFAULT_CONFIG.maximumReviewInterval}
         onChange={(v) => set({ maximumReviewInterval: v })}
-        help={t.maxIntervalHelp}
+        help={deckOptionSectionsStrings.sections.maxIntervalHelp}
       />
-      {config.maximumReviewInterval < 180 ? <Warning>{t.shortInterval}</Warning> : null}
+      {config.maximumReviewInterval < 180 ? (
+        <Warning>{deckOptionSectionsStrings.sections.shortInterval}</Warning>
+      ) : null}
     </Section>
   );
 }

@@ -14,7 +14,7 @@ import { anchorOf } from '../model/anchor';
 import { flashHeading } from '../model/flash';
 import { PRACTICE_ANCHOR } from '../model/practice';
 import { activeTitle } from '../model/toc';
-import { noteStrings } from '../strings';
+import { useNoteViewStrings } from './strings/useNoteView.strings';
 import { useActiveSection } from './useActiveSection';
 import { useArticleSelection } from './useArticleSelection';
 import { usePractice } from './usePractice';
@@ -54,7 +54,7 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
       hasPractice
         ? [
             ...note.toc,
-            { anchor: PRACTICE_ANCHOR, title: noteStrings.practiceTitle, level: 2 as const },
+            { anchor: PRACTICE_ANCHOR, title: useNoteViewStrings.practiceTitle, level: 2 as const },
           ]
         : note.toc,
     [note.toc, hasPractice],

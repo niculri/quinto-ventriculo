@@ -6,7 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import { button } from '../../../shared/ui/styles';
 import { deckTitle } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { decksStrings as s } from '../strings';
+import { deckHeaderStrings as s } from './strings/DeckHeader.strings';
 
 export function DeckHeader({ node }: { node: CourseDeckNode }) {
   return (

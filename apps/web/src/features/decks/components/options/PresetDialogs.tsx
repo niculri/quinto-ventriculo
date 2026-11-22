@@ -5,9 +5,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Check, Pencil, X } from 'lucide-react';
 import { button, card } from '../../../../shared/ui/styles';
 import { DimBackdrop } from '../../../../shared/ui/Dialog';
-import { optionsStrings } from '../../options.strings';
-
-const n = optionsStrings.names;
+import { presetDialogsStrings as n } from './strings/PresetDialogs.strings';
 
 const frame =
   'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface p-5 shadow-soft';
@@ -48,7 +46,7 @@ export function PresetNameDialog({
           <Dialog.Title className="font-semibold">{title}</Dialog.Title>
           <form onSubmit={submit} className="mt-3">
             <label htmlFor={id} className="text-sm font-medium">
-              {n.field}
+              {n.names.field}
             </label>
             <input
               id={id}
@@ -71,10 +69,10 @@ export function PresetNameDialog({
                 onClick={onCancel}
                 className={`${button.base} ${button.secondary}`}
               >
-                {n.cancel}
+                {n.names.cancel}
               </button>
               <button type="submit" className={`${button.base} ${button.primary}`}>
-                {n.create}
+                {n.names.create}
               </button>
             </div>
           </form>
@@ -100,9 +98,9 @@ export function RemovePresetDialog({
       <Dialog.Portal>
         <DimBackdrop />
         <Dialog.Content className={frame}>
-          <Dialog.Title className="font-semibold">{n.removeTitle(name)}</Dialog.Title>
+          <Dialog.Title className="font-semibold">{n.names.removeTitle(name)}</Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-muted">
-            {n.removeUsers(users)}
+            {n.names.removeUsers(users)}
           </Dialog.Description>
           <div className="mt-5 flex justify-end gap-2">
             <button
@@ -110,14 +108,14 @@ export function RemovePresetDialog({
               onClick={onCancel}
               className={`${button.base} ${button.secondary}`}
             >
-              {n.cancel}
+              {n.names.cancel}
             </button>
             <button
               type="button"
               onClick={onConfirm}
               className={`${button.base} ${button.primary}`}
             >
-              {n.remove}
+              {n.names.remove}
             </button>
           </div>
         </Dialog.Content>
@@ -162,7 +160,7 @@ export function PresetNameField({
     <form onSubmit={submit} className={`${card} mt-3 p-3`}>
       <div className="flex items-center gap-2 text-sm">
         <label htmlFor={id} className="flex-none font-medium">
-          {n.field}
+          {n.names.field}
         </label>
         <input
           id={id}
@@ -185,18 +183,23 @@ export function PresetNameField({
         />
         {editing ? (
           <>
-            <button type="submit" aria-label={n.saveName} className={iconButton}>
+            <button type="submit" aria-label={n.names.saveName} className={iconButton}>
               <Check className="size-4" aria-hidden="true" />
             </button>
-            <button type="button" aria-label={n.cancel} onClick={cancel} className={iconButton}>
+            <button
+              type="button"
+              aria-label={n.names.cancel}
+              onClick={cancel}
+              className={iconButton}
+            >
               <X className="size-4" aria-hidden="true" />
             </button>
           </>
         ) : (
           <button
             type="button"
-            aria-label={n.edit}
-            title={n.editTitle(editable)}
+            aria-label={n.names.edit}
+            title={n.names.editTitle(editable)}
             disabled={!editable}
             onClick={() => setEditing(true)}
             className={`${iconButton} disabled:cursor-default disabled:opacity-50`}
@@ -206,7 +209,7 @@ export function PresetNameField({
         )}
       </div>
       <p role="alert" className={`mt-1 text-xs ${problem ? 'text-state-learn' : 'text-muted'}`}>
-        {problem ?? n.help(editable)}
+        {problem ?? n.names.help(editable)}
       </p>
     </form>
   );

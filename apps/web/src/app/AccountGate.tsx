@@ -8,7 +8,7 @@ import { button } from '../shared/ui/styles';
 import { useAccountGate } from '../features/account/hooks/useAccountGate';
 import { TermsGate } from '../features/account/components/TermsGate';
 import { CancelledNotice, NewVersionNotice } from '../features/account/components/GateNotices';
-import { gateStrings as s } from '../features/account/gate.strings';
+import { accountGateStrings as s } from './strings/AccountGate.strings';
 
 export function AccountGate({ children }: { children: ReactNode }) {
   const { state, accept, accepted, told, closed, staleBundle, pathname, leave } = useAccountGate();

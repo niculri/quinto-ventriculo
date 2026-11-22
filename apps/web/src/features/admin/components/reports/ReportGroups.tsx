@@ -4,12 +4,11 @@ import type { ReportQueue } from '../../../reports/api/repository';
 import { Switch } from '../../../../shared/ui/Switch';
 import { card } from '../../../../shared/ui/styles';
 import { chatText } from '../../../reports/model/labels';
-import { reportsStrings } from '../../reports.strings';
+import { reportGroupsStrings as s } from './strings/ReportGroups.strings';
+import { reportGroupRowStrings } from './strings/ReportGroupRow.strings';
 import { BlockedRow } from './BlockedRow';
 import { CopyButton } from './CopyButton';
 import { ReportGroupRow } from './ReportGroupRow';
-
-const s = reportsStrings;
 
 export type Showing = 'open' | 'resolved';
 
@@ -89,7 +88,7 @@ export function BlockedList({ queue, names }: { queue: ReportQueue; names: boole
         {blocked.map((b) => (
           <BlockedRow key={b.id} id={b.id} at={b.blockedAt}>
             {names ? (b.name ?? b.email ?? s.noName) : s.blockedPerson}
-            {names && b.name && b.email ? `${s.sep}${b.email}` : ''}
+            {names && b.name && b.email ? `${reportGroupRowStrings.sep}${b.email}` : ''}
           </BlockedRow>
         ))}
       </ul>

@@ -4,7 +4,7 @@ import type { QuizDetail, QuizSectionSummary } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import type { CourseRef } from '../../../shared/lib/paths';
 import type { ReportTarget } from '../../reports/api/repository';
-import { quizStrings as s } from '../strings';
+import { reportTargetStrings as s } from './strings/reportTarget.strings';
 import type { QuestionEntry } from '../model/entries';
 
 export const reportTarget = (

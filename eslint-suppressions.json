@@ -83,11 +83,6 @@
       "count": 5
     }
   },
-  "apps/web/src/app/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/account/api/repository/memory.ts": {
     "@typescript-eslint/require-await": {
       "count": 4
@@ -98,11 +93,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/account/gate.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/account/hooks/useAccountGate.ts": {
     "@typescript-eslint/unbound-method": {
       "count": 1
@@ -110,11 +100,6 @@
   },
   "apps/web/src/features/account/hooks/useLeave.ts": {
     "@typescript-eslint/unbound-method": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/account/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -146,11 +131,6 @@
   },
   "apps/web/src/features/admin/__tests__/reportsParts.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/access.strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -235,41 +215,6 @@
   },
   "apps/web/src/features/admin/pages/SitePage.tsx": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/releases.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/reports.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/sections.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/site.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/unpublished.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/admin/usage.strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -372,11 +317,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/cards/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/catalog/model/catalog.ts": {
     "@typescript-eslint/prefer-optional-chain": {
       "count": 1
@@ -401,36 +341,6 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/catalog/scope.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/catalog/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/courses/assessment.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/courses/career.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/courses/course.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/courses/semester.strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -489,21 +399,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/decks/options.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/presets.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/decks/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/home/hooks/useAddFocus.ts": {
     "@eslint-react/naming-convention-ref-name": {
       "count": 1
@@ -519,18 +414,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/home/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/landing/hooks/useSignIn.ts": {
     "@typescript-eslint/unbound-method": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/landing/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -539,18 +424,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/legal/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/nav/components/UserMenu.tsx": {
     "@typescript-eslint/unbound-method": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/nav/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -580,11 +455,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/notes/kinds.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/notes/model/__tests__/sanitize.test.ts": {
     "@typescript-eslint/no-unsafe-return": {
       "count": 1
@@ -605,11 +475,6 @@
   },
   "apps/web/src/features/notes/model/selection.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -652,11 +517,6 @@
   },
   "apps/web/src/features/progress/hooks/useOutsideClose.ts": {
     "@eslint-react/naming-convention-ref-name": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/progress/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -761,11 +621,6 @@
       "count": 2
     }
   },
-  "apps/web/src/features/quiz/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/reports/__tests__/reports.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 5
@@ -792,39 +647,14 @@
       "count": 2
     }
   },
-  "apps/web/src/features/reports/dialog.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/reports/hooks/useReportForm.ts": {
     "@typescript-eslint/no-deprecated": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/reports/myReports.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/reports/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
   "apps/web/src/features/search/components/Snippet.tsx": {
     "@eslint-react/no-array-index-key": {
       "count": 2
-    }
-  },
-  "apps/web/src/features/search/palette.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/search/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
     }
   },
   "apps/web/src/features/session/api/demo.ts": {
@@ -842,23 +672,8 @@
       "count": 1
     }
   },
-  "apps/web/src/features/session/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/settings/__tests__/settings.flow.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/settings/sections.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/settings/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -897,11 +712,6 @@
   },
   "apps/web/src/features/stats/model/shade.ts": {
     "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/stats/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -953,11 +763,6 @@
   },
   "apps/web/src/features/study/hooks/useStudySession.ts": {
     "@typescript-eslint/no-deprecated": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/study/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },
@@ -1016,11 +821,6 @@
       "count": 2
     }
   },
-  "apps/web/src/shared/strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/ui/Breadcrumbs.tsx": {
     "@eslint-react/no-array-index-key": {
       "count": 1
@@ -1036,11 +836,6 @@
       "count": 1
     }
   },
-  "apps/web/src/shared/ui/ImageViewer.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/ui/ImageViewer.tsx": {
     "@eslint-react/naming-convention-ref-name": {
       "count": 2
@@ -1049,18 +844,8 @@
       "count": 1
     }
   },
-  "apps/web/src/shared/ui/SaveControls.strings.ts": {
-    "qv/strings-location": {
-      "count": 1
-    }
-  },
   "apps/web/src/shared/ui/focus.ts": {
     "@typescript-eslint/no-empty-function": {
-      "count": 1
-    }
-  },
-  "apps/web/src/shared/ui/form/strings.ts": {
-    "qv/strings-location": {
       "count": 1
     }
   },

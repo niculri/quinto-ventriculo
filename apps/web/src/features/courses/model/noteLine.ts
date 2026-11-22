@@ -1,7 +1,7 @@
 // The line under a note in an assessment's list: base for which lecture, lecturer, year, subtitle and update.
 import type { NoteSummary } from '@qv/schema';
 import { formatDate } from '../../../shared/lib/dates';
-import { assessmentStrings as s } from '../assessment.strings';
+import { noteLineStrings as s } from './strings/noteLine.strings';
 
 export function noteLine(note: NoteSummary): string {
   const h = note.header;

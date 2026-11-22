@@ -6,8 +6,8 @@ import { useRef, useState } from 'react';
 import { Maximize2, MessageSquareWarning, Minimize2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useImageZoom } from '../hooks/useImageZoom';
 import type { Size } from '../lib/zoom';
-import { sharedStrings } from '../strings';
-import { imageViewerStrings } from './ImageViewer.strings';
+import { imageViewerStrings } from './strings/ImageViewer.strings';
+import { sharedStrings } from '../strings/shared.strings';
 
 export interface OpenImage {
   src: string;

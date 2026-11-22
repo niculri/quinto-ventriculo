@@ -13,7 +13,8 @@ import { defaultPreferences } from '../../../progress/api/repository';
 import type { usePresetDrafts } from '../../hooks/usePresetDrafts';
 import { OptionsSection as Section, SaveFailure } from './OptionsParts';
 import { SaveControls } from '../../../../shared/ui/SaveControls';
-import { optionsStrings as o } from '../../options.strings';
+import { usePresetDraftsStrings } from '../../hooks/strings/usePresetDrafts.strings';
+import { generalOptionsStrings as o } from './strings/GeneralOptions.strings';
 
 type Form = ReturnType<typeof usePresetDrafts>;
 
@@ -22,7 +23,9 @@ export function GeneralOptions({ f, savedFullAnki }: { f: Form; savedFullAnki: b
   return (
     <div>
       <div className="sticky top-16 z-10 -mx-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-bg px-1 py-2">
-        <h2 className="font-serif text-2xl font-semibold tracking-tight">{o.generalTitle}</h2>
+        <h2 className="font-serif text-2xl font-semibold tracking-tight">
+          {usePresetDraftsStrings.generalTitle}
+        </h2>
         <SaveControls
           dirty={f.dirty}
           saved={f.saved}
@@ -41,7 +44,7 @@ export function GeneralOptions({ f, savedFullAnki }: { f: Form; savedFullAnki: b
               to={paths.deckOptions()}
               className="font-medium text-brand underline-offset-2 hover:underline"
             >
-              {o.decksTitle}
+              {usePresetDraftsStrings.decksTitle}
             </Link>
             .
           </>

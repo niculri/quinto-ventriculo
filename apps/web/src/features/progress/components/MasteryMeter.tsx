@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { masteryPercent } from '@qv/study';
 import { useOutsideClose } from '../hooks/useOutsideClose';
-import { progressStrings } from '../strings';
-
-const s = progressStrings.mastery;
+import { masteryMeterStrings as s } from './strings/MasteryMeter.strings';
 
 export function MasteryMeter({
   value,
@@ -44,14 +42,14 @@ export function MasteryMeter({
       </span>
       <span className="w-9 flex-none text-left text-xs font-normal text-muted tabular-nums">
         {percent}
-        {s.percent}
-        <span className="sr-only">{s.of}</span>
+        {s.mastery.percent}
+        <span className="sr-only">{s.mastery.of}</span>
       </span>
       <span
         role="tooltip"
         className={`absolute ${place} z-30 w-56 rounded-lg border border-border bg-surface p-2.5 text-left text-xs font-normal text-ink shadow-soft group-hover/mastery:block ${open ? 'block' : 'hidden'}`}
       >
-        {s.explained}
+        {s.mastery.explained}
       </span>
     </span>
   );

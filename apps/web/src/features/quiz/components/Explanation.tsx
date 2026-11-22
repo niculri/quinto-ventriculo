@@ -1,7 +1,7 @@
 // The explanations of an answered question: why each alternative (the right and the chosen marked) and the key idea.
 import { LETTERS } from '@qv/quiz';
 import type { QuizQuestion } from '@qv/schema';
-import { quizStrings as s } from '../strings';
+import { explanationStrings as s } from './strings/Explanation.strings';
 import { Html } from './Html';
 
 export function Explanation({

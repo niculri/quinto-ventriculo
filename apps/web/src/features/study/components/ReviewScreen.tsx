@@ -13,7 +13,7 @@ import type { CardRef } from '../../progress/api/repository';
 import { RATINGS } from './ratings';
 import { StudyCard } from './StudyCard';
 import { MaterialRow } from './MaterialRow';
-import { studyStrings } from '../strings';
+import { reviewScreenStrings } from './strings/ReviewScreen.strings';
 
 export function ReviewScreen({
   round,
@@ -65,7 +65,7 @@ export function ReviewScreen({
           onMissing={() => onChange(dropCurrent(round))}
         />
       </div>
-      <div className="py-3" aria-label={studyStrings.answer} role="group">
+      <div className="py-3" aria-label={reviewScreenStrings.answer} role="group">
         {revealed ? (
           <div className="mx-auto grid max-w-md grid-cols-2 gap-2">
             {answer('again', again)}
@@ -81,7 +81,7 @@ export function ReviewScreen({
               }}
               className={`${button.base} ${button.primary} h-[4.125rem] w-full py-3 text-base`}
             >
-              {studyStrings.showAnswer}
+              {reviewScreenStrings.showAnswer}
             </button>
           </div>
         )}

@@ -4,7 +4,7 @@
 import { cellLabel, dateText } from '@qv/study';
 import type { CellValue, yearGrid } from '@qv/study';
 import { CELL, GAP, LABELS } from '../model/layout';
-import { statsStrings as s } from '../strings';
+import { weekRowsStrings as s } from './strings/WeekRows.strings';
 import { shade } from '../model/shade';
 
 export function WeekRows({

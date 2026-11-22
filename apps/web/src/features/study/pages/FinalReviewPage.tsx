@@ -18,7 +18,7 @@ import { StudyFallback } from '../components/StudyFallback';
 import { StudyLoading } from '../components/StudyLoading';
 import { useCountOpen } from '../../usage/api/count';
 import { FinalReview } from '../components/FinalReview';
-import { studyStrings } from '../strings';
+import { finalReviewPageStrings } from './strings/FinalReviewPage.strings';
 
 export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
@@ -57,7 +57,7 @@ function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDet
         {study.error && !data ? (
           <ErrorWithRetry error={study.error} onRetry={study.retry} />
         ) : (
-          <Loading text={studyStrings.preparingCards} />
+          <Loading text={finalReviewPageStrings.preparingCards} />
         )}
       </StudyFallback>
     );

@@ -7,7 +7,8 @@ import { button } from '../../../shared/ui/styles';
 import { unitOptions } from '../../catalog/model/scope';
 import type { CardsScope } from '../../catalog/model/scope';
 import { useQueryBox } from '../hooks/useQueryBox';
-import { cardsStrings } from '../strings';
+import { cardsControlsStrings } from './strings/CardsControls.strings';
+import { cardsFiltersPanelStrings } from './strings/CardsFiltersPanel.strings';
 
 export function CardsControls({
   scope,
@@ -37,7 +38,7 @@ export function CardsControls({
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2">
       <Select
-        label={cardsStrings.page.unit}
+        label={cardsControlsStrings.page.unit}
         value={unit}
         options={options}
         onChange={onUnit}
@@ -53,7 +54,7 @@ export function CardsControls({
           }}
         >
           <label className="relative block">
-            <span className="sr-only">{cardsStrings.page.search}</span>
+            <span className="sr-only">{cardsControlsStrings.page.search}</span>
             <Search
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
               aria-hidden="true"
@@ -62,7 +63,7 @@ export function CardsControls({
               type="search"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={cardsStrings.page.searchHint(full)}
+              placeholder={cardsControlsStrings.page.searchHint(full)}
               className="h-10 w-full rounded-lg border border-border bg-surface pr-3 pl-9 text-sm placeholder:text-muted"
             />
           </label>
@@ -77,7 +78,8 @@ export function CardsControls({
           onClick={onFilters}
           className={`${button.base} ${button.secondary} h-10 flex-none px-3 py-0 xl:hidden`}
         >
-          <SlidersHorizontal className="size-4" aria-hidden="true" /> {cardsStrings.page.filters}
+          <SlidersHorizontal className="size-4" aria-hidden="true" />{' '}
+          {cardsFiltersPanelStrings.page.filters}
         </button>
       )}
     </div>
@@ -88,28 +90,28 @@ function ViewSwitch({ table, onTable }: { table: boolean; onTable: (on: boolean)
   return (
     <div
       role="group"
-      aria-label={cardsStrings.page.view}
+      aria-label={cardsControlsStrings.page.view}
       className="flex h-10 flex-none rounded-lg border border-border"
     >
       <button
         type="button"
         aria-pressed={!table}
-        aria-label={cardsStrings.page.list}
+        aria-label={cardsControlsStrings.page.list}
         onClick={() => onTable(false)}
         className={`flex items-center gap-1.5 rounded-l-lg px-3 text-sm ${!table ? 'bg-brand-soft text-brand' : 'text-muted hover:bg-surface-2'}`}
       >
         <LayoutList className="size-4" aria-hidden="true" />
-        <span className="hidden sm:inline">{cardsStrings.page.list}</span>
+        <span className="hidden sm:inline">{cardsControlsStrings.page.list}</span>
       </button>
       <button
         type="button"
         aria-pressed={table}
-        aria-label={cardsStrings.page.table}
+        aria-label={cardsControlsStrings.page.table}
         onClick={() => onTable(true)}
         className={`flex items-center gap-1.5 rounded-r-lg px-3 text-sm ${table ? 'bg-brand-soft text-brand' : 'text-muted hover:bg-surface-2'}`}
       >
         <Table2 className="size-4" aria-hidden="true" />
-        <span className="hidden sm:inline">{cardsStrings.page.table}</span>
+        <span className="hidden sm:inline">{cardsControlsStrings.page.table}</span>
       </button>
     </div>
   );

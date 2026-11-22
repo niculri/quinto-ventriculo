@@ -8,7 +8,7 @@ import { ReviewMenu, ReviewScreen, RoundDone } from '../../study';
 import { startRound } from '@qv/study';
 import type { Round } from '@qv/study';
 import type { CardRef } from '../../progress/api/repository';
-import { cardsStrings } from '../strings';
+import { practiceRoundStrings } from './strings/PracticeRound.strings';
 
 export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string }) {
   const [round, setRound] = useState<Round>(() => startRound(cards));
@@ -21,17 +21,23 @@ export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string 
   return (
     <>
       <div className={`${answerBar} min-h-11 pb-2`}>
-        <BackButton to={back} label={cardsStrings.practice.back} className="justify-self-start" />
+        <BackButton
+          to={back}
+          label={practiceRoundStrings.practice.back}
+          className="justify-self-start"
+        />
         <p className="min-w-0 truncate text-center text-sm font-medium tabular-nums sm:text-base">
           {current ? (
             <>
-              <span className="sm:hidden">{cardsStrings.practice.left(round.queue.length)}</span>
+              <span className="sm:hidden">
+                {practiceRoundStrings.practice.left(round.queue.length)}
+              </span>
               <span className="hidden sm:inline">
-                {cardsStrings.practice.leftLong(round.queue.length)}
+                {practiceRoundStrings.practice.leftLong(round.queue.length)}
               </span>
             </>
           ) : (
-            cardsStrings.practice.title
+            practiceRoundStrings.practice.title
           )}
         </p>
         <div className="flex min-w-0 items-center justify-end">
@@ -44,16 +50,16 @@ export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string 
       </div>
       {current ? (
         <>
-          <p className="sr-only">{cardsStrings.practice.noDates}</p>
+          <p className="sr-only">{practiceRoundStrings.practice.noDates}</p>
           <ReviewScreen round={round} current={current} onChange={setRound} onAnswer={add} />
         </>
       ) : (
         <RoundDone
           round={round}
           deckPath={back}
-          label={cardsStrings.practice.doneLabel}
-          title={cardsStrings.practice.doneTitle}
-          againLabel={cardsStrings.practice.again}
+          label={practiceRoundStrings.practice.doneLabel}
+          title={practiceRoundStrings.practice.doneTitle}
+          againLabel={practiceRoundStrings.practice.again}
           onAgain={() => setRound(startRound(cards))}
         />
       )}

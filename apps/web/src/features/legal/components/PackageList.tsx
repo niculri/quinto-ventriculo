@@ -1,16 +1,14 @@
 // The list of third-party packages of /licenses, each with its version, license and whether the web or the server
 // uses it.
 import { useThirdParty } from '../hooks/useThirdParty';
-import { legalStrings } from '../strings';
-
-const s = legalStrings.packages;
+import { packageListStrings as s } from './strings/PackageList.strings';
 
 export function PackageList() {
   const packages = useThirdParty();
-  if (packages === 'loading') return <p className="text-muted">{s.loading}</p>;
-  if (packages === 'error') return <p className="text-muted">{s.failed}</p>;
+  if (packages === 'loading') return <p className="text-muted">{s.packages.loading}</p>;
+  if (packages === 'error') return <p className="text-muted">{s.packages.failed}</p>;
   return (
-    <ul className="!list-none !pl-0 text-sm" aria-label={s.label}>
+    <ul className="!list-none !pl-0 text-sm" aria-label={s.packages.label}>
       {packages.map((p) => (
         <li
           key={`${p.name}@${p.version}`}
@@ -28,7 +26,10 @@ export function PackageList() {
           </span>
           <span className="text-muted">
             {p.license}
-            {' ·'} {p.usedBy.map((u) => (u === 'web' ? s.web : s.server)).join(s.and)}
+            {' ·'}{' '}
+            {p.usedBy
+              .map((u) => (u === 'web' ? s.packages.web : s.packages.server))
+              .join(s.packages.and)}
           </span>
         </li>
       ))}

@@ -5,7 +5,7 @@ import { paths } from '../../../shared/lib/paths';
 import { formatDay } from '../../../shared/lib/dates';
 import { Logo } from '../../../shared/ui/Logo';
 import { SiteFooter } from '../../nav/components/SiteFooter';
-import { legalStrings as s } from '../strings';
+import { legalPageStrings as s } from './strings/LegalPage.strings';
 import { useTitle } from '../../../shared/hooks/useTitle';
 
 export function LegalPage({

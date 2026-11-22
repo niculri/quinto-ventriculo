@@ -2,7 +2,7 @@
 
 import type { PaceOption } from '@qv/study';
 import { minutesText, shortDate } from '@qv/study';
-import { decksStrings as s } from '../strings';
+import { finalDaysChoiceStrings as s } from './strings/FinalDaysChoice.strings';
 
 export function FinalDaysChoice({
   days,

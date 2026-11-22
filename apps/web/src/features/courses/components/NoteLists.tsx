@@ -9,7 +9,7 @@ import { noteBlocks } from '../../catalog/model/catalog';
 import { useDeck } from '../../decks/hooks/useDeck';
 import { useDeckCounts } from '../../progress/hooks/useDeckCounts';
 import { NoteRow } from './NoteRow';
-import { assessmentStrings as s } from '../assessment.strings';
+import { noteListsStrings as s } from './strings/NoteLists.strings';
 
 export function NoteLists({
   course,

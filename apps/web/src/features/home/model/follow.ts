@@ -3,7 +3,7 @@
 import type { Catalog } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { locateNote } from '../../catalog/model/catalog';
-import { homeStrings as s } from '../strings';
+import { followStrings as s } from './strings/follow.strings';
 
 export interface OpenRound {
   quizId: string;

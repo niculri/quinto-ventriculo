@@ -4,9 +4,7 @@ import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { UnpublishedEntries } from '../components/unpublished/UnpublishedEntries';
 import { useUnpublishedLog } from '../hooks/useUnpublishedLog';
-import { unpublishedStrings } from '../unpublished.strings';
-
-const s = unpublishedStrings;
+import { unpublishedPageStrings as s } from './strings/UnpublishedPage.strings';
 
 export function UnpublishedPage() {
   const log = useUnpublishedLog();

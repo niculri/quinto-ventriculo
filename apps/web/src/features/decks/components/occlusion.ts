@@ -7,7 +7,7 @@
 
 import { canvasPixelSize, shapeProperties } from '../model/shapes';
 import { drawShapes } from '../model/drawShapes';
-import { decksStrings as s } from '../strings';
+import { occlusionStrings as s } from './strings/occlusion.strings';
 
 /** Anki's `setupImageOcclusion`: sizes the canvas, draws, and wires «toggle» and the M key; returns a cleanup. */
 export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {

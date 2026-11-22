@@ -6,14 +6,12 @@ import { card } from '../../../../shared/ui/styles';
 import type { AccessReport } from '../../api/repository';
 import { appointingKey, invitesByList, removalKey } from '../../model/access';
 import type { Appointing, Removing } from '../../model/access';
-import { accessStrings } from '../../access.strings';
+import { accessViewStrings as s } from './strings/AccessView.strings';
 import { AdminDialog } from './AdminDialog';
 import { InviteForm } from './InviteForm';
 import { InviteList } from './InviteList';
 import { RemoveDialog } from './RemoveDialog';
 import { Strays } from './Strays';
-
-const s = accessStrings;
 
 export function AccessView({ report }: { report: AccessReport }) {
   const [removing, setRemoving] = useState<Removing | null>(null);

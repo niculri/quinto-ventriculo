@@ -3,15 +3,16 @@ import { Link } from 'react-router';
 import { PartyPopper } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
 import type { Round } from '@qv/study';
-import { studyStrings } from '../strings';
+import { roundDoneStrings } from './strings/RoundDone.strings';
+import { chooseReviewStrings } from './strings/ChooseReview.strings';
 
 export function RoundDone({
   round,
   deckPath,
   label,
   onAgain,
-  title = studyStrings.review.doneTitle,
-  againLabel = studyStrings.review.again,
+  title = roundDoneStrings.review.doneTitle,
+  againLabel = roundDoneStrings.review.again,
 }: {
   round: Round;
   deckPath: string;
@@ -25,12 +26,12 @@ export function RoundDone({
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
       <h1 className="mt-4 font-serif text-2xl font-semibold">{title}</h1>
       <p className="mt-4 text-sm text-muted">
-        {studyStrings.cards(round.total)}
-        {round.again > 0 ? studyStrings.review.againTimes(round.again) : ''}
+        {chooseReviewStrings.cards(round.total)}
+        {round.again > 0 ? roundDoneStrings.review.againTimes(round.again) : ''}
       </p>
       <div className="mt-8 flex flex-col items-center gap-3">
         <Link to={deckPath} className={`${button.base} ${button.primary}`}>
-          {studyStrings.backTo(label)}
+          {chooseReviewStrings.backTo(label)}
         </Link>
         <button type="button" onClick={onAgain} className={`${button.base} ${button.secondary}`}>
           {againLabel}

@@ -7,7 +7,7 @@ import { formatDay } from '../../../shared/lib/dates';
 import { button } from '../../../shared/ui/styles';
 import { AccountError } from '../api/repository';
 import { GateDialog } from './GateDialog';
-import { gateStrings as s } from '../gate.strings';
+import { termsGateStrings as s } from './strings/TermsGate.strings';
 
 export function TermsGate({
   changed,

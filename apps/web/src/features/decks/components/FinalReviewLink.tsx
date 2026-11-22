@@ -7,7 +7,7 @@ import { preloadOnIntent } from '../../../shared/lib/preload';
 import { button } from '../../../shared/ui/styles';
 import type { AssessmentView } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { decksStrings as s } from '../strings';
+import { finalReviewLinkStrings as s } from './strings/FinalReviewLink.strings';
 
 export function FinalReviewLink({
   node,

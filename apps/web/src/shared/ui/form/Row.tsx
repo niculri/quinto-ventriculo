@@ -6,7 +6,7 @@
 // A row of an options form: the label (with its help) on the left, the control and its «restore» button on the right.
 import type { ReactNode } from 'react';
 import { RotateCcw } from 'lucide-react';
-import { formStrings } from './strings';
+import { rowStrings } from './strings/Row.strings';
 
 export function Row({
   label,
@@ -48,8 +48,8 @@ export function Revert<T>({
       type="button"
       onClick={() => onChange(fallback)}
       className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
-      title={formStrings.restoreTitle}
-      aria-label={formStrings.restore}
+      title={rowStrings.restoreTitle}
+      aria-label={rowStrings.restore}
     >
       <RotateCcw className="size-4" aria-hidden="true" />
     </button>

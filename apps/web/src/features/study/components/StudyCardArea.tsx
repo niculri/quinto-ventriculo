@@ -7,7 +7,7 @@ import { MaterialRow } from './MaterialRow';
 import { MaterialTip } from './MaterialTip';
 import { StudyAnswers } from './StudyAnswers';
 import { StudyCard } from './StudyCard';
-import { studyStrings } from '../strings';
+import { reviewScreenStrings } from './strings/ReviewScreen.strings';
 
 export function StudyCardArea({
   act,
@@ -40,7 +40,7 @@ export function StudyCardArea({
           onMissing={() => act.skipMissing(shown.entry)}
         />
       </div>
-      <div className="py-3" aria-label={studyStrings.answer} role="group">
+      <div className="py-3" aria-label={reviewScreenStrings.answer} role="group">
         <StudyAnswers
           act={act}
           shown={shown}

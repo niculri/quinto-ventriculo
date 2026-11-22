@@ -8,7 +8,7 @@ import { ListMark } from '../../catalog/components/AdminMarks';
 import { lastNote } from '../../notes/api/lastNote';
 import { followItems } from '../model/follow';
 import type { OpenRound } from '../model/follow';
-import { homeStrings as s } from '../strings';
+import { followStrings as s } from './strings/Follow.strings';
 
 export function Follow({ catalog, rounds }: { catalog: Catalog; rounds: readonly OpenRound[] }) {
   const items = followItems(catalog, rounds, lastNote());

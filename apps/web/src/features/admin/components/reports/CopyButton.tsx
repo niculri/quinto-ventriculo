@@ -2,9 +2,7 @@
 import { useState } from 'react';
 import { ClipboardCopy } from 'lucide-react';
 import { button } from '../../../../shared/ui/styles';
-import { reportsStrings } from '../../reports.strings';
-
-const s = reportsStrings.copy;
+import { copyButtonStrings as s } from './strings/CopyButton.strings';
 
 export function CopyButton({ text, label }: { text: string; label: string }) {
   const [done, setDone] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -30,13 +28,13 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
           aria-hidden={done !== 'copied'}
           className={`col-start-1 row-start-1 ${done === 'copied' ? '' : 'invisible'}`}
         >
-          {s.copied}
+          {s.copy.copied}
         </span>
         <span
           aria-hidden={done !== 'failed'}
           className={`col-start-1 row-start-1 ${done === 'failed' ? '' : 'invisible'}`}
         >
-          {s.failed}
+          {s.copy.failed}
         </span>
       </span>
     </button>

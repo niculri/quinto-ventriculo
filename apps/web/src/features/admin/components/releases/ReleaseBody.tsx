@@ -5,12 +5,10 @@ import { ErrorWithRetry } from '../../../../shared/ui/Notice';
 import { card } from '../../../../shared/ui/styles';
 import { useReleaseOverview, useReleaseReview } from '../../hooks/useReleases';
 import { shownAssessments } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { releaseBodyStrings as s } from './strings/ReleaseBody.strings';
 import { AssessmentChanges } from './AssessmentChanges';
 import { ReviewSection } from './ReviewSection';
 import { SiteChanges } from './SiteChanges';
-
-const s = releasesStrings;
 
 export function ReleaseBody() {
   const overview = useReleaseOverview(true);

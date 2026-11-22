@@ -2,21 +2,20 @@
 
 import { answersText } from '@qv/study';
 import type { HeatmapStats } from '@qv/study';
-import { statsStrings as s } from '../strings';
+import { figuresStrings as f } from './strings/figures.strings';
 
 export function figureItems(stats: HeatmapStats | null): [string, string][] {
-  const f = s.figures;
   return stats
     ? [
-        [f.average, answersText(stats.dailyAverage)],
-        [f.studied, f.percent(stats.studiedPercent)],
-        [f.longest, f.days(stats.longestStreak)],
-        [f.current, f.days(stats.currentStreak)],
+        [f.figures.average, answersText(stats.dailyAverage)],
+        [f.figures.studied, f.figures.percent(stats.studiedPercent)],
+        [f.figures.longest, f.figures.days(stats.longestStreak)],
+        [f.figures.current, f.figures.days(stats.currentStreak)],
       ]
     : [
-        [f.average, ''],
-        [f.studied, ''],
-        [f.longest, ''],
-        [f.current, ''],
+        [f.figures.average, ''],
+        [f.figures.studied, ''],
+        [f.figures.longest, ''],
+        [f.figures.current, ''],
       ];
 }

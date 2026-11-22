@@ -5,7 +5,7 @@ import { paths } from '../../../shared/lib/paths';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { useSettingsGroups } from '../hooks/useSettingsGroups';
 import { page } from '../../../shared/ui/styles';
-import { settingsStrings as s } from '../strings';
+import { settingsLayoutStrings as s } from './strings/SettingsLayout.strings';
 
 /** On wide screens the site's menu (features/nav/components/AppNav.tsx) has the sections, so this one goes away. */
 export function SettingsLayout({ children }: { children: ReactNode }) {

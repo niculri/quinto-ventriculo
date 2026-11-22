@@ -2,7 +2,7 @@
 import type { Preferences } from '@qv/quiz';
 import { card } from '../../../shared/ui/styles';
 import { Switch } from '../../../shared/ui/Switch';
-import { quizStrings as s } from '../strings';
+import { modeSwitchesStrings as s } from './strings/ModeSwitches.strings';
 
 export function ModeSwitches({
   preferences,

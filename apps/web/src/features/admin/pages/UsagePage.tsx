@@ -8,7 +8,7 @@ import { UsageChart } from '../components/usage/UsageChart';
 import { DetailsLoading, UsageDetails } from '../components/usage/UsageDetails';
 import { UsageSummary } from '../components/usage/UsageSummary';
 import { useUsageReport } from '../hooks/useUsageReport';
-import { usageStrings as s } from '../usage.strings';
+import { usagePageStrings as s } from './strings/UsagePage.strings';
 
 /** The visits and the pages are in Cloudflare Web Analytics; `:account` opens the viewer's own account. */
 const WEB_ANALYTICS_URL = 'https://dash.cloudflare.com/?to=/:account/web-analytics';

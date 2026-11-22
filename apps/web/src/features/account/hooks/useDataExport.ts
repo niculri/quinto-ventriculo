@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useAccountRepository } from '../api/context';
 import { saveFile } from '../api/download';
-import { accountStrings as s } from '../strings';
+import { useDataExportStrings as s } from './strings/useDataExport.strings';
 
 export function useDataExport() {
   const account = useAccountRepository();

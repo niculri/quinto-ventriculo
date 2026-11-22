@@ -8,10 +8,10 @@ import type { RemoveResult } from '../../api/repository';
 import { useRemoveInvites } from '../../hooks/useAccess';
 import { accessFailure } from '../../hooks/accessFailure';
 import type { Removing } from '../../model/access';
-import { accessStrings } from '../../access.strings';
+import { removeDialogStrings as s } from './strings/RemoveDialog.strings';
+import { accessDialogStrings } from './strings/AccessDialog.strings';
+import { accessFailureStrings } from '../../hooks/strings/accessFailure.strings';
 import { AccessDialog, DoneButton, Emails } from './AccessDialog';
-
-const s = accessStrings.remove;
 
 export function RemoveDialog({ target: t, onClose }: { target: Removing; onClose: () => void }) {
   const id = useId();
@@ -28,9 +28,9 @@ export function RemoveDialog({ target: t, onClose }: { target: Removing; onClose
     if (busy) return;
     onClose();
   };
-  const title = t.kind === 'person' ? s.person(t.email) : s.list(t.list);
+  const title = t.kind === 'person' ? s.remove.person(t.email) : s.remove.list(t.list);
   return (
-    <AccessDialog open onClose={close} busy={busy} title={done ? s.done : title}>
+    <AccessDialog open onClose={close} busy={busy} title={done ? s.remove.done : title}>
       {done ? (
         <RemoveDone done={done} onClose={close} />
       ) : (
@@ -58,9 +58,9 @@ function RemoveRules({ target: t }: { target: Removing }) {
   return (
     <Dialog.Description asChild>
       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">
-        <li>{t.kind === 'person' ? s.personRule : s.listRule(t.count)}</li>
-        <li>{s.keeps}</li>
-        <li>{s.adminStays}</li>
+        <li>{t.kind === 'person' ? s.remove.personRule : s.remove.listRule(t.count)}</li>
+        <li>{s.remove.keeps}</li>
+        <li>{s.remove.adminStays}</li>
       </ul>
     </Dialog.Description>
   );
@@ -70,16 +70,16 @@ function RemoveDone({ done, onClose }: { done: RemoveResult; onClose: () => void
   return (
     <>
       <Dialog.Description className="mt-2 text-sm text-muted">
-        {s.removed(done.removed.length)}
-        {s.and}
-        {s.sessions(done.sessionsClosed)}
-        {s.end}
-        {done.openToDomain ? s.openToDomain : ''}
+        {s.remove.removed(done.removed.length)}
+        {s.remove.and}
+        {s.remove.sessions(done.sessionsClosed)}
+        {s.remove.end}
+        {done.openToDomain ? s.remove.openToDomain : ''}
       </Dialog.Description>
       <div className="mt-4 space-y-3 text-sm">
-        <Emails title={s.left} emails={done.removed} />
-        <Emails title={s.kept} emails={done.keptAdmins} why={s.keptWhy} />
-        <Emails title={s.notInvited} emails={done.notInvited} />
+        <Emails title={s.remove.left} emails={done.removed} />
+        <Emails title={s.remove.kept} emails={done.keptAdmins} why={s.remove.keptWhy} />
+        <Emails title={s.remove.notInvited} emails={done.notInvited} />
       </div>
       <DoneButton onClick={onClose} />
     </>
@@ -118,13 +118,13 @@ function RemoveForm({
     >
       <RemoveRules target={t} />
       <label htmlFor={`${id}-confirm`} className="mt-5 block text-sm font-medium">
-        {s.confirm}
-        {t.kind === 'person' ? s.theEmail : s.theList}
-        {accessStrings.open}
+        {s.remove.confirm}
+        {t.kind === 'person' ? s.remove.theEmail : s.remove.theList}
+        {accessDialogStrings.open}
         <span className={`font-mono ${t.kind === 'person' ? 'break-all' : 'break-words'}`}>
           {expected}
         </span>
-        {accessStrings.close}
+        {accessDialogStrings.close}
       </label>
       <input
         id={`${id}-confirm`}
@@ -135,7 +135,7 @@ function RemoveForm({
         disabled={busy}
         className="mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink sm:text-sm"
       />
-      <Reserved longest={accessStrings.genericFailure} className="mt-2 text-sm">
+      <Reserved longest={accessFailureStrings.genericFailure} className="mt-2 text-sm">
         {error !== null ? (
           <p role="alert" className="text-state-learn">
             {error}
@@ -149,7 +149,7 @@ function RemoveForm({
           disabled={busy}
           className={`${button.base} ${button.secondary}`}
         >
-          {s.cancel}
+          {s.remove.cancel}
         </button>
         <button
           type="submit"
@@ -158,10 +158,14 @@ function RemoveForm({
         >
           <span className="grid place-items-center">
             <span aria-hidden="true" className="invisible col-start-1 row-start-1">
-              {t.kind === 'person' ? s.removing : s.removeList}
+              {t.kind === 'person' ? s.remove.removing : s.remove.removeList}
             </span>
             <span className="col-start-1 row-start-1">
-              {busy ? s.removing : t.kind === 'person' ? s.removePerson : s.removeList}
+              {busy
+                ? s.remove.removing
+                : t.kind === 'person'
+                  ? s.remove.removePerson
+                  : s.remove.removeList}
             </span>
           </span>
         </button>

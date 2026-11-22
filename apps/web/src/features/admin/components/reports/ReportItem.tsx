@@ -5,11 +5,12 @@ import { formatDateTime } from '../../../../shared/lib/dates';
 import { button } from '../../../../shared/ui/styles';
 import { CATEGORY_LABELS, placeLabel, placeLink } from '../../../reports/model/labels';
 import type { QueueReport, Reporter, ReportGroup } from '../../../reports/api/repository';
-import { reportsStrings } from '../../reports.strings';
+import { reportGroupRowStrings } from './strings/ReportGroupRow.strings';
+import { reportItemStrings as s } from './strings/ReportItem.strings';
+import { reportGroupsStrings } from './strings/ReportGroups.strings';
+import { reportDialogsStrings } from './strings/ReportDialogs.strings';
 import { BlockDialog } from './ReportDialogs';
 import { PlaceAnchor } from './PlaceAnchor';
-
-const s = reportsStrings;
 
 export function ReportItem({
   group,
@@ -27,7 +28,7 @@ export function ReportItem({
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted">
         <span>
           <span className="font-medium text-ink">{CATEGORY_LABELS[r.category]}</span>
-          {where ? `${s.sep}${where}` : ''}
+          {where ? `${reportGroupRowStrings.sep}${where}` : ''}
           {r.version ? s.sawVersion(r.version) : ''}
         </span>
         <span>{formatDateTime(r.createdAt)}</span>
@@ -54,12 +55,12 @@ function ReporterLine({ reporter }: { reporter: Reporter | null }) {
   if (!reporter) {
     return <p className="mt-2 text-xs text-muted">{s.noAuthor}</p>;
   }
-  const who = reporter.name ?? reporter.email ?? s.noName;
+  const who = reporter.name ?? reporter.email ?? reportGroupsStrings.noName;
   return (
     <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
       <span>
         {who}
-        {reporter.name && reporter.email ? `${s.sep}${reporter.email}` : ''}
+        {reporter.name && reporter.email ? `${reportGroupRowStrings.sep}${reporter.email}` : ''}
       </span>
       {reporter.blocked ? (
         <span className="font-medium">{s.noPermission}</span>
@@ -69,7 +70,7 @@ function ReporterLine({ reporter }: { reporter: Reporter | null }) {
           onClick={() => setBlocking(true)}
           className={`${button.base} ${button.ghost} px-2 py-1 text-xs`}
         >
-          <Ban className="size-3.5" aria-hidden="true" /> {s.block}
+          <Ban className="size-3.5" aria-hidden="true" /> {reportDialogsStrings.block}
         </button>
       )}
       {blocking ? (

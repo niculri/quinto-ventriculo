@@ -11,8 +11,8 @@ import { MaterialLink, ReportEntry, useCardMaterial } from '../../study';
 import { useViewerActions } from '../hooks/useViewerActions';
 import { HistoryDialog } from './HistoryDialog';
 import type { StudyPreferences } from '../../progress/api/repository';
-import { sharedStrings } from '../../../shared/strings';
-import { cardsStrings } from '../strings';
+import { cardsViewerStrings } from './strings/CardsViewer.strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
 
 export function CardsViewer({
   cards,
@@ -75,32 +75,32 @@ function Actions({
         type="button"
         onClick={toggleFlag}
         disabled={busy || blocked}
-        title={blocked ? cardsStrings.viewer.draftOnly : undefined}
+        title={blocked ? cardsViewerStrings.viewer.draftOnly : undefined}
         className={ACTION}
-        aria-label={flag ? cardsStrings.unmark : cardsStrings.viewer.mark}
+        aria-label={flag ? cardsViewerStrings.unmark : cardsViewerStrings.viewer.mark}
       >
         <Flag className={`size-4 ${flag ? 'fill-current text-brand' : ''}`} aria-hidden="true" />
-        <Label>{flag ? cardsStrings.unmark : cardsStrings.viewer.mark}</Label>
+        <Label>{flag ? cardsViewerStrings.unmark : cardsViewerStrings.viewer.mark}</Label>
       </button>
       <button
         type="button"
         onClick={toggleHidden}
         disabled={busy || blocked}
-        title={blocked ? cardsStrings.viewer.draftOnly : undefined}
+        title={blocked ? cardsViewerStrings.viewer.draftOnly : undefined}
         className={ACTION}
-        aria-label={hidden ? cardsStrings.hideAgain : cardsStrings.hideForever}
+        aria-label={hidden ? cardsViewerStrings.hideAgain : cardsViewerStrings.hideForever}
       >
         <EyeOff className="size-4" aria-hidden="true" />
-        <Label>{hidden ? cardsStrings.hideAgain : cardsStrings.hideForever}</Label>
+        <Label>{hidden ? cardsViewerStrings.hideAgain : cardsViewerStrings.hideForever}</Label>
       </button>
       <button
         type="button"
         onClick={() => setReporting(true)}
         className={ACTION}
-        aria-label={cardsStrings.reportError}
+        aria-label={cardsViewerStrings.reportError}
       >
         <MessageSquareWarning className="size-4" aria-hidden="true" />
-        <Label>{cardsStrings.reportError}</Label>
+        <Label>{cardsViewerStrings.reportError}</Label>
       </button>
       <MaterialLinks material={material} />
       <button
@@ -108,13 +108,13 @@ function Actions({
         onClick={() => setHistory(true)}
         disabled={!info}
         className={ACTION}
-        aria-label={cardsStrings.viewer.history}
+        aria-label={cardsViewerStrings.viewer.history}
       >
         <History className="size-4" aria-hidden="true" />
-        <Label>{cardsStrings.viewer.history}</Label>
+        <Label>{cardsViewerStrings.viewer.history}</Label>
       </button>
       <span aria-live="polite" className="ml-auto flex-none pr-1 text-xs text-muted">
-        {message ?? (blocked ? cardsStrings.viewer.draftOnlyShort : '')}
+        {message ?? (blocked ? cardsViewerStrings.viewer.draftOnlyShort : '')}
       </span>
       {reporting ? (
         <ReportEntry
@@ -139,14 +139,15 @@ function MaterialLinks({ material }: { material: ReturnType<typeof useCardMateri
       {material ? (
         <span className={`${ACTION} hover:bg-transparent`}>
           <MaterialLink href={material.notePath}>
-            <BookOpen className="size-4" aria-hidden="true" /> {cardsStrings.viewer.note}
+            <BookOpen className="size-4" aria-hidden="true" /> {cardsViewerStrings.viewer.note}
           </MaterialLink>
         </span>
       ) : null}
       {material?.quizPath ? (
         <span className={`${ACTION} hover:bg-transparent`}>
           <MaterialLink href={material.quizPath}>
-            <ListChecks className="size-4" aria-hidden="true" /> {cardsStrings.viewer.questions}
+            <ListChecks className="size-4" aria-hidden="true" />{' '}
+            {cardsViewerStrings.viewer.questions}
           </MaterialLink>
         </span>
       ) : null}

@@ -1,8 +1,6 @@
 // «Fuera del sitio»: what each entry took off, its state on the site, and what is off now.
 import type { UnpublishedEntry } from '@qv/schema';
-import { unpublishedStrings } from '../unpublished.strings';
-
-const s = unpublishedStrings;
+import { unpublishedStrings as s } from './strings/unpublished.strings';
 
 export function removedLine(e: UnpublishedEntry): string {
   const r = e.removed;

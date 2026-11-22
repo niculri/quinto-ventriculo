@@ -4,11 +4,9 @@ import { MAX_EMAILS } from '../api/repository';
 import type { InviteResult } from '../api/repository';
 import { NEW_LIST, listChoice } from '../model/access';
 import { readEmails } from '../model/emails';
-import { accessStrings } from '../access.strings';
+import { useInviteFormStrings as s } from './strings/useInviteForm.strings';
 import { useInvite } from './useAccess';
 import { accessFailure } from './accessFailure';
-
-const s = accessStrings.form;
 
 export function useInviteForm(lists: string[]) {
   const invite = useInvite();
@@ -25,9 +23,9 @@ export function useInviteForm(lists: string[]) {
   const status = invite.isError
     ? accessFailure(invite.error)
     : tooMany
-      ? s.tooMany(emails.length, MAX_EMAILS)
+      ? s.form.tooMany(emails.length, MAX_EMAILS)
       : emails.length || ignored
-        ? s.count(emails.length, ignored)
+        ? s.form.count(emails.length, ignored)
         : '';
   const submit = () => {
     if (!ready || invite.isPending) return;

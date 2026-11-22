@@ -5,7 +5,8 @@ import { paths } from '../lib/paths';
 import { useRouteError } from 'react-router';
 import { Notice } from './Notice';
 import { button } from './styles';
-import { sharedStrings } from '../strings';
+import { routeErrorStrings } from './strings/RouteError.strings';
+import { sharedStrings } from '../strings/shared.strings';
 
 export function RouteError() {
   const error = useRouteError();
@@ -14,15 +15,15 @@ export function RouteError() {
   }, [error]);
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
-      <Notice title={sharedStrings.routeError.title}>
-        <p>{sharedStrings.routeError.body}</p>
+      <Notice title={routeErrorStrings.routeError.title}>
+        <p>{routeErrorStrings.routeError.body}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => window.location.reload()}
             className={`${button.base} ${button.secondary}`}
           >
-            {sharedStrings.routeError.reload}
+            {routeErrorStrings.routeError.reload}
           </button>
           <a href={paths.home} className={`${button.base} ${button.ghost}`}>
             {sharedStrings.backHome}

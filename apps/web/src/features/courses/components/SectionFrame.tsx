@@ -4,7 +4,7 @@ import type { AssessmentWithNotes, CourseWithAssessments, SemesterWithCourses } 
 import { paths } from '../../../shared/lib/paths';
 import { page } from '../../../shared/ui/styles';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
-import { assessmentStrings as s } from '../assessment.strings';
+import { sectionFrameStrings as s } from './strings/SectionFrame.strings';
 
 export function SectionFrame({
   semester,

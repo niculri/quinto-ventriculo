@@ -17,7 +17,7 @@ import { cardQuery } from '../api/queries';
 import { useCard } from '../hooks/useCard';
 import { DimBackdrop } from '../../../shared/ui/Dialog';
 import { viewerKeyDown } from './viewerKeys';
-import { decksStrings as s } from '../strings';
+import { cardViewerStrings as s } from './strings/CardViewer.strings';
 
 interface Props {
   cards: CardSummary[];

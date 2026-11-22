@@ -6,9 +6,7 @@ import { paths } from '../../../shared/lib/paths';
 import type { buildAnkiTree } from '../../catalog/model/tree';
 import { hasPage } from '../../catalog/model/tree';
 import { locateNote } from '../../catalog/model/catalog';
-import { usageStrings } from '../usage.strings';
-
-const s = usageStrings;
+import { usageStrings as s } from './strings/usage.strings';
 
 export const NUMBER = new Intl.NumberFormat('es-CL');
 const SHORT_DAY = new Intl.DateTimeFormat('es-CL', {

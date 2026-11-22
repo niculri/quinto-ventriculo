@@ -1,7 +1,7 @@
 // What marks, in the admin mode, a page or an element that a student does not see, and why: «Borrador», «Semestre
 // oculto» and/or «Ramo apagado».
 import type { AdminReason } from '@qv/schema/http';
-import { sharedStrings } from '../strings';
+import { adminTagStrings } from './strings/AdminTag.strings';
 
 const pill =
   'inline-flex items-center rounded-full border border-accent/40 bg-accent/10 font-medium whitespace-nowrap text-[#9a4a12] dark:text-accent';
@@ -16,12 +16,12 @@ export function AdminTag({ reasons }: { reasons: readonly AdminReason[] }) {
     <span data-admin-tag="" className="flex h-5 flex-none items-center gap-1">
       {reasons.map((r) => (
         <span key={r} className={`${pill} px-2 text-[0.7rem] leading-4`}>
-          {sharedStrings.adminOnlyShort[r] === sharedStrings.adminOnly[r] ? (
-            sharedStrings.adminOnly[r]
+          {adminTagStrings.adminOnlyShort[r] === adminTagStrings.adminOnly[r] ? (
+            adminTagStrings.adminOnly[r]
           ) : (
             <>
-              <span className="max-sm:hidden">{sharedStrings.adminOnly[r]}</span>
-              <span className="sm:hidden">{sharedStrings.adminOnlyShort[r]}</span>
+              <span className="max-sm:hidden">{adminTagStrings.adminOnly[r]}</span>
+              <span className="sm:hidden">{adminTagStrings.adminOnlyShort[r]}</span>
             </>
           )}
         </span>
@@ -37,7 +37,7 @@ export function AdminMark({ reasons }: { reasons: readonly AdminReason[] }) {
     <span data-admin-mark="" className="ml-1.5 inline-flex flex-wrap gap-1 align-middle">
       {reasons.map((r) => (
         <span key={r} className={`${pill} px-1.5 text-[0.62rem] leading-[0.9rem] font-semibold`}>
-          {sharedStrings.adminOnly[r]}
+          {adminTagStrings.adminOnly[r]}
         </span>
       ))}
     </span>

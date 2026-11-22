@@ -3,7 +3,7 @@ import type { QuizFigure, QuizTable } from '@qv/schema';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { commonCaption, shownHeight } from '../model/figures';
 import { cleanSvg, cleanText } from '../model/html';
-import { quizStrings as s } from '../strings';
+import { figuresStrings as s } from './strings/Figures.strings';
 
 function Figure({ figure: f, onZoom }: { figure: QuizFigure; onZoom: (image: OpenImage) => void }) {
   return f.kind === 'svg' ? (

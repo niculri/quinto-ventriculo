@@ -3,9 +3,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
 import type { NoteLocation } from '../../catalog/model/catalog';
-import { noteStrings } from '../strings';
-
-const s = noteStrings.neighbors;
+import { neighborsStrings as s } from './strings/Neighbors.strings';
 
 export function Neighbors({ location }: { location: NoteLocation }) {
   const { previous, next } = location;
@@ -14,14 +12,14 @@ export function Neighbors({ location }: { location: NoteLocation }) {
     'flex-1 rounded-xl border border-border p-4 transition hover:border-border-strong hover:bg-surface';
   return (
     <nav
-      aria-label={s.label}
+      aria-label={s.neighbors.label}
       className="mt-16 flex flex-col gap-3 border-t border-border pt-8 sm:flex-row"
     >
       {previous ? (
         <Link to={paths.note(location.course, previous.slug)} className={box}>
           <span className="flex items-center gap-1 text-xs text-muted">
             <ArrowLeft className="size-3.5" aria-hidden="true" />
-            {s.previous}
+            {s.neighbors.previous}
           </span>
           <span className="mt-1 block font-medium">{previous.title}</span>
         </Link>
@@ -31,7 +29,7 @@ export function Neighbors({ location }: { location: NoteLocation }) {
       {next ? (
         <Link to={paths.note(location.course, next.slug)} className={`${box} text-right`}>
           <span className="flex items-center justify-end gap-1 text-xs text-muted">
-            {s.next}
+            {s.neighbors.next}
             <ArrowRight className="size-3.5" aria-hidden="true" />
           </span>
           <span className="mt-1 block font-medium">{next.title}</span>

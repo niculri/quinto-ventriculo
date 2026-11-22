@@ -5,7 +5,7 @@ import type { Counts } from '@qv/srs';
 import { breakdownText, loadText, totalCards } from '@qv/study';
 import { tapArea } from '../../../shared/ui/styles';
 import { useOutsideClose } from '../hooks/useOutsideClose';
-import { progressStrings as s } from '../strings';
+import { deckCountsStrings as s } from './strings/DeckCounts.strings';
 
 export function DayLoad({
   counts,

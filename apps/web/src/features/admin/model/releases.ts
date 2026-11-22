@@ -9,9 +9,7 @@ import type {
   ReleaseOverview,
   ReleaseRecord,
 } from '@qv/schema';
-import { releasesStrings } from '../releases.strings';
-
-const s = releasesStrings;
+import { releasesStrings } from './strings/releases.strings';
 
 type Summary = ReleaseOverview['summary'];
 
@@ -24,12 +22,12 @@ export const santiagoToday = (now = new Date()) =>
 
 export const reviewStatus = (r: ReviewList) =>
   r.pending
-    ? s.review.pending
+    ? releasesStrings.review.pending
     : r.blocking
-      ? s.review.blocking(r.blocking)
+      ? releasesStrings.review.blocking(r.blocking)
       : r.manual.every((m) => m.checked)
-        ? s.review.nothing
-        : s.review.marksMissing;
+        ? releasesStrings.review.nothing
+        : releasesStrings.review.marksMissing;
 
 export const classTone = (c: ReleaseClass | null) =>
   c === 'answer' || c === 'content' ? 'warn' : 'muted';
@@ -39,13 +37,13 @@ export const shownAssessments = (summary: Summary) =>
   summary.assessments.filter((a) => !onlyInCatalog(summary, a));
 
 function deckLine(d: Summary['decks'][number]): string {
-  if (d.op === 'added') return s.site.deckNew(lastName(d.name));
-  if (d.op === 'removed') return s.site.deckGone(lastName(d.name));
+  if (d.op === 'added') return releasesStrings.site.deckNew(lastName(d.name));
+  if (d.op === 'removed') return releasesStrings.site.deckGone(lastName(d.name));
   if (d.nameBefore && d.nameBefore !== d.name)
-    return s.site.deckRenamed(lastName(d.nameBefore), lastName(d.name));
+    return releasesStrings.site.deckRenamed(lastName(d.nameBefore), lastName(d.name));
   if (d.presetBefore !== d.presetAfter)
-    return s.site.deckPreset(lastName(d.name), d.presetBefore, d.presetAfter);
-  return s.site.deckMoved(lastName(d.name));
+    return releasesStrings.site.deckPreset(lastName(d.name), d.presetBefore, d.presetAfter);
+  return releasesStrings.site.deckMoved(lastName(d.name));
 }
 
 /** What changes above the assessments; an assessment goes with its course (many «Certamen 1» come at once). */
@@ -55,11 +53,16 @@ export function siteLines(summary: Summary): string[] {
     ...summary.catalog.map((c) => {
       const own = String((c.after ?? c.before)?.name ?? c.id);
       const course = c.kind === 'assessment' ? courseOf.get(c.id) : null;
-      const name = course ? s.site.inCourse(course, own) : own;
-      return s.site.catalog(s.site.kinds[c.kind], name, c.op, c.kind === 'assessment');
+      const name = course ? releasesStrings.site.inCourse(course, own) : own;
+      return releasesStrings.site.catalog(
+        releasesStrings.site.kinds[c.kind],
+        name,
+        c.op,
+        c.kind === 'assessment',
+      );
     }),
-    ...summary.noteTypes.map((t) => s.site.noteType(t.name, t.op)),
-    ...summary.presets.map((p) => s.site.preset(p.name, p.op)),
+    ...summary.noteTypes.map((t) => releasesStrings.site.noteType(t.name, t.op)),
+    ...summary.presets.map((p) => releasesStrings.site.preset(p.name, p.op)),
     ...summary.decks.map(deckLine),
   ];
 }
@@ -69,7 +72,8 @@ export function assessmentNames(catalog: Catalog | undefined): Map<string, strin
   const names = new Map<string, string>();
   for (const sem of catalog?.semesters ?? []) {
     for (const course of sem.courses) {
-      for (const a of course.assessments) names.set(a.id, s.assessment.name(course.name, a.name));
+      for (const a of course.assessments)
+        names.set(a.id, releasesStrings.assessment.name(course.name, a.name));
     }
   }
   return names;
@@ -79,38 +83,37 @@ export function indexLines(overview: ReleaseOverview, names: Map<string, string>
   return overview.browseIndexes.map((x) => {
     const name = names.get(x.assessmentId) ?? x.assessmentId;
     return x.op === 'added'
-      ? s.site.indexAdded(name)
+      ? releasesStrings.site.indexAdded(name)
       : x.op === 'removed'
-        ? s.site.indexRemoved(name)
-        : s.site.indexChanged(name);
+        ? releasesStrings.site.indexRemoved(name)
+        : releasesStrings.site.indexChanged(name);
   });
 }
 
 export const assessmentTitle = (a: ReleaseAssessment) =>
-  s.assessment.name(a.courseName ?? a.courseId ?? '', a.name ?? a.id);
+  releasesStrings.assessment.name(a.courseName ?? a.courseId ?? '', a.name ?? a.id);
 
 const words = (list: CountLine[]) =>
-  list.filter(([n]) => n > 0).map(([n, one, many]) => s.plural(n, one, many));
+  list.filter(([n]) => n > 0).map(([n, one, many]) => releasesStrings.plural(n, one, many));
 
 function assessmentLine(a: ReleaseAssessment): string {
   // A course without a name or an id reads «null» here, as a template has always written it.
-  const title = s.assessment.name(String(a.courseName ?? a.courseId), a.name ?? a.id);
-  const p = s.publish.parts;
-  return s.publish.line(
+  const title = releasesStrings.assessment.name(String(a.courseName ?? a.courseId), a.name ?? a.id);
+  return releasesStrings.publish.line(
     title,
     words([
-      [a.articles.added, ...p.articleAdded],
-      [a.articles.content + a.articles.format, ...p.articleChanged],
-      [a.articles.removed, ...p.articleRemoved],
-      [a.cards.added, ...p.cardAdded],
-      [a.cards.answer, ...p.cardAnswer],
-      [a.cards.noAnswer + a.cards.format, ...p.cardFixed],
-      [a.cards.moved, ...p.cardMoved],
-      [a.cards.removed, ...p.cardRemoved],
-      [a.questions.added, ...p.questionAdded],
-      [a.questions.answer, ...p.questionAnswer],
-      [a.questions.noAnswer + a.questions.format, ...p.questionFixed],
-      [a.questions.removed, ...p.questionRemoved],
+      [a.articles.added, ...releasesStrings.publish.parts.articleAdded],
+      [a.articles.content + a.articles.format, ...releasesStrings.publish.parts.articleChanged],
+      [a.articles.removed, ...releasesStrings.publish.parts.articleRemoved],
+      [a.cards.added, ...releasesStrings.publish.parts.cardAdded],
+      [a.cards.answer, ...releasesStrings.publish.parts.cardAnswer],
+      [a.cards.noAnswer + a.cards.format, ...releasesStrings.publish.parts.cardFixed],
+      [a.cards.moved, ...releasesStrings.publish.parts.cardMoved],
+      [a.cards.removed, ...releasesStrings.publish.parts.cardRemoved],
+      [a.questions.added, ...releasesStrings.publish.parts.questionAdded],
+      [a.questions.answer, ...releasesStrings.publish.parts.questionAnswer],
+      [a.questions.noAnswer + a.questions.format, ...releasesStrings.publish.parts.questionFixed],
+      [a.questions.removed, ...releasesStrings.publish.parts.questionRemoved],
     ]),
   );
 }
@@ -123,7 +126,7 @@ export function releaseLines(summary: Summary, indexes: string[]): string[] {
     summary.noteTypes.length +
     summary.presets.length +
     summary.decks.length;
-  if (site) lines.push(s.publish.site(site));
+  if (site) lines.push(releasesStrings.publish.site(site));
   return [...lines, ...indexes];
 }
 
@@ -136,13 +139,13 @@ const when = (iso: string) =>
 
 export const releaseLine = (r: ReleaseRecord) =>
   r.status === 'reverted' && r.revertedAt
-    ? s.last.reverted(when(r.revertedAt), r.revertedBy)
-    : s.last.published(when(r.publishedAt), r.publishedBy);
+    ? releasesStrings.last.reverted(when(r.revertedAt), r.revertedBy)
+    : releasesStrings.last.published(when(r.publishedAt), r.publishedBy);
 
 export const failure = (e: unknown, fallback: string) =>
   e instanceof Error && e.message ? e.message : fallback;
 
 export const letter = (i: unknown) =>
-  typeof i === 'number' ? `${String.fromCharCode(97 + i)})` : s.items.noLetter;
+  typeof i === 'number' ? `${String.fromCharCode(97 + i)})` : releasesStrings.items.noLetter;
 
 export const textOf = (v: unknown) => (typeof v === 'string' ? v : null);

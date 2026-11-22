@@ -6,12 +6,12 @@ import { Loading } from '../../../shared/ui/Loading';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { StudyFallback } from './StudyFallback';
-import { studyStrings } from '../strings';
+import { studyLoadingStrings } from './strings/StudyLoading.strings';
 
 export function StudyLoading({ node }: { node: CourseDeckNode }) {
   return (
     <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
-      <Loading text={studyStrings.preparingDeck} />
+      <Loading text={studyLoadingStrings.preparingDeck} />
     </StudyFallback>
   );
 }

@@ -4,7 +4,7 @@ import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
 import type { NoteLocation } from '../../catalog/model/catalog';
 import { noteCrumbs } from '../model/noteCrumbs';
-import { noteStrings } from '../strings';
+import { noteSkeletonStrings } from './strings/NoteSkeleton.strings';
 
 /** Real breadcrumbs once the catalog is in: on a phone they wrap, and a one-line stand-in would move the title. */
 export function NoteSkeleton({ location }: { location: NoteLocation | null }) {
@@ -17,7 +17,7 @@ export function NoteSkeleton({ location }: { location: NoteLocation | null }) {
           <Skeleton className="h-3.5 w-80 max-w-full" />
         </div>
       )}
-      <div role="status" aria-label={noteStrings.loading}>
+      <div role="status" aria-label={noteSkeletonStrings.loading}>
         <div className="mb-10 border-b border-border pb-8">
           <div className="flex h-[2.625rem] items-center sm:h-[3.25rem]">
             <Skeleton className="h-9 w-3/4 sm:h-11" />

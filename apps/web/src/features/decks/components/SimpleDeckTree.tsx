@@ -8,7 +8,7 @@ import { useCollapsed } from '../hooks/useCollapsed';
 import { allNodes, treeRows } from '../model/deckTree';
 import { DeckTreeRow } from './DeckTreeRow';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { decksStrings as s } from '../strings';
+import { simpleDeckTreeStrings as s } from './strings/SimpleDeckTree.strings';
 
 export function SimpleDeckTree({
   root,

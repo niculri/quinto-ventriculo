@@ -8,9 +8,8 @@ import { Html } from '../../quiz/components/Html';
 import { useQuizDetail } from '../../quiz/hooks/useQuizData';
 import { usePractice } from '../hooks/usePractice';
 import { PRACTICE_ANCHOR, practiceLink, topicsSection } from '../model/practice';
-import { noteStrings } from '../strings';
-
-const s = noteStrings.practice;
+import { useNoteViewStrings } from '../hooks/strings/useNoteView.strings';
+import { practiceStrings as s } from './strings/Practice.strings';
 
 const card =
   'group flex flex-col rounded-xl border border-border bg-surface p-5 shadow-xs transition hover:border-brand hover:shadow-soft';
@@ -34,45 +33,45 @@ export function Practice({ note, location }: { note: Note; location: NoteLocatio
         id={PRACTICE_ANCHOR}
         className="scroll-mt-14 font-serif lg:scroll-mt-3 text-[1.6rem] leading-tight font-semibold tracking-tight"
       >
-        {noteStrings.practiceTitle}
+        {useNoteViewStrings.practiceTitle}
       </h2>
-      <p className="mt-2 text-muted">{s.text}</p>
+      <p className="mt-2 text-muted">{s.practice.text}</p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         {quiz && quizLink ? (
           <Link to={quizLink} className={card}>
             <span className="flex items-center gap-2 text-xs font-semibold tracking-wide text-brand uppercase">
               <ListChecks className="size-4" aria-hidden="true" />
-              {s.test}
+              {s.practice.test}
             </span>
             <span className="mt-2 font-semibold text-ink">{quiz.title}</span>
             <span className="mt-1 text-sm text-muted">
               {topics.length ? (
                 <>
-                  {s.topics(topics.length)}
+                  {s.practice.topics(topics.length)}
                   {topics.map((t, i) => (
                     <span key={t.id}>
                       {i ? ' · ' : ''}
                       <Html html={t.name} />
                     </span>
                   ))}
-                  {` (${s.questions(questions)})`}
+                  {` (${s.practice.questions(questions)})`}
                 </>
               ) : (
-                s.questions(quiz.questionCount)
+                s.practice.questions(quiz.questionCount)
               )}
             </span>
-            <OpenLine text={s.openTest} />
+            <OpenLine text={s.practice.openTest} />
           </Link>
         ) : null}
         {deck ? (
           <Link to={paths.deck(deck.ref)} className={card}>
             <span className="flex items-center gap-2 text-xs font-semibold tracking-wide text-brand uppercase">
               <Layers className="size-4" aria-hidden="true" />
-              {s.deck}
+              {s.practice.deck}
             </span>
             <span className="mt-2 font-semibold text-ink">{deck.label}</span>
-            <span className="mt-1 text-sm text-muted">{s.cards(deck.cardCount)}</span>
-            <OpenLine text={s.seeDeck} />
+            <span className="mt-1 text-sm text-muted">{s.practice.cards(deck.cardCount)}</span>
+            <OpenLine text={s.practice.seeDeck} />
           </Link>
         ) : null}
       </div>

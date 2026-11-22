@@ -4,7 +4,7 @@ import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { button, card } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useTodayCounts } from '../hooks/useTodayCounts';
-import { homeStrings as s } from '../strings';
+import { todayStrings as s } from './strings/Today.strings';
 import { DeckTodayRow } from './DeckTodayRow';
 import { HashOrLink } from './HashOrLink';
 import { TodayRow } from './TodayRow';

@@ -8,7 +8,7 @@ import { ancestry, descendants, hasPage } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { catchUpText } from '@qv/study';
 import type { CongratsInfo } from '@qv/study';
-import { studyStrings } from '../strings';
+import { doneTodayStrings } from './strings/DoneToday.strings';
 
 export function DoneToday({
   info,
@@ -30,16 +30,18 @@ export function DoneToday({
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
         <BookOpen className="size-10 text-brand" aria-hidden="true" />
-        <h1 className="mt-4 font-serif text-2xl font-semibold">{studyStrings.done.extrasTitle}</h1>
+        <h1 className="mt-4 font-serif text-2xl font-semibold">
+          {doneTodayStrings.done.extrasTitle}
+        </h1>
         <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
-          <p>{studyStrings.done.extrasText(assessment ? assessment.label : null)}</p>
+          <p>{doneTodayStrings.done.extrasText(assessment ? assessment.label : null)}</p>
           {tomorrow}
         </div>
         <Link
           to={assessment ? paths.deck(assessment.ref) : deckPath}
           className={`${button.base} ${button.primary} mt-8`}
         >
-          {assessment ? studyStrings.done.goTo(assessment.label) : studyStrings.backToDeck}
+          {assessment ? doneTodayStrings.done.goTo(assessment.label) : doneTodayStrings.backToDeck}
         </Link>
       </div>
     );
@@ -49,15 +51,15 @@ export function DoneToday({
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
         <BookOpen className="size-10 text-brand" aria-hidden="true" />
         <h1 className="mt-4 font-serif text-2xl font-semibold">
-          {studyStrings.done.inactiveTitle}
+          {doneTodayStrings.done.inactiveTitle}
         </h1>
         <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
-          <p>{studyStrings.done.inactiveText}</p>
+          <p>{doneTodayStrings.done.inactiveText}</p>
           {info.learnMessage ? <p>{info.learnMessage}</p> : null}
           {tomorrow}
         </div>
         <Link to={choosePath} className={`${button.base} ${button.primary} mt-8`}>
-          {studyStrings.done.choose}
+          {doneTodayStrings.done.choose}
         </Link>
       </div>
     );
@@ -66,7 +68,7 @@ export function DoneToday({
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 text-center">
       <PartyPopper className="size-10 text-brand" aria-hidden="true" />
-      <h1 className="mt-4 font-serif text-2xl font-semibold">{studyStrings.done.title}</h1>
+      <h1 className="mt-4 font-serif text-2xl font-semibold">{doneTodayStrings.done.title}</h1>
       {summary}
       <DayDoneNotes
         info={info}
@@ -76,7 +78,7 @@ export function DoneToday({
       />
       <div className="mt-8 flex flex-col items-center gap-3">
         <Link to={deckPath} className={`${button.base} ${button.primary}`}>
-          {studyStrings.backToDeck}
+          {doneTodayStrings.backToDeck}
         </Link>
         {reviews.map((a) => (
           <Link
@@ -84,7 +86,7 @@ export function DoneToday({
             to={paths.deckReview(a.ref)}
             className={`${button.base} ${button.secondary}`}
           >
-            {studyStrings.done.review(reviews.length > 1 ? a.label : null)}
+            {doneTodayStrings.done.review(reviews.length > 1 ? a.label : null)}
           </Link>
         ))}
       </div>
@@ -121,16 +123,16 @@ function DayDoneNotes({
   return (
     <div className="mt-4 max-w-xl space-y-3 text-sm text-muted">
       {info.learnMessage ? <p>{info.learnMessage}</p> : null}
-      {info.exam?.roseTo ? <p>{studyStrings.done.roseTo(info.exam.roseTo)}</p> : null}
+      {info.exam?.roseTo ? <p>{doneTodayStrings.done.roseTo(info.exam.roseTo)}</p> : null}
       {info.exam?.catchUp ? <p>{catchUpText(info.exam.catchUp)}</p> : null}
       <NewCardsNote info={info} assessment={assessment} />
-      {info.buried && !info.exam?.lastNewDay ? <p>{studyStrings.done.buried}</p> : null}
+      {info.buried && !info.exam?.lastNewDay ? <p>{doneTodayStrings.done.buried}</p> : null}
       {tomorrow}
       {info.inactiveNew > 0 ? (
         <p>
-          {studyStrings.done.inactiveNew}{' '}
+          {doneTodayStrings.done.inactiveNew}{' '}
           <Link to={choosePath} className="text-brand hover:underline">
-            {studyStrings.done.choose}
+            {doneTodayStrings.done.choose}
           </Link>
         </p>
       ) : null}
@@ -147,14 +149,14 @@ function NewCardsNote({
   assessment: CourseDeckNode | undefined;
 }) {
   return info.newLimitReached && info.exam?.finalReview ? (
-    <p>{studyStrings.done.finalReviewDays}</p>
+    <p>{doneTodayStrings.done.finalReviewDays}</p>
   ) : (info.newLimitReached || info.buried) && info.exam?.lastNewDay ? (
-    <p>{studyStrings.done.lastNewDay}</p>
+    <p>{doneTodayStrings.done.lastNewDay}</p>
   ) : info.newLimitReached && info.exam?.computed ? (
-    <p>{studyStrings.done.moreTomorrow}</p>
+    <p>{doneTodayStrings.done.moreTomorrow}</p>
   ) : info.newLimitReached ? (
     <p>
-      {studyStrings.done.moreTomorrowOr}
+      {doneTodayStrings.done.moreTomorrowOr}
       <RaiseNumberLink assessment={assessment} />.
     </p>
   ) : null;
@@ -164,7 +166,7 @@ function NewCardsNote({
 function RaiseNumberLink({ assessment }: { assessment: CourseDeckNode | undefined }) {
   return assessment ? (
     <>
-      {studyStrings.done.raiseIn}{' '}
+      {doneTodayStrings.done.raiseIn}{' '}
       <Link to={paths.deck(assessment.ref)} className="text-brand hover:underline">
         {assessment.label}
       </Link>
@@ -173,5 +175,5 @@ function RaiseNumberLink({ assessment }: { assessment: CourseDeckNode | undefine
 }
 
 function TomorrowLine({ count }: { count: number }) {
-  return count ? <p>{studyStrings.done.tomorrow(count)}</p> : null;
+  return count ? <p>{doneTodayStrings.done.tomorrow(count)}</p> : null;
 }

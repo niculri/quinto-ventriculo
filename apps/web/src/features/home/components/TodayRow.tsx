@@ -14,7 +14,8 @@ import type { CourseDeckNode } from '../../catalog/model/tree';
 import { DayLoad } from '../../progress/components/DeckCounts';
 import { MasteryMeter } from '../../progress/components/MasteryMeter';
 import { useExamLine } from '../hooks/useExamLine';
-import { homeStrings as s } from '../strings';
+import { todayRowStrings as s } from './strings/TodayRow.strings';
+import { todayStrings } from './strings/Today.strings';
 
 interface RowState {
   node: CourseDeckNode;
@@ -43,7 +44,7 @@ function Action({ node, base, counts, failed, left }: RowState) {
         to={paths.course(node.ref.course)}
         className={`${button.base} ${button.secondary} max-sm:ml-auto`}
       >
-        {s.today.choose}
+        {todayStrings.today.choose}
       </Link>
     ) : (
       <span className="text-sm text-muted max-sm:ml-auto">{s.today.done}</span>

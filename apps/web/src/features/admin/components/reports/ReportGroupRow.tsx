@@ -21,13 +21,12 @@ import { ReportError } from '../../../reports/api/repository';
 import { splitCardId } from '../../../reports/model/targets';
 import type { ReportGroup } from '../../../reports/api/repository';
 import { categoryCounts, changedSince } from '../../model/reports';
-import { reportsStrings } from '../../reports.strings';
+import { reportGroupRowStrings as s } from './strings/ReportGroupRow.strings';
+import { reportDialogsStrings } from './strings/ReportDialogs.strings';
 import { CopyButton } from './CopyButton';
 import { PlaceAnchor } from './PlaceAnchor';
 import { ReportItem } from './ReportItem';
 import { ResolveDialog } from './ReportDialogs';
-
-const s = reportsStrings;
 
 /** The version of the content today: a card's from the API, an article's from the catalog; a test's has none. */
 function useNoteVersion(group: ReportGroup): number | null {
@@ -87,7 +86,7 @@ export function ReportGroupRow({ group: g, names }: { group: ReportGroup; names:
               onClick={() => setResolving(true)}
               className={`${button.base} ${button.primary} px-3 py-1.5`}
             >
-              <Check className="size-4" aria-hidden="true" /> {s.resolve}
+              <Check className="size-4" aria-hidden="true" /> {reportDialogsStrings.resolve}
             </button>
           </>
         )}

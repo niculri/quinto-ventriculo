@@ -9,7 +9,8 @@ import { answerBar, studyScreen } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { queryOf } from '../model/urlState';
 import { useTitle } from '../../../shared/hooks/useTitle';
-import { cardsStrings } from '../strings';
+import { practiceRoundStrings } from '../components/strings/PracticeRound.strings';
+import { practicePageStrings } from './strings/PracticePage.strings';
 import { usePracticeCards } from '../hooks/usePracticeCards';
 import { PracticeEmpty } from '../components/PracticeEmpty';
 import { PracticeRound } from '../components/PracticeRound';
@@ -18,13 +19,13 @@ import { PracticeRound } from '../components/PracticeRound';
 export function PracticePage({ node }: { node: CourseDeckNode }) {
   const { params, cards, first } = usePracticeCards(node);
   const back = paths.cards(node.ref, queryOf(params));
-  useTitle(cardsStrings.practice.title);
+  useTitle(practiceRoundStrings.practice.title);
 
   let body;
   if (cards.error && !cards.data)
     body = <ErrorWithRetry error={cards.error} onRetry={cards.retry} />;
   else if (cards.missing || cards.changed) body = <PracticeEmpty back={back} />;
-  else if (!first) body = <Loading text={cardsStrings.practice.preparing} />;
+  else if (!first) body = <Loading text={practicePageStrings.practice.preparing} />;
   else if (!first.length) body = <PracticeEmpty back={back} />;
   else body = <PracticeRound cards={first} back={back} />;
   return (
@@ -36,11 +37,11 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
           <div className={`${answerBar} min-h-11 pb-2`}>
             <BackButton
               to={back}
-              label={cardsStrings.practice.back}
+              label={practiceRoundStrings.practice.back}
               className="justify-self-start"
             />
             <p className="text-center text-sm font-medium sm:text-base">
-              {cardsStrings.practice.title}
+              {practiceRoundStrings.practice.title}
             </p>
             <span />
           </div>

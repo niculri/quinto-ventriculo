@@ -4,7 +4,7 @@ import { Notice } from '../../../shared/ui/Notice';
 import { button } from '../../../shared/ui/styles';
 import { withContactLink } from '../../../shared/ui/ContactLink';
 import { GoogleLogo, Illustration } from './Art';
-import { landingStrings as s } from '../strings';
+import { heroStrings as s } from './strings/Hero.strings';
 
 export function Hero({
   signingIn,

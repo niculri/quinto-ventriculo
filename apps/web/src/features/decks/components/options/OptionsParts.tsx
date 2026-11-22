@@ -1,7 +1,7 @@
 // The pieces of the Anki options pages: a section, a warning and why a save failed.
 import type { ReactNode } from 'react';
 import { card } from '../../../../shared/ui/styles';
-import { optionsStrings as o } from '../../options.strings';
+import { optionsPartsStrings as o } from './strings/OptionsParts.strings';
 
 export function SaveFailure({ error }: { error: string | null }) {
   return error ? (

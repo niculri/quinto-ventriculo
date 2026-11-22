@@ -1,6 +1,7 @@
 // The site's logo: a sagittal section of the brain with the «fifth ventricle» (cavum septi pellucidi) in the accent
 // color, the same drawing as public/icon.svg, and the site's name.
-import { sharedStrings } from '../strings';
+import { sharedStrings } from '../strings/shared.strings';
+import { logoStrings } from './strings/Logo.strings';
 export function LogoMark({ className = 'size-8' }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
@@ -93,14 +94,14 @@ export function Logo({
           // Drawn by CSS: the link already says where it goes, and the motto is not read on every page.
           <span className="mt-1 hidden lg:grid" aria-hidden="true">
             <span
-              data-text={sharedStrings.logo.motto}
+              data-text={logoStrings.logo.motto}
               className={`col-start-1 row-start-1 font-serif text-[0.78rem] leading-none text-muted italic before:content-[attr(data-text)] ${
                 adminMode ? 'invisible' : ''
               }`}
             />
             {adminMode ? (
               <span
-                data-text={sharedStrings.logo.adminMode}
+                data-text={logoStrings.logo.adminMode}
                 className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-[#9a4a12] before:content-[attr(data-text)] dark:text-accent"
               />
             ) : null}

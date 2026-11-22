@@ -6,7 +6,7 @@
 // The FSRS parameters of a preset, read-only: its own, or FSRS-6's defaults in grey.
 import { useId } from 'react';
 import { DEFAULT_PARAMETERS } from '@qv/srs';
-import { optionsStrings as o } from '../../options.strings';
+import { paramsRowStrings as o } from './strings/ParamsRow.strings';
 
 export function ParamsRow({ value }: { value: readonly number[] }) {
   const id = useId();

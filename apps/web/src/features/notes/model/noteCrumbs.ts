@@ -3,11 +3,11 @@
 import { paths } from '../../../shared/lib/paths';
 import type { Crumb } from '../../../shared/ui/Breadcrumbs';
 import type { NoteLocation } from '../../catalog/model/catalog';
-import { noteStrings } from '../strings';
+import { noteCrumbsStrings } from './strings/noteCrumbs.strings';
 
 export function noteCrumbs(location: NoteLocation | null, title: string): Crumb[] {
   return [
-    { label: noteStrings.crumbs.home, to: paths.home },
+    { label: noteCrumbsStrings.crumbs.home, to: paths.home },
     ...(location
       ? [
           { label: location.semester.name, to: paths.semester(location.semester.number) },
@@ -17,7 +17,7 @@ export function noteCrumbs(location: NoteLocation | null, title: string): Crumb[
             to: paths.assessment(location.course, location.assessment.id),
           },
           {
-            label: noteStrings.crumbs.notes,
+            label: noteCrumbsStrings.crumbs.notes,
             to: paths.assessmentNotes(location.course, location.assessment.id),
           },
         ]

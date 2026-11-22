@@ -4,12 +4,12 @@ import * as Menu from '@radix-ui/react-dropdown-menu';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { applyTheme, readTheme } from '../lib/theme';
 import type { Theme } from '../lib/theme';
-import { sharedStrings } from '../strings';
+import { themePickerStrings } from './strings/ThemePicker.strings';
 
 const OPTIONS: { theme: Theme; label: string; Icon: typeof Sun }[] = [
-  { theme: 'light', label: sharedStrings.theme.light, Icon: Sun },
-  { theme: 'dark', label: sharedStrings.theme.dark, Icon: Moon },
-  { theme: 'system', label: sharedStrings.theme.system, Icon: Monitor },
+  { theme: 'light', label: themePickerStrings.theme.light, Icon: Sun },
+  { theme: 'dark', label: themePickerStrings.theme.dark, Icon: Moon },
+  { theme: 'system', label: themePickerStrings.theme.system, Icon: Monitor },
 ];
 
 /** The buttons are items of the menu, so the arrows reach them too; choosing one keeps the menu open, to see it. */
@@ -17,7 +17,7 @@ export function ThemePicker() {
   const [theme, setTheme] = useState<Theme>(readTheme);
   return (
     <Menu.RadioGroup
-      aria-label={sharedStrings.theme.label}
+      aria-label={themePickerStrings.theme.label}
       value={theme}
       onValueChange={(t) => {
         setTheme(t as Theme);

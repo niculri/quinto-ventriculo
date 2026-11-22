@@ -2,20 +2,18 @@
 
 import type { Note, NoteHeader, NoteKind } from '@qv/schema';
 import { formatDate, formatDay } from '../../../shared/lib/dates';
-import { kindStrings } from '../kinds.strings';
-import { noteStrings } from '../strings';
-
-const s = noteStrings.header;
+import { kindStrings } from '../../../shared/strings/noteKinds.strings';
+import { headerStrings as s } from './strings/header.strings';
 
 function noteLabel(kind: NoteKind, header: NoteHeader): string | null {
-  if (header.baseFor) return s.baseFor(header.baseFor);
+  if (header.baseFor) return s.header.baseFor(header.baseFor);
   if (header.number) return `${kindStrings[kind]} ${header.number}`;
   return null;
 }
 
 /** «otoño» is the first semester of the year and «primavera» the second (Chile). */
 function termLabel(header: NoteHeader): string {
-  return s.term(s.terms[header.term], header.year);
+  return s.header.term(s.header.terms[header.term], header.year);
 }
 
 export function headerParts(kind: NoteKind, header: NoteHeader): string[] {
@@ -36,12 +34,13 @@ export function noteDates(
   note: Pick<Note, 'version' | 'publishedAt' | 'versionAt' | 'createdOn' | 'updatedAt'>,
 ): string[] {
   if (note.version && note.publishedAt) {
-    const dates = [s.created(formatDate(note.publishedAt))];
-    if (note.version > 1 && note.versionAt) dates.push(s.updated(formatDate(note.versionAt)));
+    const dates = [s.header.created(formatDate(note.publishedAt))];
+    if (note.version > 1 && note.versionAt)
+      dates.push(s.header.updated(formatDate(note.versionAt)));
     return dates;
   }
   return [
-    ...(note.createdOn ? [s.created(formatDay(note.createdOn))] : []),
-    s.updated(formatDate(note.updatedAt)),
+    ...(note.createdOn ? [s.header.created(formatDay(note.createdOn))] : []),
+    s.header.updated(formatDate(note.updatedAt)),
   ];
 }

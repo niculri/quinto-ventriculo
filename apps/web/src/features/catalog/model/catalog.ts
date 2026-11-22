@@ -7,7 +7,7 @@ import type {
   NoteSummary,
   SemesterWithCourses,
 } from '@qv/schema';
-import { catalogStrings as s } from '../strings';
+import { catalogStrings as s } from './strings/catalog.strings';
 
 export interface NoteLocation {
   semester: SemesterWithCourses;

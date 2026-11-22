@@ -3,7 +3,7 @@ import { FileText } from 'lucide-react';
 import type { SearchResult } from '@qv/schema';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import { Snippet } from './Snippet';
-import { paletteStrings as s } from '../palette.strings';
+import { paletteResultsStrings as s } from './strings/PaletteResults.strings';
 
 export function PaletteResults({
   results,

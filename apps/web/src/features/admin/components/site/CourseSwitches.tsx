@@ -4,26 +4,24 @@ import { Switch } from '../../../../shared/ui/Switch';
 import { SaveControls } from '../../../../shared/ui/SaveControls';
 import { card } from '../../../../shared/ui/styles';
 import { useCourseSwitches } from '../../hooks/useCourseSwitches';
-import { siteStrings } from '../../site.strings';
-
-const s = siteStrings.courses;
+import { courseSwitchesStrings as s } from './strings/CourseSwitches.strings';
 
 export function CourseSwitches({ settings }: { settings: SiteSettingsView }) {
   const f = useCourseSwitches(settings);
   return (
-    <section aria-label={s.title} className="mt-6">
+    <section aria-label={s.courses.title} className="mt-6">
       <div className="sticky top-16 z-10 -mx-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-bg px-1 py-2">
-        <h3 className="font-serif text-xl font-semibold tracking-tight">{s.title}</h3>
+        <h3 className="font-serif text-xl font-semibold tracking-tight">{s.courses.title}</h3>
         <SaveControls dirty={f.dirty} saved={f.saved} saving={f.saving} onSave={f.save} />
       </div>
-      <p className="text-sm text-muted">{s.help}</p>
+      <p className="text-sm text-muted">{s.courses.help}</p>
       {f.failed ? (
         <p role="alert" className="mt-3 text-sm text-state-learn">
-          {s.notSaved}
+          {s.courses.notSaved}
         </p>
       ) : null}
       {settings.semesters.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">{s.empty}</p>
+        <p className="mt-4 text-sm text-muted">{s.courses.empty}</p>
       ) : null}
       {settings.semesters.map((semester) => (
         <Semester key={semester.number} semester={semester} hidden={f.hidden} onChange={f.set} />
@@ -55,7 +53,8 @@ function Semester({
                   {course.emoji} {course.name}
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
-                  {s.material(course.notes, course.quizzes, course.cards) || s.noMaterial}
+                  {s.courses.material(course.notes, course.quizzes, course.cards) ||
+                    s.courses.noMaterial}
                 </span>
               </span>
               <Switch

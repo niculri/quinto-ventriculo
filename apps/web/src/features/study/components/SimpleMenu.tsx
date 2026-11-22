@@ -4,7 +4,9 @@ import { Flag, MessageSquareWarning, EyeOff, SkipForward } from 'lucide-react';
 import type { HideAction } from '@qv/study';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { MENU_ITEM, MoreContent, MoreTrigger, shortcut } from './MoreMenuParts';
-import { studyStrings } from '../strings';
+import { simpleMenuStrings } from './strings/SimpleMenu.strings';
+import { reviewMenuStrings } from './strings/ReviewMenu.strings';
+import { moreMenuStrings } from './strings/MoreMenu.strings';
 
 export function SimpleMenu({
   disabled,
@@ -24,25 +26,25 @@ export function SimpleMenu({
       <MoreTrigger />
       <MoreContent>
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={() => onHide('bury_note')}>
-          <SkipForward className="size-4 text-muted" aria-hidden="true" /> {studyStrings.menu.skip}{' '}
-          {shortcut('-')}
+          <SkipForward className="size-4 text-muted" aria-hidden="true" />{' '}
+          {simpleMenuStrings.menu.skip} {shortcut('-')}
         </Menu.Item>
         <Menu.Item
           className={MENU_ITEM}
           disabled={disabled}
           onSelect={() => onHide('suspend_card')}
         >
-          <EyeOff className="size-4 text-muted" aria-hidden="true" /> {studyStrings.menu.never}{' '}
+          <EyeOff className="size-4 text-muted" aria-hidden="true" /> {simpleMenuStrings.menu.never}{' '}
           {shortcut('@')}
         </Menu.Item>
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={onMark}>
           <Flag className="size-4 text-muted" aria-hidden="true" />
-          {marked ? studyStrings.menu.unmark : studyStrings.menu.mark}
+          {marked ? reviewMenuStrings.menu.unmark : reviewMenuStrings.menu.mark}
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-border" />
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={onReport}>
           <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" />{' '}
-          {studyStrings.menu.report}
+          {moreMenuStrings.menu.report}
         </Menu.Item>
       </MoreContent>
     </MenuRoot>

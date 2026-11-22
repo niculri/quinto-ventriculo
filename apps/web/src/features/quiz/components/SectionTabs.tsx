@@ -1,7 +1,8 @@
 // The tabs of a test with several sections: each with its questions; the arrows move between them, around the ends.
 import type { RefObject } from 'react';
 import type { QuizSectionSummary } from '@qv/schema';
-import { quizStrings as s } from '../strings';
+import { sectionTabsStrings as s } from './strings/SectionTabs.strings';
+import { startFormStrings } from './strings/StartForm.strings';
 import { Html } from './Html';
 
 export function SectionTabs({
@@ -38,7 +39,7 @@ export function SectionTabs({
           }}
         >
           <Html className="tn" html={section.name} />{' '}
-          <span className="tc">{s.questions(section.questionCount)}</span>
+          <span className="tc">{startFormStrings.questions(section.questionCount)}</span>
         </button>
       ))}
     </div>

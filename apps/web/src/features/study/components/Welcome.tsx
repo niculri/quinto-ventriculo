@@ -5,7 +5,7 @@ import { button } from '../../../shared/ui/styles';
 import type { StudyPreferences } from '../../progress/api/repository';
 import { useSavePreferences } from '../../progress/queries';
 import { BlurredBackdrop } from '../../../shared/ui/Dialog';
-import { studyStrings } from '../strings';
+import { welcomeStrings } from './strings/Welcome.strings';
 
 export function Welcome({ prefs }: { prefs: StudyPreferences }) {
   const [open, setOpen] = useState(true);
@@ -24,14 +24,14 @@ export function Welcome({ prefs }: { prefs: StudyPreferences }) {
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <Dialog.Title className="font-serif text-xl font-semibold">
-            {studyStrings.welcome.title}
+            {welcomeStrings.welcome.title}
           </Dialog.Title>
           <Dialog.Description className="mt-3 text-sm text-muted">
-            {studyStrings.welcome.text}
+            {welcomeStrings.welcome.text}
           </Dialog.Description>
           <div className="mt-5 flex justify-end">
             <button type="button" onClick={close} className={`${button.base} ${button.primary}`}>
-              {studyStrings.welcome.ok}
+              {welcomeStrings.welcome.ok}
             </button>
           </div>
         </Dialog.Content>

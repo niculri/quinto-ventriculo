@@ -4,7 +4,7 @@
 import type { Catalog } from '@qv/schema';
 import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode, DeckNode } from '../../catalog/model/tree';
-import { statsStrings as s } from '../strings';
+import { groupsStrings as s } from './strings/groups.strings';
 
 export type GroupBy = 'course' | 'assessment';
 

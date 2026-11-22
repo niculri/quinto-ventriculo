@@ -3,7 +3,7 @@ import { Fragment } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
 import type { AdminReason } from '@qv/schema/http';
-import { sharedStrings } from '../strings';
+import { breadcrumbsStrings } from './strings/Breadcrumbs.strings';
 import { AdminTag } from './AdminTag';
 
 export interface Crumb {
@@ -49,7 +49,7 @@ export function Breadcrumbs({
   const collapsed = tagged && items.length > 3;
   const route = (
     <nav
-      aria-label={sharedStrings.breadcrumbs}
+      aria-label={breadcrumbsStrings.breadcrumbs}
       className={tagged ? 'min-w-0 text-sm text-muted' : 'mb-4 text-sm text-muted'}
     >
       <ol className={`flex items-center gap-1 ${tagged ? '' : 'flex-wrap'}`}>

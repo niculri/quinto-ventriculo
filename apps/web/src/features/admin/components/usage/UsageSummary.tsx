@@ -5,17 +5,16 @@ import { Skeleton } from '../../../../shared/ui/Loading';
 import { Reserved } from '../../../../shared/ui/Reserved';
 import { card } from '../../../../shared/ui/styles';
 import { OPEN_ROWS, PERIODS, ROWS, figure } from '../../model/usage';
-import { usageStrings } from '../../usage.strings';
-
-const s = usageStrings.summary;
+import { usageSummaryStrings as s } from './strings/UsageSummary.strings';
+import { usageStrings } from '../../model/strings/usage.strings';
 
 const statusOf = (report: UsageReport | null) =>
   report
     ? report.opensStatus === 'not_configured'
-      ? s.notConfigured
+      ? s.summary.notConfigured
       : report.opensStatus === 'unavailable'
-        ? s.unavailable
-        : s.at(formatDateTime(report.generatedAt))
+        ? s.summary.unavailable
+        : s.summary.at(formatDateTime(report.generatedAt))
     : '';
 
 export function UsageSummary({ report }: { report: UsageReport | null }) {
@@ -23,14 +22,14 @@ export function UsageSummary({ report }: { report: UsageReport | null }) {
   return (
     <section aria-labelledby="usage-summary" className="mt-6">
       <h3 id="usage-summary" className="sr-only">
-        {s.title}
+        {s.summary.title}
       </h3>
       <div className={`${card} overflow-hidden`}>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-xs text-muted">
               <th scope="col" className="px-4 py-2.5 text-left font-medium sm:px-5">
-                <span className="sr-only">{s.figure}</span>
+                <span className="sr-only">{s.summary.figure}</span>
               </th>
               {PERIODS.map((p) => (
                 <th
@@ -66,7 +65,7 @@ export function UsageSummary({ report }: { report: UsageReport | null }) {
           </tbody>
         </table>
         <Reserved
-          longest={s.unavailable}
+          longest={s.summary.unavailable}
           className="border-t border-border px-4 py-2.5 text-xs sm:px-5"
         >
           <p role="status" className="text-muted">

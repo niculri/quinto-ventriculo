@@ -4,11 +4,12 @@ import type { ReactNode } from 'react';
 import { ApiRequestError } from '../lib/api';
 import { withContactLink } from './ContactLink';
 import { button } from './styles';
-import { sharedStrings } from '../strings';
+import { noticeStrings } from './strings/Notice.strings';
+import { sharedStrings } from '../strings/shared.strings';
 
 export function errorMessage(e: unknown): string {
   if (e instanceof ApiRequestError) return e.message;
-  return sharedStrings.errors.unexpected;
+  return noticeStrings.errors.unexpected;
 }
 
 export function Notice({
@@ -44,7 +45,7 @@ export function Notice({
 export function ErrorWithRetry({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   return (
     <div className="mx-auto max-w-lg py-16">
-      <Notice title={sharedStrings.loadError.title}>
+      <Notice title={noticeStrings.loadError.title}>
         <p>{withContactLink(errorMessage(error))}</p>
         <button
           type="button"

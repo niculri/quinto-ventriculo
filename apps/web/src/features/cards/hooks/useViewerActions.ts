@@ -8,7 +8,7 @@ import { studyKeys } from '../../progress/queries';
 import type { BrowseCard } from '../model/browseCards';
 import type { CardWrite } from '../api/cardWrites';
 import { useCardWrite } from './useCardWrites';
-import { cardsStrings } from '../strings';
+import { useViewerActionsStrings } from './strings/useViewerActions.strings';
 
 const REVIEW_FLAG = 1;
 
@@ -34,7 +34,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch {
       undo();
-      setMessage(cardsStrings.viewer.saveFailed);
+      setMessage(useViewerActionsStrings.viewer.saveFailed);
     }
     setBusy(false);
   };
@@ -45,7 +45,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     setFlag(next);
     void run(
       { kind: 'flag', card: ref, flag: next },
-      next ? cardsStrings.viewer.markedForReview : cardsStrings.viewer.noMark,
+      next ? useViewerActionsStrings.viewer.markedForReview : useViewerActionsStrings.viewer.noMark,
       () => setFlag(before),
     );
   };
@@ -55,7 +55,7 @@ export function useViewerActions(card: CardSummary, info: BrowseCard | undefined
     setHidden(!hidden);
     void run(
       { kind: before ? 'unsuspend' : 'suspend', cards: [ref] },
-      before ? cardsStrings.viewer.shownAgain : cardsStrings.viewer.hidden,
+      before ? useViewerActionsStrings.viewer.shownAgain : useViewerActionsStrings.viewer.hidden,
       () => setHidden(before),
     );
   };

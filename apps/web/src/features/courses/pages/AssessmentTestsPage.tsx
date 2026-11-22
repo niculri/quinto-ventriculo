@@ -9,7 +9,7 @@ import { button, card } from '../../../shared/ui/styles';
 import { useAssessmentSection } from '../hooks/useAssessmentSection';
 import { SectionFrame } from '../components/SectionFrame';
 import { QuizRow } from '../components/QuizRow';
-import { assessmentStrings as s } from '../assessment.strings';
+import { assessmentTestsPageStrings as s } from './strings/AssessmentTestsPage.strings';
 
 export function AssessmentTestsPage() {
   const { catalog, found, number, assessment } = useAssessmentSection();

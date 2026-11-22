@@ -20,7 +20,7 @@ import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { isOn, visibleChildren } from '../model/deckTree';
 import { DeckPresetButton } from './DeckPresetButton';
-import { decksStrings as s } from '../strings';
+import { deckTreeRowStrings as s } from './strings/DeckTreeRow.strings';
 
 export interface DeckTreeRowProps {
   deck: CourseDeckNode;

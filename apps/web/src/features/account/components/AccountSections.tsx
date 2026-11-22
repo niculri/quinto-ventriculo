@@ -7,7 +7,7 @@ import { paths } from '../../../shared/lib/paths';
 import { formatDateTime } from '../../../shared/lib/dates';
 import { button, card } from '../../../shared/ui/styles';
 import { acceptedNow } from '../model/accepted';
-import { accountStrings as s } from '../strings';
+import { accountSectionsStrings as s } from './strings/AccountSections.strings';
 
 export function TermsSection({ state }: { state: AccountState | undefined }) {
   return (

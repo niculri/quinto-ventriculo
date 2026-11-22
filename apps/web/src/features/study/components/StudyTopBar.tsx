@@ -14,7 +14,8 @@ import { CountNumbers, DayLoad } from '../../progress/components/DeckCounts';
 import type { StudyActions } from '../hooks/useStudySession';
 import { MoreMenu } from './MoreMenu';
 import { SimpleMenu } from './SimpleMenu';
-import { studyStrings } from '../strings';
+import { studyTopBarStrings } from './strings/StudyTopBar.strings';
+import { reviewMenuStrings } from './strings/ReviewMenu.strings';
 
 /** «Marcar para revisar» is one flag; a card flagged otherwise in the full mode also counts as marked. */
 const REVIEW_FLAG = 1;
@@ -47,7 +48,7 @@ export function StudyTopBar({
       <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
       <div
         className="flex min-w-0 justify-center"
-        aria-label={studyStrings.topBar.left}
+        aria-label={studyTopBarStrings.topBar.left}
         role="group"
       >
         {full ? (
@@ -102,14 +103,14 @@ function FlagMark({ full, flag }: { full: boolean; flag: number }) {
       className="size-5"
       style={{ color: flagInfo.color, fill: flagInfo.color }}
       role="img"
-      aria-label={studyStrings.topBar.flag(flagInfo.label)}
+      aria-label={studyTopBarStrings.topBar.flag(flagInfo.label)}
     />
   ) : flag && !full ? (
     <Flag
       className="size-5 flex-none text-brand"
       style={{ fill: 'currentColor' }}
       role="img"
-      aria-label={studyStrings.topBar.marked}
+      aria-label={reviewMenuStrings.topBar.marked}
     />
   ) : full ? null : (
     // Its place stays: marking does not move what is on top.
@@ -128,11 +129,11 @@ function UndoButton({ canUndo, onUndo }: { canUndo: boolean; onUndo: () => void 
         e.currentTarget.blur();
       }}
       className={`${button.base} ${button.ghost}`}
-      aria-label={studyStrings.topBar.undo}
-      title={studyStrings.topBar.undoTitle(keys('Ctrl+Z'))}
+      aria-label={studyTopBarStrings.topBar.undo}
+      title={studyTopBarStrings.topBar.undoTitle(keys('Ctrl+Z'))}
     >
       <Undo2 className="size-5 sm:size-4" aria-hidden="true" />
-      <span className="hidden sm:inline">{studyStrings.topBar.undo}</span>
+      <span className="hidden sm:inline">{studyTopBarStrings.topBar.undo}</span>
     </button>
   );
 }

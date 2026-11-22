@@ -11,8 +11,9 @@ import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { LiveToast } from '../../../shared/ui/Toast';
 import { useTransient } from '../hooks/useTransient';
 import { MoreContent, MoreTrigger } from './MoreMenuParts';
-import { studyStrings } from '../strings';
-import { sharedStrings } from '../../../shared/strings';
+import { reviewMenuStrings } from './strings/ReviewMenu.strings';
+import { moreMenuStrings } from './strings/MoreMenu.strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
 
 const REVIEW_FLAG = 1;
 
@@ -37,7 +38,7 @@ export function ReviewMenu({
     onMutate: (m) => onMarked(m.key, m.flag),
     onError: (_, m) => {
       onMarked(m.key, m.before);
-      setMessage(studyStrings.review.markNotSaved);
+      setMessage(reviewMenuStrings.review.markNotSaved);
     },
   });
   const item =
@@ -56,7 +57,7 @@ export function ReviewMenu({
           className="size-5 flex-none text-brand"
           style={{ fill: 'currentColor' }}
           role="img"
-          aria-label={studyStrings.topBar.marked}
+          aria-label={reviewMenuStrings.topBar.marked}
         />
       ) : (
         <span className="size-5 flex-none" aria-hidden="true" />
@@ -67,12 +68,12 @@ export function ReviewMenu({
           {markable ? (
             <Menu.Item className={item} onSelect={toggle}>
               <Flag className="size-4 text-muted" aria-hidden="true" />
-              {flag ? studyStrings.menu.unmark : studyStrings.menu.mark}
+              {flag ? reviewMenuStrings.menu.unmark : reviewMenuStrings.menu.mark}
             </Menu.Item>
           ) : null}
           <Menu.Item className={item} onSelect={() => setReporting(current)}>
             <MessageSquareWarning className="size-4 text-muted" aria-hidden="true" />{' '}
-            {studyStrings.menu.report}
+            {moreMenuStrings.menu.report}
           </Menu.Item>
         </MoreContent>
       </MenuRoot>

@@ -4,7 +4,7 @@ import { activeUnits } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { descendants, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
-import { courseStrings as s } from '../course.strings';
+import { materialStrings as s } from './strings/material.strings';
 
 export function assessmentDeck(tree: AnkiTree, a: AssessmentWithNotes): CourseDeckNode | null {
   return (

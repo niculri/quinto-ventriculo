@@ -7,7 +7,7 @@ import { noticeCodeForError } from '../model/notices';
 import { useSession } from '../context';
 import { storageKeys } from '../../../shared/lib/storage';
 import { safeDestination } from '../model/destination';
-import { sessionStrings } from '../strings';
+import { authCallbackPageStrings } from './strings/AuthCallbackPage.strings';
 
 export function AuthCallbackPage() {
   const { state } = useSession();
@@ -26,7 +26,8 @@ export function AuthCallbackPage() {
   }, [state.status]);
 
   if (error) return <Navigate to={paths.landing({ notice: noticeCodeForError(error) })} replace />;
-  if (state.status === 'loading') return <Loading fullScreen text={sessionStrings.entering} />;
+  if (state.status === 'loading')
+    return <Loading fullScreen text={authCallbackPageStrings.entering} />;
   if (state.status === 'signed-out') return <Navigate to={paths.landing()} replace />;
   let next: string | null = null;
   try {

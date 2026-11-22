@@ -6,10 +6,10 @@ import { Select } from '../../../../shared/ui/Select';
 import { button, card } from '../../../../shared/ui/styles';
 import { NEW_LIST } from '../../model/access';
 import { useInviteForm } from '../../hooks/useInviteForm';
-import { accessStrings } from '../../access.strings';
+import { inviteFormStrings as s } from './strings/InviteForm.strings';
+import { accessFailureStrings } from '../../hooks/strings/accessFailure.strings';
 import { InviteResultDialog } from './InviteResultDialog';
 
-const s = accessStrings.form;
 const field = 'mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink';
 
 type Form = ReturnType<typeof useInviteForm>;
@@ -20,7 +20,7 @@ export function InviteForm({ lists }: { lists: string[] }) {
   return (
     <section aria-labelledby={`${id}-title`} className={`${card} mt-6 px-4 py-4 sm:px-5`}>
       <h3 id={`${id}-title`} className="font-semibold">
-        {s.title}
+        {s.form.title}
       </h3>
       <form
         className="mt-3 space-y-4"
@@ -31,7 +31,7 @@ export function InviteForm({ lists }: { lists: string[] }) {
       >
         <div>
           <label htmlFor={`${id}-emails`} className="text-sm font-medium">
-            {s.emails}
+            {s.form.emails}
           </label>
           <textarea
             id={`${id}-emails`}
@@ -40,11 +40,11 @@ export function InviteForm({ lists }: { lists: string[] }) {
             onChange={(e) => f.setText(e.target.value)}
             spellCheck={false}
             autoComplete="off"
-            placeholder={s.emailsHint}
+            placeholder={s.form.emailsHint}
             className="mt-1.5 block w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-base text-ink sm:text-sm"
           />
           {/* The longest text is the failure's message, not the count: on a small phone it takes two lines. */}
-          <Reserved longest={accessStrings.genericFailure} className="mt-1 text-xs">
+          <Reserved longest={accessFailureStrings.genericFailure} className="mt-1 text-xs">
             <p
               role={f.invite.isError ? 'alert' : undefined}
               className={f.invite.isError || f.tooMany ? 'text-state-learn' : 'text-muted'}
@@ -56,7 +56,7 @@ export function InviteForm({ lists }: { lists: string[] }) {
         <ListFields id={id} form={f} />
         <div>
           <label htmlFor={`${id}-note`} className="text-sm font-medium">
-            {s.note} <span className="font-normal text-muted">{s.optional}</span>
+            {s.form.note} <span className="font-normal text-muted">{s.form.optional}</span>
           </label>
           <input
             id={`${id}-note`}
@@ -76,10 +76,10 @@ export function InviteForm({ lists }: { lists: string[] }) {
             <UserPlus className="size-4" aria-hidden="true" />
             <span className="grid place-items-center">
               <span aria-hidden="true" className="invisible col-start-1 row-start-1">
-                {s.inviting}
+                {s.form.inviting}
               </span>
               <span className="col-start-1 row-start-1">
-                {f.invite.isPending ? s.inviting : s.invite}
+                {f.invite.isPending ? s.form.inviting : s.form.invite}
               </span>
             </span>
           </button>
@@ -96,14 +96,14 @@ function ListFields({ id, form: f }: { id: string; form: Form }) {
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="min-w-0">
         <span className="text-sm font-medium" aria-hidden="true">
-          {s.list}
+          {s.form.list}
         </span>
         <Select
-          label={s.list}
+          label={s.form.list}
           value={f.choice}
           options={[
             ...f.names.map((n) => ({ value: `list:${n}`, label: n })),
-            { value: NEW_LIST, label: s.newList },
+            { value: NEW_LIST, label: s.form.newList },
           ]}
           onChange={f.setChoice}
           className="mt-1.5 h-11 w-full sm:h-10"
@@ -111,7 +111,7 @@ function ListFields({ id, form: f }: { id: string; form: Form }) {
       </div>
       <div className="min-w-0">
         <label htmlFor={`${id}-new`} className="text-sm font-medium">
-          {s.newName}
+          {s.form.newName}
         </label>
         <input
           id={`${id}-new`}
@@ -119,7 +119,7 @@ function ListFields({ id, form: f }: { id: string; form: Form }) {
           disabled={f.choice !== NEW_LIST}
           maxLength={60}
           onChange={(e) => f.setNewName(e.target.value)}
-          placeholder={f.choice === NEW_LIST ? s.newNameHint : ''}
+          placeholder={f.choice === NEW_LIST ? s.form.newNameHint : ''}
           autoComplete="off"
           className={`${field} disabled:opacity-50 sm:h-10 sm:text-sm`}
         />

@@ -1,7 +1,7 @@
 // The cards page's list in groups: by lecture, then by topic, with a lecture's images together.
 
 import type { Matched } from './filters';
-import { cardsStrings } from '../strings';
+import { groupsStrings } from './strings/groups.strings';
 
 interface Group {
   key: string;
@@ -18,7 +18,6 @@ export interface Lecture {
 }
 
 /** The images of a lecture go in one group: their «Encabezado» is a title per figure, not a topic. */
-const IMAGES_TITLE = cardsStrings.list.images;
 
 const GRID_SHARE = 0.8;
 
@@ -31,7 +30,7 @@ export function groupNotes(matched: readonly Matched[]): Lecture[] {
       lecture = { id, groups: [], notes: 0, byKey: new Map() };
       lectures.set(id, lecture);
     }
-    const title = m.note.image ? IMAGES_TITLE : m.note.note.topic || null;
+    const title = m.note.image ? groupsStrings.list.images : m.note.note.topic || null;
     const key = `${id}\u001f${m.note.image ? '\u0000images' : (title ?? '')}`;
     let group = lecture.byKey.get(key);
     if (!group) {
@@ -44,7 +43,7 @@ export function groupNotes(matched: readonly Matched[]): Lecture[] {
   }
   return [...lectures.values()].map(({ id, groups, notes }) => {
     for (const g of groups) {
-      if (g.title !== IMAGES_TITLE) continue;
+      if (g.title !== groupsStrings.list.images) continue;
       const photos = g.items.filter((m) => m.note.note.kind === 'photo').length;
       g.grid = photos >= GRID_SHARE * g.items.length;
     }

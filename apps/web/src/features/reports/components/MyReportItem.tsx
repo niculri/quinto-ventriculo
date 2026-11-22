@@ -11,7 +11,7 @@ import {
   placeLink,
   studentStatus,
 } from '../model/labels';
-import { myReportsStrings as s } from '../myReports.strings';
+import { myReportItemStrings as s } from './strings/MyReportItem.strings';
 
 export function MyReportItem({ report: r }: { report: MyReport }) {
   const link = placeLink(r.kind, r.targetId, r.code, r.location);

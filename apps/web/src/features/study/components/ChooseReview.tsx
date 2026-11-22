@@ -4,7 +4,7 @@ import { paths } from '../../../shared/lib/paths';
 import { button, card } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import type { CardRef } from '../../progress/api/repository';
-import { studyStrings } from '../strings';
+import { chooseReviewStrings } from './strings/ChooseReview.strings';
 
 export function ChooseReview({
   node,
@@ -25,7 +25,7 @@ export function ChooseReview({
       <span className="flex items-baseline justify-between gap-3">
         <span className="font-medium">{title}</span>
         <span className="flex-none text-sm text-muted tabular-nums">
-          {studyStrings.cards(cards.length)}
+          {chooseReviewStrings.cards(cards.length)}
         </span>
       </span>
       <span className="mt-1 block text-sm text-muted">{text}</span>
@@ -33,20 +33,30 @@ export function ChooseReview({
   );
   return (
     <div className="mx-auto w-full max-w-xl flex-1 overflow-y-auto px-2 py-6">
-      <h1 className="font-serif text-2xl font-semibold">{studyStrings.review.title(node.label)}</h1>
+      <h1 className="font-serif text-2xl font-semibold">
+        {chooseReviewStrings.review.title(node.label)}
+      </h1>
       {pools.all.length === 0 ? (
         <>
-          <p className="mt-2 text-muted">{studyStrings.review.nothingSeen}</p>
+          <p className="mt-2 text-muted">{chooseReviewStrings.review.nothingSeen}</p>
           <Link to={paths.deck(node.ref)} className={`${button.base} ${button.primary} mt-6`}>
-            {studyStrings.backTo(node.label)}
+            {chooseReviewStrings.backTo(node.label)}
           </Link>
         </>
       ) : (
         <>
-          <p className="mt-2 text-muted">{studyStrings.review.noDates}</p>
+          <p className="mt-2 text-muted">{chooseReviewStrings.review.noDates}</p>
           <div className="mt-6 space-y-3">
-            {option(studyStrings.review.allTitle, studyStrings.review.allText, pools.all)}
-            {option(studyStrings.review.hardTitle, studyStrings.review.hardText, pools.hard)}
+            {option(
+              chooseReviewStrings.review.allTitle,
+              chooseReviewStrings.review.allText,
+              pools.all,
+            )}
+            {option(
+              chooseReviewStrings.review.hardTitle,
+              chooseReviewStrings.review.hardText,
+              pools.hard,
+            )}
           </div>
         </>
       )}

@@ -16,8 +16,9 @@ import { SaveFailure } from './OptionsParts';
 import { SaveControls } from '../../../../shared/ui/SaveControls';
 import { PresetMenu } from './PresetMenu';
 import { PresetNameDialog, PresetNameField, RemovePresetDialog } from './PresetDialogs';
-import { optionsStrings as o } from '../../options.strings';
-import { presetsStrings as p } from '../../presets.strings';
+import { usePresetDraftsStrings } from '../../hooks/strings/usePresetDrafts.strings';
+import { deckOptionsStrings as o } from './strings/DeckOptions.strings';
+import { deckPresetButtonStrings } from '../strings/DeckPresetButton.strings';
 
 type Form = ReturnType<typeof usePresetDrafts>;
 
@@ -25,14 +26,16 @@ export function DeckOptions({ f }: { f: Form }) {
   const { choice, naming, removing, users } = f;
   return (
     <div>
-      <h2 className="font-serif text-2xl font-semibold tracking-tight">{o.decksTitle}</h2>
+      <h2 className="font-serif text-2xl font-semibold tracking-tight">
+        {usePresetDraftsStrings.decksTitle}
+      </h2>
       <p className="mt-1 text-sm text-muted">
         {o.decks.intro}{' '}
         <Link
           to={paths.ankiSettings}
           className="font-medium text-brand underline-offset-2 hover:underline"
         >
-          {o.generalTitle}
+          {usePresetDraftsStrings.generalTitle}
         </Link>
         .
       </p>
@@ -83,7 +86,7 @@ function PresetBar({ f }: { f: Form }) {
           value={refKey(choice.ref)}
           options={choices.map((c) => ({
             value: refKey(c.ref),
-            label: p.presetName(c.name, c.ref.kind === 'author', !!c.row),
+            label: deckPresetButtonStrings.presetName(c.name, c.ref.kind === 'author', !!c.row),
           }))}
           onChange={(v) => f.setSelected(choices.find((c) => refKey(c.ref) === v)!.ref)}
           className="flex-1"

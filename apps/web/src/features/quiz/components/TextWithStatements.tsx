@@ -1,6 +1,6 @@
 // A question's text with its statements «I. …, II. …» as a list between the text before and after them.
 import { splitStatements } from '@qv/quiz';
-import { quizStrings as s } from '../strings';
+import { textWithStatementsStrings as s } from './strings/TextWithStatements.strings';
 import { Html } from './Html';
 
 export function TextWithStatements({

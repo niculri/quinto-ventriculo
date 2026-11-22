@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { DimBackdrop } from '../../../../shared/ui/Dialog';
 import { button } from '../../../../shared/ui/styles';
-import { accessStrings } from '../../access.strings';
+import { accessDialogStrings } from './strings/AccessDialog.strings';
+import { inviteRowStrings } from './strings/InviteRow.strings';
 
 export function AccessDialog({
   open,
@@ -41,12 +42,12 @@ export function Emails({ title, emails, why }: { title: string; emails: string[]
     <div>
       <p className="font-medium text-ink">
         {title}
-        {accessStrings.open}
+        {accessDialogStrings.open}
         {emails.length}
-        {accessStrings.close}
+        {accessDialogStrings.close}
         {why ? (
           <span className="font-normal text-muted">
-            {accessStrings.sep}
+            {inviteRowStrings.sep}
             {why}
           </span>
         ) : null}
@@ -65,7 +66,7 @@ export function DoneButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="mt-5 flex justify-end">
       <button type="button" onClick={onClick} className={`${button.base} ${button.primary}`}>
-        {accessStrings.result.done}
+        {accessDialogStrings.result.done}
       </button>
     </div>
   );

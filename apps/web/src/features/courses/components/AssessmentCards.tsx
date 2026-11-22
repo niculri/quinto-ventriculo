@@ -10,7 +10,7 @@ import { AnkiArt, NotesArt, TestsArt } from './SectionArt';
 import { ART, SectionCard } from './SectionCard';
 import { AnkiCard } from './AnkiCard';
 import { ChooseUnits } from './ChooseUnits';
-import { courseStrings as s } from '../course.strings';
+import { assessmentCardsStrings as s } from './strings/AssessmentCards.strings';
 
 export function AssessmentCards({
   catalog,

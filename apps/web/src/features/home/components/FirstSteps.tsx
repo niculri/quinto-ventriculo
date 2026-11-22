@@ -7,7 +7,7 @@ import { Link } from 'react-router';
 import { button, card } from '../../../shared/ui/styles';
 import { nextStep } from '../model/firstSteps';
 import type { Steps } from '../model/firstSteps';
-import { homeStrings as s } from '../strings';
+import { firstStepsStrings as s } from './strings/FirstSteps.strings';
 import { HashOrLink } from './HashOrLink';
 
 function Step({

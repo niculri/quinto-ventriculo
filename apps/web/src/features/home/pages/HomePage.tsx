@@ -8,7 +8,7 @@ import { page } from '../../../shared/ui/styles';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { useUser } from '../../session/context';
 import { HomeBody } from '../components/HomeBody';
-import { homeStrings as s } from '../strings';
+import { homePageStrings as s } from './strings/HomePage.strings';
 
 export function HomePage() {
   const user = useUser();

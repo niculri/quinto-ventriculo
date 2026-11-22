@@ -9,10 +9,9 @@ import type { SetAdminResult } from '../../api/repository';
 import { useSetAdmin } from '../../hooks/useAccess';
 import { accessFailure } from '../../hooks/accessFailure';
 import type { Appointing } from '../../model/access';
-import { accessStrings } from '../../access.strings';
+import { adminDialogStrings as s } from './strings/AdminDialog.strings';
+import { accessDialogStrings } from './strings/AccessDialog.strings';
 import { AccessDialog, DoneButton } from './AccessDialog';
-
-const s = accessStrings.admin;
 
 export function AdminDialog({ target: t, onClose }: { target: Appointing; onClose: () => void }) {
   const id = useId();
@@ -25,9 +24,14 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
     if (busy) return;
     onClose();
   };
-  const action = s.action(t.admin);
+  const action = s.admin.action(t.admin);
   return (
-    <AccessDialog open onClose={close} busy={busy} title={done ? s.done : s.title(action, t.email)}>
+    <AccessDialog
+      open
+      onClose={close}
+      busy={busy}
+      title={done ? s.admin.done : s.admin.title(action, t.email)}
+    >
       {done ? (
         <AdminDone done={done} onClose={close} />
       ) : (
@@ -40,15 +44,15 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
         >
           <Dialog.Description asChild>
             <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted">
-              {(t.admin ? s.appointRules : s.unappointRules).map((rule) => (
+              {(t.admin ? s.admin.appointRules : s.admin.unappointRules).map((rule) => (
                 <li key={rule}>{rule}</li>
               ))}
             </ul>
           </Dialog.Description>
           <label htmlFor={`${id}-confirm`} className="mt-5 block text-sm font-medium">
-            {s.confirm}
+            {s.admin.confirm}
             <span className="font-mono break-all">{t.email}</span>
-            {accessStrings.close}
+            {accessDialogStrings.close}
           </label>
           <input
             id={`${id}-confirm`}
@@ -59,7 +63,7 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
             disabled={busy}
             className="mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink sm:text-sm"
           />
-          <Reserved longest={s.longestRefusal} className="mt-2 text-sm">
+          <Reserved longest={s.admin.longestRefusal} className="mt-2 text-sm">
             {setAdmin.isError ? (
               <p role="alert" className="text-state-learn">
                 {accessFailure(setAdmin.error)}
@@ -73,7 +77,7 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
               disabled={busy}
               className={`${button.base} ${button.secondary}`}
             >
-              {s.cancel}
+              {s.admin.cancel}
             </button>
             <button
               type="submit"
@@ -89,7 +93,7 @@ export function AdminDialog({ target: t, onClose }: { target: Appointing; onClos
                 <span aria-hidden="true" className="invisible col-start-1 row-start-1">
                   {action}
                 </span>
-                <span className="col-start-1 row-start-1">{busy ? s.saving : action}</span>
+                <span className="col-start-1 row-start-1">{busy ? s.admin.saving : action}</span>
               </span>
             </button>
           </div>
@@ -104,7 +108,13 @@ function AdminDone({ done, onClose }: { done: SetAdminResult; onClose: () => voi
     <>
       <Dialog.Description className="mt-2 text-sm break-words text-muted">
         <span className="font-mono break-all">{done.email}</span>{' '}
-        {done.admin ? (done.changed ? s.isNow : s.was) : done.changed ? s.isNoMore : s.wasNot}
+        {done.admin
+          ? done.changed
+            ? s.admin.isNow
+            : s.admin.was
+          : done.changed
+            ? s.admin.isNoMore
+            : s.admin.wasNot}
       </Dialog.Description>
       <DoneButton onClick={onClose} />
     </>

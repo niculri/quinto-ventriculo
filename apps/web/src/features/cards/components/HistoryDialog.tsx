@@ -6,7 +6,7 @@ import type { StudyPreferences } from '@qv/schema/user';
 import { GhostCloseX } from '../../../shared/ui/Dialog';
 import type { BrowseCard } from '../model/browseCards';
 import { CardInfo } from './CardPreview';
-import { cardsStrings } from '../strings';
+import { historyDialogStrings } from './strings/HistoryDialog.strings';
 
 export function HistoryDialog({
   open,
@@ -26,12 +26,12 @@ export function HistoryDialog({
         <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] max-h-[85dvh] w-[min(94vw,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-surface p-5 shadow-soft">
           <div className="mb-3 flex items-center justify-between gap-3">
             <Dialog.Title className="text-lg font-semibold">
-              {cardsStrings.viewer.historyTitle}
+              {historyDialogStrings.viewer.historyTitle}
             </Dialog.Title>
             <GhostCloseX />
           </div>
           <Dialog.Description className="sr-only">
-            {cardsStrings.viewer.historyHelp}
+            {historyDialogStrings.viewer.historyHelp}
           </Dialog.Description>
           <CardInfo card={info} timing={timingFor(prefs)} simple={!prefs.fullAnki} />
         </Dialog.Content>

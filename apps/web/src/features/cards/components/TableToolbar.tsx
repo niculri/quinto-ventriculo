@@ -11,7 +11,8 @@ import type { ViewPrefs } from '../hooks/useViewPrefs';
 import { ActionButton } from './ActionButton';
 import { ColumnsMenu } from './ColumnsMenu';
 import { FlagMenu } from './FlagMenu';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from '../model/strings/columns.strings';
+import { cardsViewerStrings } from './strings/CardsViewer.strings';
 
 /** «Marcar para revisar» is one flag; any flag of the full mode counts as marked. */
 const REVIEW_FLAG = 1;
@@ -47,12 +48,12 @@ export function TableToolbar({
   actions: ToolbarActions;
 }) {
   const off = busy || !count || blocked;
-  const why = blocked ? cardsStrings.table.draftOnly : undefined;
+  const why = blocked ? columnsStrings.table.draftOnly : undefined;
   return (
     <div
       className="mt-3 flex flex-wrap items-center gap-2"
       role="toolbar"
-      aria-label={cardsStrings.table.actions}
+      aria-label={columnsStrings.table.actions}
     >
       {full ? <ModeSwitch mode={view.mode} onMode={onMode} /> : null}
       <ColumnsMenu view={view} setView={setView} />
@@ -62,7 +63,7 @@ export function TableToolbar({
         disabled={off}
         title={why}
         icon={<Ban className="size-4" aria-hidden="true" />}
-        label={cardsStrings.table.suspend(focus?.queue === 'suspended', full)}
+        label={columnsStrings.table.suspend(focus?.queue === 'suspended', full)}
         shortcut="Ctrl+J"
       />
       <ActionButton
@@ -70,7 +71,7 @@ export function TableToolbar({
         disabled={off}
         title={why}
         icon={<Shovel className="size-4" aria-hidden="true" />}
-        label={cardsStrings.table.bury(focus?.queue === 'buried', full)}
+        label={columnsStrings.table.bury(focus?.queue === 'buried', full)}
         shortcut="Ctrl+Mayús+J"
       />
       {full ? null : (
@@ -79,7 +80,7 @@ export function TableToolbar({
           disabled={off}
           title={why}
           icon={<Flag className="size-4" aria-hidden="true" />}
-          label={focus?.flag ? cardsStrings.unmark : cardsStrings.table.markForReview}
+          label={focus?.flag ? cardsViewerStrings.unmark : columnsStrings.table.markForReview}
         />
       )}
       {full ? <FlagMenu disabled={off} current={focus?.flag} onFlag={actions.flag} /> : null}
@@ -89,7 +90,7 @@ export function TableToolbar({
           disabled={off}
           title={why}
           icon={<RotateCcw className="size-4" aria-hidden="true" />}
-          label={cardsStrings.table.forget}
+          label={columnsStrings.table.forget}
           shortcut="Ctrl+Alt+N"
         />
       ) : null}
@@ -99,14 +100,14 @@ export function TableToolbar({
           className={`${button.base} ${button.secondary} px-3 py-1.5`}
         >
           <Layers className="size-4" aria-hidden="true" />
-          <span className="max-sm:sr-only">{cardsStrings.table.toDeck}</span>
+          <span className="max-sm:sr-only">{columnsStrings.table.toDeck}</span>
         </Link>
       ) : null}
       <ActionButton
         onClick={actions.undo}
         disabled={busy}
         icon={<Undo2 className="size-4" aria-hidden="true" />}
-        label={cardsStrings.table.undo}
+        label={columnsStrings.table.undo}
         shortcut="Ctrl+Z"
       />
     </div>
@@ -123,7 +124,7 @@ function ModeSwitch({
   return (
     <div
       role="group"
-      aria-label={cardsStrings.table.show}
+      aria-label={columnsStrings.table.show}
       className="flex rounded-lg border border-border"
     >
       {(['cards', 'notes'] as const).map((m) => (
@@ -134,7 +135,7 @@ function ModeSwitch({
           onClick={() => onMode(m)}
           className={`px-3 py-1.5 text-sm ${mode === m ? 'bg-brand-soft text-brand' : 'text-muted hover:bg-surface-2'}`}
         >
-          {cardsStrings.table[m]}
+          {columnsStrings.table[m]}
         </button>
       ))}
     </div>

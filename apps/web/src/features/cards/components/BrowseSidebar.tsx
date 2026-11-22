@@ -9,7 +9,8 @@ import type { NoteTypeSummary } from '@qv/schema';
 import type { DeckNode } from '../../catalog/model/tree';
 import { FLAGS } from '@qv/study';
 import type { Combine } from '../model/search';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from '../model/strings/columns.strings';
+import { browseSidebarStrings } from './strings/BrowseSidebar.strings';
 
 type Click = (term: string) => (e: MouseEvent) => void;
 type Item = (label: ReactNode, term: string, key?: string) => ReactNode;
@@ -44,18 +45,18 @@ export function BrowseSidebar({
   );
 
   return (
-    <nav aria-label={cardsStrings.table.sidebarNav} className="space-y-1 text-sm">
+    <nav aria-label={columnsStrings.table.sidebarNav} className="space-y-1 text-sm">
       <Group
         icon={<Clock className="size-4" aria-hidden="true" />}
-        title={cardsStrings.sidebar.today}
+        title={browseSidebarStrings.sidebar.today}
       >
-        {item(cardsStrings.sidebar.studiedToday, 'rated:1')}
-        {item(cardsStrings.sidebar.failedToday, 'rated:1:1')}
-        {item(cardsStrings.sidebar.dueToday(full), 'is:due')}
+        {item(browseSidebarStrings.sidebar.studiedToday, 'rated:1')}
+        {item(browseSidebarStrings.sidebar.failedToday, 'rated:1:1')}
+        {item(browseSidebarStrings.sidebar.dueToday(full), 'is:due')}
       </Group>
       <Group
         icon={<Layers className="size-4" aria-hidden="true" />}
-        title={cardsStrings.sidebar.decks}
+        title={browseSidebarStrings.sidebar.decks}
       >
         {courses.map((c) => (
           <DeckItems
@@ -67,8 +68,14 @@ export function BrowseSidebar({
         ))}
       </Group>
       {full ? <NoteTypesGroup noteTypes={noteTypes} click={click} item={item} /> : null}
-      <Group icon={<Tag className="size-4" aria-hidden="true" />} title={cardsStrings.sidebar.tags}>
-        {item(<span className="text-muted">{cardsStrings.sidebar.noTags}</span>, 'tag:none')}
+      <Group
+        icon={<Tag className="size-4" aria-hidden="true" />}
+        title={browseSidebarStrings.sidebar.tags}
+      >
+        {item(
+          <span className="text-muted">{browseSidebarStrings.sidebar.noTags}</span>,
+          'tag:none',
+        )}
         <TagItems tags={tags} click={click} />
       </Group>
       {full ? <StateAndFlagGroups item={item} /> : null}
@@ -88,7 +95,7 @@ function NoteTypesGroup({
   return (
     <Group
       icon={<NotebookTabs className="size-4" aria-hidden="true" />}
-      title={cardsStrings.sidebar.noteTypes}
+      title={browseSidebarStrings.sidebar.noteTypes}
     >
       {noteTypes.map((t) => (
         <li key={t.id}>
@@ -120,17 +127,17 @@ function StateAndFlagGroups({ item }: { item: Item }) {
     <>
       <Group
         icon={<ListChecks className="size-4" aria-hidden="true" />}
-        title={cardsStrings.sidebar.states}
+        title={browseSidebarStrings.sidebar.states}
       >
-        {item(cardsStrings.sidebar.newCards, 'is:new')}
-        {item(cardsStrings.sidebar.learning, 'is:learn')}
-        {item(cardsStrings.sidebar.review, 'is:review')}
-        {item(cardsStrings.sidebar.suspended, 'is:suspended')}
-        {item(cardsStrings.sidebar.buried, 'is:buried')}
+        {item(browseSidebarStrings.sidebar.newCards, 'is:new')}
+        {item(browseSidebarStrings.sidebar.learning, 'is:learn')}
+        {item(browseSidebarStrings.sidebar.review, 'is:review')}
+        {item(browseSidebarStrings.sidebar.suspended, 'is:suspended')}
+        {item(browseSidebarStrings.sidebar.buried, 'is:buried')}
       </Group>
       <Group
         icon={<Flag className="size-4" aria-hidden="true" />}
-        title={cardsStrings.sidebar.flags}
+        title={browseSidebarStrings.sidebar.flags}
       >
         {FLAGS.map((f) =>
           item(
@@ -145,7 +152,7 @@ function StateAndFlagGroups({ item }: { item: Item }) {
             `flag:${f.flag}`,
           ),
         )}
-        {item(<span className="text-muted">{cardsStrings.sidebar.noFlag}</span>, 'flag:0')}
+        {item(<span className="text-muted">{browseSidebarStrings.sidebar.noFlag}</span>, 'flag:0')}
       </Group>
     </>
   );
@@ -179,7 +186,7 @@ function DeckItems({ node, click, small }: { node: DeckNode; click: Click; small
             type="button"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
-            aria-label={cardsStrings.sidebar.fold(open, node.label)}
+            aria-label={browseSidebarStrings.sidebar.fold(open, node.label)}
             className="-my-0.5 -ml-1 flex size-6 flex-none items-center justify-center rounded pl-1 text-muted hover:text-ink"
           >
             <ChevronRight

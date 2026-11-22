@@ -2,7 +2,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { button } from '../../../shared/ui/styles';
 import { GateDialog } from './GateDialog';
-import { gateStrings as s } from '../gate.strings';
+import { gateNoticesStrings as s } from './strings/GateNotices.strings';
 
 export function CancelledNotice({ onTold }: { onTold: () => void }) {
   return (

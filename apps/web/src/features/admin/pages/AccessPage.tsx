@@ -6,7 +6,7 @@ import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { AccessView } from '../components/access/AccessView';
 import { useAccessReport } from '../hooks/useAccess';
 import { accessFailure } from '../hooks/accessFailure';
-import { accessStrings as s } from '../access.strings';
+import { accessPageStrings as s } from './strings/AccessPage.strings';
 
 /** `youAreOwner` comes with the report, so the site owner's buttons never appear after it. */
 export function AccessPage() {

@@ -11,7 +11,7 @@ import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { studyKeys, useDeckSettings, useUserPresets } from '../../progress/queries';
 import type { DeckNode } from '../../catalog/model/tree';
 import { refKey } from '../model/presets';
-import { presetsStrings as p } from '../presets.strings';
+import { usePresetDraftsStrings } from './strings/usePresetDrafts.strings';
 
 type DeckPresetChoice = Parameters<StudyRepository['setDeckPreset']>[1];
 
@@ -49,7 +49,7 @@ export function useDeckPreset(node: DeckNode) {
       });
       await client.invalidateQueries({ queryKey: studyKeys.all });
     } catch (e) {
-      setError(errorText(e, p.notSaved));
+      setError(errorText(e, usePresetDraftsStrings.notSaved));
     }
     setSaving(false);
   };

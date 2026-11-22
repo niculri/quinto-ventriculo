@@ -4,7 +4,7 @@ import { SrOnly } from './SrOnly';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';
 import { HiddenAnswer } from './NoteRow';
-import { cardsStrings } from '../strings';
+import { photoCellStrings } from './strings/PhotoCell.strings';
 
 export function PhotoCell({
   m,
@@ -36,7 +36,7 @@ export function PhotoCell({
         </span>
       </span>
       <span className="mt-1 block h-5 truncate text-xs">
-        <SrOnly>{cardsStrings.list.photo}</SrOnly>
+        <SrOnly>{photoCellStrings.list.photo}</SrOnly>
         {hideAnswers || !n.back ? (
           <HiddenAnswer />
         ) : (

@@ -6,9 +6,7 @@ import { useReportQueue } from '../../reports/hooks/useReports';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { BlockedList, ReportGroups } from '../components/reports/ReportGroups';
 import type { Showing } from '../components/reports/ReportGroups';
-import { reportsStrings } from '../reports.strings';
-
-const s = reportsStrings;
+import { reportsPageStrings as s } from './strings/ReportsPage.strings';
 
 /** Who reported is hidden until it is asked for; blocking is only from there. */
 export function ReportsPage() {

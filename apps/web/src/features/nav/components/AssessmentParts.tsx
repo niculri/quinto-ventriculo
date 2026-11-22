@@ -7,7 +7,7 @@ import { ListMark } from '../../catalog/components/AdminMarks';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { menuNoteBlocks } from '../model/where';
 import type { Where } from '../model/where';
-import { navStrings } from '../strings';
+import { assessmentPartsStrings } from './strings/AssessmentParts.strings';
 import { Branch, NavLink, icon } from './NavLink';
 
 export function AssessmentParts({
@@ -31,7 +31,7 @@ export function AssessmentParts({
     <>
       {assessment.notes.length ? (
         <Branch
-          label={navStrings.notes}
+          label={assessmentPartsStrings.notes}
           icon={<BookOpen className={icon} aria-hidden="true" />}
           open={isOpen('notes')}
           inPath={where.tab === 'notes'}
@@ -54,7 +54,7 @@ export function AssessmentParts({
             icon={<ListChecks className={icon} aria-hidden="true" />}
             onNavigate={onNavigate}
           >
-            {navStrings.tests}
+            {assessmentPartsStrings.tests}
             <ListMark
               thing={['quiz', assessment.quizzes[0]!.id]}
               holder={['assessment', assessment.id]}
@@ -63,7 +63,7 @@ export function AssessmentParts({
         </li>
       ) : assessment.quizzes.length ? (
         <Branch
-          label={navStrings.tests}
+          label={assessmentPartsStrings.tests}
           icon={<ListChecks className={icon} aria-hidden="true" />}
           open={isOpen('tests')}
           inPath={where.tab === 'tests'}
@@ -92,7 +92,7 @@ export function AssessmentParts({
             icon={<Layers className={icon} aria-hidden="true" />}
             onNavigate={onNavigate}
           >
-            {navStrings.anki}
+            {assessmentPartsStrings.anki}
             <ListMark thing={['deck', deck.id]} holder={['assessment', assessment.id]} />
           </NavLink>
         </li>

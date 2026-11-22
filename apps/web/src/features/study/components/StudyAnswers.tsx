@@ -3,7 +3,8 @@ import type { Shown } from '@qv/study';
 import { button } from '../../../shared/ui/styles';
 import type { StudyActions } from '../hooks/useStudySession';
 import { RATINGS } from './ratings';
-import { studyStrings } from '../strings';
+import { studyAnswersStrings } from './strings/StudyAnswers.strings';
+import { reviewScreenStrings } from './strings/ReviewScreen.strings';
 
 export function StudyAnswers({
   act,
@@ -33,7 +34,7 @@ export function StudyAnswers({
             type="button"
             onClick={() => act.answer(rating)}
             className={`${button.base} ${button.secondary} flex-col gap-0.5 px-1 py-2 ${barHeight}`}
-            aria-label={studyStrings.ratingLabel(label, shown.labels[rating - 1]!)}
+            aria-label={studyAnswersStrings.ratingLabel(label, shown.labels[rating - 1]!)}
             disabled={failed}
           >
             <span className="text-xs text-muted tabular-nums">{shown.labels[rating - 1]}</span>
@@ -49,7 +50,7 @@ export function StudyAnswers({
         onClick={() => act.reveal()}
         className={`${button.base} ${button.primary} w-full py-3 text-base ${barHeight}`}
       >
-        {studyStrings.showAnswer}
+        {reviewScreenStrings.showAnswer}
       </button>
     </div>
   );

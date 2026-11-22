@@ -7,7 +7,7 @@
 import { useId, useState } from 'react';
 import { stepsToString, stringToSteps } from '@qv/srs';
 import { Revert, Row } from './Row';
-import { formStrings } from './strings';
+import { stepsRowStrings } from './strings/StepsRow.strings';
 
 export function StepsRow({
   label,
@@ -33,7 +33,7 @@ export function StepsRow({
     if (stepsToString(steps) !== stepsToString(value)) onChange(steps);
   };
   return (
-    <Row label={label} id={id} help={formStrings.stepsHelp}>
+    <Row label={label} id={id} help={stepsRowStrings.stepsHelp}>
       <input
         id={id}
         value={text}

@@ -2,7 +2,7 @@
 import { Settings, ShieldCheck } from 'lucide-react';
 import { useSettingsGroups } from '../../settings/hooks/useSettingsGroups';
 import { ADMIN_SECTIONS, useIsAdmin } from '../../admin';
-import { navStrings } from '../strings';
+import { sectionBranchesStrings } from './strings/SectionBranches.strings';
 import { NavLink, icon, row } from './NavLink';
 
 export function AdminBranch({
@@ -17,7 +17,7 @@ export function AdminBranch({
   return (
     <li>
       <p className={`${row} font-medium text-ink`}>
-        <ShieldCheck className={icon} aria-hidden="true" /> {navStrings.admin}
+        <ShieldCheck className={icon} aria-hidden="true" /> {sectionBranchesStrings.admin}
       </p>
       <ul className="mt-1 space-y-0.5">
         {ADMIN_SECTIONS.map(({ label, to, icon: Icon }) => (
@@ -48,7 +48,7 @@ export function SettingsBranch({
   return (
     <li>
       <p className={`${row} font-medium text-ink`}>
-        <Settings className={icon} aria-hidden="true" /> {navStrings.settings}
+        <Settings className={icon} aria-hidden="true" /> {sectionBranchesStrings.settings}
       </p>
       {groups.map((g) => (
         <div key={g.title}>

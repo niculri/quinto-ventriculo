@@ -4,10 +4,9 @@ import { button, card } from '../../../../shared/ui/styles';
 import type { AccessInvite, AccessReport } from '../../api/repository';
 import { listCounts, removableCount } from '../../model/access';
 import type { Appointing, Removing } from '../../model/access';
-import { accessStrings } from '../../access.strings';
+import { inviteListStrings as s } from './strings/InviteList.strings';
+import { inviteRowStrings } from './strings/InviteRow.strings';
 import { InviteRow } from './InviteRow';
-
-const s = accessStrings;
 
 export function InviteList({
   list,
@@ -31,7 +30,7 @@ export function InviteList({
           <h4 className="font-semibold break-words">{list}</h4>
           <p className="text-xs text-muted">
             {s.invited.invitedCount(counts?.invited ?? people.length)}
-            {s.sep}
+            {inviteRowStrings.sep}
             {s.invited.withAccount(counts?.withAccount ?? 0)}
           </p>
         </div>

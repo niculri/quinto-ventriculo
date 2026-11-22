@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { QuizQuestion } from '@qv/schema';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { besideStyle } from '../model/figures';
-import { quizStrings as s } from '../strings';
+import { questionBodyStrings as s } from './strings/QuestionBody.strings';
 import { Figures, Table } from './Figures';
 import { TextWithStatements } from './TextWithStatements';
 

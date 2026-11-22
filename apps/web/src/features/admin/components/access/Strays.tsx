@@ -2,9 +2,7 @@
 import { TriangleAlert } from 'lucide-react';
 import { formatDate, formatDateTime } from '../../../../shared/lib/dates';
 import type { AccessReport } from '../../api/repository';
-import { accessStrings } from '../../access.strings';
-
-const s = accessStrings.strays;
+import { straysStrings as s } from './strings/Strays.strings';
 
 export function Strays({ report }: { report: AccessReport }) {
   const n = report.accountsWithoutInvite.length;
@@ -17,20 +15,20 @@ export function Strays({ report }: { report: AccessReport }) {
         <TriangleAlert className="mt-0.5 size-5 flex-none text-[#c2410c]" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <h3 id="strays" className="font-semibold">
-            {s.title(n)}
+            {s.strays.title(n)}
           </h3>
           <p className="mt-1 text-sm text-muted">
-            {s.before}
-            {report.openToDomain ? '' : s.notSeen}
-            {s.after}
+            {s.strays.before}
+            {report.openToDomain ? '' : s.strays.notSeen}
+            {s.strays.after}
           </p>
           <ul className="mt-3 space-y-1 text-sm">
             {report.accountsWithoutInvite.map((a) => (
               <li key={a.email} className="flex flex-wrap justify-between gap-x-4">
                 <span className="font-mono break-all text-ink">{a.email}</span>
                 <span className="text-xs text-muted">
-                  {s.created(formatDate(a.createdAt))}
-                  {a.lastSignInAt ? s.lastSignIn(formatDateTime(a.lastSignInAt)) : ''}
+                  {s.strays.created(formatDate(a.createdAt))}
+                  {a.lastSignInAt ? s.strays.lastSignIn(formatDateTime(a.lastSignInAt)) : ''}
                 </span>
               </li>
             ))}

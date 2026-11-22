@@ -4,7 +4,7 @@ import type { Matched } from '../model/filters';
 import { SrOnly } from './SrOnly';
 import { Dots, statusText } from './CardStatus';
 import { Thumb } from './Thumb';
-import { cardsStrings } from '../strings';
+import { noteRowStrings } from './strings/NoteRow.strings';
 
 function ClozeText({ text, hide }: { text: string; hide: boolean }) {
   return (
@@ -18,7 +18,7 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
             {p.hole.hint ?? (
               <>
                 <span aria-hidden="true">…</span>
-                <SrOnly>{cardsStrings.list.hole}</SrOnly>
+                <SrOnly>{noteRowStrings.list.hole}</SrOnly>
               </>
             )}
             ]
@@ -109,14 +109,14 @@ function RowBody({
       <Thumb thumb={n.thumb} thumbs={thumbs} blur={hideAnswers && n.kind === 'occlusion'} />
       <span className="min-w-0 flex-1">
         <span className="line-clamp-2 text-sm">
-          {n.kind === 'photo' ? <SrOnly>{cardsStrings.list.photoOf}</SrOnly> : null}
-          {n.front || n.topic || cardsStrings.list.image}
+          {n.kind === 'photo' ? <SrOnly>{noteRowStrings.list.photoOf}</SrOnly> : null}
+          {n.front || n.topic || noteRowStrings.list.image}
         </span>
         <span className="mt-0.5 block text-xs text-muted">
           {n.kind === 'occlusion' ? (
             <>
               <SrOnly> — </SrOnly>
-              {cardsStrings.list.labels(n.labels)}
+              {noteRowStrings.list.labels(n.labels)}
             </>
           ) : hideAnswers || !n.back ? (
             <HiddenAnswer />

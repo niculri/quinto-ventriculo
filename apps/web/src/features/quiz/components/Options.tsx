@@ -2,7 +2,7 @@
 // rest dimmed.
 import { LETTERS } from '@qv/quiz';
 import type { QuizQuestion } from '@qv/schema';
-import { quizStrings as s } from '../strings';
+import { optionsStrings as s } from './strings/Options.strings';
 import { Html } from './Html';
 
 type Choice = Extract<QuizQuestion, { kind: 'choice' }>;

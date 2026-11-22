@@ -4,7 +4,7 @@ import * as Menu from '@radix-ui/react-dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
 import { keys } from '../../../shared/ui/keys';
-import { studyStrings } from '../strings';
+import { moreMenuPartsStrings } from './strings/MoreMenuParts.strings';
 
 export const MENU_ITEM =
   'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[disabled]:cursor-default data-[disabled]:opacity-50 data-[highlighted]:bg-surface-2';
@@ -15,9 +15,12 @@ export const shortcut = (k: string) => (
 
 export function MoreTrigger() {
   return (
-    <Menu.Trigger className={`${button.base} ${button.ghost}`} aria-label={studyStrings.menu.more}>
+    <Menu.Trigger
+      className={`${button.base} ${button.ghost}`}
+      aria-label={moreMenuPartsStrings.menu.more}
+    >
       <MoreHorizontal className="size-5" aria-hidden="true" />
-      <span className="hidden sm:inline">{studyStrings.menu.more}</span>
+      <span className="hidden sm:inline">{moreMenuPartsStrings.menu.more}</span>
     </Menu.Trigger>
   );
 }

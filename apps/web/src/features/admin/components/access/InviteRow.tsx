@@ -2,9 +2,8 @@
 import { formatDate, formatDateTime } from '../../../../shared/lib/dates';
 import { button } from '../../../../shared/ui/styles';
 import type { AccessInvite } from '../../api/repository';
-import { accessStrings } from '../../access.strings';
+import { inviteRowStrings } from './strings/InviteRow.strings';
 
-const s = accessStrings.row;
 const secondary = `${button.base} ${button.secondary} px-3 py-1.5`;
 
 export function InviteRow({
@@ -25,30 +24,30 @@ export function InviteRow({
       <div className="min-w-0">
         <p className="font-mono text-sm break-all text-ink">{i.email}</p>
         <p className="mt-0.5 text-xs text-muted">
-          {s.invitedOn(formatDate(i.invitedAt))}
-          {accessStrings.sep}
+          {inviteRowStrings.row.invitedOn(formatDate(i.invitedAt))}
+          {inviteRowStrings.sep}
           {i.hasAccount
             ? i.lastSignInAt
-              ? s.lastSignIn(formatDateTime(i.lastSignInAt))
-              : s.hasAccount
-            : s.noAccount}
-          {i.note ? `${accessStrings.sep}${i.note}` : ''}
+              ? inviteRowStrings.row.lastSignIn(formatDateTime(i.lastSignInAt))
+              : inviteRowStrings.row.hasAccount
+            : inviteRowStrings.row.noAccount}
+          {i.note ? `${inviteRowStrings.sep}${i.note}` : ''}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {i.admin ? (
           <>
             <span className="rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand">
-              {isOwner ? s.owner : s.admin}
+              {isOwner ? inviteRowStrings.row.owner : inviteRowStrings.row.admin}
             </span>
             {youAreOwner && !isOwner ? (
               <button
                 type="button"
                 onClick={() => onAppoint(false)}
-                aria-label={s.unappointLabel(i.email)}
+                aria-label={inviteRowStrings.row.unappointLabel(i.email)}
                 className={secondary}
               >
-                {s.unappoint}
+                {inviteRowStrings.row.unappoint}
               </button>
             ) : null}
           </>
@@ -58,19 +57,19 @@ export function InviteRow({
               <button
                 type="button"
                 onClick={() => onAppoint(true)}
-                aria-label={s.appointLabel(i.email)}
+                aria-label={inviteRowStrings.row.appointLabel(i.email)}
                 className={secondary}
               >
-                {s.appoint}
+                {inviteRowStrings.row.appoint}
               </button>
             ) : null}
             <button
               type="button"
               onClick={onRemove}
-              aria-label={s.removeLabel(i.email)}
+              aria-label={inviteRowStrings.row.removeLabel(i.email)}
               className={secondary}
             >
-              {s.remove}
+              {inviteRowStrings.row.remove}
             </button>
           </>
         )}

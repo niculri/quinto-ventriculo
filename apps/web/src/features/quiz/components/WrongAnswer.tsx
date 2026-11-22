@@ -2,7 +2,8 @@
 // «Reportar error».
 import { MessageSquareWarning } from 'lucide-react';
 import type { QuestionEntry } from '../model/entries';
-import { quizStrings as s } from '../strings';
+import { wrongAnswerStrings as s } from './strings/WrongAnswer.strings';
+import { verdictStrings } from './strings/Verdict.strings';
 import { Html } from './Html';
 import { TextWithStatements } from './TextWithStatements';
 
@@ -31,7 +32,7 @@ export function WrongAnswer({
         {onReport ? (
           <button type="button" className="qz-report" onClick={() => onReport(e)}>
             <MessageSquareWarning className="size-4" aria-hidden="true" />
-            {` ${s.question.report}`}
+            {` ${verdictStrings.question.report}`}
           </button>
         ) : null}
       </div>

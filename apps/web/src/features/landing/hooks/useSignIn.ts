@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router';
 import { noticeText, noticeTitle } from '../../session/model/notices';
 import { useSession } from '../../session/context';
 import { safeDestination } from '../../session/model/destination';
-import { landingStrings as s } from '../strings';
+import { useSignInStrings as s } from './strings/useSignIn.strings';
 
 export function useSignIn() {
   const { state, signIn } = useSession();

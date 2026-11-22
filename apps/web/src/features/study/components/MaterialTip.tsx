@@ -2,7 +2,7 @@
 // Closed, its room stays until the visit ends, so that «Ver apunte» and «Preguntas» do not move.
 import { X } from 'lucide-react';
 import { tapArea } from '../../../shared/ui/styles';
-import { studyStrings } from '../strings';
+import { materialTipStrings } from './strings/MaterialTip.strings';
 
 export function MaterialTip({ show, onClose }: { show: boolean; onClose: () => void }) {
   return (
@@ -10,11 +10,11 @@ export function MaterialTip({ show, onClose }: { show: boolean; onClose: () => v
       aria-hidden={show ? undefined : true}
       className={`flex min-w-0 items-center gap-1 text-xs whitespace-nowrap text-ink ${show ? '' : 'invisible'}`}
     >
-      <span className="truncate">{studyStrings.material.tip}</span>
+      <span className="truncate">{materialTipStrings.material.tip}</span>
       <button
         type="button"
         onClick={onClose}
-        aria-label={studyStrings.material.closeTip}
+        aria-label={materialTipStrings.material.closeTip}
         className={`flex-none rounded p-0.5 text-muted hover:bg-surface-2 hover:text-ink ${tapArea}`}
       >
         <X className="size-3.5" aria-hidden="true" />

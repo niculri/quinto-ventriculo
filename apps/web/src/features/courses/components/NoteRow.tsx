@@ -7,10 +7,10 @@ import { paths } from '../../../shared/lib/paths';
 import type { CourseRef } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import type { AnkiTree } from '../../catalog/model/tree';
-import { kindStrings } from '../../notes/kinds.strings';
+import { kindStrings } from '../../../shared/strings/noteKinds.strings';
 import { findPracticeDeck, practiceLink } from '../../notes/model/practice';
 import { noteLine } from '../model/noteLine';
-import { assessmentStrings as s } from '../assessment.strings';
+import { noteRowStrings as s } from './strings/NoteRow.strings';
 
 const chip =
   'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-muted transition-colors hover:border-border-strong hover:text-ink';

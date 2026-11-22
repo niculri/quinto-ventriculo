@@ -1,7 +1,7 @@
 // The label of a card with its code: «T-PR-01-002.1 · hueco 1».
 
 import type { CardSummary } from '@qv/schema';
-import { decksStrings as s } from '../strings';
+import { labelsStrings as s } from './strings/labels.strings';
 
 export function cardLabel(card: Pick<CardSummary, 'code' | 'version' | 'kind' | 'ord'>): string {
   const code = card.code

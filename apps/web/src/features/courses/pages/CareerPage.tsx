@@ -6,10 +6,10 @@ import { Skeleton } from '../../../shared/ui/Loading';
 import { page } from '../../../shared/ui/styles';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { yearOfSemester } from '../../catalog/model/catalog';
-import { catalogStrings } from '../../catalog/strings';
+import { careerPageStrings as s } from './strings/CareerPage.strings';
+import { catalogStrings } from '../../../shared/strings/catalog.strings';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { SemesterCard } from '../components/SemesterCard';
-import { careerStrings as s } from '../career.strings';
 
 export function CareerPage() {
   const catalog = useCatalog();

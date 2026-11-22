@@ -6,10 +6,8 @@ import { button, card } from '../../../../shared/ui/styles';
 import { useReleaseLog } from '../../hooks/useReleases';
 import { useRevertRelease } from '../../hooks/useReleaseChanges';
 import { failure, releaseLine } from '../../model/releases';
-import { releasesStrings } from '../../releases.strings';
+import { lastReleaseStrings as s } from './strings/LastRelease.strings';
 import { ConfirmDialog } from './ConfirmDialog';
-
-const s = releasesStrings.last;
 
 export function LastRelease() {
   const log = useReleaseLog();
@@ -27,19 +25,20 @@ export function LastRelease() {
     >
       <div className="min-w-0 flex-1">
         <h3 id="last-release" className="font-semibold">
-          {s.title}
+          {s.last.title}
         </h3>
-        <Reserved longest={s.longest} className="mt-1 text-sm text-muted">
+        <Reserved longest={s.last.longest} className="mt-1 text-sm text-muted">
           {log.isError ? (
-            <p role="alert">{s.unreadable}</p>
+            <p role="alert">{s.last.unreadable}</p>
           ) : !log.data ? (
             <Skeleton className="h-4 w-3/4" />
           ) : last ? (
             <p role="status">
-              <span className="text-ink">{s.head(last.id, last.title)}</span> {releaseLine(last)}
+              <span className="text-ink">{s.last.head(last.id, last.title)}</span>{' '}
+              {releaseLine(last)}
             </p>
           ) : (
-            <p role="status">{s.none}</p>
+            <p role="status">{s.last.none}</p>
           )}
         </Reserved>
       </div>
@@ -49,22 +48,22 @@ export function LastRelease() {
         disabled={!last?.canRevert}
         onClick={() => close(true)}
       >
-        {s.undo}
+        {s.last.undo}
       </button>
       {last ? (
         <ConfirmDialog
           open={open}
           onOpenChange={close}
-          title={s.confirmTitle(last.id)}
-          confirm={s.confirm}
+          title={s.last.confirmTitle(last.id)}
+          confirm={s.last.confirm}
           busy={revert.isPending}
-          busyLabel={s.busy}
-          error={revert.isError ? failure(revert.error, s.failed) : null}
+          busyLabel={s.last.busy}
+          error={revert.isError ? failure(revert.error, s.last.failed) : null}
           onConfirm={() => revert.mutate(last.id, { onSuccess: () => close(false) })}
         >
           <p className="font-medium text-ink">{last.title}</p>
-          <p>{s.back}</p>
-          <p>{s.progress}</p>
+          <p>{s.last.back}</p>
+          <p>{s.last.progress}</p>
         </ConfirmDialog>
       ) : null}
     </section>

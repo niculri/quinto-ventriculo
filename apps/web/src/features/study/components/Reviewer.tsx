@@ -39,8 +39,8 @@ import { StudyEnd } from './StudyEnd';
 import { HeavyDayNotice, SessionStopped } from './StudyNotices';
 import { StudyTopBar } from './StudyTopBar';
 import { Welcome } from './Welcome';
-import { studyStrings } from '../strings';
-import { sharedStrings } from '../../../shared/strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
+import { reviewerStrings } from './strings/Reviewer.strings';
 
 export function Reviewer({
   node,
@@ -70,7 +70,7 @@ export function Reviewer({
   const toast = state.toast ? toastText(state.toast, full) : null;
   const message = toast ?? (report.sent ? sharedStrings.reportThanks : null);
 
-  useTitle(studyStrings.studyTitle(rootName));
+  useTitle(reviewerStrings.studyTitle(rootName));
   useSessionLifecycle(act, saves);
   useStudyShortcuts(act, revealed, full, fourButtons);
 

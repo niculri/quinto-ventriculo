@@ -15,7 +15,9 @@ import { Heatmap } from '../../stats/components/Heatmap';
 import { useCourseDecks } from '../hooks/useCourseDecks';
 import { joined, withMaterial } from '../model/material';
 import { AssessmentCards } from '../components/AssessmentCards';
-import { courseStrings as s } from '../course.strings';
+import { coursePageStrings as s } from './strings/CoursePage.strings';
+import { assessmentCardsStrings } from '../components/strings/AssessmentCards.strings';
+import { ankiCardStrings } from '../components/strings/AnkiCard.strings';
 
 export function CoursePage() {
   const { courseId = '', number = '' } = useParams();
@@ -46,8 +48,8 @@ function CourseView({
   const deckCount = countDecks(catalog, course.id);
   const material = joined([
     notes ? s.notes(notes) : '',
-    quizzes ? s.tests(quizzes) : '',
-    deckCount ? s.decks(deckCount) : '',
+    quizzes ? assessmentCardsStrings.tests(quizzes) : '',
+    deckCount ? ankiCardStrings.decks(deckCount) : '',
   ]);
 
   return (

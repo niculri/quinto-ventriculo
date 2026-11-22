@@ -9,7 +9,7 @@ import { QuizScreen } from '../components/QuizScreen';
 import { useQuizPage } from '../hooks/useQuizPage';
 import type { QuizPageView } from '../hooks/useQuizPage';
 import { themeStyle } from '../model/theme';
-import { quizStrings as s } from '../strings';
+import { quizPageStrings as s } from './strings/QuizPage.strings';
 import '../styles/quiz.css';
 
 type Ready = Extract<QuizPageView, { kind: 'ready' }>;

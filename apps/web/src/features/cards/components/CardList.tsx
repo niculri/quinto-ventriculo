@@ -12,7 +12,7 @@ import { useListViewport } from '../hooks/useListViewport';
 import { useReveal } from '../hooks/useReveal';
 import { NoteRow } from './NoteRow';
 import { PhotoCell } from './PhotoCell';
-import { cardsStrings } from '../strings';
+import { cardListStrings } from './strings/CardList.strings';
 
 const OVERSCAN = 600;
 
@@ -48,7 +48,7 @@ export function CardList({
   return (
     <section
       ref={box}
-      aria-label={cardsStrings.list.label}
+      aria-label={cardListStrings.list.label}
       onKeyDown={onKeyDown}
       className="relative mt-2"
       style={{ height: total }}
@@ -117,7 +117,7 @@ function Item({
             {lectureTitle(it.lectureId)}
           </span>
           <span className="flex-none text-sm text-muted tabular-nums">
-            {cardsStrings.notes(it.notes)}
+            {cardListStrings.notes(it.notes)}
           </span>
         </h2>
       );

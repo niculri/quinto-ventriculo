@@ -5,14 +5,14 @@ import { page } from '../../../shared/ui/styles';
 import { Rail } from '../../../shared/ui/Rail';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import { StatusToast } from '../../../shared/ui/Toast';
-import { sharedStrings } from '../../../shared/strings';
+import { noteViewStrings } from './strings/NoteView.strings';
+import { sharedStrings } from '../../../shared/strings/shared.strings';
 import type { NoteLocation } from '../../catalog/model/catalog';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { ReportDialog } from '../../reports/components/ReportDialog';
 import { useNoteView } from '../hooks/useNoteView';
 import type { NoteViewState } from '../hooks/useNoteView';
 import { noteCrumbs } from '../model/noteCrumbs';
-import { noteStrings } from '../strings';
 import { NoteContent } from './NoteContent';
 import { NoteHeader } from './NoteHeader';
 import { Toc } from './Toc';
@@ -116,7 +116,7 @@ function NotePopups({
             target: targetOf({
               ...(img.section ? { section: img.section } : {}),
               ...(img.sectionTitle ? { sectionTitle: img.sectionTitle } : {}),
-              figure: (img.caption || img.alt || noteStrings.imageWithoutCaption).slice(0, 300),
+              figure: (img.caption || img.alt || noteViewStrings.imageWithoutCaption).slice(0, 300),
             }),
             category: 'image',
           });

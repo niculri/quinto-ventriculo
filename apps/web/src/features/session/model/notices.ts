@@ -1,23 +1,22 @@
 // Notices the landing page shows after a failed or cancelled sign-in, by code, and the mapping from Supabase errors.
 import { ALLOWED_DOMAIN } from '@qv/schema';
-import { sessionStrings } from '../strings';
+import { noticesStrings } from './strings/notices.strings';
 
-export const DOMAIN_NOTICE = sessionStrings.notices.domain;
-export const GOOGLE_NOTICE = sessionStrings.notices.google;
-const DELETION_NOTICE = sessionStrings.notices.deletion;
-export const INVITE_NOTICE = sessionStrings.notices.invite;
+export const DOMAIN_NOTICE = noticesStrings.notices.domain;
+export const GOOGLE_NOTICE = noticesStrings.notices.google;
+export const INVITE_NOTICE = noticesStrings.notices.invite;
 
 // Only codes go in the URL (`/?notice=<code>`): free text there would be shown as is on the site and could deceive.
 const NOTICES = {
   domain: DOMAIN_NOTICE,
   invite: INVITE_NOTICE,
   google: GOOGLE_NOTICE,
-  deletion: DELETION_NOTICE,
+  deletion: noticesStrings.notices.deletion,
 } as const;
 export type NoticeCode = keyof typeof NOTICES;
 
 export function noticeTitle(code: string | null): string {
-  return code === 'deletion' ? sessionStrings.titles.deletion : sessionStrings.titles.failed;
+  return code === 'deletion' ? noticesStrings.titles.deletion : noticesStrings.titles.failed;
 }
 
 export function noticeText(code: string | null): string | null {

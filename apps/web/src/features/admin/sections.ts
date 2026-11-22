@@ -2,7 +2,7 @@
 import { ChartColumn, EyeOff, Flag, GitCompareArrows, Globe, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { paths } from '../../shared/lib/paths';
-import { sectionsStrings as s } from './sections.strings';
+import { sectionsStrings as s } from './strings/sections.strings';
 
 export interface AdminSection {
   label: string;

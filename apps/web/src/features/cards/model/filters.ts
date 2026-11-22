@@ -4,33 +4,33 @@
 import type { CardOrigin } from '@qv/schema';
 import { ORIGIN_TAGS } from '@qv/schema';
 import type { ExplorerCard, ExplorerNote } from './explorer';
-import { cardsStrings } from '../strings';
+import { filtersStrings } from './strings/filters.strings';
 
 export type StateFilter = 'all' | 'new' | 'seen' | 'hard' | 'failed' | 'marked' | 'hidden';
 
 export type KindFilter = 'all' | 'text' | 'image';
 
 export const STATE_FILTERS: { value: StateFilter; label: string }[] = [
-  { value: 'all', label: cardsStrings.filters.states.all },
-  { value: 'new', label: cardsStrings.filters.states.new },
-  { value: 'seen', label: cardsStrings.filters.states.seen },
-  { value: 'hard', label: cardsStrings.filters.states.hard },
-  { value: 'failed', label: cardsStrings.filters.states.failed },
-  { value: 'marked', label: cardsStrings.filters.states.marked },
-  { value: 'hidden', label: cardsStrings.filters.states.hidden },
+  { value: 'all', label: filtersStrings.filters.states.all },
+  { value: 'new', label: filtersStrings.filters.states.new },
+  { value: 'seen', label: filtersStrings.filters.states.seen },
+  { value: 'hard', label: filtersStrings.filters.states.hard },
+  { value: 'failed', label: filtersStrings.filters.states.failed },
+  { value: 'marked', label: filtersStrings.filters.states.marked },
+  { value: 'hidden', label: filtersStrings.filters.states.hidden },
 ];
 
 export const ORIGIN_FILTERS: { value: CardOrigin; label: string }[] = [
-  { value: 'profe', label: cardsStrings.filters.origins.profe },
-  { value: 'control', label: cardsStrings.filters.origins.control },
-  { value: 'clinica', label: cardsStrings.filters.origins.clinica },
-  { value: 'complemento', label: cardsStrings.filters.origins.complemento },
+  { value: 'profe', label: filtersStrings.filters.origins.profe },
+  { value: 'control', label: filtersStrings.filters.origins.control },
+  { value: 'clinica', label: filtersStrings.filters.origins.clinica },
+  { value: 'complemento', label: filtersStrings.filters.origins.complemento },
 ];
 
 export const KIND_FILTERS: { value: KindFilter; label: string }[] = [
-  { value: 'all', label: cardsStrings.filters.kinds.all },
-  { value: 'text', label: cardsStrings.filters.kinds.text },
-  { value: 'image', label: cardsStrings.filters.kinds.image },
+  { value: 'all', label: filtersStrings.filters.kinds.all },
+  { value: 'text', label: filtersStrings.filters.kinds.text },
+  { value: 'image', label: filtersStrings.filters.kinds.image },
 ];
 
 export const FAILED_DAYS = 7;

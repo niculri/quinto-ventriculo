@@ -6,7 +6,7 @@ import { FLAGS } from '@qv/study';
 import { button } from '../../../shared/ui/styles';
 import { keys } from '../../../shared/ui/keys';
 import { MENU_ITEM } from './menuItem';
-import { cardsStrings } from '../strings';
+import { columnsStrings } from '../model/strings/columns.strings';
 
 export function FlagMenu({
   disabled,
@@ -24,7 +24,7 @@ export function FlagMenu({
         className={`${button.base} ${button.secondary} px-3 py-1.5`}
       >
         <Flag className="size-4" aria-hidden="true" />
-        <span className="max-sm:sr-only">{cardsStrings.table.mark}</span>
+        <span className="max-sm:sr-only">{columnsStrings.table.mark}</span>
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Content

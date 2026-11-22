@@ -6,7 +6,7 @@ import { useTitle } from '../../../shared/hooks/useTitle';
 import { SettingsLayout } from '../../settings/components/SettingsLayout';
 import { useMyReports } from '../hooks/useReports';
 import { MyReportItem } from '../components/MyReportItem';
-import { myReportsStrings as s } from '../myReports.strings';
+import { myReportsPageStrings as s } from './strings/MyReportsPage.strings';
 
 export function MyReportsPage() {
   const reports = useMyReports();

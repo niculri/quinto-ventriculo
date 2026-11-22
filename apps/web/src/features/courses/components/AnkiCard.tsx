@@ -12,7 +12,7 @@ import { MasteryMeter } from '../../progress/components/MasteryMeter';
 import type { CourseDecks } from '../hooks/useCourseDecks';
 import { unitsOf } from '../model/material';
 import { SectionCard } from './SectionCard';
-import { courseStrings as s } from '../course.strings';
+import { ankiCardStrings as s } from './strings/AnkiCard.strings';
 
 const emptyLoad = (node: CourseDeckNode, plan: StudyPlan) =>
   unitsOf(node, plan).on === 0 ? s.noneOn : s.doneToday;

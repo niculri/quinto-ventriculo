@@ -2,7 +2,7 @@
 
 import type { Catalog } from '@qv/schema';
 import type { StudyPreferences } from '@qv/schema/user';
-import { homeStrings as s } from '../strings';
+import { courseOptionsStrings as s } from './strings/courseOptions.strings';
 import type { MyCourses } from './myCourses';
 
 export function semesterOptions(catalog: Catalog, prefs: Pick<StudyPreferences, 'semester'>) {

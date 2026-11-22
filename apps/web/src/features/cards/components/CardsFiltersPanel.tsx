@@ -8,7 +8,7 @@ import { GhostCloseX } from '../../../shared/ui/Dialog';
 import type { KindFilter, StateFilter } from '../model/filters';
 import type { CardsBodyState } from '../hooks/useCardsBody';
 import { CardFilters } from './CardFilters';
-import { cardsStrings } from '../strings';
+import { cardsFiltersPanelStrings } from './strings/CardsFiltersPanel.strings';
 
 export function CardsFiltersPanel({ b }: { b: CardsBodyState }) {
   const { set, origins } = b;
@@ -33,18 +33,20 @@ export function CardsFiltersPanel({ b }: { b: CardsBodyState }) {
   return (
     <>
       <Rail>
-        <aside aria-label={cardsStrings.page.filters}>{filterPanel('rail')}</aside>
+        <aside aria-label={cardsFiltersPanelStrings.page.filters}>{filterPanel('rail')}</aside>
       </Rail>
       <Dialog.Root open={b.panel} onOpenChange={b.setPanel}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 xl:hidden" />
           <Dialog.Content className="fixed inset-y-0 right-0 z-50 w-[min(22rem,88vw)] overflow-y-auto border-l border-border bg-surface p-4 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-soft xl:hidden">
             <div className="mb-4 flex items-center justify-between">
-              <Dialog.Title className="font-semibold">{cardsStrings.page.filters}</Dialog.Title>
+              <Dialog.Title className="font-semibold">
+                {cardsFiltersPanelStrings.page.filters}
+              </Dialog.Title>
               <GhostCloseX />
             </div>
             <Dialog.Description className="sr-only">
-              {cardsStrings.page.filtersHelp}
+              {cardsFiltersPanelStrings.page.filtersHelp}
             </Dialog.Description>
             {filterPanel('panel')}
           </Dialog.Content>

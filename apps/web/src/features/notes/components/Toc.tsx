@@ -6,9 +6,7 @@ import { ArrowUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { TocEntry } from '@qv/schema';
 import { activeLevel2, groupByLevel2 } from '../model/toc';
-import { noteStrings } from '../strings';
-
-const s = noteStrings.toc;
+import { tocStrings as s } from './strings/Toc.strings';
 
 export function Toc({
   toc,
@@ -55,21 +53,23 @@ export function Toc({
 
   if (!toc.length) return null;
   return (
-    <nav aria-label={s.label}>
+    <nav aria-label={s.toc.label}>
       <button
         type="button"
         onClick={toTop}
         className="mb-3 inline-flex items-center gap-1.5 rounded-md py-1 text-[0.84rem] text-muted transition-colors hover:text-ink"
       >
         <ArrowUp className="size-3.5" aria-hidden="true" />
-        {s.top}
+        {s.toc.top}
       </button>
-      <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">{s.heading}</p>
+      <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">
+        {s.toc.heading}
+      </p>
       {progress !== undefined ? (
         <div
           className="mb-3 h-1 overflow-hidden rounded-full bg-border"
           role="progressbar"
-          aria-label={s.read}
+          aria-label={s.toc.read}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(progress * 100)}

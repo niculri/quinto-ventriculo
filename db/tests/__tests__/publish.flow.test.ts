@@ -282,7 +282,7 @@ describe('undoing the last publication', () => {
     await expect(revert(id)).rejects.toThrow(/revert_release: public_changed/);
     const detail = await db
       .query(`select public.revert_release('{"id": 1, "by": "x"}'::jsonb)`)
-      .catch((e: { detail?: string }) => e.detail);
+      .catch((e: unknown) => (e as { detail?: string }).detail);
     expect(detail).toMatch(/note AP-BC-C2-10/);
     expect(await publicContent()).toEqual(now);
     await q(`update public.semesters set name = 'Otro' where number = 1`);
@@ -689,7 +689,7 @@ describe('migrations, keys and tables that publishing has to handle', () => {
     const before = { public: await publicContent(), draft: await dump('draft') };
     const error = await publish().then(
       () => null,
-      (e: { message: string; detail?: string; code?: string }) => e,
+      (e: unknown) => e as { message: string; detail?: string; code?: string },
     );
     expect(error?.message).toMatch(/^publish_release: unique$/);
     expect(error?.code).toBe('P0422');
@@ -798,7 +798,7 @@ describe('migrations, keys and tables that publishing has to handle', () => {
     const before = await publicContent();
     const error = await publish().then(
       () => null,
-      (e: { message: string; detail?: string }) => e,
+      (e: unknown) => e as { message: string; detail?: string },
     );
     expect(error?.message).toBe('publish_release: unique');
     expect(error?.detail).toMatch(/notes \(notes_code\)/);

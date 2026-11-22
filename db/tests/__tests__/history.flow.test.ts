@@ -194,7 +194,7 @@ describe('the migration, on a database where someone answered with the old funct
     expect(r.cards).toEqual([{ ord: 0, reps: 1, buried: false }]);
     expect(r.middle).toEqual([{ answers: 1, new_seen: 1, failed: 0, ms: 3000 }]);
     expect(r.after).toEqual([]);
-    expect(Number(r.left.rows[0]!.n)).toBe(0);
+    expect(r.left.rows[0]!.n).toBe(0);
   });
 });
 
@@ -447,7 +447,7 @@ describe('the student’s day', () => {
       const mismatches = moments.filter(
         (m, i) => sql[i] !== dayOf(m, zone ?? 'America/Santiago', rollover),
       );
-      expect(mismatches, `${zone}, ${rollover}:00`).toEqual([]);
+      expect(mismatches, `${String(zone)}, ${rollover}:00`).toEqual([]);
     }
   });
 });

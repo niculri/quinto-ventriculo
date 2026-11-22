@@ -212,7 +212,7 @@ function tableTypes(c: Catalog, schemas: string[], table: { oid: number; kind: s
     (r) => `{
       foreignKeyName: ${JSON.stringify(r.name)}
       columns: ${JSON.stringify(r.columns)}
-      isOneToOne: ${r.oneToOne}
+      isOneToOne: ${String(r.oneToOne)}
       referencedRelation: ${JSON.stringify(r.target)}
       referencedColumns: ${JSON.stringify(r.targetColumns)}
     },`,
@@ -265,8 +265,8 @@ function functionReturns(c: Catalog, schemas: string[], fn: Fn): string[] {
       `SetofOptions: {
         from: "*"
         to: ${JSON.stringify(table.name)}
-        isOneToOne: ${!fn.set}
-        isSetofReturn: ${fn.set}
+        isOneToOne: ${String(!fn.set)}
+        isSetofReturn: ${String(fn.set)}
       }`,
     ];
   }

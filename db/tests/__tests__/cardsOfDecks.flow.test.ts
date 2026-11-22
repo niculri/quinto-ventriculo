@@ -75,8 +75,8 @@ describe('card_states_of_decks', () => {
   it('only the caller’s rows (RLS): Beto does not see Ana’s, nor Ana Beto’s', async () => {
     const beto = await read(BETO, MINE);
     expect(beto).toHaveLength(50);
-    expect(beto.every((r) => String(r.note_guid).startsWith('b'))).toBe(true);
-    expect((await read(ANA, MINE)).some((r) => String(r.note_guid).startsWith('b'))).toBe(false);
+    expect(beto.every((r) => r.note_guid.startsWith('b'))).toBe(true);
+    expect((await read(ANA, MINE)).some((r) => r.note_guid.startsWith('b'))).toBe(false);
   });
 
   it('nobody outside: without a session it cannot be called; a student not invited reads nothing', async () => {

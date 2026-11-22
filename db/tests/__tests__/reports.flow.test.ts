@@ -174,12 +174,13 @@ describe('reporting', () => {
       ),
     ).rejects.toThrow(/permission denied/);
     await report(db, ana, card());
-    const changed = await asUser(db, ana, (tx) =>
-      tx.query(`update public.content_reports set comment = 'otra cosa' where user_id = $1`, [
-        ana.sub,
-      ]),
-    ).catch((e: Error) => e);
-    expect(String(changed)).toMatch(/permission denied/);
+    await expect(
+      asUser(db, ana, (tx) =>
+        tx.query(`update public.content_reports set comment = 'otra cosa' where user_id = $1`, [
+          ana.sub,
+        ]),
+      ),
+    ).rejects.toThrow(/permission denied/);
     const outsider: Claims = {
       sub: '00000000-0000-4000-8000-0000000009a9',
       email: 'no.invitado@ug.uchile.cl',

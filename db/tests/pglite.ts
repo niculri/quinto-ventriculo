@@ -32,7 +32,7 @@ export async function closeDatabases(of: 'test' | 'file'): Promise<void> {
   const all = of === 'file' ? [...open.test, ...open.file] : [...open.test];
   open.test.clear();
   if (of === 'file') open.file.clear();
-  await Promise.all(all.map((db) => (db.closed ? undefined : db.close())));
+  await Promise.all(all.filter((db) => !db.closed).map((db) => db.close()));
 }
 
 /** For a test file whose tests make their own databases and share none made inside a test. */

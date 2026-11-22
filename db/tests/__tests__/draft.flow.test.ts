@@ -313,7 +313,7 @@ describe('the drift test', () => {
       {
         object: 'guard',
         name: 'function anki_plain_text(html text)',
-        problem: expect.stringMatching(/search_path/),
+        problem: expect.stringMatching(/search_path/) as unknown,
       },
     ],
   ])('finds %s', async (_what, sql, expected) => {

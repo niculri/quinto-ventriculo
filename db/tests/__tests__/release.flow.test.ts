@@ -258,7 +258,9 @@ describe('what the draft changes', () => {
       notes: 8,
     });
     const byGuid = Object.fromEntries(
-      (await items(AN, 'card')).items.map((i) => [i.guid, [i.classification, i.changedFields]]),
+      (await items(AN, 'card')).items.map(
+        (i) => [String(i.guid), [i.classification, i.changedFields]] as const,
+      ),
     );
     expect(byGuid).toEqual({
       '001': ['no_answer', ['Extra']],
@@ -285,7 +287,7 @@ describe('what the draft changes', () => {
     ]);
     await q(`update draft.anki_notes set hash = hash || '+' where guid = '004'`);
     const byGuid = Object.fromEntries(
-      (await items(AN, 'card')).items.map((i) => [i.guid, i.classification]),
+      (await items(AN, 'card')).items.map((i) => [String(i.guid), i.classification] as const),
     );
     expect(byGuid).toEqual({ '001': 'answer', '003': 'answer', '004': 'answer', o01: 'answer' });
     expect((await summary()).noteTypes).toEqual([
@@ -321,10 +323,9 @@ describe('what the draft changes', () => {
               where note_guid = '005'`);
     await touch('005');
     const byGuid = Object.fromEntries(
-      [...(await items(AN, 'card')).items, ...(await items(BC, 'card')).items].map((i) => [
-        i.guid,
-        i.classification,
-      ]),
+      [...(await items(AN, 'card')).items, ...(await items(BC, 'card')).items].map(
+        (i) => [String(i.guid), i.classification] as const,
+      ),
     );
     expect(byGuid).toEqual({
       '001': 'answer',
@@ -407,7 +408,9 @@ describe('what the draft changes', () => {
     });
     expect(of(s, AN).questions).toMatchObject({ format: 1, answer: 0 });
     const byId = Object.fromEntries(
-      (await items(BC, 'question')).items.map((i) => [i.id, [i.classification, i.keyChanged]]),
+      (await items(BC, 'question')).items.map(
+        (i) => [String(i.id), [i.classification, i.keyChanged]] as const,
+      ),
     );
     expect(byId).toEqual({
       'practica-bc-q1': ['answer', true],

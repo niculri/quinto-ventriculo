@@ -84,7 +84,7 @@ describe('card states and the review log', () => {
         state_before: null,
         duration_ms: 4200,
         stability_after: 2.3065,
-        difficulty_after: expect.any(Number),
+        difficulty_after: expect.any(Number) as unknown,
       },
     ]);
   });

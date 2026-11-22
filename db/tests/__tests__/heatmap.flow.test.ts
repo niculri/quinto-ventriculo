@@ -411,7 +411,7 @@ describe('the days of the heatmap', () => {
           r.rows[i]!.start !== dayOfStart(m, z, rollover) ||
           r.rows[i]!.of !== dayOf(m, z, rollover),
       );
-      expect(wrong, `${zone}, ${rollover}:00`).toEqual([]);
+      expect(wrong, `${String(zone)}, ${rollover}:00`).toEqual([]);
     }
   });
 
@@ -468,7 +468,7 @@ describe('the days of the heatmap', () => {
       const got = new Map(
         map.due.map(([iso, n]) => [Math.round(Date.parse(`${iso}T00:00:00Z`) / 86_400_000), n]),
       );
-      expect(got, `${zone}, ${rollover}:00`).toEqual(expected);
+      expect(got, `${String(zone)}, ${rollover}:00`).toEqual(expected);
     }
   });
 

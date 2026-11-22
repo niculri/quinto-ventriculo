@@ -46,7 +46,7 @@ async function refusal(claims: Claims | null, sql: string, params: unknown[] = [
 
 function expectReason(e: ReturnType<typeof databaseError>, reason: DbReason, code: SqlState) {
   expect(e.says(reason), e.message).toBe(true);
-  expect(e.hasCode(code), `${e.message}: ${e.code}`).toBe(true);
+  expect(e.hasCode(code), `${e.message}: ${String(e.code)}`).toBe(true);
 }
 
 const json = (v: unknown) => JSON.stringify(v);
@@ -223,8 +223,8 @@ describe('reports', () => {
       json(report('p1:0')),
     ]);
     expectReason(place, 'report_place_limit', 'P0001');
-    for (let i = REPORT_LIMITS.openPerPlace; i < REPORT_LIMITS.perDay; i++) {
-      await send(beto, report(`d${i}:0`));
+    for (let i = 0; i < REPORT_LIMITS.perDay - REPORT_LIMITS.openPerPlace; i++) {
+      await send(beto, report(`d${REPORT_LIMITS.openPerPlace + i}:0`));
     }
     const day = await refusal(beto, 'select public.report_content($1::jsonb)', [
       json(report('z:0')),

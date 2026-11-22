@@ -412,7 +412,8 @@ describe('the card browser index', () => {
   it('an importer against a content database without the card browser index writes no index and does not fail', async () => {
     db = await createDatabase('content', [], '20261117000000_card_browser_index.sql');
     const report = await save(published, withOcclusion());
-    expect(report).toMatchObject({ changedCards: expect.any(Array), indexesWritten: 0 });
+    expect(report.changedCards).toBeInstanceOf(Array);
+    expect(report.indexesWritten).toBe(0);
     expect(calls.map((c) => c.fn)).not.toContain('save_anki_browse_indexes');
     expect([...stored.keys()].some((k) => k.startsWith('browse/'))).toBe(false);
   });

@@ -429,6 +429,6 @@ describe('quotas', () => {
             + (select count(*) from public.card_states where user_id = $1) as n`,
       [ANA.sub],
     );
-    expect(Number(left.rows[0]!.n)).toBe(0);
+    expect(left.rows[0]!.n).toBe(0);
   });
 });

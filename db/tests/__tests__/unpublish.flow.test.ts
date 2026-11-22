@@ -633,7 +633,7 @@ describe('every student’s progress', () => {
         tx.query<{ synced_to: number | null }>('select synced_to from public.card_sync'),
       )
     ).rows;
-    const since = Number(sync?.synced_to ?? 0);
+    const since = sync?.synced_to ?? 0;
     const page = (
       await q<{ r: { changes: unknown[]; next: number } }>(
         `select public.anki_card_changes_since($1, 2000) as r`,
@@ -827,7 +827,9 @@ describe('the database side', () => {
     expect(report.removedCards).toBe(1);
     expect(report.retiredCards).toBe(1);
     expect(await q('select id from anki_decks where id = $1', [leafOf(AN)])).toEqual([]);
-    expect(JSON.parse(await readFile(listFile, 'utf8')).items).toHaveLength(1);
+    expect(
+      (JSON.parse(await readFile(listFile, 'utf8')) as { items: unknown[] }).items,
+    ).toHaveLength(1);
   });
 
   it('ContentBundle stays valid without what the list takes out', async () => {

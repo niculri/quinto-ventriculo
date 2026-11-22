@@ -553,7 +553,7 @@ describe('deleting my account', () => {
       await requestDeletion(other, await signIn(other, u), u.email);
       await sevenDaysLater(other, u);
     }
-    const first = await (
+    const first = (
       await other.query<{ r: Record<string, number> }>(
         'select public.purge_deleted_accounts() as r',
       )
@@ -577,7 +577,7 @@ describe('deleting my account', () => {
     expect(row.last_attempt_at).not.toBeNull();
     expect(row.cancelled_at).toBeNull();
     await other.query(`delete from public.blocker where user_id = $1`, [ANA.sub]);
-    const second = await (
+    const second = (
       await other.query<{ r: Record<string, number> }>(
         'select public.purge_deleted_accounts() as r',
       )

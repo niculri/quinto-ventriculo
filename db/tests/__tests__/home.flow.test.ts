@@ -127,11 +127,15 @@ describe('home_counts', () => {
     const r = await asUser(db, ANA, (tx) => counts(tx, [DECK, EXTRAS], { [EXTRAS]: 0.2 }));
     const extras = r.decks.find((d) => d[0] === EXTRAS)!;
     const days = 3;
-    const params = [...Array(20).fill(0), 0.2];
+    const params = [...new Array<number>(20).fill(0), 0.2];
     expect(extras[5]).toBeCloseTo(retrievability(params, { stability: 2, difficulty: 5 }, days), 4);
     const deck = r.decks.find((d) => d[0] === DECK)!;
     // Six cards seen and not suspended (f is buried: it still counts), all answered three days ago with stability 5.
-    const one = retrievability([...Array(20).fill(0), 0.5], { stability: 5, difficulty: 5 }, days);
+    const one = retrievability(
+      [...new Array<number>(20).fill(0), 0.5],
+      { stability: 5, difficulty: 5 },
+      days,
+    );
     expect(deck[5]).toBeCloseTo(6 * one, 4);
   });
 

@@ -328,7 +328,7 @@ describe('the incremental importer', () => {
     const logged = new CloudTarget({
       db: { rpc: (fn, args) => (log.push(fn), rpcDb.rpc(fn, args)) },
       store: {
-        has: store.has,
+        has: (key) => store.has(key),
         put: (key, body, type) => (log.push(key), store.put(key, body, type)),
       },
     });

@@ -24,7 +24,7 @@ const data = (over: Partial<GridData> = {}): GridData => ({
 // The effect runs after the mount, when the box is already in its ref, as in the page.
 function heatmap(initial: GridData) {
   const hook = renderHook((props: GridData) => useHeatmapGrid(props), { initialProps: initial });
-  hook.result.current.scroller.current = BOX as HTMLDivElement;
+  hook.result.current.scrollerRef.current = BOX as HTMLDivElement;
   BOX.scrollLeft = 0;
   return hook;
 }

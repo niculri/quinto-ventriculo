@@ -26,8 +26,8 @@ export interface GridData {
 
 export function useHeatmapGrid({ year, today, ready, studied, due, scale }: GridData) {
   const grid = useMemo(() => yearGrid(year), [year]);
-  const scroller = useRef<HTMLDivElement>(null);
-  const table = useRef<HTMLTableElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
   const [focusDay, setFocusDay] = useState<number | null>(null);
   const [open, setOpen] = useState<OpenDay | null>(null);
   const inYear = (d: number) => d >= grid.first && d <= grid.last;
@@ -39,7 +39,7 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
         : grid.first;
 
   useLayoutEffect(() => {
-    const box = scroller.current;
+    const box = scrollerRef.current;
     if (!box) return;
     const max = box.scrollWidth - box.clientWidth;
     if (max <= 0) return;
@@ -49,7 +49,8 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
   const valueOf = (day: number): CellValue | null =>
     ready && today !== null ? cellValue(day, today, studied, due, scale) : null;
 
-  const cellOf = (day: number) => table.current?.querySelector<HTMLElement>(`[data-day="${day}"]`);
+  const cellOf = (day: number) =>
+    tableRef.current?.querySelector<HTMLElement>(`[data-day="${day}"]`);
 
   const show = (day: number, pinned: boolean, keyboard = false) => {
     const el = cellOf(day);
@@ -95,8 +96,8 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
 
   return {
     grid,
-    scroller,
-    table,
+    scrollerRef,
+    tableRef,
     open,
     setOpen,
     current,

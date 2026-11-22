@@ -11,5 +11,5 @@ export function shade(cell: CellValue | null): string {
     cell.kind === 'past'
       ? ['var(--heat)', 'var(--brand-soft)', STUDIED]
       : ['var(--muted)', 'var(--surface-2)', DUE];
-  return `color-mix(in oklab, ${color} ${steps[cell.level - 1]}%, ${base})`;
+  return `color-mix(in oklab, ${color} ${String(steps[cell.level - 1])}%, ${base})`;
 }

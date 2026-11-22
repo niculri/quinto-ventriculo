@@ -2,6 +2,7 @@
 // its color, its name for a screen reader, today's mark and the roving tab stop.
 
 import { cellLabel, dateText } from '@qv/study';
+import { keyed } from '../../../shared/lib/keyed';
 import type { CellValue, yearGrid } from '@qv/study';
 import { CELL, GAP, LABELS } from '../model/layout';
 import { weekRowsStrings as s } from './strings/WeekRows.strings';
@@ -26,10 +27,11 @@ export function WeekRows({
   onHover: (day: number) => void;
   onFocus: (day: number) => void;
 }) {
+  const columns = keyed(grid.columns, (week) => String(week.find((d) => d !== null)));
   return (
     <tbody>
-      {s.weekdays.map((label, row) => (
-        <tr key={row}>
+      {keyed(s.weekdays, (label) => label).map(({ key: rowKey, item: label, index: row }) => (
+        <tr key={rowKey}>
           <th
             scope="row"
             className="sticky left-0 z-10 bg-surface p-0 text-left text-[0.6875rem] leading-3 font-normal text-muted"
@@ -42,12 +44,12 @@ export function WeekRows({
           >
             <span aria-hidden="true">{label}</span>
           </th>
-          {grid.columns.map((week, c) => {
-            const day = week[row]!;
+          {columns.map(({ key: columnKey, item: week }) => {
+            const day = week[row] ?? null;
             if (day === null) {
               return (
                 <td
-                  key={c}
+                  key={columnKey}
                   aria-hidden="true"
                   className="p-0"
                   style={{ width: CELL, height: CELL }}
@@ -58,7 +60,7 @@ export function WeekRows({
             const isToday = day === today;
             return (
               <td
-                key={c}
+                key={columnKey}
                 role="gridcell"
                 data-day={day}
                 tabIndex={day === current ? 0 : -1}

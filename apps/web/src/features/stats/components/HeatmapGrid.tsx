@@ -27,8 +27,8 @@ export function HeatmapGrid({
 }) {
   const {
     grid,
-    scroller,
-    table,
+    scrollerRef,
+    tableRef,
     open,
     setOpen,
     valueOf,
@@ -43,7 +43,7 @@ export function HeatmapGrid({
   return (
     <div className="relative mt-3">
       <div
-        ref={scroller}
+        ref={scrollerRef}
         className="overflow-x-auto overscroll-x-contain pb-1"
         onScroll={() => open && setOpen(null)}
       >
@@ -56,7 +56,7 @@ export function HeatmapGrid({
             ))}
           </div>
           <table
-            ref={table}
+            ref={tableRef}
             role="grid"
             aria-label={s.grid(year)}
             aria-busy={!ready}

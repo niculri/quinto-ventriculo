@@ -22,21 +22,21 @@ export function useDayBox({
   onClose: () => void;
   onOutside: () => void;
 }) {
-  const box = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const bodyId = useId();
   useLayoutEffect(() => {
-    const el = box.current!;
+    const el = boxRef.current!;
     el.style.top = `${boxTop(open.rect, el.offsetHeight, window.innerHeight)}px`;
   });
   useEffect(() => {
-    if (open.pinned && open.keyboard) box.current?.focus({ preventScroll: true });
+    if (open.pinned && open.keyboard) boxRef.current?.focus({ preventScroll: true });
   }, [open]);
   useEffect(() => {
     if (!open.pinned) return;
     const down = (e: PointerEvent) => {
       const target = e.target as Node | null;
-      if (box.current?.contains(target)) return;
+      if (boxRef.current?.contains(target)) return;
       if (target instanceof Element && target.closest('[data-day]')) return;
       onOutside();
     };
@@ -60,5 +60,5 @@ export function useDayBox({
     () => dayParts(cell, data.days, groupOf, open.day),
     [cell, data.days, groupOf, open.day],
   );
-  return { box, titleId, bodyId, parts };
+  return { boxRef, titleId, bodyId, parts };
 }

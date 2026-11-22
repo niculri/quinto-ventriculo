@@ -196,7 +196,7 @@ describe('the heatmap’s data', () => {
   it('are kept with the study’s: ending a study session reads them again', async () => {
     const client = new QueryClient();
     let n = 0;
-    await client.prefetchQuery({
+    await client.query({
       queryKey: heatmapKeys.scope('all'),
       queryFn: async () => ++n,
       staleTime: 5 * 60_000,

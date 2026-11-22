@@ -18,27 +18,28 @@ const PRACTICE_BATCH = 10;
 export function usePracticeRecorder(batch = PRACTICE_BATCH) {
   const study = useStudyRepository();
   const client = useQueryClient();
-  const pending = useRef(new Map<string, number>());
-  const size = useRef(0);
-  const alive = useRef(true);
+  const pendingRef = useRef(new Map<string, number>());
+  const sizeRef = useRef(0);
+  const aliveRef = useRef(true);
 
   const flush = useCallback(() => {
-    if (!pending.current.size) return;
-    const counts = [...pending.current].map(([deckId, n]) => ({ deckId, n }));
-    pending.current = new Map();
-    size.current = 0;
+    if (!pendingRef.current.size) return;
+    const counts = [...pendingRef.current].map(([deckId, n]) => ({ deckId, n }));
+    pendingRef.current = new Map();
+    sizeRef.current = 0;
     for (const part of practiceBatches(counts)) {
       void study.recordPractice(part).then(
         () => client.invalidateQueries({ queryKey: heatmapKeys.all }),
         (e: unknown) => {
-          if (!alive.current || e instanceof PracticeRefusedError) return;
+          if (!aliveRef.current || e instanceof PracticeRefusedError) return;
           for (const { deckId, n } of part) {
             // What waits is never more than a batch the database takes.
-            const keep = Math.min(n, PRACTICE_BATCH_MAX - size.current);
+            const keep = Math.min(n, PRACTICE_BATCH_MAX - sizeRef.current);
             if (keep <= 0) break;
-            if (!pending.current.has(deckId) && pending.current.size >= PRACTICE_BATCH_DECKS) break;
-            pending.current.set(deckId, (pending.current.get(deckId) ?? 0) + keep);
-            size.current += keep;
+            if (!pendingRef.current.has(deckId) && pendingRef.current.size >= PRACTICE_BATCH_DECKS)
+              break;
+            pendingRef.current.set(deckId, (pendingRef.current.get(deckId) ?? 0) + keep);
+            sizeRef.current += keep;
           }
         },
       );
@@ -47,22 +48,22 @@ export function usePracticeRecorder(batch = PRACTICE_BATCH) {
 
   const add = useCallback(
     (deckId: string) => {
-      pending.current.set(deckId, (pending.current.get(deckId) ?? 0) + 1);
-      size.current++;
-      if (size.current >= batch) flush();
+      pendingRef.current.set(deckId, (pendingRef.current.get(deckId) ?? 0) + 1);
+      sizeRef.current++;
+      if (sizeRef.current >= batch) flush();
     },
     [batch, flush],
   );
 
   useEffect(() => {
-    alive.current = true;
+    aliveRef.current = true;
     const hidden = () => {
       if (document.visibilityState === 'hidden') flush();
     };
     window.addEventListener('pagehide', flush);
     document.addEventListener('visibilitychange', hidden);
     return () => {
-      alive.current = false;
+      aliveRef.current = false;
       window.removeEventListener('pagehide', flush);
       document.removeEventListener('visibilitychange', hidden);
       flush();

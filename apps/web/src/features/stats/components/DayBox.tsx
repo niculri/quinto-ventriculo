@@ -76,7 +76,7 @@ export function DayBox({
   onClose: () => void;
   onOutside: () => void;
 }) {
-  const { box, titleId, bodyId, parts } = useDayBox({
+  const { boxRef, titleId, bodyId, parts } = useDayBox({
     open,
     cell,
     data,
@@ -91,7 +91,7 @@ export function DayBox({
       : null;
   return createPortal(
     <div
-      ref={box}
+      ref={boxRef}
       role={open.pinned ? 'dialog' : 'tooltip'}
       aria-labelledby={titleId}
       aria-describedby={bodyId}

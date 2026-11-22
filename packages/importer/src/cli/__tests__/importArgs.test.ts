@@ -1,7 +1,7 @@
 // Tests the command line of `npm run import`: what it takes by default and what it refuses before building anything.
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { ImportError } from '../../ImportError';
-import { parseImportArgs } from '../importArgs';
+import { HELP, parseImportArgs } from '../importArgs';
 
 const usageError = (...args: string[]) => {
   try {
@@ -67,6 +67,42 @@ describe('parseImportArgs', () => {
     expect(usageError('--target', 'public')).toEqual({
       kind: 'usage',
       message: 'Destino desconocido: public (folder o draft).',
+    });
+  });
+
+  it('the target that went away says where publishing is now, not just that it is unknown', () => {
+    const error = usageError('--target', 'cloud') as { kind: string; message: string };
+    expect(error.kind).toBe('usage');
+    expect(error.message).toContain('--target draft');
+    expect(usageError('--only-decks', '--only-tests')).toMatchObject({ kind: 'usage' });
+  });
+
+  it('a draft target with --reset-draft is allowed, and the help lists every option', () => {
+    expect(parseImportArgs(['--target', 'draft', '--reset-draft'])).toMatchObject({
+      target: 'draft',
+      resetDraft: true,
+    });
+    for (const option of [
+      '--target',
+      '--only-decks',
+      '--only-tests',
+      '--reset-draft',
+      '--allow-warnings',
+      '--cache',
+    ]) {
+      expect(HELP).toContain(option);
+    }
+  });
+
+  describe('without arguments of its own', () => {
+    const argv = process.argv;
+    afterEach(() => {
+      process.argv = argv;
+    });
+
+    it('it reads the command line of the process', () => {
+      process.argv = ['node', 'import', '--target', 'draft', '--assessment', 'a/b'];
+      expect(parseImportArgs()).toMatchObject({ target: 'draft', assessments: ['a/b'] });
     });
   });
 });

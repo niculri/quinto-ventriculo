@@ -10,7 +10,7 @@ import { FolderTarget } from '../../targets/FolderTarget';
 import { PRIVATE, createRoot, manifest, privately } from '../../test/importerFixtures';
 import { buildBundle } from '../build';
 import { hash } from '../hash';
-import { sameUnpublished } from '../unpublished';
+import { sameUnpublished, withoutUnpublished } from '../unpublished';
 
 let root: string;
 
@@ -229,4 +229,141 @@ describe('content/unpublished.json', () => {
       expect(items).toEqual([]);
     },
   );
+});
+
+describe('withoutUnpublished', () => {
+  const deck = (id: string, parentId: string | null) => ({ id, name: `Raíz::${id}`, parentId });
+  const card = (deckId: string) => ({ deckId });
+  const ankiNote = (guid: string, decks: string[], extra: object = {}) => ({
+    guid,
+    cards: decks.map(card),
+    media: [] as string[],
+    hash: 'viejo',
+    updatedAt: 'ayer',
+    ...extra,
+  });
+  const bundleOf = (parts: object) =>
+    ({
+      notes: [],
+      quizzes: [],
+      ankiDecks: [],
+      ankiNotes: [],
+      ...parts,
+    }) as unknown as ContentBundle;
+  const item = (kind: 'deck' | 'image', id: string) => ({
+    kind,
+    id,
+    reason: 'Error grave',
+    date: '2026-11-08',
+  });
+
+  it('removes the whole branch of a deck, however deep, but keeps its siblings and their notes', () => {
+    const bundle = bundleOf({
+      ankiDecks: [
+        deck('2', '1'),
+        deck('4', '3'),
+        deck('3', '2'),
+        deck('1', null),
+        deck('9', null),
+        deck('10', '9'),
+      ],
+      ankiNotes: [ankiNote('a', ['4']), ankiNote('b', ['3', '4']), ankiNote('c', ['10'])],
+    });
+    const r = withoutUnpublished(bundle, new Map(), [item('deck', '2')]);
+    expect(r.bundle.ankiDecks.map((d) => d.id)).toEqual(['1', '9', '10']);
+    expect(r.bundle.ankiNotes.map((n) => n.guid)).toEqual(['c']);
+    expect(r.skipped).toEqual([
+      { kind: 'deck', id: '2', what: '«2» (3 mazos, 2 notas, 3 tarjetas)' },
+    ]);
+  });
+
+  it('a note with cards in a removed deck and in another keeps the others and gets a new hash', () => {
+    const bundle = bundleOf({
+      ankiDecks: [deck('1', null), deck('2', '1'), deck('3', null)],
+      ankiNotes: [ankiNote('mixta', ['2', '3', '3'])],
+    });
+    const r = withoutUnpublished(bundle, new Map(), [item('deck', '2')]);
+    const [n] = r.bundle.ankiNotes;
+    expect(n!.cards).toEqual([card('3'), card('3')]);
+    expect(n!.updatedAt).toBe('ayer');
+    const { hash: h, updatedAt: _u, ...rest } = n!;
+    expect(h).toBe(hash(rest));
+    expect(r.skipped[0]!.what).toBe('«2» (1 mazo, 0 notas, 1 tarjetas)');
+  });
+
+  it('a deck that is not in the bundle is ignored, but its image is still taken out of the media', () => {
+    const key = `cards/${'a'.repeat(32)}.webp`;
+    const other = `cards/${'b'.repeat(32)}.webp`;
+    const media = new Map([
+      [key, {} as never],
+      [other, {} as never],
+    ]);
+    const r = withoutUnpublished(bundleOf({}), media, [item('deck', '77'), item('image', key)]);
+    expect(r.skipped).toEqual([]);
+    expect([...r.media.keys()]).toEqual([other]);
+  });
+
+  it('names a note of Anki by its code, or by its guid when it has none, in the image error', () => {
+    const key = `cards/${'a'.repeat(32)}.webp`;
+    const bundle = bundleOf({
+      ankiNotes: [
+        ankiNote('guid-1', ['1'], { media: [key] }),
+        ankiNote('guid-2', ['1'], { media: [key], code: 'T-X-1' }),
+      ],
+    });
+    expect(() => withoutUnpublished(bundle, new Map(), [item('image', key)])).toThrow(
+      /la usa nota de Anki guid-1, nota de Anki T-X-1\./,
+    );
+  });
+
+  it('with a piece taken out, the media that nothing published uses goes too', () => {
+    const used = `cards/${'a'.repeat(32)}.webp`;
+    const orphan = `cards/${'b'.repeat(32)}.webp`;
+    const bundle = bundleOf({
+      ankiDecks: [deck('1', null), deck('2', null)],
+      ankiNotes: [ankiNote('uno', ['1'], { media: [used] }), ankiNote('dos', ['2'])],
+    });
+    const media = new Map([
+      [used, {} as never],
+      [orphan, {} as never],
+    ]);
+    const r = withoutUnpublished(bundle, media, [item('deck', '2')]);
+    expect([...r.media.keys()]).toEqual([used]);
+  });
+
+  it('takes out the notes and the tests of the list, and says what they were', () => {
+    const bundle = bundleOf({
+      notes: [
+        { id: 'AP-1', title: 'Uno', media: [] },
+        { id: 'AP-2', title: 'Dos', media: [] },
+      ],
+      quizzes: [
+        { id: 'q-1', title: 'Práctica', questionCount: 12, media: [] },
+        { id: 'q-2', title: 'Otra', questionCount: 3, media: [] },
+      ],
+    });
+    const r = withoutUnpublished(bundle, new Map(), [
+      { kind: 'note', id: 'AP-2', reason: 'Error grave', date: '2026-11-08' },
+      { kind: 'quiz', id: 'q-1', reason: 'Error grave', date: '2026-11-08' },
+    ]);
+    expect(r.bundle.notes.map((n) => n.id)).toEqual(['AP-1']);
+    expect(r.bundle.quizzes.map((q) => q.id)).toEqual(['q-2']);
+    expect(r.skipped).toEqual([
+      { kind: 'note', id: 'AP-2', what: '«Dos»' },
+      { kind: 'quiz', id: 'q-1', what: '«Práctica» (12 preguntas)' },
+    ]);
+  });
+
+  it('an image of the list that a published test or note still uses names them all', () => {
+    const key = `tests/${'a'.repeat(32)}.webp`;
+    const bundle = bundleOf({
+      notes: [{ id: 'AP-1', title: 'Uno', media: [key] }],
+      quizzes: [{ id: 'q-1', title: 'Práctica', questionCount: 1, media: [key] }],
+    });
+    expect(() =>
+      withoutUnpublished(bundle, new Map(), [
+        { kind: 'image', id: key, reason: 'Error grave', date: '2026-11-08' },
+      ]),
+    ).toThrow(/la usa apunte AP-1, test q-1\. Reemplázala/);
+  });
 });

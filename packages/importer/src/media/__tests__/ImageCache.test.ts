@@ -1,10 +1,10 @@
 // Tests the cache of the converted images.
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createRoot } from '../../test/importerFixtures';
 import { ImageCache } from '../ImageCache';
-import { processImage } from '../images';
+import { processCardImage, processImage, processQuizImage } from '../images';
 
 let root: string;
 
@@ -47,5 +47,28 @@ describe('the image cache, --assessment and the batches', () => {
     const e = await fresh.file(join(root, 'clase/imagenes/ribosoma.png'));
     expect([fresh.misses, fresh.hits]).toEqual([1, 0]);
     expect(await e.read()).toEqual(await plain.read());
+  });
+
+  it('every kind of image goes under its own prefix and an image of another kind is a different entry', async () => {
+    const png = await readFile(join(root, 'clase/imagenes/ribosoma.png'));
+    const cache = await ImageCache.open(join(root, '.cache-prefixes'));
+    const [quiz, card] = [await cache.quiz(png), await cache.card(png)];
+    expect(quiz.key).toMatch(/^tests\/[0-9a-f]{32}\.webp$/);
+    expect(card.key.replace('cards/', '')).toBe(quiz.key.replace('tests/', ''));
+    expect([cache.misses, cache.hits]).toEqual([2, 0]);
+    expect(quiz.key).toBe((await processQuizImage(png)).key);
+    expect(card.key).toBe((await processCardImage(png)).key);
+  });
+
+  it('a cache that cannot be read is an error, a missing one is not, and a cut line is skipped', async () => {
+    const broken = join(root, '.cache-broken');
+    await mkdir(join(broken, 'index.jsonl'), { recursive: true });
+    await expect(ImageCache.open(broken)).rejects.toMatchObject({ code: 'EISDIR' });
+    const cut = join(root, '.cache-cut');
+    await mkdir(cut, { recursive: true });
+    await writeFile(join(cut, 'index.jsonl'), '{"source":"x","key":"notes/a.we\n\n');
+    const cache = await ImageCache.open(cut);
+    await cache.card(await readFile(join(root, 'clase/imagenes/ribosoma.png')));
+    expect(cache.misses).toBe(1);
   });
 });

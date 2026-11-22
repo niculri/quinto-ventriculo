@@ -1,11 +1,11 @@
 // Tests the dry-run folder: what it writes, keeps and removes between imports.
 import { ContentBundle } from '@qv/schema';
-import { readFile, rm } from 'node:fs/promises';
+import { readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildBundle } from '../../bundle/build';
 import type { Manifest } from '../../manifest/schemas';
-import { processImage } from '../../media/images';
+import { processCardImage, processImage } from '../../media/images';
 import { createRoot, manifest, twoAssessments } from '../../test/importerFixtures';
 import { FolderTarget } from '../FolderTarget';
 
@@ -267,5 +267,55 @@ describe('the image cache, --assessment and the batches', () => {
     expect(after.assessments[0]!.name).toBe('Certamen 1 (renombrado)');
     expect(after.ankiNotes).toEqual(before.ankiNotes);
     expect(after.ankiDecks).toEqual(before.ankiDecks);
+  });
+});
+
+describe('FolderTarget with decks', () => {
+  const withDecks = (now: string) =>
+    buildBundle({
+      manifest: twoAssessments,
+      root,
+      process: processImage,
+      processCardImage,
+      now: () => new Date(now),
+    });
+
+  it('stops before writing anything when a scoped import would change a note type another assessment uses', async () => {
+    const output = join(root, '.output-conflict');
+    const target = new FolderTarget(output);
+    const all = await withDecks('2026-11-01T00:00:00Z');
+    await target.save(all.bundle, all.media);
+    const before = await readFile(join(output, 'content.json'), 'utf8');
+    const changed = {
+      ...all.bundle,
+      ankiNoteTypes: all.bundle.ankiNoteTypes.map((t) => ({ ...t, css: `${t.css} p {}` })),
+    };
+    await expect(
+      target.save(changed, all.media, {
+        notes: true,
+        decks: true,
+        assessments: ['biologia-celular/certamen-2'],
+      }),
+    ).rejects.toThrow(/cambiaría el tipo de nota .*lo usa anatomia-1\/certamen-1/);
+    expect(await readFile(join(output, 'content.json'), 'utf8')).toBe(before);
+  });
+
+  it('thumbnails are made from the image of a previous import when this one does not bring the image', async () => {
+    const output = join(root, '.output-thumbs');
+    const target = new FolderTarget(output);
+    const all = await withDecks('2026-11-01T00:00:00Z');
+    await target.save(all.bundle, all.media);
+    await rm(join(output, 'media/cards/thumb'), { recursive: true });
+    const report = await target.save(all.bundle, new Map());
+    expect(report.thumbsUploaded).toBeGreaterThan(0);
+    expect((await readdir(join(output, 'media/cards/thumb'))).length).toBe(report.thumbsUploaded);
+  });
+
+  it('with the image nowhere, the thumbnail is an error that names it', async () => {
+    const output = join(root, '.output-nothumb');
+    const all = await withDecks('2026-11-01T00:00:00Z');
+    await expect(new FolderTarget(output).save(all.bundle, new Map())).rejects.toThrow(
+      /Falta la imagen cards\/[0-9a-f]{32}\.webp, de la que sale su miniatura/,
+    );
   });
 });

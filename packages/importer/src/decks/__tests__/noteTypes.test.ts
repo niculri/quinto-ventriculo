@@ -31,6 +31,15 @@ describe('newestNoteTypes', () => {
   const read = (packages: Record<string, AnkiNoteType[]>) => async (path: string) =>
     packageOf(...packages[path]!);
 
+  it('a tie is resolved the same way when nobody listens to the report', async () => {
+    const packages = { a: [type({ css: 'a' })], b: [type({ css: 'b' })] };
+    const listened: string[] = [];
+    const quiet = await newestNoteTypes(['a', 'b'], read(packages));
+    const loud = await newestNoteTypes(['a', 'b'], read(packages), (n) => listened.push(n));
+    expect(quiet.get('1')!.css).toBe(loud.get('1')!.css);
+    expect(listened).toEqual(['Básica']);
+  });
+
   it('keeps the version with the highest mod, even when it is read first', async () => {
     const newest = await newestNoteTypes(
       ['nuevo', 'viejo'],
@@ -48,6 +57,8 @@ describe('newestNoteTypes', () => {
     const forward = await newestNoteTypes(['a', 'b'], read(packages), (name) => ties.push(name));
     const backward = await newestNoteTypes(['b', 'a'], read(packages), (name) => ties.push(name));
     expect(forward.get('1')!.css).toBe(backward.get('1')!.css);
+    // The version whose JSON sorts last is the one kept, whatever the order of the packages.
+    expect(forward.get('1')!.css).toBe('b');
     expect(ties).toEqual(['Básica', 'Básica']);
   });
 
@@ -85,6 +96,12 @@ describe('remapNotes', () => {
     const newest = type({ fields: ['Frente', 'Reverso', 'Prioridad'] });
     const { notes } = remapNotes([note(['p', 'r'])], [type()], new Map([['1', newest]]));
     expect(notes[0]!.fields).toEqual(['p', 'r', '']);
+  });
+
+  it('a note with fewer fields than its type gets empty ones, not undefined', () => {
+    const newest = type({ fields: ['Reverso', 'Frente'] });
+    const { notes } = remapNotes([note(['solo frente'])], [type()], new Map([['1', newest]]));
+    expect(notes[0]!.fields).toEqual(['', 'solo frente']);
   });
 
   it('fields go by name, not by position, and one the newest version lacks is dropped and reported', () => {

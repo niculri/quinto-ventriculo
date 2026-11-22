@@ -19,6 +19,15 @@ describe('content/credits.json: a name only with a written permission and its da
     expect(checkCredits({ people: [person()] }, TODAY)).toEqual([]);
   });
 
+  it('a permission dated today is valid and one dated tomorrow is not', () => {
+    expect(
+      checkCredits({ people: [person({ permission: { date: TODAY, how: 'sí' } })] }, TODAY),
+    ).toEqual([]);
+    expect(
+      checkCredits({ people: [person({ permission: { date: '2026-11-10', how: 'sí' } })] }, TODAY),
+    ).toEqual(['Persona Inventada: el permiso tiene fecha futura (2026-11-10)']);
+  });
+
   it('a row without the date or the way of the permission, or a teacher, does not', () => {
     expect(checkCredits({}, TODAY)).toEqual(['falta la lista «people»']);
     expect(checkCredits({ people: [person({ permission: { how: 'sí' } })] }, TODAY)).toEqual([
@@ -40,6 +49,12 @@ describe('content/credits.json: a name only with a written permission and its da
       'Persona Inventada: repetido',
     ]);
     expect(checkCredits({ people: [person({ name: '' })] }, TODAY)).toEqual(['fila 1: sin nombre']);
+    expect(checkCredits({ people: [null] }, TODAY)).toEqual([
+      'fila 1: sin nombre',
+      'fila 1: grupo «undefined» (material, pad, reports, other)',
+      'fila 1: sin la fecha del permiso (AAAA-MM-DD)',
+      'fila 1: sin decir cómo dio el permiso',
+    ]);
   });
 
   const PRIVATE = privateMaterial();

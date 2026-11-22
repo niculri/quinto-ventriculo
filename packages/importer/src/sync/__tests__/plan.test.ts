@@ -70,6 +70,24 @@ describe('sharedConflicts (--assessment and what the whole site shares)', () => 
     ]);
   });
 
+  it('a card in a deck that is not in the catalog counts for nobody; a preset only the scope uses may change', () => {
+    const stray = {
+      ...before,
+      ankiNotes: [{ guid: 'z', noteTypeId: '1', cards: [{ deckId: 'no-esta' }] } as never],
+    };
+    const typeChanged = { ankiNoteTypes: [{ ...type, css: 'p {}' }], ankiPresets: [] };
+    expect(sharedConflicts(stray, typeChanged, scope)).toEqual([]);
+    const presetChanged = { ankiNoteTypes: [], ankiPresets: [{ name: 'Default', config: {} }] };
+    const onlyMine = {
+      ...before,
+      ankiDecks: [deck('9', null), deck('10', 'a/c1'), deck('20', 'b/c1', 'Otro')],
+    };
+    expect(sharedConflicts(onlyMine, presetChanged, scope)).toEqual([]);
+    expect(sharedConflicts(onlyMine, presetChanged, { ...scope, assessments: ['b/c1'] })).toEqual([
+      { kind: 'preset', id: 'Default', name: 'Default', usedBy: ['a/c1'] },
+    ]);
+  });
+
   it('nothing if it is the same (whatever the order of the keys), new, only theirs, or a whole import', () => {
     const same = {
       ankiNoteTypes: [{ ...type }],
@@ -164,6 +182,38 @@ describe('pruneKeep', () => {
       quizzes: [],
       anki: { noteGuids: [], deckIds: [], noteTypeIds: [], presets: [] },
     });
+  });
+});
+
+describe('pruneKeep with content', () => {
+  const full = {
+    notes: [{ id: 'AP-1' }, { id: 'AP-2' }],
+    quizzes: [{ id: 'q1' }],
+    ankiNotes: [{ guid: 'g1' }],
+    ankiDecks: [{ id: 'd1' }, { id: 'd2' }],
+    ankiNoteTypes: [{ id: 't1' }],
+    ankiPresets: [{ name: 'P' }],
+  } as unknown as ContentBundle;
+
+  it('lists the ids of everything the import brings complete, and only of that', () => {
+    expect(
+      pruneKeep(full, { notes: true, decks: true, tests: true, assessments: ['a/1'] }),
+    ).toEqual({
+      assessments: ['a/1'],
+      notes: ['AP-1', 'AP-2'],
+      quizzes: ['q1'],
+      anki: { noteGuids: ['g1'], deckIds: ['d1', 'd2'], noteTypeIds: ['t1'], presets: ['P'] },
+    });
+    expect(pruneKeep(full, { notes: false, decks: false, tests: false })).toEqual({
+      assessments: null,
+    });
+  });
+
+  it('tests are listed unless the scope says it does not bring them', () => {
+    expect(pruneKeep(full, { notes: false, decks: false })).toHaveProperty('quizzes', ['q1']);
+    expect(pruneKeep(full, { notes: false, decks: false, tests: false })).not.toHaveProperty(
+      'quizzes',
+    );
   });
 });
 

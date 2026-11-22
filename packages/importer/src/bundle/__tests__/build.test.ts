@@ -1,10 +1,12 @@
 // Tests building the bundle from the manifest: notes, images, hashes and the scope of the import.
+import { readApkgFile } from '@qv/anki-format';
 import { ContentBundle } from '@qv/schema';
-import { rm, writeFile } from 'node:fs/promises';
+import sharp from 'sharp';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Manifest } from '../../manifest/schemas';
-import { MAX_WIDTH, processImage } from '../../media/images';
+import { MAX_WIDTH, processCardImage, processImage } from '../../media/images';
 import { createRoot, manifest, twoAssessments } from '../../test/importerFixtures';
 import { buildBundle } from '../build';
 import { hash } from '../hash';
@@ -123,6 +125,10 @@ describe('buildBundle', () => {
     const b = (await buildBundle({ manifest, root, process: processImage })).bundle.notes[0]!;
     expect(a.hash).toBe(b.hash);
     expect(hash({ x: 1, y: [2] })).toBe(hash({ y: [2], x: 1 }));
+    expect(hash({ a: { b: 1, c: [{ d: 1, e: 2 }] } })).toBe(
+      hash({ a: { c: [{ e: 2, d: 1 }], b: 1 } }),
+    );
+    expect(hash([1, 2])).not.toBe(hash([2, 1]));
   });
 
   it('--only imports only those notes', async () => {
@@ -158,5 +164,172 @@ describe('the image cache, --assessment and the batches', () => {
     await expect(
       buildBundle({ manifest: twoAssessments, root, process: processImage, assessments: ['x/y'] }),
     ).rejects.toThrow(/No existe la evaluación x\/y/);
+  });
+});
+
+describe('the tests of the manifest', () => {
+  const withTests = (folder: string, extra: object = {}): Manifest => ({
+    ...structuredClone(manifest),
+    tests: [
+      {
+        assessmentId: 'biologia-celular/certamen-2',
+        tests: [{ slug: 'practica', position: 1, folder, ...extra }],
+      },
+    ],
+  });
+
+  async function quizFolder(name: string, question: string): Promise<string> {
+    await mkdir(join(root, name, 'preguntas'), { recursive: true });
+    await writeFile(join(root, name, 'test.json'), JSON.stringify({ titulo: 'Práctica' }));
+    await writeFile(
+      join(root, name, 'preguntas', '01.json'),
+      JSON.stringify({ nombre: 'Uno', preguntas: [{ id: 'p1', q: question, r: 'La respuesta' }] }),
+    );
+    return name;
+  }
+
+  it('builds the test with the id of its slug, or with the one the manifest fixes, and reports progress', async () => {
+    const folder = await quizFolder('Test - Normal', '¿Qué es un ribosoma?');
+    const steps: string[] = [];
+    const run = (m: Manifest) =>
+      buildBundle({
+        manifest: m,
+        root,
+        process: processImage,
+        onProgress: (s) => steps.push(s),
+        now: () => new Date('2026-10-31T12:00:00Z'),
+      });
+    const byDefault = await run(withTests(folder));
+    expect(byDefault.bundle.quizzes.map((q) => q.id)).toEqual([
+      'biologia-celular-certamen-2-practica',
+    ]);
+    expect(byDefault.bundle.quizzes[0]!.hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(byDefault.bundle.quizzes[0]!.updatedAt).toBe('2026-10-31T12:00:00.000Z');
+    const fixed = await run(withTests(folder, { id: 'id-fijo' }));
+    expect(fixed.bundle.quizzes.map((q) => q.id)).toEqual(['id-fijo']);
+    expect(steps).toContain('test practica');
+  });
+
+  it('a test that names IMAIOS is never published', async () => {
+    const folder = await quizFolder('Test - Imaios', 'Corte de IMAIOS e-Anatomy');
+    await expect(
+      buildBundle({ manifest: withTests(folder), root, process: processImage }),
+    ).rejects.toThrow(/test practica: nombra IMAIOS, que no se sube al sitio/);
+  });
+
+  it('--assessment leaves out the tests of the other assessments', async () => {
+    const folder = await quizFolder('Test - Otro', '¿Qué es un ribosoma?');
+    const m = withTests(folder);
+    const r = await buildBundle({
+      manifest: m,
+      root,
+      process: processImage,
+      assessments: ['anatomia-1/certamen-1'],
+    });
+    expect(r.bundle.quizzes).toEqual([]);
+    expect(r.testsIncluded).toBe(true);
+  });
+});
+
+describe('the pieces the caller can replace', () => {
+  it('reads the decks with the given reader and shrinks their images with the given processor', async () => {
+    const read: string[] = [];
+    const images: number[] = [];
+    const steps: string[] = [];
+    const r = await buildBundle({
+      manifest: twoAssessments,
+      root,
+      process: processImage,
+      assessments: ['anatomia-1/certamen-1'],
+      readApkg: async (path) => {
+        read.push(path.split('/').at(-1)!);
+        return readApkgFile(path);
+      },
+      processCardImage: async (data) => {
+        images.push(data.length);
+        return processCardImage(data);
+      },
+      onProgress: (m) => steps.push(m),
+    });
+    expect(r.bundle.ankiNotes).toHaveLength(7);
+    expect(new Set(read)).toEqual(new Set(['Mazo de prueba.apkg']));
+    expect(images.length).toBeGreaterThan(0);
+    expect(steps.length).toBeGreaterThan(0);
+  });
+
+  it('a test of the unpublished list is reported by its slug when it has no title, and its folder is not read', async () => {
+    const m: Manifest = {
+      ...structuredClone(manifest),
+      tests: [
+        {
+          assessmentId: 'biologia-celular/certamen-2',
+          tests: [{ slug: 'practica', position: 1, folder: 'no-existe' }],
+        },
+      ],
+      unpublished: [
+        {
+          kind: 'quiz',
+          id: 'biologia-celular-certamen-2-practica',
+          reason: 'Error grave',
+          date: '2026-11-08',
+        },
+      ],
+    };
+    const r = await buildBundle({ manifest: m, root, process: processImage });
+    expect(r.unpublished).toEqual([
+      { kind: 'quiz', id: 'biologia-celular-certamen-2-practica', what: '«practica»' },
+    ]);
+  });
+
+  it('the images and warnings of a test join those of the notes, under the quiz processor', async () => {
+    const dir = join(root, 'Test - Con figura');
+    await mkdir(join(dir, 'preguntas'), { recursive: true });
+    await mkdir(join(dir, 'figuras'), { recursive: true });
+    await writeFile(
+      join(dir, 'figuras', 'f.png'),
+      await sharp({ create: { width: 30, height: 20, channels: 3, background: '#a33' } })
+        .png()
+        .toBuffer(),
+    );
+    await writeFile(join(dir, 'test.json'), JSON.stringify({ titulo: 'Con figura' }));
+    await writeFile(
+      join(dir, 'preguntas', '01.json'),
+      JSON.stringify({
+        nombre: 'Uno',
+        preguntas: [
+          {
+            id: 'p1',
+            q: '¿Qué se ve?',
+            r: 'Una foto',
+            fig: [{ tipo: 'imagen', src: 'figuras/f.png', alt: 'Foto' }],
+          },
+        ],
+      }),
+    );
+    const m: Manifest = {
+      ...structuredClone(manifest),
+      tests: [
+        {
+          assessmentId: 'biologia-celular/certamen-2',
+          tests: [{ slug: 'figura', position: 1, folder: 'Test - Con figura' }],
+        },
+      ],
+    };
+    const seen: string[] = [];
+    const r = await buildBundle({
+      manifest: m,
+      root,
+      process: processImage,
+      processQuizImage: async (data) => {
+        seen.push('quiz');
+        const img = await processCardImage(data);
+        return { ...img, key: img.key.replace('cards/', 'tests/') };
+      },
+    });
+    const [quiz] = r.bundle.quizzes;
+    expect(seen).toEqual(['quiz']);
+    expect(quiz!.media).toHaveLength(1);
+    expect(r.media.has(quiz!.media[0]!)).toBe(true);
+    expect(quiz!.media[0]).toMatch(/^tests\//);
   });
 });

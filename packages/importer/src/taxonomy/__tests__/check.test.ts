@@ -5,6 +5,7 @@ import { buildBundle } from '../../bundle/build';
 import type { Manifest } from '../../manifest/schemas';
 import { processCardImage, processImage } from '../../media/images';
 import { A, QUIZ, createRoot, manifest } from '../../test/taxonomyFixtures';
+import { checkTaxonomies } from '../check';
 import { taxonomyLines } from '../report';
 
 let root: string;
@@ -383,5 +384,48 @@ describe('partial imports and the scope', () => {
     });
     const r = await build(other, { assessments: ['anatomia-1/certamen-2'] });
     expect(r.taxonomy).toEqual([]);
+  });
+});
+
+describe('checkTaxonomies on a manifest without tests or taxonomies', () => {
+  it('such a manifest has none to check: each assessment it touches is reported as without taxonomy', async () => {
+    const full = manifest();
+    const { tests: _t, taxonomies: _x, ...bare } = full;
+    const built = await build(manifest(undefined, false));
+    const reports = checkTaxonomies({
+      manifest: bare,
+      scope: null,
+      before: built.bundle,
+      after: built.bundle,
+      notes: true,
+      partialNotes: false,
+      decks: true,
+      tests: true,
+      offNotes: new Set(),
+      offQuizzes: new Set(),
+    });
+    expect(reports).toEqual([expect.objectContaining({ assessmentId: A, version: null })]);
+  });
+
+  it('a taxonomy of an assessment the import does not touch is not looked at when it is out of the scope', async () => {
+    const m = manifest();
+    const built = await build(manifest(undefined, false));
+    const reports = checkTaxonomies({
+      manifest: m,
+      scope: new Set(['otra/certamen-9']),
+      before: built.bundle,
+      after: built.bundle,
+      notes: true,
+      partialNotes: false,
+      decks: true,
+      tests: true,
+      offNotes: new Set(),
+      offQuizzes: new Set(),
+    });
+    expect(reports).toEqual([]);
+  });
+
+  it('with nothing to report, there are no lines', () => {
+    expect(taxonomyLines([])).toEqual([]);
   });
 });

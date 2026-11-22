@@ -1,6 +1,6 @@
 // Tests the skill's inline syntax of the texts of a test.
 import { describe, expect, it } from 'vitest';
-import { inlineHtml } from '../inline';
+import { asText, inlineHtml, orFallback, textOk } from '../inline';
 
 describe('the skill’s inline syntax', () => {
   it('bold, italics, superscripts, subscripts and line breaks; the rest as it is', () => {
@@ -24,5 +24,30 @@ describe('the skill’s inline syntax', () => {
     expect(inlineHtml('a ^no esto^')).toBe('a ^no esto^');
     expect(inlineHtml('~~tachado~~')).toBe('~~tachado~~');
     expect(inlineHtml('Ca^2+^')).toBe('Ca<sup>2+</sup>');
+  });
+
+  it('the text of a value is as the skill’s Python would write it', () => {
+    expect(asText(null)).toBe('null');
+    expect(asText(7)).toBe('7');
+    expect(asText({ a: [1] })).toBe('{"a":[1]}');
+  });
+
+  it('an empty value of any kind takes the fallback, a full one does not', () => {
+    expect([orFallback('', 'x'), orFallback(0, 'x'), orFallback(undefined, 'x')]).toEqual([
+      'x',
+      'x',
+      'x',
+    ]);
+    expect([orFallback('a', 'x'), orFallback(3, 'x')]).toEqual(['a', 3]);
+  });
+
+  it('only a text with something besides blanks is a text', () => {
+    expect([textOk(' a '), textOk('  '), textOk(''), textOk(3), textOk(null)]).toEqual([
+      true,
+      false,
+      false,
+      false,
+      false,
+    ]);
   });
 });

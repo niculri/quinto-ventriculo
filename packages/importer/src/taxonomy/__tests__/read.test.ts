@@ -1,7 +1,8 @@
 // Tests reading the taxonomy files, the history of their topic ids and what git says of the committed versions.
 import type { TaxonomyFile } from '@qv/schema';
 import { execFileSync } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildBundle } from '../../bundle/build';
@@ -447,4 +448,54 @@ describe('the files: content/taxonomy/ and content/topic-map/', () => {
       }
     },
   );
+});
+
+describe('readTaxonomies on its own', () => {
+  let content: string;
+  beforeAll(async () => {
+    content = await mkdtemp(join(tmpdir(), 'qv-read-tax-'));
+    await mkdir(join(content, 'taxonomy'), { recursive: true });
+    await mkdir(join(content, 'topic-map'), { recursive: true });
+    await writeFile(join(content, 'taxonomy/anatomia-1-certamen-1.json'), JSON.stringify(tree()));
+    await writeFile(
+      join(content, 'topic-map/anatomia-1-certamen-1.json'),
+      JSON.stringify(topicMap()),
+    );
+  });
+  afterAll(() => rm(content, { recursive: true, force: true }));
+
+  it('a committed version that is not JSON, or not a taxonomy, is not a version: there is nothing to compare with', async () => {
+    const history: TaxonomyHistory = {
+      shallow: false,
+      versions: async () => ['{no es json', '{"assessmentId": 3}'],
+      committedFiles: async () => [],
+    };
+    const [t] = await readTaxonomies(content, history);
+    expect(t!.history).toBe('none');
+  });
+
+  it('a version that is valid makes the history «commit», or «shallow» in a shallow clone', async () => {
+    const versions = async () => [JSON.stringify(tree())];
+    expect(
+      (
+        await readTaxonomies(content, { shallow: false, versions, committedFiles: async () => [] })
+      )[0]!.history,
+    ).toBe('commit');
+    expect(
+      (
+        await readTaxonomies(content, { shallow: true, versions, committedFiles: async () => [] })
+      )[0]!.history,
+    ).toBe('shallow');
+  });
+
+  it('a folder that cannot be read is an error of the system; only a missing one is empty', async () => {
+    const odd = await mkdtemp(join(tmpdir(), 'qv-read-tax-odd-'));
+    try {
+      expect(await readTaxonomies(odd, null)).toEqual([]);
+      await writeFile(join(odd, 'taxonomy'), 'a file, not a folder');
+      await expect(readTaxonomies(odd, null)).rejects.toMatchObject({ code: 'ENOTDIR' });
+    } finally {
+      await rm(odd, { recursive: true, force: true });
+    }
+  });
 });

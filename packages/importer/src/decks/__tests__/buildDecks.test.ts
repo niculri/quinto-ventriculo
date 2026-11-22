@@ -4,6 +4,11 @@ import { describe, expect, it } from 'vitest';
 import { readApkgFile } from '@qv/anki-format';
 import type { AnkiPackage } from '@qv/anki-format';
 import { buildDecks } from '../buildDecks';
+import type { ImportError } from '../../ImportError';
+import { containerDeckId } from '../names';
+const didNotFail = (): never => {
+  throw new Error('it should have failed');
+};
 
 const SAMPLE = join(import.meta.dirname, '../../../../anki-format/test/fixtures/sample.apkg');
 const BASIC = 'Prueba · Básica';
@@ -158,5 +163,51 @@ describe('buildDecks note types', () => {
     const viejo = await variant('Viejo', () => {});
     const { warnings } = await run({ 'Viejo.apkg': viejo, 'Nuevo.apkg': nuevo });
     expect(warnings.some((w) => /Viejo\.apkg.*«Prueba · Básica».*Pista/.test(w))).toBe(true);
+  });
+});
+
+describe('buildDecks: the catalog and the ids it makes', () => {
+  const options = (
+    pkg: AnkiPackage,
+    catalog: { courses?: object[]; semesters?: object[] } = {},
+  ): Parameters<typeof buildDecks>[0] => ({
+    manifests: [{ assessmentId: assessment.id, decks: [{ apkg: 'a.apkg' }] }],
+    assessments: new Map([[assessment.id, assessment]]),
+    courses: (catalog.courses ?? [
+      { id: 'anatomia-1', semester: 1, name: 'Anatomía I', emoji: '🦴', position: 1 },
+    ]) as never,
+    semesters: (catalog.semesters ?? [{ number: 1, name: '1° Semestre' }]) as never,
+    root: '/x',
+    process: async () => {
+      throw new Error('no images here');
+    },
+    read: async () => pkg,
+  });
+
+  it('an assessment whose course or semester is not in the catalog is an error of the manifest', async () => {
+    const pkg = await variant('A', () => {});
+    for (const catalog of [{ courses: [] }, { semesters: [] }]) {
+      const error = await buildDecks(options(pkg, catalog)).then(
+        didNotFail,
+        (e: unknown) => e as ImportError,
+      );
+      expect(error.kind).toBe('manifest');
+      expect(error.message).toBe(
+        'La evaluación anatomia-1/certamen-1 no tiene su ramo o su semestre en el catálogo.',
+      );
+    }
+  });
+
+  it('a deck of Anki whose id is the one made for a parent deck is an error, not a silent merge', async () => {
+    const pkg = await variant('A', () => {});
+    const c = pkg.collection;
+    const mazo = c.decks.find((d) => d.name.endsWith('::A de prueba'))!;
+    const parent = mazo.name.split('::').slice(0, -1).join('::');
+    const clash = containerDeckId(parent);
+    for (const k of c.cards) if (k.deckId === mazo.id) k.deckId = clash;
+    mazo.id = clash;
+    await expect(buildDecks(options(pkg))).rejects.toThrow(
+      new RegExp(`El id ${clash} del mazo «.*» está repetido`),
+    );
   });
 });

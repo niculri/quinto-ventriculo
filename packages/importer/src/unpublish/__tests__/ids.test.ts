@@ -45,6 +45,16 @@ describe('canonicalId', () => {
     expect(canonicalId(manifest, 'quiz', 'a-b-practica')).toBe('a-b-practica');
   });
 
+  it('a slug that only one test has is enough to find it', () => {
+    const one: Pick<Manifest, 'notes' | 'tests'> = {
+      notes: [],
+      tests: [
+        { assessmentId: 'a/b', tests: [{ id: 'fijo', slug: 'unico', position: 1, folder: 'T' }] },
+      ],
+    };
+    expect(canonicalId(one, 'quiz', 'unico')).toBe('fijo');
+  });
+
   it('a slug that two tests have is an error that says which', () => {
     expect(() => canonicalId(manifest, 'quiz', 'practica')).toThrow(
       'Hay 2 tests con el slug «practica» (a-b-practica, fijo): usa su id.',
@@ -62,5 +72,19 @@ describe('assessmentOf', () => {
     expect(assessmentOf(manifest, 'quiz', 'fijo')).toBe('c/d');
     expect(assessmentOf(manifest, 'quiz', 'a-b-practica')).toBe('a/b');
     expect(assessmentOf(manifest, 'image', 'x')).toBeNull();
+  });
+
+  it('a manifest without tests, or whose test is not there, has no assessment for it', () => {
+    const noTests = { notes: manifest.notes };
+    expect(assessmentOf(noTests, 'quiz', 'fijo')).toBeNull();
+    expect(assessmentOf(manifest, 'quiz', 'otro')).toBeNull();
+    expect(assessmentOf(manifest, 'note', 'AP-9')).toBeNull();
+    expect(canonicalId(noTests, 'quiz', 'practica')).toBeNull();
+  });
+
+  it('a slug that matches no test is no test; a test with its own id is not found by the id its slug would give', () => {
+    expect(canonicalId(manifest, 'quiz', 'otro')).toBeNull();
+    expect(canonicalId(manifest, 'quiz', 'c-d-practica')).toBeNull();
+    expect(assessmentOf(manifest, 'quiz', 'c-d-practica')).toBeNull();
   });
 });

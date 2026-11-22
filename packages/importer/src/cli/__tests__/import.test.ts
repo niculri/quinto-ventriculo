@@ -2,7 +2,7 @@
 // anything is built or written.
 import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const REPO = resolve(import.meta.dirname, '../../../../..');
 const run = (...args: string[]) => {
@@ -44,5 +44,42 @@ describe('the importer’s targets', () => {
     const r = run('--target', 'public');
     expect(r.code).toBe(1);
     expect(r.err).toMatch(/Destino desconocido: public/);
+  });
+});
+
+describe('the command file', () => {
+  afterEach(() => {
+    process.exitCode = undefined;
+    vi.restoreAllMocks();
+    vi.resetModules();
+    vi.doUnmock('../runImport');
+  });
+
+  const enter = async (result: () => Promise<void>) => {
+    vi.doMock('../runImport', () => ({ runImport: result }));
+    const errors: unknown[] = [];
+    vi.spyOn(console, 'error').mockImplementation((e: unknown) => void errors.push(e));
+    await import('../import');
+    await new Promise((r) => setImmediate(r));
+    return errors;
+  };
+
+  it('a run that ends well prints nothing and leaves the exit code alone', async () => {
+    expect(await enter(() => Promise.resolve())).toEqual([]);
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  it('an error is printed as its message, and the exit code is 1', async () => {
+    expect(await enter(() => Promise.reject(new Error('algo falló')))).toEqual(['algo falló']);
+    expect(process.exitCode).toBe(1);
+  });
+
+  it('what is thrown that is not an error is printed as it is', async () => {
+    expect(
+      await enter(async () => {
+        throw 'un texto' as unknown as Error;
+      }),
+    ).toEqual(['un texto']);
+    expect(process.exitCode).toBe(1);
   });
 });

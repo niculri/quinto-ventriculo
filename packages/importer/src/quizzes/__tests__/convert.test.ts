@@ -387,4 +387,205 @@ describe('a synthetic test in the skill’s format', () => {
       ),
     ).rejects.toThrow(/fuera de la carpeta del test/);
   });
+
+  it('more than three questions without a stable id: the first three are named and the rest hinted at', async () => {
+    const t = join(root, 'Test - Muchas sin ids');
+    await mkdir(join(t, 'preguntas'), { recursive: true });
+    await writeFile(join(t, 'test.json'), JSON.stringify({ titulo: 'Muchas' }));
+    const q = { q: 'x', r: 'y' };
+    await writeFile(join(t, 'preguntas', '01.json'), JSON.stringify({ preguntas: [q, q, q, q] }));
+    const entry = { slug: 'muchas', position: 1, folder: 'Test - Muchas sin ids' };
+    const error = await convertQuiz(entry, ASSESSMENT, root, recordingProcessor().process).catch(
+      (e: unknown) => (e as Error).message,
+    );
+    expect(error).toMatch(/4 pregunta\(s\) sin id estable \([^)]*#1, [^)]*#2, [^)]*#3…\)/);
+  });
+
+  it('a custom palette of test.json is used; a name that does not exist lists the ones that do', async () => {
+    const t = join(root, 'Test - Tema');
+    await mkdir(join(t, 'preguntas'), { recursive: true });
+    await writeFile(
+      join(t, 'preguntas', '01.json'),
+      JSON.stringify({ preguntas: [{ id: 'a', q: 'x', r: 'y' }] }),
+    );
+    const entry = { slug: 'tema', position: 1, folder: 'Test - Tema' };
+    const convert = (tema: unknown) =>
+      writeFile(join(t, 'test.json'), JSON.stringify({ titulo: 'Tema', tema })).then(() =>
+        convertQuiz(entry, ASSESSMENT, root, recordingProcessor().process),
+      );
+    const custom = await convert({ claro: { ac: '#123456' } });
+    expect(custom.quiz.theme.light.ac).toBe('#123456');
+    expect(custom.quiz.theme.dark.ac).not.toBe('#123456');
+    expect((await convert('bronce')).quiz.theme.light.ac).toBe('#8A5A14');
+    expect((await convert(undefined)).quiz.theme.light.ac).toBe('#2E5C7E');
+    await expect(convert('fucsia')).rejects.toThrow(/no existe el tema «fucsia» \(hay: azul,/);
+  });
+
+  it('a notice in the manifest replaces the one of the test, an empty text of the test means none', async () => {
+    const t = join(root, 'Test - Aviso');
+    await mkdir(join(t, 'preguntas'), { recursive: true });
+    await writeFile(
+      join(t, 'preguntas', '01.json'),
+      JSON.stringify({ preguntas: [{ id: 'a', q: 'x', r: 'y' }] }),
+    );
+    const entry = { slug: 'aviso', position: 1, folder: 'Test - Aviso' };
+    const run = async (cfg: object, e: object = {}, own?: object) => {
+      await writeFile(
+        join(t, 'test.json'),
+        JSON.stringify({
+          titulo: 'Aviso',
+          ...(own ? { secciones: [{ id: 'all', nombre: 'S', carpeta: 'preguntas', ...own }] } : {}),
+          ...cfg,
+        }),
+      );
+      return (await convertQuiz({ ...entry, ...e }, ASSESSMENT, root, recordingProcessor().process))
+        .quiz.sections[0]!;
+    };
+    expect((await run({ aviso: 'Del test' })).notice).toBe('Del test');
+    expect(
+      (await run({ aviso: 'Del test' }, { sections: { all: { notice: 'Del *manifiesto*' } } }))
+        .notice,
+    ).toBe('Del <i>manifiesto</i>');
+    expect((await run({ aviso: 'Del test' }, {}, { aviso: 'De la sección' })).notice).toBe(
+      'De la sección',
+    );
+    expect((await run({ aviso: 'Del test' }, {}, { aviso: '' })).notice).toBeUndefined();
+    expect((await run({ aviso: '  ' })).notice).toBeUndefined();
+    expect((await run({ aviso: 'Del test' }, {})).notice).toBe('Del test');
+    expect(
+      (await run({ aviso: 'Del test' }, { sections: { all: { description: 'Sola' } } })).notice,
+    ).toBe('Del test');
+  });
+
+  it('a table without «cab» has one header row, and an empty cell is an empty cell, not the word null', async () => {
+    const t = join(root, 'Test - Tabla');
+    await mkdir(join(t, 'preguntas'), { recursive: true });
+    await writeFile(join(t, 'test.json'), JSON.stringify({ titulo: 'Tabla' }));
+    await writeFile(
+      join(t, 'preguntas', '01.json'),
+      JSON.stringify({
+        preguntas: [
+          {
+            id: 'a',
+            q: 'x',
+            r: 'y',
+            tabla: {
+              filas: [
+                ['Cabecera', { t: null }],
+                ['dato', { t: null, vacia: true }, { t: 'x', rs: 2 }],
+              ],
+            },
+          },
+        ],
+      }),
+    );
+    const r = await convertQuiz(
+      { slug: 'tabla', position: 1, folder: 'Test - Tabla' },
+      ASSESSMENT,
+      root,
+      recordingProcessor().process,
+    );
+    expect(r.quiz.sections[0]!.groups[0]!.questions[0]).toMatchObject({
+      table: {
+        rows: [
+          [
+            { html: 'Cabecera', header: true },
+            { html: '', header: true },
+          ],
+          [
+            { html: 'dato', header: false },
+            { html: '', header: false, empty: true },
+            { html: 'x', header: false, rowSpan: 2 },
+          ],
+        ],
+      },
+    });
+  });
+
+  it('the description of a section: its own text, else the test’s, else the standard one', async () => {
+    const t = join(root, 'Test - Descripción');
+    await mkdir(join(t, 'a'), { recursive: true });
+    await writeFile(
+      join(t, 'a', '01.json'),
+      JSON.stringify({ preguntas: [{ id: 'a', q: 'x', o: ['1', '2'], ok: 'A' }] }),
+    );
+    const entry = { slug: 'desc', position: 1, folder: 'Test - Descripción' };
+    const run = async (cfg: object, section: object = {}) => {
+      await writeFile(
+        join(t, 'test.json'),
+        JSON.stringify({
+          titulo: 'D',
+          secciones: [{ id: 'a', nombre: 'A', carpeta: 'a', ...section }],
+          ...cfg,
+        }),
+      );
+      return (await convertQuiz(entry, ASSESSMENT, root, recordingProcessor().process)).quiz
+        .sections[0]!;
+    };
+    expect((await run({}, { descripcion: 'De la **sección** ({n})' })).description).toBe(
+      'De la <b>sección</b> (1)',
+    );
+    expect((await run({ descripcion: 'Del test' })).description).toBe('Del test');
+    expect((await run({})).description).toContain('Las <b>1 preguntas</b>');
+    expect((await run({}, { etiqueta: 'Pestaña *1*' })).label).toBe('Pestaña <i>1</i>');
+    expect((await run({})).label).toBeUndefined();
+  });
+
+  it('the listing of a section: plain items and items with their own list, under a title or the default one', async () => {
+    const t = join(root, 'Test - Listado');
+    await mkdir(join(t, 'a'), { recursive: true });
+    await writeFile(
+      join(t, 'a', '01.json'),
+      JSON.stringify({ preguntas: [{ id: 'a', q: 'x', r: 'y' }] }),
+    );
+    const sectionWith = (listado: object) => ({
+      titulo: 'L',
+      secciones: [{ id: 'a', nombre: 'A', carpeta: 'a', listado }],
+    });
+    const run = async (listado: object) => {
+      await writeFile(join(t, 'test.json'), JSON.stringify(sectionWith(listado)));
+      const r = await convertQuiz(
+        { slug: 'listado', position: 1, folder: 'Test - Listado' },
+        ASSESSMENT,
+        root,
+        recordingProcessor().process,
+      );
+      return r.quiz.sections[0]!.listing;
+    };
+    expect(
+      await run({ titulo: 'Temas', items: ['uno *a*', { titulo: 'Dos', items: ['x', 'y^2^'] }] }),
+    ).toEqual({
+      title: 'Temas',
+      items: ['uno <i>a</i>', { title: 'Dos', items: ['x', 'y<sup>2</sup>'] }],
+    });
+    expect((await run({ items: ['solo'] }))!.title).toBe('Listado');
+  });
+
+  it('a figure goes beside the alternatives only for a question that has them, and only if it asked', async () => {
+    const t = join(root, 'Test - Figura al lado');
+    await mkdir(join(t, 'preguntas'), { recursive: true });
+    await writeFile(join(t, 'test.json'), JSON.stringify({ titulo: 'Al lado' }));
+    const fig = [{ tipo: 'svg', svg: '<svg viewBox="0 0 1 1"/>' }];
+    await writeFile(
+      join(t, 'preguntas', '01.json'),
+      JSON.stringify({
+        preguntas: [
+          { id: 'a', q: 'x', o: ['1', '2'], ok: 'A', fig, fig_izq: true },
+          { id: 'b', q: 'x', o: ['1', '2'], ok: 'A', fig },
+          { id: 'c', q: 'x', r: 'y', fig, fig_izq: true },
+        ],
+      }),
+    );
+    const r = await convertQuiz(
+      { slug: 'lado', position: 1, folder: 'Test - Figura al lado' },
+      ASSESSMENT,
+      root,
+      recordingProcessor().process,
+    );
+    expect(r.quiz.sections[0]!.groups[0]!.questions.map((q) => q.figureBeside)).toEqual([
+      true,
+      false,
+      false,
+    ]);
+  });
 });

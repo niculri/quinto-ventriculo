@@ -5,15 +5,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fakeApi } from '../../../test/fakes/api';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { CATALOG } from '../../../test/fixtures/catalog';
+import { adminModeIsOn, hasAdminModeRow, toggleAdminMode } from '../../../test/adminMode';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 import { RELEASE_OVERVIEW, RELEASE_SUMMARY, releaseApi } from '../../../test/releases';
 
 afterEach(() => window.localStorage.clear());
 
-const SWITCH = { name: 'Modo admin' };
 const ACTIVE =
-  'Modo admin: ves el borrador y lo que está apagado para los alumnos, y nada se guarda.';
+  'Modo admin: ves el borrador y lo que está apagado para los alumnos; tu avance es el de siempre.';
 
 describe('the admin mode', () => {
   it('reads the site with the admin API, in a cache of its own, and leaves nothing when it ends', async () => {
@@ -24,7 +24,7 @@ describe('the admin mode', () => {
       api: releaseApi({ catalog: published }),
       adminApi: releaseApi({ catalog: draft }),
     });
-    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    await toggleAdminMode();
     expect(window.localStorage.getItem('qv-admin-mode')).toBe('admin');
     expect(screen.getByText(ACTIVE)).toBeInTheDocument();
     await waitFor(() => expect(draft).toHaveBeenCalled());
@@ -33,7 +33,7 @@ describe('the admin mode', () => {
     await waitFor(() => expect(draft).toHaveBeenCalled());
     expect(published).not.toHaveBeenCalled();
     await act(() => router.navigate('/admin/releases'));
-    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    await toggleAdminMode();
     await waitFor(() => expect(screen.queryByText(ACTIVE)).toBeNull());
     expect(window.localStorage.getItem('qv-admin-mode')).toBe('student');
     draft.mockClear();
@@ -55,7 +55,7 @@ describe('the admin mode', () => {
     });
     await waitFor(() => expect(window.localStorage.getItem('qv-admin-mode')).toBe('student'));
     expect(screen.queryByText(ACTIVE)).toBeNull();
-    expect(screen.queryByRole('switch', SWITCH)).toBeNull();
+    expect(await hasAdminModeRow()).toBe(false);
     await waitFor(() => expect(published).toHaveBeenCalled());
     await waitFor(() => expect(progress).toHaveBeenCalled());
     draft.mockClear();
@@ -92,11 +92,11 @@ describe('the admin mode', () => {
       api: releaseApi(server),
       adminApi: releaseApi(server),
     });
-    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    await toggleAdminMode();
     const phone = await screen.findByRole('switch', { name: 'Vi lo nuevo en el teléfono' });
     await userEvent.click(phone);
     expect(await screen.findByText('Marcada por ana@ug.uchile.cl')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('switch', SWITCH));
+    await toggleAdminMode();
     await waitFor(() => expect(screen.queryByText(ACTIVE)).toBeNull());
     await waitFor(() =>
       expect(screen.getByRole('switch', { name: 'Vi lo nuevo en el teléfono' })).toBeChecked(),
@@ -110,7 +110,7 @@ describe('the admin mode', () => {
       api: releaseApi(),
       adminApi: releaseApi(),
     });
-    await userEvent.click(await screen.findByRole('switch', SWITCH));
+    await toggleAdminMode();
     expect(await screen.findByText(ACTIVE)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /tu cuenta$/i }));
     await userEvent.click(await screen.findByRole('menuitem', { name: /Cerrar sesión/ }));
@@ -125,7 +125,7 @@ describe('the admin mode', () => {
       api: fakeApi({ catalog: published }),
       adminApi: fakeApi({ catalog: draft }),
     });
-    expect(await screen.findByRole('switch', SWITCH)).not.toBeChecked();
+    expect(await adminModeIsOn()).toBe(false);
     await waitFor(() => expect(published).toHaveBeenCalled());
     expect(draft).not.toHaveBeenCalled();
     first.unmount();
@@ -136,14 +136,14 @@ describe('the admin mode', () => {
       api: fakeApi({ catalog: published }),
       adminApi: fakeApi({ catalog: draft }),
     });
-    expect(await screen.findByRole('switch', SWITCH)).toBeChecked();
+    expect(await adminModeIsOn()).toBe(true);
     await waitFor(() => expect(draft).toHaveBeenCalled());
   });
 
   it('is offered only to an administrator', async () => {
     renderApp('/home', { admin: localAdminRepository({ admin: false }) });
     expect(await screen.findByRole('heading', { name: /Hola/ })).toBeInTheDocument();
-    expect(screen.queryByRole('switch', SWITCH)).toBeNull();
+    expect(await hasAdminModeRow()).toBe(false);
   });
 
   it('without the API for it (a build that cannot), the switch is not there', async () => {
@@ -152,7 +152,7 @@ describe('the admin mode', () => {
       api: releaseApi(),
     });
     expect(await screen.findByRole('heading', { name: 'Publicaciones' })).toBeInTheDocument();
-    expect(screen.queryByRole('switch', SWITCH)).toBeNull();
+    expect(await hasAdminModeRow()).toBe(false);
     expect(window.localStorage.getItem('qv-admin-mode')).toBeNull();
   });
 });

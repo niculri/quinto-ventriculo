@@ -43,3 +43,60 @@ export async function signIn(page: Page) {
   await page.getByRole('button', { name: 'Entrar con Google' }).first().click();
   await expect(page).toHaveURL(/\/home$/);
 }
+
+const MODE_ROW = { name: /^Modo admin/ };
+
+/** The row «Modo admin» of the account menu: opens the menu, and leaves it open. */
+export async function openModeRow(page: Page) {
+  await page.getByRole('button', { name: /tu cuenta$/i }).click();
+  const row = page.getByRole('menuitemcheckbox', MODE_ROW);
+  await expect(row).toBeVisible();
+  return row;
+}
+
+/** Whether the admin mode is on (the menu is opened and closed again). */
+export async function adminModeIsOn(page: Page) {
+  const row = await openModeRow(page);
+  const on = (await row.getAttribute('aria-checked')) === 'true';
+  await page.keyboard.press('Escape');
+  await expect(row).toBeHidden();
+  return on;
+}
+
+/** Puts the admin mode on or off from the account menu. */
+export async function setAdminMode(page: Page, on: boolean) {
+  const row = await openModeRow(page);
+  if (((await row.getAttribute('aria-checked')) === 'true') === on) {
+    await page.keyboard.press('Escape');
+    return;
+  }
+  await row.click();
+  await expect(row).toBeHidden();
+}
+
+/**
+ * Where the tags of a page are, against the breadcrumbs on their row, the bar above and the column's right edge, in page
+ * coordinates.
+ */
+export function tagGeometry(page: Page) {
+  return page.evaluate(() => {
+    const rect = (e: Element) => {
+      const b = e.getBoundingClientRect();
+      return { x: b.x, y: b.y + window.scrollY, right: b.right, bottom: b.bottom + window.scrollY };
+    };
+    const tag = document.querySelector('main [data-admin-tag]')!;
+    const row = tag.parentElement!;
+    const route = row.querySelector('nav')!;
+    const crumbs = [...route.querySelectorAll('li')];
+    return {
+      tag: rect(tag),
+      row: rect(row),
+      route: rect(route),
+      crumbs: crumbs.map((c) => rect(c)),
+      cut: [...route.querySelectorAll('li span')].some((s) => s.scrollWidth > s.clientWidth),
+      bar: rect(document.querySelector('header')!),
+      title: rect(document.querySelector('main h1')!),
+      sideScroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+}

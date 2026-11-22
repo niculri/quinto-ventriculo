@@ -365,3 +365,29 @@ test.describe('one-time tips', () => {
     await expect(tip).toHaveCount(0);
   });
 });
+
+test('the account button says only the first name, the menu the whole name, and the bar does not move with it', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  const account = page.getByRole('button', { name: /tu cuenta$/i });
+  const place = (l: typeof account) =>
+    l.evaluate((e) => {
+      const b = e.getBoundingClientRect();
+      return [b.x, b.y, b.width, b.height].map(Math.round);
+    });
+  const search = page.getByRole('banner').getByRole('button', { name: /Buscar en la página/ });
+  const bar = async () => [await place(search), await place(account)];
+  const closed = await bar();
+  await expect(account).toHaveAccessibleName('Estudiante de prueba, tu cuenta');
+  if (!isMobile) {
+    await expect(account).toHaveText('Estudiante');
+    // A name that is long is cut, so that the bar is the same for anybody.
+    expect(closed[1]![2]).toBeLessThanOrEqual(9 * 16 + 80);
+  }
+  await account.click();
+  await expect(page.getByRole('menu').getByText('Estudiante de prueba')).toBeVisible();
+  await page.keyboard.press('Escape');
+  expect(await bar()).toEqual(closed);
+});

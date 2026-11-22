@@ -2,7 +2,7 @@
 // e2e/content/draft and what the database gives for it (e2e/content/release, written by db/tests/release.test.ts).
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
-import { DECK_URL, signIn } from './helpers';
+import { DECK_URL, adminModeIsOn, setAdminMode, signIn } from './helpers';
 
 const PANEL = '/admin/releases';
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
@@ -84,7 +84,7 @@ test('the panel: the review list and what changes, by assessment, with its befor
   expect(await noSideScroll(page)).toBeLessThanOrEqual(0);
 });
 
-test('the admin mode: the whole site with the draft, entered and left from the top bar, without moving anything', async ({
+test('the admin mode: the whole site with the draft, entered and left from the account menu, without moving anything', async ({
   page,
 }) => {
   await openPanel(page);
@@ -92,10 +92,9 @@ test('the admin mode: the whole site with the draft, entered and left from the t
   const before = await study();
   const barBefore = await bar(page);
   const title = await box(page.getByRole('heading', { level: 2, name: 'Publicaciones' }));
-  const toggle = page.getByRole('switch', { name: 'Modo admin' });
 
-  await expect(toggle).not.toBeChecked();
-  await toggle.check();
+  expect(await adminModeIsOn(page)).toBe(false);
+  await setAdminMode(page, true);
   await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
   await expect(
     page.getByRole('status').filter({ hasText: 'Modo admin: ves el borrador' }),
@@ -114,9 +113,11 @@ test('the admin mode: the whole site with the draft, entered and left from the t
     .getByRole('group', { name: 'Responder' })
     .getByRole('button', { name: /^Bien/ })
     .click();
-  expect(await study()).toBe(before);
+  // What is studied in the admin mode is saved as always.
+  await expect.poll(study).not.toBe(before);
+  const studied = await study();
 
-  // Out, from the top bar: the published site again, and nothing of the draft stays. The article is read in the admin mode
+  // Out, from the account menu: the published site again, and nothing of the draft stays. The article is read in the admin mode
   // without loading the page again, and after leaving, again without loading it: what the app keeps in memory (its
   // cache) is not the draft's.
   await page.goto(PANEL);
@@ -125,7 +126,7 @@ test('the admin mode: the whole site with the draft, entered and left from the t
   await within(page, PANEL);
   await expect(page.getByRole('heading', { level: 2, name: 'Publicaciones' })).toBeVisible();
   const barIn = await bar(page);
-  await toggle.uncheck();
+  await setAdminMode(page, false);
   await expect(page.locator('[data-admin-mode-mark]')).toHaveCount(0);
   expect(await bar(page)).toEqual(barIn);
   expect(await page.evaluate(() => window.localStorage.getItem('qv-admin-mode'))).toBe('student');
@@ -136,7 +137,7 @@ test('the admin mode: the whole site with the draft, entered and left from the t
   await page.goto(ARTICLE);
   await expect(page.getByRole('heading', { level: 1, name: /Traducción/ })).toBeVisible();
   await expect(page.getByText(DRAFT_TEXT)).toHaveCount(0);
-  expect(await study()).toBe(before);
+  expect(await study()).toBe(studied);
   expect(await noSideScroll(page)).toBeLessThanOrEqual(0);
 });
 
@@ -182,16 +183,15 @@ test('entering and leaving the admin mode moves nothing at any frame, also after
   page,
 }) => {
   await openPanel(page);
-  const toggle = page.getByRole('switch', { name: 'Modo admin' });
   await page.waitForTimeout(800);
-  expect(await movedWhile(page, () => toggle.check())).toEqual([]);
-  expect(await movedWhile(page, () => toggle.uncheck())).toEqual([]);
+  expect(await movedWhile(page, () => setAdminMode(page, true))).toEqual([]);
+  expect(await movedWhile(page, () => setAdminMode(page, false))).toEqual([]);
   // Opened in the admin mode (the site's cache is empty): leaving it does not take the page off the screen.
-  await toggle.check();
+  await setAdminMode(page, true);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Lista de revisión' })).toBeVisible();
   await page.waitForTimeout(800);
-  expect(await movedWhile(page, () => toggle.uncheck())).toEqual([]);
+  expect(await movedWhile(page, () => setAdminMode(page, false))).toEqual([]);
 });
 
 test('the admin mode is remembered by the browser: a reload and a new tab start in it, and the student mode too', async ({
@@ -199,16 +199,16 @@ test('the admin mode is remembered by the browser: a reload and a new tab start 
   context,
 }) => {
   await openPanel(page);
-  await page.getByRole('switch', { name: 'Modo admin' }).check();
+  await setAdminMode(page, true);
   await page.reload();
   await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
   const other = await context.newPage();
   await other.goto(ARTICLE);
   await expect(other.getByText(DRAFT_TEXT)).toBeVisible();
   await expect(other.locator('[data-admin-mode-mark]')).toBeVisible();
-  await expect(other.getByRole('switch', { name: 'Modo admin' })).toBeChecked();
+  expect(await adminModeIsOn(other)).toBe(true);
 
-  await other.getByRole('switch', { name: 'Modo admin' }).uncheck();
+  await setAdminMode(other, false);
   await other.reload();
   await expect(other.getByRole('heading', { level: 1, name: /Traducción/ })).toBeVisible();
   await expect(other.locator('[data-admin-mode-mark]')).toHaveCount(0);

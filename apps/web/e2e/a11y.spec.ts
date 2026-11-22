@@ -91,6 +91,22 @@ test.describe('the admin mode', () => {
       await axe(page, `modo admin ${route}`);
     });
   }
+
+  test('axe with the account menu open: the row of the mode, in both modes', async ({ page }) => {
+    await signedIn(page);
+    await page.goto('/home');
+    await settled(page);
+    await page.getByRole('button', { name: /tu cuenta$/i }).click();
+    await expect(page.getByRole('menuitemcheckbox', { name: /^Modo admin/ })).toBeVisible();
+    await axe(page, 'menú de la cuenta, modo estudiante');
+    await page.keyboard.press('Escape');
+    await page.addInitScript(() => localStorage.setItem('qv-admin-mode', 'admin'));
+    await page.reload();
+    await settled(page);
+    await page.getByRole('button', { name: /tu cuenta$/i }).click();
+    await expect(page.getByRole('menuitemcheckbox', { name: /^Modo admin/ })).toBeChecked();
+    await axe(page, 'menú de la cuenta, modo admin');
+  });
 });
 
 test.describe('popups', () => {

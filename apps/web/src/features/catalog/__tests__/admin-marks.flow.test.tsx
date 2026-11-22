@@ -1,12 +1,12 @@
 // Tests what the admin mode adds to the pages (a tag on each page a student does not see, a mark on each element of a
 // list) and that, as a student, an administrator sees the same pages as one.
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { adminKey } from '@qv/schema/http';
 import { fakeApi } from '../../../test/fakes/api';
 import { CATALOG } from '../../../test/fixtures/catalog';
+import { adminModeIsOn, toggleAdminMode } from '../../../test/adminMode';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../../admin/api/repository';
 
@@ -36,6 +36,20 @@ const body = () =>
   [screen.getByRole('main'), screen.getByRole('navigation', { name: 'Menú del sitio' })]
     .map((e) => e.innerHTML.replace(/_r_[a-z0-9]+_|:r[a-z0-9]+:/g, 'id'))
     .join('\n');
+
+/** The page, with what it reads: no loading placeholder, and the same twice in a row. */
+const loaded = async () => {
+  let last = '';
+  await waitFor(
+    () => {
+      const now = body();
+      const steady = now === last && !document.querySelector('main .animate-pulse');
+      last = now;
+      expect(steady).toBe(true);
+    },
+    { interval: 150 },
+  );
+};
 
 describe('the admin mode in the pages', () => {
   it('tags the page that only an administrator sees, and every element of a list that is such', async () => {
@@ -90,7 +104,7 @@ describe('the admin mode in the pages', () => {
       adminApi: fakeApi({ catalog: async () => ADMIN_CATALOG }),
       api: fakeApi(),
     });
-    expect(await screen.findByRole('switch', { name: 'Modo admin' })).not.toBeChecked();
+    expect(await adminModeIsOn()).toBe(false);
     for (const page of PAGES) {
       await router.navigate(page);
       await waitFor(() => expect(screen.getByRole('main')).not.toBeEmptyDOMElement());
@@ -104,7 +118,7 @@ describe('the admin mode in the pages', () => {
     for (const page of PAGES) {
       await first.router.navigate(page);
       await screen.findByRole('navigation', { name: 'Menú del sitio' });
-      await waitFor(() => expect(screen.getByRole('main')).not.toBeEmptyDOMElement());
+      await loaded();
       seen[page] = body();
     }
     first.unmount();
@@ -113,10 +127,11 @@ describe('the admin mode in the pages', () => {
       admin: localAdminRepository({ admin: true }),
       adminApi: fakeApi({ catalog: async () => ADMIN_CATALOG }),
     });
-    expect(await screen.findByRole('switch', { name: 'Modo admin' })).not.toBeChecked();
+    expect(await adminModeIsOn()).toBe(false);
     for (const page of PAGES) {
       await admin.router.navigate(page);
-      await waitFor(() => expect(body()).toBe(seen[page]));
+      await loaded();
+      expect(body()).toBe(seen[page]);
     }
   });
 
@@ -125,11 +140,11 @@ describe('the admin mode in the pages', () => {
       admin: localAdminRepository({ admin: true }),
       adminApi: fakeApi({ catalog: async () => ADMIN_CATALOG }),
     });
-    const toggle = await screen.findByRole('switch', { name: 'Modo admin' });
+    await screen.findByRole('heading', { level: 1 });
     expect(document.querySelector(MARKS)).toBeNull();
-    await userEvent.click(toggle);
+    await toggleAdminMode();
     await waitFor(() => expect(document.querySelector('[data-admin-tag]')).not.toBeNull());
-    await userEvent.click(screen.getByRole('switch', { name: 'Modo admin' }));
+    await toggleAdminMode();
     await waitFor(() => expect(document.querySelector(MARKS)).toBeNull());
   });
 });

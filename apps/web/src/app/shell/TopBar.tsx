@@ -1,12 +1,11 @@
 // The top bar of the signed-in app: the phone's menu button, the logo, the search box and the account menu, with the
-// admin mode's line over it.
+// admin mode's line over it (its switch is in the account menu).
 import { Menu, Search } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
 import { Logo } from '../../shared/ui/Logo';
 import { keys } from '../../shared/ui/keys';
 import { UserMenu } from '../../features/nav/components/UserMenu';
-import { ModeSwitch } from './ModeSwitch';
 import { appStrings } from '../strings';
 
 export function TopBar({
@@ -62,7 +61,6 @@ export function TopBar({
             {keys('Ctrl+K')}
           </kbd>
         </button>
-        <ModeSwitch />
         <UserMenu />
       </div>
     </header>

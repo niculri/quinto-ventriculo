@@ -76,17 +76,6 @@ export function AppShell() {
 
       <SiteFooter hidden={hideNav} />
 
-      {/* Where one answers nothing is saved in the admin mode: a line in the corner, over the screen (it moves nothing). */}
-      {adminMode.active && hideNav ? (
-        <p
-          aria-hidden="true"
-          data-admin-note=""
-          className="pointer-events-none fixed bottom-0 left-2 z-30 text-[0.6rem] leading-[0.65rem] font-medium text-[#9a4a12] dark:text-accent"
-        >
-          {appStrings.adminModeNote}
-        </p>
-      ) : null}
-
       <SearchPalette open={searching} onOpenChange={setSearching} />
     </div>
   );

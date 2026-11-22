@@ -3,7 +3,7 @@
 import { writeFileSync } from 'node:fs';
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
-import { DECK_URL, signIn } from './helpers';
+import { DECK_URL, openModeRow, setAdminMode, signIn } from './helpers';
 
 test.skip(({ isMobile }) => !isMobile, 'phone only');
 test.use({ viewport: { width: 375, height: 667 } });
@@ -318,27 +318,32 @@ test('a long note: the index is always at hand, takes to the section below its b
   if (browserName === 'chromium') expect(await shifts(page)).toBe(0);
 });
 
-test('the admin mode switch is only a switch on the phone: it fits the bar, has its name, and the mode shows elsewhere', async ({
+test('the admin mode row is in the account menu on the phone: it fits, has its name and the mode shows elsewhere', async ({
   page,
 }) => {
   await signIn(page);
-  const toggle = page.getByRole('switch', { name: 'Modo admin' });
-  await expect(toggle).toBeVisible();
+  expect(await page.getByRole('switch', { name: 'Modo admin' }).count()).toBe(0);
+  const account = page.getByRole('button', { name: /tu cuenta$/i });
   const bar = (await page.getByRole('banner').boundingBox())!;
-  const box = (await toggle.locator('xpath=..').boundingBox())!;
-  // No text beside it: the label is the switch alone.
-  expect(box.width).toBeLessThanOrEqual(48);
-  expect(box.height).toBeGreaterThanOrEqual(24);
-  expect(box.x + box.width).toBeLessThanOrEqual(375);
-  expect(box.y).toBeGreaterThanOrEqual(bar.y);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  const accountBox = (await account.boundingBox())!;
+  expect(accountBox.x + accountBox.width).toBeLessThanOrEqual(375);
+  expect(accountBox.y).toBeGreaterThanOrEqual(bar.y);
 
-  await toggle.check();
+  const row = await openModeRow(page);
+  const box = (await row.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(375);
+  expect(box.height).toBeGreaterThanOrEqual(36);
+  await expect(row).toHaveAttribute('aria-checked', 'false');
+  // Keyboard: the row is the control.
+  await row.focus();
+  await page.keyboard.press('Enter');
+  await expect(row).toBeHidden();
   await expect(page.locator('[data-admin-mode-mark]')).toBeVisible();
   await expect(
     page.getByRole('status').filter({ hasText: 'Modo admin: ves el borrador' }),
   ).toBeAttached();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
-  await toggle.uncheck();
+  await setAdminMode(page, false);
   await expect(page.locator('[data-admin-mode-mark]')).toHaveCount(0);
 });

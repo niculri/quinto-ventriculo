@@ -8,7 +8,10 @@ import { useSession, useUser } from '../../session/context';
 import { ThemePicker } from '../../../shared/ui/ThemePicker';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { isAnswerScreen } from '../../../shared/ui/answerScreen';
+import { SwitchTrack } from '../../../shared/ui/Switch';
+import { firstName } from '../../../shared/lib/firstName';
 import { initials } from '../../../shared/lib/initials';
+import { useAdminMode } from '../../adminMode/adminMode';
 import { navStrings } from '../strings';
 
 function Avatar({
@@ -43,6 +46,9 @@ export function UserMenu() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isAdmin = useIsAdmin();
+  const mode = useAdminMode();
+  const showMode = mode.available && (isAdmin.data === true || mode.active);
+  const first = firstName(user.name);
   const item =
     'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-2';
 
@@ -52,9 +58,7 @@ export function UserMenu() {
         aria-label={user.name ? navStrings.accountOf(user.name) : navStrings.account}
         className="flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5"
       >
-        {user.name ? (
-          <span className="hidden max-w-[14rem] truncate sm:block">{user.name}</span>
-        ) : null}
+        {first ? <span className="hidden max-w-[9rem] truncate sm:block">{first}</span> : null}
         <Avatar name={user.name} email={user.email} avatar={user.avatar} />
       </Menu.Trigger>
       <Menu.Portal>
@@ -80,6 +84,21 @@ export function UserMenu() {
             <Menu.Item className={item} onSelect={() => void navigate(paths.admin)}>
               <ShieldCheck className="size-4 text-muted" aria-hidden="true" /> {navStrings.admin}
             </Menu.Item>
+          ) : null}
+          {showMode ? (
+            <Menu.CheckboxItem
+              checked={mode.active}
+              onCheckedChange={mode.set}
+              className={`${item} justify-between gap-3`}
+            >
+              <span className="min-w-0">
+                <span className="block">{navStrings.mode.label}</span>
+                <span className="block text-xs text-muted">
+                  {mode.active ? navStrings.mode.on : navStrings.mode.off}
+                </span>
+              </span>
+              <SwitchTrack checked={mode.active} />
+            </Menu.CheckboxItem>
           ) : null}
           <Menu.Item className={item} onSelect={() => void navigate(paths.help)}>
             <CircleHelp className="size-4 text-muted" aria-hidden="true" /> {navStrings.help}

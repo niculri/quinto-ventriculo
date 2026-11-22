@@ -35,3 +35,17 @@ export function Switch({
     </span>
   );
 }
+
+/** The look of a switch, for a row that is the control itself (a menu item): the row has the role and the state. */
+export function SwitchTrack({ checked }: { checked: boolean }) {
+  return (
+    <span aria-hidden="true" className="relative inline-flex h-6 w-10 flex-none items-center">
+      <span
+        className={`absolute inset-0 rounded-full transition-colors ${checked ? 'bg-brand' : 'bg-border-strong'}`}
+      />
+      <span
+        className={`absolute left-0.5 size-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-4' : ''}`}
+      />
+    </span>
+  );
+}

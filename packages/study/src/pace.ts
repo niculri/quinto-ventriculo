@@ -162,8 +162,10 @@ function newPerDayFor(cards: number, days: number): number {
   return days <= 0 ? 0 : Math.ceil(cards / days);
 }
 
+// Only the choices count: any other number, which the database does not allow, is the usual one.
 const finalDaysOf = (setting: Pick<AssessmentSetting, 'finalReviewDays'> | undefined) =>
-  setting?.finalReviewDays ?? DEFAULT_FINAL_REVIEW_DAYS;
+  FINAL_REVIEW_OPTIONS.find((o) => o.days === setting?.finalReviewDays)?.days ??
+  DEFAULT_FINAL_REVIEW_DAYS;
 
 export function computePace(
   setting: Pick<AssessmentSetting, 'examDate' | 'finalReviewDays'> | undefined,

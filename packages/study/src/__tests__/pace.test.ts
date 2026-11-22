@@ -259,6 +259,28 @@ describe('the new cards a day', () => {
     });
   });
 
+  it('a number of final-review days that is not one of the choices is the usual one: nothing breaks', () => {
+    const viewOf = (finalReviewDays: number) =>
+      assessmentView({
+        decks: DECKS,
+        plan: plan({ assessments: [dated(30, { finalReviewDays })] }),
+        progress: [],
+        assessmentId: ASSESSMENT,
+        today: TODAY,
+        prefs: defaultPreferences(),
+      });
+    const usual = viewOf(3);
+    for (const days of [0, 2, 5, 10, -1]) {
+      const view = viewOf(days);
+      expect(view.pace).toEqual(usual.pace);
+      expect(view.status).toBe(usual.status);
+      expect(view.reviewDays).toBe(usual.reviewDays);
+    }
+    expect(computePace(dated(12, { finalReviewDays: 2 }), facts(), TODAY, 15).newPerDay).toBe(
+      computePace(dated(12), facts(), TODAY, 15).newPerDay,
+    );
+  });
+
   it('only assessments with a date get a pace', () => {
     const p = plan({ assessments: [{ deckId: ASSESSMENT, includeExtras: false, newPerDay: 15 }] });
     expect(assessmentPaces(DECKS, p, [], TODAY).size).toBe(0);

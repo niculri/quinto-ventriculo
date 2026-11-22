@@ -176,3 +176,102 @@ describe('the demo repository', () => {
     expect(await repo.load('otro')).toEqual({});
   });
 });
+
+describe('what the demo repository reads from the browser', () => {
+  const kept = (rounds: unknown[], answers: unknown[]) => {
+    const storage = memoryStorage();
+    storage.setItem('qv-demo-quiz', JSON.stringify({ progress: {}, rounds, answers }));
+    return storage;
+  };
+  const round = (id: string, over: object = {}) => ({
+    ...info(id),
+    quizId: id,
+    sectionId: 's',
+    status: 'active',
+    ...over,
+  });
+  const kept_answer = (roundId: string, position: number, answeredAt: string) => ({
+    ...answer(roundId, position, answeredAt),
+    quizId: roundId,
+    sectionId: 's',
+  });
+
+  it('a round kept before it had a time of its own takes its last answer’s, or its start', async () => {
+    const storage = kept(
+      [round('old'), round('new', { updatedAt: '2026-03-10T11:30:00.000Z' })],
+      [
+        kept_answer('old', 0, '2026-03-10T10:30:00.000Z'),
+        kept_answer('old', 1, '2026-03-10T12:00:00.000Z'),
+        kept_answer('old', 2, '2026-03-10T09:00:00.000Z'),
+        kept_answer('new', 0, '2026-03-10T11:00:00.000Z'),
+      ],
+    );
+    expect(await localQuizRepository(storage).openRounds()).toEqual([
+      {
+        quizId: 'old',
+        sectionId: 's',
+        answered: 3,
+        questionCount: 10,
+        updatedAt: '2026-03-10T12:00:00.000Z',
+      },
+      {
+        quizId: 'new',
+        sectionId: 's',
+        answered: 1,
+        questionCount: 10,
+        updatedAt: '2026-03-10T11:30:00.000Z',
+      },
+    ]);
+  });
+
+  it('two rounds saved at the same moment keep the order they were kept in', async () => {
+    const at = { updatedAt: '2026-03-10T11:30:00.000Z' };
+    const storage = kept(
+      [round('a', at), round('b', at)],
+      [kept_answer('a', 0, ''), kept_answer('b', 0, '')],
+    );
+    expect((await localQuizRepository(storage).openRounds()).map((r) => r.quizId)).toEqual([
+      'a',
+      'b',
+    ]);
+  });
+
+  it('what is not readable starts empty, and a save writes it again whole', async () => {
+    const storage = memoryStorage();
+    storage.setItem('qv-demo-quiz', '{roto');
+    const repo = localQuizRepository(storage);
+    expect(await repo.load('q')).toEqual({});
+    expect(await repo.openRounds()).toEqual([]);
+    await repo.save({ quizId: 'q', sectionId: 's', round: { id: 'r1' }, roundInfo: info('r1') });
+    expect(JSON.parse(storage.getItem('qv-demo-quiz')!)).toMatchObject({ rounds: [{ id: 'r1' }] });
+  });
+
+  it('without a parameter it uses the browser’s storage; when the browser blocks it, its memory', async () => {
+    await localQuizRepository().save({
+      quizId: 'q',
+      sectionId: 's',
+      round: { id: 'r1' },
+      roundInfo: info('r1'),
+    });
+    expect(localStorage.getItem('qv-demo-quiz')).toContain('r1');
+    localStorage.clear();
+    vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    const blocked = localQuizRepository();
+    await blocked.save({ quizId: 'q', sectionId: 's', round: { id: 'r2' }, roundInfo: info('r2') });
+    expect((await blocked.load('q')).s?.round).toEqual({ id: 'r2' });
+    vi.restoreAllMocks();
+    expect(localStorage.getItem('qv-demo-quiz')).toBeNull();
+  });
+
+  it('a storage that refuses to write keeps the progress in memory', async () => {
+    const storage = memoryStorage();
+    storage.setItem = () => {
+      throw new DOMException('full', 'QuotaExceededError');
+    };
+    const repo = localQuizRepository(storage);
+    await repo.save({ quizId: 'q', sectionId: 's', preferences: { groups: ['01'] }, round: null });
+    expect(storage.getItem('qv-demo-quiz')).toBeNull();
+  });
+});

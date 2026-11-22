@@ -79,6 +79,20 @@ for (const route of SIGNED_IN) {
   });
 }
 
+// The admin mode adds its own text to the bar and the logo (and its tags, on pages that only an administrator sees).
+test.describe('the admin mode', () => {
+  for (const route of ['/home', '/courses', BIOCEL, ARTICLE, `${DECK_URL}/study`]) {
+    test(`axe in the admin mode: ${route}`, async ({ page }) => {
+      await signedIn(page);
+      await page.addInitScript(() => localStorage.setItem('qv-admin-mode', 'admin'));
+      await page.goto(route);
+      await settled(page);
+      await expect(page.locator('[data-admin-mode-mark]')).toBeAttached();
+      await axe(page, `modo admin ${route}`);
+    });
+  }
+});
+
 test.describe('popups', () => {
   test.beforeEach(({ page }) => signedIn(page));
 

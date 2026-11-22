@@ -101,7 +101,7 @@ export function Logo({
             {adminMode ? (
               <span
                 data-text={sharedStrings.logo.adminMode}
-                className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-accent before:content-[attr(data-text)]"
+                className="col-start-1 row-start-1 text-[0.72rem] leading-none font-semibold text-[#9a4a12] before:content-[attr(data-text)] dark:text-accent"
               />
             ) : null}
           </span>

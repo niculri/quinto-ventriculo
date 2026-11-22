@@ -34,7 +34,7 @@ export function ModeSwitch() {
       title={mode.active ? s.adminHelp : s.studentHelp}
     >
       <Reserved longest={s.student} className="font-medium max-md:hidden">
-        <span className={mode.active ? 'text-accent' : 'text-muted'}>
+        <span className={mode.active ? 'text-[#9a4a12] dark:text-accent' : 'text-muted'}>
           {mode.active ? s.admin : s.student}
         </span>
       </Reserved>

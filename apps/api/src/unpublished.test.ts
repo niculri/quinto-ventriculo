@@ -2,10 +2,10 @@
 import { describe, expect, it } from 'vitest';
 import { UnpublishedLog } from '@qv/schema';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import type { MediaStore } from './media';
-import { memoryRepository } from './repositories/memory';
-import type { UnpublishedRepository } from './repository';
+import { MediaSigner } from './services/media-signer';
+import type { MediaStore } from './ports/media';
+import { memoryRepository } from './adapters/memory/content';
+import type { UnpublishedRepository } from './ports/unpublished';
 
 const ADMIN = 'dueno@ug.uchile.cl';
 const STUDENT = 'ana@ug.uchile.cl';

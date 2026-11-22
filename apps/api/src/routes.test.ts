@@ -3,12 +3,13 @@
 import { describe, expect, it } from 'vitest';
 import { API_PREFIX, API_ROUTES } from '@qv/schema/http';
 import { createApp } from './app';
-import { deepHealth } from './health';
-import { MediaSigner } from './media';
-import { memoryRepository } from './repositories/memory';
-import { memorySiteSettings } from './repositories/memory-settings';
-import type { ReleaseRepository, UnpublishedRepository } from './repository';
-import type { UsageStatsSource } from './usage';
+import { deepHealth } from './services/health';
+import { MediaSigner } from './services/media-signer';
+import { memoryRepository } from './adapters/memory/content';
+import { memorySiteSettings } from './adapters/memory/settings';
+import type { ReleaseRepository } from './ports/releases';
+import type { UnpublishedRepository } from './ports/unpublished';
+import type { UsageStatsSource } from './ports/usage';
 
 const EMPTY = {
   semesters: [],

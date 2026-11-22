@@ -4,9 +4,10 @@ import type { IncomingHttpHeaders, Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../app';
-import { MediaSigner } from '../media';
-import { nonNull } from './stream';
-import { supabaseReleaseRepository, supabaseRepository } from './supabase';
+import { MediaSigner } from '../services/media-signer';
+import { nonNull } from '../adapters/supabase/stream';
+import { supabaseReleaseRepository } from '../adapters/supabase/release';
+import { supabaseRepository } from '../adapters/supabase/content';
 
 const KEY = 'sb_secret_prueba';
 const DECK = '{"id":"20","name":"Mazo","cards":[]}';

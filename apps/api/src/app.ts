@@ -62,24 +62,23 @@ import {
   withoutEmptySemesters,
 } from '@qv/schema/http';
 import type { ErrorCode, Health } from '@qv/schema/http';
-import type { AccessChecker } from './access';
-import type { AdminChecker } from './admin';
-import type { DeepHealth, DeepHealthResult } from './health';
-import { isValidKey } from './media';
-import { hideCourses } from './repositories/hide-courses';
-import type { MediaStore, MediaSigner } from './media';
-import type {
-  ContentRepository,
-  ReleaseRepository,
-  SiteSettingsRepository,
-  UnpublishedRepository,
-} from './repository';
-import { tokenFromHeader } from './session';
-import type { User, SessionVerifier } from './session';
-import { clientErrorBodyLimit, clientErrorHandler } from './client-errors';
-import type { ClientErrorRecorder, ClientErrorsReader } from './client-errors';
-import { usageGroups, usageReport } from './usage';
-import type { UsageEvent, UsageOpensReader, UsageRecorder, UsageStatsSource } from './usage';
+import type { AccessChecker } from './ports/access';
+import type { AdminChecker } from './ports/admin';
+import type { ClientErrorRecorder, ClientErrorsReader } from './ports/client-errors';
+import type { ContentRepository } from './ports/content';
+import type { DeepHealth, DeepHealthResult } from './ports/health';
+import type { MediaStore } from './ports/media';
+import type { ReleaseRepository } from './ports/releases';
+import type { User, SessionVerifier } from './ports/session';
+import type { SiteSettingsRepository } from './ports/settings';
+import type { UnpublishedRepository } from './ports/unpublished';
+import type { UsageEvent, UsageOpensReader, UsageRecorder, UsageStatsSource } from './ports/usage';
+import { tokenFromHeader } from './middleware/authenticate';
+import { clientErrorBodyLimit, clientErrorHandler } from './routes/client-error';
+import { hideCourses } from './services/hide-courses';
+import { isValidKey } from './services/media-signer';
+import type { MediaSigner } from './services/media-signer';
+import { usageGroups, usageReport } from './services/usage-report';
 
 export interface Dependencies {
   verifier: SessionVerifier;

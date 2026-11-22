@@ -11,12 +11,12 @@ import {
   ReleaseOverview,
 } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
-import { supabaseAdminChecker } from './admin';
+import { supabaseAdminChecker } from './adapters/supabase/admin';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import { memoryRepository } from './repositories/memory';
-import type { PublishInput, ReleaseRepository } from './repository';
-import { supabaseVerifier } from './session';
+import { MediaSigner } from './services/media-signer';
+import { memoryRepository } from './adapters/memory/content';
+import type { PublishInput, ReleaseRepository } from './ports/releases';
+import { supabaseVerifier } from './adapters/supabase/session';
 
 const SUPABASE = 'https://users.supabase.co';
 const ADMIN = 'dueno@ug.uchile.cl';

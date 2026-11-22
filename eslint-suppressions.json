@@ -1,9 +1,4 @@
 {
-  "apps/api/src/__tests__/client-errors.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    }
-  },
   "apps/api/src/access.test.ts": {
     "@typescript-eslint/no-base-to-string": {
       "count": 2
@@ -12,14 +7,73 @@
       "count": 7
     }
   },
-  "apps/api/src/access.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
+  "apps/api/src/adapters/cloudflare/analytics-engine.ts": {
+    "@typescript-eslint/no-base-to-string": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/memory/client-errors.ts": {
+    "@typescript-eslint/require-await": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/memory/content.ts": {
+    "@typescript-eslint/require-await": {
+      "count": 9
+    }
+  },
+  "apps/api/src/adapters/memory/decks.ts": {
+    "@typescript-eslint/prefer-for-of": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/memory/releases.ts": {
+    "@typescript-eslint/prefer-optional-chain": {
       "count": 1
     },
     "@typescript-eslint/require-await": {
+      "count": 9
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/memory/settings.ts": {
+    "@typescript-eslint/require-await": {
+      "count": 2
+    }
+  },
+  "apps/api/src/adapters/memory/unpublished.ts": {
+    "@typescript-eslint/require-await": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/memory/usage-events.ts": {
+    "@typescript-eslint/require-await": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/memory/usage.ts": {
+    "@typescript-eslint/require-await": {
       "count": 1
     },
-    "no-restricted-syntax": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/supabase/access.ts": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "apps/api/src/adapters/supabase/content.ts": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 4
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -28,14 +82,6 @@
       "count": 1
     },
     "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
-  "apps/api/src/admin.ts": {
-    "@typescript-eslint/require-await": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
       "count": 1
     }
   },
@@ -70,12 +116,7 @@
       "count": 3
     }
   },
-  "apps/api/src/client-errors.ts": {
-    "@typescript-eslint/require-await": {
-      "count": 1
-    }
-  },
-  "apps/api/src/demo.ts": {
+  "apps/api/src/dev/demo.ts": {
     "@typescript-eslint/require-await": {
       "count": 2
     }
@@ -83,11 +124,6 @@
   "apps/api/src/health.test.ts": {
     "@typescript-eslint/await-thenable": {
       "count": 1
-    }
-  },
-  "apps/api/src/health.ts": {
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "apps/api/src/inputs.test.ts": {
@@ -109,58 +145,13 @@
       "count": 1
     }
   },
-  "apps/api/src/repositories/memory-decks.ts": {
-    "@typescript-eslint/prefer-for-of": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/api/src/repositories/memory-release.ts": {
-    "@typescript-eslint/prefer-optional-chain": {
-      "count": 1
-    },
-    "@typescript-eslint/require-await": {
-      "count": 9
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "apps/api/src/repositories/memory-settings.ts": {
-    "@typescript-eslint/require-await": {
-      "count": 2
-    }
-  },
-  "apps/api/src/repositories/memory-unpublished.ts": {
-    "@typescript-eslint/require-await": {
-      "count": 1
-    }
-  },
-  "apps/api/src/repositories/memory-usage.ts": {
-    "@typescript-eslint/require-await": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "apps/api/src/repositories/memory.ts": {
-    "@typescript-eslint/require-await": {
-      "count": 9
-    }
-  },
   "apps/api/src/repositories/supabase.test.ts": {
     "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
-  "apps/api/src/repositories/supabase/content.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 4
-    },
-    "max-lines-per-function": {
+  "apps/api/src/services/usage-report.ts": {
+    "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
@@ -169,23 +160,6 @@
       "count": 1
     },
     "@typescript-eslint/no-confusing-void-expression": {
-      "count": 1
-    }
-  },
-  "apps/api/src/usage.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "@typescript-eslint/require-await": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },

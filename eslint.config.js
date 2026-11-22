@@ -24,7 +24,7 @@ const SUPABASE_ADAPTERS = [
   'apps/web/src/features/*/api/repository/supabase*.ts',
   'apps/web/src/features/session/api/service.ts',
   'apps/web/src/app/services.tsx',
-  'apps/api/src/repositories/supabase/{client,content,raw-rpc,release,settings,unpublished}.ts',
+  'apps/api/src/adapters/supabase/*.ts',
   'packages/importer/src/targets.ts',
   '**/*.test.{ts,tsx}',
 ];

@@ -1,28 +1,30 @@
 // The Cloudflare Worker: builds the API from its bindings for /api and serves the web's static files otherwise.
 import { API_PREFIX } from '@qv/schema/http';
-import { accessUnavailable, supabaseAccessChecker } from './access';
-import { noAdmins, supabaseAdminChecker } from './admin';
+import {
+  analyticsEngineReader,
+  analyticsEngineRecorder,
+} from './adapters/cloudflare/analytics-engine';
+import {
+  analyticsEngineErrorRecorder,
+  analyticsEngineErrorsReader,
+} from './adapters/cloudflare/client-errors';
+import { cloudflareHealthCache, latestBackupCheck, mediaCheck } from './adapters/cloudflare/health';
+import { r2Store } from './adapters/cloudflare/r2';
+import { supabaseAccessChecker } from './adapters/supabase/access';
+import { supabaseAdminChecker } from './adapters/supabase/admin';
+import { contentClient } from './adapters/supabase/client';
+import { supabaseRepository } from './adapters/supabase/content';
+import { authCheck, contentDatabaseCheck, usersDatabaseCheck } from './adapters/supabase/health';
+import { supabaseReleaseRepository } from './adapters/supabase/release';
+import { supabaseVerifier } from './adapters/supabase/session';
+import { supabaseSiteSettingsRepository } from './adapters/supabase/settings';
+import { supabaseUnpublishedRepository } from './adapters/supabase/unpublished';
+import { supabaseUsageStats } from './adapters/supabase/usage-stats';
 import { createApp } from './app';
-import {
-  authCheck,
-  cloudflareHealthCache,
-  contentDatabaseCheck,
-  deepHealth,
-  latestBackupCheck,
-  mediaCheck,
-  usersDatabaseCheck,
-} from './health';
-import { MediaSigner, r2Store } from './media';
-import {
-  contentClient,
-  supabaseReleaseRepository,
-  supabaseRepository,
-  supabaseSiteSettingsRepository,
-  supabaseUnpublishedRepository,
-} from './repositories/supabase';
-import { supabaseVerifier } from './session';
-import { analyticsEngineErrorRecorder, analyticsEngineErrorsReader } from './client-errors';
-import { analyticsEngineReader, analyticsEngineRecorder, supabaseUsageStats } from './usage';
+import { ACCESS_UNAVAILABLE } from './ports/access';
+import { NO_ADMINS } from './ports/admin';
+import { deepHealth } from './services/health';
+import { MediaSigner } from './services/media-signer';
 
 export interface Env {
   ASSETS: Fetcher;
@@ -89,13 +91,13 @@ function getApp(env: Env, origin: string) {
           supabaseUrl: env.USERS_SUPABASE_URL,
           publishableKey: env.USERS_SUPABASE_PUBLISHABLE_KEY,
         })
-      : accessUnavailable,
+      : ACCESS_UNAVAILABLE,
     admins: env.USERS_SUPABASE_PUBLISHABLE_KEY
       ? supabaseAdminChecker({
           supabaseUrl: env.USERS_SUPABASE_URL,
           publishableKey: env.USERS_SUPABASE_PUBLISHABLE_KEY,
         })
-      : noAdmins,
+      : NO_ADMINS,
     ...(env.CF_VERSION_METADATA ? { version: env.CF_VERSION_METADATA.id } : {}),
     ...(env.USERS_SUPABASE_PUBLISHABLE_KEY
       ? {

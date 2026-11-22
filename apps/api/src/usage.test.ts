@@ -4,19 +4,17 @@ import { FEW, UsageReport } from '@qv/schema';
 import type { AdminUsageRow, Catalog, Note, QuizDetail } from '@qv/schema';
 import { createApp } from './app';
 import type { Dependencies } from './app';
-import { memoryClientErrors } from './client-errors';
-import { MediaSigner } from './media';
-import type { ContentRepository } from './repository';
+import { memoryClientErrors } from './adapters/memory/client-errors';
+import { MediaSigner } from './services/media-signer';
+import type { ContentRepository } from './ports/content';
 import {
   analyticsEngineReader,
   analyticsEngineRecorder,
-  memoryUsageEvents,
-  opensFigures,
-  siteDay,
-  usageGroups,
   usagePoint,
-} from './usage';
-import type { UsageGroups, UsageStatsSource } from './usage';
+} from './adapters/cloudflare/analytics-engine';
+import { memoryUsageEvents } from './adapters/memory/usage-events';
+import { opensFigures, siteDay, usageGroups } from './services/usage-report';
+import type { UsageGroups, UsageStatsSource } from './ports/usage';
 
 const ADMIN = 'dueno@ug.uchile.cl';
 const STUDENT = 'ana.prueba@ug.uchile.cl';

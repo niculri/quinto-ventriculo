@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { Catalog, PREVIEW_HEADER, SiteSettings, SiteSettingsView } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import { memoryRepository } from './repositories/memory';
-import { memorySiteSettings } from './repositories/memory-settings';
-import type { SiteSettingsRepository } from './repository';
+import { MediaSigner } from './services/media-signer';
+import { memoryRepository } from './adapters/memory/content';
+import { memorySiteSettings } from './adapters/memory/settings';
+import type { SiteSettingsRepository } from './ports/settings';
 
 const ADMIN = 'dueno@ug.uchile.cl';
 const STUDENT = 'ana@ug.uchile.cl';

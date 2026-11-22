@@ -5,10 +5,11 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { cardIndexKey } from '@qv/schema';
 import type { ContentBundle, QuizSummary } from '@qv/schema';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import { memoryRepository } from './repositories/memory';
-import { memorySiteSettings } from './repositories/memory-settings';
-import type { ContentRepository, ReleaseRepository } from './repository';
+import { MediaSigner } from './services/media-signer';
+import { memoryRepository } from './adapters/memory/content';
+import { memorySiteSettings } from './adapters/memory/settings';
+import type { ContentRepository } from './ports/content';
+import type { ReleaseRepository } from './ports/releases';
 
 /** The gzip header names the system that wrote it (byte 9), and the snapshot keeps the bytes: one value everywhere. */
 const GZIPPED_INDEX = (() => {

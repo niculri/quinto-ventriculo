@@ -1,17 +1,13 @@
 // Tests for /api/health/deep and the Worker's checks (users, Auth, content, media, backups), with made-up URLs and keys.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from './app';
-import {
-  authCheck,
-  contentDatabaseCheck,
-  deepHealth,
-  latestBackupCheck,
-  mediaCheck,
-  usersDatabaseCheck,
-} from './health';
-import type { BucketLike, DeepHealthResult, HealthCheck, SharedHealthCache } from './health';
-import { MediaSigner } from './media';
-import type { ContentRepository } from './repository';
+import { authCheck, contentDatabaseCheck, usersDatabaseCheck } from './adapters/supabase/health';
+import { deepHealth } from './services/health';
+import { latestBackupCheck, mediaCheck } from './adapters/cloudflare/health';
+import type { BucketLike } from './adapters/cloudflare/health';
+import type { DeepHealthResult, HealthCheck, SharedHealthCache } from './ports/health';
+import { MediaSigner } from './services/media-signer';
+import type { ContentRepository } from './ports/content';
 
 const USERS = 'https://users.example.supabase.co';
 const CONTENT = 'https://content.example.supabase.co';

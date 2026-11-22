@@ -6,11 +6,12 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { CONTACT_EMAIL, LEGAL_VERSIONS } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { asUser, createDatabase } from '@qv/db/testing';
-import { ACCESS_TTL, accessUnavailable, supabaseAccessChecker } from './access';
+import { ACCESS_TTL, supabaseAccessChecker } from './adapters/supabase/access';
+import { ACCESS_UNAVAILABLE } from './ports/access';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import { memoryRepository } from './repositories/memory';
-import { supabaseVerifier } from './session';
+import { MediaSigner } from './services/media-signer';
+import { memoryRepository } from './adapters/memory/content';
+import { supabaseVerifier } from './adapters/supabase/session';
 
 const SUPABASE = 'https://users.supabase.co';
 const ANA = { sub: '00000000-0000-4000-8000-0000000000c1', email: 'ana@ug.uchile.cl' };
@@ -267,7 +268,7 @@ describe('a removed student, with a token that is still valid', () => {
     const original = console.error;
     console.error = () => {};
     try {
-      expect(await accessUnavailable.check('x')).toBe('unknown');
+      expect(await ACCESS_UNAVAILABLE.check('x')).toBe('unknown');
     } finally {
       console.error = original;
     }

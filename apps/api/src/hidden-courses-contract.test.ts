@@ -7,11 +7,11 @@ import type { ContentBundle, ImportedAnkiNote, ImportedQuiz } from '@qv/schema';
 import { API_ROUTES } from '@qv/schema/http';
 import type { ApiRouteName } from '@qv/schema/http';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import type { MediaStore } from './media';
-import { memoryRepository } from './repositories/memory';
-import { memorySiteSettings } from './repositories/memory-settings';
-import type { UsageEvent } from './usage';
+import { MediaSigner } from './services/media-signer';
+import type { MediaStore } from './ports/media';
+import { memoryRepository } from './adapters/memory/content';
+import { memorySiteSettings } from './adapters/memory/settings';
+import type { UsageEvent } from './ports/usage';
 
 const ADMIN = 'dueno@ug.uchile.cl';
 const STUDENT = 'ana@ug.uchile.cl';

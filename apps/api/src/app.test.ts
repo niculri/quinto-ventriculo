@@ -15,10 +15,10 @@ import {
 } from '@qv/schema';
 import type { ContentBundle, ImportedQuiz } from '@qv/schema';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import type { MediaStore } from './media';
-import { memoryRepository } from './repositories/memory';
-import { supabaseVerifier } from './session';
+import { MediaSigner } from './services/media-signer';
+import type { MediaStore } from './ports/media';
+import { memoryRepository } from './adapters/memory/content';
+import { supabaseVerifier } from './adapters/supabase/session';
 
 const SUPABASE = 'https://users.supabase.co';
 const NOW = 1_793_448_000; // 2026-10-31 12:00 UTC, in seconds

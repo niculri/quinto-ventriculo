@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { SiteSettings } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import { OWNER_EMAIL, asUser, createDatabase } from '@qv/db/testing';
-import { supabaseAdminChecker } from './admin';
+import { supabaseAdminChecker } from './adapters/supabase/admin';
 import { createApp } from './app';
-import { MediaSigner } from './media';
-import { memoryRepository } from './repositories/memory';
-import { memorySiteSettings } from './repositories/memory-settings';
+import { MediaSigner } from './services/media-signer';
+import { memoryRepository } from './adapters/memory/content';
+import { memorySiteSettings } from './adapters/memory/settings';
 
 const SUPABASE = 'https://users.supabase.co';
 type Claims = { sub: string; email: string; session_id?: string };

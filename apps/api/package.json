@@ -7,7 +7,7 @@
   "license": "AGPL-3.0-or-later",
   "exports": {
     ".": "./src/app.ts",
-    "./demo": "./src/demo.ts"
+    "./demo": "./src/dev/demo.ts"
   },
   "scripts": {
     "typecheck": "tsc -p .",

@@ -1,8 +1,8 @@
 // Data hooks for studying: preferences, the simple plan and its changes, deck progress, an assessment's view,
 // today's answers and everything a deck's queue needs.
 
-import { useEffect, useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
 import { useStudyRepository } from './api/context';
@@ -30,24 +30,25 @@ export { studyKeys };
 export function usePreferences() {
   const study = useStudyRepository();
   const client = useQueryClient();
-  const query = useQuery(preferencesQuery(study));
   const zone = browserTimeZone();
-  // By hand: other memos depend on it, and each one would be built again in each render without the compiler.
-  const prefs = useMemo<StudyPreferences | undefined>(
-    () =>
-      query.data === undefined
-        ? undefined
-        : { ...(query.data ?? defaultPreferences(zone)), timeZone: zone },
-    [query.data, zone],
-  );
+  // `select` keeps what is stored, to compare its zone, and the preferences with the browser's zone; React Query keeps
+  // the same object while its content does not change.
+  const query = useQuery({
+    ...preferencesQuery(study),
+    select: (stored) => ({
+      stored,
+      prefs: { ...(stored ?? defaultPreferences(zone)), timeZone: zone },
+    }),
+  });
+  const prefs: StudyPreferences | undefined = query.data?.prefs;
   // The stored zone is kept as the browser's: the statistics and other devices use it.
   const { mutate: saveZone } = useMutation({
     mutationFn: (next: StudyPreferences) => study.savePreferences(next),
     onSuccess: (_, next) => client.setQueryData(studyKeys.preferences, next),
   });
   useEffect(() => {
-    if (query.data === undefined || query.data?.timeZone === zone) return;
-    saveZone({ ...(query.data ?? defaultPreferences(zone)), timeZone: zone });
+    if (query.data === undefined || query.data.stored?.timeZone === zone) return;
+    saveZone(query.data.prefs);
   }, [query.data, saveZone, zone]);
   return { ...query, prefs };
 }
@@ -127,10 +128,14 @@ export function useSaveAssessmentSetting() {
   );
 }
 
-export function useDeckProgress(prefs: StudyPreferences | undefined) {
+/** With `keepPrevious`, the day before is shown while the new day is read. */
+export function useDeckProgress(prefs: StudyPreferences | undefined, keepPrevious = false) {
   const study = useStudyRepository();
   const today = useToday(prefs);
-  return useQuery(deckProgressQuery(study, today, prefs));
+  return useQuery({
+    ...deckProgressQuery(study, today, prefs),
+    placeholderData: keepPrevious ? keepPreviousData : undefined,
+  });
 }
 
 export function useAssessmentView(assessmentId: string | null): AssessmentView | null {
@@ -167,14 +172,21 @@ export function useToday(prefs: StudyPreferences | undefined): number | null {
   return prefs ? timingFor(prefs, now).today : null;
 }
 
-export function useAnswersToday(prefs: StudyPreferences | undefined) {
+/** With `keepPrevious`, the day before is shown while the new day is read. */
+export function useAnswersToday(prefs: StudyPreferences | undefined, keepPrevious = false) {
   const study = useStudyRepository();
   const today = useToday(prefs);
-  return useQuery(answersTodayQuery(study, today, prefs));
+  return useQuery({
+    ...answersTodayQuery(study, today, prefs),
+    placeholderData: keepPrevious ? keepPreviousData : undefined,
+  });
 }
 
-/** Over what the students have: in the admin mode, what only the draft has is not in the queue nor in the counts. */
-export function useStudyData(shown: DeckDetail | undefined) {
+/**
+ * Over what the students have: in the admin mode, what only the draft has is not in the queue nor in the counts.
+ * With `keepPrevious`, a new day does not leave it empty while what depends on the day is read again.
+ */
+export function useStudyData(shown: DeckDetail | undefined, keepPrevious = false) {
   const study = useStudyRepository();
   const preferences = usePreferences();
   const prefs = preferences.prefs;
@@ -183,52 +195,44 @@ export function useStudyData(shown: DeckDetail | undefined) {
   const deck = studied.data;
   const ids = deck ? deckIds(deck) : [];
   const cards = useQuery(studyCardsQuery(study, deck?.id ?? '', ids, !!deck));
-  const answers = useAnswersToday(prefs);
+  const answers = useAnswersToday(prefs, keepPrevious);
   const presets = useUserPresets();
   const settings = useDeckSettings();
   const plan = useStudyPlan();
-  const progress = useDeckProgress(prefs);
+  const progress = useDeckProgress(prefs, keepPrevious);
   const parts = [catalog, studied, preferences, cards, answers, presets, settings, plan, progress];
   const error = parts.find((p) => p.isError)?.error ?? null;
-  // By hand: `FinalReviewLoader` keeps the last one in state when it is another object, so a new one in each render
-  // would never settle (the coverage run has no compiler).
-  const data = useMemo<StudyData | undefined>(() => {
-    if (
-      !deck ||
-      !catalog.data ||
-      !prefs ||
-      !cards.data ||
-      !answers.data ||
-      !presets.data ||
-      !settings.data ||
-      !plan.data ||
-      !progress.data
-    ) {
-      return undefined;
-    }
-    return {
-      deck,
-      decks: treeDecks(catalog.data.anki.decks),
-      authorPresets: catalog.data.anki.presets,
-      rows: new Map(cards.data.map((r) => [cardKey(r), r])),
-      answers: answers.data,
-      prefs,
-      presets: presets.data,
-      settings: settings.data,
-      plan: plan.data,
-      progress: progress.data,
-    };
-  }, [
-    deck,
-    catalog.data,
-    prefs,
-    cards.data,
-    answers.data,
-    presets.data,
-    settings.data,
-    plan.data,
-    progress.data,
-  ]);
+  // Each `data` is read before the condition: the compiler depends on a property only when it reads it without one.
+  const catalogData = catalog.data;
+  const cardRows = cards.data;
+  const answersData = answers.data;
+  const presetsData = presets.data;
+  const settingsData = settings.data;
+  const planData = plan.data;
+  const progressData = progress.data;
+  const data: StudyData | undefined =
+    deck &&
+    catalogData &&
+    prefs &&
+    cardRows &&
+    answersData &&
+    presetsData &&
+    settingsData &&
+    planData &&
+    progressData
+      ? {
+          deck,
+          decks: treeDecks(catalogData.anki.decks),
+          authorPresets: catalogData.anki.presets,
+          rows: new Map(cardRows.map((r) => [cardKey(r), r])),
+          answers: answersData,
+          prefs,
+          presets: presetsData,
+          settings: settingsData,
+          plan: planData,
+          progress: progressData,
+        }
+      : undefined;
   return {
     data,
     error,

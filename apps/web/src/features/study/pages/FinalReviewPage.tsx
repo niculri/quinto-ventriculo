@@ -12,7 +12,6 @@ import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useDeck } from '../../decks/hooks/useDeck';
-import type { StudyData } from '@qv/study';
 import { studyKeys, useStudyData } from '../../progress/queries';
 import { StudyFallback } from '../components/StudyFallback';
 import { StudyLoading } from '../components/StudyLoading';
@@ -38,7 +37,8 @@ export function FinalReviewPage({ node }: { node: CourseDeckNode }) {
 }
 
 function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDetail }) {
-  const study = useStudyData(deck);
+  // At the start of a new day what is read changes its key: a round in progress goes on with the day before until then.
+  const study = useStudyData(deck, true);
   const client = useQueryClient();
   // From «Listo por hoy» what is in memory is from before that session: it is read again before saying anything.
   const [fresh, setFresh] = useState(false);
@@ -47,10 +47,7 @@ function FinalReviewLoader({ node, deck }: { node: CourseDeckNode; deck: DeckDet
       .refetchQueries({ queryKey: studyKeys.all, type: 'active' })
       .finally(() => setFresh(true));
   }, [client]);
-  // At the start of a new day what is read changes its key and is missing for a moment: a round in progress goes on.
-  const [last, setLast] = useState<StudyData | null>(null);
-  if (study.data && study.data !== last) setLast(study.data);
-  const data = study.data ?? last;
+  const data = study.data;
   if (!data || !fresh) {
     return (
       <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>

@@ -25,7 +25,7 @@ export function ReportDialog({
   const form = useReportForm(target, initial, onClose, onSent);
   const code = target ? codeWithVersion(target.code, target.version) : null;
   return (
-    <Dialog.Root open={target !== null} onOpenChange={(open) => (open ? null : form.close())}>
+    <Dialog.Root open={target !== null} onOpenChange={form.close}>
       <Dialog.Portal>
         <BlurredBackdrop />
         <Dialog.Content className="fixed top-[8vh] left-1/2 z-50 max-h-[88dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:top-[12vh]">

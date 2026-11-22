@@ -21,7 +21,8 @@ async function expectNoViolations(page: Page, label: string) {
       `${v.id} (${String(v.impact)}): ${v.help}\n${v.nodes
         .slice(0, 6)
         .map(
-          (n) => `   ${n.target.join(' ')} → ${String(n.failureSummary?.split('\n').slice(1).join(' '))}`,
+          (n) =>
+            `   ${n.target.join(' ')} → ${String(n.failureSummary?.split('\n').slice(1).join(' '))}`,
         )
         .join('\n')}`,
   );

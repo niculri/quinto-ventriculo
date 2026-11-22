@@ -198,7 +198,9 @@ const grownFields = (page: Page) =>
     for (const r of rules) r.sheet.insertRule(r.text, r.index);
     return fields.flatMap((el, i) =>
       Math.abs(before[i]! - after[i]!) > 0.5
-        ? [`${el.getAttribute('aria-label') ?? el.id}: ${String(after[i])} → ${String(before[i])} px`]
+        ? [
+            `${el.getAttribute('aria-label') ?? el.id}: ${String(after[i])} → ${String(before[i])} px`,
+          ]
         : [],
     );
   });

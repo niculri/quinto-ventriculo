@@ -65,11 +65,11 @@ interface Props {
 }
 
 export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow = false }: Props) {
-  const host = useRef<HTMLDivElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState<OpenImage | null>(null);
 
   useLayoutEffect(() => {
-    const el = host.current;
+    const el = hostRef.current;
     // A layout effect runs after React attached the ref: the host is always there.
     /* v8 ignore next */
     if (!el) return;
@@ -93,7 +93,7 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
     const onClick = (e: Event) => {
       const target = e.target as Element | null;
       if (toggleExtraPanel(target)) return;
-      const link = target?.closest?.('a');
+      const link = target?.closest('a');
       if (!link) {
         const image = zoomable(root, target);
         if (image) setZoomed(image);
@@ -118,7 +118,7 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
     ) {
       el.closest<HTMLElement>('[role="region"]')?.focus({ preventScroll: true });
     }
-    const cleanup = occlusion ? setupOcclusion(root) : () => {};
+    const cleanup = occlusion ? setupOcclusion(root) : () => undefined;
     return () => {
       root.removeEventListener('click', onClick);
       cleanup();
@@ -136,7 +136,7 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
       style={{ contain: 'layout paint' }}
     >
       <div className="qv-scroll flex h-full flex-col overflow-y-auto overscroll-contain">
-        <div ref={host} className="qv-card" />
+        <div ref={hostRef} className="qv-card" />
       </div>
       <ImageViewer image={zoomed} onClose={() => setZoomed(null)} />
     </div>
@@ -147,7 +147,7 @@ function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
   if (target?.closest('#image-occlusion-container')) {
     const src = occlusionSnapshot(root);
     const alt = root.querySelector<HTMLImageElement>('#image-occlusion-container img')?.alt;
-    return src ? { src, alt: alt || s.frame.image, caption: '' } : null;
+    return src ? { src, alt: (alt ?? '') || s.frame.image, caption: '' } : null;
   }
   const img = target?.closest('img');
   if (!(img instanceof HTMLImageElement)) return null;

@@ -142,7 +142,7 @@ export function shapeProperties(
   const border = (name: string, fallback: string) => {
     const [width, color] = value(name).split(' ').filter(Boolean);
     const w = Number.parseFloat(width ?? '');
-    return { width: Number.isNaN(w) ? 1 : w, color: color || fallback };
+    return { width: Number.isNaN(w) ? 1 : w, color: (color ?? '') || fallback };
   };
   return {
     activeShapeColor: value('--active-shape-color') || '#ff8e8e',

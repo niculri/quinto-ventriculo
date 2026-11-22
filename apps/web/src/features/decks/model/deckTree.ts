@@ -37,7 +37,7 @@ export function allNodes(node: DeckNode): DeckNode[] {
   let top = node;
   while (top.parent && top.depth > 3) top = top.parent;
   const out = [top];
-  for (let i = 0; i < out.length; i++) out.push(...out[i]!.children);
+  for (const child of out) out.push(...child.children);
   return out;
 }
 

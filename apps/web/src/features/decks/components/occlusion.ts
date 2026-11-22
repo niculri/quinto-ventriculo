@@ -14,10 +14,10 @@ export function setupOcclusion(root: ShadowRoot | HTMLElement): () => void {
   const container = root.querySelector<HTMLDivElement>('#image-occlusion-container');
   const canvas = root.querySelector<HTMLCanvasElement>('#image-occlusion-canvas');
   const image = root.querySelector<HTMLImageElement>('#image-occlusion-container img');
-  if (!container || !canvas) return () => {};
+  if (!container || !canvas) return () => undefined;
   if (!image) {
     container.textContent = s.frame.noImage;
-    return () => {};
+    return () => undefined;
   }
   let hidden = false;
   let disposed = false;

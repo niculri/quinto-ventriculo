@@ -37,11 +37,11 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
   const night = useDarkMode();
   const api = useApi();
   const client = useQueryClient();
-  const content = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const next = cards[index + 1];
-    if (next) void client.prefetchQuery(cardQuery(api, next.noteGuid, next.ord));
+    if (next) void client.query(cardQuery(api, next.noteGuid, next.ord)).catch(() => undefined);
   }, [api, cards, client, index]);
 
   const go = (delta: number) => {
@@ -49,7 +49,7 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
     if (i >= 0 && i < cards.length) onIndexChange(i);
   };
 
-  const onKeyDown = (e: KeyboardEvent) => viewerKeyDown(e, content.current, toggleAnswer, go);
+  const onKeyDown = (e: KeyboardEvent) => viewerKeyDown(e, contentRef.current, toggleAnswer, go);
 
   return (
     // Always open and without a trigger: Radix only calls it to close.
@@ -58,13 +58,13 @@ export function CardViewer({ cards, index, onIndexChange, onClose, actions }: Pr
         <DimBackdrop />
         <Dialog.Content
           aria-describedby={undefined}
-          ref={content}
+          ref={contentRef}
           tabIndex={-1}
           style={{ outline: 'none' }}
           // Focus on the viewer itself, not on «Cerrar»: so space shows the answer, as in Anki.
           onOpenAutoFocus={(e) => {
             e.preventDefault();
-            content.current?.focus();
+            contentRef.current?.focus();
           }}
           onKeyDown={onKeyDown}
           className="fixed inset-0 z-50 flex flex-col bg-surface sm:inset-x-auto sm:top-[3dvh] sm:left-1/2 sm:h-[94dvh] sm:w-[min(58rem,94vw)] sm:-translate-x-1/2 sm:overflow-hidden sm:rounded-2xl sm:border sm:border-border sm:shadow-soft"

@@ -1,6 +1,6 @@
 // The dialogs and the field to name, rename and remove a deck options preset.
 import { useId, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, Pencil, X } from 'lucide-react';
 import { button, card } from '../../../../shared/ui/styles';
@@ -31,7 +31,7 @@ export function PresetNameDialog({
   const id = useId();
   const [name, setName] = useState(initial);
   const [problem, setProblem] = useState<string | null>(null);
-  const submit = (e: FormEvent) => {
+  const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const clean = name.trim();
     const wrong = check(clean);
@@ -124,6 +124,8 @@ export function RemovePresetDialog({
   );
 }
 
+const ICON_BUTTON = `${button.base} ${button.secondary} flex-none px-2.5`;
+
 /** The caller gives it a `key` per configuration, so that changing to another one starts over. */
 export function PresetNameField({
   name,
@@ -145,17 +147,18 @@ export function PresetNameField({
     setText(name);
     setProblem(null);
   };
-  const submit = (e: FormEvent) => {
+  const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const clean = text.trim();
-    if (clean === name) return cancel();
-    const wrong = check(clean);
-    if (wrong) return setProblem(wrong);
-    setEditing(false);
-    setProblem(null);
-    onRename(clean);
+    const wrong = clean === name ? null : check(clean);
+    if (wrong) setProblem(wrong);
+    else if (clean === name) cancel();
+    else {
+      setEditing(false);
+      setProblem(null);
+      onRename(clean);
+    }
   };
-  const iconButton = `${button.base} ${button.secondary} flex-none px-2.5`;
   return (
     <form onSubmit={submit} className={`${card} mt-3 p-3`}>
       <div className="flex items-center gap-2 text-sm">
@@ -183,14 +186,14 @@ export function PresetNameField({
         />
         {editing ? (
           <>
-            <button type="submit" aria-label={n.names.saveName} className={iconButton}>
+            <button type="submit" aria-label={n.names.saveName} className={ICON_BUTTON}>
               <Check className="size-4" aria-hidden="true" />
             </button>
             <button
               type="button"
               aria-label={n.names.cancel}
               onClick={cancel}
-              className={iconButton}
+              className={ICON_BUTTON}
             >
               <X className="size-4" aria-hidden="true" />
             </button>
@@ -202,7 +205,7 @@ export function PresetNameField({
             title={n.names.editTitle(editable)}
             disabled={!editable}
             onClick={() => setEditing(true)}
-            className={`${iconButton} disabled:cursor-default disabled:opacity-50`}
+            className={`${ICON_BUTTON} disabled:cursor-default disabled:opacity-50`}
           >
             <Pencil className="size-4" aria-hidden="true" />
           </button>

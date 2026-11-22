@@ -86,7 +86,7 @@ function drawPolygon(ctx: Context, shape: Of<'polygon'>, strokeWidth: number): v
 
 function drawText(ctx: Context, shape: Of<'text'>, angle: number): void {
   ctx.save();
-  ctx.font = `${shape.fontSize}px ${TEXT_FONT_FAMILY}`;
+  ctx.font = `${String(shape.fontSize)}px ${TEXT_FONT_FAMILY}`;
   ctx.textBaseline = 'top';
   ctx.scale(shape.scaleX, shape.scaleY);
   const lines = shape.text.split('\n');

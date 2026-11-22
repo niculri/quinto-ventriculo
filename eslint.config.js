@@ -8,6 +8,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import sonarjs from 'eslint-plugin-sonarjs';
 import tseslint from 'typescript-eslint';
 import { domainPackages } from './eslint.domain-packages.js';
+import { fileNames } from './eslintFileNames.js';
 import { webLayers } from './eslint.web-layers.js';
 
 // Files that the size and complexity rules do not apply to: tests, their fixtures and helpers, and scripts.
@@ -132,6 +133,7 @@ export default tseslint.config(
     rules: { 'qv/file-header': 'error', 'qv/no-history-comments': 'error' },
   },
   { files: OTHER_FILES, language: 'qv/comments' },
+  ...fileNames,
   {
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/vitest.config.ts', 'vitest.config.ts'],
@@ -340,7 +342,7 @@ export default tseslint.config(
   ...domainPackages,
   ...webLayers,
   {
-    // The text a person reads goes in a strings.ts; pages that are only fixed text are their own document.
+    // The text a person reads goes in strings/<Name>.strings.ts; pages that are only fixed text are their own document.
     files: ['apps/web/src/**/*.tsx'],
     ignores: ['**/*.test.tsx', 'apps/web/src/test/**', ...FIXED_TEXT_PAGES],
     rules: { 'qv/no-literal-text': ['error', LITERAL_TEXT] },

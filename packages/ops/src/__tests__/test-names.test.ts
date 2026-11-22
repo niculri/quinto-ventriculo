@@ -36,8 +36,15 @@ describe('the test names rule', () => {
     );
     expect(followsRule('apps/web/src/features/study/review.flow.test.tsx', exists)).toBe(false);
     expect(
-      followsRule('apps/web/src/features/x/api/repository/memory-contract.test.ts', exists),
+      followsRule(
+        'apps/web/src/features/x/api/repository/__tests__/memory.contract.test.ts',
+        exists,
+      ),
     ).toBe(true);
+    expect(followsRule('apps/web/src/features/x/__tests__/review.flow.test.ts', exists)).toBe(true);
+    expect(
+      followsRule('apps/web/src/features/x/api/repository/memory.contract.test.ts', exists),
+    ).toBe(false);
   });
 
   it('only tests count, sorted', () => {

@@ -34,5 +34,7 @@
   "@typescript-eslint/restrict-plus-operands": 3,
   "@typescript-eslint/restrict-template-expressions": 60,
   "@typescript-eslint/unbound-method": 33,
-  "@typescript-eslint/use-unknown-in-catch-callback-variable": 6
+  "@typescript-eslint/use-unknown-in-catch-callback-variable": 6,
+  "qv/file-name": 269,
+  "qv/strings-location": 43
 }

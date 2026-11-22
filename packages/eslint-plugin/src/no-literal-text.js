@@ -1,5 +1,5 @@
 // Rule qv/no-literal-text: the text a person reads (JSX text, text props, text passed to what renders) comes from a
-// strings.ts, not a literal.
+// strings/<Name>.strings.ts, not a literal.
 
 /** The HTML and ARIA attributes a person reads or hears, on any element. */
 const HTML_TEXT_PROPS = [
@@ -132,7 +132,7 @@ export const noLiteralText = {
     type: 'suggestion',
     docs: {
       description:
-        'The text a person reads comes from a strings.ts list, not a literal in the JSX.',
+        'The text a person reads comes from a strings/<Name>.strings.ts list, not a literal in the JSX.',
     },
     schema: [
       {
@@ -150,7 +150,7 @@ export const noLiteralText = {
     ],
     messages: {
       literal:
-        'Text that a person reads goes in the strings.ts of its feature (or shared/strings.ts), not in the JSX.',
+        'Text that a person reads goes in the strings/<Name>.strings.ts next to this file (or in shared/strings/), not in the JSX.',
     },
   },
   create(context) {

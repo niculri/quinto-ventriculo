@@ -107,9 +107,9 @@ describe('readSelection', () => {
     const t = r.firstChild!;
     select(t, long.length, t, long.length + 5);
     const read = readSelection(r)!;
-    expect(read.quote.exact).toBe('MEDIO');
-    expect(read.quote.prefix).toBe('x'.repeat(QUOTE_CONTEXT));
-    expect(read.quote.suffix).toBe('x'.repeat(QUOTE_CONTEXT));
+    expect(read.quote?.exact).toBe('MEDIO');
+    expect(read.quote?.prefix).toBe('x'.repeat(QUOTE_CONTEXT));
+    expect(read.quote?.suffix).toBe('x'.repeat(QUOTE_CONTEXT));
   });
 
   it('only spaces around the quote count as no context', () => {

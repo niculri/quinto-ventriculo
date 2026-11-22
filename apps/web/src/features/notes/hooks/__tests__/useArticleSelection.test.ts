@@ -38,6 +38,6 @@ describe('useArticleSelection', () => {
     });
     expect(result.current).toBeNull();
     rerender({ on: true });
-    expect(result.current?.quote.exact).toBe('Texto del apunte');
+    expect(result.current?.quote?.exact).toBe('Texto del apunte');
   });
 });

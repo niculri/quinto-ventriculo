@@ -82,7 +82,12 @@ export const TaxonomyFile = z
   });
 export type TaxonomyFile = z.infer<typeof TaxonomyFile>;
 
-export function taxonomyProblems(file: Pick<TaxonomyFile, 'nextTopic' | 'units'>): string[] {
+type TaxonomyShape = Pick<TaxonomyFile, 'nextTopic' | 'units'>;
+
+function repeatedAndOutOfRange(file: TaxonomyShape): {
+  problems: string[];
+  topics: Map<string, TaxonomyTopic>;
+} {
   const problems: string[] = [];
   const units = new Set<string>();
   const topics = new Map<string, TaxonomyTopic>();
@@ -99,8 +104,13 @@ export function taxonomyProblems(file: Pick<TaxonomyFile, 'nextTopic' | 'units'>
       }
     }
   }
-  // The refinement runs even when `nextTopic` failed its own check: a typo (10000000) must not make millions of
-  // messages. Past 10 missing topics, one line says how many more.
+  return { problems, topics };
+}
+
+// The refinement runs even when `nextTopic` failed its own check: a typo (10000000) must not make millions of
+// messages. Past 10 missing topics, one line says how many more.
+function missingTopics(file: TaxonomyShape, topics: ReadonlyMap<string, TaxonomyTopic>): string[] {
+  const problems: string[] = [];
   const missing: number[] = [];
   for (let n = 1; n < Math.min(file.nextTopic, MAX_NEXT_TOPIC); n++) {
     if (!topics.has(`t${n}`)) missing.push(n);
@@ -112,30 +122,38 @@ export function taxonomyProblems(file: Pick<TaxonomyFile, 'nextTopic' | 'units'>
   }
   if (missing.length > 10) {
     problems.push(
-      `… y faltan ${missing.length - 10} temas más (hasta t${missing.at(-1)}): ¿«nextTopic» (${file.nextTopic}) está bien?`,
+      `… y faltan ${missing.length - 10} temas más (hasta t${missing.at(-1)!}): ¿«nextTopic» (${file.nextTopic}) está bien?`,
     );
   }
+  return problems;
+}
+
+/** The first thing wrong with where `topic` ends up when followed through its `mergedInto`, if anything. */
+function mergeProblem(
+  topic: TaxonomyTopic,
+  topics: ReadonlyMap<string, TaxonomyTopic>,
+): string | null {
+  const seen = [topic.id];
+  let at = topic;
+  while (at.mergedInto) {
+    const next = at.mergedInto;
+    if (seen.includes(next))
+      return `Los temas ${[...seen, next].join(' → ')} se juntan en círculo.`;
+    seen.push(next);
+    const target = topics.get(next);
+    if (!target) return `El tema ${topic.id} se junta con ${next}, que no existe.`;
+    if (target.retired) return `El tema ${topic.id} se junta con ${next}, que está retirado.`;
+    at = target;
+  }
+  return null;
+}
+
+export function taxonomyProblems(file: TaxonomyShape): string[] {
+  const { problems, topics } = repeatedAndOutOfRange(file);
+  problems.push(...missingTopics(file, topics));
   for (const t of topics.values()) {
-    if (!t.mergedInto) continue;
-    const seen = [t.id];
-    let at: TaxonomyTopic | undefined = t;
-    while (at?.mergedInto) {
-      const next = at.mergedInto;
-      if (seen.includes(next)) {
-        problems.push(`Los temas ${[...seen, next].join(' → ')} se juntan en círculo.`);
-        break;
-      }
-      seen.push(next);
-      at = topics.get(next);
-      if (!at) {
-        problems.push(`El tema ${t.id} se junta con ${next}, que no existe.`);
-        break;
-      }
-      if (at.retired) {
-        problems.push(`El tema ${t.id} se junta con ${next}, que está retirado.`);
-        break;
-      }
-    }
+    const problem = mergeProblem(t, topics);
+    if (problem) problems.push(problem);
   }
   return problems;
 }

@@ -76,7 +76,7 @@ export function TableToolbar({
       />
       {full ? null : (
         <ActionButton
-          onClick={() => actions.flag(focus?.flag || REVIEW_FLAG)}
+          onClick={() => actions.flag((focus?.flag ?? 0) || REVIEW_FLAG)}
           disabled={off}
           title={why}
           icon={<Flag className="size-4" aria-hidden="true" />}

@@ -30,7 +30,7 @@ export function PracticePage({ node }: { node: CourseDeckNode }) {
   else body = <PracticeRound cards={first} back={back} />;
   return (
     <div className={studyScreen}>
-      {first && first.length ? (
+      {first?.length ? (
         body
       ) : (
         <>

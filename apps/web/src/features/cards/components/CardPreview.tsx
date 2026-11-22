@@ -163,7 +163,10 @@ export function CardInfo({
     ['totalTime', timed.length ? timeSpan(total / 1000) : cardPreviewStrings.info.none],
     ['card', card.template],
     ['noteType', card.noteType?.name ?? cardPreviewStrings.info.none],
-    ['deck', card.deck?.name.split('::').slice(1).join(' › ') || cardPreviewStrings.info.none],
+    [
+      'deck',
+      (card.deck?.name.split('::').slice(1).join(' › ') ?? '') || cardPreviewStrings.info.none,
+    ],
     ['code', cellText(card, 'code', timing) || cardPreviewStrings.info.none],
   ];
   const shown = simple ? facts.filter(([k]) => SIMPLE.has(k)) : facts;

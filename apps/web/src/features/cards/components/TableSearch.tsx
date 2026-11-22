@@ -1,7 +1,7 @@
 // The table's search box (Anki's syntax in «Modo avanzado»), the button that opens the sidebar on a narrow screen,
 // the one-click filters of the simple mode and what is wrong with a search.
 
-import type { FormEvent, RefObject } from 'react';
+import type { RefObject, SyntheticEvent } from 'react';
 import { Filter, Search } from 'lucide-react';
 import { Notice } from '../../../shared/ui/Notice';
 import { button } from '../../../shared/ui/styles';
@@ -23,7 +23,7 @@ export function TableSearch({
   full: boolean;
   text: string;
   onText: (text: string) => void;
-  onSubmit: (e: FormEvent) => void;
+  onSubmit: (e: SyntheticEvent) => void;
   onFilters: () => void;
   inputRef: RefObject<HTMLInputElement | null>;
   query: string;

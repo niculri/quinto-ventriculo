@@ -45,8 +45,8 @@ export function clozeParts(text: string): ClozePart[] {
       closeHole(s);
       i += 2;
     } else {
-      if (s.depth > 0) s.inner += text[i];
-      else s.plain += text[i];
+      if (s.depth > 0) s.inner += text.charAt(i);
+      else s.plain += text.charAt(i);
       i++;
     }
   }

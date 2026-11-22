@@ -5,13 +5,13 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useMediaQuery } from '../../../shared/hooks/useMediaQuery';
 
 export function useListViewport() {
-  const box = useRef<HTMLElement>(null);
+  const boxRef = useRef<HTMLElement>(null);
   const wide = useMediaQuery('(min-width: 640px)', true);
   const [width, setWidth] = useState(0);
   const [view, setView] = useState({ top: 0, height: 800 });
 
   useLayoutEffect(() => {
-    const el = box.current;
+    const el = boxRef.current;
     if (!el) return;
     let frame = 0;
     const measure = () => {
@@ -36,5 +36,5 @@ export function useListViewport() {
       window.removeEventListener('resize', later);
     };
   }, []);
-  return { box, wide, width, view };
+  return { boxRef, wide, width, view };
 }

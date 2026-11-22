@@ -27,11 +27,9 @@ export function useSelection({
 }) {
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [anchor, setAnchor] = useState<string | null>(null);
-  const urlCard = params.get('note')
-    ? cardKey({ noteGuid: params.get('note')!, ord: Number(params.get('ord') ?? '0') })
-    : null;
-  const currentKey =
-    urlCard === null ? null : mode === 'notes' ? `note:${params.get('note')}` : urlCard;
+  const note = params.get('note');
+  const urlCard = note ? cardKey({ noteGuid: note, ord: Number(params.get('ord') ?? '0') }) : null;
+  const currentKey = note ? (mode === 'notes' ? `note:${note}` : urlCard) : null;
   const current = list.find((c) => c.key === currentKey) ?? null;
   const effectiveSelection = selected.size ? selected : new Set(current ? [current.key] : []);
 

@@ -8,7 +8,7 @@ import { tableCommand } from '../model/shortcuts';
 export function useTableShortcuts({
   full,
   busy,
-  searchBox,
+  searchBoxRef,
   undo,
   toggleSuspend,
   toggleBury,
@@ -17,7 +17,7 @@ export function useTableShortcuts({
 }: {
   full: boolean;
   busy: boolean;
-  searchBox: RefObject<HTMLInputElement | null>;
+  searchBoxRef: RefObject<HTMLInputElement | null>;
   undo: () => void;
   toggleSuspend: () => void;
   toggleBury: () => void;
@@ -31,7 +31,7 @@ export function useTableShortcuts({
       origin instanceof Element && origin.closest('input, textarea, select, [contenteditable]');
     if (command?.kind === 'search') {
       e.preventDefault();
-      searchBox.current?.focus();
+      searchBoxRef.current?.focus();
       return;
     }
     if (typing || busy || !command) return;

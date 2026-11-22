@@ -25,7 +25,7 @@ export function deckOfSearch(
 function cardsOf(node: CourseDeckNode, query: { q?: string; card?: string }) {
   const scope = scopeNodeOf(node) ?? node;
   const unit = scope === node ? null : unitOf(scope, node);
-  return paths.cards(scope.ref, { unit, q: query.q || null, card: query.card ?? null });
+  return paths.cards(scope.ref, { unit, q: (query.q ?? '') || null, card: query.card ?? null });
 }
 
 /** The URL to go to, or null while the card the URL names is on its way. */

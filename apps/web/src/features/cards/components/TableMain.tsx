@@ -20,7 +20,7 @@ export function TableMain({ t }: { t: CardTableState }) {
         onText={search.setText}
         onSubmit={t.onSubmit}
         onFilters={() => t.setFilters(true)}
-        inputRef={t.searchBox}
+        inputRef={t.searchBoxRef}
         query={t.query}
         onSearch={t.go}
         error={search.searchError}

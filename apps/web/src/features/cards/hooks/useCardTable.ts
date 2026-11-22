@@ -1,7 +1,7 @@
 // The table's state: its data, the URL's search and selection, the view, the actions and the page's shortcuts.
 
 import { useMemo, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { useSearchParams } from 'react-router';
 import { timingFor } from '@qv/study';
 import { useNow } from '../../../shared/hooks/useNow';
@@ -34,7 +34,7 @@ export function useCardTable(sources: TableSources) {
   const runner = useActionRunner(full);
   const actions = useCardActions({ chosen, focus, timing, full, act: runner.act });
   const [filters, setFilters] = useState(false);
-  const searchBox = useRef<HTMLInputElement>(null);
+  const searchBoxRef = useRef<HTMLInputElement>(null);
 
   const go = (q: string) => {
     const next = new URLSearchParams(params);
@@ -43,7 +43,7 @@ export function useCardTable(sources: TableSources) {
     setParams(next, { replace: false });
     selection.clear();
   };
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     go(search.text);
   };
@@ -54,7 +54,7 @@ export function useCardTable(sources: TableSources) {
   useTableShortcuts({
     full,
     busy: runner.busy,
-    searchBox,
+    searchBoxRef,
     undo: runner.undo,
     toggleSuspend: actions.toggleSuspend,
     toggleBury: actions.toggleBury,
@@ -79,7 +79,7 @@ export function useCardTable(sources: TableSources) {
     actions,
     filters,
     setFilters,
-    searchBox,
+    searchBoxRef,
     go,
     onSubmit,
     onSidebar,

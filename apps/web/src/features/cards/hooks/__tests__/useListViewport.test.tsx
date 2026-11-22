@@ -27,11 +27,11 @@ let last: Viewport | undefined;
 
 function Probe() {
   const v = useListViewport();
-  const { box } = v;
+  const { boxRef } = v;
   useEffect(() => {
     last = v;
   });
-  return <section ref={box} />;
+  return <section ref={boxRef} />;
 }
 
 const runFrames = () =>

@@ -27,11 +27,11 @@ let last: Scroll | undefined;
 
 function Probe({ index }: { index: number }) {
   const s = useGridScroll(index);
-  const { scroller } = s;
+  const { scrollerRef } = s;
   useEffect(() => {
     last = s;
   });
-  return <div ref={scroller} />;
+  return <div ref={scrollerRef} />;
 }
 
 function grid(index: number, scrollTop = 0) {

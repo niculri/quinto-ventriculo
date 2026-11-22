@@ -38,7 +38,7 @@ export function CardGrid({
   label: string;
 }) {
   const currentIndex = list.findIndex((c) => c.key === current);
-  const { scroller, top, setTop, height } = useGridScroll(currentIndex);
+  const { scrollerRef, top, setTop, height } = useGridScroll(currentIndex);
   const defs = columns.map((k) => COLUMNS.find((c) => c.key === k)!);
   const template = defs.map((d) => d.width).join(' ');
   const { first, last } = rowWindow(top, height, list.length);
@@ -58,7 +58,7 @@ export function CardGrid({
 
   return (
     <div
-      ref={scroller}
+      ref={scrollerRef}
       role="grid"
       aria-label={label}
       aria-multiselectable="true"

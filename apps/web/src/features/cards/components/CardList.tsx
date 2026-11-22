@@ -33,12 +33,12 @@ export function CardList({
   onOpen,
   reveal,
 }: ListProps) {
-  const { box, wide, width, view } = useListViewport();
+  const { boxRef, wide, width, view } = useListViewport();
   const metrics = useMemo(() => listMetrics(width || 1, wide), [width, wide]);
   const { items, total } = useMemo(() => listItems(lectures, metrics), [lectures, metrics]);
 
-  useReveal({ reveal, items, width, boxRef: box, lectureHeight: metrics.lecture });
-  const onKeyDown = useListKeys({ items, metrics, boxRef: box, view });
+  useReveal({ reveal, items, width, boxRef, lectureHeight: metrics.lecture });
+  const onKeyDown = useListKeys({ items, metrics, boxRef, view });
 
   const first = itemAt(items, view.top - OVERSCAN);
   const last = itemAt(items, view.top + view.height + OVERSCAN);
@@ -47,7 +47,7 @@ export function CardList({
 
   return (
     <section
-      ref={box}
+      ref={boxRef}
       aria-label={cardListStrings.list.label}
       onKeyDown={onKeyDown}
       className="relative mt-2"

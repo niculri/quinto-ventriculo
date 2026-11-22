@@ -46,7 +46,7 @@ export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string 
               current={current}
               flag={0}
               // Without «markable» the menu never marks, so it never calls this.
-              onMarked={/* v8 ignore next */ () => {}}
+              onMarked={/* v8 ignore next */ () => undefined}
               markable={false}
             />
           ) : (

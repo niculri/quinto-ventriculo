@@ -12,7 +12,7 @@ function shortcuts(patch: Partial<Props> = {}) {
   const props: Props = {
     full: true,
     busy: false,
-    searchBox: { current: box },
+    searchBoxRef: { current: box },
     undo: vi.fn(),
     toggleSuspend: vi.fn(),
     toggleBury: vi.fn(),
@@ -79,7 +79,7 @@ describe('a shortcut', () => {
   });
 
   it('to the search box does nothing without one', () => {
-    shortcuts({ searchBox: { current: null } });
+    shortcuts({ searchBoxRef: { current: null } });
     expect(fireEvent.keyDown(window, ctrl('f'))).toBe(false);
     expect(document.activeElement).toBe(document.body);
   });

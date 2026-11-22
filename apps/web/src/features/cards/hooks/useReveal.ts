@@ -18,16 +18,16 @@ export function useReveal({
   boxRef: RefObject<HTMLElement | null>;
   lectureHeight: number;
 }) {
-  const revealed = useRef<string | null>(null);
+  const revealedRef = useRef<string | null>(null);
   useLayoutEffect(() => {
-    if (!reveal || !width || revealed.current === reveal) return;
+    if (!reveal || !width || revealedRef.current === reveal) return;
     const it = items.find(
       (i) =>
         (i.kind === 'row' && i.item.note.note.guid === reveal) ||
         (i.kind === 'cells' && i.items.some((m) => m.note.note.guid === reveal)),
     );
     if (!it || !boxRef.current) return;
-    revealed.current = reveal;
+    revealedRef.current = reveal;
     const listTop = boxRef.current.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: Math.max(0, listTop + it.top - BAR - lectureHeight - 8) });
   }, [reveal, items, width, lectureHeight, boxRef]);

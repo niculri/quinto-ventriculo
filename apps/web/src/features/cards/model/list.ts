@@ -129,7 +129,7 @@ export function headingAt(
   let topic: string | null = null;
   for (let i = itemAt(items, y); i >= 0; i--) {
     const it = items[i]!;
-    if (it.kind === 'topic' && topic === null && lectureId === null) topic = it.title;
+    if (it.kind === 'topic' && topic === null) topic = it.title;
     if (it.kind === 'lecture') {
       lectureId = it.lectureId;
       break;

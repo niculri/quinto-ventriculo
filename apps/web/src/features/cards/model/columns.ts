@@ -156,7 +156,7 @@ function sortValue(c: BrowseCard, column: ColumnKey, timing: SchedTiming): numbe
     case 'card':
       return c.template;
     case 'due':
-      return c.dueAt === null ? 1e13 + c.position : c.dueAt;
+      return c.dueAt ?? 1e13 + c.position;
     case 'interval':
       return c.type === 'review' || c.type === 'relearn' ? c.interval : -1;
     case 'difficulty':

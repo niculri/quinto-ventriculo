@@ -8,9 +8,10 @@ import { cardStatusStrings } from './strings/CardStatus.strings';
 export function statusText(cards: readonly ExplorerCard[]): string {
   const by = new Map<CardStatus, number>();
   for (const c of cards) by.set(c.status, (by.get(c.status) ?? 0) + 1);
-  const parts = (['new', 'seen', 'hard', 'hidden'] as const)
-    .filter((s) => by.get(s))
-    .map((s) => `${by.get(s)} ${cardStatusStrings.list.status[s][by.get(s)! === 1 ? 0 : 1]}`);
+  const parts = (['new', 'seen', 'hard', 'hidden'] as const).flatMap((s) => {
+    const n = by.get(s);
+    return n ? [`${n} ${cardStatusStrings.list.status[s][n === 1 ? 0 : 1]}`] : [];
+  });
   const marked = cards.filter((c) => c.marked).length;
   if (marked) parts.push(cardStatusStrings.list.marked(marked));
   return cardStatusStrings.list.statusLine(cards.length, parts);

@@ -1,5 +1,6 @@
 // A note's row in the cards page's list: its question and answer (or a cloze's holes, or an image), and its cards.
 import { clozeParts } from '../model/cloze';
+import { keyed } from '../../../shared/lib/keyed';
 import type { Matched } from '../model/filters';
 import { SrOnly } from './SrOnly';
 import { Dots, statusText } from './CardStatus';
@@ -9,11 +10,11 @@ import { noteRowStrings } from './strings/NoteRow.strings';
 function ClozeText({ text, hide }: { text: string; hide: boolean }) {
   return (
     <>
-      {clozeParts(text).map((p, i) =>
+      {keyed(clozeParts(text), (p) => p.text).map(({ key, item: p }) =>
         p.hole === null ? (
-          <span key={i}>{p.text}</span>
+          <span key={key}>{p.text}</span>
         ) : hide ? (
-          <span key={i} className="rounded bg-brand-soft px-1 text-brand">
+          <span key={key} className="rounded bg-brand-soft px-1 text-brand">
             [
             {p.hole.hint ?? (
               <>
@@ -24,7 +25,7 @@ function ClozeText({ text, hide }: { text: string; hide: boolean }) {
             ]
           </span>
         ) : (
-          <span key={i} className="rounded bg-brand-soft px-0.5 font-medium text-brand">
+          <span key={key} className="rounded bg-brand-soft px-0.5 font-medium text-brand">
             {p.text}
           </span>
         ),

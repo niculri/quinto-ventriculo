@@ -3,6 +3,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import { timeSpan } from '@qv/srs';
 import type { CardLogEntry } from '../../progress/api/repository';
+import { keyed } from '../../../shared/lib/keyed';
 import { Loading } from '../../../shared/ui/Loading';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { cardHistoryStrings } from './strings/CardHistory.strings';
@@ -70,14 +71,14 @@ export function CardHistory({
               </tr>
             </thead>
             <tbody>
-              {[...answers].reverse().map((e, i) => (
-                <tr key={i} className="border-t border-border">
+              {keyed([...answers].reverse(), (e) => e.reviewedAt).map(({ key, item: e }) => (
+                <tr key={key} className="border-t border-border">
                   <td className="py-1 pr-2 whitespace-nowrap">
                     {DATE_TIME.format(new Date(e.reviewedAt))}
                   </td>
                   <td className="py-1 pr-2">{kindOf(e)}</td>
                   <td
-                    className={`py-1 pr-2 font-medium ${e.rating ? RATING_COLORS[e.rating - 1] : ''}`}
+                    className={`py-1 pr-2 font-medium ${e.rating ? (RATING_COLORS[e.rating - 1] ?? '') : ''}`}
                   >
                     {e.rating
                       ? cardHistoryStrings.info.ratings[e.rating - 1]

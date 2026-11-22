@@ -52,7 +52,8 @@ export function siteLines(summary: Summary): string[] {
   const courseOf = new Map(summary.assessments.map((a) => [a.id, a.courseName ?? a.courseId]));
   return [
     ...summary.catalog.map((c) => {
-      const own = String((c.after ?? c.before)?.name ?? c.id);
+      const named = (c.after ?? c.before)?.name;
+      const own = typeof named === 'string' ? named : c.id;
       const course = c.kind === 'assessment' ? courseOf.get(c.id) : null;
       const name = course ? releasesStrings.site.inCourse(course, own) : own;
       return releasesStrings.site.catalog(

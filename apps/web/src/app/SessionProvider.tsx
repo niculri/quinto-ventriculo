@@ -21,14 +21,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       if (!s) {
         forgetAccounts();
-        return setState((prev) => ({
+        setState((prev) => ({
           status: 'signed-out',
           notice: prev.status === 'signed-out' ? prev.notice : null,
         }));
+        return;
       }
       if (!isAllowedEmail(s.user.email)) {
         await session.signOut();
-        return setState({ status: 'signed-out', notice: DOMAIN_NOTICE });
+        setState({ status: 'signed-out', notice: DOMAIN_NOTICE });
+        return;
       }
       setState({ status: 'signed-in', user: s.user });
     };

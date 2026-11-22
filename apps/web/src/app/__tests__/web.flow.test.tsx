@@ -128,7 +128,9 @@ describe('access', () => {
           .getAllByRole('listitem')
           .map((li) => li.textContent),
       ).toEqual(['react 19.3.1MIT · web', 'hono 4.13.14MIT · servidor']);
-      expect(fetchMock).toHaveBeenCalledWith('/third-party-licenses.json');
+      expect(fetchMock).toHaveBeenCalledWith('/third-party-licenses.json', {
+        signal: expect.any(AbortSignal) as unknown,
+      });
     } finally {
       vi.unstubAllGlobals();
     }

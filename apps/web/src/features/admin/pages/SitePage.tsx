@@ -14,7 +14,7 @@ export function SitePage() {
   const id = useId();
   const settings = useSiteSettings(true);
   const save = useSetSiteSettings();
-  const saving = save.isPending ? save.variables?.hideEmptySemesters : undefined;
+  const saving = save.isPending ? save.variables.hideEmptySemesters : undefined;
   const value = saving ?? settings.data?.hideEmptySemesters ?? false;
   const status = save.isError
     ? s.notSaved

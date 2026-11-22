@@ -1,197 +1,31 @@
 // Pinch, drag, double tap, wheel and keys over the stage of the image viewer.
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import type { KeyboardEvent, PointerEvent, RefObject } from 'react';
-import {
-  fitScale,
-  fitView,
-  clampView,
-  isFitted,
-  maxScale,
-  panBy,
-  pinch,
-  toggledScale,
-  zoomAt,
-} from '../lib/zoom';
-import type { Point, Size, View } from '../lib/zoom';
+import type { KeyboardEvent, RefObject } from 'react';
+import { fitScale, fitView, isFitted, maxScale, panBy, zoomAt } from '../lib/zoom';
+import type { Size } from '../lib/zoom';
+import { useImageGestures } from './useImageGestures';
+import { useStageView } from './useStageView';
+import { useWheelZoom } from './useWheelZoom';
 
 const STEP = 1.5;
-const TAP_MOVE = 10;
-const DOUBLE_TAP_MS = 320;
 
-interface Gesture {
-  pointers: Map<number, Point>;
-  start: View;
-  from: Point[];
-  moved: boolean;
-  downAt: number;
-}
+const PAN_KEYS: Record<string, [number, number]> = {
+  ArrowLeft: [60, 0],
+  ArrowRight: [-60, 0],
+  ArrowUp: [0, 60],
+  ArrowDown: [0, -60],
+};
 
 export function useImageZoom(
   stageRef: RefObject<HTMLElement | null>,
   image: Size | null,
   onTapOutside: () => void,
 ) {
-  const [stage, setStage] = useState<Size | null>(null);
-  const [view, setView] = useState<View | null>(null);
-  const gestureRef = useRef<Gesture | null>(null);
-  const lastTapRef = useRef<{ at: number; point: Point } | null>(null);
-  const lastPointerRef = useRef('mouse');
-
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const read = () => setStage({ width: el.clientWidth, height: el.clientHeight });
-    read();
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(read);
-    observer?.observe(el);
-    return () => observer?.disconnect();
-  }, [stageRef]);
-
-  // A new image, or the stage changed (turning the phone): what fitted the last ones fits the new ones, the rest stays
-  // in bounds.
-  const [fittedFor, setFittedFor] = useState<{ key: string; image: Size; stage: Size } | null>(
-    null,
-  );
-  const sizes =
-    image && stage
-      ? { key: `${image.width}x${image.height}@${stage.width}x${stage.height}`, image, stage }
-      : null;
-  if (sizes && sizes.key !== fittedFor?.key) {
-    setFittedFor(sizes);
-    setView((v) =>
-      v && fittedFor && !isFitted(v, fittedFor.image, fittedFor.stage)
-        ? clampView(v, sizes.image, sizes.stage)
-        : fitView(sizes.image, sizes.stage),
-    );
-  }
-
+  const { stage, view, setView } = useStageView(stageRef, image);
   const ready = image && stage && view ? { image, stage, view } : null;
-  // ctrl + wheel is a trackpad's pinch: without preventing it the browser would zoom the whole page.
-  const onWheel = useEffectEvent((e: WheelEvent) => {
-    const el = stageRef.current;
-    if (!ready || !el) return;
-    e.preventDefault();
-    const r = el.getBoundingClientRect();
-    const lines = e.deltaMode === 1 ? 16 : 1;
-    const factor = Math.exp(-e.deltaY * lines * (e.ctrlKey ? 0.01 : 0.0015));
-    const at = { x: e.clientX - r.left, y: e.clientY - r.top };
-    // The latest view, not the drawn one: several wheel events can come before a render. Once ready, it is never null.
-    setView((v) => zoomAt(v!, v!.scale * factor, at, ready.image, ready.stage));
-  });
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const listener = (e: WheelEvent) => onWheel(e);
-    el.addEventListener('wheel', listener, { passive: false });
-    return () => el.removeEventListener('wheel', listener);
-  }, [stageRef]);
+  useWheelZoom(stageRef, ready, setView);
+  const { handlers, toggleAt } = useImageGestures(stageRef, ready, setView, onTapOutside);
 
-  const local = (e: { clientX: number; clientY: number }): Point => {
-    const r = stageRef.current!.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
-
-  const insideImage = (p: Point) => {
-    if (!ready) return false;
-    const { view: v, image: i } = ready;
-    return (
-      p.x >= v.x && p.y >= v.y && p.x <= v.x + i.width * v.scale && p.y <= v.y + i.height * v.scale
-    );
-  };
-
-  const toggleAt = (p: Point) => {
-    if (!ready) return;
-    setView(
-      zoomAt(
-        ready.view,
-        toggledScale(ready.view, ready.image, ready.stage),
-        p,
-        ready.image,
-        ready.stage,
-      ),
-    );
-  };
-
-  const onPointerDown = (e: PointerEvent) => {
-    lastPointerRef.current = e.pointerType;
-    if (!ready || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {
-      // the pointer already went up: the gesture goes on without capture
-    }
-    const g = gestureRef.current ?? {
-      pointers: new Map<number, Point>(),
-      start: ready.view,
-      from: [],
-      moved: false,
-      downAt: e.timeStamp,
-    };
-    g.pointers.set(e.pointerId, local(e));
-    // Each new finger starts the gesture again from where the image is now.
-    g.start = ready.view;
-    g.from = [...g.pointers.values()];
-    if (g.pointers.size > 1) g.moved = true;
-    gestureRef.current = g;
-  };
-
-  const onPointerMove = (e: PointerEvent) => {
-    const g = gestureRef.current;
-    if (!g || !ready || !g.pointers.has(e.pointerId)) return;
-    g.pointers.set(e.pointerId, local(e));
-    const now = [...g.pointers.values()];
-    if (now.length >= 2 && g.from.length >= 2) {
-      setView(
-        pinch(g.start, [g.from[0]!, g.from[1]!], [now[0]!, now[1]!], ready.image, ready.stage),
-      );
-      return;
-    }
-    const dx = now[0]!.x - g.from[0]!.x;
-    const dy = now[0]!.y - g.from[0]!.y;
-    if (!g.moved && Math.hypot(dx, dy) < TAP_MOVE) return;
-    g.moved = true;
-    setView(panBy(g.start, dx, dy, ready.image, ready.stage));
-  };
-
-  const onPointerUp = (e: PointerEvent) => {
-    const g = gestureRef.current;
-    if (!g || !g.pointers.has(e.pointerId)) return;
-    const point = g.pointers.get(e.pointerId)!;
-    g.pointers.delete(e.pointerId);
-    if (g.pointers.size) {
-      g.start = ready?.view ?? g.start;
-      g.from = [...g.pointers.values()];
-      return;
-    }
-    gestureRef.current = null;
-    if (g.moved || e.type === 'pointercancel') return;
-    if (!insideImage(point)) {
-      onTapOutside();
-      return;
-    }
-    // A mouse has its own double click (onDoubleClick); a finger, two taps close in time and place.
-    if (e.pointerType === 'mouse') return;
-    const last = lastTapRef.current;
-    if (
-      last &&
-      e.timeStamp - last.at < DOUBLE_TAP_MS &&
-      Math.hypot(point.x - last.point.x, point.y - last.point.y) < 40
-    ) {
-      lastTapRef.current = null;
-      toggleAt(point);
-    } else {
-      lastTapRef.current = { at: e.timeStamp, point };
-    }
-  };
-
-  // A browser may also fire dblclick after a finger's double tap (Chrome on Android does): toggling twice undid it.
-  const onDoubleClick = (e: { clientX: number; clientY: number }) => {
-    if (lastPointerRef.current !== 'mouse') return;
-    const p = local(e);
-    if (insideImage(p)) toggleAt(p);
-  };
-
-  const center = (): Point => ({ x: (stage?.width ?? 0) / 2, y: (stage?.height ?? 0) / 2 });
+  const center = () => ({ x: (stage?.width ?? 0) / 2, y: (stage?.height ?? 0) / 2 });
   const zoomBy = (factor: number) => {
     if (ready)
       setView(zoomAt(ready.view, ready.view.scale * factor, center(), ready.image, ready.stage));
@@ -203,18 +37,12 @@ export function useImageZoom(
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (!ready || e.metaKey || e.ctrlKey || e.altKey) return;
-    const pan: Record<string, [number, number]> = {
-      ArrowLeft: [60, 0],
-      ArrowRight: [-60, 0],
-      ArrowUp: [0, 60],
-      ArrowDown: [0, -60],
-    };
+    const pan = PAN_KEYS[e.key];
     if (e.key === '+' || e.key === '=') zoomBy(STEP);
     else if (e.key === '-') zoomBy(1 / STEP);
     else if (e.key === '0') toFit();
-    else if (pan[e.key] && !isFitted(ready.view, ready.image, ready.stage)) {
-      const [dx, dy] = pan[e.key]!;
-      setView(panBy(ready.view, dx, dy, ready.image, ready.stage));
+    else if (pan && !isFitted(ready.view, ready.image, ready.stage)) {
+      setView(panBy(ready.view, pan[0], pan[1], ready.image, ready.stage));
     } else return;
     e.preventDefault();
   };
@@ -232,13 +60,7 @@ export function useImageZoom(
     zoomOut: () => zoomBy(1 / STEP),
     toggle,
     toFit,
-    handlers: {
-      onPointerDown,
-      onPointerMove,
-      onPointerUp,
-      onPointerCancel: onPointerUp,
-      onDoubleClick,
-    },
+    handlers,
     onKeyDown,
   };
 }

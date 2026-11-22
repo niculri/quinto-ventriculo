@@ -22,7 +22,7 @@ export function useSetSiteSettings() {
       );
       // A catalog that does not come now is not a failure to save: this tab sees the change when it comes again.
       await client
-        .fetchQuery({
+        .query({
           queryKey: adminKeys.catalog,
           queryFn: ({ signal }) => api.catalog(signal, { fresh: true }),
           staleTime: 0,

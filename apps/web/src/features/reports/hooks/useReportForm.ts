@@ -1,6 +1,6 @@
 // The state of the «Reportar error» popup: the categories of its target, the chosen one, the comment and sending.
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import { CATEGORIES_OF } from '@qv/schema';
 import type { ReportCategory } from '@qv/schema';
 import type { ReportTarget } from '../api/repository';
@@ -28,7 +28,7 @@ export function useReportForm(
     reset();
     onClose();
   };
-  const submit = (e: FormEvent) => {
+  const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     if (!target || !text || send.isPending) return;
     send.mutate(

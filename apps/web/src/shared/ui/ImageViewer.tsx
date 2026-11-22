@@ -3,6 +3,7 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import { useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { Maximize2, MessageSquareWarning, Minimize2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useImageZoom } from '../hooks/useImageZoom';
 import type { Size } from '../lib/zoom';
@@ -40,6 +41,100 @@ export function ImageViewer({
 const TOOL =
   'relative inline-flex size-11 items-center justify-center rounded-full text-white hover:bg-white/15 aria-disabled:pointer-events-none aria-disabled:opacity-40';
 
+function Toolbar({
+  zoom,
+  closeRef,
+}: {
+  zoom: ReturnType<typeof useImageZoom>;
+  closeRef: RefObject<HTMLButtonElement | null>;
+}) {
+  const percent = zoom.view ? Math.round(zoom.view.scale * 100) : null;
+  return (
+    <div
+      role="group"
+      aria-label={imageViewerStrings.zoom}
+      className="flex flex-none items-center justify-end gap-1 px-2 py-2"
+    >
+      <button
+        type="button"
+        className={TOOL}
+        onClick={zoom.zoomOut}
+        aria-disabled={zoom.fitted}
+        aria-label={imageViewerStrings.zoomOut}
+      >
+        <ZoomOut className="size-5" aria-hidden="true" />
+      </button>
+      <span className="w-12 text-center text-sm tabular-nums text-white/80" aria-hidden="true">
+        {percent === null ? '' : `${percent} %`}
+      </span>
+      <button
+        type="button"
+        className={TOOL}
+        onClick={zoom.zoomIn}
+        aria-disabled={zoom.atMax}
+        aria-label={imageViewerStrings.zoomIn}
+      >
+        <ZoomIn className="size-5" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className={TOOL}
+        onClick={zoom.toggle}
+        aria-label={
+          zoom.fitted
+            ? zoom.atNatural
+              ? imageViewerStrings.double
+              : imageViewerStrings.natural
+            : imageViewerStrings.fit
+        }
+      >
+        {zoom.fitted ? (
+          <Maximize2 className="size-5" aria-hidden="true" />
+        ) : (
+          <Minimize2 className="size-5" aria-hidden="true" />
+        )}
+      </button>
+      <Dialog.Close
+        ref={closeRef}
+        aria-label={sharedStrings.close}
+        className={`${TOOL} ml-2 bg-white/10`}
+      >
+        <X className="size-5" aria-hidden="true" />
+      </Dialog.Close>
+    </div>
+  );
+}
+
+function Footer({
+  image,
+  onReport,
+}: {
+  image: OpenImage;
+  onReport: ((image: OpenImage) => void) | undefined;
+}) {
+  return image.caption || onReport ? (
+    <div className="flex flex-none flex-col items-center gap-2 px-4 pt-2 pb-3">
+      {image.caption ? (
+        <p
+          id="image-viewer-caption"
+          className="max-h-24 max-w-3xl touch-pan-y overflow-y-auto text-center text-sm leading-relaxed text-white/85"
+        >
+          {image.caption}
+        </p>
+      ) : null}
+      {onReport ? (
+        <button
+          type="button"
+          onClick={() => onReport(image)}
+          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm text-white hover:bg-white/20"
+        >
+          <MessageSquareWarning className="size-4" aria-hidden="true" /> {imageViewerStrings.report}
+        </button>
+      ) : null}
+    </div>
+  ) : null;
+}
+
 function Viewer({
   image,
   onClose,
@@ -55,7 +150,6 @@ function Viewer({
   const [opener] = useState(() => document.activeElement);
   const [natural, setNatural] = useState<Size | null>(null);
   const zoom = useImageZoom(stageRef, natural, onClose);
-  const percent = zoom.view ? Math.round(zoom.view.scale * 100) : null;
 
   return (
     <Dialog.Content
@@ -73,58 +167,7 @@ function Viewer({
       className="fixed inset-0 z-50 flex touch-none flex-col bg-black pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-white outline-none"
     >
       <Dialog.Title className="sr-only">{image.alt || imageViewerStrings.title}</Dialog.Title>
-      <div
-        role="group"
-        aria-label={imageViewerStrings.zoom}
-        className="flex flex-none items-center justify-end gap-1 px-2 py-2"
-      >
-        <button
-          type="button"
-          className={TOOL}
-          onClick={zoom.zoomOut}
-          aria-disabled={zoom.fitted}
-          aria-label={imageViewerStrings.zoomOut}
-        >
-          <ZoomOut className="size-5" aria-hidden="true" />
-        </button>
-        <span className="w-12 text-center text-sm tabular-nums text-white/80" aria-hidden="true">
-          {percent === null ? '' : `${percent} %`}
-        </span>
-        <button
-          type="button"
-          className={TOOL}
-          onClick={zoom.zoomIn}
-          aria-disabled={zoom.atMax}
-          aria-label={imageViewerStrings.zoomIn}
-        >
-          <ZoomIn className="size-5" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className={TOOL}
-          onClick={zoom.toggle}
-          aria-label={
-            zoom.fitted
-              ? zoom.atNatural
-                ? imageViewerStrings.double
-                : imageViewerStrings.natural
-              : imageViewerStrings.fit
-          }
-        >
-          {zoom.fitted ? (
-            <Maximize2 className="size-5" aria-hidden="true" />
-          ) : (
-            <Minimize2 className="size-5" aria-hidden="true" />
-          )}
-        </button>
-        <Dialog.Close
-          ref={closeRef}
-          aria-label={sharedStrings.close}
-          className={`${TOOL} ml-2 bg-white/10`}
-        >
-          <X className="size-5" aria-hidden="true" />
-        </Dialog.Close>
-      </div>
+      <Toolbar zoom={zoom} closeRef={closeRef} />
 
       <div
         ref={stageRef}
@@ -157,28 +200,7 @@ function Viewer({
         />
       </div>
 
-      {image.caption || onReport ? (
-        <div className="flex flex-none flex-col items-center gap-2 px-4 pt-2 pb-3">
-          {image.caption ? (
-            <p
-              id="image-viewer-caption"
-              className="max-h-24 max-w-3xl touch-pan-y overflow-y-auto text-center text-sm leading-relaxed text-white/85"
-            >
-              {image.caption}
-            </p>
-          ) : null}
-          {onReport ? (
-            <button
-              type="button"
-              onClick={() => onReport(image)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm text-white hover:bg-white/20"
-            >
-              <MessageSquareWarning className="size-4" aria-hidden="true" />{' '}
-              {imageViewerStrings.report}
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+      <Footer image={image} onReport={onReport} />
     </Dialog.Content>
   );
 }

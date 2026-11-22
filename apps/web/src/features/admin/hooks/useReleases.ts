@@ -63,10 +63,10 @@ export function useReleaseReview(overview: ReleaseOverview): {
   return { review, errors: [phrases.error, missing.error].filter(Boolean) };
 }
 
-export function useReleaseItems<K extends 'card' | 'article' | 'question'>(
+export function useReleaseItems(
   fingerprint: string,
   assessment: string,
-  kind: K,
+  kind: 'card' | 'article' | 'question',
 ) {
   const api = useApi();
   return useInfiniteQuery(itemsQuery(api, fingerprint, assessment, kind));

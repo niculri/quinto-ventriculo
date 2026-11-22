@@ -8,6 +8,7 @@ import type {
   LinesSpec,
   ScatterSpec,
 } from './chart-specs';
+import { ImportError } from '../errors';
 
 type Maybe<T> = T | null | undefined;
 type Margin = { l: number; r: number; t: number; b: number };
@@ -237,6 +238,7 @@ function draw(spec: ChartSpec): string {
 
 export function drawChart(spec: ChartSpec): string {
   const svg = draw(spec);
-  if (/NaN|undefined/.test(svg)) throw new Error('hay valores que no son números');
+  if (/NaN|undefined/.test(svg))
+    throw new ImportError('material', 'hay valores que no son números');
   return svg;
 }

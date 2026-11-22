@@ -2,6 +2,7 @@
 // messages are the skill's own. `validateTest` reports every problem at once, as the skill's validation does.
 import { isAbsolute, relative, resolve } from 'node:path';
 import { z } from 'zod';
+import { ImportError } from '../errors';
 import { FIGURE_REQUIRED, FigureSpec } from './chart-specs';
 import { asText, textOk } from './inline';
 
@@ -22,11 +23,15 @@ export function correctIndex(ok: unknown, n: number): number {
   )
     i = LETTERS.indexOf(ok.trim().toUpperCase());
   else
-    throw new Error(
+    throw new ImportError(
+      'material',
       `«ok» = ${JSON.stringify(ok)}: usa una letra (A–${LETTERS[n - 1]!}) o un índice desde 0`,
     );
   if (i < 0 || i >= n)
-    throw new Error(`«ok» = ${JSON.stringify(ok)} fuera de rango: hay ${n} alternativas`);
+    throw new ImportError(
+      'material',
+      `«ok» = ${JSON.stringify(ok)} fuera de rango: hay ${n} alternativas`,
+    );
   return i;
 }
 

@@ -65,6 +65,7 @@ export interface DefaultPrivilege {
 
 export interface Catalog {
   extensions: string[];
+  externalTriggers: { table: string; name: string; definition: string }[];
   functions: CatalogFunction[];
   tables: CatalogTable[];
   sequences: CatalogSequence[];
@@ -89,6 +90,14 @@ const list = (select: string) => `coalesce((${select}), '[]')`;
 const QUERY = `
 select jsonb_build_object(
   'extensions', ${list(`select jsonb_agg(extname order by extname) from pg_extension where extname <> 'plpgsql'`)},
+  'externalTriggers', ${list(`select jsonb_agg(jsonb_build_object(
+      'table', n.nspname || '.' || c.relname,
+      'name', t.tgname,
+      'definition', pg_get_triggerdef(t.oid)) order by n.nspname, c.relname, t.tgname)
+    from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace
+      join pg_proc p on p.oid = t.tgfoid
+    where not t.tgisinternal and p.pronamespace = $schema::regnamespace and c.relnamespace <> $schema::regnamespace
+      and n.nspname <> 'draft'`)},
   'functions', ${list(`select jsonb_agg(jsonb_build_object(
       'name', p.proname,
       'args', pg_get_function_identity_arguments(p.oid),

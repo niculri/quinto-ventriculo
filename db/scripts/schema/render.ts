@@ -127,11 +127,14 @@ function defaultPrivilegeLine(entry: DefaultPrivilege): string[] {
   );
 }
 
-/** What does not belong to one object: the extensions the migrations install and the default privileges. */
+/** What does not belong to one object: the extensions, the triggers on other schemas' tables (auth.users) and the default privileges. */
 function databaseFile(catalog: Catalog): string {
   const blocks = [HEADER];
   if (catalog.extensions.length) {
     blocks.push(catalog.extensions.map((e) => `create extension if not exists "${e}";`).join('\n'));
+  }
+  if (catalog.externalTriggers.length) {
+    blocks.push(catalog.externalTriggers.map((t) => `${t.definition};`).join('\n'));
   }
   blocks.push(catalog.defaultPrivileges.flatMap(defaultPrivilegeLine).join('\n'));
   return `${blocks.join('\n\n')}\n`;

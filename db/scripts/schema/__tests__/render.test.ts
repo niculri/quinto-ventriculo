@@ -5,6 +5,14 @@ import { renderSnapshot } from '../render';
 
 const catalog: Catalog = {
   extensions: ['unaccent'],
+  externalTriggers: [
+    {
+      table: 'auth.users',
+      name: 'on_sign_up',
+      definition:
+        'CREATE TRIGGER on_sign_up AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.create_profile()',
+    },
+  ],
   functions: [
     {
       name: 'is_admin',
@@ -84,8 +92,9 @@ describe('renderSnapshot', () => {
     expect(table).toContain('grant select on table public.notes to service_role;');
   });
 
-  it('writes the extensions and the default privileges that nobody gets', () => {
+  it('writes the extensions, the triggers on other schemas and the default privileges that nobody gets', () => {
     const database = files.get('_database.sql')!;
+    expect(database).toContain('CREATE TRIGGER on_sign_up AFTER INSERT ON auth.users');
     expect(database).toContain('create extension if not exists "unaccent";');
     expect(database).toContain(
       'alter default privileges for role postgres revoke all on functions from public, anon',

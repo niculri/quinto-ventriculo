@@ -1,11 +1,11 @@
 // The cards page's virtual list: a fixed-height row per note under its lecture and topic, drawn only in view, so
 // nothing moves while scrolling or filtering; the lecture and topic on top stay fixed under the site's bar.
 
-import { useMemo } from 'react';
+import type { RefObject } from 'react';
 import type { Lecture } from '../model/groups';
 import type { Matched } from '../model/filters';
 import { headingAt, itemAt, listItems, listMetrics } from '../model/list';
-import type { ListItem } from '../model/list';
+import type { ListItem, ListMetrics } from '../model/list';
 import { BAR } from '../model/list';
 import { useListKeys } from '../hooks/useListKeys';
 import { useListViewport } from '../hooks/useListViewport';
@@ -25,19 +25,48 @@ export interface ListProps {
   reveal: string | null;
 }
 
-export function CardList({
-  lectures,
+export function CardList({ lectures, ...rest }: ListProps) {
+  const { boxRef, wide, width, view } = useListViewport();
+  const metrics = listMetrics(width || 1, wide);
+  const { items, total } = listItems(lectures, metrics);
+  return (
+    <Rows
+      {...rest}
+      items={items}
+      total={total}
+      metrics={metrics}
+      boxRef={boxRef}
+      wide={wide}
+      width={width}
+      view={view}
+    />
+  );
+}
+
+// Apart from `CardList`: what the hooks below take comes in as props, so the compiler keeps the layout that
+// `CardList` builds from the lectures and the width, and a scroll does not lay the list out again.
+function Rows({
+  items,
+  total,
+  metrics,
+  boxRef,
+  wide,
+  width,
+  view,
   lectureTitle,
   hideAnswers,
   thumbs,
   onOpen,
   reveal,
-}: ListProps) {
-  const { boxRef, wide, width, view } = useListViewport();
-  // By hand: the compiler leaves these two without a cache, and the list would be laid out again on each scroll.
-  const metrics = useMemo(() => listMetrics(width || 1, wide), [width, wide]);
-  const { items, total } = useMemo(() => listItems(lectures, metrics), [lectures, metrics]);
-
+}: Omit<ListProps, 'lectures'> & {
+  items: ListItem[];
+  total: number;
+  metrics: ListMetrics;
+  boxRef: RefObject<HTMLElement | null>;
+  wide: boolean;
+  width: number;
+  view: { top: number; height: number };
+}) {
   useReveal({ reveal, items, width, boxRef, lectureHeight: metrics.lecture });
   const onKeyDown = useListKeys({ items, metrics, boxRef, view });
 
@@ -90,6 +119,7 @@ export function CardList({
     </section>
   );
 }
+
 
 function Item({
   it,

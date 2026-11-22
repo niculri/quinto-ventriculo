@@ -1,13 +1,20 @@
 // Tests the cards page's virtual list: the photos of a lecture drawn as a grid, and the lecture and topic pinned
 // under the site's bar only once the list goes under it.
 
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { explorerCard, matched } from '../../../../test/cardsUiFakes';
+import { compiled } from '../../../../test/compiled';
 import { groupNotes } from '../../model/groups';
 import type { Matched } from '../../model/filters';
+import { listItems } from '../../model/list';
 import { CardList } from '../CardList';
+
+vi.mock('../../model/list', async (original) => {
+  const model = await original<typeof import('../../model/list')>();
+  return { ...model, listItems: vi.fn(model.listItems) };
+});
 
 const photo = (guid: string) =>
   matched({
@@ -88,5 +95,28 @@ describe('CardList', () => {
     const { pinned } = listAt(-200, []);
     expect(pinned).toHaveClass('invisible');
     expect(pinned.textContent).toBe('');
+  });
+
+  // What the compiler gives and the coverage run, without it, does not: the layout of a long list is the heaviest step.
+  it.skipIf(!compiled)('a scroll draws the list again without laying it out again', async () => {
+    const { section } = listAt(0);
+    await waitFor(() => expect(within(section).getAllByRole('button')).toHaveLength(3));
+    const laidOut = vi.mocked(listItems).mock.calls.length;
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      top: -300,
+      width: 360,
+      height: 0,
+      left: 0,
+      right: 360,
+      bottom: -300,
+      x: 0,
+      y: -300,
+      toJSON: () => ({}),
+    });
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'));
+      await new Promise((r) => setTimeout(r, 50));
+    });
+    expect(vi.mocked(listItems).mock.calls.length).toBe(laidOut);
   });
 });

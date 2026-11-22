@@ -134,7 +134,7 @@ export function useDeckProgress(prefs: StudyPreferences | undefined, keepPreviou
   const today = useToday(prefs);
   return useQuery({
     ...deckProgressQuery(study, today, prefs),
-    placeholderData: keepPrevious ? keepPreviousData : undefined,
+    ...(keepPrevious ? { placeholderData: keepPreviousData } : {}),
   });
 }
 
@@ -178,7 +178,7 @@ export function useAnswersToday(prefs: StudyPreferences | undefined, keepPreviou
   const today = useToday(prefs);
   return useQuery({
     ...answersTodayQuery(study, today, prefs),
-    placeholderData: keepPrevious ? keepPreviousData : undefined,
+    ...(keepPrevious ? { placeholderData: keepPreviousData } : {}),
   });
 }
 

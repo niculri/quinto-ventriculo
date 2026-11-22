@@ -3,6 +3,7 @@ import { Fragment } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
 import type { AdminReason } from '@qv/schema/http';
+import { keyed } from '../lib/keyed';
 import { breadcrumbsStrings } from './strings/Breadcrumbs.strings';
 import { AdminTag } from './AdminTag';
 
@@ -53,8 +54,8 @@ export function Breadcrumbs({
       className={tagged ? 'min-w-0 text-sm text-muted' : 'mb-4 text-sm text-muted'}
     >
       <ol className={`flex items-center gap-1 ${tagged ? '' : 'flex-wrap'}`}>
-        {items.map((c, i) => (
-          <Fragment key={`${c.label}-${i}`}>
+        {keyed(items, (c) => c.label).map(({ key, item: c }, i) => (
+          <Fragment key={key}>
             {collapsed && i === 1 ? (
               <li aria-hidden="true" className="flex flex-none items-center gap-1 sm:hidden">
                 <ChevronRight className="size-3.5 flex-none opacity-60" />…

@@ -59,23 +59,28 @@ export function ReviewSection({
 
 const SHOWN = 8;
 
-/** The icon and color of a check: still checking, fine, or failing (blocking or a warning). */
-function lookOf(c: Check, failing: boolean) {
-  if (c.pending) return { Icon: LoaderCircle, tone: 'text-muted animate-spin' };
-  if (!failing) return { Icon: CircleCheck, tone: 'text-state-review' };
-  return c.severity === 'block'
-    ? { Icon: CircleX, tone: 'text-state-learn' }
-    : { Icon: TriangleAlert, tone: 'text-accent' };
+const ICON = 'size-4 flex-none';
+
+/** The icon of a check: still checking, fine, or failing (blocking or a warning). */
+function CheckIcon({ check: c, failing }: { check: Check; failing: boolean }) {
+  if (c.pending) {
+    return <LoaderCircle className={`${ICON} text-muted animate-spin`} aria-hidden="true" />;
+  }
+  if (!failing) return <CircleCheck className={`${ICON} text-state-review`} aria-hidden="true" />;
+  return c.severity === 'block' ? (
+    <CircleX className={`${ICON} text-state-learn`} aria-hidden="true" />
+  ) : (
+    <TriangleAlert className={`${ICON} text-accent`} aria-hidden="true" />
+  );
 }
 
 function CheckRow({ check: c }: { check: Check }) {
   const [all, setAll] = useState(false);
   const failing = c.items.length > 0;
-  const { Icon, tone } = lookOf(c, failing);
   return (
     <li className="px-4 py-3 sm:px-5" data-rule={c.rule}>
       <div className="flex items-center gap-3">
-        <Icon className={`size-4 flex-none ${tone}`} aria-hidden="true" />
+        <CheckIcon check={c} failing={failing} />
         <span className="min-w-0 flex-1 text-sm font-medium text-ink">{c.title}</span>
         <span className="flex-none text-xs text-muted">
           {c.pending ? s.review.checking : failing ? c.items.length : s.review.fine}

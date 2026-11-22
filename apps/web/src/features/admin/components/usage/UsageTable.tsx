@@ -1,7 +1,7 @@
 // A table of «Uso»: one row per deck, test, course or search, each name with its link and detail; and a list of
 // label and figure pairs.
-import type { ReactNode } from 'react';
 import { Link } from 'react-router';
+import { keyed } from '../../../../shared/lib/keyed';
 import { card } from '../../../../shared/ui/styles';
 import type { Named } from '../../model/usage';
 import { usageTableStrings } from './strings/UsageTable.strings';
@@ -9,7 +9,7 @@ import { usageTableStrings } from './strings/UsageTable.strings';
 export interface UsageRow {
   key: string;
   named: Named;
-  values: ReactNode[];
+  values: string[];
   indent?: boolean;
 }
 
@@ -88,8 +88,8 @@ function TableRow({ row: r }: { row: UsageRow }) {
           <span className="block truncate text-xs text-muted">{r.named.detail}</span>
         ) : null}
       </th>
-      {r.values.map((v, i) => (
-        <td key={i} className="px-1.5 text-right whitespace-nowrap tabular-nums sm:px-2">
+      {keyed(r.values, (v) => v).map(({ key, item: v }) => (
+        <td key={key} className="px-1.5 text-right whitespace-nowrap tabular-nums sm:px-2">
           {v}
         </td>
       ))}

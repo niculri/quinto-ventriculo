@@ -9,6 +9,7 @@ import type {
   ReleaseOp,
   ReleaseQuestionItem,
 } from '@qv/schema';
+import { keyed } from '../../../../shared/lib/keyed';
 import { classTone, letter, textOf } from '../../model/releases';
 import { itemChangesStrings } from './strings/ItemChanges.strings';
 import { Badge } from './Badge';
@@ -23,16 +24,16 @@ function Diff({
   const parts = wordDiff(plainText(before), plainText(after));
   return (
     <p className="mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap text-ink">
-      {parts.map((p, i) =>
+      {keyed(parts, (p) => `${p.op}:${p.text}`).map(({ key, item: p }, i) =>
         p.op === 'same' ? (
-          <span key={i}>{p.text}</span>
+          <span key={key}>{p.text}</span>
         ) : p.op === 'del' ? (
-          <span key={i}>
+          <span key={key}>
             <del className="bg-state-learn/10 text-state-learn">{p.text}</del>
             {parts[i + 1]?.op === 'add' ? ' ' : null}
           </span>
         ) : (
-          <ins key={i} className="bg-state-review/10 text-state-review">
+          <ins key={key} className="bg-state-review/10 text-state-review">
             {p.text}
           </ins>
         ),
@@ -197,7 +198,7 @@ export function QuestionChange({ item: q }: { item: ReleaseQuestionItem }) {
         </p>
       ) : null}
       {QUESTION_FIELDS.filter((k) => q.op !== 'changed' || textOf(b[k]) !== textOf(a[k]))
-        .filter((k) => textOf(b[k]) || textOf(a[k]))
+        .filter((k) => !!textOf(b[k]) || !!textOf(a[k]))
         .map((k) => (
           <Field
             key={k}

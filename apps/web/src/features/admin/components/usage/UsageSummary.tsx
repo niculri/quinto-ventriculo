@@ -1,6 +1,7 @@
 // The summary of «Uso»: each figure today, in 7 days and in 30 days, and when it was counted.
 import type { UsageReport } from '@qv/schema';
 import { formatDateTime } from '../../../../shared/lib/dates';
+import { keyed } from '../../../../shared/lib/keyed';
 import { Skeleton } from '../../../../shared/ui/Loading';
 import { Reserved } from '../../../../shared/ui/Reserved';
 import { card } from '../../../../shared/ui/styles';
@@ -86,9 +87,9 @@ function SummaryRow({ label, children }: { label: string; children: (string | nu
       >
         {label}
       </th>
-      {children.map((v, i) => (
-        <td key={i} className="px-1.5 text-right whitespace-nowrap text-ink tabular-nums sm:px-2">
-          {v === null ? <Skeleton className="ml-auto h-4 w-10" /> : v}
+      {keyed(children, (v) => v ?? '').map(({ key, item: v }) => (
+        <td key={key} className="px-1.5 text-right whitespace-nowrap text-ink tabular-nums sm:px-2">
+          {v ?? <Skeleton className="ml-auto h-4 w-10" />}
         </td>
       ))}
       <td aria-hidden="true" />

@@ -1,6 +1,7 @@
 // What an invitation did: who came in, who was already there and what was refused, and why.
 import * as Dialog from '@radix-ui/react-dialog';
 import type { InviteResult } from '../../api/repository';
+import { keyed } from '../../../../shared/lib/keyed';
 import { inviteResultDialogStrings as s } from './strings/InviteResultDialog.strings';
 import { accessDialogStrings } from './strings/AccessDialog.strings';
 import { inviteRowStrings } from './strings/InviteRow.strings';
@@ -36,8 +37,8 @@ export function InviteResultDialog({
                   {accessDialogStrings.close}
                 </p>
                 <ul className="mt-1 max-h-40 space-y-0.5 overflow-y-auto text-xs text-muted">
-                  {r.rejected.map((x, n) => (
-                    <li key={`${x.email}-${n}`}>
+                  {keyed(r.rejected, (x) => `${x.email}:${x.reason}`).map(({ key, item: x }) => (
+                    <li key={key}>
                       <span className="font-mono break-all">{x.email || s.result.empty}</span>
                       {inviteRowStrings.sep}
                       {s.result.reasons[x.reason]}

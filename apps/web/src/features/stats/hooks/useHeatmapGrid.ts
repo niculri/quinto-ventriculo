@@ -1,7 +1,7 @@
 // The heatmap grid's state: the day that has the focus (one stop in the tab order), the day box that is open (on
 // hover, or pinned by a click or the keyboard), the keys, and scrolling to today before it is painted.
 
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { cellValue, yearGrid } from '@qv/study';
 import type { CellValue } from '@qv/study';
@@ -25,8 +25,7 @@ export interface GridData {
 }
 
 export function useHeatmapGrid({ year, today, ready, studied, due, scale }: GridData) {
-  // By hand: the layout effect below depends on it, and a new grid would scroll to today again.
-  const grid = useMemo(() => yearGrid(year), [year]);
+  const grid = yearGrid(year);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLTableElement>(null);
   const [focusDay, setFocusDay] = useState<number | null>(null);
@@ -39,13 +38,17 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
         ? today
         : grid.first;
 
-  useLayoutEffect(() => {
+  // The grid follows the year: only a new year, today or the data arriving scroll to today again.
+  const scrollToToday = useEffectEvent(() => {
     const box = scrollerRef.current;
     if (!box) return;
     const max = box.scrollWidth - box.clientWidth;
     if (max <= 0) return;
     box.scrollLeft = gridScroll({ max, width: box.clientWidth }, today, grid);
-  }, [year, today, ready, grid]);
+  });
+  useLayoutEffect(() => {
+    scrollToToday();
+  }, [year, today, ready]);
 
   const valueOf = (day: number): CellValue | null =>
     ready && today !== null ? cellValue(day, today, studied, due, scale) : null;

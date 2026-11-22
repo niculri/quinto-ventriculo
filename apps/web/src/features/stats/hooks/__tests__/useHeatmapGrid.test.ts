@@ -68,12 +68,12 @@ describe('scrolling the grid', () => {
 });
 
 describe('the grid', () => {
-  it('is the year’s, built again only when the year changes', () => {
+  it('is the year’s, and follows it', () => {
     const { result, rerender } = heatmap(data());
-    const first = result.current.grid;
+    expect(result.current.grid).toEqual(yearGrid(YEAR));
     rerender(data({ scale: 9 }));
-    expect(result.current.grid).toBe(first);
+    expect(result.current.grid).toEqual(yearGrid(YEAR));
     rerender(data({ year: YEAR - 1 }));
-    expect(result.current.grid).not.toBe(first);
+    expect(result.current.grid).toEqual(yearGrid(YEAR - 1));
   });
 });

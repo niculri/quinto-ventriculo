@@ -21,6 +21,6 @@ export const LITERAL_TEXT = {
   ],
   listProps: ['choices', 'columns', 'items', 'lines', 'options'],
   textKeys: ['description', 'help', 'label', 'text', 'title'],
-  textFunctions: ['plural'],
+  textFunctions: ['plural', 'pluralGrouped'],
   ignoreFunctions: ['keys', 'shortcut', 'toLocaleString'],
 };

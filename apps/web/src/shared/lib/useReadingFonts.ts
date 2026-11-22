@@ -14,7 +14,8 @@ let done = false;
 
 function readingFontsReady(): Promise<void> {
   if (!ready) {
-    const fonts = typeof document === 'undefined' ? undefined : document.fonts;
+    // jsdom has no `document.fonts`, and some old browsers neither.
+    const fonts = 'fonts' in document ? document.fonts : undefined;
     const loading = fonts ? Promise.all(FACES.map((f) => fonts.load(f))) : Promise.resolve();
     const wait = new Promise<void>((resolve) => setTimeout(resolve, FONT_WAIT_MS));
     ready = Promise.race([

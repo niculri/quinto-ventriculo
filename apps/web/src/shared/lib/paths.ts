@@ -23,7 +23,7 @@ export interface CardsQuery {
 }
 
 export const assessmentAnchor = (assessmentId: string) =>
-  assessmentId.split('/').pop() ?? assessmentId;
+  assessmentId.slice(assessmentId.lastIndexOf('/') + 1);
 
 const seg = encodeURIComponent;
 

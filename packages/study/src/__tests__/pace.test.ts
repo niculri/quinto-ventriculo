@@ -118,6 +118,10 @@ describe('the days left', () => {
     expect(isExamDate('')).toBe(false);
     expect(isExamDate('0020-11-05')).toBe(false);
     expect(isExamDate('2026-02-30')).toBe(false);
+    expect(isExamDate('2000-01-01')).toBe(true);
+    expect(isExamDate('1999-12-31')).toBe(false);
+    expect(isExamDate('2100-12-31')).toBe(true);
+    expect(isExamDate('2101-01-01')).toBe(false);
     expect(dateOfDay(dayOfDate('2026-11-05'))).toBe('2026-11-05');
     expect(longDate('2026-11-05')).toBe('5 de noviembre');
     expect(shortDate('2026-11-05')).toBe('5 nov');
@@ -313,6 +317,19 @@ describe('the time it takes', () => {
     expect(new Set(minutes).size).toBe(1);
   });
 
+  it('adds up the reviews every day’s new cards still have before the test, in minutes rounded to five', () => {
+    // 14 days of 100 new cards. The cards of the first two days come back twice (the 2nd day and the 14th, which
+    // counts), the other twelve days’ once: 16 reviews per card a day over 15 days, and the cards a day at two
+    // answers each: (200 + 1600 ÷ 15 × 1.15) answers of 15 s are 80.7 minutes.
+    expect(
+      planMinutes({ newPerDay: 100, daysLeft: 15, finalDays: 1, seen: 0, medianAnswerMs: null }),
+    ).toBe(80);
+    // 600 cards seen come back at one a fortnight each, 1.15 answers a review: 42.9 × 1.15 answers of 15 s.
+    expect(
+      planMinutes({ newPerDay: 0, daysLeft: 12, finalDays: 3, seen: 600, medianAnswerMs: null }),
+    ).toBe(10);
+  });
+
   it('a plan of two weeks says about what it takes', () => {
     // 1.285 cards in 14 days (117 a day): the scheduler gives 59 minutes on the first two days and 88 from then on.
     const m = planMinutes({
@@ -349,6 +366,26 @@ describe('the time it takes', () => {
     expect(view.unrealistic).toBe(true);
     expect(view.status).toMatch(/~\d+ h.* al día: con menos tiempo no alcanzas a ver todo/);
     expect(view.status).toMatch(/apagar clases o extras, o elegir otra fecha/);
+  });
+
+  it('too much is more than UNREALISTIC_MINUTES: a plan of exactly that is still within reach', () => {
+    const viewWith = (cards: number) =>
+      assessmentView({
+        decks: DECKS.map((d) => (d.id === L1 ? { ...d, ownCards: cards } : d)),
+        plan: plan({ assessments: [dated(30)] }),
+        progress: [],
+        assessmentId: ASSESSMENT,
+        today: TODAY,
+        prefs: defaultPreferences(),
+      });
+    const minutesOf = (view: ReturnType<typeof viewWith>) =>
+      view.options.find((o) => o.finalDays === 3)!.minutes;
+    const exact = viewWith(3500);
+    expect(minutesOf(exact)).toBe(UNREALISTIC_MINUTES);
+    expect(exact.unrealistic).toBe(false);
+    const over = viewWith(3600);
+    expect(minutesOf(over)).toBe(UNREALISTIC_MINUTES + 5);
+    expect(over.unrealistic).toBe(true);
   });
 
   it('each choice says what it means, or nothing if there is nothing to compute', () => {

@@ -139,6 +139,23 @@ describe('the new cards of a course', () => {
     expect(counts(b, new Map(), cat).counts?.new).toBe(8);
   });
 
+  it('burying new siblings, a deck gives one card per note, so three notes are three cards; without it the count depends on the cards', () => {
+    const cat = catalog({ [UNIT1]: { closed: 3, exclusive: 3, own: 3 } });
+    const withBury = (bury: boolean) =>
+      base({
+        active: [UNIT1],
+        full: true,
+        own: { [UNIT1]: 9 },
+        presets: [{ name: 'Default', config: { new: { perDay: 8, bury }, rev: { perDay: 9999 } } }],
+      });
+    expect(counts(withBury(true), new Map(), cat).counts).toEqual({
+      new: 3,
+      learning: 0,
+      review: 0,
+    });
+    expect(counts(withBury(false), new Map(), cat).counts).toBeNull();
+  });
+
   it('comes out sure when a date decides how many: the day takes all its cards even from the same note', () => {
     const dated = base({ examDate: dateOfDay(today + 30) });
     expect(counts(dated).counts?.new).toBe(Math.ceil(40 / 27));
@@ -187,6 +204,20 @@ describe('the cards due today', () => {
     );
     const out = counts(base({ active: [UNIT1] }), home, sure).counts!;
     expect(out).toMatchObject({ review: 2, learning: 2 });
+  });
+
+  it('a learning card due when the next day starts still buries its sibling’s new card, but one a second later does not', () => {
+    const nextDayAt = schedTiming(NOON / 1000, ZONE, 4).nextDayAt;
+    const cat = catalog({ [UNIT1]: { closed: 1, exclusive: 1, own: 1 } });
+    const course = base({ active: [UNIT1], own: { [UNIT1]: 2 } });
+    const learningAt = (at: number) =>
+      homeOf(deckCounts(UNIT1, { seen: 1, touched: 1, due: [due('n', 0, 'l', at)] }));
+    expect(counts(course, learningAt(nextDayAt), cat).counts).toEqual({
+      new: 0,
+      learning: 0,
+      review: 0,
+    });
+    expect(counts(course, learningAt(nextDayAt + 1), cat).counts).toBeNull();
   });
 
   it('a learning step later than the learn-ahead window is not counted yet', () => {

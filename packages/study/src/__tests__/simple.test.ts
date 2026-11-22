@@ -557,3 +557,17 @@ describe('extrasOff with an assessment that is not in the list', () => {
     expect(extrasOff(lone, plan, 'e')).toBe(true);
   });
 });
+
+describe('which decks are Extras', () => {
+  const named = [
+    { id: '1', name: 'R::S::C' },
+    { id: '2', name: 'R::S::C::Extras' },
+    { id: '3', name: 'R::S::C::A' },
+    { id: '4', name: 'R::S::C::A::Extras' },
+  ];
+
+  it('only a deck called Extras from the level of the weeks or lectures down: an assessment with that name is not one', () => {
+    expect(extrasOff(named, EMPTY_PLAN, '2')).toBe(false);
+    expect(extrasOff(named, EMPTY_PLAN, '4')).toBe(true);
+  });
+});

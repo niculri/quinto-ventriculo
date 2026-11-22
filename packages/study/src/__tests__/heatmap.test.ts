@@ -58,6 +58,22 @@ describe('days', () => {
   });
 });
 
+describe('today', () => {
+  it('is the last day that counts as studied and the first that counts as due', () => {
+    const today = D('2026-11-03');
+    const days: HeatmapDay[] = [
+      { day: today, deckId: 'a', answers: 6, practice: 0 },
+      { day: today + 1, deckId: 'a', answers: 9, practice: 0 },
+    ];
+    expect([...countsByDay(days, today)]).toEqual([[today, 6]]);
+    const due = [
+      { day: today - 1, cards: 4 },
+      { day: today, cards: 2 },
+    ];
+    expect([...dueByDay(due, today)]).toEqual([[today, 2]]);
+  });
+});
+
 describe('the four figures', () => {
   it('average per day studied, % of days since the first, longest and current streak', () => {
     const map = studied([

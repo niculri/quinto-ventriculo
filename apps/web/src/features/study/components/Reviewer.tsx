@@ -80,6 +80,9 @@ export function Reviewer({
     <DaySummary node={node} prefs={initial.prefs} saved={() => saves.saved()} />
   ) : null;
   const turn = useCardTurn(shown ? cardKey(shown.entry) : '');
+  // «Reportar error» is disabled while no card is shown.
+  /* v8 ignore next */
+  const reportShown = () => report.open(shown?.entry ?? null);
 
   return (
     <div className={studyScreen}>
@@ -93,7 +96,7 @@ export function Reviewer({
         deckPath={deckPath}
         full={full}
         medianAnswerMs={initial.plan.medianAnswerMs}
-        onReport={() => report.open(shown?.entry ?? null)}
+        onReport={reportShown}
       />
 
       {load.heavy && shown ? (

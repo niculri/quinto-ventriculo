@@ -15,7 +15,8 @@ export function Welcome({ prefs }: { prefs: StudyPreferences }) {
     save.mutate({ ...prefs, welcomeSeen: true });
   };
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (o ? null : close())}>
+    // Without a trigger, Radix only calls it to close.
+    <Dialog.Root open={open} onOpenChange={close}>
       <Dialog.Portal>
         <BlurredBackdrop />
         <Dialog.Content

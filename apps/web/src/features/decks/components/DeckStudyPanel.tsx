@@ -58,7 +58,7 @@ export function DeckStudyPanel({
             </div>
             <div className="order-4 flex h-5 items-center max-sm:basis-full sm:order-3">
               {mastery ? (
-                <MasteryMeter value={mastery.get(node.id) ?? 0} align="left" />
+                <MasteryMeter value={ownMastery(mastery, node.id)} align="left" />
               ) : (
                 <Skeleton className="h-4 w-[5.5rem]" />
               )}
@@ -76,4 +76,10 @@ export function DeckStudyPanel({
       )}
     </section>
   );
+}
+
+// The mastery is computed over this deck's own detail, so it always has the deck itself.
+function ownMastery(mastery: Map<string, number>, id: string): number {
+  /* v8 ignore next */
+  return mastery.get(id) ?? 0;
 }

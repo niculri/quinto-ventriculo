@@ -9,6 +9,7 @@ import { BackButton } from '../../../shared/ui/BackButton';
 import { cardKey, reviewPools, startRound } from '@qv/study';
 import type { Round, StudyData } from '@qv/study';
 import { studyKeys } from '../../progress/queries';
+import type { CardRef } from '../../progress/api/repository';
 import { usePracticeRecorder } from '../../stats/hooks/usePracticeRecorder';
 import { ChooseReview } from './ChooseReview';
 import { ReviewMenu } from './ReviewMenu';
@@ -57,11 +58,7 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
           {round && round.queue[0] ? (
             <ReviewMenu
               current={round.queue[0]}
-              flag={
-                marks.get(cardKey(round.queue[0])) ??
-                data.rows.get(cardKey(round.queue[0]))?.flag ??
-                0
-              }
+              flag={marks.get(cardKey(round.queue[0])) ?? flagOf(data, round.queue[0])}
               onMarked={(key, flag) => {
                 marked.current = true;
                 setMarks((m) => new Map(m).set(key, flag));
@@ -91,4 +88,10 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
       )}
     </div>
   );
+}
+
+// The final review asks only cards already seen, which have their row.
+function flagOf(data: StudyData, card: CardRef): number {
+  /* v8 ignore next */
+  return data.rows.get(cardKey(card))?.flag ?? 0;
 }

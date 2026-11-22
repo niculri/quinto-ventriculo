@@ -1,11 +1,6 @@
 // The legal versions the database accepts and the account terms.
 import { describe, expect, it } from 'vitest';
-import {
-  ACCOUNT_DELETION_DAYS,
-  DATA_CONTROLLER,
-  INACTIVE_ACCOUNT_MONTHS,
-  LEGAL_VERSIONS,
-} from '../legal';
+import { ACCOUNT_DELETION_DAYS, INACTIVE_ACCOUNT_MONTHS, LEGAL_VERSIONS } from '../legal';
 
 describe('the legal terms', () => {
   it('each version is a number or two joined by a dot, the only thing the database takes, with the date it came into force', () => {

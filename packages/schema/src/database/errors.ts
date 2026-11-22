@@ -70,7 +70,7 @@ export class DatabaseError extends Error {
   }
 
   hasCode(...codes: SqlState[]): boolean {
-    return this.code !== null && (codes as string[]).includes(this.code);
+    return codes.some((code) => code === this.code);
   }
 
   /** The reason of a `<fn>: <reason>` refusal (the content database's release functions), or null. */

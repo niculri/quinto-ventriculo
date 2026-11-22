@@ -1,10 +1,19 @@
 // Rule qv/strings-location: the texts of a component or module live in `strings/<Name>.strings.ts`, next to the
 // `<Name>` they belong to; what several features share lives in a `strings/` folder of the shared code.
-import { existsSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import path from 'node:path';
 
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs'];
 const SUFFIX = '.strings.ts';
+
+// Whether a folder has a file by exactly that name: `existsSync` ignores the case on macOS and the CI does not.
+const hasFile = (/** @type {string} */ dir, /** @type {string} */ name) => {
+  try {
+    return readdirSync(dir).includes(name);
+  } catch {
+    return false;
+  }
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 export const stringsLocation = {
@@ -58,7 +67,7 @@ export const stringsLocation = {
         if (isShared) return;
         const name = base.slice(0, -SUFFIX.length);
         const parent = path.dirname(dir);
-        if (!SOURCE_EXTENSIONS.some((e) => existsSync(path.join(parent, name + e)))) {
+        if (!SOURCE_EXTENSIONS.some((e) => hasFile(parent, name + e))) {
           context.report({ ...at, messageId: 'orphan', data: { name } });
         }
       },

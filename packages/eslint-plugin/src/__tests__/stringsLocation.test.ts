@@ -48,6 +48,12 @@ tester.run('qv/strings-location', stringsLocation, {
       errors: [{ messageId: 'orphan' }],
     },
     {
+      filename: join(root, 'components', 'strings', 'panel.strings.ts'),
+      code,
+      options,
+      errors: [{ messageId: 'orphan' }],
+    },
+    {
       filename: join(root, 'components', 'strings', 'Panel.ts'),
       code,
       options,

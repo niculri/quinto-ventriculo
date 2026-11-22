@@ -34,11 +34,11 @@ export function useCardTable(sources: TableSources) {
   });
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
-  const full = data.prefs.fullAnki;
+  const full = prefs.fullAnki;
   const [savedView, setView] = useViewPrefs();
   const view: ViewPrefs = full ? savedView : { ...savedView, mode: 'cards' };
   const now = useNow(30_000);
-  const timing = timingFor(data.prefs, now);
+  const timing = timingFor(prefs, now);
   const search = useCardSearch({ data, query, view, timing, now });
   const { list } = search;
   const selection = useSelection({ list, mode: view.mode, params, setParams });

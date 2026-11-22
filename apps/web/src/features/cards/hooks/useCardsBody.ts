@@ -1,7 +1,7 @@
 // The cards page's state: its filters in the URL, the cards they leave grouped by lecture, the text, day and
 // «Falladas» readings, and a pasted code that opens its card.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { CardsQuery } from '../../../shared/lib/paths';
 import { useNow } from '../../../shared/hooks/useNow';
@@ -29,13 +29,6 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
   const data = cards.data;
   const full = !!data?.prefs.fullAnki;
   const table = full && params.get('view') === 'table';
-  const unit = params.get('unit') ?? '';
-  const unitDeck = unitNode(scope.node, unit);
-  const state = parseState(params.get('state'));
-  const originText = params.get('origin');
-  // By hand: the compiler would depend on `params`, so each change of the URL would filter the notes again.
-  const origins = useMemo(() => parseOrigins(originText), [originText]);
-  const kind = parseKind(params.get('kind'));
   const q = params.get('q') ?? '';
   const [hideAnswers, setHideAnswers] = useHideAnswers();
   const [panel, setPanel] = useState(false);
@@ -43,6 +36,12 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
   const text = useTextMatch(data, table ? '' : searchQuery(q, full), tree);
   const day = useDayCards(scope, data, params.get('day'));
   const thumbs = useThumbQuery();
+  // The hooks come first: the compiler cannot keep a value built before a hook that a call changes after it.
+  const unit = params.get('unit') ?? '';
+  const unitDeck = unitNode(scope.node, unit);
+  const state = parseState(params.get('state'));
+  const origins = parseOrigins(params.get('origin'));
+  const kind = parseKind(params.get('kind'));
 
   const set = (patch: Partial<Record<keyof CardsQuery, string | null>>, replace = true) => {
     const next = new URLSearchParams(params);
@@ -54,20 +53,16 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
     setParams(next, { replace, flushSync: true });
   };
 
-  // By hand: without it, the compiler leaves the filters and what comes from them without a cache.
-  const filters = useMemo<Filters>(
-    () => ({
-      ...NO_FILTERS,
-      unitDecks: unitDeckIds(unitDeck),
-      text: text.keys,
-      day: day.value?.keys ?? null,
-      failed: failedOf(day.value, failed.data) ?? new Set(),
-      state,
-      origins,
-      kind,
-    }),
-    [unitDeck, text.keys, day.value, failed.data, state, origins, kind],
-  );
+  const filters: Filters = {
+    ...NO_FILTERS,
+    unitDecks: unitDeckIds(unitDeck),
+    text: text.keys,
+    day: day.value?.keys ?? null,
+    failed: failedOf(day.value, failed.data) ?? new Set(),
+    state,
+    origins,
+    kind,
+  };
   const result = data ? applyFilters(data.notes, filters) : null;
   const lectures = result ? groupNotes(result.matched) : [];
   const practice = practiceCards(lectures, state);

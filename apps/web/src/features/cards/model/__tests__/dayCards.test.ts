@@ -21,7 +21,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const inScope = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+const inScope = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
 
 function data(rows: StoredCard[]): CardsData {
   return {
@@ -115,7 +115,8 @@ describe('the cards of a day', () => {
       storedCard('g', 0, '20', { due: at(day), retiredAt: at(TODAY) }),
       storedCard('h', 0, '20', { due: at(day), buriedUntil: at(TODAY + 1) }),
       storedCard('outside', 0, '20', { due: at(day) }),
-      storedCard('a', 1, '20', { due: at(day + 1) }),
+      storedCard('a', 1, '20', { due: at(day) }),
+      storedCard('i', 0, '20', { due: at(day + 1) }),
     ];
     const out = dayCardsOf({ ...base, data: data(rows), day, today: TODAY });
     expect(out).toEqual({

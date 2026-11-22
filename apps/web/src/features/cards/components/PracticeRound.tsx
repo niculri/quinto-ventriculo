@@ -42,7 +42,13 @@ export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string 
         </p>
         <div className="flex min-w-0 items-center justify-end">
           {current ? (
-            <ReviewMenu current={current} flag={0} onMarked={() => {}} markable={false} />
+            <ReviewMenu
+              current={current}
+              flag={0}
+              // Without «markable» the menu never marks, so it never calls this.
+              onMarked={/* v8 ignore next */ () => {}}
+              markable={false}
+            />
           ) : (
             <span className="w-10" aria-hidden="true" />
           )}

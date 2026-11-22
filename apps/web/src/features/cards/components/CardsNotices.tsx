@@ -22,7 +22,8 @@ export function CardsChanged() {
         <p>{cardsNoticesStrings.page.changedBody}</p>
         <button
           type="button"
-          onClick={() => window.location.reload()}
+          // jsdom's location.reload can be neither stubbed nor observed.
+          onClick={/* v8 ignore next */ () => window.location.reload()}
           className={`${button.base} ${button.secondary} mt-3`}
         >
           {cardsNoticesStrings.page.reload}

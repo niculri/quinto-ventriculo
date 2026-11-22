@@ -341,6 +341,20 @@ describe('what stops the import', () => {
   });
 });
 
+describe('a map entry without a topic', () => {
+  it('is said once as a topic that does not exist, not again as an item of another unit', async () => {
+    const m = await failure(
+      manifest(({ map }) => {
+        map.notes[0]!.topic = undefined as unknown as string;
+        map.questions[0]!.topic = undefined as unknown as string;
+      }),
+    );
+    expect(m).toContain('La nota T-PR-01-001 apunta al tema undefined, que no existe.');
+    expect(m).toContain(`La pregunta ${QUIZ}/P-1 apunta al tema undefined, que no existe.`);
+    expect(m).not.toContain('su tema undefined');
+  });
+});
+
 describe('partial imports and the scope', () => {
   it('--only-decks checks the cards; the sections and the questions are said as not checked, without notices', async () => {
     const r = await build(manifest(), { onlyDecks: true });

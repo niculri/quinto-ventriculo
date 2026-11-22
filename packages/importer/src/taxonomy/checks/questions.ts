@@ -85,7 +85,8 @@ function checkQuestion(
     problems.add('sin tema', `La pregunta ${ref} no tiene tema en el mapa.`);
     return;
   }
-  if (resolveTopic(ctx.topics, entry.topic)?.id !== entry.topic) return;
+  const topic = resolveTopic(ctx.topics, entry.topic);
+  if (!topic || topic.id !== entry.topic) return;
   const its = ctx.unitOfTopic.get(entry.topic)!;
   if (units.includes(its)) {
     ctx.counted.push({ unit: its, topic: entry.topic });

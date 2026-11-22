@@ -105,7 +105,8 @@ function checkCard(
   }
   if (!entry) return;
   const id = entry.ords?.[String(card.ord)] ?? entry.topic;
-  if (resolveTopic(ctx.topics, id)?.id !== id) return;
+  const topic = resolveTopic(ctx.topics, id);
+  if (!topic || topic.id !== id) return;
   const its = ctx.unitOfTopic.get(id)!;
   if (units.includes(its)) {
     ctx.counted.push({ unit: its, topic: id });

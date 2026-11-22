@@ -47,6 +47,13 @@ describe('suppressionsByRule', () => {
     expect(() => suppressionsByRule('[]')).toThrow();
     expect(() => suppressionsByRule('{"a.ts": {"max-lines": {"count": -1}}}')).toThrow();
     expect(() => suppressionsByRule('{"a.ts": {"max-lines": {}}}')).toThrow();
+    expect(asObject(suppressionsByRule('{"a.ts": {"max-lines": {"count": 0}}}'))).toEqual({
+      'max-lines': 0,
+    });
+    expect(() => suppressionsByRule('{"a.ts": {"max-lines": 3}}')).toThrow('no tiene un count');
+    expect(() => suppressionsByRule('{"a.ts": {"max-lines": {"count": 1.5}}}')).toThrow();
+    expect(() => suppressionsByRule('{"a.ts": 4}')).toThrow('«a.ts» no es un objeto');
+    expect(() => suppressionsByRule('{"a.ts": [1]}')).toThrow('«a.ts» no es un objeto');
   });
 });
 
@@ -59,6 +66,12 @@ describe('startingDebt', () => {
       ['rule/b', 1],
     ]);
     expect([...startingDebt(null, now)]).toEqual([]);
+  });
+
+  it('a rule may start with no debt at all, and a count has to be a whole number', () => {
+    expect([...startingDebt(JSON.stringify({ 'rule/a': 0 }), null)]).toEqual([['rule/a', 0]]);
+    expect(() => startingDebt(JSON.stringify({ 'rule/a': 1.5 }), null)).toThrow('número válido');
+    expect(() => startingDebt(JSON.stringify({ 'rule/a': -1 }), null)).toThrow('número válido');
   });
 
   it('rejects a file that is not a rule → count object', () => {
@@ -225,6 +238,25 @@ describe('checkRatchet', () => {
     const once = checkRatchet(snap(at(3)), snap(at(2)), 'main', new Set(), starts);
     expect(once.ok).toBe(false);
     expect(once.lines.join('\n')).toContain('@typescript-eslint/no-unsafe-call: 2 → 3');
+  });
+
+  it('lists the rules in alphabetical order, both the ones that grew and the new ones', () => {
+    const base = file({ 'a.ts': { b: 1, a: 1, z: 1, y: 1 } });
+    const grew = file({ 'a.ts': { b: 2, a: 2, z: 2, y: 2 } });
+    const grown = checkRatchet(snap(grew), snap(base), 'main').lines;
+    expect(grown.filter((l) => /^ {2}\w:/.test(l)).map((l) => l.trim()[0])).toEqual([
+      'a',
+      'b',
+      'y',
+      'z',
+    ]);
+    const fresh = checkRatchet(
+      snap(file({ 'a.ts': { z: 1, y: 1 } })),
+      snap(file({ 'a.ts': { b: 1 } })),
+      'main',
+      new Set(['z', 'y']),
+    ).lines;
+    expect(fresh.join('\n')).toContain('y: 1, z: 1');
   });
 
   it('an inline directive counts as a suppression of its rule', () => {

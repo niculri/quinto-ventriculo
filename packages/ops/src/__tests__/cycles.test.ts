@@ -1,6 +1,14 @@
 // Tests for the import cycles between files and between the web's top folders, and for their baseline.
 import { describe, expect, it } from 'vitest';
-import { count, currentCycles, folderCycles, gained, readBaseline, webFolder } from '../cycles';
+import {
+  count,
+  currentCycles,
+  folderCycles,
+  gained,
+  readBaseline,
+  webFolder,
+  writeBaseline,
+} from '../cycles';
 import type { Cruise } from '../cycles';
 
 const W = 'apps/web/src/';
@@ -45,6 +53,25 @@ describe('folderCycles', () => {
     ).toEqual([]);
   });
 
+  it('a module outside the web, or a dependency on a folder with no module of its own, takes no part in a cycle', () => {
+    expect(
+      folderCycles([
+        { source: 'packages/srs/src/a.ts', dependencies: [{ resolved: `${W}ui/b.ts` }] },
+        mod('ui/b.ts', 'app/c.ts'),
+      ]),
+    ).toEqual([]);
+  });
+
+  it('a folder reached by two paths is not part of a cycle just for being visited twice', () => {
+    expect(
+      folderCycles([
+        mod('features/a/x.ts', 'features/b/y.ts', 'features/c/z.ts'),
+        mod('features/c/z.ts', 'features/b/y.ts'),
+        mod('features/b/y.ts'),
+      ]),
+    ).toEqual([]);
+  });
+
   it('splitting a feature into folders keeps the keys of its cycles', () => {
     const before = folderCycles([
       mod('features/a/x.ts', 'features/b/y.ts'),
@@ -85,6 +112,13 @@ describe('the baseline', () => {
     const now = { files: ['a → b', 'c → d'], folders: ['y → x'] };
     expect(gained(now, base)).toEqual({ files: ['c → d'], folders: [] });
     expect(count(gained(base, now))).toBe(1);
+  });
+
+  it('is written as JSON with two spaces and a final newline, and reads back the same', () => {
+    expect(writeBaseline(base)).toBe(
+      '{\n  "files": [\n    "a → b"\n  ],\n  "folders": [\n    "x → y",\n    "y → x"\n  ]\n}\n',
+    );
+    expect(readBaseline(writeBaseline(base))).toEqual(base);
   });
 
   it('reads only its own shape', () => {

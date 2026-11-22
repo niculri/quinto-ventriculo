@@ -36,7 +36,7 @@ interface World {
   remote: string;
   behind: boolean;
   fetchFails: boolean;
-  ci: (CiRun[] | 'gh-error')[];
+  ci: (CiRun[] | 'gh-error' | CommandResult)[];
   ciBySha?: Record<string, CiRun[]>;
   history?: { sha: string; files: string[] }[];
   envFile: string | null;
@@ -45,6 +45,8 @@ interface World {
   buildCode: number;
   wranglerCode: number;
   smokeOk: boolean;
+  // Answers of git by its exact arguments, instead of the usual ones; `crash` makes the call throw.
+  gitAnswers?: Record<string, CommandResult | 'crash'>;
 }
 
 const good = (over: Partial<World> = {}): World => ({
@@ -76,6 +78,9 @@ function fake(world: World) {
     capture: async (command, args) => {
       const a = args.join(' ');
       if (command === 'git') {
+        const forced = world.gitAnswers?.[a];
+        if (forced === 'crash') throw new Error('disk on fire');
+        if (forced) return forced;
         if (a === 'rev-parse --show-toplevel') return ok('/repo\n');
         if (a === 'status --porcelain=v1 -z --untracked-files=all') {
           return ok(world.status[Math.min(statusCalls++, world.status.length - 1)]!);
@@ -117,6 +122,7 @@ function fake(world: World) {
         }
         const answer = world.ci[Math.min(ghCalls++, world.ci.length - 1)]!;
         if (answer === 'gh-error') return { code: 1, stdout: '', stderr: 'gh: not logged in' };
+        if (!Array.isArray(answer)) return answer;
         return ok(JSON.stringify(answer));
       }
       throw new Error(`unexpected command: ${command} ${a}`);
@@ -472,6 +478,18 @@ describe('parseArgs and helpers', () => {
     const long = versionMessage(SHA, 'x'.repeat(200), false);
     expect(long).toHaveLength(100);
     expect(long.startsWith('d27b0b3 x')).toBe(true);
+    expect(long.endsWith('x…')).toBe(true);
+  });
+
+  it('a version message of exactly 100 characters is kept whole', () => {
+    const exact = versionMessage(SHA, 'x'.repeat(92), false);
+    expect(exact).toHaveLength(100);
+    expect(exact.endsWith('…')).toBe(false);
+  });
+
+  it('--wait takes up to 120 minutes and no more', () => {
+    expect(parseArgs(['--wait=120'], 'x')).toMatchObject({ options: { waitMinutes: 120 } });
+    expect(parseArgs(['--wait=121'], 'x').kind).toBe('error');
   });
 
   it('separates changed files from untracked ones (git status -z)', () => {
@@ -566,5 +584,80 @@ describe('a commit of only docs (they do not run the CI)', () => {
       expect(await deploy(f.env, options({ dryRun: true }))).toBe(1);
       expect(f.ghArgs).toHaveLength(1);
     }
+  });
+});
+
+describe('npm run deploy, when its tools fail in odd ways', () => {
+  const failing = (answer: CommandResult) =>
+    fake(good({ gitAnswers: { 'rev-parse HEAD': answer } }));
+
+  it('a git failure says what git said: stderr first, then stdout, then a fixed text', async () => {
+    const withStderr = failing({ code: 128, stdout: 'ignored', stderr: 'fatal: bad HEAD\n' });
+    expect(await deploy(withStderr.env, options())).toBe(1);
+    expect(text(withStderr.logs)).toContain('✗ No despliego. No pude leer HEAD: fatal: bad HEAD.');
+
+    const withStdout = failing({ code: 1, stdout: 'only stdout\n', stderr: '' });
+    await deploy(withStdout.env, options());
+    expect(text(withStdout.logs)).toContain('No pude leer HEAD: only stdout.');
+
+    const silent = failing({ code: 1, stdout: '', stderr: '' });
+    await deploy(silent.env, options());
+    expect(text(silent.logs)).toContain('No pude leer HEAD: git falló.');
+  });
+
+  it('a fetch that fails without a message still names git fetch', async () => {
+    const f = fake(
+      good({ gitAnswers: { 'fetch --quiet origin main': { code: 1, stdout: '', stderr: '' } } }),
+    );
+    expect(await deploy(f.env, options())).toBe(1);
+    expect(text(f.logs)).toContain('(¿sin red?): git fetch falló.');
+  });
+
+  it('gh failing says what it said, or that it failed, and asks for gh auth status', async () => {
+    const noWords = fake(good({ ci: [{ code: 1, stdout: '', stderr: '' }] }));
+    expect(await deploy(noWords.env, options())).toBe(1);
+    expect(text(noWords.logs)).toContain('(gh falló)');
+    expect(text(noWords.logs)).toContain('gh auth status');
+
+    const inStdout = fake(good({ ci: [{ code: 1, stdout: 'rate limited', stderr: '' }] }));
+    await deploy(inStdout.env, options());
+    expect(text(inStdout.logs)).toContain('(rate limited)');
+  });
+
+  it('an answer of gh that is not JSON is refused, not parsed as no runs', async () => {
+    const f = fake(good({ ci: [{ code: 0, stdout: '<html>', stderr: '' }] }));
+    expect(await deploy(f.env, options())).toBe(1);
+    expect(text(f.logs)).toContain('GitHub respondió algo que no entiendo');
+    expect(f.streamed).toEqual([]);
+  });
+
+  it('a wrangler that fails stops before the smoke test and says where to look', async () => {
+    const f = fake(good({ wranglerCode: 1 }));
+    expect(await deploy(f.env, options())).toBe(1);
+    expect(text(f.logs)).toContain('wrangler deploy falló');
+    expect(text(f.logs)).toContain('wrangler deployments list');
+    expect(text(f.logs)).not.toContain('Prueba de humo');
+  });
+
+  it('only ten dirty files are listed, and the rest is counted', async () => {
+    const files = Array.from({ length: 12 }, (_, i) => ` M apps/api/src/f${i}.ts\0`).join('');
+    const f = fake(good({ status: [files] }));
+    expect(await deploy(f.env, options())).toBe(1);
+    expect(text(f.logs)).toContain('apps/api/src/f9.ts');
+    expect(text(f.logs)).not.toContain('apps/api/src/f10.ts');
+    expect(text(f.logs)).toContain('… y 2 más');
+  });
+
+  it('exactly ten dirty files are all listed, with no count of the rest', async () => {
+    const files = Array.from({ length: 10 }, (_, i) => ` M apps/api/src/f${i}.ts\0`).join('');
+    const f = fake(good({ status: [files] }));
+    await deploy(f.env, options());
+    expect(text(f.logs)).toContain('apps/api/src/f9.ts');
+    expect(text(f.logs)).not.toContain('más');
+  });
+
+  it('a failure that is not a refusal is not turned into one', async () => {
+    const f = fake(good({ gitAnswers: { 'rev-parse HEAD': 'crash' } }));
+    await expect(deploy(f.env, options())).rejects.toThrow('disk on fire');
   });
 });

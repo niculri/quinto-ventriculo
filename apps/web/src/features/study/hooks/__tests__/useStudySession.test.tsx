@@ -15,7 +15,12 @@ import { StudyRepositoryContext } from '../../../progress/api/context';
 import { defaultPreferences, localStudyRepository } from '../../../progress/api/repository';
 import type { StudyRepository } from '../../../progress/api/repository';
 import { cardQuery } from '../../../decks/api/queries';
-import { useDoneSummary, useSessionLifecycle, useStudySession } from '../useStudySession';
+import {
+  useCardTurn,
+  useDoneSummary,
+  useSessionLifecycle,
+  useStudySession,
+} from '../useStudySession';
 
 const data = (): StudyData => ({
   deck: DECK,
@@ -310,5 +315,24 @@ describe('whether «Listo por hoy» shows the summary of the day', () => {
     answered = false;
     rerender({ done: true });
     expect(result.current).toBe(false);
+  });
+});
+
+describe('the number of the card in the session', () => {
+  it('counts each card shown once, an undone one again, and nothing while none is shown', () => {
+    const { result, rerender } = renderHook(({ key }) => useCardTurn(key), {
+      initialProps: { key: '' },
+    });
+    expect(result.current).toBe(0);
+    rerender({ key: 'a:0' });
+    expect(result.current).toBe(1);
+    rerender({ key: 'a:0' });
+    expect(result.current).toBe(1);
+    rerender({ key: 'b:0' });
+    expect(result.current).toBe(2);
+    rerender({ key: '' });
+    expect(result.current).toBe(2);
+    rerender({ key: 'a:0' });
+    expect(result.current).toBe(3);
   });
 });

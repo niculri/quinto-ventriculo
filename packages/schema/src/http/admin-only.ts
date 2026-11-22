@@ -93,14 +93,25 @@ export function markAdminOnly(
   const hidden = new Set(settings.hiddenCourses);
   const withoutOff = withoutCourses(published, hidden);
   const seen = settings.hideEmptySemesters ? withoutEmptySemesters(withoutOff) : withoutOff;
+  const publishedSemesters = new Set(published.semesters.map((s) => s.number));
   const ctx: Context = {
     before: indexPublished(published),
     hidden,
-    seenSemesters: new Set(seen.semesters.map((s) => s.number)),
+    // A semester only the draft has is not hidden from the students: it is not there yet.
+    seenSemesters: new Set([
+      ...seen.semesters.map((s) => s.number),
+      ...draft.semesters.map((s) => s.number).filter((n) => !publishedSemesters.has(n)),
+    ]),
     out: {},
   };
   for (const s of draft.semesters) {
-    mark(ctx, 'semester', s.number, inherited(ctx, s.number, null));
+    mark(
+      ctx,
+      'semester',
+      s.number,
+      inherited(ctx, s.number, null),
+      !publishedSemesters.has(s.number),
+    );
     for (const c of s.courses) {
       const isDraft = materialOfCourse(c) > 0 && !ctx.before.courses.get(c.id);
       mark(ctx, 'course', c.id, inherited(ctx, s.number, c.id), isDraft);

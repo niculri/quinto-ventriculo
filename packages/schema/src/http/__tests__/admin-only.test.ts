@@ -117,6 +117,28 @@ describe('markAdminOnly', () => {
     });
   });
 
+  it('marks a semester that only the draft has as draft, not as hidden, with what is in it', () => {
+    const published = catalog([{ number: 1, courses: [course('a', ['n1'])] }]);
+    const draft = catalog([
+      { number: 1, courses: [course('a', ['n1'])] },
+      { number: 2, courses: [course('e', ['n5'])] },
+      { number: 3, courses: [] },
+    ]);
+    for (const hideEmptySemesters of [false, true]) {
+      const marks = markAdminOnly(draft, published, {
+        hideEmptySemesters,
+        hiddenCourses: [],
+      }).adminOnly;
+      expect(marks).toEqual({
+        [adminKey('semester', 2)]: ['draft'],
+        [adminKey('course', 'e')]: ['draft'],
+        [adminKey('assessment', 'e/c1')]: ['draft'],
+        [adminKey('note', 'n5')]: ['draft'],
+        [adminKey('semester', 3)]: ['draft'],
+      });
+    }
+  });
+
   it('keeps every semester when empty ones are not hidden', () => {
     const c = catalog([{ number: 2, courses: [course('e', [])] }]);
     expect(markAdminOnly(c, c, OPEN).adminOnly).toEqual({});

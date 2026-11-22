@@ -11,6 +11,10 @@
       // vite.config.ts loads the demo API with server.ssrLoadModule('@qv/api/demo'), a string knip does not follow.
       "ignoreDependencies": ["@qv/api"],
     },
+    "db": {
+      // The nightly comparison with production reads the catalog with psql (db/scripts/schema/read.ts).
+      "ignoreBinaries": ["psql"],
+    },
     "packages/importer": {
       // Run by hand with `npx tsx` to write the content the e2e tests read.
       "entry": ["scripts/*.ts"],

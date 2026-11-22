@@ -12,7 +12,7 @@ export type DatabaseName = 'users' | 'content';
 const SCHEMAS: Record<DatabaseName, string[]> = { users: ['public'], content: ['draft', 'public'] };
 
 /** The order the users' first migrations were applied in production (study before the invite list). */
-const ORDER: Record<DatabaseName, string[]> = {
+export const MIGRATION_ORDER: Record<DatabaseName, string[]> = {
   users: ['20261031000000_initial.sql', '20261101000200_study.sql', '20261101000100_invites.sql'],
   content: [],
 };
@@ -305,7 +305,7 @@ function schemaTypes(c: Catalog, schemas: string[], schema: string): string {
 
 /** The generated module of one database, formatted as the Supabase CLI formats it. */
 export async function generateDatabaseTypes(name: DatabaseName): Promise<string> {
-  const db = await createDatabase(name, ORDER[name]);
+  const db = await createDatabase(name, MIGRATION_ORDER[name]);
   try {
     const schemas = SCHEMAS[name];
     const c = await readCatalog(db, schemas);

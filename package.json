@@ -34,6 +34,8 @@
     "import": "npm run import -w @qv/importer --",
     "unpublish": "npm run unpublish -w @qv/importer --",
     "db:types": "tsx db/scripts/db-types.ts",
+    "db:schema": "tsx db/scripts/schema-snapshot.ts",
+    "db:schema:compare": "tsx db/scripts/schema-compare.ts",
     "check": "npm run typecheck && npm run lint && npm run suppressions && npm run deps && npm run test-names && npm run knip && npm run format:check && npm test",
     "deploy": "tsx packages/ops/src/deploy-cli.ts",
     "smoke": "tsx packages/ops/src/smoke-cli.ts",

@@ -265,7 +265,7 @@ describe('the study screen in simple mode', () => {
     study.medianAnswerMs = async () => 500_000;
     await studying(study);
     const notice = (await screen.findAllByRole('status')).find((s) =>
-      /Hoy son \d+ tarjetas/.test(s.textContent ?? ''),
+      /Hoy son \d+ tarjetas/.test(s.textContent),
     )!;
     expect(notice).toBeDefined();
     expect(within(notice).getByRole('link', { name: 'Parar por hoy' })).toHaveAttribute(

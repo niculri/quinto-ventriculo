@@ -34,7 +34,7 @@ export function ReviewScreen({
 
   useEffect(() => {
     for (const c of round.queue.slice(1, 4)) {
-      void client.prefetchQuery(cardQuery(api, c.noteGuid, c.ord));
+      void client.query(cardQuery(api, c.noteGuid, c.ord)).catch(() => undefined);
     }
   }, [api, client, round.queue]);
 

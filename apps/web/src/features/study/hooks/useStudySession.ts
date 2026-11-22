@@ -63,7 +63,9 @@ export function useStudySession(initial: StudyData, rootId: string) {
         RETRY_DELAYS_MS,
         (failure) => numbered({ type: 'saveFailed', failure }),
         (entries) => {
-          for (const e of entries) void client.prefetchQuery(cardQuery(api, e.noteGuid, e.ord));
+          for (const e of entries) {
+            void client.query(cardQuery(api, e.noteGuid, e.ord)).catch(() => undefined);
+          }
         },
       ),
   );

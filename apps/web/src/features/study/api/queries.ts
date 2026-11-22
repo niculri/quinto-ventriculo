@@ -40,7 +40,7 @@ export function daySummaryQuery({
       const [answers, heat] = await Promise.all([
         study.ratedBetween(from, to),
         // The home page's own reading, read again: it already has today's answers.
-        client.fetchQuery({
+        client.query({
           queryKey: heatmapKeys.scope('all'),
           queryFn: () => study.heatmap(null),
           staleTime: 0,

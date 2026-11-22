@@ -267,7 +267,7 @@ describe('with a date, everything still comes out in time after the author moves
       const unseen = content.cards.filter(
         (c) => !rows.some((r) => r.noteGuid === c.noteGuid && r.phase !== 'new'),
       ).length;
-      expect(view.facts.newLeft + (view.facts.newToday ?? 0), `day ${day}`).toBe(unseen);
+      expect(view.facts.newLeft + view.facts.newToday, `day ${day}`).toBe(unseen);
       await studyAll(new StudyDriver(data, ASSESSMENT, study), now);
     }
     const rows = await local.allCards();

@@ -122,7 +122,7 @@ describe('the study session hook in StrictMode', () => {
 
 describe('the cards that come up soon', () => {
   const prefetched = (client: QueryClient) =>
-    vi.spyOn(client, 'prefetchQuery').mockResolvedValue(undefined);
+    vi.spyOn(client, 'query').mockResolvedValue(undefined);
 
   it('asks for the content of each of them when the session looks for a card, once per request, also in StrictMode', async () => {
     for (const strict of [false, true]) {

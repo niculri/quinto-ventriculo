@@ -147,7 +147,7 @@ async function saveAnswer(
       if (attempt > 0 && e instanceof CardChangedError) {
         const rows = await repository.cards([input.card.deckId]);
         const row = rows.find((r) => cardKey(r) === key);
-        if (row && row.lastReview === input.state.lastReview && row.reps === input.state.reps) {
+        if (row?.lastReview === input.state.lastReview && row.reps === input.state.reps) {
           stamps.set(key, row.updatedAt);
           return;
         }

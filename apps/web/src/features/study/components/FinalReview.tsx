@@ -30,7 +30,7 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
   );
   const deckPath = paths.deck(node.ref);
   const client = useQueryClient();
-  const marked = useRef(false);
+  const markedRef = useRef(false);
   const { add: addPractice, flush: flushPractice } = usePracticeRecorder();
   const finished = !!round && !round.queue[0];
   useEffect(() => {
@@ -42,7 +42,7 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
     return () => {
       document.title = sharedStrings.siteName;
       // Only a mark can have changed something.
-      if (marked.current) void client.invalidateQueries({ queryKey: studyKeys.all });
+      if (markedRef.current) void client.invalidateQueries({ queryKey: studyKeys.all });
     };
   }, [client, node.label]);
 
@@ -55,12 +55,12 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
           {left ? finalReviewStrings.review.left(left) : finalReviewStrings.review.bar}
         </p>
         <div className="flex min-w-0 items-center justify-end">
-          {round && round.queue[0] ? (
+          {round?.queue[0] ? (
             <ReviewMenu
               current={round.queue[0]}
               flag={marks.get(cardKey(round.queue[0])) ?? flagOf(data, round.queue[0])}
               onMarked={(key, flag) => {
-                marked.current = true;
+                markedRef.current = true;
                 setMarks((m) => new Map(m).set(key, flag));
               }}
             />

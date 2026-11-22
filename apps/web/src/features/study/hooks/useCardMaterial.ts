@@ -7,5 +7,5 @@ import type { CardMaterial } from '../model/material';
 export function useCardMaterial(deckId: string | undefined): CardMaterial | null {
   const catalog = useCatalog();
   const map = useMemo(() => (catalog.data ? materialByDeck(catalog.data) : null), [catalog.data]);
-  return (deckId && map?.get(deckId)) || null;
+  return deckId ? (map?.get(deckId) ?? null) : null;
 }

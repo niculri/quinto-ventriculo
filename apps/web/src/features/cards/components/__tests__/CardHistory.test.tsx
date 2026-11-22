@@ -25,20 +25,59 @@ function entry(patch: Partial<CardLogEntry>): CardLogEntry {
 }
 
 const query = (patch: Partial<UseQueryResult<CardLogEntry[]>>) =>
-  ({ isError: false, data: [], error: null, refetch: vi.fn(), ...patch }) as UseQueryResult<CardLogEntry[]>;
+  ({ isError: false, data: [], error: null, refetch: vi.fn(), ...patch }) as UseQueryResult<
+    CardLogEntry[]
+  >;
 
 describe('CardHistory', () => {
   it('lists the answers newest first, each with its kind, button, interval, stability and time', () => {
     const answers = [
-      entry({ phaseBefore: 'new', rating: 1, interval: -600, stability: null, durationMs: null, reviewedAt: '2026-10-01T12:00:00.000Z' }),
-      entry({ phaseBefore: 'learning', rating: 2, interval: null, reviewedAt: '2026-10-02T12:00:00.000Z' }),
-      entry({ phaseBefore: 'review', rating: 4, interval: 3, reviewedAt: '2026-10-03T12:00:00.000Z' }),
-      entry({ phaseBefore: 'relearning', rating: 3, interval: 1, reviewedAt: '2026-10-04T12:00:00.000Z' }),
-      entry({ action: 'forget', phaseBefore: 'review', rating: null, interval: null, stability: null, durationMs: null, reviewedAt: '2026-10-05T12:00:00.000Z' }),
+      entry({
+        phaseBefore: 'new',
+        rating: 1,
+        interval: -600,
+        stability: null,
+        durationMs: null,
+        reviewedAt: '2026-10-01T12:00:00.000Z',
+      }),
+      entry({
+        phaseBefore: 'learning',
+        rating: 2,
+        interval: null,
+        reviewedAt: '2026-10-02T12:00:00.000Z',
+      }),
+      entry({
+        phaseBefore: 'review',
+        rating: 4,
+        interval: 3,
+        reviewedAt: '2026-10-03T12:00:00.000Z',
+      }),
+      entry({
+        phaseBefore: 'relearning',
+        rating: 3,
+        interval: 1,
+        reviewedAt: '2026-10-04T12:00:00.000Z',
+      }),
+      entry({
+        action: 'forget',
+        phaseBefore: 'review',
+        rating: null,
+        interval: null,
+        stability: null,
+        durationMs: null,
+        reviewedAt: '2026-10-05T12:00:00.000Z',
+      }),
     ];
     render(<CardHistory log={query({ data: answers })} answers={answers} />);
-    const rows = within(screen.getByRole('table', { name: 'Historial de repasos' })).getAllByRole('row').slice(1);
-    const cells = rows.map((r) => within(r).getAllByRole('cell').slice(1).map((c) => c.textContent));
+    const rows = within(screen.getByRole('table', { name: 'Historial de repasos' }))
+      .getAllByRole('row')
+      .slice(1);
+    const cells = rows.map((r) =>
+      within(r)
+        .getAllByRole('cell')
+        .slice(1)
+        .map((c) => c.textContent),
+    );
     expect(cells).toEqual([
       ['Manual', '—', '—', '—', '—'],
       ['Reaprendizaje', 'Bien', '1 día', '4 días', '6 segundos'],

@@ -38,7 +38,11 @@ describe('TableSearch', () => {
     await userEvent.type(box, 'a');
     await userEvent.click(screen.getByRole('button', { name: 'Buscar' }));
     await userEvent.click(screen.getByRole('button', { name: 'Barra lateral' }));
-    expect([p.onText.mock.calls, p.onSubmit.mock.calls.length, p.onFilters.mock.calls.length]).toEqual([[['a']], 1, 1]);
+    expect([
+      p.onText.mock.calls,
+      p.onSubmit.mock.calls.length,
+      p.onFilters.mock.calls.length,
+    ]).toEqual([[['a']], 1, 1]);
   });
 
   it('a search it cannot run says why', () => {

@@ -12,8 +12,13 @@ import type { BrowseCard } from '../../model/browseCards';
 import type { ViewPrefs } from '../../hooks/useViewPrefs';
 import { TableToolbar } from '../TableToolbar';
 
-const VIEW: ViewPrefs = { mode: 'cards', columns: ['sortField'], sort: { column: 'sortField', descending: false } };
-const DRAFT_ONLY = 'Hay tarjetas que solo están en el borrador: se miran, no se suspenden, entierran ni marcan.';
+const VIEW: ViewPrefs = {
+  mode: 'cards',
+  columns: ['sortField'],
+  sort: { column: 'sortField', descending: false },
+};
+const DRAFT_ONLY =
+  'Hay tarjetas que solo están en el borrador: se miran, no se suspenden, entierran ni marcan.';
 
 function toolbar({
   full = false,
@@ -32,39 +37,83 @@ function toolbar({
   const onMode = vi.fn();
   render(
     <MemoryRouter>
-      <TableToolbar full={full} view={VIEW} setView={vi.fn()} onMode={onMode} busy={busy} count={count} blocked={blocked} focus={focus} actions={actions} />
+      <TableToolbar
+        full={full}
+        view={VIEW}
+        setView={vi.fn()}
+        onMode={onMode}
+        busy={busy}
+        count={count}
+        blocked={blocked}
+        focus={focus}
+        actions={actions}
+      />
     </MemoryRouter>,
   );
   const bar = screen.getByRole('toolbar', { name: 'Acciones' });
-  const names = () => within(bar).getAllByRole('button').map((b) => b.getAttribute('aria-label') ?? b.textContent);
+  const names = () =>
+    within(bar)
+      .getAllByRole('button')
+      .map((b) => b.getAttribute('aria-label') ?? b.textContent);
   return { bar, actions, onMode, names };
 }
 
 describe('TableToolbar', () => {
   it('in the simple mode: «No mostrar más», «Saltar por hoy» and «Marcar para revisar», with no cards/notes switch', async () => {
     const { names, actions } = toolbar();
-    expect(names()).toEqual(['Columnas', 'No mostrar más', 'Saltar por hoy', 'Marcar para revisar', 'Deshacer']);
+    expect(names()).toEqual([
+      'Columnas',
+      'No mostrar más',
+      'Saltar por hoy',
+      'Marcar para revisar',
+      'Deshacer',
+    ]);
     await userEvent.click(screen.getByRole('button', { name: 'Marcar para revisar' }));
     expect(actions.flag).toHaveBeenCalledWith(1);
   });
 
   it('in the simple mode, a hidden, skipped and marked card offers to undo each', async () => {
     const { names, actions } = toolbar({ focus: browseCard({ queue: 'suspended', flag: 4 }) });
-    expect(names()).toEqual(['Columnas', 'Volver a mostrar', 'Saltar por hoy', 'Quitar la marca', 'Deshacer']);
+    expect(names()).toEqual([
+      'Columnas',
+      'Volver a mostrar',
+      'Saltar por hoy',
+      'Quitar la marca',
+      'Deshacer',
+    ]);
     await userEvent.click(screen.getByRole('button', { name: 'Quitar la marca' }));
     expect(actions.flag).toHaveBeenCalledWith(4);
   });
 
   it('in the full mode: Anki’s names, the flags menu and «Olvidar…», and the cards/notes switch', async () => {
-    const { names, actions, onMode } = toolbar({ full: true, focus: browseCard({ queue: 'buried' }) });
-    expect(names()).toEqual(['Tarjetas', 'Notas', 'Columnas', 'Suspender', 'Desenterrar', 'Marcar', 'Olvidar…', 'Deshacer']);
-    expect(screen.getByRole('button', { name: 'Tarjetas' })).toHaveAttribute('aria-pressed', 'true');
+    const { names, actions, onMode } = toolbar({
+      full: true,
+      focus: browseCard({ queue: 'buried' }),
+    });
+    expect(names()).toEqual([
+      'Tarjetas',
+      'Notas',
+      'Columnas',
+      'Suspender',
+      'Desenterrar',
+      'Marcar',
+      'Olvidar…',
+      'Deshacer',
+    ]);
+    expect(screen.getByRole('button', { name: 'Tarjetas' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Notas' }));
     await userEvent.click(screen.getByRole('button', { name: 'Olvidar…' }));
     await userEvent.click(screen.getByRole('button', { name: 'Suspender' }));
     await userEvent.click(screen.getByRole('button', { name: 'Desenterrar' }));
     expect(onMode).toHaveBeenCalledWith('notes');
-    expect([actions.askForget, actions.toggleSuspend, actions.toggleBury].map((f) => f.mock.calls.length)).toEqual([1, 1, 1]);
+    expect(
+      [actions.askForget, actions.toggleSuspend, actions.toggleBury].map(
+        (f) => f.mock.calls.length,
+      ),
+    ).toEqual([1, 1, 1]);
   });
 
   it('in the full mode, a suspended card is «Quitar suspensión», and a buried one in the simple mode «Mostrar hoy»', () => {
@@ -100,7 +149,13 @@ describe('TableToolbar', () => {
 
   it('without a current card, its names are those of a card to suspend, skip and mark, and the flag marks for review', async () => {
     const { names, actions } = toolbar({ focus: null });
-    expect(names()).toEqual(['Columnas', 'No mostrar más', 'Saltar por hoy', 'Marcar para revisar', 'Deshacer']);
+    expect(names()).toEqual([
+      'Columnas',
+      'No mostrar más',
+      'Saltar por hoy',
+      'Marcar para revisar',
+      'Deshacer',
+    ]);
     await userEvent.click(screen.getByRole('button', { name: 'Marcar para revisar' }));
     expect(actions.flag).toHaveBeenCalledWith(1);
     expect(screen.queryByRole('link', { name: 'Ir al mazo' })).toBeNull();

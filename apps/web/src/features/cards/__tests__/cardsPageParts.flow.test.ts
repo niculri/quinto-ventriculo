@@ -58,6 +58,57 @@ describe('the cards page’s controls', () => {
   });
 });
 
+describe('the cards page’s list and table', () => {
+  it('«Lista» goes back from the table to the list, without the card that was open', async () => {
+    const { router } = renderApp(`${PAGE}?view=table&card=0%3Acloze-1`, { study: fullAnkiStudy() });
+    await screen.findByRole('grid', { name: 'Tarjetas' });
+    await userEvent.click(screen.getByRole('button', { name: 'Lista' }));
+    expect(await screen.findByText('3 notas · 4 tarjetas')).toBeInTheDocument();
+    expect([search(router).get('view'), search(router).get('card')]).toEqual([null, null]);
+    expect(screen.getByRole('button', { name: 'Lista' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('in «Modo avanzado» a search it does not understand says why over the list', async () => {
+    renderApp(`${PAGE}?q=${encodeURIComponent('(vértebra')}`, { study: fullAnkiStudy() });
+    expect(await screen.findByText('No se entiende la búsqueda')).toBeInTheDocument();
+  });
+});
+
+describe('the cards page’s filters', () => {
+  it('a state, an origin and a kind go to the URL, and «Todas» or switching off takes them away', async () => {
+    const { router } = renderApp(PAGE, { study: localStudyRepository(null) });
+    await screen.findByText('3 notas · 4 tarjetas');
+    await userEvent.click(screen.getByRole('button', { name: 'Filtros' }));
+    const panel = await screen.findByRole('dialog', { name: 'Filtros' });
+    const state = within(panel).getByRole('radiogroup', { name: 'Estado' });
+    const kind = within(panel).getByRole('radiogroup', { name: 'Tipo' });
+    await userEvent.click(within(panel).getByRole('switch', { name: 'Lo recalcó el profe' }));
+    expect(search(router).get('origin')).toBe('profe');
+    await userEvent.click(within(state).getByRole('radio', { name: /^Sin ver/ }));
+    expect(search(router).get('state')).toBe('new');
+    await userEvent.click(within(kind).getByRole('radio', { name: /^Texto/ }));
+    expect(search(router).get('kind')).toBe('text');
+    expect(await screen.findByText('1 nota · 1 tarjeta')).toBeInTheDocument();
+    await userEvent.click(within(kind).getByRole('radio', { name: /^Todas/ }));
+    await userEvent.click(within(state).getByRole('radio', { name: /^Todas/ }));
+    await userEvent.click(within(panel).getByRole('switch', { name: 'Lo recalcó el profe' }));
+    expect([...search(router).keys()]).toEqual([]);
+    expect(await screen.findByText('3 notas · 4 tarjetas')).toBeInTheDocument();
+  });
+
+  it('an origin in the URL starts on, and the origins no note has are off', async () => {
+    const { router } = renderApp(`${PAGE}?origin=profe`, { study: localStudyRepository(null) });
+    await screen.findByText('1 nota · 1 tarjeta');
+    await userEvent.click(screen.getByRole('button', { name: 'Filtros' }));
+    const panel = await screen.findByRole('dialog', { name: 'Filtros' });
+    expect(within(panel).getByRole('switch', { name: 'Salió en un control' })).toBeDisabled();
+    await userEvent.click(within(panel).getByRole('switch', { name: 'Lo recalcó el profe' }));
+    expect(search(router).get('origin')).toBeNull();
+    await userEvent.click(within(panel).getByRole('switch', { name: 'Lo recalcó el profe' }));
+    expect(search(router).get('origin')).toBe('profe');
+  });
+});
+
 describe('the line of a heatmap day', () => {
   it('a day that does not exist, a day to come and going back to every day', async () => {
     const study = fullAnkiStudy();

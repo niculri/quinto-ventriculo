@@ -7,10 +7,7 @@ import { explorerCard, matched } from '../../../../test/cardsUiFakes';
 import { NoteRow } from '../NoteRow';
 import type { Matched } from '../../model/filters';
 
-function row(
-  m: Matched,
-  { hideAnswers = false, wide = true, thumbs = 'q=1' } = {},
-) {
+function row(m: Matched, { hideAnswers = false, wide = true, thumbs = 'q=1' } = {}) {
   const onOpen = vi.fn();
   render(
     <NoteRow

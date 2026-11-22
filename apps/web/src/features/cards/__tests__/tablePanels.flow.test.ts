@@ -214,7 +214,9 @@ describe('the table’s columns and preview', () => {
     const url = () => new URLSearchParams(router.state.location.search);
     await waitFor(() => expect(url().get('note')).toBe('cloze-1'));
     expect([url().get('ord'), url().get('open')]).toEqual(['0', '1']);
-    expect(await screen.findByRole('dialog', { name: new RegExp(code!.replace('.', '\\.')) })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('dialog', { name: new RegExp(code!.replace('.', '\\.')) }),
+    ).toBeInTheDocument();
   });
 
   it('in «Notas» the preview shows the first card of the chosen note', async () => {
@@ -224,7 +226,11 @@ describe('the table’s columns and preview', () => {
     const cloze = (await rows()).find((r) => r.textContent.includes('La columna tiene'))!;
     await userEvent.click(cloze);
     const info = screen.getByRole('region', { name: 'Información de la tarjeta' });
-    const terms = within(info).getAllByRole('term').map((t) => t.textContent);
-    expect(within(info).getAllByRole('definition')[terms.indexOf('Tarjeta')]).toHaveTextContent('Cloze 1');
+    const terms = within(info)
+      .getAllByRole('term')
+      .map((t) => t.textContent);
+    expect(within(info).getAllByRole('definition')[terms.indexOf('Tarjeta')]).toHaveTextContent(
+      'Cloze 1',
+    );
   });
 });

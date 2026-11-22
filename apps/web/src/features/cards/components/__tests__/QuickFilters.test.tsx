@@ -37,7 +37,10 @@ describe('QuickFilters', () => {
   it('«Marcadas» on takes away only its term, wherever it is in the search', async () => {
     const onSearch = vi.fn();
     render(<QuickFilters query="-flag:0 vértebra is:due" onSearch={onSearch} />);
-    expect(screen.getByRole('button', { name: 'Marcadas' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Marcadas' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Marcadas' }));
     expect(onSearch).toHaveBeenCalledWith('vértebra is:due');
   });

@@ -18,7 +18,12 @@ import { SESSION_ANA } from './fixtures/session';
 
 export function renderWithServices(
   ui: ReactNode,
-  op: { api?: ApiClient; study?: StudyRepository; reports?: ReportsRepository; route?: string } = {},
+  op: {
+    api?: ApiClient;
+    study?: StudyRepository;
+    reports?: ReportsRepository;
+    route?: string;
+  } = {},
 ) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: WRITE_DEFAULTS },

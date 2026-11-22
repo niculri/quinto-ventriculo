@@ -258,6 +258,24 @@ export default tseslint.config(
     },
   },
   {
+    // And the other way: an adapter implements a port, it does not know the HTTP layer that uses it.
+    files: ['apps/api/src/adapters/**/*.ts'],
+    ignores: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/routes/**', '**/middleware/**'],
+              message: 'An adapter does not depend on the routes or the middleware that use it.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: DATA_ADAPTERS,
     rules: { 'qv/no-cast-on-data': 'error' },
   },

@@ -95,6 +95,7 @@ describe('before the image has loaded', () => {
       zoom.toFit();
     });
     expect(key('+')).toBe(true);
+    pointer('pointerdown', 10, 10, { kind: 'mouse' });
     fireEvent.doubleClick(stageEl(), { clientX: 10, clientY: 10 });
     expect(zoom.view).toBeNull();
   });

@@ -1,6 +1,8 @@
 // Tests of the usage counts: only the page that opens a piece counts it, and a search counts once, when completed.
-import { screen, waitFor, within } from '@testing-library/react';
+import { renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createElement } from 'react';
+import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UsageOpenRequest } from '@qv/schema';
 import { fakeApi } from '../../../../test/fakes/api';
@@ -8,7 +10,9 @@ import { fullAnkiStudy } from '../../../../test/fakes/repositories';
 import { DECK_PATH } from '../../../../test/fixtures/deck';
 import { QUIZ } from '../../../../test/fixtures/quiz';
 import { renderApp } from '../../../../test/render';
-import { countSearch, forgetLastSearch } from '../count';
+import { ApiClientContext } from '../../../../shared/hooks/useApi';
+import type { ApiClient } from '../../../../shared/lib/api';
+import { countSearch, forgetLastSearch, useCountOpen } from '../count';
 
 function spyApi() {
   const sent: UsageOpenRequest[] = [];
@@ -33,6 +37,20 @@ const settle = () => new Promise((r) => setTimeout(r, 300));
 beforeEach(() => forgetLastSearch());
 
 describe('what is opened', () => {
+  it('the same piece is sent once even if the page renders again with another client', async () => {
+    const { api, sent } = spyApi();
+    let current: ApiClient = api;
+    const { rerender } = renderHook(() => useCountOpen('note', 'same-piece-twice'), {
+      wrapper: ({ children }: { children: ReactNode }) =>
+        createElement(ApiClientContext, { value: current }, children),
+    });
+    await waitFor(() => expect(sent).toHaveLength(1));
+    current = spyApi().api;
+    rerender();
+    await settle();
+    expect(sent).toEqual([{ kind: 'note', id: 'same-piece-twice' }]);
+  });
+
   it('a note counts once, and its «Ponte a prueba» (which reads the test) does not count the test', async () => {
     const { api, sent, read } = spyApi();
     renderApp(ARTICLE, { api });

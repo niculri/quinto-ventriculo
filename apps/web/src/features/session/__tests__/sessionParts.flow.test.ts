@@ -1,9 +1,10 @@
 // Characterizes the return from Google: the destination it goes on to and forgets, and an error in the hash.
 import { screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderApp } from '../../../test/render';
 
 afterEach(() => {
+  vi.restoreAllMocks();
   window.sessionStorage.clear();
 });
 
@@ -38,6 +39,15 @@ describe('the return from Google', () => {
 
   it('a destination outside the site is not followed: home instead', async () => {
     window.sessionStorage.setItem('qv-next', '//elsewhere.example.test/x');
+    const { router } = renderApp('/auth/callback');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/home'));
+  });
+
+  it('with the storage blocked the destination cannot be read: home instead', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'qv-next') throw new Error('blocked');
+      return null;
+    });
     const { router } = renderApp('/auth/callback');
     await waitFor(() => expect(router.state.location.pathname).toBe('/home'));
   });

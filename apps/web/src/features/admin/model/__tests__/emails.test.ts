@@ -42,4 +42,11 @@ describe('«Acceso»', () => {
     });
     expect(readEmails('ana.perez.ug.uchile.cl')).toEqual({ emails: [], ignored: 1 });
   });
+
+  it('a bare «mailto:» or an empty piece between separators inside «<…>» is not a word left out', () => {
+    expect(readEmails('mailto: <, ana@ug.uchile.cl,>')).toEqual({
+      emails: ['ana@ug.uchile.cl'],
+      ignored: 0,
+    });
+  });
 });

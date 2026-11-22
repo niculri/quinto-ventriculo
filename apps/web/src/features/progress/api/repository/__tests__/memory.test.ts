@@ -455,12 +455,18 @@ describe('what the web reads of the progress', () => {
 });
 
 describe('more of what the web reads', () => {
-  it('median_answer_ms rounds a half to the even number, as Postgres', async () => {
-    for (let i = 0; i < 20; i++) {
-      await repo.recordReview(answer(card(`m${i}`), null, { durationMs: i < 10 ? 1001 : 1002 }));
-    }
-    expect(await repo.medianAnswerMs()).toBe(1002);
-  });
+  it.each([
+    [1001, 1002, 1002],
+    [1000, 1001, 1000],
+  ])(
+    'median_answer_ms rounds a half to the even number, as Postgres: %d and %d give %d',
+    async (low, high, median) => {
+      for (let i = 0; i < 20; i++) {
+        await repo.recordReview(answer(card(`m${i}`), null, { durationMs: i < 10 ? low : high }));
+      }
+      expect(await repo.medianAnswerMs()).toBe(median);
+    },
+  );
 
   it('the days of some decks leave out the cards of the others, and what is buried past today', async () => {
     await repo.recordReview(answer(A, null));
@@ -478,11 +484,15 @@ describe('more of what the web reads', () => {
   });
 
   it('practice of another day does not take room from today', async () => {
-    await repo.recordPractice([{ deckId: 'd1', n: PRACTICE_BATCH_MAX - 1 }]);
+    for (let sent = 0; sent < PRACTICE_DAY_MAX; sent += PRACTICE_BATCH_MAX) {
+      await repo.recordPractice([
+        { deckId: 'd1', n: Math.min(PRACTICE_BATCH_MAX, PRACTICE_DAY_MAX - sent) },
+      ]);
+    }
     vi.setSystemTime(NOW + DAY);
     await repo.recordPractice([{ deckId: 'd1', n: 4 }]);
     const days = (await repo.heatmap(null)).days.map((d) => d.practice);
-    expect(days).toEqual([PRACTICE_BATCH_MAX - 1, 4]);
+    expect(days).toEqual([PRACTICE_DAY_MAX, 4]);
   });
 
   it('a batch with nothing practised writes nothing', async () => {

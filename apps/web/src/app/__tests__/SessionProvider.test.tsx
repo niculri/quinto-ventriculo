@@ -1,7 +1,7 @@
 // Tests how the page's session follows the auth service: a failed read is signed out, an account outside the domain
 // is signed out with its notice (which a later sign-out keeps), and nothing happens after the page left.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { SessionServiceContext } from '../../features/session/api/context';
@@ -57,8 +57,8 @@ describe('SessionProvider', () => {
     mount(service);
     expect(await screen.findByText(`signed-out · ${DOMAIN_NOTICE}`)).toBeInTheDocument();
     expect(signOut).toHaveBeenCalledTimes(1);
-    await service.signOut();
-    expect(await screen.findByText(`signed-out · ${DOMAIN_NOTICE}`)).toBeInTheDocument();
+    await act(() => service.signOut());
+    expect(screen.getByText(`signed-out · ${DOMAIN_NOTICE}`)).toBeInTheDocument();
   });
 
   it('signing in goes home by default; signing out also empties the cached reads', async () => {

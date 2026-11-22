@@ -42,6 +42,15 @@ describe('the old URLs', () => {
     },
   );
 
+  it('an old deck URL with a subdeck goes to the subdeck', async () => {
+    const { router } = renderApp('/decks/4?subdeck=s1-semana-de-prueba');
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(
+        '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba',
+      ),
+    );
+  });
+
   it('an old deck URL with a subdeck that does not exist goes to the deck', async () => {
     const { router } = renderApp('/decks/20?subdeck=no-existe');
     await waitFor(() =>

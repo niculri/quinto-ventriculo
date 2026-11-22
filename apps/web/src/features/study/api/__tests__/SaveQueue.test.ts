@@ -131,6 +131,24 @@ describe('saving the answers when the connection fails', () => {
     expect(calls).toBe(1);
     expect(s.failure).toMatch(/cambió en otra pestaña/);
   });
+
+  it('a card changed in another tab stops the session at once, even when it already holds this very answer', async () => {
+    const local = localStudyRepository(null);
+    let calls = 0;
+    const s = session({
+      ...local,
+      recordReview: async (input) => {
+        calls++;
+        await local.recordReview(input);
+        throw new CardChangedError();
+      },
+    });
+    s.showNext();
+    answer(s);
+    await s.saved();
+    expect(calls).toBe(1);
+    expect(s.failure).toMatch(/cambió en otra pestaña/);
+  });
 });
 
 describe('undo', () => {
@@ -195,6 +213,30 @@ it('an undo of something this queue never wrote stops the session, as one the da
   await queue.saved();
   expect(failures).toEqual([{ kind: 'changedElsewhere' }]);
   expect(queue.pending).toBe(0);
+});
+
+it('an undo of another card of the same note stops the session: the database undid the one that came before', async () => {
+  const local = localStudyRepository(null);
+  const failures: SaveFailure[] = [];
+  const queue = new SaveQueue(
+    local,
+    new Map(),
+    [0, 0],
+    (f) => failures.push(f),
+    () => {},
+  );
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  await local.setFlag(card, 2);
+  queue.handle({
+    kind: 'undo',
+    id: '1.2',
+    undoes: '1.1',
+    action: 'flag',
+    card: { ...card, ord: 1 },
+  });
+  await queue.saved();
+  expect(failures).toEqual([{ kind: 'changedElsewhere' }]);
+  expect(await local.cards(['20', '21'])).toEqual([]);
 });
 
 describe('the marks of the cards that were written', () => {

@@ -9,9 +9,9 @@ export function RestartDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
-  const yes = useRef<HTMLButtonElement>(null);
+  const yesRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    yes.current?.focus();
+    yesRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -33,7 +33,7 @@ export function RestartDialog({
         <h2 id="quiz-restart-title">{s.restart.title}</h2>
         <p id="quiz-restart-text">{s.restart.text}</p>
         <div className="acciones">
-          <button ref={yes} type="button" className="btn" onClick={onConfirm}>
+          <button ref={yesRef} type="button" className="btn" onClick={onConfirm}>
             {s.restart.yes}
           </button>
           <button type="button" className="btn2" onClick={onCancel}>

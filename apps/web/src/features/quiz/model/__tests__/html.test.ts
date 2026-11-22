@@ -45,7 +45,7 @@ describe('the texts and figures of a test, sanitized again in the browser', () =
   });
 });
 
-const read = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
+const read = (path: string): unknown => JSON.parse(readFileSync(path, 'utf8'));
 const corpus = read(
   join(import.meta.dirname, '../../../../../../../packages/html/test/corpus.json'),
 ) as {

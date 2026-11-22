@@ -76,7 +76,7 @@ export function useQuizScreen(o: {
   // With the question id: after «Saltar» another question is at the same index.
   const position =
     round && screen === 'question'
-      ? `${round.id}/${round.index}/${round.queue[round.index]}`
+      ? `${round.id}/${round.index}/${String(round.queue[round.index])}`
       : screen;
   const revealed = revealedAt === position;
   const reveal = useCallback(() => setRevealedAt(position), [position]);

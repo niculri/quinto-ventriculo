@@ -56,7 +56,8 @@ function useArrival(sectionId: string | undefined) {
       );
     }
   }, [search, navigate, location]);
-  const topics = arrival && (sectionId ?? null) === arrival.section ? arrival.topics : null;
+  const section = sectionId ?? null;
+  const topics = arrival?.section === section ? arrival.topics : null;
   return { location, topics };
 }
 

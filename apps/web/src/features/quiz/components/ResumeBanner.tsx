@@ -35,7 +35,10 @@ export function ResumeBanner({
           type="button"
           className={`${button.base} ${button.secondary}`}
           onClick={() => {
-            if (!armed) return setArmed(true);
+            if (!armed) {
+              setArmed(true);
+              return;
+            }
             setArmed(false);
             onDiscard();
           }}

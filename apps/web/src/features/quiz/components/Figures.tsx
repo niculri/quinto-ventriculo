@@ -1,5 +1,6 @@
 // A question's figures (inline SVG or a photo that opens bigger) and its table, sanitized.
 import type { QuizFigure, QuizTable } from '@qv/schema';
+import { keyed } from '../../../shared/lib/keyed';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { commonCaption, shownHeight } from '../model/figures';
 import { cleanSvg, cleanText } from '../model/html';
@@ -37,17 +38,18 @@ export function Figures({
   const common = commonCaption(figures);
   return (
     <>
-      {figures.map((f, i) =>
-        f.caption && !common ? (
-          <div key={i} className="fcon">
-            <Figure figure={f} onZoom={onZoom} />
-            <span className="fpie">{f.caption}</span>
-          </div>
-        ) : (
-          <span key={i} className="fsvg">
-            <Figure figure={f} onZoom={onZoom} />
-          </span>
-        ),
+      {keyed(figures, (f) => (f.kind === 'svg' ? f.svg : (f.src ?? f.alt))).map(
+        ({ key, item: f }) =>
+          f.caption && !common ? (
+            <div key={key} className="fcon">
+              <Figure figure={f} onZoom={onZoom} />
+              <span className="fpie">{f.caption}</span>
+            </div>
+          ) : (
+            <span key={key} className="fsvg">
+              <Figure figure={f} onZoom={onZoom} />
+            </span>
+          ),
       )}
       {common ? <span className="fpie todo">{common}</span> : null}
     </>
@@ -62,25 +64,27 @@ export function Table({ table }: { table: QuizTable }) {
       ) : null}
       <table>
         <tbody>
-          {table.rows.map((row, i) => (
-            <tr key={i}>
-              {row.map((c, j) => {
-                const Tag = c.header ? 'th' : 'td';
-                const cls = [c.highlight ? 'hl' : '', c.empty ? 'vacia' : '']
-                  .filter(Boolean)
-                  .join(' ');
-                return (
-                  <Tag
-                    key={j}
-                    colSpan={c.colSpan}
-                    rowSpan={c.rowSpan}
-                    className={cls || undefined}
-                    dangerouslySetInnerHTML={{ __html: cleanText(c.html) }}
-                  />
-                );
-              })}
-            </tr>
-          ))}
+          {keyed(table.rows, (row) => row.map((c) => c.html).join('|')).map(
+            ({ key: rowKey, item: row }) => (
+              <tr key={rowKey}>
+                {keyed(row, (c) => c.html).map(({ key, item: c }) => {
+                  const Tag = c.header ? 'th' : 'td';
+                  const cls = [c.highlight ? 'hl' : '', c.empty ? 'vacia' : '']
+                    .filter(Boolean)
+                    .join(' ');
+                  return (
+                    <Tag
+                      key={key}
+                      colSpan={c.colSpan}
+                      rowSpan={c.rowSpan}
+                      className={cls || undefined}
+                      dangerouslySetInnerHTML={{ __html: cleanText(c.html) }}
+                    />
+                  );
+                })}
+              </tr>
+            ),
+          )}
         </tbody>
       </table>
     </>

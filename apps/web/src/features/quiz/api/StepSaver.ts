@@ -51,6 +51,23 @@ export class StepSaver {
     while (this.running) await new Promise((r) => setTimeout(r, 10));
   }
 
+  /** Saves a step, trying again after each delay; the last error, or null if it saved. */
+  private async saveWithRetries(step: QuizStep): Promise<Error | null> {
+    let error: Error | null = null;
+    for (let attempt = 0; attempt <= this.delays.length; attempt++) {
+      try {
+        await this.repository.save(step);
+        return null;
+      } catch (e) {
+        error = e instanceof Error ? e : new Error(String(e));
+        if (attempt < this.delays.length) {
+          await new Promise((r) => setTimeout(r, this.delays[attempt]));
+        }
+      }
+    }
+    return error;
+  }
+
   private async run() {
     if (this.running) return;
     this.running = true;
@@ -59,19 +76,7 @@ export class StepSaver {
     try {
       while (this.queue.length) {
         const step = this.queue[0]!;
-        let error: Error | null = null;
-        for (let attempt = 0; attempt <= this.delays.length; attempt++) {
-          try {
-            await this.repository.save(step);
-            error = null;
-            break;
-          } catch (e) {
-            error = e instanceof Error ? e : new Error(String(e));
-            if (attempt < this.delays.length) {
-              await new Promise((r) => setTimeout(r, this.delays[attempt]));
-            }
-          }
-        }
+        const error = await this.saveWithRetries(step);
         if (error) {
           this.failed = error;
           return;

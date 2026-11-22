@@ -57,7 +57,7 @@ const save = (step: QuizStep) => async (r: QuizRepository) => {
 };
 const read = (quizIds: string[]) => async (r: QuizRepository) => ({
   open: await r.openRounds(),
-  ...Object.fromEntries(await Promise.all(quizIds.map(async (q) => [q, await r.load(q)]))),
+  ...Object.fromEntries(await Promise.all(quizIds.map(async (q) => [q, await r.load(q)] as const))),
 });
 
 describe('practice tests', () => {

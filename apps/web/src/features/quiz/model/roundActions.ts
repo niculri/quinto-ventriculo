@@ -32,57 +32,57 @@ export function roundActions(o: {
   infos: Map<string, QuestionInfo>;
   shuffle: boolean;
   round: Round | null;
-  saver: { retry(): void };
+  saver: { retry: () => void };
   groups: QuizSectionDetail['groups'];
 }) {
   const { commit, current, infos, shuffle, round, saver, groups } = o;
   return {
-    start(p: Preferences) {
+    start: (p: Preferences) => {
       const questions = selectQuestions(groups, p.groups).map((q) => infos.get(q.id)!);
       if (!questions.length) return;
       const r = startRound(questions, { shuffle: p.shuffle, shuffleOptions: p.shuffleOptions });
       commit(r, { preferences: p });
     },
     choose: o.choose,
-    resume() {
+    resume: () => {
       if (round) commit(resume(round));
     },
-    discard() {
+    discard: () => {
       commit(null);
     },
-    answer(original: number) {
+    answer: (original: number) => {
       if (!round || !current || isAnswered(round)) return;
       const r = answerChoice(round, current.info, original);
       commit(r, { answer: answerStep(r) });
     },
-    selfAssess(knewIt: boolean) {
+    selfAssess: (knewIt: boolean) => {
       if (!round || !current || isAnswered(round)) return;
       const r = selfAssess(round, current.info, knewIt);
       commit(r, { answer: answerStep(r) });
     },
-    next() {
+    next: () => {
       if (round) commit(next(round));
     },
-    skip() {
+    skip: () => {
       if (round) commit(skip(round));
     },
-    finishNow() {
+    finishNow: () => {
       if (round) commit(finish(round));
     },
-    home() {
+    home: () => {
       if (round) commit(toCover(round));
     },
-    restart() {
+    restart: () => {
       if (round) commit(restart(round, infos));
     },
-    repeatAll() {
+    repeatAll: () => {
       if (round) commit(repeatAll(round, infos, { shuffle }));
     },
-    repeatWrong() {
+    repeatWrong: () => {
       const r = round && repeatWrong(round, infos);
       if (r) commit(r);
     },
-    retrySaving() {
+    retrySaving: () => {
       saver.retry();
     },
   };

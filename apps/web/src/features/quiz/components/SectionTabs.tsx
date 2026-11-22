@@ -8,12 +8,12 @@ import { Html } from './Html';
 export function SectionTabs({
   sections,
   active,
-  tabRefs,
+  tabsRef,
   onTab,
 }: {
   sections: QuizSectionSummary[];
   active: number;
-  tabRefs: RefObject<(HTMLButtonElement | null)[]>;
+  tabsRef: RefObject<(HTMLButtonElement | null)[]>;
   onTab: (sectionId: string) => void;
 }) {
   return (
@@ -22,7 +22,7 @@ export function SectionTabs({
         <button
           key={section.id}
           ref={(el) => {
-            tabRefs.current[i] = el;
+            tabsRef.current[i] = el;
           }}
           type="button"
           role="tab"

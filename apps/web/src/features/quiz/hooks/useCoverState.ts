@@ -13,9 +13,9 @@ export function useDiscardArm() {
 }
 
 export function useTabFocus(focusTab: boolean, active: number) {
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
   useEffect(() => {
-    if (focusTab) tabRefs.current[active]?.focus({ preventScroll: true });
+    if (focusTab) tabsRef.current[active]?.focus({ preventScroll: true });
   }, [focusTab, active]);
-  return tabRefs;
+  return tabsRef;
 }

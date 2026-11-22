@@ -1,4 +1,5 @@
 // The user's practice test progress kept in the browser, for the demo, the admin mode and the tests.
+import { settled } from '../../../../shared/lib/settled';
 import type { QuizRepository } from './port';
 import { OPEN_ROUNDS } from './model';
 import type { AnswerInfo, QuizStep, RoundInfo, SavedQuiz } from './model';
@@ -76,58 +77,58 @@ export function localQuizRepository(storage: Storage | null = safeLocalStorage()
       : null;
 
   return {
-    async load(quizId) {
-      return structuredClone(read().progress[quizId] ?? {});
-    },
-    async save(step) {
-      const d = read();
-      const at = new Date().toISOString();
-      const quiz = (d.progress[step.quizId] ??= {});
-      const before = quiz[step.sectionId];
-      const info = step.roundInfo;
-      const round = (id: string) => d.rounds.find((r) => r.id === id);
-      keepRoundAndAnswer(d, step, at);
-      const finished = info?.finished ? round(info.id) : undefined;
-      if (finished && finished.status !== 'finished') {
-        finished.status = 'finished';
-        finished.updatedAt = at;
-      }
-      const previous = roundId(before?.round);
-      if (previous && previous !== roundId(step.round)) {
-        const r = round(previous);
-        if (r && r.status === 'active') {
-          r.status = 'abandoned';
-          r.updatedAt = at;
+    load: (quizId) => settled(() => structuredClone(read().progress[quizId] ?? {})),
+    save: (step) =>
+      settled(() => {
+        const d = read();
+        const at = new Date().toISOString();
+        const quiz = (d.progress[step.quizId] ??= {});
+        const before = quiz[step.sectionId];
+        const info = step.roundInfo;
+        const round = (id: string) => d.rounds.find((r) => r.id === id);
+        keepRoundAndAnswer(d, step, at);
+        const finished = info?.finished ? round(info.id) : undefined;
+        if (finished && finished.status !== 'finished') {
+          finished.status = 'finished';
+          finished.updatedAt = at;
         }
-      }
-      // As save_quiz_progress(): only an object is a round.
-      quiz[step.sectionId] = {
-        preferences: step.preferences ?? before?.preferences ?? {},
-        round: isObject(step.round) ? step.round : null,
-        updatedAt: at,
-      };
-      write(d);
-    },
-    async openRounds() {
-      const d = read();
-      return d.rounds
-        .filter((r) => r.status === 'active')
-        .map((r) => {
-          const answers = d.answers.filter((a) => a.roundId === r.id);
-          const last =
-            r.updatedAt ??
-            answers.reduce((t, a) => (a.answeredAt > t ? a.answeredAt : t), r.startedAt);
-          return {
-            quizId: r.quizId,
-            sectionId: r.sectionId,
-            answered: answers.length,
-            questionCount: r.questionCount,
-            updatedAt: last,
-          };
-        })
-        .filter((r) => r.answered > 0)
-        .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : a.updatedAt > b.updatedAt ? -1 : 0))
-        .slice(0, OPEN_ROUNDS);
-    },
+        const previous = roundId(before?.round);
+        if (previous && previous !== roundId(step.round)) {
+          const r = round(previous);
+          if (r?.status === 'active') {
+            r.status = 'abandoned';
+            r.updatedAt = at;
+          }
+        }
+        // As save_quiz_progress(): only an object is a round.
+        quiz[step.sectionId] = {
+          preferences: step.preferences ?? before?.preferences ?? {},
+          round: isObject(step.round) ? step.round : null,
+          updatedAt: at,
+        };
+        write(d);
+      }),
+    openRounds: () =>
+      settled(() => {
+        const d = read();
+        return d.rounds
+          .filter((r) => r.status === 'active')
+          .map((r) => {
+            const answers = d.answers.filter((a) => a.roundId === r.id);
+            const last =
+              r.updatedAt ??
+              answers.reduce((t, a) => (a.answeredAt > t ? a.answeredAt : t), r.startedAt);
+            return {
+              quizId: r.quizId,
+              sectionId: r.sectionId,
+              answered: answers.length,
+              questionCount: r.questionCount,
+              updatedAt: last,
+            };
+          })
+          .filter((r) => r.answered > 0)
+          .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : a.updatedAt > b.updatedAt ? -1 : 0))
+          .slice(0, OPEN_ROUNDS);
+      }),
   };
 }

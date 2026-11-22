@@ -74,13 +74,13 @@ export function Cover({
   const active = sections.findIndex((x) => x.id === section.id);
   const chosen = chosenCount(section, preferences);
   const { armed, setArmed } = useDiscardArm();
-  const tabRefs = useTabFocus(focusTab, active);
+  const tabsRef = useTabFocus(focusTab, active);
 
   return (
     <section className="wrap wide portada" aria-labelledby="quiz-title">
       <CoverTitle quiz={quiz} heading={heading} />
       {sections.length > 1 ? (
-        <SectionTabs sections={sections} active={active} tabRefs={tabRefs} onTab={onTab} />
+        <SectionTabs sections={sections} active={active} tabsRef={tabsRef} onTab={onTab} />
       ) : null}
       {section.description ? (
         <Html as="p" className="mt-4 text-sm text-[var(--muted)]" html={section.description} />

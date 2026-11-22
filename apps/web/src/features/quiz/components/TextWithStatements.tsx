@@ -1,5 +1,6 @@
 // A question's text with its statements «I. …, II. …» as a list between the text before and after them.
 import { splitStatements } from '@qv/quiz';
+import { keyed } from '../../../shared/lib/keyed';
 import { textWithStatementsStrings as s } from './strings/TextWithStatements.strings';
 import { Html } from './Html';
 
@@ -18,8 +19,8 @@ export function TextWithStatements({
     <>
       {split.before ? <Html as={as} className={className} html={split.before} /> : null}
       <ol className="afirm" aria-label={s.figures.statements}>
-        {split.items.map((item, i) => (
-          <li key={i}>
+        {keyed(split.items, (it) => it.numeral).map(({ key, item }) => (
+          <li key={key}>
             <span className="rn" aria-hidden="true">
               {item.numeral}.
             </span>

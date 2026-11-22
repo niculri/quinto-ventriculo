@@ -131,7 +131,7 @@ test('loading «Uso» from nothing: the title, the summary and the chart in one 
       if (fontsIn() && w.figuresAtStart_ === undefined) {
         w.figuresAtStart_ = !!document
           .querySelector('#usage-summary + div tbody td')
-          ?.textContent?.trim();
+          ?.textContent.trim();
       }
       for (const s of fontsIn() ? sels : []) {
         const b = document.querySelector(s)?.getBoundingClientRect();

@@ -18,10 +18,10 @@ async function expectNoViolations(page: Page, label: string) {
   const violations = [...page_.violations, ...cards.violations];
   const report = violations.map(
     (v) =>
-      `${v.id} (${v.impact}): ${v.help}\n${v.nodes
+      `${v.id} (${String(v.impact)}): ${v.help}\n${v.nodes
         .slice(0, 6)
         .map(
-          (n) => `   ${n.target.join(' ')} → ${n.failureSummary?.split('\n').slice(1).join(' ')}`,
+          (n) => `   ${n.target.join(' ')} → ${String(n.failureSummary?.split('\n').slice(1).join(' '))}`,
         )
         .join('\n')}`,
   );

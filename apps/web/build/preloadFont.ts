@@ -12,7 +12,7 @@ export function preloadFont(): Plugin {
       handler(_html, ctx) {
         const asset = ctx.bundle
           ? Object.values(ctx.bundle).find(
-              (a) => a.type === 'asset' && (a.names ?? []).some((n) => n.endsWith(FILE)),
+              (a) => a.type === 'asset' && a.names.some((n) => n.endsWith(FILE)),
             )
           : null;
         if (ctx.bundle && !asset) throw new Error(`La letra ${FILE} no está en el build.`);

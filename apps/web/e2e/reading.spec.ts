@@ -44,7 +44,7 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   await page.addInitScript(() => {
     const w = window as unknown as { cls: number };
     w.cls = 0;
-    if (!PerformanceObserver.supportedEntryTypes?.includes('layout-shift')) return;
+    if (!PerformanceObserver.supportedEntryTypes.includes('layout-shift')) return;
     // The article's own shifts (the TOC beside it opens its subsections while scrolling: that is not the article).
     type Shift = { hadRecentInput: boolean; value: number; sources: { node: Node | null }[] };
     const inArticle = (node: Node | null) =>

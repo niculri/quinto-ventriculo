@@ -21,7 +21,7 @@ test('the card browser index and its thumbnails, behind the session', async ({ r
   expect(r.headers()['content-encoding']).toBe('gzip');
   const index = (await r.json()) as { notes: { kind: string; thumb: string | null }[] };
   expect(index.notes.length).toBeGreaterThan(0);
-  const thumb = index.notes.find((n) => n.kind === 'occlusion')?.thumb;
+  const thumb = index.notes.find((n) => n.kind === 'occlusion')?.thumb ?? '';
   expect(thumb).toMatch(/^cards\/thumb\//);
 
   const signature = (await (

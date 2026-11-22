@@ -153,7 +153,7 @@ async function movedWhile(page: Page, act: () => Promise<void>) {
         [...document.querySelectorAll(sel)].map((e) => {
           const b = e.getBoundingClientRect();
           const where = [b.x, b.y + window.scrollY, b.width, b.height].map(Math.round).join(',');
-          return `${e.textContent?.trim().slice(0, 40)}@${where}`;
+          return `${e.textContent.trim().slice(0, 40)}@${where}`;
         }),
       SEL,
     );
@@ -166,7 +166,7 @@ async function movedWhile(page: Page, act: () => Promise<void>) {
         [...document.querySelectorAll(sel)].map((e) => {
           const b = e.getBoundingClientRect();
           const where = [b.x, b.y + window.scrollY, b.width, b.height].map(Math.round).join(',');
-          return `${e.textContent?.trim().slice(0, 40)}@${where}`;
+          return `${e.textContent.trim().slice(0, 40)}@${where}`;
         }),
       );
       if (w.frames_.length < 90) requestAnimationFrame(take);

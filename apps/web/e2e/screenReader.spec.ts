@@ -10,7 +10,7 @@ const focused = (page: Page) =>
   page.evaluate(() => {
     const el = document.activeElement as HTMLElement | null;
     return el
-      ? `${el.getAttribute('role') ?? el.tagName.toLowerCase()} ${el.getAttribute('aria-label') ?? el.textContent?.trim().slice(0, 40) ?? ''}`
+      ? `${el.getAttribute('role') ?? el.tagName.toLowerCase()} ${el.getAttribute('aria-label') ?? el.textContent.trim().slice(0, 40)}`
       : '';
   });
 

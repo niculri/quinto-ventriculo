@@ -49,7 +49,7 @@ function targets(page: Page): Promise<Target[]> {
         w += -px(after.left) - px(after.right);
         h += -px(after.top) - px(after.bottom);
       }
-      const name = (el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 60);
+      const name = (el.getAttribute('aria-label') ?? el.textContent).trim().slice(0, 60);
       const primary =
         !!el.closest('[role="group"][aria-label="Responder"], [aria-label="Alternativas"]') ||
         name === 'Mostrar respuesta' ||
@@ -73,7 +73,7 @@ function stolen(page: Page): Promise<string[]> {
   return page.evaluate((selector) => {
     const out: string[] = [];
     const name = (e: Element) =>
-      `${e.tagName.toLowerCase()} «${(e.getAttribute('aria-label') ?? e.textContent ?? '').trim().slice(0, 40)}»`;
+      `${e.tagName.toLowerCase()} «${(e.getAttribute('aria-label') ?? e.textContent).trim().slice(0, 40)}»`;
     for (const el of document.querySelectorAll<HTMLElement>(selector)) {
       if (el.closest('[aria-hidden="true"], [inert], .sr-only')) continue;
       const r = el.getBoundingClientRect();
@@ -163,7 +163,7 @@ const smallFields = (page: Page) =>
           ),
       )
       .map((el) => ({
-        name: el.getAttribute('aria-label') ?? el.id ?? el.getAttribute('name') ?? el.tagName,
+        name: el.getAttribute('aria-label') ?? el.id,
         size: Number.parseFloat(getComputedStyle(el).fontSize),
       }))
       .filter((f) => f.size < 16)
@@ -198,7 +198,7 @@ const grownFields = (page: Page) =>
     for (const r of rules) r.sheet.insertRule(r.text, r.index);
     return fields.flatMap((el, i) =>
       Math.abs(before[i]! - after[i]!) > 0.5
-        ? [`${el.getAttribute('aria-label') ?? el.id}: ${after[i]} → ${before[i]} px`]
+        ? [`${el.getAttribute('aria-label') ?? el.id}: ${String(after[i])} → ${String(before[i])} px`]
         : [],
     );
   });

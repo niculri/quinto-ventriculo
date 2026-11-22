@@ -45,7 +45,7 @@ const positions = (page: Page) =>
       review: y(
         document.querySelector('[aria-label="Estudiar"] a[href$="/review"]') ??
           [...document.querySelectorAll('[aria-label="Estudiar"] button')].find((b) =>
-            b.textContent?.includes('Repaso final'),
+            b.textContent.includes('Repaso final'),
           ) ??
           null,
       ),

@@ -47,7 +47,9 @@
       // falls back to fetch
     }
     try {
-      fetch(ENDPOINT, { method: 'POST', body: body, keepalive: true }).catch(function () {});
+      fetch(ENDPOINT, { method: 'POST', body: body, keepalive: true }).catch(function () {
+        // nothing else to try
+      });
     } catch {
       // nothing else to try: an error report never breaks the page
     }

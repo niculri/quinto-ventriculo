@@ -64,7 +64,7 @@ export function encodeAttribute(text: string): string {
       continue;
     }
     const code = ch.codePointAt(0)!;
-    if (code < 256 && (code > 127 || !/[A-Za-z0-9]/.test(ch))) {
+    if (code < 256 && !/[A-Za-z0-9]/.test(ch)) {
       out += `&#x${code.toString(16).toUpperCase().padStart(2, '0')};`;
     } else {
       out += ch;

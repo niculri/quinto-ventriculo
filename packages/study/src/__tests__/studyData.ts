@@ -58,7 +58,7 @@ export const CARDS: CardSummary[] = [
   summary('n4', 0, EXTRAS),
 ];
 
-export function deckDetail(rootId: string, cards: CardSummary[], decks = treeDecks()): DeckDetail {
+function deckDetail(rootId: string, cards: CardSummary[], decks = treeDecks()): DeckDetail {
   const root = decks.find((d) => d.id === rootId)!;
   const inside = decks.filter((d) => d.name === root.name || d.name.startsWith(`${root.name}::`));
   const ids = new Set(inside.map((d) => d.id));

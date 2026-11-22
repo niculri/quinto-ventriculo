@@ -17,7 +17,7 @@ export interface SampleCollection {
 
 const json = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v ?? {}));
 
-export function collectionBytes(c: SampleCollection = {}): Uint8Array {
+function collectionBytes(c: SampleCollection = {}): Uint8Array {
   const folder = mkdtempSync(join(tmpdir(), 'qv-apkg-test-'));
   const path = join(folder, 'c.sqlite');
   try {

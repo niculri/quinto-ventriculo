@@ -58,7 +58,7 @@ export const THUMB_PREFIX = 'cards/thumb/';
 
 export function thumbKeyOf(imageKey: string): string | null {
   const m = /^cards\/([0-9a-f]{32})\.webp$/.exec(imageKey);
-  return m ? `${THUMB_PREFIX}${m[1]}.webp` : null;
+  return m ? `${THUMB_PREFIX}${m[1]!}.webp` : null;
 }
 
 export const ThumbSignature = z.object({

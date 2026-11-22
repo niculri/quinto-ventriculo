@@ -92,7 +92,7 @@ export type UsageOpenAck = z.infer<typeof UsageOpenAck>;
 
 const Day = z.iso.date();
 
-const PeriodTotals = <T extends z.ZodTypeAny>(f: T) => z.object({ today: f, last7: f, last30: f });
+const PeriodTotals = <T extends z.ZodType>(f: T) => z.object({ today: f, last7: f, last30: f });
 
 const GroupFigures = z.object({
   students: z.number().int().min(USAGE_MIN_STUDENTS),

@@ -123,7 +123,9 @@ export const commentsLanguage = {
   columnStart: /** @type {const} */ (0),
   nodeTypeKey: 'type',
   visitorKeys: { Document: [] },
-  validateLanguageOptions() {},
+  validateLanguageOptions() {
+    // A text file has no language options.
+  },
   /** @param {{ body: string | Uint8Array, path: string }} file */
   parse(file) {
     const text = typeof file.body === 'string' ? file.body : new TextDecoder().decode(file.body);

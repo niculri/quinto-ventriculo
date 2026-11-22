@@ -54,14 +54,14 @@ const R = API_ROUTES;
 const asPublished = (path: string, published: boolean) =>
   published ? `${path}?source=${PUBLISHED_SOURCE}` : path;
 const after = (path: string, value: string | null) =>
-  `${path}${value ? `?${new URLSearchParams({ after: value })}` : ''}`;
+  `${path}${value ? `?${new URLSearchParams({ after: value }).toString()}` : ''}`;
 
 /** The path of each route, with its query. Anki's guids may have «/», «%» or «?»: they travel encoded. */
 export const apiPaths = {
   catalog: (published = false) => asPublished(fill(R.catalog.pattern), published),
   note: (slug: string) => fill(R.note.pattern, { slug: encodeURIComponent(slug) }),
   search: (query: string, limit: number) =>
-    `${fill(R.search.pattern)}?${new URLSearchParams({ q: query, limit: String(limit) })}`,
+    `${fill(R.search.pattern)}?${new URLSearchParams({ q: query, limit: String(limit) }).toString()}`,
   deck: (id: string, published = false) =>
     asPublished(fill(R.deck.pattern, { id: encodeURIComponent(id) }), published),
   /** The assessment's id is `course/assessment`: it fills two segments, as it is. */
@@ -75,7 +75,7 @@ export const apiPaths = {
   card: (noteGuid: string, ord: number, published = false) =>
     asPublished(fill(R.card.pattern, { noteGuid: encodeURIComponent(noteGuid), ord }), published),
   quizzes: (filter: { course?: string; assessment?: string }) =>
-    `${fill(R.quizzes.pattern)}${Object.keys(filter).length ? `?${new URLSearchParams(filter)}` : ''}`,
+    `${fill(R.quizzes.pattern)}${Object.keys(filter).length ? `?${new URLSearchParams(filter).toString()}` : ''}`,
   quiz: (id: string, published = false) =>
     asPublished(fill(R.quiz.pattern, { id: encodeURIComponent(id) }), published),
   quizSection: (id: string, sectionId: string, published = false) =>
@@ -93,7 +93,7 @@ export const apiPaths = {
   usage: () => fill(R.usage.pattern),
   release: () => fill(R.release.pattern),
   releaseItems: (assessment: string, kind: ReleaseItemKind, afterKey: string | null) =>
-    `${fill(R.releaseItems.pattern)}?${new URLSearchParams({ assessment, kind, ...(afterKey ? { after: afterKey } : {}) })}`,
+    `${fill(R.releaseItems.pattern)}?${new URLSearchParams({ assessment, kind, ...(afterKey ? { after: afterKey } : {}) }).toString()}`,
   releaseTexts: (afterKey: string | null) => after(fill(R.releaseTexts.pattern), afterKey),
   releaseMedia: (afterKey: string | null) => after(fill(R.releaseMedia.pattern), afterKey),
   releaseMarks: () => fill(R.releaseMarks.pattern),

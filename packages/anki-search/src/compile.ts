@@ -255,7 +255,7 @@ function collectRanges(ords: number[], join: boolean): [number, number][] {
   const ranges: [number, number][] = [];
   for (const ord of ords) {
     const last = ranges.at(-1);
-    if (join && last && last[1] === ord) last[1] = ord + 1;
+    if (join && last?.[1] === ord) last[1] = ord + 1;
     else ranges.push([ord, ord + 1]);
   }
   return ranges;
@@ -286,9 +286,7 @@ function compileField(node: Extract<SearchNode, { type: 'field' }>, env: Env): P
     const re = rustRegex(`(?i)${value}`, value);
     return (card) => {
       const ords = byType.get(card.noteTypeId);
-      return (
-        ords !== undefined && ords.some((o) => o < card.fields.length && re.test(card.fields[o]!))
-      );
+      return ords?.some((o) => o < card.fields.length && re.test(card.fields[o]!)) ?? false;
     };
   }
   // As in Anki's SQL, consecutive fields matched by a wildcard name are one range, joined with \x1f.
@@ -468,23 +466,10 @@ export function searchNeeds(node: SearchNode): {
   let ratedDays: number | null = null;
   let introducedDays: number | null = null;
   const visit = (n: SearchNode): void => {
-    switch (n.type) {
-      case 'and':
-      case 'or':
-        n.nodes.forEach(visit);
-        break;
-      case 'not':
-        visit(n.node);
-        break;
-      case 'rated':
-        ratedDays = Math.max(ratedDays ?? 0, n.days);
-        break;
-      case 'introduced':
-        introducedDays = Math.max(introducedDays ?? 0, n.days);
-        break;
-      default:
-        break;
-    }
+    if (n.type === 'and' || n.type === 'or') n.nodes.forEach(visit);
+    else if (n.type === 'not') visit(n.node);
+    else if (n.type === 'rated') ratedDays = Math.max(ratedDays ?? 0, n.days);
+    else if (n.type === 'introduced') introducedDays = Math.max(introducedDays ?? 0, n.days);
   };
   visit(node);
   return { ratedDays, introducedDays };

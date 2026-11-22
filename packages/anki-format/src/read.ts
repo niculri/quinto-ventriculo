@@ -137,7 +137,8 @@ function all(db: DatabaseSync, sql: string): Row[] {
   return statement.all();
 }
 
-const str = (v: unknown): string => (v === null || v === undefined ? '' : String(v));
+const str = (v: unknown): string =>
+  v === null || v === undefined ? '' : `${v as string | number | bigint}`;
 const num = (v: unknown): number => Number(v ?? 0);
 
 function readTables(db: DatabaseSync): AnkiCollection {

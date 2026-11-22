@@ -22,7 +22,7 @@ export function splitStatements(html: string): StatementSplit | null {
   let start = -1;
   for (let j = 0; j < lines.length; j++) {
     const m = MARK.exec(lines[j]!);
-    if (m && m[1]!.toLowerCase() === 'i') {
+    if (m?.[1]?.toLowerCase() === 'i') {
       start = j;
       break;
     }

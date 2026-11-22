@@ -28,10 +28,10 @@ export function deckSlugs(decks: readonly { id: string; name: string; parentId: 
   for (const d of decks) {
     const base = deckSlug(d.name.split('::').at(-1)!);
     let slug = base;
-    for (let i = 2; RESERVED.has(slug) || taken.has(`${d.parentId}/${slug}`); i++) {
+    for (let i = 2; RESERVED.has(slug) || taken.has(`${String(d.parentId)}/${slug}`); i++) {
       slug = `${base}-${i}`;
     }
-    taken.add(`${d.parentId}/${slug}`);
+    taken.add(`${String(d.parentId)}/${slug}`);
     out.set(d.id, slug);
   }
   return out;

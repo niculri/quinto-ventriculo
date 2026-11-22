@@ -8,7 +8,7 @@ import { CARD_SAFE_VALUE, SVG_SAFE_VALUE } from '../sanitize/css';
 import { notePlainText } from '../text/note';
 import * as text from '../text';
 
-const read = (name: string) =>
+const read = (name: string): unknown =>
   JSON.parse(readFileSync(join(import.meta.dirname, '../../test', name), 'utf8'));
 const corpus = read('corpus.json') as { html: { id: string; html: string }[]; css: string[] };
 const golden = {

@@ -376,7 +376,7 @@ function translateClass(src: string, i: number): [string, number] {
       if (!posix || !Object.hasOwn(POSIX, posix[2]!))
         throw new Error('clases anidadas no admitidas');
       if (posix[1]) throw new Error('clases POSIX negadas no admitidas');
-      out += POSIX[posix[2]!];
+      out += POSIX[posix[2]!]!;
       j += posix[0].length;
     } else if (
       (c === '&' && src[j + 1] === '&') ||

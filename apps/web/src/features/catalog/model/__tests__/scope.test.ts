@@ -83,7 +83,7 @@ describe('a week with several lectures', () => {
   const decks = [
     ...CATALOG.anki.decks,
     { ...deck, id: '22', name: `${week.name}::Otro mazo`, parentId: '5' },
-    { ...other, id: '30', name: `${other.name.replace('Certamen 1', 'Certamen 9')}` },
+    { ...other, id: '30', name: other.name.replace('Certamen 1', 'Certamen 9') },
   ];
   const lectures = buildAnkiTree({ ...CATALOG, anki: { ...CATALOG.anki, decks } });
 

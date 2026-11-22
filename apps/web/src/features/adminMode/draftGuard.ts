@@ -1,5 +1,5 @@
-// The net under the admin mode: what only the draft has is never written to the user's database (the screens already do
-// not offer it; this holds when one does). It is answered as done, so a queue with a draft card in it goes on.
+// The net under the admin mode: what only the draft has is never written to the user's database. It is answered as done,
+// so a queue with a draft card in it goes on.
 import type { QuizRepository } from '../quiz/api/repository';
 import type { StudyRepository } from '../progress/api/repository';
 import type { CardRef } from '../progress/api/repository';
@@ -7,8 +7,12 @@ import type { NewReport, ReportsRepository } from '../reports/api/repository';
 import { REPORT_MESSAGES, ReportError } from '../reports/api/repository';
 import type { DraftOnly } from './draftOnly';
 
+// By deck, from the catalog read once: the study and the explorer only offer cards the students have, so no request goes
+// out for each card written (the exact lookup of a card is only for a report).
+const inDraftDeck = (draft: DraftOnly, card: CardRef) => draft.is('deck', card.deckId);
+
 async function keepReal<T extends CardRef>(draft: DraftOnly, cards: readonly T[]): Promise<T[]> {
-  const flags = await Promise.all(cards.map((c) => draft.card(c)));
+  const flags = await Promise.all(cards.map((c) => inDraftDeck(draft, c)));
   return cards.filter((_, i) => !flags[i]);
 }
 
@@ -26,12 +30,12 @@ export function guardStudy(real: StudyRepository, draft: DraftOnly): StudyReposi
       write: (card: CardRef, ...rest: A) => Promise<void>,
     ): ((card: CardRef, ...rest: A) => Promise<void>) =>
     async (card, ...rest) => {
-      if (!(await draft.card(card))) await write(card, ...rest);
+      if (!(await inDraftDeck(draft, card))) await write(card, ...rest);
     };
   return {
     ...real,
     recordReview: async (input) =>
-      (await draft.card(input.card))
+      (await inDraftDeck(draft, input.card))
         ? { updatedAt: input.expectedUpdatedAt ?? new Date().toISOString() }
         : real.recordReview(input),
     bury: (cards, until, note) => cardsWrite((c) => real.bury(c, until, note))(cards),

@@ -8,7 +8,7 @@ import type { AdminKind } from '@qv/schema/http';
 export interface DraftOnly {
   /** The thing exists only in the draft (a student does not have it yet: its progress would be of what can change). */
   is(kind: AdminKind, id: string | number): Promise<boolean>;
-  /** The card is in a deck only the draft has, or is a card of a deck the students have that only the draft has. */
+  /** For a report: the card is in a deck only the draft has, or is a card of a deck the students have that only the draft has. */
   card(ref: { noteGuid: string; ord: number; deckId?: string | undefined }): Promise<boolean>;
 }
 

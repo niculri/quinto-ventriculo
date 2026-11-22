@@ -1,9 +1,12 @@
 // Tests the guards of the admin mode: what only the draft has reaches no repository; what the students have, always does.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { CATALOG } from '../../../test/fixtures/catalog';
+import { fakeApi } from '../../../test/fakes/api';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { localQuizRepository } from '../../quiz/api/repository';
 import { localReportsRepository, REPORT_MESSAGES } from '../../reports/api/repository';
 import type { NewReport } from '../../reports/api/repository';
+import { draftOnly } from '../draftOnly';
 import type { DraftOnly } from '../draftOnly';
 import { guardQuiz, guardReports, guardStudy } from '../draftGuard';
 
@@ -109,6 +112,24 @@ describe('the guard of the study repository', () => {
     await study.deckActivations();
     await study.savePreferences({ fullAnki: false } as never);
     expect(calls).toEqual(['preferences', 'deckActivations', 'savePreferences']);
+  });
+});
+
+describe('what the guard of the study repository asks of the API', () => {
+  it('reads the catalog once, and no card, however many cards are written', async () => {
+    const catalog = vi.fn(async () => ({
+      ...CATALOG,
+      adminOnly: { 'deck:30': ['draft'] } as never,
+    }));
+    const card = vi.fn();
+    const study = guardStudy(fullAnkiStudy(), draftOnly(fakeApi({ catalog, card })));
+    for (let i = 0; i < 5; i++) {
+      await study.recordReview(review({ ...real, noteGuid: `g${i}` })).catch(() => undefined);
+    }
+    await study.suspend([real, { ...real, noteGuid: 'other' }], false);
+    await study.setFlag(real, 1);
+    expect(catalog).toHaveBeenCalledTimes(1);
+    expect(card).not.toHaveBeenCalled();
   });
 });
 

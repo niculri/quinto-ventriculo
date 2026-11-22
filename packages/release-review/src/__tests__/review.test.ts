@@ -13,6 +13,7 @@ import {
   findProcessPhrases,
   maskOverlap,
   onlyInCatalog,
+  processPhrases,
   releaseTitle,
   renumbered,
   reviewChecks,
@@ -621,5 +622,465 @@ describe('what a publication keeps', () => {
       catalog: [{ ...added('biologia-celular/certamen-2'), op: 'changed' }],
     });
     expect(onlyInCatalog(renamed, assessment({ articles: none }))).toBe(false);
+  });
+});
+
+describe('what the findings leave out', () => {
+  const run = (...findings: ReleaseFinding[]) => review({ summary: summary({ findings }) });
+
+  it('a key out of range with no count of alternatives says «?»', () => {
+    expect(
+      only(run(finding('key_out_of_range', 'p1', { correct: 4 })), 'key_out_of_range'),
+    ).toEqual(['p1: la correcta es la 5 de ? alternativas.']);
+    expect(
+      only(run(finding('key_out_of_range', 'p1', { correct: 4, options: 4 })), 'key_out_of_range'),
+    ).toEqual(['p1: la correcta es la 5 de 4 alternativas.']);
+  });
+
+  it('a broken «Ponte a prueba» link names what is missing, as it is if the kind is not known, and the value if any', () => {
+    const text = (detail: Record<string, unknown>) =>
+      only(run(finding('practice_broken', 'art-1', detail)), 'practice_broken')[0];
+    expect(text({ title: 'Núcleo', what: 'deck', value: 'Mazo 8' })).toBe(
+      'Núcleo: su mazo no está («Mazo 8»).',
+    );
+    expect(text({ what: 'quiz' })).toBe('art-1: su test no está.');
+    expect(text({ what: 'section' })).toBe('art-1: la pestaña del test no está.');
+    expect(text({ what: 'group', value: 3 })).toBe('art-1: un tema del test no está («3»).');
+    expect(text({ what: 'other' })).toBe('art-1: other.');
+    expect(text({})).toBe('art-1: .');
+  });
+
+  it('a class without a year names its title or, failing that, its key', () => {
+    const text = (detail: Record<string, unknown>) =>
+      only(run(finding('class_without_year', 'c-8', detail)), 'class_without_year')[0];
+    expect(text({ title: 'Traducción' })).toBe('Traducción (c-8) no dice de qué año es la clase.');
+    expect(text({})).toBe('c-8 (c-8) no dice de qué año es la clase.');
+  });
+
+  it('material taken out of the site is named by kind, or just «material»', () => {
+    const text = (detail: Record<string, unknown>) =>
+      only(run(finding('unpublished_in_draft', 'k', detail)), 'unpublished_in_draft')[0];
+    expect(text({ kind: 'note', title: 'T' })).toMatch(
+      /^El artículo «T» está en content\/unpublished\.json/,
+    );
+    expect(text({ kind: 'quiz' })).toMatch(/^El test «k»/);
+    expect(text({ kind: 'deck' })).toMatch(/^El mazo/);
+    expect(text({ kind: 'image' })).toMatch(/^El imagen/);
+    expect(text({ kind: 'odd' })).toMatch(/^El material/);
+    expect(text({})).toMatch(/^El material/);
+  });
+
+  it('IMAIOS names the code, else the title, else the key', () => {
+    const text = (detail: Record<string, unknown>) =>
+      only(run(finding('imaios', 'k', detail)), 'imaios')[0];
+    expect(text({ code: 'T-1', title: 'x' })).toBe('T-1 nombra IMAIOS.');
+    expect(text({ title: 'x' })).toBe('x nombra IMAIOS.');
+    expect(text({})).toBe('k nombra IMAIOS.');
+  });
+
+  it('a question id that shifted with no other named has an empty other', () => {
+    expect(
+      only(run(finding('question_id_shifted', 'q', { kind: 'renamed' })), 'question_id_shifted'),
+    ).toEqual(['q es la pregunta  con otro id: su historial se perdería.']);
+    expect(
+      only(run(finding('question_id_shifted', 'q', { other: 'z' })), 'question_id_shifted'),
+    ).toEqual(['q tiene ahora el texto de z: el historial de una quedaría en la otra.']);
+  });
+
+  it('a pair the database found with the same code is said once, with «?» for what it does not say', () => {
+    const r = run(
+      finding('guid_same_code', 'k1', {}),
+      finding('guid_same_code', 'k1', { code: 'ignored' }),
+      finding('guid_same_code', 'k2', { removed: 'a', added: 'b' }),
+      finding('guid_same_code', 'k3', { codeBefore: 'A-1', code: 'A-2' }),
+    );
+    expect(only(r, 'guid_changed')).toEqual([
+      '? sale y entra ?, con el mismo código: el avance de los alumnos quedaría en la vieja.',
+      'a sale y entra b, con el mismo código: el avance de los alumnos quedaría en la vieja.',
+      'A-1 sale y entra A-2, con el mismo código: el avance de los alumnos quedaría en la vieja.',
+    ]);
+  });
+
+  it('a pair found from the candidates is skipped if the database already paired it', () => {
+    const r = run(
+      finding('guid_same_code', 'a>x', { codeBefore: 'T-1', code: 'T-1' }),
+      finding('guid_candidates', 'k', {
+        removed: [{ guid: 'a', code: 'T-1', text: 'abc' }],
+        added: [{ guid: 'x', code: 'T-1', text: 'abc' }],
+      }),
+    );
+    expect(only(r, 'guid_changed')).toHaveLength(1);
+  });
+
+  it('candidates with no lists, or with only one side, make no pair and no «maybe»', () => {
+    const r = run(
+      finding('guid_candidates', 'k1', {}),
+      finding('guid_candidates', 'k2', {
+        removed: [{ guid: 'a', code: null, text: 'abcdefghij' }],
+      }),
+      finding('guid_candidates', 'k3', { added: [{ guid: 'a', code: null, text: 'abcdefghij' }] }),
+    );
+    expect(only(r, 'guid_changed')).toEqual([]);
+    expect(only(r, 'guid_maybe')).toEqual([]);
+  });
+
+  it('the «maybe» says «notas» in the plural on each side', () => {
+    const note = (guid: string, text: string) => ({ guid, code: null, text });
+    const r = run(
+      finding('guid_candidates', 'k', {
+        removed: [note('a', 'primero largo'), note('b', 'segundo largo')],
+        added: [note('x', 'zzzzzzzzz'), note('y', 'wwwwwwwww'), note('z', 'vvvvvvvvv')],
+      }),
+    );
+    expect(only(r, 'guid_maybe')).toEqual([
+      'Biología celular · Certamen 2: salen 2 notas y entran 3, sin ninguna casi igual a otra.',
+    ]);
+  });
+
+  it('a cloze signature with no before or after, or no code, is read as empty and named by its key', () => {
+    const r = run(
+      finding('cloze_signatures', 'k', {}),
+      finding('cloze_signatures', 'k2', {
+        code: 'T-1',
+        before: { '0': 'a', '1': 'b' },
+        after: { '0': 'b', '1': 'a' },
+      }),
+    );
+    expect(only(r, 'ord_meaning')).toEqual([
+      'T-1: los huecos c1, c2 preguntan ahora lo que preguntaba otro número.',
+    ]);
+    expect(only(r, 'mask_moved')).toEqual([]);
+  });
+
+  it('the preset of a deck that had none or has none says «sin configuración», on either side', () => {
+    const deck = (presetBefore: string | null, presetAfter: string | null) => ({
+      id: 'd',
+      name: 'A::01 - Tema',
+      nameBefore: null,
+      op: 'changed' as const,
+      cardsBefore: 5,
+      cardsAfter: 5,
+      presetBefore,
+      presetAfter,
+    });
+    const r = review({
+      summary: summary({
+        assessments: [
+          assessment({ decks: [deck(null, 'Extras')] }),
+          assessment({ id: 'otro', decks: [deck('Default', null)] }),
+        ],
+      }),
+    });
+    expect(only(r, 'preset_changed')).toEqual([
+      '01 - Tema: de «sin configuración» a «Extras».',
+      '01 - Tema: de «Default» a «sin configuración».',
+    ]);
+  });
+
+  it('a preset that is new, gone or changed says so', () => {
+    const r = review({
+      summary: summary({
+        presets: [
+          { name: 'A', op: 'added' },
+          { name: 'B', op: 'removed' },
+          { name: 'C', op: 'changed' },
+        ],
+      }),
+    });
+    expect(only(r, 'preset_changed')).toEqual([
+      'La configuración «A» es nueva.',
+      'La configuración «B» sale.',
+      'La configuración «C» cambia.',
+    ]);
+  });
+
+  it('a test coming tomorrow says «mañana», also when the date before the change is the near one', () => {
+    const r = review({
+      summary: summary({
+        assessments: [
+          assessment({ suggestedDate: '2027-01-01', suggestedDateBefore: '2026-11-08' }),
+        ],
+      }),
+    });
+    expect(only(r, 'near_test_date')).toEqual([
+      'Biología celular · Certamen 2: la prueba sugerida es mañana (2026-11-08).',
+    ]);
+  });
+
+  it('a phrase of a rule that is not in the list is named by its id', () => {
+    const hit = { key: 'k', assessmentId: null, label: 'Texto', rule: 'new-rule', snippet: 'algo' };
+    expect(only(review({ phrases: [hit] }), 'process_phrase')).toEqual([
+      'Texto: «algo» (new-rule).',
+    ]);
+    expect(only(review({ phrases: [{ ...hit, rule: 'date' }] }), 'process_phrase')[0]).toMatch(
+      /\(una fecha de este semestre\)\.$/,
+    );
+  });
+});
+
+describe('naming an assessment', () => {
+  const name = (a: Partial<ReleaseAssessment>) =>
+    releaseTitle(summary({ assessments: [assessment({ id: 'x', ...a })] }));
+
+  it('is the course and the assessment, the course id when the course has no name, the id when there is no name', () => {
+    expect(name({})).toBe('Biología celular · Certamen 2');
+    expect(name({ courseName: null })).toBe('biologia-celular · Certamen 2');
+    expect(name({ courseName: null, courseId: null })).toBe(' · Certamen 2');
+    expect(name({ name: null })).toBe('Biología celular · x');
+  });
+
+  it('a note about an assessment that is not in the release is just its id', () => {
+    const r = review({
+      summary: summary({
+        findings: [
+          {
+            rule: 'guid_candidates',
+            assessmentId: 'ghost',
+            key: 'k',
+            detail: {
+              removed: [{ guid: 'a', code: null, text: 'abcdefghij' }],
+              added: [{ guid: 'b', code: null, text: 'zzzzzzzzzzz' }],
+            },
+          },
+        ],
+      }),
+    });
+    expect(only(r, 'guid_maybe')[0]).toMatch(/^ghost: sale 1 nota/);
+    const none = review({
+      summary: summary({
+        findings: [
+          {
+            rule: 'guid_candidates',
+            assessmentId: null,
+            key: 'k',
+            detail: {
+              removed: [{ guid: 'a', code: null, text: 'abcdefghij' }],
+              added: [{ guid: 'b', code: null, text: 'zzzzzzzzzzz' }],
+            },
+          },
+        ],
+      }),
+    });
+    expect(only(none, 'guid_maybe')[0]).toMatch(/^: sale 1 nota/);
+  });
+});
+
+describe('the text helpers of the review', () => {
+  it('similarity is 0 when either text has fewer than two letters, and 1 when they are the same after trimming and folding case', () => {
+    expect(similarity('a', 'b')).toBe(0);
+    expect(similarity('abc', 'x')).toBe(0);
+    expect(similarity('', 'abc')).toBe(0);
+    expect(similarity(' Hola  Mundo ', 'hola mundo')).toBe(1);
+    expect(similarity('night', 'nacht')).toBeCloseTo(0.25, 5);
+  });
+
+  it('a removed note with a very short text is never paired by its text, even with the same text added', () => {
+    expect(
+      changedGuids(
+        [{ guid: 'a', code: null, text: 'corto' }],
+        [{ guid: 'b', code: null, text: 'corto' }],
+      ),
+    ).toEqual([]);
+    expect(
+      changedGuids(
+        [{ guid: 'a', code: null, text: 'abcdefgh' }],
+        [{ guid: 'b', code: null, text: 'short' }],
+      ),
+    ).toEqual([]);
+  });
+
+  it('process phrases come out of every text, with the text’s key and label', () => {
+    const hits = processPhrases([
+      {
+        kind: 'article',
+        key: 'a',
+        assessmentId: 'x',
+        label: 'Artículo',
+        text: 'Se copió tal cual del libro, y es el próximo semestre.',
+      },
+      { kind: 'quiz', key: 'b', assessmentId: null, label: 'Test', text: 'Nada que decir.' },
+    ]);
+    expect(hits.map((h) => [h.key, h.assessmentId, h.label, h.rule])).toEqual([
+      ['a', 'x', 'Artículo', 'copied'],
+      ['a', 'x', 'Artículo', 'this-term'],
+    ]);
+    expect(processPhrases([])).toEqual([]);
+  });
+
+  it('a phrase near the start or the end of a text has no dots on that side', () => {
+    const [start] = findProcessPhrases('Se usó ChatGPT aquí.');
+    expect(start!.snippet).toBe('Se usó ChatGPT aquí.');
+    const long = `${'a'.repeat(60)} ChatGPT ${'b'.repeat(60)}`;
+    const [middle] = findProcessPhrases(long);
+    expect(middle!.snippet.startsWith('…')).toBe(true);
+    expect(middle!.snippet.endsWith('…')).toBe(true);
+    const [end] = findProcessPhrases(`${'a'.repeat(60)} ChatGPT`);
+    expect(end!.snippet.startsWith('…')).toBe(true);
+    expect(end!.snippet.endsWith('…')).toBe(false);
+  });
+
+  it('finds every occurrence of a phrase, not only the first', () => {
+    expect(findProcessPhrases('Whisper y Whisper otra vez')).toHaveLength(2);
+  });
+});
+
+describe('masks as boxes', () => {
+  const rect = (left: number, top: number, w: number, h: number) =>
+    `rect:left=${left}:top=${top}:width=${w}:height=${h}`;
+
+  it('an ellipse is read as the box of its radii, so one that is the same ellipse overlaps itself', () => {
+    const ellipse = 'ellipse:left=.1:top=.1:rx=.05:ry=.03';
+    expect(maskOverlap(ellipse, ellipse)).toBe(1);
+    expect(maskOverlap(ellipse, rect(0.1, 0.1, 0.1, 0.06))).toBe(1);
+    expect(maskOverlap(ellipse, 'ellipse:left=.5:top=.5:rx=.05:ry=.03')).toBe(0);
+  });
+
+  it('a shape that cannot be put in a box is left out, and if nothing is left the masks are equal only if the text is', () => {
+    expect(maskOverlap('polygon:points=1,2', 'polygon:points=1,2')).toBe(1);
+    expect(maskOverlap('polygon:points=1,2', 'polygon:points=3,4')).toBe(0);
+    expect(maskOverlap('polygon:points=1,2', rect(0, 0, 1, 1))).toBe(0);
+    expect(maskOverlap(`polygon:points=1,2;${rect(0, 0, 1, 1)}`, rect(0, 0, 1, 1))).toBe(1);
+    expect(maskOverlap('ellipse:left=.1:top=.1:rx=.05', 'ellipse:left=.1:top=.1:rx=.05')).toBe(1);
+  });
+
+  it('boxes with no area never overlap, and a box inside another overlaps by the share it covers', () => {
+    expect(maskOverlap(rect(0, 0, 0, 0), rect(0, 0, 0, 0))).toBe(0);
+    expect(maskOverlap(rect(0, 0, 2, 1), rect(0, 0, 1, 1))).toBe(0.5);
+  });
+
+  it('with several shapes the worse side decides, so adding a shape lowers the overlap', () => {
+    const one = rect(0, 0, 0.1, 0.1);
+    const two = `${one};${rect(0.5, 0.5, 0.1, 0.1)}`;
+    expect(maskOverlap(one, two)).toBe(0.5);
+    expect(maskOverlap(two, one)).toBe(0.5);
+  });
+
+  it('negative coordinates are read, and a missing one makes the shape unreadable', () => {
+    expect(
+      maskOverlap(
+        'rect:left=-.1:top=-.1:width=.2:height=.2',
+        'rect:left=-.1:top=-.1:width=.2:height=.2',
+      ),
+    ).toBe(1);
+    expect(maskOverlap('rect:left=.1:width=.2:height=.2', 'rect:left=.1:width=.2:height=.2')).toBe(
+      1,
+    );
+    expect(maskOverlap('rect:left=.1:width=.2:height=.2', 'rect:left=.2:width=.2:height=.2')).toBe(
+      0,
+    );
+  });
+
+  it('two masks that move are listed in order of their number', () => {
+    const r = renumbered(
+      { '0': rect(0, 0, 0.1, 0.1), '1': rect(0.5, 0.5, 0.1, 0.1), '2': rect(0.2, 0.2, 0.05, 0.05) },
+      {
+        '0': rect(0.8, 0.8, 0.1, 0.1),
+        '1': rect(0.9, 0.1, 0.1, 0.1),
+        '2': rect(0.2, 0.2, 0.05, 0.05),
+      },
+      true,
+    );
+    expect(r).toEqual({ renumbered: [], moved: [0, 1] });
+    expect(
+      renumbered({ '0': 'a', '1': 'b', '2': 'c' }, { '0': 'b', '1': 'a', '2': 'c' }, false),
+    ).toEqual({
+      renumbered: [0, 1],
+      moved: [],
+    });
+  });
+
+  it('a new ord, or one with the same text, changes nothing', () => {
+    expect(renumbered({ '0': 'a' }, { '0': 'a', '1': 'b' }, false)).toEqual({
+      renumbered: [],
+      moved: [],
+    });
+  });
+});
+
+describe('wordDiff', () => {
+  const text = (parts: ReturnType<typeof wordDiff>) => parts.map((p) => `${p.op}:${p.text}`);
+
+  it('the same text is one same part, and an empty text has no parts', () => {
+    expect(wordDiff('a b', 'a b')).toEqual([{ op: 'same', text: 'a b' }]);
+    expect(wordDiff('', '')).toEqual([]);
+  });
+
+  it('keeps what both share and shows what went out and what came in, joined as runs', () => {
+    expect(text(wordDiff('a b c d e', 'a x c y e'))).toEqual([
+      'same:a ',
+      'del:b',
+      'add:x',
+      'same: c ',
+      'del:d',
+      'add:y',
+      'same: e',
+    ]);
+    expect(text(wordDiff('a b c', 'a c'))).toEqual(['same:a ', 'del:b ', 'same:c']);
+    expect(text(wordDiff('a c', 'a b c'))).toEqual(['same:a ', 'add:b ', 'same:c']);
+  });
+
+  it('words that only come out, or only go in, at the end are runs of their own', () => {
+    expect(text(wordDiff('a b c d', 'a'))).toEqual(['same:a', 'del: b c d']);
+    expect(text(wordDiff('a', 'a b c d'))).toEqual(['same:a', 'add: b c d']);
+    expect(text(wordDiff('x y', 'z w'))).toEqual(['del:x', 'add:z', 'same: ', 'del:y', 'add:w']);
+  });
+
+  it('a text too long for the table goes out and comes in whole, around what is shared at both ends', () => {
+    const words = (prefix: string, n: number) =>
+      Array.from({ length: n }, (_, i) => `${prefix}${i}`).join(' ');
+    const before = `start ${words('a', 2100)} end`;
+    const after = `start ${words('b', 2100)} end`;
+    const parts = wordDiff(before, after);
+    expect(parts.map((p) => p.op)).toEqual(['same', 'del', 'add', 'same']);
+    expect(parts[0]!.text).toBe('start ');
+    expect(parts[3]!.text).toBe(' end');
+    expect(parts[1]!.text.startsWith('a0 ')).toBe(true);
+    expect(parts[2]!.text.startsWith('b0 ')).toBe(true);
+  });
+
+  it('too long and with nothing shared, there is no «same» part', () => {
+    const words = (prefix: string, n: number) =>
+      Array.from({ length: n }, (_, i) => `${prefix}${i}`).join(' ');
+    expect(wordDiff(words('a', 2100), words('b', 2100)).map((p) => p.op)).toEqual(['del', 'add']);
+  });
+});
+
+describe('decks above the assessments', () => {
+  const deck = (
+    op: 'added' | 'removed' | 'changed',
+    presetBefore: string | null,
+    presetAfter: string | null,
+  ) => ({
+    id: `${op}-${presetBefore ?? ''}-${presetAfter ?? ''}`,
+    name: 'R::S::Curso',
+    nameBefore: null,
+    op,
+    cardsBefore: 0,
+    cardsAfter: 0,
+    presetBefore,
+    presetAfter,
+  });
+
+  it('only a deck that changed its preset warns; one added, removed or with the same preset does not', () => {
+    const r = review({
+      summary: summary({
+        assessments: [],
+        decks: [deck('added', null, 'A'), deck('removed', 'A', null), deck('changed', 'A', 'A')],
+      }),
+    });
+    expect(only(r, 'preset_changed')).toEqual([]);
+  });
+
+  it('a preset that appears or goes away says «sin configuración» for the missing side', () => {
+    const r = review({
+      summary: summary({
+        assessments: [],
+        decks: [deck('changed', null, 'A'), deck('changed', 'B', null)],
+      }),
+    });
+    expect(only(r, 'preset_changed')).toEqual([
+      'Curso: de «sin configuración» a «A».',
+      'Curso: de «B» a «sin configuración».',
+    ]);
   });
 });

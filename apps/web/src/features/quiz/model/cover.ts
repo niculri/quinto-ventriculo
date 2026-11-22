@@ -16,4 +16,4 @@ export const toggledGroups = (
   section.groups.map((g) => g.id).filter((g) => (g === id ? on : preferences.groups.includes(g)));
 
 export const plainText = (html: string) =>
-  new DOMParser().parseFromString(html, 'text/html').body.textContent ?? '';
+  new DOMParser().parseFromString(html, 'text/html').body.textContent;

@@ -53,12 +53,12 @@ export function roundActions(o: {
     answer(original: number) {
       if (!round || !current || isAnswered(round)) return;
       const r = answerChoice(round, current.info, original);
-      commit(r, { answer: answerStep(r)! });
+      commit(r, { answer: answerStep(r) });
     },
     selfAssess(knewIt: boolean) {
       if (!round || !current || isAnswered(round)) return;
       const r = selfAssess(round, current.info, knewIt);
-      commit(r, { answer: answerStep(r)! });
+      commit(r, { answer: answerStep(r) });
     },
     next() {
       if (round) commit(next(round));

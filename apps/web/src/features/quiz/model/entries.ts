@@ -45,16 +45,15 @@ export function roundInfo(round: Round): RoundInfo {
   };
 }
 
-export function answerStep(r: Round): AnswerInfo | undefined {
-  const a = r.answers.find((x) => x.position === r.index);
-  return a
-    ? {
-        roundId: r.id,
-        questionId: a.questionId,
-        position: a.position,
-        chosen: a.chosen,
-        correct: a.correct,
-        answeredAt: a.at,
-      }
-    : undefined;
+/** The answer just given: the one at the round's place. */
+export function answerStep(r: Round): AnswerInfo {
+  const a = r.answers.find((x) => x.position === r.index)!;
+  return {
+    roundId: r.id,
+    questionId: a.questionId,
+    position: a.position,
+    chosen: a.chosen,
+    correct: a.correct,
+    answeredAt: a.at,
+  };
 }

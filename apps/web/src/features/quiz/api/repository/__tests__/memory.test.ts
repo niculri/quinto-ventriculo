@@ -265,6 +265,31 @@ describe('what the demo repository reads from the browser', () => {
     expect(localStorage.getItem('qv-demo-quiz')).toBeNull();
   });
 
+  it('an answer of a round it never kept is kept, and changes no round', async () => {
+    const storage = memoryStorage();
+    const repo = localQuizRepository(storage);
+    await repo.save({
+      quizId: 'q',
+      sectionId: 's',
+      round: { id: 'x' },
+      answer: answer('x', 0, 't'),
+    });
+    const data = JSON.parse(storage.getItem('qv-demo-quiz')!) as {
+      rounds: unknown[];
+      answers: unknown[];
+    };
+    expect(data.rounds).toEqual([]);
+    expect(data.answers).toHaveLength(1);
+  });
+
+  it('a browser without storage keeps the progress in memory', async () => {
+    vi.stubGlobal('localStorage', undefined);
+    const repo = localQuizRepository();
+    await repo.save({ quizId: 'q', sectionId: 's', round: { id: 'r3' }, roundInfo: info('r3') });
+    expect((await repo.load('q')).s?.round).toEqual({ id: 'r3' });
+    vi.unstubAllGlobals();
+  });
+
   it('a storage that refuses to write keeps the progress in memory', async () => {
     const storage = memoryStorage();
     storage.setItem = () => {

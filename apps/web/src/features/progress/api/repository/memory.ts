@@ -672,7 +672,8 @@ export function localStudyRepository(
       return {
         truncated: false,
         decks: [...out.values()]
-          .sort((a, b) => (a.deckId < b.deckId ? -1 : a.deckId > b.deckId ? 1 : 0))
+          // The decks are a map's keys: never two equal.
+          .sort((a, b) => (a.deckId < b.deckId ? -1 : 1))
           .map(({ notes, ...d }) => ({
             ...d,
             touched: notes.size,

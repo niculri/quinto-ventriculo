@@ -22,7 +22,7 @@ import { useAnkiTree } from '../features/catalog/hooks/useAnkiTree';
 import type { CourseDeckNode, DeckScreen } from '../features/catalog/model/tree';
 
 export function AnkiRoute() {
-  const params = useParams();
+  const { number = '', courseId = '', '*': rest = '' } = useParams();
   const [search] = useSearchParams();
   const { catalog, tree } = useAnkiTree();
   const location = useLocation();
@@ -46,14 +46,8 @@ export function AnkiRoute() {
   }
   const loading = frame(<Loading />);
   if (!tree) return loading;
-  const splat = (params['*'] ?? '').split('/').filter(Boolean);
-  const resolved = resolveCourseDeck(
-    tree,
-    params.number ?? '',
-    params.courseId ?? '',
-    splat,
-    search.get('subdeck'),
-  );
+  const splat = rest.split('/').filter(Boolean);
+  const resolved = resolveCourseDeck(tree, number, courseId, splat, search.get('subdeck'));
 
   return routeOf(resolved, search, loading);
 }
@@ -111,9 +105,10 @@ function screenPath(node: CourseDeckNode, screen: DeckScreen, search: URLSearchP
       return paths.deck(node.ref);
     case 'cards':
     case 'practice': {
-      const scope = node.depth > 3 ? (scopeNodeOf(node) ?? node) : node;
+      // Below an assessment both always exist (the course's deck has a page); the fallbacks only satisfy the types.
+      const scope = node.depth > 3 ? /* v8 ignore next */ (scopeNodeOf(node) ?? node) : node;
       const query = Object.fromEntries(search);
-      if (scope !== node) query.unit = unitOf(scope, node) ?? '';
+      if (scope !== node) query.unit = /* v8 ignore next */ unitOf(scope, node) ?? '';
       return screen === 'cards'
         ? paths.cards(scope.ref, query)
         : paths.cardsPractice(scope.ref, query);

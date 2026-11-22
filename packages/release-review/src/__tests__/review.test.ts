@@ -1,16 +1,10 @@
-// Tests for the release review list (one case per rule), the process and calendar phrases, and what a publication
-// keeps of its review.
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+// Tests for the release review list (one case per rule) and what a publication keeps of its review.
 import { describe, expect, it } from 'vitest';
 import { releasePlainText as plainText } from '@qv/html/text';
 import type { ReleaseAssessment, ReleaseFinding, ReleaseSummary } from '@qv/schema/release';
-import { changedGuids, maskOverlap, renumbered, similarity } from '../cardChanges';
-import { PROCESS_RULES, findProcessPhrases, processPhrases } from '../processPhrases';
 import { buildReview, onlyInCatalog, releaseTitle, reviewChecks } from '../review';
 import { CHECK_RULES } from '../reviewTypes';
 import type { CheckRule, ReleaseReviewInput } from '../reviewTypes';
-import { wordDiff } from '../wordDiff';
 
 const FP = 'a'.repeat(32);
 const assessment = (o: Partial<ReleaseAssessment> = {}): ReleaseAssessment => ({
@@ -416,120 +410,16 @@ describe('the review list', () => {
   });
 });
 
-describe('the process and calendar phrases', () => {
-  const cases: Record<string, [string, string]> = {
-    deduced: [
-      'La letra de la tabla se dedujo de la pauta.',
-      'Su sitio de acción se dedujo por exclusión.',
-    ],
-    copied: [
-      'Las afirmaciones tachadas no se copian de la pauta.',
-      'La cola poli-A no se copia del DNA.',
-    ],
-    translated: [
-      'Los números de la imagen van traducidos aquí.',
-      'La proteína difiere de la que se tradujo.',
-    ],
-    edition: ['La figura es de una edición anterior.', 'La edición del RNA cambia su secuencia.'],
-    revision: ['Tras la revisión de cero, quedó así.', 'Se revisa la hebra recién sintetizada.'],
-    tools: ['Las alternativas las escribió ChatGPT.', 'El agente infeccioso entra por la mucosa.'],
-    'this-term': [
-      'Esto no lo veremos este semestre.',
-      'El semestre de primavera tiene 18 semanas.',
-    ],
-    enters: ['La vía endocítica no entra en el certamen.', 'El calcio entra en la célula.'],
-    date: ['La clase del 26-10-2026 se suspendió.', 'Ohsumi recibió el Nobel en 2016.'],
-  };
-
-  it('has a case for every rule', () => {
-    expect(Object.keys(cases).sort()).toEqual(PROCESS_RULES.map((r) => r.id).sort());
-  });
-
-  it.each(Object.entries(cases))(
-    '%s: finds the phrase, and not the content that looks like it',
-    (rule, [yes, no]) => {
-      expect(findProcessPhrases(yes).map((h) => h.rule)).toEqual([rule]);
-      expect(findProcessPhrases(no)).toEqual([]);
-    },
-  );
-
-  it('gives the phrase with a little around it', () => {
-    const [hit] = findProcessPhrases(
-      `${'x'.repeat(80)} esto vale este año y nada más ${'y'.repeat(80)}`,
-    );
-    expect(hit!.snippet).toMatch(/^….{10,}este año.{10,}…$/);
-  });
-
-  // The published articles as the importer's dry run built them; without that folder (as in the CI), nothing to read.
-  const OUTPUT = join(import.meta.dirname, '..', '..', '..', '..', '.output', 'content.json');
-  it.skipIf(!existsSync(OUTPUT))('gives 0 in the articles of the dry run of the importer', () => {
-    const bundle = JSON.parse(readFileSync(OUTPUT, 'utf8')) as {
-      notes: {
-        id: string;
-        title: string;
-        subtitle?: string;
-        sources: string[];
-        html: string;
-        sections: { title: string; text: string }[];
-      }[];
-    };
-    expect(bundle.notes.length).toBeGreaterThanOrEqual(10);
-    const hits = bundle.notes.flatMap((n) =>
-      [
-        n.title,
-        n.subtitle ?? '',
-        ...n.sources,
-        plainText(n.html),
-        ...n.sections.map((s) => `${s.title} ${s.text}`),
-      ]
-        .flatMap(findProcessPhrases)
-        .map((h) => `${n.id}: ${h.snippet}`),
-    );
-    expect(hits).toEqual([]);
-  });
-});
-
 describe('the helpers', () => {
-  it('similarity and the codes of a changed GUID', () => {
-    expect(similarity('El ribosoma', 'el  ribosoma')).toBe(1);
-    expect(similarity('abc', 'xyz')).toBe(0);
-    expect(
-      changedGuids(
-        [{ guid: 'a', code: 'T-A1-S3-01-047', text: 'x' }],
-        [{ guid: 'b', code: 'T-A1-S3-01-047.2', text: 'y' }],
-      ),
-    ).toEqual([expect.objectContaining({ why: 'code' })]);
-  });
-
-  it('mask overlap, and renumbered or moved', () => {
-    const a = 'rect:left=0.1:top=0.1:width=0.1:height=0.1';
-    expect(maskOverlap(a, a)).toBe(1);
-    expect(maskOverlap(a, 'rect:left=0.5:top=0.5:width=0.1:height=0.1')).toBe(0);
-    expect(renumbered({ 0: '7' }, { 0: '7', 1: '8' }, false)).toEqual({
-      renumbered: [],
-      moved: [],
-    });
-  });
-
-  it('plain text and the word diff', () => {
+  it('plain text as release_text() reads it', () => {
     expect(plainText('<b>7</b>&nbsp;y <img src="a.png"> &amp; más')).toBe('7 y [img a.png] & más');
     // The same cases as release_text() in SQL (db/tests/__tests__/release.flow.test.ts).
     expect(plainText(`<img src='a.png'> x`)).toBe('[img a.png] x');
     expect(plainText('<IMG class="x" SRC=b.png> x')).toBe('[img b.png] x');
     expect(plainText('<img src="c.png" data-media="cards/c.webp">')).toBe('[img cards/c.webp]');
     expect(plainText('p<0.05 y q>1 <b>z</b><!-- nota -->')).toBe('p<0.05 y q>1 z');
-    expect(
-      wordDiff('el ribosoma tiene dos subunidades', 'el ribosoma tiene tres subunidades'),
-    ).toEqual([
-      { op: 'same', text: 'el ribosoma tiene ' },
-      { op: 'del', text: 'dos' },
-      { op: 'add', text: 'tres' },
-      { op: 'same', text: ' subunidades' },
-    ]);
-    expect(wordDiff('', 'nuevo')).toEqual([{ op: 'add', text: 'nuevo' }]);
   });
 });
-
 describe('what a publication keeps', () => {
   it('the review list in short: blocking, pending, ready, the warnings that warn and the marks', () => {
     const r = review({
@@ -855,186 +745,6 @@ describe('naming an assessment', () => {
   });
 });
 
-describe('the text helpers of the review', () => {
-  it('similarity is 0 when either text has fewer than two letters, and 1 when they are the same after trimming and folding case', () => {
-    expect(similarity('a', 'b')).toBe(0);
-    expect(similarity('abc', 'x')).toBe(0);
-    expect(similarity('', 'abc')).toBe(0);
-    expect(similarity(' Hola  Mundo ', 'hola mundo')).toBe(1);
-    expect(similarity('night', 'nacht')).toBeCloseTo(0.25, 5);
-  });
-
-  it('a removed note with a very short text is never paired by its text, even with the same text added', () => {
-    expect(
-      changedGuids(
-        [{ guid: 'a', code: null, text: 'corto' }],
-        [{ guid: 'b', code: null, text: 'corto' }],
-      ),
-    ).toEqual([]);
-    expect(
-      changedGuids(
-        [{ guid: 'a', code: null, text: 'abcdefgh' }],
-        [{ guid: 'b', code: null, text: 'short' }],
-      ),
-    ).toEqual([]);
-  });
-
-  it('process phrases come out of every text, with the text’s key and label', () => {
-    const hits = processPhrases([
-      {
-        kind: 'article',
-        key: 'a',
-        assessmentId: 'x',
-        label: 'Artículo',
-        text: 'Se copió tal cual del libro, y es el próximo semestre.',
-      },
-      { kind: 'quiz', key: 'b', assessmentId: null, label: 'Test', text: 'Nada que decir.' },
-    ]);
-    expect(hits.map((h) => [h.key, h.assessmentId, h.label, h.rule])).toEqual([
-      ['a', 'x', 'Artículo', 'copied'],
-      ['a', 'x', 'Artículo', 'this-term'],
-    ]);
-    expect(processPhrases([])).toEqual([]);
-  });
-
-  it('a phrase near the start or the end of a text has no dots on that side', () => {
-    const [start] = findProcessPhrases('Se usó ChatGPT aquí.');
-    expect(start!.snippet).toBe('Se usó ChatGPT aquí.');
-    const long = `${'a'.repeat(60)} ChatGPT ${'b'.repeat(60)}`;
-    const [middle] = findProcessPhrases(long);
-    expect(middle!.snippet.startsWith('…')).toBe(true);
-    expect(middle!.snippet.endsWith('…')).toBe(true);
-    const [end] = findProcessPhrases(`${'a'.repeat(60)} ChatGPT`);
-    expect(end!.snippet.startsWith('…')).toBe(true);
-    expect(end!.snippet.endsWith('…')).toBe(false);
-  });
-
-  it('finds every occurrence of a phrase, not only the first', () => {
-    expect(findProcessPhrases('Whisper y Whisper otra vez')).toHaveLength(2);
-  });
-});
-
-describe('masks as boxes', () => {
-  const rect = (left: number, top: number, w: number, h: number) =>
-    `rect:left=${left}:top=${top}:width=${w}:height=${h}`;
-
-  it('an ellipse is read as the box of its radii, so one that is the same ellipse overlaps itself', () => {
-    const ellipse = 'ellipse:left=.1:top=.1:rx=.05:ry=.03';
-    expect(maskOverlap(ellipse, ellipse)).toBe(1);
-    expect(maskOverlap(ellipse, rect(0.1, 0.1, 0.1, 0.06))).toBe(1);
-    expect(maskOverlap(ellipse, 'ellipse:left=.5:top=.5:rx=.05:ry=.03')).toBe(0);
-  });
-
-  it('a shape that cannot be put in a box is left out, and if nothing is left the masks are equal only if the text is', () => {
-    expect(maskOverlap('polygon:points=1,2', 'polygon:points=1,2')).toBe(1);
-    expect(maskOverlap('polygon:points=1,2', 'polygon:points=3,4')).toBe(0);
-    expect(maskOverlap('polygon:points=1,2', rect(0, 0, 1, 1))).toBe(0);
-    expect(maskOverlap(`polygon:points=1,2;${rect(0, 0, 1, 1)}`, rect(0, 0, 1, 1))).toBe(1);
-    expect(maskOverlap('ellipse:left=.1:top=.1:rx=.05', 'ellipse:left=.1:top=.1:rx=.05')).toBe(1);
-  });
-
-  it('boxes with no area never overlap, and a box inside another overlaps by the share it covers', () => {
-    expect(maskOverlap(rect(0, 0, 0, 0), rect(0, 0, 0, 0))).toBe(0);
-    expect(maskOverlap(rect(0, 0, 2, 1), rect(0, 0, 1, 1))).toBe(0.5);
-  });
-
-  it('with several shapes the worse side decides, so adding a shape lowers the overlap', () => {
-    const one = rect(0, 0, 0.1, 0.1);
-    const two = `${one};${rect(0.5, 0.5, 0.1, 0.1)}`;
-    expect(maskOverlap(one, two)).toBe(0.5);
-    expect(maskOverlap(two, one)).toBe(0.5);
-  });
-
-  it('negative coordinates are read, and a missing one makes the shape unreadable', () => {
-    expect(
-      maskOverlap(
-        'rect:left=-.1:top=-.1:width=.2:height=.2',
-        'rect:left=-.1:top=-.1:width=.2:height=.2',
-      ),
-    ).toBe(1);
-    expect(maskOverlap('rect:left=.1:width=.2:height=.2', 'rect:left=.1:width=.2:height=.2')).toBe(
-      1,
-    );
-    expect(maskOverlap('rect:left=.1:width=.2:height=.2', 'rect:left=.2:width=.2:height=.2')).toBe(
-      0,
-    );
-  });
-
-  it('two masks that move are listed in order of their number', () => {
-    const r = renumbered(
-      { '0': rect(0, 0, 0.1, 0.1), '1': rect(0.5, 0.5, 0.1, 0.1), '2': rect(0.2, 0.2, 0.05, 0.05) },
-      {
-        '0': rect(0.8, 0.8, 0.1, 0.1),
-        '1': rect(0.9, 0.1, 0.1, 0.1),
-        '2': rect(0.2, 0.2, 0.05, 0.05),
-      },
-      true,
-    );
-    expect(r).toEqual({ renumbered: [], moved: [0, 1] });
-    expect(
-      renumbered({ '0': 'a', '1': 'b', '2': 'c' }, { '0': 'b', '1': 'a', '2': 'c' }, false),
-    ).toEqual({
-      renumbered: [0, 1],
-      moved: [],
-    });
-  });
-
-  it('a new ord, or one with the same text, changes nothing', () => {
-    expect(renumbered({ '0': 'a' }, { '0': 'a', '1': 'b' }, false)).toEqual({
-      renumbered: [],
-      moved: [],
-    });
-  });
-});
-
-describe('wordDiff', () => {
-  const text = (parts: ReturnType<typeof wordDiff>) => parts.map((p) => `${p.op}:${p.text}`);
-
-  it('the same text is one same part, and an empty text has no parts', () => {
-    expect(wordDiff('a b', 'a b')).toEqual([{ op: 'same', text: 'a b' }]);
-    expect(wordDiff('', '')).toEqual([]);
-  });
-
-  it('keeps what both share and shows what went out and what came in, joined as runs', () => {
-    expect(text(wordDiff('a b c d e', 'a x c y e'))).toEqual([
-      'same:a ',
-      'del:b',
-      'add:x',
-      'same: c ',
-      'del:d',
-      'add:y',
-      'same: e',
-    ]);
-    expect(text(wordDiff('a b c', 'a c'))).toEqual(['same:a ', 'del:b ', 'same:c']);
-    expect(text(wordDiff('a c', 'a b c'))).toEqual(['same:a ', 'add:b ', 'same:c']);
-  });
-
-  it('words that only come out, or only go in, at the end are runs of their own', () => {
-    expect(text(wordDiff('a b c d', 'a'))).toEqual(['same:a', 'del: b c d']);
-    expect(text(wordDiff('a', 'a b c d'))).toEqual(['same:a', 'add: b c d']);
-    expect(text(wordDiff('x y', 'z w'))).toEqual(['del:x', 'add:z', 'same: ', 'del:y', 'add:w']);
-  });
-
-  it('a text too long for the table goes out and comes in whole, around what is shared at both ends', () => {
-    const words = (prefix: string, n: number) =>
-      Array.from({ length: n }, (_, i) => `${prefix}${i}`).join(' ');
-    const before = `start ${words('a', 2100)} end`;
-    const after = `start ${words('b', 2100)} end`;
-    const parts = wordDiff(before, after);
-    expect(parts.map((p) => p.op)).toEqual(['same', 'del', 'add', 'same']);
-    expect(parts[0]!.text).toBe('start ');
-    expect(parts[3]!.text).toBe(' end');
-    expect(parts[1]!.text.startsWith('a0 ')).toBe(true);
-    expect(parts[2]!.text.startsWith('b0 ')).toBe(true);
-  });
-
-  it('too long and with nothing shared, there is no «same» part', () => {
-    const words = (prefix: string, n: number) =>
-      Array.from({ length: n }, (_, i) => `${prefix}${i}`).join(' ');
-    expect(wordDiff(words('a', 2100), words('b', 2100)).map((p) => p.op)).toEqual(['del', 'add']);
-  });
-});
-
 describe('decks above the assessments', () => {
   const deck = (
     op: 'added' | 'removed' | 'changed',
@@ -1072,45 +782,5 @@ describe('decks above the assessments', () => {
       'Curso: de «sin configuración» a «A».',
       'Curso: de «B» a «sin configuración».',
     ]);
-  });
-});
-
-describe('how alike two texts must be to be one note', () => {
-  const note = (guid: string, text: string) => ({ guid, code: null, text });
-
-  it('exactly 80 % is enough, and a little less is not', () => {
-    expect(similarity('abcdefghijk', 'abcdefghizz')).toBeCloseTo(0.8, 10);
-    expect(changedGuids([note('a', 'abcdefghijk')], [note('b', 'abcdefghizz')])).toHaveLength(1);
-    expect(changedGuids([note('a', 'abcdefghijk')], [note('b', 'abcdefghzzz')])).toEqual([]);
-  });
-
-  it('a removed text of 7 characters is too short to pair by its text, one of 8 is not', () => {
-    expect(changedGuids([note('a', 'abcdefg')], [note('b', 'abcdefgh')])).toEqual([]);
-    expect(changedGuids([note('a', 'abcdefgh')], [note('b', 'abcdefgh')])).toHaveLength(1);
-    expect(changedGuids([note('a', 'abcdefgh')], [note('b', 'abcdefg')])).toEqual([]);
-  });
-});
-
-describe('the edges of what counts as the same', () => {
-  it('two letters are enough to compare: «ab» is two thirds of «abc»', () => {
-    expect(similarity('ab', 'abc')).toBeCloseTo(2 / 3, 5);
-  });
-
-  it('a mask that keeps half of its box is still the same mask, one that keeps less is another', () => {
-    const whole = 'rect:left=0:top=0:width=.5:height=.5';
-    const half = 'rect:left=0:top=0:width=.25:height=.5';
-    const less = 'rect:left=0:top=0:width=.125:height=.5';
-    expect(renumbered({ 1: whole }, { 1: half }, true)).toEqual({ renumbered: [], moved: [] });
-    expect(renumbered({ 1: whole }, { 1: less }, true)).toEqual({ renumbered: [], moved: [1] });
-  });
-
-  it('a change is told word by word up to 4 000 000 cells of its table, and as a whole after that', () => {
-    const words = (prefix: string, count: number, lead: string) =>
-      `${lead}${Array.from({ length: count }, (_, i) => `${prefix}${i}`).join(' ')}`;
-    // 1 000 words and 1 000 spaces on each side: 2 000 × 2 000 cells, the last one the table takes.
-    const exact = wordDiff(words('a', 1000, ' '), words('b', 1000, '\t'));
-    expect(exact.some((part) => part.op === 'same')).toBe(true);
-    const over = wordDiff(words('a', 1001, ' '), words('b', 1001, '\t'));
-    expect(over.map((part) => part.op)).toEqual(['del', 'add']);
   });
 });

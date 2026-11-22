@@ -276,3 +276,74 @@ describe('what the context does not bring', () => {
     expect(matches('-prop:r>0', lost)).toBe(false);
   });
 });
+
+describe('the edges of what a search finds', () => {
+  const day = 86_400;
+  const opens = (ctx.timing.nextDayAt - day) * 1000;
+
+  it('rated: counts an answer made when its window opens, which introduced: and added: do not', () => {
+    const answered = card({ noteGuid: 'x' });
+    const run = (query: string, c: SearchContext) => compileSearch(parseSearch(query), c)(answered);
+    const answerAt = (atMs: number): SearchContext => ({
+      ...ctx,
+      answers: [{ noteGuid: 'x', ord: 0, rating: 3, atMs }],
+    });
+    expect(run('rated:1', answerAt(opens))).toBe(true);
+    expect(run('rated:1', answerAt(opens - 1))).toBe(false);
+    expect(matches('added:1', card({ createdMs: opens }))).toBe(false);
+    expect(matches('added:1', card({ createdMs: opens + 1 }))).toBe(true);
+  });
+
+  it('is:due takes a learning card whose step ends at the learn-ahead limit, to the second', () => {
+    const limit = ctx.timing.now + ctx.learnAheadSecs;
+    const learning = (due: number) => card({ type: 'learn', queue: 'learn', due });
+    expect(matches('is:due', learning(limit))).toBe(true);
+    expect(matches('is:due', learning(limit + 1))).toBe(false);
+  });
+
+  it('flag: looks only at the three bits of the colour', () => {
+    expect(matches('flag:3', card({ flag: 3 }))).toBe(true);
+    expect(matches('flag:3', card({ flag: 8 + 3 }))).toBe(true);
+    expect(matches('flag:3', card({ flag: 4 }))).toBe(false);
+  });
+
+  it('a field name that matches neighbouring fields is tested on them joined, but «not empty» looks at each one', () => {
+    const blank = card({ fields: ['', ''] });
+    const second = card({ fields: ['', 'x'] });
+    expect(matches('*verso:_*', blank)).toBe(false);
+    expect(matches('*verso:_*', second)).toBe(true);
+    expect(matches('*verso:_', blank)).toBe(true);
+    expect(matches('*verso:a*b', card({ fields: ['a', 'b'] }))).toBe(true);
+    expect(matches('*verso:x', second)).toBe(false);
+  });
+
+  it('a field the card does not have is not tested', () => {
+    expect(matches('reverso:re:undefined', card({ fields: ['x'] }))).toBe(false);
+  });
+
+  it('deck:filtered is the filtered decks, not a deck that is called that', () => {
+    const named = { ...ctx, decks: [...ctx.decks, { id: '8', name: 'filtered' }] };
+    expect(compileSearch(parseSearch('deck:filtered'), named)(card({ deckId: '8' }))).toBe(false);
+  });
+
+  it('the parts of a deck name lose the spaces and colons around them, and an empty part is «blank»', () => {
+    const named = {
+      ...ctx,
+      decks: [
+        { id: '8', name: 'Raro::x' },
+        { id: '9', name: 'Top::blank' },
+      ],
+    };
+    const run = (query: string, deckId: string) =>
+      compileSearch(parseSearch(query), named)(card({ deckId }));
+    expect(run('"deck:Raro::x "', '8')).toBe(true);
+    expect(run('"deck: Raro :: x "', '8')).toBe(true);
+    expect(run('deck:Top::', '9')).toBe(true);
+  });
+
+  it('a group that cannot be decided, inside a larger one, stays undecided: it neither makes the other part true nor false', () => {
+    const fresh = card();
+    expect(matches('(prop:s>5 and is:new) or tag:zzz', fresh)).toBe(false);
+    expect(matches('(prop:s>5 and is:new) or is:new', fresh)).toBe(true);
+  });
+});

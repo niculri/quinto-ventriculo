@@ -1,5 +1,5 @@
 // Tests the texts of «Acceso», «Uso», «Fuera del sitio» and «Sitio» as each one shows them, with every kind of row.
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { FEW } from '@qv/schema';
@@ -289,5 +289,26 @@ describe('«Administración», the texts of each section', () => {
       'alert',
     );
     expect(toggle).not.toBeChecked();
+  });
+
+  it('«Sitio»: while it saves, the switch shows what is being saved and waits', async () => {
+    let answer: (v: typeof NO_SETTINGS) => void = () => undefined;
+    renderApp('/admin/site', {
+      admin: localAdminRepository({ admin: true }),
+      api: fakeApi({
+        siteSettings: async () => NO_SETTINGS,
+        setSiteSettings: () => new Promise((r) => (answer = r)),
+      }),
+    });
+    const toggle = await screen.findByRole('switch', {
+      name: 'Ocultar los semestres sin contenido',
+    });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    await userEvent.click(toggle);
+    expect(toggle).toBeChecked();
+    expect(toggle).toBeDisabled();
+    await act(async () => answer({ ...NO_SETTINGS, hideEmptySemesters: true }));
+    await waitFor(() => expect(toggle).toBeEnabled());
+    expect(toggle).toBeChecked();
   });
 });

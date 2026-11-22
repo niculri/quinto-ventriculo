@@ -228,6 +228,14 @@ describe('the popup to publish', () => {
   });
 
   it('an assessment with changes the counts do not show reads «cambios menores»; one without a course reads «null»', () => {
+    const byId = assessment({
+      courseName: null,
+      name: null,
+      cards: { ...assessment().cards, added: 2 },
+    });
+    expect(releaseLines(summary({ assessments: [byId] }), [])).toEqual([
+      'curso · curso/c1: 2 tarjetas nuevas.',
+    ]);
     const a = assessment({
       courseName: null,
       courseId: null,

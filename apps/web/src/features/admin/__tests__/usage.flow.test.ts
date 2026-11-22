@@ -1,10 +1,12 @@
 // Tests «Uso» in the administration panel: figures of 5 students or more, the most used, activation and invited.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { FEW } from '@qv/schema';
 import type { UsageFigures, UsageReport } from '@qv/schema';
+import { ApiRequestError } from '../../../shared/lib/api';
 import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
 import { renderApp } from '../../../test/render';
 import { searchContext } from '../../search/model/results';
 import { localAdminRepository } from '../api/repository';
@@ -244,5 +246,54 @@ describe('«Uso»', () => {
     expect(
       await screen.findByText('No se pudieron leer los errores. Intenta de nuevo en un rato.'),
     ).toBeInTheDocument();
+  });
+
+  it('an error without a message shows only what failed and where', async () => {
+    renderApp('/admin/usage', {
+      admin: admin(),
+      api: fakeApi({
+        usage: async () => ({
+          ...REPORT,
+          clientErrors: [
+            {
+              kind: 'render',
+              page: '/home',
+              message: '',
+              version: 'v1',
+              count: 2,
+              lastSeen: '2026-11-19T18:00:00.000Z',
+            },
+          ],
+        }),
+      }),
+    });
+    const section = await screen.findByRole('region', { name: 'Errores en el navegador' });
+    const item = within(section).getByRole('listitem');
+    expect(item.querySelectorAll('p')).toHaveLength(1);
+    expect(item).toHaveTextContent('/home · versión v1');
+  });
+
+  it('when the report or the catalog does not come, «Reintentar» asks for both again', async () => {
+    let fails = true;
+    const usage = vi.fn(async () => REPORT);
+    renderApp('/admin/usage', {
+      admin: admin(),
+      api: fakeApi({
+        usage,
+        catalog: async () => {
+          if (fails) throw new ApiRequestError(503, 'unavailable', 'Sin conexión de prueba.');
+          return CATALOG;
+        },
+      }),
+    });
+    const retry = await screen.findByRole('button', { name: 'Reintentar' });
+    expect(screen.getByText('Sin conexión de prueba.')).toBeInTheDocument();
+    const before = usage.mock.calls.length;
+    fails = false;
+    await userEvent.click(retry);
+    expect(
+      await screen.findByRole('region', { name: 'Errores en el navegador' }),
+    ).toBeInTheDocument();
+    expect(usage.mock.calls.length).toBeGreaterThan(before);
   });
 });

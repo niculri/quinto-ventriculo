@@ -19,6 +19,8 @@ const START: SiteSettingsView = {
       name: '1° Semestre',
       courses: [
         { id: 'anatomia-1', name: 'Anatomía I', emoji: '🦴', notes: 0, quizzes: 0, cards: 4 },
+        { id: 'quimica', name: 'Química', emoji: '⚗️', notes: 1, quizzes: 2, cards: 0 },
+        { id: 'vacio', name: 'Vacío', emoji: '📦', notes: 0, quizzes: 0, cards: 0 },
       ],
     },
     {
@@ -72,6 +74,21 @@ describe('«Sitio»: the courses', () => {
     const semester = screen.getByRole('group', { name: '2° Semestre' });
     expect(within(semester).getByText('2 apuntes · 1 test · 1 tarjeta')).toBeInTheDocument();
     expect(screen.getByText('4 tarjetas')).toBeInTheDocument();
+    expect(screen.getByText('1 apunte · 2 tests')).toBeInTheDocument();
+    expect(screen.getByText('Sin material publicado')).toBeInTheDocument();
+  });
+
+  it('one course off and another on is still a change to save, even with as many off as before', async () => {
+    const { api, sent } = panel();
+    renderApp('/admin/site', { admin: admin(), api });
+    await userEvent.click(await screen.findByRole('switch', { name: 'Anatomía I' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await screen.findByText('Guardado');
+    await userEvent.click(screen.getByRole('switch', { name: 'Anatomía I' }));
+    await userEvent.click(screen.getByRole('switch', { name: 'Química' }));
+    expect(screen.getByText('Sin guardar')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() => expect(sent.at(-1)).toEqual({ hiddenCourses: ['quimica'] }));
   });
 
   it('a switch changes nothing until «Guardar»; then the list is sent whole and the catalog is read again', async () => {

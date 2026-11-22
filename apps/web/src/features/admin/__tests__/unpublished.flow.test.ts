@@ -1,7 +1,9 @@
 // Tests «Fuera del sitio»: what is off the site now and the whole record, only to look at.
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { UnpublishedLog } from '@qv/schema';
+import { ApiRequestError } from '../../../shared/lib/api';
 import { fakeApi } from '../../../test/fakes/api';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
@@ -73,5 +75,39 @@ describe('«Fuera del sitio»', () => {
     });
     expect(await screen.findByText('Nunca se ha sacado nada del sitio.')).toBeInTheDocument();
     expect(screen.getByText('No hay nada fuera del sitio.')).toBeInTheDocument();
+  });
+
+  it('an entry that took nothing says only when and who', async () => {
+    renderApp('/admin/unpublished', {
+      admin: admin(),
+      api: fakeApi({
+        unpublishedLog: async () => ({
+          total: 1,
+          entries: [{ ...LOG.entries[0]!, removed: {} }],
+        }),
+      }),
+    });
+    const log = await screen.findByRole('region', { name: 'Registro' });
+    const line = within(log).getByText(/ · dueño/);
+    expect(line.textContent).toMatch(/ · dueño$/);
+  });
+
+  it('when the record does not come, «Reintentar» asks again', async () => {
+    let fails = true;
+    renderApp('/admin/unpublished', {
+      admin: admin(),
+      api: fakeApi({
+        unpublishedLog: async () => {
+          if (fails) throw new ApiRequestError(503, 'unavailable', 'Sin conexión de prueba.');
+          return LOG;
+        },
+      }),
+    });
+    const retry = await screen.findByRole('button', { name: 'Reintentar' });
+    fails = false;
+    await userEvent.click(retry);
+    expect(await screen.findByRole('region', { name: 'Registro' })).toHaveTextContent(
+      'Otra vez fuera',
+    );
   });
 });

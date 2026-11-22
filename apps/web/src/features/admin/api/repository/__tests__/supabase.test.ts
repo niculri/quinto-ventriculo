@@ -251,10 +251,11 @@ describe('supabaseAdminRepository: the impact of a release', () => {
     expect((spy.mock.calls[0]![1] as { deck_ids: string[] }).deck_ids).not.toBe(ids);
   });
 
-  it('a refusal is thrown as the database gave it', async () => {
+  it('a refusal is thrown as the database gave it, also when asking whether one is an administrator', async () => {
     const error = { code: '42501', message: 'admin_only' };
     const rpc = async () => ({ data: null, error });
     const repo = supabaseAdminRepository({ rpc } as unknown as SupabaseClient<Database>);
     await expect(repo.deckImpact(['1'])).rejects.toBe(error);
+    await expect(repo.isAdmin()).rejects.toBe(error);
   });
 });

@@ -534,7 +534,8 @@ export function createApp(deps: Dependencies) {
   app.get(R.quiz.pattern, requireSession, visibleContent, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_quiz', 'Ese test no existe.'), 400);
-    const quiz = await c.get('repository').quiz(id.data);
+    const repository = asksPublished(c) ? deps.repository : c.get('repository');
+    const quiz = await repository.quiz(id.data);
     if (!quiz) return c.json(apiError('not_found', 'Ese test no existe.'), 404);
     return c.json(quiz satisfies QuizDetail);
   });
@@ -546,7 +547,8 @@ export function createApp(deps: Dependencies) {
     if (!id.success || !section.success) {
       return c.json(apiError('invalid_quiz', 'Esa sección del test no existe.'), 400);
     }
-    const body = await c.get('repository').quizSectionJson(id.data, section.data);
+    const repository = asksPublished(c) ? deps.repository : c.get('repository');
+    const body = await repository.quizSectionJson(id.data, section.data);
     if (body === null) return c.json(apiError('not_found', 'Esa sección del test no existe.'), 404);
     const text = typeof body === 'string' ? body : await new Response(body).text();
     return c.body(await deps.signer.signJsonMedia(text, now()), 200, JSON_TYPE);

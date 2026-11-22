@@ -76,12 +76,16 @@ export const apiPaths = {
     asPublished(fill(R.card.pattern, { noteGuid: encodeURIComponent(noteGuid), ord }), published),
   quizzes: (filter: { course?: string; assessment?: string }) =>
     `${fill(R.quizzes.pattern)}${Object.keys(filter).length ? `?${new URLSearchParams(filter)}` : ''}`,
-  quiz: (id: string) => fill(R.quiz.pattern, { id: encodeURIComponent(id) }),
-  quizSection: (id: string, sectionId: string) =>
-    fill(R.quizSection.pattern, {
-      id: encodeURIComponent(id),
-      sectionId: encodeURIComponent(sectionId),
-    }),
+  quiz: (id: string, published = false) =>
+    asPublished(fill(R.quiz.pattern, { id: encodeURIComponent(id) }), published),
+  quizSection: (id: string, sectionId: string, published = false) =>
+    asPublished(
+      fill(R.quizSection.pattern, {
+        id: encodeURIComponent(id),
+        sectionId: encodeURIComponent(sectionId),
+      }),
+      published,
+    ),
   siteSettings: () => fill(R.siteSettings.pattern),
   unpublished: () => fill(R.unpublished.pattern),
   usageOpen: () => fill(R.usageOpen.pattern),

@@ -4,26 +4,35 @@ import type { ApiClient } from '../../../shared/lib/api';
 import type { QuizRepository } from './repository';
 
 export const quizKeys = {
-  detail: (id: string | null) => ['quiz', id] as const,
-  section: (id: string | null, sectionId: string | null) =>
-    ['quiz-section', id, sectionId] as const,
+  detail: (id: string | null, published = false) =>
+    published ? (['quiz', id, 'published'] as const) : (['quiz', id] as const),
+  section: (id: string | null, sectionId: string | null, published = false) =>
+    published
+      ? (['quiz-section', id, sectionId, 'published'] as const)
+      : (['quiz-section', id, sectionId] as const),
   savedAll: ['quiz-progress'] as const,
   saved: (quizId: string) => ['quiz-progress', quizId] as const,
 };
 
-export const quizDetailQuery = (api: ApiClient, id: string | null) =>
+/** `published`: the admin mode reads the test as the students have it (see `useStudentsHave`). */
+export const quizDetailQuery = (api: ApiClient, id: string | null, published = false) =>
   queryOptions({
-    queryKey: quizKeys.detail(id),
-    queryFn: ({ signal }) => api.quiz(id!, signal),
+    queryKey: quizKeys.detail(id, published),
+    queryFn: ({ signal }) => api.quiz(id!, signal, { published }),
     enabled: !!id,
     staleTime: 5 * 60_000,
   });
 
 // Refetched before the signed photo URLs (at least one hour) expire, since a round can last longer.
-export const quizSectionQuery = (api: ApiClient, id: string | null, sectionId: string | null) =>
+export const quizSectionQuery = (
+  api: ApiClient,
+  id: string | null,
+  sectionId: string | null,
+  published = false,
+) =>
   queryOptions({
-    queryKey: quizKeys.section(id, sectionId),
-    queryFn: ({ signal }) => api.quizSection(id!, sectionId!, signal),
+    queryKey: quizKeys.section(id, sectionId, published),
+    queryFn: ({ signal }) => api.quizSection(id!, sectionId!, signal, { published }),
     enabled: !!id && !!sectionId,
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,

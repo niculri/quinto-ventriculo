@@ -3,6 +3,7 @@ import { isResumable } from '@qv/quiz';
 import type { Preferences, Round } from '@qv/quiz';
 import type { QuizDetail, QuizSectionSummary } from '@qv/schema';
 import { useDraftOnly } from '../../catalog/hooks/useDraftOnly';
+import { useDraftQuestions } from '../hooks/useDraftQuestions';
 import { useDiscardArm, useTabFocus } from '../hooks/useCoverState';
 import { chosenCount } from '../model/cover';
 import { DraftOnlyNotice } from '../../../shared/ui/DraftOnlyNotice';
@@ -67,6 +68,7 @@ export function Cover({
 }) {
   // What only the draft has is looked at, not answered.
   const draftOnly = useDraftOnly(['quiz', quiz.id]);
+  const draftQuestions = useDraftQuestions(quiz);
   const sections = quiz.sections;
   const active = sections.findIndex((x) => x.id === section.id);
   const chosen = chosenCount(section, preferences);
@@ -98,6 +100,11 @@ export function Cover({
         </div>
       ) : (
         <>
+          {draftQuestions > 0 ? (
+            <div className="mt-6">
+              <DraftOnlyNotice kind="questions" count={draftQuestions} />
+            </div>
+          ) : null}
           <StartForm
             section={section}
             preferences={preferences}

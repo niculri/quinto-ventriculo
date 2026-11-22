@@ -1,8 +1,16 @@
 // Tests for the admin mode: an administrator who asks with the header gets the draft and what is off for the students
 // (a course turned off, a hidden semester), each thing with its reason; a student gets none of it, header or not.
 import { describe, expect, it } from 'vitest';
-import { Catalog, DeckDetail, PREVIEW_HEADER, QuizIndex, SearchResponse } from '@qv/schema';
-import type { ContentBundle, ImportedAnkiNote } from '@qv/schema';
+import {
+  Catalog,
+  DeckDetail,
+  PREVIEW_HEADER,
+  QuizDetail,
+  QuizIndex,
+  QuizSectionDetail,
+  SearchResponse,
+} from '@qv/schema';
+import type { ContentBundle, ImportedAnkiNote, ImportedQuiz } from '@qv/schema';
 import { adminKey } from '@qv/schema/http';
 import type { API_ROUTES } from '@qv/schema/http';
 import { createApp } from './app';
@@ -279,9 +287,93 @@ describe('the admin mode', () => {
       expect(published.semesters.flatMap((s) => s.courses.map((c) => c.id))).toContain(OFF);
     });
 
+    /** A test of the course that is shown, with the given questions. */
+    const quiz = (questions: string[]): ImportedQuiz => {
+      const tokens = ['ac', 'ac-b', 'ac2', 'ac2-b', 'on-ac', 'g1', 'g2', 'g3'];
+      const colors = Object.fromEntries(tokens.map((t) => [t, '#1F6F75']));
+      return {
+        id: 'test-a2',
+        slug: 'test-a2',
+        courseId: SHOWN,
+        assessmentId: ASSESSMENT(SHOWN),
+        title: 'Test A2',
+        position: 1,
+        questionCount: questions.length,
+        sectionCount: 1,
+        updatedAt: '2026-11-20T12:00:00.000Z',
+        kicker: '',
+        heading: '',
+        footer: '',
+        theme: { light: colors, dark: colors } as ImportedQuiz['theme'],
+        sections: [
+          {
+            id: 'unica',
+            name: 'Única',
+            description: '',
+            groupsTitle: 'Temas',
+            questionCount: questions.length,
+            hasChoices: true,
+            groups: [
+              {
+                id: '01',
+                name: 'Uno',
+                questions: questions.map((id) => ({
+                  id,
+                  kind: 'choice' as const,
+                  prompt: '¿Cuál?',
+                  options: ['a', 'b'],
+                  correct: 0,
+                  figures: [],
+                  figureBeside: false,
+                  fixedOrder: false,
+                })),
+              },
+            ],
+          },
+        ],
+        hash: 'test-a2',
+        media: [],
+      };
+    };
+    const withQuiz = () =>
+      createApp({
+        verifier: { verify: async (token) => ({ id: token, email: token }) },
+        repository: memoryRepository({ ...base, quizzes: [quiz(['Q-1'])] }),
+        preview: memoryRepository({ ...drafted, quizzes: [quiz(['Q-1', 'Q-2'])] }),
+        media: { get: async () => null },
+        signer,
+        admins: { isAdmin: async (token) => token === ADMIN },
+        settings: memorySiteSettings(settings),
+        settingsTtl: 0,
+      });
+
+    it('gives the test as the students have it: without the questions only the draft has', async () => {
+      const app = withQuiz();
+      const detail = async (path: string) =>
+        QuizDetail.parse(await (await call(app, path, ADMIN, ADMIN_MODE)).json());
+      const section = async (path: string) =>
+        QuizSectionDetail.parse(await (await call(app, path, ADMIN, ADMIN_MODE)).json())
+          .groups.flatMap((g) => g.questions)
+          .map((q) => q.id);
+      expect((await detail('/api/quizzes/test-a2')).questionCount).toBe(2);
+      expect((await detail('/api/quizzes/test-a2?source=published')).questionCount).toBe(1);
+      expect(await section('/api/quizzes/test-a2/sections/unica')).toEqual(['Q-1', 'Q-2']);
+      expect(await section('/api/quizzes/test-a2/sections/unica?source=published')).toEqual([
+        'Q-1',
+      ]);
+    });
+
     it('is nothing for a student, or for an administrator who did not ask for the admin mode', async () => {
-      const app = withDraft();
-      for (const path of ['/api/catalog', '/api/decks/10', '/api/decks/20']) {
+      const paths = [
+        '/api/catalog',
+        '/api/decks/10',
+        '/api/decks/20',
+        '/api/cards/g-shown/0',
+        '/api/quizzes/test-a2',
+        '/api/quizzes/test-a2/sections/unica',
+      ];
+      const app = withQuiz();
+      for (const path of paths) {
         const plain = await answer(await call(app, path, STUDENT));
         const asked = await answer(
           await call(app, `${path}?source=published`, STUDENT, ADMIN_MODE),

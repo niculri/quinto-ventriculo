@@ -134,9 +134,15 @@ export function createApiClient(
     ) => request(apiPaths.card(noteGuid, ord, options.published), CardDetail, signal),
     quizzes: (filter: { course?: string; assessment?: string } = {}, signal?: AbortSignal) =>
       request(apiPaths.quizzes(filter), QuizIndex, signal),
-    quiz: (id: string, signal?: AbortSignal) => request(apiPaths.quiz(id), QuizDetail, signal),
-    quizSection: (id: string, sectionId: string, signal?: AbortSignal) =>
-      request(apiPaths.quizSection(id, sectionId), QuizSectionDetail, signal),
+    /** `published`: only in the admin mode, the test as the students have it (without the questions only the draft has). */
+    quiz: (id: string, signal?: AbortSignal, options: { published?: boolean } = {}) =>
+      request(apiPaths.quiz(id, options.published), QuizDetail, signal),
+    quizSection: (
+      id: string,
+      sectionId: string,
+      signal?: AbortSignal,
+      options: { published?: boolean } = {},
+    ) => request(apiPaths.quizSection(id, sectionId, options.published), QuizSectionDetail, signal),
     siteSettings: (signal?: AbortSignal) =>
       request(apiPaths.siteSettings(), SiteSettingsView, signal),
     setSiteSettings: (body: SiteSettingsUpdate) =>

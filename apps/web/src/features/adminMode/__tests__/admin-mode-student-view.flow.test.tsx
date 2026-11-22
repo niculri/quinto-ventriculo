@@ -3,8 +3,10 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { AnkiTreeDeck, CardSummary, Catalog } from '@qv/schema';
+import type { AnkiTreeDeck, CardSummary, Catalog, QuizDetail, QuizSectionDetail } from '@qv/schema';
 import type { StudyRepository } from '../../progress/api/repository';
+import { localQuizRepository } from '../../quiz/api/repository';
+import type { QuizRepository } from '../../quiz/api/repository';
 import { ApiRequestError } from '../../../shared/lib/api';
 import type { ApiClient } from '../../../shared/lib/api';
 import { cardText, pageLoad } from '../../../test/dom';
@@ -12,6 +14,7 @@ import { fakeApi } from '../../../test/fakes/api';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { CARDS, CARD_INDEX } from '../../../test/fixtures/cards';
 import { CATALOG } from '../../../test/fixtures/catalog';
+import { QUIZ, QUIZ_SECTIONS } from '../../../test/fixtures/quiz';
 import { DECK_PATH, WEEK } from '../../../test/fixtures/deck';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../../admin/api/repository';
@@ -215,5 +218,212 @@ describe('the admin mode over what the students have', () => {
     expect(row.querySelector('.animate-pulse')).toBeNull();
     const switches = within(row).queryAllByRole('switch');
     for (const turnOn of switches) expect(turnOn).toBeDisabled();
+  });
+});
+
+const QUIZ_PATH = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica/pautas';
+const NEW_QUESTION = {
+  id: 'D-p03-99',
+  kind: 'choice' as const,
+  prompt: 'Pregunta solo del borrador',
+  options: ['Uno', 'Dos'],
+  correct: 0,
+  figures: [],
+  figureBeside: false,
+  fixedOrder: false,
+};
+
+/** The draft of the test: a question more in the group «Núcleo» of the section «Pautas». */
+function draftedQuiz(): { catalog: Catalog; detail: QuizDetail; section: QuizSectionDetail } {
+  const detail: QuizDetail = {
+    ...QUIZ,
+    questionCount: QUIZ.questionCount + 1,
+    sections: QUIZ.sections.map((s) =>
+      s.id === 'pautas'
+        ? {
+            ...s,
+            questionCount: s.questionCount + 1,
+            groups: s.groups.map((g) => (g.id === '02' ? { ...g, questionCount: 2 } : g)),
+          }
+        : s,
+    ),
+  };
+  const section = QUIZ_SECTIONS.pautas!;
+  const catalog: Catalog = {
+    ...CATALOG,
+    semesters: CATALOG.semesters.map((sem) => ({
+      ...sem,
+      courses: sem.courses.map((c) => ({
+        ...c,
+        assessments: c.assessments.map((a) => ({
+          ...a,
+          quizzes: a.quizzes.map((q) =>
+            q.id === QUIZ.id ? { ...q, questionCount: detail.questionCount } : q,
+          ),
+        })),
+      })),
+    })),
+    adminOnly: {},
+  };
+  return {
+    catalog,
+    detail,
+    section: {
+      ...section,
+      groups: section.groups.map((g) =>
+        g.id === '02' ? { ...g, questions: [...g.questions, NEW_QUESTION] } : g,
+      ),
+    },
+  };
+}
+
+function quizDraftApi(): ApiClient {
+  const students = fakeApi();
+  const draft = draftedQuiz();
+  return fakeApi({
+    catalog: async (signal, options) =>
+      options?.published ? students.catalog(signal) : draft.catalog,
+    quiz: async (id, signal, options) =>
+      options?.published ? students.quiz(id, signal) : draft.detail,
+    quizSection: async (id, sectionId, signal, options) =>
+      options?.published ? students.quizSection(id, sectionId, signal) : draft.section,
+  });
+}
+
+function watchedQuiz(): { quiz: QuizRepository; answered: string[] } {
+  const quiz = localQuizRepository(null);
+  const answered: string[] = [];
+  const save = quiz.save.bind(quiz);
+  quiz.save = async (step) => {
+    if (step.answer) answered.push(step.answer.questionId);
+    return save(step);
+  };
+  return { quiz, answered };
+}
+
+/** Answers every question the round gives, the first alternative or a short answer, and says which ones they were. */
+async function answerRound() {
+  const seen: string[] = [];
+  for (;;) {
+    const options = screen.queryByRole('list', { name: 'Alternativas' });
+    if (options) {
+      seen.push(screen.queryByText(/Pregunta solo del borrador/) ? 'draft' : 'published');
+      await userEvent.click(within(options).getAllByRole('button')[0]!);
+    } else {
+      const answer = screen.queryByRole('textbox');
+      if (!answer) break;
+      await userEvent.type(answer, 'x');
+      await userEvent.click(screen.getByRole('button', { name: /Responder|Comprobar/ }));
+      seen.push('published');
+    }
+    const next = await screen.findByRole('button', { name: /^(Siguiente|Ver resultado)$/ });
+    const last = next.textContent === 'Ver resultado';
+    await userEvent.click(next);
+    if (last) break;
+  }
+  return seen;
+}
+
+describe('the admin mode and a test the students have, with a question more in the draft', () => {
+  it('says what the draft has more, and counts the topics as the students have them', async () => {
+    window.localStorage.setItem('qv-admin-mode', 'admin');
+    renderApp(QUIZ_PATH, {
+      admin: localAdminRepository({ admin: true }),
+      adminApi: quizDraftApi(),
+    });
+    expect(await screen.findByText('Preguntas solo del borrador')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Hay 1 pregunta que todavía no tienen los alumnos/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Comenzar' })).toBeEnabled();
+  });
+
+  it('builds the round without it, and saves no answer to it', async () => {
+    window.localStorage.setItem('qv-admin-mode', 'admin');
+    const { quiz, answered } = watchedQuiz();
+    renderApp(QUIZ_PATH, {
+      admin: localAdminRepository({ admin: true }),
+      adminApi: quizDraftApi(),
+      quiz,
+    });
+    await userEvent.click(await screen.findByRole('button', { name: 'Comenzar' }));
+    const seen = await answerRound();
+    expect(seen).toHaveLength(3);
+    expect(seen).not.toContain('draft');
+    await waitFor(() => expect(answered).toHaveLength(3));
+    expect(answered).not.toContain(NEW_QUESTION.id);
+  });
+
+  it('is the student’s cover and round when it is not the admin mode', async () => {
+    const { quiz, answered } = watchedQuiz();
+    renderApp(QUIZ_PATH, {
+      admin: localAdminRepository({ admin: true }),
+      adminApi: quizDraftApi(),
+      quiz,
+    });
+    await userEvent.click(await screen.findByRole('button', { name: 'Comenzar' }));
+    expect(screen.queryByText('Preguntas solo del borrador')).toBeNull();
+    expect(await answerRound()).toHaveLength(3);
+    await waitFor(() => expect(answered).toHaveLength(3));
+  });
+});
+
+/** An API client that says every call it gets, and whether it asked for what the students have. */
+function spiedApi(api: ApiClient) {
+  const calls: { method: string; published: boolean }[] = [];
+  const proxy = new Proxy(api, {
+    get(target, key, receiver) {
+      const value: unknown = Reflect.get(target, key, receiver);
+      if (typeof value !== 'function') return value;
+      return (...args: unknown[]) => {
+        const options = args.find((a) => typeof a === 'object' && a !== null && 'published' in a);
+        calls.push({
+          method: String(key),
+          published: !!(options as { published?: boolean } | undefined)?.published,
+        });
+        return (value as (...a: unknown[]) => unknown).apply(target, args);
+      };
+    },
+  });
+  return { api: proxy, calls };
+}
+
+/** Three cards of the test deck answered with «Fácil», from its study screen. */
+async function studyThree(op: Parameters<typeof renderApp>[1]) {
+  const app = renderApp(`${DECK_PATH}/study`, op);
+  for (let i = 0; i < 3; i++) {
+    await cardText(/Frente/);
+    await userEvent.keyboard(' ');
+    await cardText(/Reverso/);
+    await userEvent.keyboard('4');
+  }
+  await screen.findByText(/Has finalizado este mazo por ahora/);
+  return app;
+}
+
+describe('the reads the admin mode adds when one studies', () => {
+  it('asks the API for no card of the students to write an answer: the net holds by deck, from the catalog', async () => {
+    window.localStorage.setItem('qv-admin-mode', 'admin');
+    const { api, calls } = spiedApi(draftApi());
+    const { study, reviewed } = watched();
+    await studyThree({ admin: localAdminRepository({ admin: true }), adminApi: api, study });
+    await waitFor(() => expect(reviewed).toHaveLength(3));
+    expect(calls.filter((c) => c.method === 'card' && c.published)).toEqual([]);
+  });
+
+  it('asks nothing of the admin API in the student mode, whatever the account is', async () => {
+    const { api, calls } = spiedApi(draftApi());
+    const { study, reviewed } = watched();
+    await studyThree({ admin: localAdminRepository({ admin: true }), adminApi: api, study });
+    await waitFor(() => expect(reviewed).toHaveLength(3));
+    expect(calls).toEqual([]);
+  });
+
+  it('asks a student for nothing but what a student asks', async () => {
+    const { api, calls } = spiedApi(fakeApi());
+    const { study, reviewed } = watched();
+    await studyThree({ api, study });
+    await waitFor(() => expect(reviewed).toHaveLength(3));
+    expect(calls.filter((c) => c.published)).toEqual([]);
   });
 });

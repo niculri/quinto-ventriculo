@@ -15,8 +15,9 @@ export function useInviteForm(lists: string[]) {
   const [newName, setNewName] = useState('');
   const [note, setNote] = useState('');
   const [result, setResult] = useState<{ list: string; result: InviteResult } | null>(null);
+  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
   const { chosen, names } = useMemo(() => listChoice(lists, choice), [lists, choice]);
-  const { emails, ignored } = useMemo(() => readEmails(text), [text]);
+  const { emails, ignored } = readEmails(text);
   const list = (chosen ?? newName).trim();
   const tooMany = emails.length > MAX_EMAILS;
   const ready = emails.length > 0 && !tooMany && list.length >= 1 && list.length <= 60;

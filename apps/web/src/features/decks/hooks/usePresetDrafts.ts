@@ -1,6 +1,6 @@
 // The Anki options form: the chosen preset, what is not saved yet of the presets and the preferences, and saving it.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { SetURLSearchParams } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -35,10 +35,7 @@ export interface OptionsData {
 export function usePresetDrafts(d: OptionsData) {
   const client = useQueryClient();
   const [params, setParams] = useSearchParams();
-  const choices = useMemo(
-    () => presetChoices(d.authorPresets, d.presets),
-    [d.authorPresets, d.presets],
-  );
+  const choices = presetChoices(d.authorPresets, d.presets);
 
   const [selected, setSelected] = useState<PresetRef>(() =>
     initialRef(params, choices, d.tree, d.settings),

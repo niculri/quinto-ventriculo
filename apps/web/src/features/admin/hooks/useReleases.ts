@@ -1,6 +1,6 @@
 // What «Publicaciones» shows: the draft's overview, its review list, the impact of each deck, the changes one by one
 // and the record.
-import { useMemo } from 'react';
+
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { buildReview } from '@qv/release-review';
 import type { ReviewList } from '@qv/release-review';
@@ -34,10 +34,9 @@ function useMissingImages(fingerprint: string | undefined) {
 
 export function useReleaseImpact(overview: ReleaseOverview) {
   const admin = useAdminRepository();
-  const ids = useMemo(
-    () => [...new Set(overview.summary.assessments.flatMap((a) => a.impactDecks.map((d) => d.id)))],
-    [overview],
-  );
+  const ids = [
+    ...new Set(overview.summary.assessments.flatMap((a) => a.impactDecks.map((d) => d.id))),
+  ];
   return useQuery(impactQuery(admin, overview, ids));
 }
 
@@ -48,18 +47,14 @@ export function useReleaseReview(overview: ReleaseOverview): {
   const fp = overview.summary.fingerprint;
   const phrases = useReleasePhrases(fp);
   const missing = useMissingImages(fp);
-  const review = useMemo(
-    () =>
-      buildReview({
-        summary: overview.summary,
-        browseIndexes: overview.browseIndexes,
-        supportedSchemaVersion: overview.supportedSchemaVersion,
-        missingImages: missing.data ?? null,
-        phrases: phrases.data ?? null,
-        today: santiagoToday(),
-      }),
-    [overview, missing.data, phrases.data],
-  );
+  const review = buildReview({
+    summary: overview.summary,
+    browseIndexes: overview.browseIndexes,
+    supportedSchemaVersion: overview.supportedSchemaVersion,
+    missingImages: missing.data ?? null,
+    phrases: phrases.data ?? null,
+    today: santiagoToday(),
+  });
   return { review, errors: [phrases.error, missing.error].filter(Boolean) };
 }
 

@@ -1,6 +1,6 @@
 // The menu of the whole app, on the left: Inicio, the semester, the course, its assessments and their notes, tests and
 // decks. Only the path to the page open unfolds; in an assessment, its other parts are always there.
-import { useMemo } from 'react';
+
 import { CalendarDays, House } from 'lucide-react';
 import { useLocation } from 'react-router';
 import type { Catalog } from '@qv/schema';
@@ -21,8 +21,8 @@ export function AppNav({ onNavigate }: { onNavigate?: (() => void) | undefined }
   const { pathname } = useLocation();
   const catalog = useCatalog();
   const data = catalog.data ?? null;
-  const tree = useMemo(() => (data ? buildAnkiTree(data) : null), [data]);
-  const where = useMemo(() => locate(pathname, data, tree), [pathname, data, tree]);
+  const tree = data ? buildAnkiTree(data) : null;
+  const where = locate(pathname, data, tree);
   return (
     <nav aria-label={appNavStrings.menu} className="text-[0.86rem] leading-snug">
       {/* What was opened or closed by hand is forgotten on going to another page. */}

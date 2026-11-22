@@ -1,6 +1,6 @@
 // «Acceso» once its report came: the accounts without an invitation, who comes in, the form, the invited by list and
 // the popups to remove and to name.
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Users } from 'lucide-react';
 import { card } from '../../../../shared/ui/styles';
 import type { AccessReport } from '../../api/repository';
@@ -16,7 +16,7 @@ import { Strays } from './Strays';
 export function AccessView({ report }: { report: AccessReport }) {
   const [removing, setRemoving] = useState<Removing | null>(null);
   const [appointing, setAppointing] = useState<Appointing | null>(null);
-  const byList = useMemo(() => invitesByList(report.invited), [report.invited]);
+  const byList = invitesByList(report.invited);
   return (
     <>
       {report.accountsWithoutInvite.length ? <Strays report={report} /> : null}

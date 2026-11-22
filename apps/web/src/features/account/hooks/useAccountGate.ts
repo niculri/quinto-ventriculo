@@ -53,7 +53,10 @@ export function useAccountGate() {
   const accepted = acceptedNow(state.data);
   const told = () =>
     queryClient.setQueryData<AccountState>(accountKeys.user(user.id), (prev) =>
-      prev ? rememberAccount(account, user.id, { ...prev, deletionCancelled: false }) : prev,
+      // The notice that calls it only shows with the account state read.
+      prev
+        ? rememberAccount(account, user.id, { ...prev, deletionCancelled: false })
+        : /* v8 ignore next */ prev,
     );
   const { refetch } = state;
 

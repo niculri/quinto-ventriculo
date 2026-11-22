@@ -367,6 +367,7 @@ describe('«Datos de usuario»: the corners', () => {
     let dialog = await screen.findByRole('dialog', { name: 'Eliminar mi cuenta' });
     const email = within(dialog).getByLabelText(/Para confirmar/);
     await user.type(email, 'otra@ug.uchile.cl{Enter}');
+    fireEvent.submit(email.closest('form')!);
     expect(request).not.toHaveBeenCalled();
     await user.clear(email);
     await user.type(email, `${EMAIL}{Enter}`);

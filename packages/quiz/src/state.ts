@@ -27,7 +27,6 @@ export function selectQuestions<G extends { id: string; questions: readonly unkn
 const SCREENS: Screen[] = ['cover', 'question', 'results'];
 
 interface SavedQueue {
-  saved: string[];
   kept: number[];
   queue: string[];
   newPosition: Map<number, number>;
@@ -57,7 +56,6 @@ function restoreQueue(
   const moved = (old: number) => kept.filter((k) => k < old).length;
   const top = Math.min(moved(savedTop), kept.length - 1);
   return {
-    saved,
     kept,
     queue: kept.map((i) => saved[i]!),
     newPosition: new Map(kept.map((old, i) => [old, i])),

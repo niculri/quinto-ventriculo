@@ -29,7 +29,7 @@ const REFUSED: [string, (s: StudyRepository) => Promise<unknown>][] = [
   ['leer tu avance', (s) => s.deckProgress(UNTIL)],
   ['leer tu tiempo por tarjeta', (s) => s.medianAnswerMs()],
   ['leer tus días de estudio', (s) => s.heatmap(null)],
-  ['leer tu avance', (s) => s.homeCounts(['d1'], UNTIL, 0.5)],
+  ['leer tu avance', (s) => s.homeCounts(['d1'], UNTIL, {})],
 ];
 
 describe('a refused count', () => {
@@ -54,19 +54,19 @@ describe('the counts', () => {
 
   it('the home page’s counts: nothing to ask for no decks; a missing list reads as empty', async () => {
     const empty = repo();
-    expect(await empty.study.homeCounts([], UNTIL, 0.5)).toEqual({ decks: [], truncated: false });
+    expect(await empty.study.homeCounts([], UNTIL, {})).toEqual({ decks: [], truncated: false });
     expect(empty.calls).toEqual([]);
     const { study } = repo(() => ({
       body: { truncated: true, decks: [['d1', 4, 1, 2, 0, 0.8, null]] },
     }));
-    expect(await study.homeCounts(['d1'], UNTIL, 0.5)).toEqual({
+    expect(await study.homeCounts(['d1'], UNTIL, {})).toEqual({
       truncated: true,
       decks: [
         { deckId: 'd1', seen: 4, hiddenNew: 1, touched: 2, suspended: 0, recall: 0.8, due: [] },
       ],
     });
     const nothing = repo(() => ({ body: null }));
-    expect(await nothing.study.homeCounts(['d1'], UNTIL, 0.5)).toEqual({
+    expect(await nothing.study.homeCounts(['d1'], UNTIL, {})).toEqual({
       decks: [],
       truncated: false,
     });

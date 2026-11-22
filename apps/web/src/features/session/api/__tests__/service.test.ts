@@ -8,7 +8,7 @@ import { supabaseSessionService } from '../service';
 
 interface FakeAuthUser {
   id: string;
-  email?: string;
+  email?: string | undefined;
   user_metadata: Record<string, unknown>;
   created_at?: unknown;
   last_sign_in_at?: unknown;

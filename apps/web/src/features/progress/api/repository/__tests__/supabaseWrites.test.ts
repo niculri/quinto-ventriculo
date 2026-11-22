@@ -38,8 +38,8 @@ const REVIEW = {
 } as unknown as Parameters<StudyRepository['recordReview']>[0];
 
 const REFUSED: [string, (s: StudyRepository) => Promise<unknown>][] = [
-  ['enterrar', (s) => s.bury([REF], new Date('2026-11-10T07:00:00Z'), 'n')],
-  ['suspender', (s) => s.suspend([REF], 'n')],
+  ['enterrar', (s) => s.bury([REF], new Date('2026-11-10T07:00:00Z'), false)],
+  ['suspender', (s) => s.suspend([REF], false)],
   ['marcar la tarjeta', (s) => s.setFlag(REF, 1)],
   ['marcar las tarjetas', (s) => s.setFlags([REF], 1)],
   ['quitar la suspensión', (s) => s.unsuspend([REF])],

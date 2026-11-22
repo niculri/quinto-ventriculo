@@ -46,13 +46,13 @@ describe('a refusal of the database', () => {
   it('the day’s cap of changes says to go on tomorrow; any other cap, that nothing more fits', async () => {
     const daily = repo(() => refusal('P0001', 'quota_exceeded', 'changes'));
     await expect(
-      daily.study.suspend([{ noteGuid: 'g', ord: 0, deckId: 'd1' }], 'n'),
+      daily.study.suspend([{ noteGuid: 'g', ord: 0, deckId: 'd1' }], false),
     ).rejects.toThrow(
       'No se pudo suspender: llegaste al máximo de cambios de un día. Sigue mañana.',
     );
     const storage = repo(() => refusal('P0001', 'quota_exceeded', 'rows'));
     await expect(
-      storage.study.suspend([{ noteGuid: 'g', ord: 0, deckId: 'd1' }], 'n'),
+      storage.study.suspend([{ noteGuid: 'g', ord: 0, deckId: 'd1' }], false),
     ).rejects.toThrow('No se pudo suspender: llegaste al máximo que se puede guardar.');
   });
 

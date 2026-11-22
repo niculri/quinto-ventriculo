@@ -63,4 +63,13 @@ describe('how far the grid scrolls', () => {
   it('goes to the end when there is no today yet', () => {
     expect(gridScroll(scroll, null, grid)).toBe(400);
   });
+
+  // Known error, not fixed yet: in a year that does not start on a Monday the first cell of the first
+  // column is empty, so `grid.columns[0][0]` is null and today's column comes out in the thousands (the grid goes to
+  // its end, December on a phone, whatever today is). Take the `.fails` off when it is fixed.
+  it.fails('shows today with four weeks after it also in a year that starts on a Thursday', () => {
+    const thursday = yearGrid(2026);
+    expect(thursday.columns[0]![0]).toBeNull();
+    expect(gridScroll(scroll, thursday.first + 210, thursday)).toBe(columnLeft(30) - 300 + 4 * 14);
+  });
 });

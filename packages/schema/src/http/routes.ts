@@ -1,6 +1,7 @@
 // The API's routes: the method and pattern the Worker serves (Hono's syntax, under API_PREFIX) and the path the web
 // asks for. A contract test in the web checks that both sides use exactly these.
 import type { ReleaseItemKind } from '../release/release';
+import { PUBLISHED_SOURCE } from './requests';
 
 export const API_PREFIX = '/api';
 
@@ -49,16 +50,20 @@ function fill(pattern: string, values: Record<string, string | number> = {}): st
 }
 
 const R = API_ROUTES;
+/** The admin mode's way to ask for what the students have (see `PublishedSource`). */
+const asPublished = (path: string, published: boolean) =>
+  published ? `${path}?source=${PUBLISHED_SOURCE}` : path;
 const after = (path: string, value: string | null) =>
   `${path}${value ? `?${new URLSearchParams({ after: value })}` : ''}`;
 
 /** The path of each route, with its query. Anki's guids may have «/», «%» or «?»: they travel encoded. */
 export const apiPaths = {
-  catalog: () => fill(R.catalog.pattern),
+  catalog: (published = false) => asPublished(fill(R.catalog.pattern), published),
   note: (slug: string) => fill(R.note.pattern, { slug: encodeURIComponent(slug) }),
   search: (query: string, limit: number) =>
     `${fill(R.search.pattern)}?${new URLSearchParams({ q: query, limit: String(limit) })}`,
-  deck: (id: string) => fill(R.deck.pattern, { id: encodeURIComponent(id) }),
+  deck: (id: string, published = false) =>
+    asPublished(fill(R.deck.pattern, { id: encodeURIComponent(id) }), published),
   /** The assessment's id is `course/assessment`: it fills two segments, as it is. */
   cardIndex: (assessmentId: string, hash: string) =>
     fill(R.cardIndex.pattern.replace(':course/:assessment', ':assessmentId'), {
@@ -67,8 +72,8 @@ export const apiPaths = {
     }),
   thumbs: () => fill(R.thumbs.pattern),
   cardChanges: (since: number) => `${fill(R.cardChanges.pattern)}?since=${since}`,
-  card: (noteGuid: string, ord: number) =>
-    fill(R.card.pattern, { noteGuid: encodeURIComponent(noteGuid), ord }),
+  card: (noteGuid: string, ord: number, published = false) =>
+    asPublished(fill(R.card.pattern, { noteGuid: encodeURIComponent(noteGuid), ord }), published),
   quizzes: (filter: { course?: string; assessment?: string }) =>
     `${fill(R.quizzes.pattern)}${Object.keys(filter).length ? `?${new URLSearchParams(filter)}` : ''}`,
   quiz: (id: string) => fill(R.quiz.pattern, { id: encodeURIComponent(id) }),

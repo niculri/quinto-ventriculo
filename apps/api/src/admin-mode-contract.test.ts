@@ -1,7 +1,7 @@
 // Tests for the admin mode: an administrator who asks with the header gets the draft and what is off for the students
 // (a course turned off, a hidden semester), each thing with its reason; a student gets none of it, header or not.
 import { describe, expect, it } from 'vitest';
-import { Catalog, PREVIEW_HEADER, QuizIndex, SearchResponse } from '@qv/schema';
+import { Catalog, DeckDetail, PREVIEW_HEADER, QuizIndex, SearchResponse } from '@qv/schema';
 import type { ContentBundle, ImportedAnkiNote } from '@qv/schema';
 import { adminKey } from '@qv/schema/http';
 import type { API_ROUTES } from '@qv/schema/http';
@@ -225,6 +225,75 @@ describe('the admin mode', () => {
     ).not.toMatch(/ap-fi-1|ap-a2-2|ap-qu-1/);
   });
 
+  describe('asking for what the students have', () => {
+    /** The draft has a card more in the deck that is shown, and a deck of its own with a card. */
+    const drafted: ContentBundle = {
+      ...draft,
+      ankiDecks: [...draft.ankiDecks, deck('30', '2', SHOWN)],
+      ankiNotes: [...draft.ankiNotes, card('g-new', '10'), card('g-only', '30')],
+    };
+    const keys = async (r: Response) =>
+      DeckDetail.parse(await r.json()).cards.map((c) => `${c.noteGuid}:${c.ord}`);
+    const withDraft = () =>
+      createApp({
+        verifier: { verify: async (token) => ({ id: token, email: token }) },
+        repository: memoryRepository(base),
+        preview: memoryRepository(drafted),
+        media: { get: async () => null },
+        signer,
+        admins: { isAdmin: async (token) => token === ADMIN },
+        settings: memorySiteSettings(settings),
+        settingsTtl: 0,
+      });
+
+    it('gives the deck as the students have it: without the card only the draft has, with the course turned off', async () => {
+      const app = withDraft();
+      expect((await keys(await call(app, '/api/decks/10', ADMIN, ADMIN_MODE))).sort()).toEqual([
+        'g-new:0',
+        'g-shown:0',
+      ]);
+      const published = await call(app, '/api/decks/10?source=published', ADMIN, ADMIN_MODE);
+      expect(published.status).toBe(200);
+      expect(published.headers.get('Cache-Control')).toBe('no-store');
+      expect(await keys(published)).toEqual(['g-shown:0']);
+      expect((await call(app, '/api/decks/20?source=published', ADMIN, ADMIN_MODE)).status).toBe(
+        200,
+      );
+      expect((await call(app, '/api/decks/30?source=published', ADMIN, ADMIN_MODE)).status).toBe(
+        404,
+      );
+      expect((await call(app, '/api/decks/30', ADMIN, ADMIN_MODE)).status).toBe(200);
+    });
+
+    it('gives the catalog as the students have it, the course turned off included and nothing of the draft', async () => {
+      const app = withDraft();
+      const catalog = await catalogOf(app, ADMIN, ADMIN_MODE);
+      const published = Catalog.parse(
+        await (await call(app, '/api/catalog?source=published', ADMIN, ADMIN_MODE)).json(),
+      );
+      expect(catalog.anki.decks.map((d) => d.id)).toContain('30');
+      expect(published.anki.decks.map((d) => d.id).sort()).toEqual(['1', '10', '2', '20']);
+      expect(published.anki.decks.find((d) => d.id === '10')?.cardCount).toBe(1);
+      expect(catalog.anki.decks.find((d) => d.id === '10')?.cardCount).toBe(2);
+      expect(published.adminOnly).toBeUndefined();
+      expect(published.semesters.flatMap((s) => s.courses.map((c) => c.id))).toContain(OFF);
+    });
+
+    it('is nothing for a student, or for an administrator who did not ask for the admin mode', async () => {
+      const app = withDraft();
+      for (const path of ['/api/catalog', '/api/decks/10', '/api/decks/20']) {
+        const plain = await answer(await call(app, path, STUDENT));
+        const asked = await answer(
+          await call(app, `${path}?source=published`, STUDENT, ADMIN_MODE),
+        );
+        expect(asked, path).toEqual(plain);
+        expect(await answer(await call(app, `${path}?source=published`, ADMIN)), path).toEqual(
+          plain,
+        );
+      }
+    });
+  });
+
   it('is never kept by the browser, and does not count what it opens', async () => {
     const { app, opens } = appWith(settings);
     const r = await call(app, '/api/catalog', ADMIN, ADMIN_MODE);
@@ -277,6 +346,8 @@ describe('the admin mode', () => {
 /** The content a student reads, and what an administrator who is not in the admin mode must read just the same. */
 const CONTENT_PATHS = [
   '/api/catalog',
+  '/api/catalog?source=published',
+  '/api/decks/20?source=published',
   '/api/notes/ap-fi-1',
   '/api/notes/ap-a2-2',
   '/api/notes/ap-qu-1',
@@ -329,7 +400,9 @@ describe('who is not an administrator gets nothing of the admin mode', () => {
       expect(sent, path).toEqual(student[i]);
       expect(sent.header, path).toBeNull();
     }
-    expect(student.map((s) => s.status)).toEqual([200, 404, 404, 404, 404, 404, 200, 200]);
+    expect(student.map((s) => s.status)).toEqual([
+      200, 200, 404, 404, 404, 404, 404, 404, 200, 200,
+    ]);
   });
 
   /** What each way of being refused the mode gives an administrator who sends the header: what a student gets. */

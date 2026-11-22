@@ -1,6 +1,7 @@
 // The HTTP API under /api: session, content reads, signed media, usage counts and the administration routes.
 // It does not depend on Cloudflare: it runs the same on the Worker, in Node and in tests.
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import { secureHeaders } from 'hono/secure-headers';
 import {
@@ -49,6 +50,7 @@ import {
   PREVIEW_HEADER,
   PREVIEW_VALUE,
   PreviewRequest,
+  PublishedSource,
   QuizzesQuery,
   ReleaseItemsQuery,
   ReleaseMarkRequest,
@@ -398,7 +400,15 @@ export function createApp(deps: Dependencies) {
 
   app.get(R.me.pattern, requireSession, (c) => c.json(c.get('user') satisfies User));
 
+  /**
+   * The administrator in the admin mode asking for what the students have, a course turned off included (to tell, in
+   * the web, what only the draft has). For anybody else the query is nothing: they get the published anyway.
+   */
+  const asksPublished = (c: Context<AppEnv>) =>
+    c.get('preview') && PublishedSource.safeParse(c.req.query('source')).success;
+
   app.get(R.catalog.pattern, requireSession, visibleContent, async (c) => {
+    if (asksPublished(c)) return c.json(await deps.repository.catalog());
     if (c.get('preview')) {
       const [draft, published] = await Promise.all([
         c.get('repository').catalog(),
@@ -436,7 +446,8 @@ export function createApp(deps: Dependencies) {
   app.get(R.deck.pattern, requireSession, visibleContent, async (c) => {
     const id = DeckId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_deck', 'Ese mazo no existe.'), 400);
-    const deck = await c.get('repository').deckJson(id.data);
+    const repository = asksPublished(c) ? deps.repository : c.get('repository');
+    const deck = await repository.deckJson(id.data);
     if (deck === null) return c.json(apiError('not_found', 'Ese mazo no existe.'), 404);
     return c.body(deck, 200, JSON_TYPE);
   });
@@ -497,7 +508,8 @@ export function createApp(deps: Dependencies) {
   app.get(R.card.pattern, requireSession, visibleContent, async (c) => {
     const params = CardParams.safeParse(c.req.param());
     if (!params.success) return c.json(apiError('invalid_card', 'Esa tarjeta no existe.'), 400);
-    const card = await c.get('repository').card(params.data.noteGuid, Number(params.data.ord));
+    const repository = asksPublished(c) ? deps.repository : c.get('repository');
+    const card = await repository.card(params.data.noteGuid, Number(params.data.ord));
     if (!card) return c.json(apiError('not_found', 'Esa tarjeta no existe.'), 404);
     const [front, back] = await Promise.all([
       deps.signer.signHtml(card.front, now()),

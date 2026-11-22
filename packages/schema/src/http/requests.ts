@@ -22,6 +22,13 @@ export const BearerToken = z
 /** Only this value of PREVIEW_HEADER asks for the draft. */
 export const PreviewRequest = z.literal(PREVIEW_VALUE);
 
+/**
+ * `?source=published` narrows a request that already asked for the admin mode: the catalog or the deck as the students
+ * have them (a course turned off included), to tell what only the draft has. Without the header it is ignored.
+ */
+export const PUBLISHED_SOURCE = 'published';
+export const PublishedSource = z.literal(PUBLISHED_SOURCE);
+
 /** An `Accept-Encoding` that takes the card index as it is stored, gzipped. */
 export const AcceptsGzip = z.string().regex(/\bgzip\b/i);
 

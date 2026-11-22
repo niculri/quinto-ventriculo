@@ -3,8 +3,8 @@
 import type { NewReport, ReportLocation } from './model';
 
 /** Characters as the database counts them (code points), from the start or from the end. */
-const left = (text: string, n: number) => [...text].slice(0, n).join('');
-const right = (text: string, n: number) => [...text].slice(-n).join('');
+const left = (text: string, n: number) => Array.from(text).slice(0, n).join('');
+const right = (text: string, n: number) => Array.from(text).slice(-n).join('');
 const text = (v: unknown): v is string => typeof v === 'string';
 
 /** Postgres's `trim()`: only the spaces. */

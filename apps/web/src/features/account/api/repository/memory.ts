@@ -4,6 +4,7 @@ import { normalizeEmail } from '../../../../shared/lib/email';
 import type { AccountRepository } from './port';
 import { AccountError, MESSAGES } from './model';
 import type { AcceptedVersions } from './model';
+import { settle } from '../../../../shared/lib/settle';
 import { storageKeys } from '../../../../shared/lib/storage';
 
 interface LocalAccount {
@@ -70,46 +71,50 @@ export function localAccountRepository(
     }
   };
   return {
-    async resume(versions) {
-      const now = read();
-      // Signing out came with asking: entering again is always «before the 7 days» here.
-      if (now.deletion) write({ ...now, deletion: null });
-      return {
-        accepted: lastAccepted(now.acceptances, versions),
-        deletionCancelled: now.deletion !== null,
-      };
-    },
-    async accept(versions) {
-      const now = read();
-      const kept = now.acceptances.find((a) => sameVersions(a, versions));
-      if (kept) return { acceptedAt: kept.acceptedAt };
-      const acceptedAt = new Date().toISOString();
-      const accepted = { terms: versions.terms, privacy: versions.privacy, acceptedAt };
-      write({ ...now, acceptances: [...now.acceptances, accepted] });
-      return { acceptedAt };
-    },
-    async exportData() {
-      const data = {
-        site: 'El Quinto Ventrículo',
-        format: 1,
-        exported_at: new Date().toISOString(),
-        account: { email: options.email ?? null },
-        tables: { legal_acceptances: read().acceptances },
-        ...(options.exported ? { demo: options.exported() } : {}),
-      };
-      return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    },
-    async requestDeletion(email) {
-      if (normalizeEmail(email) !== (options.email ?? '').trim().toLowerCase()) {
-        throw new AccountError('email_mismatch', MESSAGES.email_mismatch);
-      }
-      const at = new Date();
-      const deleteAfter = new Date(at.getTime() + ACCOUNT_DELETION_DAYS * 86_400_000);
-      write({
-        ...read(),
-        deletion: { requestedAt: at.toISOString(), deleteAfter: deleteAfter.toISOString() },
-      });
-      return { deleteAfter: deleteAfter.toISOString() };
-    },
+    resume: (versions) =>
+      settle(() => {
+        const now = read();
+        // Signing out came with asking: entering again is always «before the 7 days» here.
+        if (now.deletion) write({ ...now, deletion: null });
+        return {
+          accepted: lastAccepted(now.acceptances, versions),
+          deletionCancelled: now.deletion !== null,
+        };
+      }),
+    accept: (versions) =>
+      settle(() => {
+        const now = read();
+        const kept = now.acceptances.find((a) => sameVersions(a, versions));
+        if (kept) return { acceptedAt: kept.acceptedAt };
+        const acceptedAt = new Date().toISOString();
+        const accepted = { terms: versions.terms, privacy: versions.privacy, acceptedAt };
+        write({ ...now, acceptances: [...now.acceptances, accepted] });
+        return { acceptedAt };
+      }),
+    exportData: () =>
+      settle(() => {
+        const data = {
+          site: 'El Quinto Ventrículo',
+          format: 1,
+          exported_at: new Date().toISOString(),
+          account: { email: options.email ?? null },
+          tables: { legal_acceptances: read().acceptances },
+          ...(options.exported ? { demo: options.exported() } : {}),
+        };
+        return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      }),
+    requestDeletion: (email) =>
+      settle(() => {
+        if (normalizeEmail(email) !== (options.email ?? '').trim().toLowerCase()) {
+          throw new AccountError('email_mismatch', MESSAGES.email_mismatch);
+        }
+        const at = new Date();
+        const deleteAfter = new Date(at.getTime() + ACCOUNT_DELETION_DAYS * 86_400_000);
+        write({
+          ...read(),
+          deletion: { requestedAt: at.toISOString(), deleteAfter: deleteAfter.toISOString() },
+        });
+        return { deleteAfter: deleteAfter.toISOString() };
+      }),
   };
 }

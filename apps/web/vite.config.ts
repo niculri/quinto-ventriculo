@@ -30,10 +30,10 @@ function demoApi(supabaseUrl?: string): Plugin {
       }
       // No `typeof import(...)`: that way the web's type check does not walk the Worker's code.
       const { createDemoApp } = (await server.ssrLoadModule('@qv/api/demo')) as {
-        createDemoApp(
+        createDemoApp: (
           folder: string,
           options?: { supabaseUrl?: string },
-        ): Promise<{ fetch(r: Request): Response | Promise<Response> }>;
+        ) => Promise<{ fetch: (r: Request) => Response | Promise<Response> }>;
       };
       // QV_OUTPUT: another content folder (the e2e tests use a test one).
       const app = await createDemoApp(
@@ -41,7 +41,10 @@ function demoApi(supabaseUrl?: string): Plugin {
         supabaseUrl ? { supabaseUrl } : {},
       );
       server.middlewares.use((req, res, next) => {
-        if (!req.url?.startsWith('/api/')) return next();
+        if (!req.url?.startsWith('/api/')) {
+          next();
+          return;
+        }
         forwardToApi(app, req, res).catch(next);
       });
     },
@@ -60,7 +63,7 @@ async function forwardToApi(
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
   // With the browser's own host and port: the API compares them with the `Origin` of the requests that carry one.
   const r = await app.fetch(
-    new Request(`http://${req.headers.host ?? 'localhost'}${req.url}`, {
+    new Request(`http://${req.headers.host ?? 'localhost'}${req.url ?? ''}`, {
       method: req.method ?? 'GET',
       headers,
       ...(body && req.method !== 'GET' && req.method !== 'HEAD' ? { body } : {}),

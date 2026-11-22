@@ -1,5 +1,6 @@
 // Fake session of the demo mode: only the demo API that Vite mounts accepts its token; the Worker rejects it.
 import type { Session, SessionService } from './service';
+import { settle } from '../../../shared/lib/settle';
 import { storageKeys } from '../../../shared/lib/storage';
 
 export const DEMO_EMAIL = 'demo@ug.uchile.cl';
@@ -29,18 +30,20 @@ export function demoSessionService(): SessionService {
   };
   const notify = () => listeners.forEach((f) => f(read()));
   return {
-    current: async () => read(),
+    current: () => Promise.resolve(read()),
     subscribe(f) {
       listeners.add(f);
       return () => listeners.delete(f);
     },
-    async signInWithGoogle() {
-      localStorage.setItem(KEY, '1');
-      notify();
-    },
-    async signOut() {
-      localStorage.removeItem(KEY);
-      notify();
-    },
+    signInWithGoogle: () =>
+      settle(() => {
+        localStorage.setItem(KEY, '1');
+        notify();
+      }),
+    signOut: () =>
+      settle(() => {
+        localStorage.removeItem(KEY);
+        notify();
+      }),
   };
 }

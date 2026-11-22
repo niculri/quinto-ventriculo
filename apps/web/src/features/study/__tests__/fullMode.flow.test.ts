@@ -2,12 +2,23 @@
 
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { DECK_PATH } from '../../../test/fixtures/deck';
 import { renderApp } from '../../../test/render';
 import type { StudyRepository } from '../../progress/api/repository';
 import { cardText } from '../../../test/dom';
+
+// Answering «Bien» sends a new card to a 10-minute step: with the real clock, from 03:50 to 04:00 the step crosses the
+// 04:00 cut of the study day and the counts and labels change. The clock stands at noon.
+const NOON = new Date('2026-11-10T12:00:00-03:00');
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(NOON);
+});
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 function counts() {
   const group = screen.getByRole('group', { name: 'Tarjetas que quedan' });

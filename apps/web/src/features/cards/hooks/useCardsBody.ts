@@ -33,7 +33,7 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
   const unitDeck = unitNode(scope.node, unit);
   const state = parseState(params.get('state'));
   const originText = params.get('origin');
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
+  // By hand: the compiler would depend on `params`, so each change of the URL would filter the notes again.
   const origins = useMemo(() => parseOrigins(originText), [originText]);
   const kind = parseKind(params.get('kind'));
   const q = params.get('q') ?? '';
@@ -54,6 +54,7 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
     setParams(next, { replace, flushSync: true });
   };
 
+  // By hand: without it, the compiler leaves the filters and what comes from them without a cache.
   const filters = useMemo<Filters>(
     () => ({
       ...NO_FILTERS,
@@ -67,9 +68,12 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
     }),
     [unitDeck, text.keys, day.value, failed.data, state, origins, kind],
   );
-  const result = useMemo(() => (data ? applyFilters(data.notes, filters) : null), [data, filters]);
-  const lectures = useMemo(() => (result ? groupNotes(result.matched) : []), [result]);
-  const practice = useMemo(() => practiceCards(lectures, state), [lectures, state]);
+  const result = data ? applyFilters(data.notes, filters) : null;
+  const lectures = result ? groupNotes(result.matched) : [];
+  const practice = practiceCards(lectures, state);
+  const titles = new Map(
+    lectures.map((l) => [l.id, lectureTitle(scope.node, tree.byId.get(l.id))]),
+  );
 
   useEffect(() => {
     if (!data || !q) return;
@@ -83,10 +87,6 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
     );
   }, [data, q, setParams]);
 
-  const titles = useMemo(
-    () => new Map(lectures.map((l) => [l.id, lectureTitle(scope.node, tree.byId.get(l.id))])),
-    [lectures, scope.node, tree],
-  );
   const lectureTitles = (id: string) => titles.get(id) ?? '';
   return {
     params,

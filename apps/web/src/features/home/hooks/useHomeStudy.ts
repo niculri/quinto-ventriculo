@@ -1,6 +1,5 @@
 // What «Hoy» on the home page counts with: the study data of the courses it lists and their counts.
 
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useStudyRepository } from '../../progress/api/context';
 import { useStudentCatalog } from '../../catalog/hooks/useStudentView';
@@ -33,32 +32,35 @@ export function useHomeStudy(courses: readonly CourseDeckNode[]) {
   const answers = useAnswersToday(prefs);
   const presets = useUserPresets();
   const settings = useDeckSettings();
-  // By hand, from the `data` of each query: the compiler would depend on the whole results, new in each render.
-  const decks = useMemo(() => (catalog ? treeDecks(catalog.anki.decks) : undefined), [catalog]);
-  const base = useMemo<HomeStudyBase | undefined>(
-    () =>
-      catalog &&
-      decks &&
-      prefs &&
-      plan.data &&
-      progress.data &&
-      answers.data &&
-      presets.data &&
-      settings.data
-        ? {
-            decks,
-            authorPresets: catalog.anki.presets,
-            answers: answers.data,
-            prefs,
-            presets: presets.data,
-            settings: settings.data,
-            plan: plan.data,
-            progress: progress.data,
-          }
-        : undefined,
-    [catalog, decks, prefs, plan.data, progress.data, answers.data, presets.data, settings.data],
-  );
-  const ids = useMemo(() => courses.flatMap((c) => descendants(c).map((d) => d.id)), [courses]);
+  // Each `data` is read before the condition: the compiler depends on a property only when it reads it without one,
+  // and it would depend on the whole result of each query, which is new in each render.
+  const planData = plan.data;
+  const progressData = progress.data;
+  const answersData = answers.data;
+  const presetsData = presets.data;
+  const settingsData = settings.data;
+  const decks = catalog ? treeDecks(catalog.anki.decks) : undefined;
+  const base: HomeStudyBase | undefined =
+    catalog &&
+    decks &&
+    prefs &&
+    planData &&
+    progressData &&
+    answersData &&
+    presetsData &&
+    settingsData
+      ? {
+          decks,
+          authorPresets: catalog.anki.presets,
+          answers: answersData,
+          prefs,
+          presets: presetsData,
+          settings: settingsData,
+          plan: planData,
+          progress: progressData,
+        }
+      : undefined;
+  const ids = courses.flatMap((c) => descendants(c).map((d) => d.id));
   const home = useQuery(homeCountsQuery(study, today, prefs, base, ids));
   const parts = [studentCatalog, preferences, plan, progress, answers, presets, settings, home];
   return {

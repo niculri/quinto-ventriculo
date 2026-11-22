@@ -1,5 +1,5 @@
 // The state of «Invitar»: what is pasted, the list, the note, what can be sent, and what the invitation did.
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { MAX_EMAILS } from '../api/repository';
 import type { InviteResult } from '../api/repository';
 import { NEW_LIST, listChoice } from '../model/access';
@@ -15,8 +15,7 @@ export function useInviteForm(lists: string[]) {
   const [newName, setNewName] = useState('');
   const [note, setNote] = useState('');
   const [result, setResult] = useState<{ list: string; result: InviteResult } | null>(null);
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
-  const { chosen, names } = useMemo(() => listChoice(lists, choice), [lists, choice]);
+  const { chosen, names } = listChoice(lists, choice);
   const { emails, ignored } = readEmails(text);
   const list = (chosen ?? newName).trim();
   const tooMany = emails.length > MAX_EMAILS;

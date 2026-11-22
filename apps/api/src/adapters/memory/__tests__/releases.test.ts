@@ -170,6 +170,27 @@ describe('publishing', () => {
     });
   });
 
+  it('when several things are wrong the first of them is the one it says', async () => {
+    await draft();
+    const repo = await folderReleaseRepository(folder);
+    const wrong = publishInput({
+      fingerprint: 'b'.repeat(32),
+      schemaVersion: 2,
+      checks: { ...READY, blocking: 1 },
+    });
+    expect(await repo.publish(wrong)).toMatchObject({ reason: 'fingerprint' });
+    expect(await repo.publish({ ...wrong, fingerprint: FP })).toMatchObject({
+      reason: 'schema_version',
+    });
+    expect(await repo.publish({ ...wrong, fingerprint: FP, schemaVersion: 3 })).toMatchObject({
+      reason: 'marks',
+    });
+    await markAll(repo);
+    expect(await repo.publish({ ...wrong, fingerprint: FP, schemaVersion: 3 })).toMatchObject({
+      reason: 'blocked',
+    });
+  });
+
   it('publishing empties the draft, clears the marks and takes the published fingerprint', async () => {
     await write('items.json', { 'c|card': [{ guid: 'a' }] });
     await write('media.json', ['a.png']);
@@ -195,6 +216,7 @@ describe('publishing', () => {
       ok: false,
       reason: 'empty',
     });
+    expect(await repo.publish(publishInput())).toMatchObject({ ok: false, reason: 'fingerprint' });
     expect(await repo.setMark(FP, 'phone', true, 'a')).toBe('stale');
   });
 });

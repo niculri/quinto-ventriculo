@@ -417,6 +417,16 @@ describe('the checker alone, with a fake answer', () => {
     expect(broken.asked()).toBe(2);
   });
 
+  it('an answer that names something every object has is «unknown», never found, and is not remembered', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    for (const answer of ['constructor', 'toString', '__proto__', 'hasOwnProperty']) {
+      const odd = checkerWith(() => Response.json(answer));
+      expect(await odd.checker.check('t')).toBe('unknown');
+      expect(await odd.checker.check('t')).toBe('unknown');
+      expect(odd.asked()).toBe(2);
+    }
+  });
+
   it('it remembers 500 tokens at most: the 501st forgets the rest instead of growing', async () => {
     const ok = checkerWith(() => Response.json('allowed'));
     for (let i = 0; i < 500; i++) await ok.checker.check(`t${i}`);

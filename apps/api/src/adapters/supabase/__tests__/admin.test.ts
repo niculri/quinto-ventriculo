@@ -214,4 +214,39 @@ describe('the memory of the administrator check', () => {
     expect(await checker.isAdminNow!('t')).toBeNull();
     expect(asked).toBe(2);
   });
+
+  it('only a plain true is «yes»: any other answer of a call that succeeded is «no»', async () => {
+    for (const answer of ['true', 1, {}, [true], null, 'yes']) {
+      const checker = supabaseAdminChecker({
+        supabaseUrl: SUPABASE,
+        publishableKey: 'k',
+        now: () => clock,
+        fetch: async () => Response.json(answer),
+      });
+      expect(await checker.isAdmin('t')).toBe(false);
+      expect(await checker.isAdminNow!('t')).toBe(false);
+    }
+  });
+
+  it('it remembers each answer for the ttl asked and no longer', async () => {
+    let now = 0;
+    let asked = 0;
+    const checker = supabaseAdminChecker({
+      supabaseUrl: SUPABASE,
+      publishableKey: 'k',
+      ttl: 10,
+      now: () => now,
+      fetch: async () => {
+        asked++;
+        return Response.json(true);
+      },
+    });
+    await checker.isAdmin('t');
+    now = 9_999;
+    await checker.isAdmin('t');
+    expect(asked).toBe(1);
+    now = 10_000;
+    await checker.isAdmin('t');
+    expect(asked).toBe(2);
+  });
 });

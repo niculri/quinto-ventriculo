@@ -26,8 +26,10 @@ describe('the box’s top edge', () => {
     expect(boxTop(rect(0, 300), 100, 800)).toBe(300 - MARGIN - 100);
   });
 
-  it('goes below the day when above it would leave the screen', () => {
+  it('goes below the day when above it would leave the screen or its margin', () => {
     expect(boxTop(rect(0, 50), 100, 800)).toBe(62 + MARGIN);
+    expect(boxTop(rect(0, 112), 100, 800)).toBe(124 + MARGIN);
+    expect(boxTop(rect(0, 116), 100, 800)).toBe(MARGIN);
   });
 
   it('is pulled up to stay on the screen when below does not fit either', () => {

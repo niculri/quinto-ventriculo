@@ -203,6 +203,74 @@ describe('the day box', () => {
   });
 });
 
+describe('closing and moving', () => {
+  it('scrolling the grid sideways closes the box that is open', async () => {
+    renderApp('/home', { study: withHeatmap(async () => DATA) });
+    const table = await grid();
+    await ready();
+    const scroller = table.parentElement!.parentElement!;
+    fireEvent.scroll(scroller);
+    fireEvent.mouseEnter(cell(/^8 de noviembre de 2026/));
+    await screen.findByRole('tooltip', { name: /8 de noviembre/i });
+    fireEvent.scroll(scroller);
+    expect(screen.queryByRole('tooltip', { name: /8 de noviembre/i })).toBeNull();
+  });
+
+  it('a pinned box stays when the mouse leaves the grid, and the mouse over other days does not move it', async () => {
+    renderApp('/home', { study: withHeatmap(async () => DATA) });
+    const table = await grid();
+    await ready();
+    await userEvent.click(cell(/^8 de noviembre de 2026/));
+    const box = await screen.findByRole('dialog');
+    fireEvent.mouseEnter(cell(/^6 de noviembre de 2026/));
+    fireEvent.mouseLeave(table);
+    expect(screen.getByRole('dialog')).toBe(box);
+    expect(box).toHaveTextContent('32 respuestas');
+  });
+
+  it('an arrow closes the open box and moves to the next day; a key that moves nothing changes nothing', async () => {
+    renderApp('/home', { study: withHeatmap(async () => DATA) });
+    await grid();
+    await ready();
+    cell(/^8 de noviembre de 2026/).focus();
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    await screen.findByRole('dialog');
+    fireEvent.keyDown(cell(/^8 de noviembre de 2026/), { key: 'a' });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    fireEvent.keyDown(cell(/^8 de noviembre de 2026/), { key: 'ArrowDown' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toHaveAccessibleName(/^9 de noviembre de 2026/);
+  });
+
+  it('before the days come, neither hovering nor Enter opens a box, not even once they arrive', async () => {
+    let arrive: (data: HeatmapData) => void = () => {};
+    renderApp('/home', { study: withHeatmap(() => new Promise((r) => (arrive = r))) });
+    await grid();
+    const today = screen.getByRole('gridcell', { name: /^10 de noviembre de 2026/ });
+    fireEvent.mouseEnter(today);
+    today.focus();
+    fireEvent.keyDown(today, { key: 'Enter' });
+    arrive(DATA);
+    await ready();
+    expect(screen.queryByRole('tooltip', { name: /10 de noviembre/i })).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('▶ goes to next year when something is due then', async () => {
+    renderApp('/home', {
+      study: withHeatmap(async () => ({ ...DATA, due: [{ day: D('2027-01-04'), cards: 9 }] })),
+    });
+    await grid();
+    const ahead = screen.getByRole('button', { name: 'Año siguiente' });
+    await waitFor(() => expect(ahead).toBeEnabled());
+    await userEvent.click(ahead);
+    expect(
+      await screen.findByRole('grid', { name: 'Días de estudio de 2027' }),
+    ).toBeInTheDocument();
+    expect(ahead).toBeDisabled();
+  });
+});
+
 describe('the figures', () => {
   it('while they come, the four labels with a skeleton each', async () => {
     renderApp('/home', { study: withHeatmap(() => new Promise(() => {})) });

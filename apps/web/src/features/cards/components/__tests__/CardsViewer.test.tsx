@@ -102,7 +102,7 @@ describe('CardsViewer', () => {
   it('a note without questions links only the note', async () => {
     const dialog = await viewer(INFO, withMaterial(false));
     expect(await within(dialog).findByRole('link', { name: /Ver apunte/ })).toBeInTheDocument();
-    expect(within(dialog).queryByRole('link', { name: /Preguntas/ })).toBeNull();
+    expect(within(dialog).queryByText(/Preguntas/)).toBeNull();
   });
 
   it('a report cancelled closes and thanks nobody', async () => {

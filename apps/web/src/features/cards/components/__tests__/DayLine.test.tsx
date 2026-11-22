@@ -19,7 +19,10 @@ const value = (patch: Partial<DayCards>): DayCards => ({
   ...patch,
 });
 
-function line(v: DayCards | null, { day = DAY as number | null, failed = false } = {}) {
+function line(
+  v: DayCards | null,
+  { day = DAY, failed = false }: { day?: number | null; failed?: boolean } = {},
+) {
   const onRetry = vi.fn();
   const onClear = vi.fn();
   render(<DayLine day={day} value={v} onClear={onClear} failed={failed} onRetry={onRetry} />);

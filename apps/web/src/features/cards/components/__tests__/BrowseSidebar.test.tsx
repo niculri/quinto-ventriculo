@@ -34,7 +34,7 @@ function sidebar(full: boolean, courses = [course(1)]) {
 }
 
 describe('BrowseSidebar', () => {
-  it('a click replaces the search; Mayús adds an «o», Ctrl or ⌘ a «y», Alt negates', () => {
+  it('a click replaces the search; Mayús adds an «o» (even with Ctrl), Ctrl or ⌘ a «y», Alt negates', () => {
     const onSearch = sidebar(true);
     const due = screen.getByRole('button', { name: 'Para hoy' });
     fireEvent.click(due);
@@ -42,12 +42,14 @@ describe('BrowseSidebar', () => {
     fireEvent.click(due, { ctrlKey: true });
     fireEvent.click(due, { metaKey: true });
     fireEvent.click(due, { altKey: true, shiftKey: true });
+    fireEvent.click(due, { shiftKey: true, ctrlKey: true });
     expect(onSearch.mock.calls).toEqual([
       ['is:due', 'replace', false],
       ['is:due', 'or', false],
       ['is:due', 'and', false],
       ['is:due', 'and', false],
       ['is:due', 'or', true],
+      ['is:due', 'or', false],
     ]);
   });
 

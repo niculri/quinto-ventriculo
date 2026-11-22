@@ -25,7 +25,13 @@ function toolbar({
   busy = false,
   count = 1,
   blocked = false,
-  focus = browseCard() as BrowseCard | null,
+  focus = browseCard(),
+}: {
+  full?: boolean;
+  busy?: boolean;
+  count?: number;
+  blocked?: boolean;
+  focus?: BrowseCard | null;
 } = {}) {
   const actions = {
     toggleSuspend: vi.fn(),

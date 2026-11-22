@@ -27,7 +27,7 @@ describe('TableSearch', () => {
     expect(box).toHaveAttribute('placeholder', 'Buscar por texto o código');
     expect(screen.getByRole('group', { name: 'Filtros rápidos' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Nuevas' }));
-    expect(p.onSearch.mock.calls[0]![0].trim()).toBe('is:new');
+    expect(String(p.onSearch.mock.calls[0]![0]).trim()).toBe('is:new');
   });
 
   it('in the full mode it takes Anki’s syntax, without the one-click filters', async () => {

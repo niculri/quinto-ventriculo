@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { explorerCard, matched } from '../../../../test/cardsUiFakes';
 import { groupNotes } from '../../model/groups';
+import type { Matched } from '../../model/filters';
 import { CardList } from '../CardList';
 
 const photo = (guid: string) =>
@@ -64,7 +65,7 @@ describe('CardList', () => {
     expect(cells[0]!.closest('.grid')).toBe(cells[1]!.closest('.grid'));
     expect(cells[2]!.closest('.grid')).not.toBe(cells[0]!.closest('.grid'));
     await userEvent.click(cells[2]!);
-    expect(onOpen.mock.calls[0]![0].note.note.guid).toBe('p3');
+    expect((onOpen.mock.calls[0]![0] as Matched).note.note.guid).toBe('p3');
   });
 
   it('while the list is below the site’s bar, its lecture is not pinned', () => {

@@ -12,7 +12,6 @@ import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree, hasPage } from '../../../catalog/model/tree';
 import { cardsScope } from '../../../catalog/model/scope';
 import { defaultPreferences } from '../../../progress/api/repository';
-import type { StudyRepository } from '../../../progress/api/repository';
 import { cardsData } from '../../model/cardsData';
 import { CardsTable } from '../CardsTable';
 
@@ -20,7 +19,7 @@ const TREE = buildAnkiTree(CATALOG);
 const NODE = TREE.nodes.find((n) => hasPage(n) && n.depth === 3)!;
 
 function table({
-  study = fullAnkiStudy() as StudyRepository,
+  study = fullAnkiStudy(),
   draftOnly = new Set<string>(),
   unitDecks = null as ReadonlySet<string> | null,
 } = {}) {

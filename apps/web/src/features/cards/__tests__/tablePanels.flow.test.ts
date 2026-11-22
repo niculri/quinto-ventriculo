@@ -201,8 +201,6 @@ describe('the table’s columns and preview', () => {
 
   it('the big viewer goes through the table’s rows in order, and the URL follows the card it shows', async () => {
     const { router } = renderApp(TABLE);
-    const second = (await rows())[1]!;
-    const code = within(second).getAllByRole('gridcell')[1]!.textContent;
     await userEvent.click((await rows())[0]!);
     await userEvent.click(
       within(screen.getByRole('complementary', { name: 'Vista previa' })).getByRole('button', {
@@ -210,13 +208,13 @@ describe('the table’s columns and preview', () => {
       }),
     );
     const viewer = await screen.findByRole('dialog', { name: /T-PR-01-001\.2/ });
-    await userEvent.click(within(viewer).getByRole('button', { name: 'Tarjeta siguiente' }));
     const url = () => new URLSearchParams(router.state.location.search);
-    await waitFor(() => expect(url().get('note')).toBe('cloze-1'));
-    expect([url().get('ord'), url().get('open')]).toEqual(['0', '1']);
-    expect(
-      await screen.findByRole('dialog', { name: new RegExp(code!.replace('.', '\\.')) }),
-    ).toBeInTheDocument();
+    await userEvent.click(within(viewer).getByRole('button', { name: 'Tarjeta siguiente' }));
+    await waitFor(() => expect([url().get('note'), url().get('ord')]).toEqual(['cloze-1', '0']));
+    await userEvent.click(within(viewer).getByRole('button', { name: 'Tarjeta siguiente' }));
+    await waitFor(() => expect([url().get('note'), url().get('ord')]).toEqual(['cloze-1', '1']));
+    expect(url().get('open')).toBe('1');
+    expect(await screen.findByRole('dialog', { name: /T-PR-01-002\.1/ })).toBeInTheDocument();
   });
 
   it('in «Notas» the preview shows the first card of the chosen note', async () => {

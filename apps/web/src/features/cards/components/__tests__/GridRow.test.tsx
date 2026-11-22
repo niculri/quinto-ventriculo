@@ -63,6 +63,7 @@ describe('GridRow', () => {
   ])('%s', (_, card, selected, klass, background) => {
     const { row: r } = row(card, selected);
     if (klass) expect(r).toHaveClass(klass);
+    if (!selected && background) expect(r.className).not.toMatch(/bg-\[#fff8c5\]|text-muted/);
     expect(r.style.backgroundColor).toBe(background);
     expect(r).toHaveAttribute('aria-selected', String(selected));
   });

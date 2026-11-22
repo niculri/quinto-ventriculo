@@ -85,20 +85,6 @@
       "count": 1
     }
   },
-  "apps/api/src/app.ts": {
-    "@typescript-eslint/await-thenable": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
   "apps/api/src/card-index.test.ts": {
     "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1

@@ -36,6 +36,20 @@ describe('reportError', () => {
     ]);
   });
 
+  it.each([
+    ['an error without a message, by its name', Object.assign(new TypeError(''), {}), 'TypeError'],
+    ['a response with a status only', { status: 503, statusText: undefined }, '503'],
+    ['a response with a text only', { statusText: 'Gateway Timeout' }, 'Gateway Timeout'],
+    ['anything else thrown, as text', 'cadena lanzada', 'cadena lanzada'],
+    ['an object that is not a response, as text', { code: 7 }, '[object Object]'],
+  ])('reads %s', (_, error, message) => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const report = vi.fn();
+    (window as unknown as W).__qvReportError = report;
+    reportError(error);
+    expect(report).toHaveBeenCalledWith('render', message);
+  });
+
   it('without the reporter, or with one that throws, nothing breaks', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     expect(() => reportError(new Error('a'))).not.toThrow();

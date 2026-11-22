@@ -86,4 +86,21 @@ describe('the image viewer’s geometry', () => {
     );
     expect(together.scale).toBeCloseTo(v.scale);
   });
+
+  it('two fingers that start on the same spot zoom as if they were a pixel apart, never to infinity', () => {
+    const v = fitView(plate, phone);
+    const spot = { x: 200, y: 300 };
+    const out = pinch(
+      v,
+      [spot, spot],
+      [
+        { x: 199, y: 300 },
+        { x: 201, y: 300 },
+      ],
+      plate,
+      phone,
+    );
+    expect(out.scale).toBeCloseTo(v.scale * 2);
+    expect(Number.isFinite(out.x)).toBe(true);
+  });
 });

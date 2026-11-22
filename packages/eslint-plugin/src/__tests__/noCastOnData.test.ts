@@ -35,6 +35,9 @@ code.run('qv/no-cast-on-data', noCastOnData, {
     { code: 'const a = r.data! as string;', errors: cast },
     { code: 'const a = r?.data! as string;', errors: cast },
     { code: 'const a = data as unknown as string;', errors: cast },
+    // A chain of casts is one, whichever way each one is written, and a `satisfies` in the middle does not hide it.
+    { code: 'const a = <string>(<unknown>data);', errors: cast },
+    { code: 'const a = (data satisfies unknown) as string;', errors: cast },
     { code: 'const a = <string>data;', errors: cast },
     { code: 'const a = <string>r.data;', errors: cast },
     { code: 'const { data: rows } = r; const a = rows as string[];', errors: cast },

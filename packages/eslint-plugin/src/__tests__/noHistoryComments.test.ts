@@ -25,6 +25,7 @@ code.run('qv/no-history-comments', noHistoryComments, {
     '// A UUID v1.0 has the time in it.\nconst a = 1;',
     '// A1: the course code of Anatomía I.\nconst a = 1;',
     '// fsrs-rs is BSD-3-Clause; text in UTF-8.\nconst a = 1;',
+    '// Reads UCS-2 text and SHA-256 sums.\nconst a = 1;',
     '// What the author decided for a content: it closes its reports.\nconst a = 1;',
     '// The cards the user asked for, in the order of the search.\nconst a = 1;',
     '// The ease grows 1.5 times (a factor of 2.5).\nconst a = 1;',

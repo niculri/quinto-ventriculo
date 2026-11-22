@@ -11,7 +11,7 @@ export interface StoredReport extends NewReport {
   createdAt: string;
   resolutionId: string | null;
 }
-export interface StoredResolution extends Resolution {
+interface StoredResolution extends Resolution {
   id: string;
   kind: ReportKind;
   targetId: string;

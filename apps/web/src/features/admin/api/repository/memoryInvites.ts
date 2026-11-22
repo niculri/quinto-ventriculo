@@ -4,7 +4,7 @@ import { AccessError, MAX_EMAILS, normalizeEmail } from './model';
 import { blankToNull } from '../../../../shared/lib/blankToNull';
 import type { AccessInvite, InviteResult, RemoveResult, SetAdminResult } from './model';
 
-export const TOO_MANY = `A lo más ${MAX_EMAILS} correos por vez.`;
+const TOO_MANY = `A lo más ${MAX_EMAILS} correos por vez.`;
 /** What the Supabase adapter says for a refusal it does not name. */
 const FAILED = 'No se pudo. Revisa tu conexión e intenta de nuevo.';
 /** Characters as the database counts them (code points, not UTF-16 units). */

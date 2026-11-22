@@ -173,9 +173,9 @@ export function findProcessPhrases(
 ): { rule: string; label: string; snippet: string }[] {
   const out: { rule: string; label: string; snippet: string }[] = [];
   for (const r of PROCESS_RULES) {
-    const flags = r.pattern.flags.includes('g') ? r.pattern.flags : `${r.pattern.flags}g`;
+    const flags = `${r.pattern.flags.replace('g', '')}g`;
     for (const m of text.matchAll(new RegExp(r.pattern.source, flags))) {
-      const at = m.index ?? 0;
+      const at = m.index;
       const from = Math.max(0, at - 40);
       const to = Math.min(text.length, at + m[0].length + 40);
       out.push({
@@ -628,7 +628,7 @@ export function releaseTitle(s: ReleaseSummary): string {
   return `${names.slice(0, 2).join(', ')} y ${names.length - 2} más`;
 }
 
-export const lastName = (deckName: string) => deckName.split('::').pop() ?? deckName;
+export const lastName = (deckName: string) => deckName.split('::').at(-1)!;
 
 export type DiffPart = { op: 'same' | 'del' | 'add'; text: string };
 
@@ -649,11 +649,11 @@ export function wordDiff(before: string, after: string): DiffPart[] {
   const n = x.length;
   const m = y.length;
   if (n * m > 4_000_000) {
-    // Too long for the LCS table: the middle goes out and comes in whole.
+    // Too long for the LCS table (so neither side is empty): the middle goes out and comes in whole.
     return [
       ...(start ? [{ op: 'same' as const, text: a.slice(0, start).join('') }] : []),
-      ...(n ? [{ op: 'del' as const, text: x.join('') }] : []),
-      ...(m ? [{ op: 'add' as const, text: y.join('') }] : []),
+      { op: 'del' as const, text: x.join('') },
+      { op: 'add' as const, text: y.join('') },
       ...(end ? [{ op: 'same' as const, text: a.slice(a.length - end).join('') }] : []),
     ];
   }

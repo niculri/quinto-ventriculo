@@ -96,8 +96,8 @@ describe('useStudyData', () => {
 describe('useStudyData at the start of a new day', () => {
   afterEach(() => vi.useRealTimers());
 
-  // The clock is half a minute before the day changes; the reads of the new day never arrive.
-  async function acrossMidnight(keepPrevious: boolean) {
+  // The clock is half a minute before the day changes; the reads of the new day never arrive, or fail.
+  async function acrossMidnight(keepPrevious: boolean, newDay: 'pending' | 'failing' = 'pending') {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime((timingFor(defaultPreferences(), Date.now()).nextDayAt - 30) * 1000);
     const study = fullAnkiStudy();
@@ -113,10 +113,13 @@ describe('useStudyData at the start of a new day', () => {
     const { result } = renderHook(() => useStudyData(DECK, keepPrevious), { wrapper });
     await waitFor(() => expect(result.current.data).toBeDefined());
     const before = result.current.data!;
-    const answers = vi.spyOn(study, 'answersSince').mockReturnValue(new Promise(() => undefined));
-    vi.spyOn(study, 'deckProgress').mockReturnValue(new Promise(() => undefined));
+    const read = () =>
+      newDay === 'pending' ? new Promise<never>(() => undefined) : Promise.reject(new Error('503'));
+    const answers = vi.spyOn(study, 'answersSince').mockImplementation(read);
+    vi.spyOn(study, 'deckProgress').mockImplementation(read);
     await act(async () => void vi.advanceTimersByTime(60_000));
     await waitFor(() => expect(answers).toHaveBeenCalled());
+    if (newDay === 'failing') await waitFor(() => expect(result.current.error).not.toBeNull());
     return { before, now: result.current.data };
   }
 
@@ -128,6 +131,16 @@ describe('useStudyData at the start of a new day', () => {
 
   it('by default it has nothing until the new day is read', async () => {
     expect((await acrossMidnight(false)).now).toBeUndefined();
+  });
+
+  it('a round in progress goes on with the day before when the new day cannot be read, when asked to', async () => {
+    const { before, now } = await acrossMidnight(true, 'failing');
+    expect(now?.answers).toBe(before.answers);
+    expect(now?.progress).toBe(before.progress);
+  });
+
+  it('by default a new day that cannot be read leaves nothing', async () => {
+    expect((await acrossMidnight(false, 'failing')).now).toBeUndefined();
   });
 });
 

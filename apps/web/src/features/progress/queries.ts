@@ -1,7 +1,7 @@
 // Data hooks for studying: preferences, the simple plan and its changes, deck progress, an assessment's view,
 // today's answers and everything a deck's queue needs.
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { schedTiming } from '@qv/srs';
 import type { DeckDetail } from '@qv/schema';
@@ -233,8 +233,25 @@ export function useStudyData(shown: DeckDetail | undefined, keepPrevious = false
           progress: progressData,
         }
       : undefined;
+  // With `keepPrevious`, the last whole data stays while a read fails (the new day's, at midnight): a round in progress
+  // goes on. Kept as state from the previous renders, by the identity of what was read (stable without the compiler).
+  const inputs = [
+    deck,
+    catalogData,
+    prefs,
+    cardRows,
+    answersData,
+    presetsData,
+    settingsData,
+    planData,
+    progressData,
+  ];
+  const [kept, setKept] = useState<{ inputs: unknown[]; data: StudyData }>();
+  if (keepPrevious && data && (!kept || inputs.some((x, i) => x !== kept.inputs[i]))) {
+    setKept({ inputs, data });
+  }
   return {
-    data,
+    data: data ?? (keepPrevious && error ? kept?.data : undefined),
     error,
     retry: () => parts.forEach((p) => p.isError && void p.refetch()),
   };

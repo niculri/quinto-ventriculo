@@ -81,7 +81,7 @@ describe('changesLintSetup', () => {
     expect(
       changesLintSetup([
         'eslint-suppressions.json',
-        'eslint-suppressions-start.json',
+        'eslintSuppressionsStart.json',
         'apps/web/src/a.ts',
         'packages/ops/src/suppressions.ts',
         'docs/eslint.config.js.md',

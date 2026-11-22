@@ -25,7 +25,7 @@ export const fileNames = [
       'eslint.config.js',
       '.dependency-cruiser.cjs',
       // Served at their own URL, which the pages already loaded and cached request.
-      'apps/web/public/*.js',
+      'apps/web/public/error-report.js',
     ],
     rules: { 'qv/file-name': 'off' },
   },

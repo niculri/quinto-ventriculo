@@ -16,7 +16,7 @@ const read = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
 const corpus = read(join(import.meta.dirname, '../../../html/test/corpus.json')) as {
   html: { id: string; html: string }[];
 };
-const golden = read(join(import.meta.dirname, '../../test/html-golden.json')) as Record<
+const golden = read(join(import.meta.dirname, '../../test/htmlGolden.json')) as Record<
   string,
   Record<string, string>
 >;

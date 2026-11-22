@@ -31,7 +31,7 @@ const corpus = read(
 
 it('a card side sanitized again in the browser gives what it gave', () => {
   const out = Object.fromEntries(corpus.html.map((c) => [c.id, sanitizeCardInBrowser(c.html)]));
-  expect(out).toEqual(read(join(import.meta.dirname, 'sanitize-golden.json')));
+  expect(out).toEqual(read(join(import.meta.dirname, 'sanitizeGolden.json')));
 });
 
 describe('the extras buttons of a card', () => {

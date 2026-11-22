@@ -79,7 +79,7 @@ export async function createFreshDatabase(
   until?: string,
 ): Promise<PGlite> {
   const db = track(await PGlite.create({ extensions: { unaccent } }));
-  await db.exec(readFileSync(join(HERE, 'fake-supabase.sql'), 'utf8'));
+  await db.exec(readFileSync(join(HERE, 'fakeSupabase.sql'), 'utf8'));
   const folder = join(HERE, '..', name, 'supabase', 'migrations');
   const byName = readdirSync(folder)
     .filter((f) => f.endsWith('.sql'))

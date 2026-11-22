@@ -4,7 +4,7 @@
 export const SUPPRESSIONS_FILE = 'eslint-suppressions.json';
 // `{ rule: count }`: the debt a rule starts with in the change that turns it on, not growth. It counts once: a rule
 // the base already lists there, or that already had suppressions in the base, is checked as any other.
-export const START_FILE = 'eslint-suppressions-start.json';
+export const START_FILE = 'eslintSuppressionsStart.json';
 export const ALL_RULES = '*';
 
 export type Counts = Map<string, number>;

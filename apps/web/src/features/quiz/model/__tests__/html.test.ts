@@ -55,6 +55,6 @@ const each = (f: (html: string) => string) =>
 
 it("a test's texts and SVG figures sanitized again in the browser give what they gave", () => {
   expect({ text: each(cleanText), svg: each(cleanSvg) }).toEqual(
-    read(join(import.meta.dirname, 'sanitize-golden.json')),
+    read(join(import.meta.dirname, 'sanitizeGolden.json')),
   );
 });

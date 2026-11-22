@@ -73,8 +73,8 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   (`queryClient.ts`, `supabaseSettings.ts`). Nada de kebab-case, guiones bajos ni puntos en el nombre; un `.tsx` solo si
   tiene JSX. Un archivo que exporta una sola cosa (una clase, un componente o un hook) se llama como ella; uno con varios
   componentes lleva el nombre de su grupo, y uno que exporta un componente no es `camelCase`. Quedan fuera, con su razón
-  en `eslintFileNames.js`, los `*.d.ts`, los archivos de configuración que una herramienta busca por nombre y los `.js`
-  de `apps/web/public/`, que se sirven en una URL que las páginas ya cargadas piden.
+  en `eslintFileNames.js`, los `*.d.ts`, los archivos de configuración que una herramienta busca por nombre y
+  `apps/web/public/error-report.js`, que se sirve en una URL que las páginas ya cargadas piden.
 - **Nombres de las pruebas** (`npm run test-names`, en `npm run check`, la CI y el `pre-push`): toda prueba va en
   `__tests__/` junto a lo que prueba, en todos lados (`packages/*/src/**/__tests__/`, `apps/*/src/**/__tests__/`,
   `db/tests/__tests__/`), y se llama como el archivo que prueba (`shared/ui/Toast.tsx` →
@@ -118,7 +118,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `npm run suppressions` (en `npm run check`, la CI y el `pre-push`). Un `eslint-disable` que ya no silencia nada es
   un error. Al arreglar algo, `npx eslint . --prune-suppressions` (si queda una supresión sobrante, `npm run lint`
   falla). Mover un archivo con supresiones obliga a anotarlas de nuevo, pero ninguna regla puede subir. Una regla que
-  se enciende por primera vez puede empezar con deuda: se anota su cifra en `eslint-suppressions-start.json`, cuenta
+  se enciende por primera vez puede empezar con deuda: se anota su cifra en `eslintSuppressionsStart.json`, cuenta
   una sola vez (la rama de comparación no debe tener nada de esa regla) y solo si el mismo cambio toca la configuración
   de ESLint o las dependencias; desde ahí la regla baja como las demás. Nunca con un `eslint-disable`.
 - **Herramientas estrictas:** ESLint con `strictTypeChecked` y `stylisticTypeChecked` de typescript-eslint y el preset

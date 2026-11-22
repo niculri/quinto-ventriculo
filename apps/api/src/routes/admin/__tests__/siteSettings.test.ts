@@ -104,7 +104,7 @@ describe('hiding the semesters without material', () => {
         hidden: 2,
       });
     }
-    // In the admin mode the empty semesters are all there, marked (see admin-mode-contract.test.ts).
+    // In the admin mode the empty semesters are all there, marked (see adminMode.contract.test.ts).
     expect(
       await semesters(await get(app, '/api/catalog', ADMIN, { [PREVIEW_HEADER]: 'draft' })),
     ).toEqual({ numbers: [1, 2, 3], hidden: undefined });

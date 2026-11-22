@@ -1,5 +1,5 @@
 // Follows the auth service: signs out accounts outside the allowed domain, and gives the page the session.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAllowedEmail } from '@qv/schema';
@@ -42,12 +42,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
   }, [session]);
 
-  const signIn = useCallback((next = paths.home) => session.signInWithGoogle(next), [session]);
-  const signOut = useCallback(async () => {
+  const signIn = (next = paths.home) => session.signInWithGoogle(next);
+  const signOut = async () => {
     await session.signOut();
     queryClient.clear();
-  }, [session, queryClient]);
+  };
 
-  const value = useMemo(() => ({ state, signIn, signOut }), [state, signIn, signOut]);
+  const value = { state, signIn, signOut };
   return <SessionContext value={value}>{children}</SessionContext>;
 }

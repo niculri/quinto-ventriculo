@@ -53,19 +53,13 @@ export function AdminModeSwitch({
     services.adminApi && storedAdminMode() ? guarded(services, services.adminApi) : null,
   );
 
+  // `render` is called with it: the compiler would leave it new in each render, and the whole site would read it again.
   const adminServices = useMemo<Services | null>(
-    () =>
-      repos && services.adminApi
-        ? {
-            ...services,
-            ...repos,
-            api: services.adminApi,
-          }
-        : null,
+    () => (repos && services.adminApi ? { ...services, ...repos, api: services.adminApi } : null),
     [repos, services],
   );
 
-  const enter = useCallback(() => {
+  const enter = () => {
     if (!services.adminApi) return;
     adminClient.clear();
     for (const q of client
@@ -75,8 +69,9 @@ export function AdminModeSwitch({
     }
     storeAdminMode(true);
     setRepos(guarded(services, services.adminApi));
-  }, [client, adminClient, services]);
+  };
 
+  // An effect depends on it: a new one in each render would check the session again each time.
   const exit = useCallback(() => {
     // Back to the site's cache before it is mounted again, so the page does not leave the screen while it is read again;
     // the progress is read again, since it was studied in the other cache.

@@ -26,7 +26,9 @@ const ITEMS: ListItem[] = [
 
 let scrollTo: ReturnType<typeof vi.fn>;
 const box = (top: number) =>
-  ({ current: { getBoundingClientRect: () => ({ top }) } }) as unknown as RefObject<HTMLElement | null>;
+  ({
+    current: { getBoundingClientRect: () => ({ top }) },
+  }) as unknown as RefObject<HTMLElement | null>;
 
 function reveal(patch: Partial<Props> = {}) {
   const props: Props = {

@@ -108,7 +108,12 @@ describe('the viewer’s cards', () => {
 
   it('are forgotten on closing, and read again from the new list on opening', () => {
     const { result, rerender } = viewer('0:a');
-    const closed = { params: new URLSearchParams(), data: DATA, table: false, lectures: lectures(B) };
+    const closed = {
+      params: new URLSearchParams(),
+      data: DATA,
+      table: false,
+      lectures: lectures(B),
+    };
     rerender(closed);
     expect(result.current.open).toBeNull();
     expect(result.current.viewerCards).toBeNull();

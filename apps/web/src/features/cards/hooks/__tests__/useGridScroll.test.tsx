@@ -1,6 +1,7 @@
 // Tests the table's scroll: the current row is brought into view from above or below (with a row of margin) and left
 // alone when it is in view, and the height follows the box as it is resized.
 import { act, render } from '@testing-library/react';
+import { useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROW } from '../../model/grid';
 import { useGridScroll } from '../useGridScroll';
@@ -26,15 +27,19 @@ let last: Scroll | undefined;
 
 function Probe({ index }: { index: number }) {
   const s = useGridScroll(index);
-  last = s;
-  return <div ref={s.scroller} />;
+  const { scroller } = s;
+  useEffect(() => {
+    last = s;
+  });
+  return <div ref={scroller} />;
 }
 
 function grid(index: number, scrollTop = 0) {
   const r = render(<Probe index={-1} />);
-  last!.scroller.current!.scrollTop = scrollTop;
+  const el = r.container.firstElementChild as HTMLDivElement;
+  el.scrollTop = scrollTop;
   r.rerender(<Probe index={index} />);
-  return { ...r, el: () => last!.scroller.current! };
+  return { ...r, el: () => el };
 }
 
 beforeEach(() => {

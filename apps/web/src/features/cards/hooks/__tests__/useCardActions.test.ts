@@ -1,6 +1,5 @@
-// Tests what the table does with the selection: the current card decides whether it suspends or brings back, buries
-// or unburies, flags or takes the flag away; only the cards it changes are sent; what only the draft has, or an empty
-// selection, does nothing; and each says it in the words of the mode.
+// Tests the table's actions on the selection: the current card decides which way each goes, only the cards it changes
+// are sent, a draft-only card or no card does nothing, and each says it in the words of the mode.
 import { act as reactAct, renderHook } from '@testing-library/react';
 import type { SchedTiming } from '@qv/srs';
 import { describe, expect, it, vi } from 'vitest';
@@ -21,7 +20,9 @@ const REVIEW = card('r', { queue: 'review', row, flag: 2 });
 
 function actions(chosen: BrowseCard[], focus: BrowseCard | null, full = true) {
   const act = vi.fn(() => Promise.resolve());
-  const hook = renderHook(() => useCardActions({ chosen: () => chosen, focus, timing: TIMING, full, act }));
+  const hook = renderHook(() =>
+    useCardActions({ chosen: () => chosen, focus, timing: TIMING, full, act }),
+  );
   return { ...hook, act, last: () => act.mock.calls.at(-1) as unknown[] | undefined };
 }
 

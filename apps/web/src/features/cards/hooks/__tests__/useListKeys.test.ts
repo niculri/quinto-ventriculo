@@ -42,9 +42,10 @@ function keys(patch: Partial<Props> = {}) {
   const press = (key: string, at: number | null) => {
     const target = document.createElement('div');
     if (at !== null) target.dataset.position = String(at);
-    const e = { key, target, preventDefault: vi.fn() } as unknown as KeyboardEvent<HTMLElement>;
+    const preventDefault = vi.fn();
+    const e = { key, target, preventDefault } as unknown as KeyboardEvent<HTMLElement>;
     act(() => hook.result.current(e));
-    return e.preventDefault as ReturnType<typeof vi.fn>;
+    return preventDefault;
   };
   return { ...hook, press, props };
 }

@@ -33,10 +33,13 @@ function keys(scope: CardsScope | null = SCOPE, ...rest: [CardIndex[] | undefine
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
-  return renderHook((p: { indexes: CardIndex[] | undefined }) => useDraftOnlyKeys(scope, p.indexes), {
-    wrapper,
-    initialProps: { indexes },
-  });
+  return renderHook(
+    (p: { indexes: CardIndex[] | undefined }) => useDraftOnlyKeys(scope, p.indexes),
+    {
+      wrapper,
+      initialProps: { indexes },
+    },
+  );
 }
 
 beforeEach(() => {
@@ -50,7 +53,7 @@ describe('the draft-only cards', () => {
     const { result } = keys();
     expect(result.current.keys.size).toBe(0);
     expect(result.current.error).toBeNull();
-    expect(result.current.refetch()).toBeUndefined();
+    result.current.refetch();
     expect(fake.deck).not.toHaveBeenCalled();
   });
 

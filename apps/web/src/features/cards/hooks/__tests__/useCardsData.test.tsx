@@ -1,7 +1,5 @@
-// Tests the cards pages' data: the notes and cards are built once everything is read, and again exactly when what they
-// are built from changes (the time, the student's rows, the author's presets…), not on any other render; an index the
-// catalog names that is gone means the cards changed, other failures are the error, and a retry asks again only for
-// what failed.
+// Tests the cards pages' data: built once everything is read and again only when its sources change; a gone index means
+// the cards changed, other failures are the error, and a retry asks again only for what failed.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -129,14 +127,25 @@ const scopeWith = (assessments: unknown[]) => ({ ...SCOPE, assessments }) as unk
 describe('what is missing', () => {
   it('is an assessment with cards and no index, not one whose decks have no cards', () => {
     const index = { id: 'a1', cardIndex: { hash: 'h' }, cardCount: 3 };
-    expect(data(0, scopeWith([index, { id: 'a2', cardIndex: null, cardCount: 0 }])).result.current.missing).toBe(false);
-    expect(data(0, scopeWith([index, { id: 'a2', cardIndex: null, cardCount: 4 }])).result.current.missing).toBe(true);
+    expect(
+      data(0, scopeWith([index, { id: 'a2', cardIndex: null, cardCount: 0 }])).result.current
+        .missing,
+    ).toBe(false);
+    expect(
+      data(0, scopeWith([index, { id: 'a2', cardIndex: null, cardCount: 4 }])).result.current
+        .missing,
+    ).toBe(true);
   });
 
   it('is nothing, and nothing is built, without a scope', async () => {
     const { result } = data(0, null);
     await act(() => Promise.resolve());
-    expect(result.current).toMatchObject({ data: undefined, missing: false, changed: false, error: null });
+    expect(result.current).toMatchObject({
+      data: undefined,
+      missing: false,
+      changed: false,
+      error: null,
+    });
     expect(read.index).not.toHaveBeenCalled();
   });
 });

@@ -12,7 +12,7 @@ import type { CourseDeckNode } from '../../../catalog/model/tree';
 import { explorerNotes } from '../../model/explorer';
 import { useCardsBody } from '../useCardsBody';
 
-const read = vi.hoisted(() => ({ data: undefined as unknown }));
+const read = vi.hoisted((): { data: unknown } => ({ data: undefined }));
 
 vi.mock('../useCardsData', () => ({ useCardsData: () => ({ data: read.data }) }));
 vi.mock('../useFailed', () => ({ useFailed: () => ({ data: new Set() }) }));

@@ -1,6 +1,7 @@
 // Tests where the cards page's list is: measured at once, again one frame after a scroll, a resize or a change of the
 // box (only the last of several in a frame), a phone's width where nothing is laid out, and nothing left listening.
 import { act, render, renderHook } from '@testing-library/react';
+import { useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useListViewport } from '../useListViewport';
 
@@ -26,8 +27,11 @@ let last: Viewport | undefined;
 
 function Probe() {
   const v = useListViewport();
-  last = v;
-  return <section ref={v.box} />;
+  const { box } = v;
+  useEffect(() => {
+    last = v;
+  });
+  return <section ref={box} />;
 }
 
 const runFrames = () =>

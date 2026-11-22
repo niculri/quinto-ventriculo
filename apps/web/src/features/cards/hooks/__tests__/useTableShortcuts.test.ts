@@ -1,6 +1,5 @@
-// Tests the table's shortcuts on the page: each command runs its action; none while typing in a field (also when the
-// key does not say where it was typed) or while an action runs, except going to the search box; and nothing listens
-// once the table is gone.
+// Tests the table's shortcuts: each command runs its action; none while typing (also with no path to read) or busy,
+// except going to the search box; and nothing listens once the table is gone.
 import { fireEvent, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useTableShortcuts } from '../useTableShortcuts';

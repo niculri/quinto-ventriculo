@@ -1,6 +1,5 @@
-// Tests the table's state: the search over the cards is not done again by a render that changes nothing, as typing in
-// the box (each key renders the table) must not cost a search of every card; a new search is a step back in the
-// history and empties the selection; and the forget shortcut opens its dialog only for cards that can be forgotten.
+// Tests the table's state: typing does not search the cards again, a new search is a step in the history that empties
+// the selection, and the forget shortcut opens its dialog only for cards that can be forgotten.
 import { act, fireEvent, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';

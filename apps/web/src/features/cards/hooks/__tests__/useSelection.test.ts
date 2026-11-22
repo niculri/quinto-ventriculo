@@ -1,6 +1,5 @@
-// Tests the table's selection as in Anki: a click chooses one, Ctrl/⌘ adds or takes away (starting from the current
-// card), Mayús a range in either direction, the current card read from and written to the URL, and «Notas» choosing
-// every card of a note.
+// Tests the table's selection as in Anki: a click, Ctrl/⌘ (from the current card) and Mayús (either way), the current
+// card read from and written to the URL, and «Notas» choosing every card of a note.
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { browseCard } from '../../../../test/cardsFakes';
@@ -10,8 +9,7 @@ import { useSelection } from '../useSelection';
 import type { SelectKeys } from '../useSelection';
 
 const k = (noteGuid: string, ord: number) => cardKey({ noteGuid, ord });
-const card = (guid: string, ord = 0) =>
-  browseCard({ key: k(guid, ord), ord, note: { guid } });
+const card = (guid: string, ord = 0) => browseCard({ key: k(guid, ord), ord, note: { guid } });
 const LIST = [card('a'), card('b'), card('c'), card('d')];
 const PLAIN: SelectKeys = { shiftKey: false, ctrlKey: false, metaKey: false };
 

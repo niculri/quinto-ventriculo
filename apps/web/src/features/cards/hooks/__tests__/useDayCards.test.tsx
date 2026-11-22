@@ -1,6 +1,5 @@
-// Tests the cards of the URL's heatmap day: a malformed day is none, a past day reads its answers (from its start to the
-// next day's) and the practice, a future day reads nothing, it waits while they come, and a retry asks again only for
-// what failed.
+// Tests the cards of the URL's heatmap day: none for a malformed day, the answers and practice of a past day (or today
+// with something done), nothing read for a future day, waiting while they come, and a retry of only what failed.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
@@ -38,7 +37,9 @@ function day(
 
 beforeEach(() => {
   study = {
-    heatmap: vi.fn().mockResolvedValue({ days: [{ day: dayNumber(PAST), deckId: 'd1', practice: 4 }] }),
+    heatmap: vi
+      .fn()
+      .mockResolvedValue({ days: [{ day: dayNumber(PAST), deckId: 'd1', practice: 4 }] }),
     ratedBetween: vi.fn().mockResolvedValue([]),
   };
 });

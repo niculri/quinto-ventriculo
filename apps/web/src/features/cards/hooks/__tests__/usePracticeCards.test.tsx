@@ -9,13 +9,15 @@ import { buildAnkiTree } from '../../../catalog/model/tree';
 import type { CourseDeckNode } from '../../../catalog/model/tree';
 import { usePracticeCards } from '../usePracticeCards';
 
-const read = vi.hoisted(() => ({
-  catalog: undefined as unknown,
-  scopes: [] as unknown[],
-  data: undefined as unknown,
-  textWaiting: false,
-  dayWaiting: false,
-}));
+const read = vi.hoisted(
+  (): {
+    catalog: unknown;
+    scopes: unknown[];
+    data: unknown;
+    textWaiting: boolean;
+    dayWaiting: boolean;
+  } => ({ catalog: undefined, scopes: [], data: undefined, textWaiting: false, dayWaiting: false }),
+);
 
 vi.mock('../../../catalog/hooks/useAnkiTree', () => ({
   useAnkiTree: () => ({ catalog: { data: read.catalog }, tree: null }),

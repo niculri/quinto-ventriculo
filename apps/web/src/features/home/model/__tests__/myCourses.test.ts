@@ -87,6 +87,26 @@ describe('«Tus ramos»', () => {
     expect(addCourse(addCourse(none, 'a1'), 'a1').addedCourses).toEqual(['a1']);
   });
 
+  it('past the limit the oldest are forgotten, never the newest', () => {
+    const last = `r${MAX_CHOSEN_COURSES + 4}`;
+    let added = { ...none };
+    let removed = { ...none };
+    for (let i = 0; i < MAX_CHOSEN_COURSES + 5; i++) {
+      added = addCourse(added, `r${i}`);
+      removed = removeCourse(removed, `r${i}`);
+    }
+    const edges = (list: string[]) => [list[0], list.at(-1)];
+    expect(edges(added.addedCourses)).toEqual(['r5', last]);
+    expect(edges(removed.removedCourses)).toEqual(['r5', last]);
+  });
+
+  it('a course in both lists stays out: taking out wins over adding', () => {
+    const both = { ...none, addedCourses: ['a1'], removedCourses: ['a1'] };
+    const r = myCourses(CATALOG, both, new Set());
+    expect(ids(r.cards)).toEqual([]);
+    expect(ids(r.addable)).toContain('a1');
+  });
+
   it('«Próximamente: A, B y C», with «e» before an «i» sound', () => {
     expect(listText(['Química', 'Matemáticas', 'Anatomía I'])).toBe(
       'Química, Matemáticas y Anatomía I',

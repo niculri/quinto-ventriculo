@@ -8,4 +8,8 @@ changes to the database are still the migrations. Every night the private reposi
 The `draft` schema (the preview of the next publication) is not here: `rebuild_draft()` makes it from `public`.
 
 Privileges are only those of `public`, `anon`, `authenticated`, `service_role` and
-`supabase_auth_admin`.
+`supabase_auth_admin`, on functions, tables, columns and sequences, and the default ones of `postgres` (not the ones
+on the schema itself).
+
+It does not hold what lives outside the tables and functions of `public`: the `pg_cron` jobs, the types, the comments
+on columns and what Supabase keeps in its dashboard (the Auth hook).

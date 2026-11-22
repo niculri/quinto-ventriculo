@@ -245,7 +245,7 @@ describe('what the page does besides showing the note', () => {
     expect(window.localStorage.getItem('qv-last-note')).toBe('11-traduccion');
     window.localStorage.clear();
     renderApp('/dev/reading');
-    await screen.findByRole('heading', { level: 1 });
+    await screen.findByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' });
     expect(window.localStorage.getItem('qv-last-note')).toBeNull();
   });
 

@@ -73,6 +73,15 @@ describe('the layout of an article’s figures', () => {
     ]);
     expect(small).toEqual([200, 100]);
   });
+
+  it('a row without figures has no widths, and one with a size missing shares the column evenly', () => {
+    expect(rowWidths([])).toEqual([]);
+    expect(rowWidths([{ width: 800, height: 400 }, {}, { width: 10 }])).toEqual([
+      (COLUMN_PX - 32) / 3,
+      (COLUMN_PX - 32) / 3,
+      (COLUMN_PX - 32) / 3,
+    ]);
+  });
 });
 
 describe('prepareArticle', () => {
@@ -180,6 +189,65 @@ describe('prepareArticle', () => {
       para(80) + `<div class="side side-right">${fig('')}${para(5)}</div>` + '<h2>Otra</h2>',
     );
     expect(side.indexOf('<figure')).toBeLessThan(side.indexOf('<p>'));
+  });
+
+  it('two thumbnails in a row need the text of both: together they move to where it is', () => {
+    expect(order(fig('') + fig('') + para(5) + table + para(400))).toEqual([
+      'p',
+      'div class="table-scroll"',
+      'figure',
+      'figure',
+      'p',
+    ]);
+    expect(order(fig('') + fig('') + para(400) + table)).toEqual([
+      'figure',
+      'figure',
+      'p',
+      'div class="table-scroll"',
+    ]);
+  });
+
+  it('a list counts a line per item: a short list of many items is enough text, the same words in a paragraph are not', () => {
+    const items = `<ul>${'<li>uno</li>'.repeat(20)}</ul>`;
+    expect(order(fig('') + items + table + para(300))).toEqual([
+      'figure',
+      'div class="table-scroll"',
+      'p',
+    ]);
+    expect(order(fig('') + para(20) + table + para(300))).toEqual([
+      'p',
+      'div class="table-scroll"',
+      'figure',
+      'p',
+    ]);
+  });
+
+  it('when no place has enough text, it goes where the strip is smallest, even if that is further', () => {
+    expect(
+      order('<h3>A</h3>' + fig('') + para(5) + table + para(60) + table + '<h3>B</h3>'),
+    ).toEqual([
+      'h3',
+      'p',
+      'div class="table-scroll"',
+      'figure',
+      'p',
+      'div class="table-scroll"',
+      'h3',
+    ]);
+  });
+
+  it('when two places miss the same text, the nearest one wins: it stays', () => {
+    expect(
+      order('<h3>A</h3>' + fig('') + para(5) + table + para(5) + table + '<h3>B</h3>'),
+    ).toEqual([
+      'h3',
+      'figure',
+      'p',
+      'div class="table-scroll"',
+      'p',
+      'div class="table-scroll"',
+      'h3',
+    ]);
   });
 
   it('marks the <sup> and <sub> that Inter draws with its own glyphs, and only those', () => {

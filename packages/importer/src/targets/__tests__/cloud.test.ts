@@ -27,6 +27,11 @@ describe('the image cache, --assessment and the batches', () => {
     expect(batches(items, 1000, 2).map((b) => b.length)).toEqual([2, 2, 2]);
     expect(batches([], 10, 10)).toEqual([]);
   });
+
+  it('batches: a batch that reaches the byte limit exactly still holds its piece', () => {
+    // «a» is 3 bytes as JSON: two of them are 6.
+    expect(batches(['a', 'b', 'c'], 6, 10)).toEqual([['a', 'b'], ['c']]);
+  });
 });
 
 describe('CloudTarget', () => {
@@ -135,7 +140,13 @@ describe('CloudTarget', () => {
       }),
       save_anki_browse_indexes: () => null,
     });
-    const { store, events } = fakeStore();
+    const { store } = fakeStore();
+    // One timeline for the database and the store: what is told is what happened first.
+    const timeline: string[] = [];
+    const rpc = db.rpc;
+    db.rpc = (fn, args) => (timeline.push(fn), rpc(fn, args));
+    const put = store.put;
+    store.put = (key, body, type) => (timeline.push('put'), put(key, body, type));
     await target(db, store).save(bundle, media);
     expect(order()).toEqual([
       'import_state',
@@ -148,8 +159,13 @@ describe('CloudTarget', () => {
       'anki_card_changes_since',
       'save_anki_browse_indexes',
     ]);
-    const firstCall = events.findIndex((e) => e.startsWith('put '));
-    expect(firstCall).toBeGreaterThanOrEqual(0);
+    // The images are in the store before the catalog or any piece that names them is written.
+    expect(timeline[0]).toBe('import_state');
+    expect(timeline.indexOf('put')).toBeGreaterThan(0);
+    expect(timeline.indexOf('put')).toBeLessThan(timeline.indexOf('sync_catalog'));
+    // The files of the browser indexes are in it before the row that names them.
+    expect(timeline.lastIndexOf('put')).toBeLessThan(timeline.indexOf('save_anki_browse_indexes'));
+    expect(timeline.lastIndexOf('put')).toBeGreaterThan(timeline.indexOf('prune_content'));
   });
 
   it('only what the database does not have is sent, without what the database computes, and the report tells which', async () => {

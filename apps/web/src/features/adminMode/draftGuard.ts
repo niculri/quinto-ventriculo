@@ -73,7 +73,8 @@ export function guardQuiz(real: QuizRepository, draft: DraftOnly): QuizRepositor
   };
 }
 
-const quizOf = (id: string) => id.split('/')[0] ?? id;
+// split always gives a first piece: the whole id when it has no «/».
+const quizOf = (id: string) => id.split('/')[0]!;
 
 async function isDraftReport(draft: DraftOnly, r: NewReport): Promise<boolean> {
   switch (r.kind) {

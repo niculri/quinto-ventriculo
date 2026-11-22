@@ -145,6 +145,7 @@ describe('the collection inside', () => {
 
   it('has to be the classic schema, 11', () => {
     expect(() => read({ ver: 18 })).toThrow(/esquema 18.*clásico \(11\)/);
+    expect(() => read({ ver: 10 })).toThrow(/esquema 10.*clásico \(11\)/);
     expect(read({ ver: 11 }).schemaVersion).toBe(11);
   });
 

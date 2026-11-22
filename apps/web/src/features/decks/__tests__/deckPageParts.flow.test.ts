@@ -218,3 +218,31 @@ it('an assessment without weeks yet has no list of subdecks', async () => {
   expect(screen.getByRole('region', { name: 'Estudiar' })).toBeInTheDocument();
   expect(screen.queryByRole('list', { name: 'Submazos' })).toBeNull();
 });
+
+it('a week the catalog has but the deck read does not yet is listed at 0 % of mastery', async () => {
+  const catalog = structuredClone(CATALOG);
+  const week = catalog.anki.decks.find((d) => d.id === '5')!;
+  catalog.anki.decks.push({
+    ...week,
+    id: '6',
+    name: week.name.replace(/S1 - [^:]+$/, 'S2 - Semana nueva'),
+  });
+  renderApp(ASSESSMENT_PATH, {
+    study: await student(),
+    api: fakeApi({ catalog: async () => catalog }),
+  });
+  const tree = await screen.findByRole('list', { name: 'Submazos' });
+  const row = (await within(tree).findByText('S2 - Semana nueva')).closest('li')!;
+  await waitFor(() => expect(row.querySelector('[data-mastery]')).not.toBeNull());
+  expect(row.querySelector('[data-mastery]')!.textContent).toContain('0 % de dominio');
+});
+
+it('a long day ahead says it is a lot, under «Estudiar»', async () => {
+  const study = await student();
+  study.medianAnswerMs = async () => 30 * 60_000;
+  renderApp(ASSESSMENT_PATH, { study });
+  const panel = await screen.findByRole('region', { name: 'Estudiar' });
+  const heavy = within(panel).getByText(/^Es bastante para un día/);
+  await waitFor(() => expect(heavy).toHaveAttribute('aria-hidden', 'false'));
+  expect(heavy).not.toHaveClass('invisible');
+});

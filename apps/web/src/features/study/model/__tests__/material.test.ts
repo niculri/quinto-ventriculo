@@ -55,6 +55,15 @@ describe('from a card to its material', () => {
     expect(map.has('5')).toBe(false);
   });
 
+  it('a test without topics goes to its section, with no topics chosen', () => {
+    const map = materialByDeck(
+      catalog({ deck: 'Mazo de prueba', quizId: 'practica', section: 'pautas' }),
+    );
+    expect(map.get('20')!.quizPath).toBe(
+      '/semesters/1/courses/anatomia-1/tests/certamen-1/practica/pautas',
+    );
+  });
+
   it('an article without a test: only the article', () => {
     const map = materialByDeck(catalog({ deck: 'Mazo de prueba' }));
     expect(map.get('20')).toMatchObject({ quiz: null, quizPath: null });

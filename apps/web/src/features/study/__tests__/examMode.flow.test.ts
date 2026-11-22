@@ -201,11 +201,13 @@ describe('the date of a test, on the assessment’s page', () => {
     expect(await study.assessmentSettings()).toEqual([]);
   });
 
-  it('emptying the field and leaving it takes the saved date away', async () => {
+  it('leaving a full date keeps it; emptying the field and leaving it takes the date away', async () => {
     const study = await withDate(await student(), 6);
     renderApp(ASSESSMENT_PATH, { study });
     const box = await options();
     await waitFor(() => expect(dateField(box)).toHaveValue(inDays(6)));
+    fireEvent.blur(dateField(box));
+    expect(dateField(box)).toHaveValue(inDays(6));
     fireEvent.change(dateField(box), { target: { value: '' } });
     expect((await study.assessmentSettings())[0]).toMatchObject({ examDate: inDays(6) });
     fireEvent.blur(dateField(box));
@@ -213,6 +215,17 @@ describe('the date of a test, on the assessment’s page', () => {
       expect((await study.assessmentSettings())[0]).toMatchObject({ examDate: null }),
     );
     await waitFor(() => expect(numberField(box)).toBeEnabled());
+  });
+
+  it('a new full date left before it is saved stays as typed', async () => {
+    const study = await withDate(await student(), 6);
+    renderApp(ASSESSMENT_PATH, { study });
+    const box = await options();
+    await waitFor(() => expect(dateField(box)).toHaveValue(inDays(6)));
+    study.saveAssessmentSetting = () => new Promise(() => {});
+    fireEvent.change(dateField(box), { target: { value: inDays(7) } });
+    fireEvent.blur(dateField(box));
+    expect(dateField(box)).toHaveValue(inDays(7));
   });
 
   it('a number field left empty goes back to the number it had, without saving', async () => {

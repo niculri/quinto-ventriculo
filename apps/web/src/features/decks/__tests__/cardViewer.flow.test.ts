@@ -172,4 +172,16 @@ describe('card viewer (a row of the cards page)', () => {
     await userEvent.click(retry);
     await cardRoot(/Frente/, dialog);
   });
+
+  it('the arrow keys stop at the ends of the list', async () => {
+    renderApp(viewing('s@/AqX%n?#', 0));
+    await cardRoot();
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(await screen.findByRole('dialog', { name: 'T-PR-01-001.2' })).toBeInTheDocument();
+    expect(screen.getByText(/· 1 de 4$/)).toBeInTheDocument();
+    for (let i = 0; i < 3; i++) await userEvent.keyboard('{ArrowRight}');
+    expect(await screen.findByText(/· 4 de 4$/)).toBeInTheDocument();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByText(/· 4 de 4$/)).toBeInTheDocument();
+  });
 });

@@ -1,7 +1,7 @@
 // Tests what «Listo por hoy» says in each case: the Extras off, nothing turned on, and the day done with or without a
 // date, from a deck, an assessment and a course.
 
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import type { CongratsInfo } from '@qv/study';
@@ -69,5 +69,64 @@ describe('«Listo por hoy»', () => {
     expect(
       html({ newLimitReached: true, exam: { ...EXAM, computed: true } }, at(3), true),
     ).toMatchSnapshot();
+  });
+});
+
+describe('the final reviews «Listo por hoy» offers', () => {
+  const done = (
+    node: CourseDeckNode,
+    seen: (id: string) => boolean,
+    info: Partial<CongratsInfo> = {},
+  ) =>
+    render(
+      <MemoryRouter>
+        <DoneToday
+          info={{ ...CONGRATS_BASE, ...info }}
+          node={node}
+          deckPath="/deck"
+          hasSeen={seen}
+          summary={null}
+        />
+      </MemoryRouter>,
+    );
+  const reviews = () =>
+    screen.queryAllByRole('link', { name: /^Repasar/ }).map((a) => a.textContent);
+
+  it('from a course with two assessments seen, one for each, named', () => {
+    const catalog = structuredClone(CATALOG);
+    const first = catalog.anki.decks.find((d) => d.id === '4')!;
+    catalog.anki.decks.push({
+      ...first,
+      id: '30',
+      name: first.name.replace('Certamen 1', 'Certamen 2'),
+    });
+    const course = buildAnkiTree(catalog).nodes.find(
+      (n): n is CourseDeckNode => n.depth === 2 && hasPage(n),
+    )!;
+    done(course, () => true);
+    expect(reviews()).toEqual([
+      'Repasar Certamen 1, sin cambiar fechas',
+      'Repasar Certamen 2, sin cambiar fechas',
+    ]);
+    expect(screen.getAllByRole('link', { name: /^Repasar/ })[1]).toHaveAttribute(
+      'href',
+      '/semesters/1/courses/anatomia-1/anki/certamen-2/review',
+    );
+  });
+
+  it('only those already seen; with one, it is not named', () => {
+    done(at(2), (id) => id === '4');
+    expect(reviews()).toEqual(['Repasar igual, sin cambiar fechas']);
+  });
+
+  it('none from a deck with no assessment above it', () => {
+    const lone = { ...at(5), parent: null } as CourseDeckNode;
+    done(lone, () => true);
+    expect(reviews()).toEqual([]);
+  });
+
+  it('a learning card still to come says when, also with the day done', () => {
+    done(at(5), () => false, { learnMessage: 'La próxima en 5 minutos.' });
+    expect(screen.getByText('La próxima en 5 minutos.')).toBeInTheDocument();
   });
 });

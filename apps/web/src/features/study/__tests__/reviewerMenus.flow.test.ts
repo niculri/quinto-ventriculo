@@ -108,3 +108,28 @@ describe('«Más» in the simple mode', () => {
     );
   });
 });
+
+describe('a report from the study screen', () => {
+  it('closed without sending, thanks nobody', async () => {
+    renderApp(`${DECK_PATH}/study`, { study: await simpleStudent() });
+    await cardText(/Frente/);
+    await fromMore('Reportar error');
+    const dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByText('Gracias: tu reporte le llegó al autor.')).toBeNull();
+  });
+
+  it('sent, its thanks go away after 3 seconds', async () => {
+    renderApp(`${DECK_PATH}/study`, { study: await simpleStudent() });
+    await cardText(/Frente/);
+    await fromMore('Reportar error');
+    await report();
+    const shownAt = Date.now();
+    await waitFor(
+      () => expect(screen.queryByText('Gracias: tu reporte le llegó al autor.')).toBeNull(),
+      { timeout: 6000 },
+    );
+    expect(Date.now() - shownAt).toBeGreaterThanOrEqual(2900);
+  });
+});

@@ -332,3 +332,84 @@ describe('each «Listo por hoy»', () => {
     await waitFor(() => expect(saved).toHaveBeenCalledTimes(2));
   });
 });
+
+describe('a summary on its own', () => {
+  const show = (study: StudyRepository, node: CourseDeckNode) =>
+    render(
+      <MemoryRouter>
+        <StudyRepositoryContext value={study}>
+          <QueryClientProvider
+            client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+          >
+            <DaySummary node={node} prefs={defaultPreferences()} saved={async () => undefined} />
+          </QueryClientProvider>
+        </StudyRepositoryContext>
+      </MemoryRouter>,
+    );
+  const lone = {
+    id: 'n5',
+    depth: 5,
+    parent: null,
+    children: [],
+    ref: { course: { id: 'ramo', semester: 1 }, segments: ['n5'] },
+  } as unknown as CourseDeckNode;
+  const value = (label: string) =>
+    within(screen.getByRole('region', { name: 'Resumen de hoy' })).getByText(label)
+      .nextElementSibling!.textContent;
+
+  it('that cannot be read says «—» in each figure and offers «Reintentar», which reads it again', async () => {
+    const study = localStudyRepository(null);
+    const rated = study.ratedBetween.bind(study);
+    let fail = true;
+    study.ratedBetween = (from, to) =>
+      fail ? Promise.reject(new Error('sin red')) : rated(from, to);
+    show(study, lone);
+    const retry = await screen.findByRole('button', { name: 'Reintentar' });
+    expect(screen.getByText(/^No se pudo leer el resumen\./)).toBeInTheDocument();
+    expect(['Respuestas hoy', 'Bien', 'Racha actual'].map(value)).toEqual(['—', '—', '—']);
+    fail = false;
+    await userEvent.click(retry);
+    await waitFor(() => expect(value('Respuestas hoy')).toBe('0'));
+    expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
+  });
+
+  it('without answers counted, «Bien» has no percent', async () => {
+    show(localStudyRepository(null), lone);
+    await waitFor(() => expect(value('Respuestas hoy')).toBe('0'));
+    expect(value('Bien')).toBe('—');
+  });
+
+  it('a deck with nothing above it to list its cards in links its failed cards to itself', async () => {
+    const study = localStudyRepository(null);
+    const now = Date.now();
+    await study.recordReview({
+      card: { noteGuid: 'nota', ord: 0, deckId: 'n5' },
+      expectedUpdatedAt: null,
+      rating: 1,
+      queueBefore: 'new',
+      interval: 0,
+      lastInterval: 0,
+      durationMs: 3000,
+      state: {
+        phase: 'learning',
+        interday: false,
+        remainingSteps: 2,
+        due: new Date(now + 60_000).toISOString(),
+        interval: 0,
+        stability: 0.4,
+        difficulty: 7,
+        reps: 1,
+        lapses: 0,
+        lastReview: new Date(now).toISOString(),
+        suspended: false,
+        leech: false,
+      },
+      bury: [],
+      buriedUntil: null,
+    });
+    show(study, lone);
+    const link = await screen.findByRole('link', { name: 'Ver las que fallaste' });
+    expect(link.getAttribute('href')).toMatch(/^\/semesters\/1\/courses\/ramo\/anki\/n5\/cards\?/);
+    expect(new URLSearchParams(link.getAttribute('href')!.split('?')[1]).get('unit')).toBeNull();
+  });
+});

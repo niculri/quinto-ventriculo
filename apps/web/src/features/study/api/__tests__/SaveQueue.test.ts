@@ -12,6 +12,8 @@ import {
 import type { ReviewInput, StoredCard, StudyRepository } from '../../../progress/api/repository';
 import { blankRow, cardKey, EMPTY_PLAN, treeDecks } from '@qv/study';
 import { StudyDriver } from '../../../../test/StudyDriver';
+import { SaveQueue } from '../SaveQueue';
+import type { SaveFailure } from '@qv/study';
 
 const NETWORK = () => new Error('No se pudo guardar tu respuesta: TypeError: Failed to fetch');
 
@@ -90,6 +92,29 @@ describe('saving the answers when the connection fails', () => {
     expect(await local.cards(['20', '21'])).toEqual([]);
   });
 
+  it('a retry that finds the card changed by something else stops the session', async () => {
+    const local = localStudyRepository(null);
+    let calls = 0;
+    const s = session({
+      ...local,
+      recordReview: async (input) => {
+        calls++;
+        if (calls === 1) throw NETWORK();
+        // Another tab answered it meanwhile: the card is not as this answer left it.
+        await local.recordReview({
+          ...input,
+          state: { ...input.state, reps: input.state.reps + 5 },
+        });
+        throw new CardChangedError();
+      },
+    });
+    s.showNext();
+    answer(s);
+    await s.saved();
+    expect(calls).toBe(2);
+    expect(s.failure).toMatch(/cambió en otra pestaña/);
+  });
+
   it('a card changed in another tab is not retried', async () => {
     const local = localStudyRepository(null);
     let calls = 0;
@@ -154,6 +179,22 @@ describe('undo', () => {
     expect(next.toast).toBe('No hay nada que deshacer');
     expect(await local.cards(['20', '21'])).toEqual(before);
   });
+});
+
+it('an undo of something this queue never wrote stops the session, as one the database does not match', async () => {
+  const failures: SaveFailure[] = [];
+  const queue = new SaveQueue(
+    localStudyRepository(null),
+    new Map(),
+    [0, 0],
+    (f) => failures.push(f),
+    () => {},
+  );
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'answer', card });
+  await queue.saved();
+  expect(failures).toEqual([{ kind: 'changedElsewhere' }]);
+  expect(queue.pending).toBe(0);
 });
 
 describe('the marks of the cards that were written', () => {

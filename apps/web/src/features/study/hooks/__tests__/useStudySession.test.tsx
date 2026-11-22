@@ -15,7 +15,7 @@ import { StudyRepositoryContext } from '../../../progress/api/context';
 import { defaultPreferences, localStudyRepository } from '../../../progress/api/repository';
 import type { StudyRepository } from '../../../progress/api/repository';
 import { cardQuery } from '../../../decks/api/queries';
-import { useSessionLifecycle, useStudySession } from '../useStudySession';
+import { useDoneSummary, useSessionLifecycle, useStudySession } from '../useStudySession';
 
 const data = (): StudyData => ({
   deck: DECK,
@@ -283,5 +283,32 @@ describe('an update that React sets aside under a synchronous one', () => {
     expect(calls.undo).toHaveBeenCalledTimes(1);
     expect(calls.recordReview).toHaveBeenCalledTimes(1);
     expect(session?.state.failure).toBeNull();
+  });
+});
+
+describe('whether «Listo por hoy» shows the summary of the day', () => {
+  it('is decided when it opens, and not again while it stays open', () => {
+    let answered = true;
+    const ask = vi.fn(() => answered);
+    const { result, rerender } = renderHook(({ done }) => useDoneSummary(done, ask), {
+      initialProps: { done: true },
+    });
+    expect(result.current).toBe(true);
+    answered = false;
+    rerender({ done: true });
+    expect(result.current).toBe(true);
+    expect(ask).toHaveBeenCalledTimes(1);
+  });
+
+  it('while studying there is none, and opening it again asks again', () => {
+    let answered = true;
+    const { result, rerender } = renderHook(({ done }) => useDoneSummary(done, () => answered), {
+      initialProps: { done: true },
+    });
+    rerender({ done: false });
+    expect(result.current).toBe(false);
+    answered = false;
+    rerender({ done: true });
+    expect(result.current).toBe(false);
   });
 });

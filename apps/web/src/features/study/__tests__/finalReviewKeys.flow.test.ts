@@ -1,7 +1,7 @@
 // Tests the final review's keyboard (space answers «Bien» once the answer is shown; a held key or a modifier does
-// nothing) and a mark that cannot be saved.
+// nothing), its mark for review and its report.
 
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { DECK } from '../../../test/fixtures/deck';
@@ -80,5 +80,42 @@ describe('the final review’s keyboard', () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Marcar para revisar' }));
     expect(await screen.findByText('No se pudo guardar la marca.')).toBeInTheDocument();
     expect(screen.queryByRole('img', { name: 'Marcada para revisar' })).toBeNull();
+  });
+
+  it('the mark for review is put and taken away, and saved each time', async () => {
+    const study = await seen();
+    await startRound(study);
+    const more = async (item: string) => {
+      await userEvent.click(screen.getByRole('button', { name: 'Más' }));
+      await userEvent.click(await screen.findByRole('menuitem', { name: item }));
+    };
+    await more('Marcar para revisar');
+    expect(await screen.findByRole('img', { name: 'Marcada para revisar' })).toBeInTheDocument();
+    await waitFor(async () =>
+      expect((await study.cards(['20'])).some((c) => c.flag !== 0)).toBe(true),
+    );
+    await more('Quitar la marca');
+    await waitFor(() =>
+      expect(screen.queryByRole('img', { name: 'Marcada para revisar' })).toBeNull(),
+    );
+    await waitFor(async () =>
+      expect((await study.cards(['20'])).every((c) => c.flag === 0)).toBe(true),
+    );
+  });
+
+  it('a report closed without sending thanks nobody, and one sent thanks', async () => {
+    await startRound(await seen());
+    const open = async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Más' }));
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Reportar error' }));
+      return screen.findByRole('dialog', { name: 'Reportar error' });
+    };
+    await userEvent.click(within(await open()).getByRole('button', { name: 'Cancelar' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByText('Gracias: tu reporte le llegó al autor.')).toBeNull();
+    const dialog = await open();
+    await userEvent.type(within(dialog).getByLabelText('¿Qué está mal?'), 'Una falta');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Enviar' }));
+    expect(await screen.findByText('Gracias: tu reporte le llegó al autor.')).toBeInTheDocument();
   });
 });

@@ -39,6 +39,16 @@ describe('a student who just arrived', () => {
     );
   });
 
+  it('Escape also closes the welcome, and that is remembered too', async () => {
+    const study = localStudyRepository(null);
+    await study.setDeckActivation(WEEK_ID, true);
+    renderApp(`${DECK_PATH}/study`, { study });
+    await screen.findByRole('dialog', { name: 'Cómo se estudia aquí' });
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(async () => expect((await study.preferences())?.welcomeSeen).toBe(true));
+  });
+
   it('the welcome shows once: closing it is remembered', async () => {
     const study = localStudyRepository(null);
     await study.setDeckActivation(WEEK_ID, true);
@@ -519,6 +529,37 @@ describe('the keyboard in the study screen', () => {
     ];
     return copy;
   }
+
+  it('a card whose article has a test links to its questions too, once the answer shows', async () => {
+    const catalog = withMaterial();
+    const assessment = catalog.semesters[0]!.courses[0]!.assessments[0]!;
+    assessment.notes[0]!.practice = {
+      deck: 'Mazo de prueba',
+      quizId: 'practica',
+      section: 'pautas',
+    };
+    assessment.quizzes = [
+      {
+        ...catalog.semesters[1]!.courses[0]!.assessments[0]!.quizzes[0]!,
+        id: 'practica',
+        slug: 'practica',
+        courseId: 'anatomia-1',
+        assessmentId: assessment.id,
+      },
+    ];
+    renderApp(`${DECK_PATH}/study`, {
+      study: await withWeekOn(),
+      api: fakeApi({ catalog: async () => catalog }),
+    });
+    await cardText(/Frente de la tarjeta/);
+    expect(screen.queryByRole('link', { name: 'Preguntas' })).toBeNull();
+    fireEvent.keyDown(window, { key: ' ' });
+    await cardText(/Reverso de la tarjeta/);
+    expect(await screen.findByRole('link', { name: 'Preguntas' })).toHaveAttribute(
+      'href',
+      '/semesters/1/courses/anatomia-1/tests/certamen-1/practica/pautas',
+    );
+  });
 
   it('after opening «Ver apunte», Enter answers: it does not open the article again', async () => {
     const study = await withWeekOn();

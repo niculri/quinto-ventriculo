@@ -248,6 +248,7 @@ describe('rustRegex: what it matches', () => {
   it('classes that Rust has but this cannot translate are refused, each with its reason', () => {
     expect(() => re('[[:^alpha:]]')).toThrow(/POSIX negadas/);
     expect(() => re('[[:nonsense:]]')).toThrow(/clases anidadas/);
+    expect(() => re('[[:constructor:]]')).toThrow(/clases anidadas/);
     expect(() => re('[[a]]')).toThrow(/clases anidadas/);
     expect(() => re('[a&&b]')).toThrow(/operaciones entre clases/);
     expect(() => re('[a~~b]')).toThrow(/operaciones entre clases/);

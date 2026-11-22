@@ -373,7 +373,8 @@ function translateClass(src: string, i: number): [string, number] {
       j += len;
     } else if (c === '[') {
       const posix = /^\[:(\^?)([a-z]+):\]/.exec(src.slice(j));
-      if (!posix || POSIX[posix[2]!] === undefined) throw new Error('clases anidadas no admitidas');
+      if (!posix || !Object.hasOwn(POSIX, posix[2]!))
+        throw new Error('clases anidadas no admitidas');
       if (posix[1]) throw new Error('clases POSIX negadas no admitidas');
       out += POSIX[posix[2]!];
       j += posix[0].length;

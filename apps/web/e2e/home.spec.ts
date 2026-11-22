@@ -380,7 +380,7 @@ test('the account button says only the first name, the menu the whole name, and 
   const search = page.getByRole('banner').getByRole('button', { name: /Buscar en la página/ });
   const bar = async () => [await place(search), await place(account)];
   const closed = await bar();
-  await expect(account).toHaveAccessibleName('Estudiante de prueba, tu cuenta');
+  await expect(account).toHaveAccessibleName('Hola, Estudiante, tu cuenta');
   if (!isMobile) {
     await expect(account).toHaveText('Estudiante');
     // A name that is long is cut, so that the bar is the same for anybody.

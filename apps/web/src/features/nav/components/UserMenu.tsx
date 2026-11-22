@@ -57,7 +57,7 @@ export function UserMenu() {
   return (
     <MenuRoot closeOnly={isAnswerScreen(pathname)}>
       <Menu.Trigger
-        aria-label={user.name ? userMenuStrings.accountOf(user.name) : userMenuStrings.account}
+        aria-label={first ? userMenuStrings.accountOf(first) : userMenuStrings.account}
         className="flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5"
       >
         {first ? (

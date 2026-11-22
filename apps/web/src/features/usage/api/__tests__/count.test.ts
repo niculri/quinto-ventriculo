@@ -159,7 +159,8 @@ describe('what is opened', () => {
     await settle();
     expect(sent).toEqual([]);
     await userEvent.click(screen.getByRole('link', { name: 'Traducción' }));
-    expect(sent).toEqual([{ kind: 'search', from: 'search' }]);
+    // Opening the note counts too, on its own; the search counts once, when the result is chosen.
+    expect(sent.filter((e) => e.kind === 'search')).toEqual([{ kind: 'search', from: 'search' }]);
   });
 });
 

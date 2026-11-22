@@ -1100,3 +1100,27 @@ describe('how alike two texts must be to be one note', () => {
     expect(changedGuids([note('a', 'abcdefgh')], [note('b', 'abcdefg')])).toEqual([]);
   });
 });
+
+describe('the edges of what counts as the same', () => {
+  it('two letters are enough to compare: «ab» is two thirds of «abc»', () => {
+    expect(similarity('ab', 'abc')).toBeCloseTo(2 / 3, 5);
+  });
+
+  it('a mask that keeps half of its box is still the same mask, one that keeps less is another', () => {
+    const whole = 'rect:left=0:top=0:width=.5:height=.5';
+    const half = 'rect:left=0:top=0:width=.25:height=.5';
+    const less = 'rect:left=0:top=0:width=.125:height=.5';
+    expect(renumbered({ 1: whole }, { 1: half }, true)).toEqual({ renumbered: [], moved: [] });
+    expect(renumbered({ 1: whole }, { 1: less }, true)).toEqual({ renumbered: [], moved: [1] });
+  });
+
+  it('a change is told word by word up to 4 000 000 cells of its table, and as a whole after that', () => {
+    const words = (prefix: string, count: number, lead: string) =>
+      `${lead}${Array.from({ length: count }, (_, i) => `${prefix}${i}`).join(' ')}`;
+    // 1 000 words and 1 000 spaces on each side: 2 000 × 2 000 cells, the last one the table takes.
+    const exact = wordDiff(words('a', 1000, ' '), words('b', 1000, '\t'));
+    expect(exact.some((part) => part.op === 'same')).toBe(true);
+    const over = wordDiff(words('a', 1001, ' '), words('b', 1001, '\t'));
+    expect(over.map((part) => part.op)).toEqual(['del', 'add']);
+  });
+});

@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { deploy, flagsTakenByNpm, npmFlagsMessage, parseArgs, USAGE } from './deploy';
-import type { CommandResult, DeployEnvironment } from './deploy';
+import type { CommandResult, DeployEnvironment } from './deployEnvironment';
 import { DEFAULT_SITE, formatSmoke, runSmoke } from './smoke';
 import { repositoryRoot } from './repositoryRoot';
 

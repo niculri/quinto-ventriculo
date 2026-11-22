@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { CI_IGNORED_PATHS, CI_WORKFLOW_FILE, ciIgnored } from '../deploy';
+import { CI_IGNORED_PATHS, CI_WORKFLOW_FILE, ciIgnored } from '../deployCi';
 import { repositoryRoot } from '../repositoryRoot';
 
 const workflow = (name: string) =>

@@ -1,15 +1,13 @@
 // `npm run deploy`: publishes the Worker only from a commit in origin/main whose CI passed, then runs the smoke test.
 // Git, gh, files and the clock come injected (DeployEnvironment), so every refusal can be tested.
+import { checkCi, DEFAULT_WAIT_MINUTES } from './deployCi';
+import { Refusal, git } from './deployEnvironment';
+import type { Commit, DeployEnvironment } from './deployEnvironment';
 import { normalizeBase } from './smoke';
 
-// By file, since another workflow could be named «CI»; deploy.yml waits for it by name, so ci.yml keeps `name: CI`.
-export const CI_WORKFLOW_FILE = 'ci.yml';
-const MAIN_EVENTS = new Set(['push', 'schedule', 'workflow_dispatch']);
 /** Wrangler cuts the message of a version at 100 characters. */
 const MESSAGE_MAX = 100;
-const DEFAULT_WAIT_MINUTES = 30;
 const MAX_WAIT_MINUTES = 120;
-const POLL_SECONDS = 20;
 // Untracked files outside these could go into the build (a tsconfig or PostCSS config at the root changes it).
 const OUTSIDE_BUILD = ['docs/', '.claude/'];
 const WEB_ENV_FILE = 'apps/web/.env.local';
@@ -96,84 +94,14 @@ export function npmFlagsMessage(flags: readonly string[]): string {
   );
 }
 
-export interface CommandResult {
-  code: number;
-  stdout: string;
-  stderr: string;
-}
-
-export interface DeployEnvironment {
-  capture(command: string, args: readonly string[]): Promise<CommandResult>;
-  stream(command: string, args: readonly string[], cwd?: string): Promise<number>;
-  readFile(path: string): Promise<string | null>;
-  hasVariable(name: string): boolean;
-  sleep(ms: number): Promise<void>;
-  now(): number;
-  log(line: string): void;
-  smoke(url: string): Promise<boolean>;
-}
-
-class Refusal extends Error {}
-
-export interface CiRun {
-  databaseId: number;
-  status: string;
-  conclusion: string;
-  event: string;
-  createdAt: string;
-  url: string;
-  headSha: string;
-  headBranch: string;
-}
-
-export type CiVerdict =
-  | { kind: 'success'; run: CiRun }
-  | { kind: 'running'; run: CiRun }
-  | { kind: 'missing' }
-  | { kind: 'failed'; run: CiRun };
-
-// The most recent run on main decides, so a newer failure beats an older success. Commit and branch are checked again
-// in case `gh` ignored a filter.
-export function ciVerdict(runs: readonly CiRun[], sha: string): CiVerdict {
-  const onMain = runs
-    .filter((r) => MAIN_EVENTS.has(r.event) && r.headSha === sha && r.headBranch === 'main')
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const latest = onMain[0];
-  if (!latest) return { kind: 'missing' };
-  if (latest.status !== 'completed') return { kind: 'running', run: latest };
-  return latest.conclusion === 'success'
-    ? { kind: 'success', run: latest }
-    : { kind: 'failed', run: latest };
-}
-
 export function versionMessage(sha: string, subject: string, skippedCi: boolean): string {
   const text = `${skippedCi ? '[sin CI] ' : ''}${sha.slice(0, 7)} ${subject}`.replace(/\s+/g, ' ');
   return text.length <= MESSAGE_MAX ? text : `${text.slice(0, MESSAGE_MAX - 1)}…`;
 }
 
-async function git(env: DeployEnvironment, args: readonly string[], what: string, raw = false) {
-  const r = await env.capture('git', args);
-  if (r.code !== 0) throw new Refusal(`${what}: ${(r.stderr || r.stdout).trim() || 'git falló'}.`);
-  // Raw: the porcelain status starts each entry with two status columns (a leading space means something).
-  return raw ? r.stdout : r.stdout.trim();
-}
-
 // `-z` keeps paths with spaces or accents unquoted, and `--untracked-files=all` lists every untracked file whatever
 // `status.showUntrackedFiles` says.
 const STATUS_ARGS = ['status', '--porcelain=v1', '-z', '--untracked-files=all'] as const;
-// The same list as `paths-ignore` of ci.yml (workflows.test.ts checks it): nothing there is built or tested.
-export const CI_IGNORED_PATHS = ['docs/**', '.claude/**', '*.md'] as const;
-const MAX_DOCS_COMMITS = 30;
-
-// In GitHub's patterns `*` does not cross a «/»: `*.md` is only the root.
-export function ciIgnored(path: string): boolean {
-  return (
-    path.startsWith('docs/') ||
-    path.startsWith('.claude/') ||
-    (!path.includes('/') && path.endsWith('.md'))
-  );
-}
-
 export function dirtyFiles(status: string): { changed: string[]; untracked: string[] } {
   const changed: string[] = [];
   const untracked: string[] = [];
@@ -199,7 +127,7 @@ export function githubRepository(remoteUrl: string): string | null {
     /^(?:https:\/\/(?:[^@/]+@)?github\.com\/|ssh:\/\/git@github\.com\/|git@github\.com:)([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/.exec(
       remoteUrl.trim(),
     );
-  return match ? `${match[1]}/${match[2]}` : null;
+  return match ? `${match[1]!}/${match[2]!}` : null;
 }
 
 const list = (paths: string[]) =>
@@ -208,12 +136,6 @@ const list = (paths: string[]) =>
     .map((p) => `    ${p}`)
     .concat(paths.length > 10 ? [`    … y ${paths.length - 10} más`] : [])
     .join('\n');
-
-interface Commit {
-  sha: string;
-  subject: string;
-  repository: string;
-}
 
 async function checkClean(env: DeployEnvironment, when = ''): Promise<void> {
   const status = await git(env, STATUS_ARGS, 'No pude leer el estado del árbol', true);
@@ -274,125 +196,6 @@ async function checkGit(env: DeployEnvironment): Promise<Commit> {
   }
   const subject = await git(env, ['log', '-1', '--format=%s'], 'No pude leer el commit');
   return { sha: head, subject, repository };
-}
-
-// HEAD and the first-parent commits before it up to the last one that changed code: docs-only commits have no CI run
-// of their own, and they all have the same code, so the nearest run among them decides.
-async function testedCommits(env: DeployEnvironment, sha: string): Promise<string[]> {
-  const listed = await git(
-    env,
-    ['rev-list', '--first-parent', `--max-count=${MAX_DOCS_COMMITS + 1}`, sha],
-    'No pude leer la historia de main',
-  );
-  const commits: string[] = [];
-  for (const c of listed.split('\n').filter(Boolean)) {
-    commits.push(c);
-    const files = (
-      await git(
-        env,
-        [
-          'diff-tree',
-          '-r',
-          '--name-only',
-          '-z',
-          '--no-commit-id',
-          '--diff-merges=first-parent',
-          '--root',
-          c,
-        ],
-        'No pude leer qué cambió un commit',
-        true,
-      )
-    )
-      .split('\0')
-      .filter(Boolean);
-    if (!files.every(ciIgnored)) break;
-  }
-  return commits;
-}
-
-async function ciRuns(env: DeployEnvironment, commit: Commit): Promise<CiRun[]> {
-  const r = await env.capture('gh', [
-    'run',
-    'list',
-    // Explicit: otherwise gh picks the repository from GH_REPO or `gh repo set-default`, which can be another one.
-    '--repo',
-    commit.repository,
-    '--workflow',
-    CI_WORKFLOW_FILE,
-    '--commit',
-    commit.sha,
-    '--branch',
-    'main',
-    '--limit',
-    '20',
-    '--json',
-    'databaseId,status,conclusion,event,createdAt,url,headSha,headBranch',
-  ]);
-  if (r.code !== 0) {
-    throw new Refusal(
-      `No pude preguntarle a GitHub por la CI (${(r.stderr || r.stdout).trim() || 'gh falló'}). ` +
-        '¿Está instalado gh y con sesión (gh auth status)?',
-    );
-  }
-  try {
-    return JSON.parse(r.stdout) as CiRun[];
-  } catch {
-    throw new Refusal('GitHub respondió algo que no entiendo al pedir las corridas de la CI.');
-  }
-}
-
-async function checkCi(
-  env: DeployEnvironment,
-  commit: Commit,
-  waitMinutes: number | null,
-): Promise<CiRun> {
-  const tested = await testedCommits(env, commit.sha);
-  const deadline = waitMinutes === null ? null : env.now() + waitMinutes * 60_000;
-  let announced = false;
-  for (;;) {
-    let verdict: CiVerdict = { kind: 'missing' };
-    let sha = commit.sha;
-    for (const candidate of tested) {
-      verdict = ciVerdict(await ciRuns(env, { ...commit, sha: candidate }), candidate);
-      sha = candidate;
-      if (verdict.kind !== 'missing') break;
-    }
-    if (verdict.kind === 'missing') sha = commit.sha;
-    if (verdict.kind === 'success') {
-      if (sha !== commit.sha) {
-        env.log(
-          `  ${commit.sha.slice(0, 7)} no tiene CI propia: lo que vino después de ${sha.slice(0, 7)} solo cambia ` +
-            `archivos que no corren la CI (${CI_IGNORED_PATHS.join(', ')}).`,
-        );
-      }
-      return verdict.run;
-    }
-    if (verdict.kind === 'failed') {
-      throw new Refusal(
-        `La CI de ${sha.slice(0, 7)} terminó en «${verdict.run.conclusion}»: ${verdict.run.url}\n` +
-          '  Arregla lo que falla, haz push y espera la CI verde. (Si la corrida se canceló, vuelve a correrla con ' +
-          `gh run rerun ${verdict.run.databaseId}.)`,
-      );
-    }
-    const what =
-      verdict.kind === 'running'
-        ? `La CI de ${sha.slice(0, 7)} todavía corre: ${verdict.run.url}`
-        : `GitHub todavía no tiene una corrida de la CI para ${sha.slice(0, 7)}`;
-    if (deadline === null) {
-      throw new Refusal(
-        `${what}.\n  Espera a que termine o usa npm run deploy -- --wait (espera hasta ${DEFAULT_WAIT_MINUTES} min).`,
-      );
-    }
-    if (env.now() >= deadline) {
-      throw new Refusal(`${what}, y ya pasaron los ${waitMinutes} min de --wait.`);
-    }
-    if (!announced) {
-      env.log(`${what}. Espero (hasta ${waitMinutes} min)…`);
-      announced = true;
-    }
-    await env.sleep(POLL_SECONDS * 1000);
-  }
 }
 
 async function checkWebEnv(env: DeployEnvironment): Promise<void> {

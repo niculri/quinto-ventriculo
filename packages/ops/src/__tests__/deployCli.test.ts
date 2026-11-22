@@ -3,7 +3,8 @@
 import { EventEmitter } from 'node:events';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { DeployEnvironment, DeployOptions } from '../deploy';
+import type { DeployOptions } from '../deploy';
+import type { DeployEnvironment } from '../deployEnvironment';
 import { runCli } from './runCli';
 
 const ROOT = '/repo';

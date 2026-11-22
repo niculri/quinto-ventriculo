@@ -36,7 +36,7 @@ function site(change: Record<string, Answer | 'network'> = {}) {
     ...change,
   };
   const fetchFn = (async (input: string | URL | Request, init?: RequestInit) => {
-    const url = String(input);
+    const url = input instanceof Request ? input.url : String(input);
     asked.push(`${init?.method ?? 'GET'} ${url}`);
     expect(init?.redirect).toBe('manual');
     expect(new Headers(init?.headers).get('authorization')).toBeNull();
@@ -126,7 +126,10 @@ describe('npm run smoke', () => {
     const base = 'https://quinto-ventriculo.example.workers.dev';
     const fetchFn = ((input: string | URL | Request, init?: RequestInit) =>
       s.fetchFn(
-        String(input).replace(base, 'https://www.quintoventriculo.cl'),
+        (input instanceof Request ? input.url : String(input)).replace(
+          base,
+          'https://www.quintoventriculo.cl',
+        ),
         init,
       )) as typeof fetch;
     const result = await runSmoke(base, { fetch: fetchFn });

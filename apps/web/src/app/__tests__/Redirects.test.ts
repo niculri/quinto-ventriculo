@@ -42,12 +42,17 @@ describe('the old URLs', () => {
     },
   );
 
-  it('an old deck URL with a subdeck goes to the subdeck', async () => {
+  it('an old deck URL with a subdeck goes to the subdeck, and a week, which has no page, to its certamen', async () => {
     const { router } = renderApp('/decks/4?subdeck=s1-semana-de-prueba');
+    const visited: string[] = [];
+    router.subscribe((state) => visited.push(state.location.pathname));
     await waitFor(() =>
       expect(router.state.location.pathname).toBe(
-        '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba',
+        '/semesters/1/courses/anatomia-1/anki/certamen-1',
       ),
+    );
+    expect(visited).toContain(
+      '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba',
     );
   });
 

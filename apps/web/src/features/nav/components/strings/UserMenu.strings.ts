@@ -4,6 +4,7 @@ export const userMenuStrings = {
   signOut: 'Cerrar sesión',
   account: 'Tu cuenta',
   accountOf: (name: string) => `${name}, tu cuenta`,
+  hello: (firstName: string) => `Hola, ${firstName}`,
   mode: {
     label: 'Modo admin',
     on: 'Ves el borrador y lo apagado para los alumnos.',

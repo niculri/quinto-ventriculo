@@ -121,61 +121,76 @@ export function convertNote(
   };
 }
 
+interface Block {
+  html: string;
+  next: number;
+}
+
+function sideBlock(lines: string[], i: number, side: RegExpExecArray, ctx: Context): Block {
+  let j = i + 1;
+  while (j < lines.length && lines[j]!.trim() !== ':::') j++;
+  if (j === lines.length) {
+    ctx.errors.push(`Bloque «:::» sin su cierre «:::»: «${excerpt(lines[i]!)}»`);
+  }
+  const [, caption, path, width] = LONE_IMG_RE.exec(side[2]!)!;
+  const fig = figure(caption!, path!, width, ctx, {
+    className: 'figure-float',
+    defaultWidth: 40,
+  });
+  const inner = convertBlocks(lines.slice(i + 1, j), ctx);
+  return {
+    html: `<div class="side side-${SIDES[side[1] as keyof typeof SIDES]}">${fig}${inner}</div>`,
+    next: j + 1,
+  };
+}
+
+/** The block that starts at line `i` (a side figure, a callout, a figure or a guide question), if one does. */
+function blockAt(lines: string[], i: number, ctx: Context): Block | null {
+  const line = lines[i]!;
+  const side = SIDE_RE.exec(line.trim());
+  if (side) return sideBlock(lines, i, side, ctx);
+  if (line.startsWith('>')) {
+    let j = i;
+    while (j < lines.length && lines[j]!.startsWith('>')) j++;
+    return { html: callout(lines.slice(i, j), ctx), next: j };
+  }
+  if (HAS_IMG_RE.test(line) && !line.replace(IMG_RE, '').trim()) {
+    return { html: figureRow(line.trim(), ctx), next: i + 1 };
+  }
+  const question = ctx.options.guideQuestions ? ITALIC_QUESTION_RE.exec(line.trim()) : null;
+  if (question) {
+    return {
+      html: callout([`> **Pregunta ${question[1]!}.** *${question[2]!}*`], ctx),
+      next: i + 1,
+    };
+  }
+  return null;
+}
+
+function reportUnrecognized(line: string, ctx: Context): void {
+  // Image syntax left here is unrecognized: markdown-it would print it as text or as an <img> the sanitizer drops.
+  if (line.includes('![') || /<img\b/i.test(line)) {
+    ctx.errors.push(`Figura que no se reconoce: «${excerpt(line)}»`);
+  } else if (/^\s*:::/.test(line)) {
+    ctx.errors.push(`Bloque «:::» que no se reconoce (le falta su imagen): «${excerpt(line)}»`);
+  }
+}
+
 function convertBlocks(lines: string[], ctx: Context): string {
   const output: string[] = [];
   const blocks: string[] = [];
-  const reserve = (html: string) => {
-    blocks.push(html);
-    output.push('', PLACEHOLDER(blocks.length - 1), '');
-  };
 
   let i = 0;
   while (i < lines.length) {
-    const line = lines[i]!;
-    const side = SIDE_RE.exec(line.trim());
-    if (side) {
-      let j = i + 1;
-      while (j < lines.length && lines[j]!.trim() !== ':::') j++;
-      if (j === lines.length) {
-        ctx.errors.push(`Bloque «:::» sin su cierre «:::»: «${excerpt(line)}»`);
-      }
-      const [, caption, path, width] = LONE_IMG_RE.exec(side[2]!)!;
-      const fig = figure(caption!, path!, width, ctx, {
-        className: 'figure-float',
-        defaultWidth: 40,
-      });
-      const inner = convertBlocks(lines.slice(i + 1, j), ctx);
-      reserve(
-        `<div class="side side-${SIDES[side[1] as keyof typeof SIDES]}">${fig}${inner}</div>`,
-      );
-      i = j + 1;
+    const block = blockAt(lines, i, ctx);
+    if (block) {
+      blocks.push(block.html);
+      output.push('', PLACEHOLDER(blocks.length - 1), '');
+      i = block.next;
       continue;
     }
-    if (line.startsWith('>')) {
-      let j = i;
-      while (j < lines.length && lines[j]!.startsWith('>')) j++;
-      reserve(callout(lines.slice(i, j), ctx));
-      i = j;
-      continue;
-    }
-    if (HAS_IMG_RE.test(line) && !line.replace(IMG_RE, '').trim()) {
-      reserve(figureRow(line.trim(), ctx));
-      i++;
-      continue;
-    }
-    const question = ctx.options.guideQuestions ? ITALIC_QUESTION_RE.exec(line.trim()) : null;
-    if (question) {
-      reserve(callout([`> **Pregunta ${question[1]!}.** *${question[2]!}*`], ctx));
-      i++;
-      continue;
-    }
-    // Image syntax left here is unrecognized: markdown-it would print it as text or as an <img> the sanitizer drops.
-    if (line.includes('![') || /<img\b/i.test(line)) {
-      ctx.errors.push(`Figura que no se reconoce: «${excerpt(line)}»`);
-    } else if (/^\s*:::/.test(line)) {
-      ctx.errors.push(`Bloque «:::» que no se reconoce (le falta su imagen): «${excerpt(line)}»`);
-    }
-    output.push(line);
+    reportUnrecognized(lines[i]!, ctx);
+    output.push(lines[i]!);
     i++;
   }
 
@@ -251,8 +266,8 @@ function figureRow(line: string, ctx: Context): string {
   return `<div class="figure-row">${cells.join('')}</div>`;
 }
 
-function callout(lines: string[], ctx: Context): string {
-  const inner = lines.map((l) => l.replace(/^>\s?/, ''));
+/** The kind of a callout from its first line (`[!type]`, or a guide question), without the marker. */
+function calloutKind(inner: string[]): { type: string; tag: string } {
   let type = 'note';
   const marker = /^\[!(\w+)\]\s*(.*)$/.exec(inner[0]!);
   if (marker) {
@@ -269,17 +284,25 @@ function callout(lines: string[], ctx: Context): string {
     inner[0] = question[2]!;
   }
   if (type === 'error') inner[0] = inner[0]!.replace(/^\s*⚠️?\s*/u, '');
+  return { type, tag };
+}
 
-  let fig = '';
+/** Takes the callout's lone figure out of `inner` and renders it. */
+function calloutFigure(inner: string[], ctx: Context): string {
   const ix = inner.findIndex((x) => LONE_IMG_RE.test(x.trim()));
-  if (ix >= 0) {
-    const [, caption, path, width] = LONE_IMG_RE.exec(inner.splice(ix, 1)[0]!.trim())!;
-    const wide = !!width && Number.parseInt(width, 10) >= 55;
-    fig = figure(caption!, path!, width, ctx, {
-      className: wide ? 'figure-wide' : 'figure-float',
-      defaultWidth: 38,
-    });
-  }
+  if (ix < 0) return '';
+  const [, caption, path, width] = LONE_IMG_RE.exec(inner.splice(ix, 1)[0]!.trim())!;
+  const wide = !!width && Number.parseInt(width, 10) >= 55;
+  return figure(caption!, path!, width, ctx, {
+    className: wide ? 'figure-wide' : 'figure-float',
+    defaultWidth: 38,
+  });
+}
+
+function callout(lines: string[], ctx: Context): string {
+  const inner = lines.map((l) => l.replace(/^>\s?/, ''));
+  const { type, tag } = calloutKind(inner);
+  const fig = calloutFigure(inner, ctx);
 
   let body = convertBlocks(inner, ctx);
   let label = calloutLabel(type);

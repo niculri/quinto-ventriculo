@@ -17,7 +17,7 @@ export function useSetReleaseMark(fingerprint: string, by: string) {
       releaseKeys.overview,
       // The marks are only shown under a draft that was read.
       (o) =>
-        /* v8 ignore next */ o && {
+        o && {
           ...o,
           summary: { ...o.summary, marks: marks(o.summary.marks) },
         },

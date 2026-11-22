@@ -35,15 +35,10 @@ export function useSelection({
   const current = list.find((c) => c.key === currentKey) ?? null;
   const effectiveSelection = selected.size ? selected : new Set(current ? [current.key] : []);
 
-  const setCurrent = (c: BrowseCard | null) => {
+  const setCurrent = (c: BrowseCard) => {
     const next = new URLSearchParams(params);
-    if (c) {
-      next.set('note', c.noteGuid);
-      next.set('ord', String(c.ord));
-    } else {
-      next.delete('note');
-      next.delete('ord');
-    }
+    next.set('note', c.noteGuid);
+    next.set('ord', String(c.ord));
     setParams(next, { replace: true });
   };
 

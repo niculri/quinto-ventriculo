@@ -6,10 +6,10 @@ import { useSetSiteSettings } from './useSiteSettings';
 const sameIds = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((id) => b.includes(id));
 
-export function useCourseSwitches(settings: SiteSettingsView | undefined) {
+export function useCourseSwitches(settings: SiteSettingsView) {
   const save = useSetSiteSettings();
   const [edited, setEdited] = useState<readonly string[] | null>(null);
-  const kept = settings?.hiddenCourses ?? [];
+  const kept = settings.hiddenCourses;
   const hidden = edited ?? kept;
   const dirty = edited !== null && !sameIds(edited, kept);
   return {

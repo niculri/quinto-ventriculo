@@ -108,6 +108,22 @@ describe('hiding', () => {
   });
 });
 
+describe('a card only the draft has', () => {
+  it('is looked at: it is neither marked nor hidden, and nothing is saved', () => {
+    const setFlag = vi.fn();
+    const suspend = vi.fn();
+    const { result } = viewer({ setFlag, suspend }, { flag: 0, queue: 'new', draftOnly: true });
+    expect(result.current.blocked).toBe(true);
+    act(() => {
+      result.current.toggleFlag();
+      result.current.toggleHidden();
+    });
+    expect(result.current).toMatchObject({ flag: 0, hidden: false, busy: false, message: null });
+    expect(setFlag).not.toHaveBeenCalled();
+    expect(suspend).not.toHaveBeenCalled();
+  });
+});
+
 describe('the message', () => {
   it('goes away after 3 seconds', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });

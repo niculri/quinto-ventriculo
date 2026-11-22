@@ -1,7 +1,4 @@
-// The test names rule (a test is named after the file it tests, in a __tests__ folder next to it) and the list of
-// the tests that do not follow it yet, which may only get shorter.
-
-export const TEST_NAMES_FILE = '.test-names.json';
+// The test names rule: a test lives in a __tests__ folder next to what it tests and is named after it.
 
 const TEST = /\.test\.tsx?$/;
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs'];
@@ -12,7 +9,6 @@ const isTestFile = (path: string) => TEST.test(path);
 // (`__tests__/X.flow.test.ts(x)`) and a contract battery (`__tests__/X.contract.test.ts(x)`) are named after what they
 // cover, and also live in a __tests__ folder.
 export function followsRule(path: string, exists: (path: string) => boolean): boolean {
-  if (path.endsWith('-contract.test.ts')) return true;
   const parts = path.split('/');
   const name = parts.pop()!;
   if (parts.pop() !== '__tests__') return false;
@@ -28,59 +24,21 @@ export function breakingRule(
   return files.filter((f) => isTestFile(f) && !followsRule(f, exists)).sort();
 }
 
-export function readExceptions(json: string): string[] {
-  const parsed: unknown = JSON.parse(json);
-  if (!Array.isArray(parsed) || !parsed.every((x) => typeof x === 'string')) {
-    throw new Error(`${TEST_NAMES_FILE} no es una lista de rutas.`);
-  }
-  return parsed;
-}
-
-export const writeExceptions = (list: readonly string[]) =>
-  `${JSON.stringify([...list].sort(), null, 2)}\n`;
-
 export interface TestNamesResult {
   ok: boolean;
   lines: string[];
 }
 
-// The list is exactly the tests that break the rule (an entry that follows it or is gone is an error too, so it can
-// never be traded for a new one), and it cannot be longer than the base's: a test moved without following the rule
-// keeps its place, a new one cannot take one.
-export function checkTestNames(
-  breaking: readonly string[],
-  listed: readonly string[],
-  atBase: readonly string[] | null,
-  baseName: string,
-): TestNamesResult {
-  const unlisted = breaking.filter((f) => !listed.includes(f));
-  const stale = listed.filter((f) => !breaking.includes(f));
-  const lines: string[] = [];
-  let ok = true;
-  if (unlisted.length > 0) {
-    ok = false;
-    lines.push(
-      `Pruebas que no siguen la regla de nombres (${unlisted.length}):`,
-      ...unlisted.map((f) => `  ${f}`),
+export function checkTestNames(breaking: readonly string[]): TestNamesResult {
+  if (breaking.length === 0)
+    return { ok: true, lines: ['Nombres de pruebas: todas siguen la regla.'] };
+  return {
+    ok: false,
+    lines: [
+      `Pruebas que no siguen la regla de nombres (${breaking.length}):`,
+      ...breaking.map((f) => `  ${f}`),
       'Una prueba se llama como el archivo que prueba y va en __tests__/ junto a él ' +
         '(X.ts → __tests__/X.test.ts); un flujo, __tests__/<nombre>.flow.test.ts(x); un contrato, __tests__/<nombre>.contract.test.ts(x).',
-    );
-  }
-  if (stale.length > 0) {
-    ok = false;
-    lines.push(
-      `${TEST_NAMES_FILE} trae ${stale.length} que ya cumplen la regla o no existen:`,
-      ...stale.map((f) => `  ${f}`),
-      'Sácalas con npm run test-names:baseline.',
-    );
-  }
-  if (atBase !== null && listed.length > atBase.length) {
-    ok = false;
-    lines.push(
-      `${TEST_NAMES_FILE} subió de ${atBase.length} a ${listed.length} respecto de ${baseName}: ` +
-        'la lista solo baja.',
-    );
-  }
-  if (ok) lines.push(`Nombres de pruebas: ${breaking.length} en la lista de excepciones.`);
-  return { ok, lines };
+    ],
+  };
 }

@@ -1,12 +1,6 @@
-// Tests the test names rule: what follows it, what is exempt, and the list that may only go down.
+// Tests the test names rule: what follows it and what the check reports.
 import { describe, expect, it } from 'vitest';
-import {
-  breakingRule,
-  checkTestNames,
-  followsRule,
-  readExceptions,
-  writeExceptions,
-} from '../testNames';
+import { breakingRule, checkTestNames, followsRule } from '../testNames';
 
 const tree = new Set([
   'apps/web/src/shared/ui/Toast.tsx',
@@ -55,54 +49,17 @@ describe('the test names rule', () => {
       ),
     ).toEqual(['a/y.test.tsx', 'b/x.test.ts']);
   });
-
-  it('the list is a sorted JSON list of paths', () => {
-    expect(writeExceptions(['b', 'a'])).toBe('[\n  "a",\n  "b"\n]\n');
-    expect(readExceptions('["a"]')).toEqual(['a']);
-    expect(() => readExceptions('{"a": 1}')).toThrow();
-  });
 });
 
-describe('the list of exceptions', () => {
-  it('passes when the list is exactly the tests breaking the rule', () => {
-    const r = checkTestNames(['a.test.ts'], ['a.test.ts'], ['a.test.ts', 'gone.test.ts'], 'main');
-    expect(r.ok).toBe(true);
-    expect(r.lines.join('\n')).toContain('1 en la lista de excepciones');
+describe('the result', () => {
+  it('passes when every test follows the rule', () => {
+    expect(checkTestNames([]).ok).toBe(true);
   });
 
-  it('fails on an entry that already follows the rule or no longer exists', () => {
-    const r = checkTestNames(
-      ['a.test.ts'],
-      ['a.test.ts', 'gone.test.ts'],
-      ['a.test.ts', 'gone.test.ts'],
-      'main',
-    );
+  it('lists the tests that break it and says how to name them', () => {
+    const r = checkTestNames(['a.test.ts']);
     expect(r.ok).toBe(false);
-    expect(r.lines.join('\n')).toContain('gone.test.ts');
-    expect(r.lines.join('\n')).toContain('npm run test-names:baseline');
-  });
-
-  it('fails on a test breaking the rule that is not listed', () => {
-    const r = checkTestNames(['a.test.ts', 'new.test.ts'], ['a.test.ts'], ['a.test.ts'], 'main');
-    expect(r.ok).toBe(false);
-    expect(r.lines.join('\n')).toContain('new.test.ts');
-  });
-
-  it('a listed test that moved keeps its place; the list cannot grow over the base', () => {
-    expect(checkTestNames(['moved.test.ts'], ['moved.test.ts'], ['old.test.ts'], 'main').ok).toBe(
-      true,
-    );
-    const r = checkTestNames(
-      ['a.test.ts', 'b.test.ts'],
-      ['a.test.ts', 'b.test.ts'],
-      ['a.test.ts'],
-      'main',
-    );
-    expect(r.ok).toBe(false);
-    expect(r.lines.join('\n')).toContain('subió de 1 a 2');
-  });
-
-  it('without a list in the base, only the listing is checked', () => {
-    expect(checkTestNames(['a.test.ts'], ['a.test.ts'], null, 'main').ok).toBe(true);
+    expect(r.lines.join('\n')).toContain('a.test.ts');
+    expect(r.lines.join('\n')).toContain('__tests__/<nombre>.contract.test.ts(x)');
   });
 });

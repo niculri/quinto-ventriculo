@@ -33,7 +33,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       # Compared with the push's or pull request's base; the nightly run and a run by hand compare with themselves.
-      - name: Ratchets (lint suppressions, import cycles and test names)
+      - name: Ratchets (lint suppressions and import cycles)
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
@@ -44,7 +44,7 @@ jobs:
           fi
           npm run --silent suppressions -- --base "$base"
           npm run --silent deps -- --base "$base"
-          npm run --silent test-names -- --base "$base"
+      - run: npm run test-names
       # knip loads vite.config.ts, which refuses to run in production mode without the users' URL.
       - run: npm run knip
         env:

@@ -85,7 +85,7 @@ describe('GitHub workflows', () => {
       }
     ).scripts;
     expect(scripts.check).toContain('npm run test-names');
-    expect(ci).toContain('npm run --silent test-names -- --base "$base"');
+    expect(ci).toContain('npm run test-names');
     expect(hook).toContain('npm run --silent test-names');
   });
 

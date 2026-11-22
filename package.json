@@ -23,7 +23,6 @@
     "deps": "tsx packages/ops/src/cyclesCli.ts",
     "deps:baseline": "tsx packages/ops/src/cyclesCli.ts --write-baseline",
     "test-names": "tsx packages/ops/src/testNamesCli.ts",
-    "test-names:baseline": "tsx packages/ops/src/testNamesCli.ts --write-baseline",
     "knip": "knip",
     "format": "biome format --write .",
     "format:check": "biome format .",

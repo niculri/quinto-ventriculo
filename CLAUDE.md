@@ -46,7 +46,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   tipados con el `Database` de `@qv/db-types` (`/users`, `/content`), que genera `npm run db:types` desde las
   migraciones en PGlite; `db/tests/__tests__/dbTypes.contract.test.ts` falla si quedó viejo. Lo que la base da como `jsonb` (y las filas
   con uniones) se lee con `fromDatabase` y su contrato de `@qv/schema/user` o `/content`, nunca con `as` (lo prohíbe
-  `qv/no-cast-on-data`), y cada contrato corre contra el SQL en `db/tests/*-contracts.test.ts`; los rechazos de la
+  `qv/no-cast-on-data`), y cada contrato corre contra el SQL en `db/tests/__tests__/*.contract.test.ts`; los rechazos de la
   base se reconocen solo con `databaseError()` de `@qv/schema/database`.
 - **Importador** (`packages/importer/src`): `cli/` es lo único que lee la línea de comandos e imprime; arma el paquete
   `bundle/` (sus piezas: `notes/`, `decks/`, `quizzes/` con el `test.json` validado con zod, `taxonomy/` con `checks/`,
@@ -67,12 +67,21 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `shared/<x>`): `npm run deps` falla con un ciclo que no esté en `.import-cycles.json`, y también si ese
   archivo ganó ciclos respecto de `origin/main`. `npm run deps:baseline` lo rehace, pero solo sirve para sacar los
   ciclos que ya se rompieron: uno nuevo no se agrega, se rompe.
-- **Nombres de las pruebas:** una prueba se llama como el archivo que prueba y va en `__tests__/` junto a él
-  (`shared/ui/Toast.tsx` → `shared/ui/__tests__/Toast.test.tsx`); la que recorre un flujo entero de una feature,
-  `features/<x>/__tests__/<flujo>.flow.test.tsx`, y una batería de contrato, `*-contract.test.ts`. `npm run test-names`
-  (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, con
-  una entrada de esa lista que ya lo cumple o no existe, y si la lista se alargó respecto de `origin/main`; `npm run
-  test-names:baseline` la rehace, para sacar las que ya lo cumplen.
+- **Nombres de archivo** (`qv/file-name`, en todo el repositorio): un componente o una clase, `PascalCase`
+  (`AppShell.tsx`, `ApiError.ts`; una función con nombre en `PascalCase` es un componente aunque no tenga JSX); un
+  hook, `useCamelCase.ts`; todo lo demás (lógica, datos, rutas, servicios, contextos), `camelCase.ts`
+  (`queryClient.ts`, `supabaseSettings.ts`). Nada de kebab-case, guiones bajos ni puntos en el nombre; un `.tsx` solo si
+  tiene JSX. Un archivo que exporta una sola cosa (una clase, un componente o un hook) se llama como ella; uno con varios
+  componentes lleva el nombre de su grupo, y uno que exporta un componente no es `camelCase`. Quedan fuera, con su razón
+  en `eslintFileNames.js`, los `*.d.ts`, los archivos de configuración que una herramienta busca por nombre y los `.js`
+  de `apps/web/public/`, que se sirven en una URL que las páginas ya cargadas piden.
+- **Nombres de las pruebas** (`npm run test-names`, en `npm run check`, la CI y el `pre-push`): toda prueba va en
+  `__tests__/` junto a lo que prueba, en todos lados (`packages/*/src/**/__tests__/`, `apps/*/src/**/__tests__/`,
+  `db/tests/__tests__/`), y se llama como el archivo que prueba (`shared/ui/Toast.tsx` →
+  `shared/ui/__tests__/Toast.test.tsx`). Si recorre un flujo entero, `<flujo>.flow.test.ts(x)`; si es una batería de
+  contrato (la web contra la API, un repositorio en memoria contra el SQL), `<nombre>.contract.test.ts(x)`. Un archivo
+  de datos de pruebas (goldens, fixtures) puede quedarse en la carpeta `test/` de su paquete. Las pruebas de extremo a
+  extremo de Playwright (`*.spec.ts`) van en `apps/web/e2e/`.
 - **Foto del esquema:** `db/users/schema/` y `db/content/schema/` guardan lo que dejan las migraciones en `public`, un
   archivo por función y por tabla agrupados por dominio. Se generan con `npm run db:schema` y
   `db/tests/__tests__/schemaSnapshot.contract.test.ts` falla si una migración cambia algo y no se rehízo; un objeto nuevo se
@@ -91,14 +100,19 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `localStorage`) dentro de un componente o hook el compilador la guarda una sola vez: léela en un efecto o con lo que
   la hace nueva (`readClock(...causas)`) y pásala como valor a la función pura. Una dependencia que no se lee no se
   deja como `void x`: el compilador la descarta.
-- **Textos de la interfaz:** lo que lee una persona (texto en JSX, `aria-label`, `title`, `placeholder`, `alt`,
-  `label`…) sale del `strings.ts` de su feature (`features/<x>/strings.ts`, `app/strings.ts`) o, si es común, de
-  `shared/strings.ts` (un componente de `shared/ui` que no carga al inicio lleva el suyo, `X.strings.ts`, para no
-  sumarlo al arranque): un objeto `as const`, con funciones para lo que lleva números o nombres. Las pruebas siguen
+- **Textos de la interfaz** (`qv/no-literal-text` y `qv/strings-location`): lo que lee una persona (texto en JSX,
+  `aria-label`, `title`, `placeholder`, `alt`, `label`…) sale del archivo de textos del componente o módulo que lo
+  muestra: `strings/<Nombre>.strings.ts` en la misma carpeta que `<Nombre>.tsx` (`components/strings/UsagePanel.strings.ts`
+  para `components/UsagePanel.tsx`, `hooks/strings/useTip.strings.ts` para `hooks/useTip.ts`), un objeto `as const` con
+  funciones para lo que lleva números o nombres. Lo que usan varios componentes de una feature queda en el archivo de
+  textos del más bajo de ellos (los demás lo importan); lo común a varias features, en `shared/strings/`. Un archivo de
+  un componente que no carga al inicio (`ImageViewer`) lleva el suyo, para no sumarlo al arranque. Las pruebas siguen
   buscando el texto literal. Lo impone `qv/no-literal-text`, salvo en las pruebas, las páginas de texto fijo y las
   respuestas de las preguntas frecuentes de la portada: ve también las props de texto de los componentes, las listas
   de textos (`columns`, `items`…), los argumentos de `plural` y lo que se lee como texto en los argumentos de otra
-  función que se renderiza; las listas viven en `LITERAL_TEXT` de `eslint.config.js`.
+  función que se renderiza; las listas viven en `LITERAL_TEXT` de `eslintLiteralText.js`. `qv/strings-location` exige
+  que un `X.strings.ts` esté en una carpeta `strings/` con su `X.ts(x)` en la de arriba, y que no quede ningún
+  `strings.ts` suelto.
 - **Trinquete:** todas las reglas están en `error`; lo que ya las violaba está en `eslint-suppressions.json`. Por cada
   regla, las supresiones de ese archivo más los `eslint-disable` en línea no pueden subir respecto de `origin/main`:
   `npm run suppressions` (en `npm run check`, la CI y el `pre-push`). Un `eslint-disable` que ya no silencia nada es

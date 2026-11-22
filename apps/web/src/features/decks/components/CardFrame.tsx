@@ -147,7 +147,7 @@ function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
   if (target?.closest('#image-occlusion-container')) {
     const src = occlusionSnapshot(root);
     const alt = root.querySelector<HTMLImageElement>('#image-occlusion-container img')?.alt;
-    return src ? { src, alt: (alt ?? '') || s.frame.image, caption: '' } : null;
+    return src ? { src, alt: alt! || s.frame.image, caption: '' } : null;
   }
   const img = target?.closest('img');
   if (!(img instanceof HTMLImageElement)) return null;

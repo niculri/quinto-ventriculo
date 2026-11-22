@@ -78,7 +78,7 @@ export function CardHistory({
                   </td>
                   <td className="py-1 pr-2">{kindOf(e)}</td>
                   <td
-                    className={`py-1 pr-2 font-medium ${e.rating ? (RATING_COLORS[e.rating - 1] ?? '') : ''}`}
+                    className={`py-1 pr-2 font-medium ${e.rating ? RATING_COLORS[e.rating - 1]! : ''}`}
                   >
                     {e.rating
                       ? cardHistoryStrings.info.ratings[e.rating - 1]

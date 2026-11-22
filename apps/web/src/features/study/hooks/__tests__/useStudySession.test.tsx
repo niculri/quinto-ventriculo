@@ -144,6 +144,19 @@ describe('the cards that come up soon', () => {
   });
 });
 
+describe('a card whose content cannot be asked for in advance', () => {
+  it('does not stop the session: the card is asked for again when it comes up', async () => {
+    const client = new QueryClient();
+    vi.spyOn(client, 'query').mockRejectedValue(new Error('offline'));
+    const { result } = mount(localStudyRepository(null), false, client);
+    await settle();
+    act(() => result.current.act.reveal());
+    act(() => result.current.act.answer(3));
+    await settle();
+    expect(result.current.state.failure).toBeNull();
+  });
+});
+
 describe('an answer lost to the connection', () => {
   it('is tried again after 1 s and then after 3 s more, and the session goes on if one gets through', async () => {
     const local = localStudyRepository(null);

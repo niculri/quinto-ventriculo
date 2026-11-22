@@ -143,7 +143,7 @@ function syntheticNote({
     version: 1,
     createdAt: '2026-10-01T12:00:00.000Z',
     fields,
-    sortField: (fields[1] ?? '') || fields[0]!,
+    sortField: fields[1]! || fields[0]!,
     cards,
     kind,
     topic: kind === 'basic' || kind === 'cloze' ? topic : front,

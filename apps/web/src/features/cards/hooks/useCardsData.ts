@@ -60,7 +60,7 @@ export function useCardsData(scope: CardsScope | null, tree: AnkiTree | null, no
     !!prefs &&
     !!presets.data &&
     !!settings.data;
-  // By hand, from the `data` of each query: the compiler would depend on the whole results, new in each render.
+  // By hand: its test counts the builds, and the coverage run has no compiler.
   const data = useMemo<CardsData | undefined>(() => {
     if (!ready) return undefined;
     return cardsData({

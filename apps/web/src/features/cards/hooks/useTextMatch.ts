@@ -9,7 +9,7 @@ import { parseQuery, searchContext, textKeys } from '../model/search';
 import { useSearchHistory } from './useSearchHistory';
 
 export function useTextMatch(data: CardsData | undefined, query: string, tree: AnkiTree | null) {
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
+  // By hand: the compiler leaves `parsed` and `result` without a cache.
   const parsed = useMemo(
     () => (query.trim() ? parseQuery(query) : { node: null, error: null }),
     [query],

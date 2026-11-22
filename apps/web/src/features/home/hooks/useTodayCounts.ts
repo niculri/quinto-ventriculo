@@ -15,7 +15,7 @@ export function useTodayCounts(courses: CourseDeckNode[]) {
     () => readClock(study.base, study.home, tick),
     [study.base, study.home, tick],
   );
-  // By hand, like the clock: they are counted again only when it changes.
+  // By hand: its test counts how often they are counted, and the coverage run has no compiler.
   const results = useMemo(() => {
     const { base, home, catalogDecks } = study;
     if (!base || !home || !catalogDecks) return null;

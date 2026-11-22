@@ -14,7 +14,7 @@ export function useTableData({
   settings,
   draftOnly,
 }: Omit<TableSources, 'roots'>) {
-  // By hand, from the fields of the sources: the compiler would depend on the object, new in each render.
+  // By hand: the compiler does not compile a hook that calls no other hook, so the data would be built in each render.
   return useMemo(
     () =>
       tableData({

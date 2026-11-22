@@ -21,7 +21,7 @@ export function useQuizSession(options: {
   const { quizId, section, saved, showCover, topics } = options;
   const repository = useQuizRepository();
   const queryClient = useQueryClient();
-  // By hand: the compiler leaves these three without a cache, as they are read again after the hooks below.
+  // By hand: the compiler leaves these three without a cache.
   const entries = useMemo(() => questionIndex(section), [section]);
   const infos = useMemo(
     () => new Map([...entries].map(([id, e]) => [id, e.info] as const)),

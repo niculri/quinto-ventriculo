@@ -34,7 +34,7 @@ export function CardList({
   reveal,
 }: ListProps) {
   const { boxRef, wide, width, view } = useListViewport();
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
+  // By hand: the compiler leaves these two without a cache, and the list would be laid out again on each scroll.
   const metrics = useMemo(() => listMetrics(width || 1, wide), [width, wide]);
   const { items, total } = useMemo(() => listItems(lectures, metrics), [lectures, metrics]);
 

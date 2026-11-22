@@ -30,7 +30,7 @@ export function useDayCards(
       enabled: past && !!prefs,
     }),
   );
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
+  // By hand: the compiler leaves it without a cache.
   const value = useMemo(
     () =>
       dayCardsOf({

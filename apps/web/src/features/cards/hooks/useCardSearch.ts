@@ -29,7 +29,7 @@ export function useCardSearch({
     setShownQuery(query);
     setText(query);
   }
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
+  // By hand: the compiler leaves these four without a cache, and their tests count the builds.
   const cards = useMemo(
     () =>
       buildBrowseCards(

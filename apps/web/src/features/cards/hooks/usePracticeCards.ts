@@ -30,7 +30,7 @@ export function usePracticeCards(node: CourseDeckNode) {
   const text = useTextMatch(data, searchQuery(q, !!data?.prefs.fullAnki), tree);
   const day = useDayCards(scope, data, params.get('day'));
   const state = parseState(params.get('state'));
-  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
+  // By hand: the compiler leaves it without a cache.
   const queue = useMemo(() => {
     const failedCards = failedOf(day.value, failed.data);
     if (!data || !scope || !failedCards || text.waiting || day.waiting) return null;

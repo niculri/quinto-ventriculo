@@ -1,6 +1,6 @@
 // Tests where the cards page's list is: measured at once, again one frame after a scroll, a resize or a change of the
 // box (only the last of several in a frame), a phone's width where nothing is laid out, and nothing left listening.
-import { act, render } from '@testing-library/react';
+import { act, render, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useListViewport } from '../useListViewport';
 
@@ -77,6 +77,14 @@ describe('the list’s viewport', () => {
     expect(last!.view.top).toBe(10);
     runFrames();
     expect(last!.view.top).toBe(900);
+  });
+
+  it('measures nothing and listens to nothing while the list is not on the page', () => {
+    rect = { width: 500, top: 0 };
+    const { result } = renderHook(() => useListViewport());
+    window.dispatchEvent(new Event('scroll'));
+    expect(frames.pending.size).toBe(0);
+    expect(result.current.width).toBe(0);
   });
 
   it('follows the box’s own changes, and stops listening when it goes', () => {

@@ -6,7 +6,7 @@ interface Run {
   argv?: string[];
   env?: Record<string, string>;
   // Module specifier (as the test file spells it) → the module that replaces it.
-  mocks?: Record<string, () => unknown>;
+  mocks?: Record<string, () => Record<string, unknown> | Promise<Record<string, unknown>>>;
 }
 
 export interface CliResult {
@@ -15,6 +15,8 @@ export interface CliResult {
   warn: string[];
   code: number;
 }
+
+const exitCode = (): string | number | null | undefined => process.exitCode;
 
 class Exit extends Error {
   constructor(readonly code: number) {
@@ -43,7 +45,7 @@ export async function runCli(load: () => Promise<unknown>, run: Run = {}): Promi
   process.exitCode = undefined;
   try {
     await load();
-    result.code = Number(process.exitCode ?? 0);
+    result.code = Number(exitCode() ?? 0);
   } catch (e) {
     if (!(e instanceof Exit)) throw e;
     result.code = e.code;

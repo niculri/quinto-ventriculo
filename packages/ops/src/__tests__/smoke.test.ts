@@ -177,10 +177,8 @@ describe('what each check of the smoke test refuses', () => {
       ok: true,
       detail: '200, HTML con la app (sin scripts de /assets/)',
     });
-    expect(detailOf(checks, 1)).toMatchObject({
-      ok: false,
-      detail: expect.stringContaining('ningún'),
-    });
+    expect(detailOf(checks, 1).ok).toBe(false);
+    expect(detailOf(checks, 1).detail).toBe('la portada no nombra ningún /assets/…js');
   });
 
   it('an asset must be JavaScript: another type or none is refused', async () => {
@@ -231,7 +229,10 @@ describe('what each check of the smoke test refuses', () => {
   });
 
   it('a failure that is not an Error is shown as text', async () => {
-    const fetchFn = (() => Promise.reject('plain string')) as unknown as typeof fetch;
+    const reason: unknown = 'plain string';
+    const fetchFn = (async () => {
+      throw reason;
+    }) as unknown as typeof fetch;
     const result = await runSmoke(base, { fetch: fetchFn });
     expect(result.checks[0]!.detail).toBe('plain string');
   });

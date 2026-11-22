@@ -62,7 +62,7 @@ describe('npm run smoke', () => {
     const text = await run(
       ['nope'],
       vi.fn(() => {
-        throw 'plain';
+        throw 'plain' as unknown as Error;
       }),
     );
     expect(text.err).toEqual(['plain']);

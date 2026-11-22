@@ -53,7 +53,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   `manifest/`, `media/`, `policy/`) y lo escribe un destino de `targets/` (`folder`, `cloud`, `r2`, `content-database`).
   Lo que se decide sin tocar disco ni red (qué cambió, qué no puede cambiar una importación parcial, qué índices
   escribir) está en `sync/plan.ts`, común a los dos destinos; esas carpetas no importan `targets/` ni `cli/` (lo impone
-  ESLint). Lo que la persona tiene que arreglar es un `ImportError` con su `kind` (`errors.ts`).
+  ESLint). Lo que la persona tiene que arreglar es un `ImportError` con su `kind` (`ImportError.ts`).
 - **Contrato web ↔ API:** rutas (`API_ROUTES`, y `apiPaths` para pedirlas), códigos de error (`ErrorCode`), la
   cabecera de la vista previa y lo que acepta cada ruta (`requests.ts`) viven en `@qv/schema/http`. La API valida toda
   entrada con esos schemas y cada respuesta JSON lleva `satisfies` de su schema (los cuerpos que pasan como stream no

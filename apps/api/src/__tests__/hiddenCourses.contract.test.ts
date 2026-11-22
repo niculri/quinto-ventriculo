@@ -357,7 +357,7 @@ describe('a course turned off', () => {
     }
   });
 
-  it('is the same for an administrator, unless they are in the admin mode (see admin-mode-contract.test.ts)', async () => {
+  it('is the same for an administrator, unless they are in the admin mode (see adminMode.contract.test.ts)', async () => {
     const { app } = appWith([OFF]);
     const mine = await call(app, '/api/notes/ap-fi-1', ADMIN);
     expect(mine.status).toBe(404);

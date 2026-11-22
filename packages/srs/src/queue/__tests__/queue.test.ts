@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The queue functions leave their argument as it was, and the pure values read like the old mutable queue
-// (reference-queue.ts) in random sessions.
+// (ReferenceStudyQueue.ts) in random sessions.
 import { describe, expect, it } from 'vitest';
 import { answerCard, newCard } from '../../card';
 import type { CardKey, CardRecord, Rating } from '../../card';

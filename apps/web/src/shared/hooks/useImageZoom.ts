@@ -47,14 +47,21 @@ export function useImageZoom(
     return () => observer?.disconnect();
   }, [stageRef]);
 
-  // A new image, or the stage changed (turning the phone): what fits stays fitted, the rest stays in bounds.
-  const [fittedFor, setFittedFor] = useState<string | null>(null);
-  const key =
-    image && stage ? `${image.width}x${image.height}@${stage.width}x${stage.height}` : null;
-  if (image && stage && key !== fittedFor) {
-    setFittedFor(key);
+  // A new image, or the stage changed (turning the phone): what fitted the last ones fits the new ones, the rest stays
+  // in bounds.
+  const [fittedFor, setFittedFor] = useState<{ key: string; image: Size; stage: Size } | null>(
+    null,
+  );
+  const sizes =
+    image && stage
+      ? { key: `${image.width}x${image.height}@${stage.width}x${stage.height}`, image, stage }
+      : null;
+  if (sizes && sizes.key !== fittedFor?.key) {
+    setFittedFor(sizes);
     setView((v) =>
-      v && !isFitted(v, image, stage) ? clampView(v, image, stage) : fitView(image, stage),
+      v && fittedFor && !isFitted(v, fittedFor.image, fittedFor.stage)
+        ? clampView(v, sizes.image, sizes.stage)
+        : fitView(sizes.image, sizes.stage),
     );
   }
 

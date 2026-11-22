@@ -6,14 +6,24 @@ import { sharedStrings } from '../strings';
 const pill =
   'inline-flex items-center rounded-full border border-accent/40 bg-accent/10 font-medium whitespace-nowrap text-[#9a4a12] dark:text-accent';
 
-/** The tags of a page, on the row of its breadcrumbs (see `Breadcrumbs`): as tall as the row, to the right. */
+/**
+ * The tags of a page, on the row of its breadcrumbs (see `Breadcrumbs`): as tall as the row, to the right. On a phone
+ * the word is the short one, when there is one, to leave the route its room.
+ */
 export function AdminTag({ reasons }: { reasons: readonly AdminReason[] }) {
   if (!reasons.length) return null;
   return (
     <span data-admin-tag="" className="flex h-5 flex-none items-center gap-1">
       {reasons.map((r) => (
         <span key={r} className={`${pill} px-2 text-[0.7rem] leading-4`}>
-          {sharedStrings.adminOnly[r]}
+          {sharedStrings.adminOnlyShort[r] === sharedStrings.adminOnly[r] ? (
+            sharedStrings.adminOnly[r]
+          ) : (
+            <>
+              <span className="max-sm:hidden">{sharedStrings.adminOnly[r]}</span>
+              <span className="sm:hidden">{sharedStrings.adminOnlyShort[r]}</span>
+            </>
+          )}
         </span>
       ))}
     </span>

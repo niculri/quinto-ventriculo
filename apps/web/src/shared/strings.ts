@@ -21,6 +21,12 @@ export const sharedStrings = {
     hiddenSemester: 'Semestre oculto',
     hiddenCourse: 'Ramo apagado',
   },
+  /** On a phone the tags of a page share the row of the route: the shortest word that still says it. */
+  adminOnlyShort: {
+    draft: 'Borrador',
+    hiddenSemester: 'Oculto',
+    hiddenCourse: 'Apagado',
+  },
   /** What the admin mode says of what only the draft has: it is looked at, never studied or answered. */
   draftOnly: {
     title: 'Esto solo está en el borrador',

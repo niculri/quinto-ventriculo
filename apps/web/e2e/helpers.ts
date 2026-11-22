@@ -94,6 +94,11 @@ export function tagGeometry(page: Page) {
       route: rect(route),
       crumbs: crumbs.map((c) => rect(c)),
       cut: [...route.querySelectorAll('li span')].some((s) => s.scrollWidth > s.clientWidth),
+      /** What the route says of itself, as it is seen: the labels that are cut with «…», and the whole text of each crumb. */
+      cutLabels: [...route.querySelectorAll('li span')]
+        .filter((s) => s.scrollWidth > s.clientWidth)
+        .map((s) => s.textContent),
+      seen: crumbs.filter((c) => c.getBoundingClientRect().width > 0).map((c) => c.textContent),
       bar: rect(document.querySelector('header')!),
       title: rect(document.querySelector('main h1')!),
       sideScroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,

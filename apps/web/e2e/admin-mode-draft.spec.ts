@@ -79,6 +79,10 @@ test('the tag is on the row of the breadcrumbs: to the right, centered with them
   }
   expect(g.route.right).toBeLessThanOrEqual(g.tag.x);
   expect(g.sideScroll).toBeLessThanOrEqual(0);
-  // A phone has not room for the whole route and the tag: the route is cut with «…», the tag stays whole.
-  if (isMobile) expect(g.cut).toBe(true);
+  // A phone has not room for the whole route and the tag: the middle of the route is a «…», only the page's own name is
+  // cut (the title below says it whole), and the tag stays whole.
+  if (isMobile) {
+    expect(g.seen).toEqual(['Inicio', '…', 'Apuntes', expect.stringContaining('Regulación')]);
+    expect(g.cutLabels).toEqual([expect.stringContaining('Regulación')]);
+  }
 });

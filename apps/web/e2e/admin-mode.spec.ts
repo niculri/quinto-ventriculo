@@ -100,6 +100,26 @@ test('the tags are on the row of the breadcrumbs, to the right, centered with th
   expect(g.title.y).toBeGreaterThanOrEqual(g.row.bottom);
 });
 
+test('on a phone, two tags leave the route readable: the tags take the short word and no crumb is cut', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 412, height: 915 });
+  await page.goto('/home');
+  await setAdminMode(page, true);
+  await page.goto(OFF_COURSE);
+  await expect(page.locator('main [data-admin-tag] > span')).toHaveCount(2);
+  await expect(page.locator('main [data-admin-tag]')).toBeVisible();
+  const g = await tagGeometry(page);
+  expect(g.cutLabels).toEqual([]);
+  expect(g.seen).toEqual(['Inicio', '1° Semestre', 'Anatomía I']);
+  expect(g.route.right).toBeLessThanOrEqual(g.tag.x);
+  expect(g.sideScroll).toBeLessThanOrEqual(0);
+  const words = await page
+    .locator('main [data-admin-tag] > span')
+    .evaluateAll((tags) => tags.map((t) => (t as HTMLElement).innerText));
+  expect(words).toEqual(['Oculto', 'Apagado']);
+});
+
 test('in the admin mode, studying a card of the course turned off is saved as always, and says nothing of it', async ({
   page,
 }) => {

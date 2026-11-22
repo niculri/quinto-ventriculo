@@ -49,6 +49,7 @@ describe('the counts', () => {
     expect(await study.heatmap(null)).toEqual({ days: [], due: [] });
     await study.heatmap(['d1', 'd2']);
     expect(calls.map((c) => c.body)).toEqual([{}, { p_deck_ids: ['d1', 'd2'] }]);
+    expect(await repo(() => ({ body: null })).study.heatmap(null)).toEqual({ days: [], due: [] });
   });
 
   it('the home page’s counts: nothing to ask for no decks; a missing list reads as empty', async () => {

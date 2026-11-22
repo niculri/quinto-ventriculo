@@ -158,6 +158,18 @@ describe('access', () => {
     );
   });
 
+  it('«Ayuda» of the footer takes to the help page; without a session, /help asks to sign in', async () => {
+    const user = userEvent.setup();
+    const { router, unmount } = renderApp('/home');
+    const site = await screen.findByRole('navigation', { name: 'Sobre el sitio' });
+    await user.click(within(site).getByRole('link', { name: 'Ayuda' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Ayuda' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/help');
+    unmount();
+    const out = renderApp('/help', { session: null });
+    await waitFor(() => expect(out.router.state.location.pathname).toBe('/'));
+  });
+
   it('without a session, the footer offers no help (it is behind the login), and the rest works', async () => {
     renderApp('/', { session: null });
     const site = await screen.findByRole('navigation', { name: 'Sobre el sitio' });

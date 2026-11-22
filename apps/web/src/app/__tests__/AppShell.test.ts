@@ -65,6 +65,15 @@ describe('the frame', () => {
     ).toBeInTheDocument();
   });
 
+  it('the search box of the bar opens the quick search', async () => {
+    const user = userEvent.setup();
+    renderApp('/home');
+    await user.click(await screen.findByRole('button', { name: /Buscar en la página…/ }));
+    expect(
+      await screen.findByRole('combobox', { name: 'Buscar en la página' }),
+    ).toBeInTheDocument();
+  });
+
   it('the phone’s menu goes away on starting to study, even if it was left open', async () => {
     const user = userEvent.setup();
     const { router } = renderApp('/home');

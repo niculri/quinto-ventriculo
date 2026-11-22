@@ -1,5 +1,5 @@
-// Pins the rules the in-memory study repository re-implements from the users database's SQL functions, and the few
-// places where it accepts more than the database does.
+// Pins the rules the in-memory study repository re-implements from the users database's SQL functions, the few places
+// where it accepts more than the database does, and what it makes of what a browser kept from before.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CardChangedError,
@@ -10,6 +10,7 @@ import {
   PracticeRefusedError,
 } from '../';
 import type { CardRef, CardStateFields, ReviewInput, StudyRepository } from '../';
+import { memoryStorage } from '../../../../../test/storage';
 
 const NOW = Date.parse('2026-03-10T15:00:00Z');
 const HOUR = 3_600_000;
@@ -450,5 +451,176 @@ describe('what the web reads of the progress', () => {
     const counts = await big.homeCounts(['d1'], new Date(NOW + DAY), {});
     expect(counts.truncated).toBe(true);
     expect(counts.decks).toEqual([]);
+  });
+});
+
+describe('more of what the web reads', () => {
+  it('median_answer_ms rounds a half to the even number, as Postgres', async () => {
+    for (let i = 0; i < 20; i++) {
+      await repo.recordReview(answer(card(`m${i}`), null, { durationMs: i < 10 ? 1001 : 1002 }));
+    }
+    expect(await repo.medianAnswerMs()).toBe(1002);
+  });
+
+  it('the days of some decks leave out the cards of the others, and what is buried past today', async () => {
+    await repo.recordReview(answer(A, null));
+    await repo.recordReview(answer(card('x', 0, 'd2'), null));
+    await repo.recordReview(answer(B, null));
+    await repo.bury([B], new Date(NOW + 5 * DAY), false);
+    const { due } = await repo.heatmap(['d1']);
+    expect(due.map((d) => d.cards)).toEqual([1]);
+    expect((await repo.heatmap(null)).due.map((d) => d.cards)).toEqual([2]);
+  });
+
+  it('a card due before today is not among the days to come', async () => {
+    await repo.recordReview(answer(A, null, { state: reviewed({ due: iso(NOW - 2 * DAY) }) }));
+    expect((await repo.heatmap(null)).due).toEqual([]);
+  });
+
+  it('practice of another day does not take room from today', async () => {
+    await repo.recordPractice([{ deckId: 'd1', n: PRACTICE_BATCH_MAX - 1 }]);
+    vi.setSystemTime(NOW + DAY);
+    await repo.recordPractice([{ deckId: 'd1', n: 4 }]);
+    const days = (await repo.heatmap(null)).days.map((d) => d.practice);
+    expect(days).toEqual([PRACTICE_BATCH_MAX - 1, 4]);
+  });
+
+  it('a batch with nothing practised writes nothing', async () => {
+    const storage = memoryStorage();
+    const kept = localStudyRepository(storage);
+    await kept.recordPractice([{ deckId: 'd1', n: 0 }]);
+    expect(storage.length).toBe(0);
+  });
+
+  it('an answer that does not say when was given now', async () => {
+    await repo.recordReview(answer(A, null, { state: reviewed({ lastReview: null }) }));
+    expect((await repo.cardLog(A))[0]!.reviewedAt).toBe(iso(NOW));
+  });
+
+  it('a flag out of 0–7 is refused, also for several cards', async () => {
+    await expect(repo.setFlags([A, B], 8)).rejects.toThrow(
+      'No se pudo marcar las tarjetas: invalid_flag',
+    );
+    await expect(repo.setFlag(A, 1.5)).rejects.toThrow('invalid_flag');
+    expect(await repo.allCards()).toEqual([]);
+  });
+
+  it('home_counts: decks and their cards due in order of id; a card without difficulty still counts its recall', async () => {
+    const due = iso(NOW - HOUR);
+    await repo.recordReview(answer(card('z', 0, 'd2'), null, { state: reviewed({ due }) }));
+    await repo.recordReview(answer(card('b'), null, { state: reviewed({ due }) }));
+    await repo.recordReview(answer(card('a', 1), null, { state: reviewed({ due }) }));
+    await repo.recordReview(answer(card('a'), null, { state: reviewed({ due }) }));
+    await repo.recordReview(
+      answer(card('w', 0, 'd3'), null, { state: reviewed({ difficulty: null }) }),
+    );
+    await repo.recordReview(
+      answer(card('u', 0, 'd4'), null, { state: reviewed({ difficulty: 5 }) }),
+    );
+    vi.setSystemTime(NOW + 3 * DAY);
+    const { decks } = await repo.homeCounts(['d4', 'd2', 'd1', 'd3'], new Date(NOW), {});
+    expect(decks.map((d) => d.deckId)).toEqual(['d1', 'd2', 'd3', 'd4']);
+    expect(decks[0]!.due.map((c) => `${c.noteGuid}:${c.ord}`)).toEqual(['a:0', 'a:1', 'b:0']);
+    expect(decks[2]!.recall).toBe(decks[3]!.recall);
+    expect(decks[2]!.recall).toBeGreaterThan(0);
+    expect(decks[2]!.recall).toBeLessThan(1);
+  });
+});
+
+describe('what a browser kept', () => {
+  const KEY = 'qv-demo-study';
+
+  it('an empty storage is no progress; one that cannot be read is no progress either', async () => {
+    const storage = memoryStorage();
+    expect(await localStudyRepository(storage).preferences()).toBeNull();
+    storage.setItem(KEY, '{not json');
+    const broken = localStudyRepository(storage);
+    expect(await broken.allCards()).toEqual([]);
+    expect(await broken.preferences()).toBeNull();
+  });
+
+  it('a log from before the interval, the study day and the moment it was written is read by its time', async () => {
+    const storage = memoryStorage();
+    const kept = localStudyRepository(storage, { timeZone: 'America/Santiago' });
+    await kept.recordReview(answer(A, null, { interval: 9, state: reviewed({ interval: 2 }) }));
+    await kept.setFlag(A, 3);
+    const data = JSON.parse(storage.getItem(KEY)!) as { log: Record<string, unknown>[] };
+    for (const row of data.log) {
+      delete row.interval;
+      delete row.day;
+      delete row.loggedAt;
+    }
+    storage.setItem(KEY, JSON.stringify(data));
+    expect((await kept.cardLog(A)).map((l) => [l.action, l.interval])).toEqual([
+      ['answer', 2],
+      ['flag', null],
+    ]);
+    expect((await kept.heatmap(null)).days.map((d) => d.answers)).toEqual([1]);
+    expect(await kept.undo()).toMatchObject({ action: 'flag' });
+  });
+
+  it('undo brings back a card that is no longer among the rows, as it was before', async () => {
+    const storage = memoryStorage();
+    const kept = localStudyRepository(storage);
+    await kept.recordReview(answer(A, null));
+    const before = (await kept.allCards())[0]!;
+    await kept.setFlag(A, 2);
+    const data = JSON.parse(storage.getItem(KEY)!) as { cards: unknown[] };
+    data.cards = [];
+    storage.setItem(KEY, JSON.stringify(data));
+    await kept.undo();
+    expect(await kept.allCards()).toEqual([before]);
+  });
+
+  it('undoing the first answer of a card no longer among the rows leaves nothing behind', async () => {
+    const storage = memoryStorage();
+    const kept = localStudyRepository(storage);
+    await kept.recordReview(answer(A, null));
+    const data = JSON.parse(storage.getItem(KEY)!) as { cards: unknown[] };
+    data.cards = [];
+    storage.setItem(KEY, JSON.stringify(data));
+    expect(await kept.undo()).toMatchObject({ action: 'answer' });
+    expect(await kept.allCards()).toEqual([]);
+    expect(await kept.cardLog(A)).toEqual([]);
+  });
+
+  it('without crypto.randomUUID, the ids are still unique', async () => {
+    vi.stubGlobal('crypto', {});
+    try {
+      const a = await repo.savePreset({ name: 'A', replaces: null, config: {} });
+      const b = await repo.savePreset({ name: 'B', replaces: null, config: {} });
+      expect(a.id).not.toBe(b.id);
+      expect(a.id).toMatch(new RegExp(`^${NOW}-`));
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('without a browser storage at all, the progress lives in memory', async () => {
+    vi.stubGlobal('localStorage', undefined);
+    try {
+      const alone = localStudyRepository();
+      await alone.recordReview(answer(A, null));
+      expect(await alone.allCards()).toHaveLength(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('a storage the browser refuses to give is no storage', async () => {
+    const real = Object.getOwnPropertyDescriptor(window, 'localStorage')!;
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get: () => {
+        throw new Error('SecurityError');
+      },
+    });
+    try {
+      const alone = localStudyRepository();
+      await alone.recordReview(answer(A, null));
+      expect(await alone.allCards()).toHaveLength(1);
+    } finally {
+      Object.defineProperty(window, 'localStorage', real);
+    }
   });
 });

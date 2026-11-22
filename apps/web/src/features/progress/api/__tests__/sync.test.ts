@@ -126,4 +126,22 @@ describe('withCardSync', () => {
     await synced.preferences();
     expect(cardChanges).toHaveBeenCalledTimes(3);
   });
+
+  it('a sync of a user that failed after another user’s started does not undo the newer one', async () => {
+    let user = 'u1';
+    let failFirst: (e: Error) => void = () => undefined;
+    const cardChanges = vi
+      .fn<(since: number) => Promise<CardChanges>>()
+      .mockImplementationOnce(() => new Promise((_, reject) => (failFirst = reject)))
+      .mockImplementation(async (since) => page({ next: since, latest: since }));
+    const synced = withCardSync(localStudyRepository(null), { cardChanges }, async () => user);
+    const first = synced.cards(['1']);
+    await vi.waitFor(() => expect(cardChanges).toHaveBeenCalledTimes(1));
+    user = 'u2';
+    await synced.cards(['1']);
+    failFirst(new Error('offline'));
+    await expect(first).rejects.toThrow('offline');
+    await synced.cards(['1']);
+    expect(cardChanges).toHaveBeenCalledTimes(2);
+  });
 });

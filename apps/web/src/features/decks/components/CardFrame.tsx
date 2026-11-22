@@ -70,6 +70,8 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
 
   useLayoutEffect(() => {
     const el = host.current;
+    // A layout effect runs after React attached the ref: the host is always there.
+    /* v8 ignore next */
     if (!el) return;
     const root = el.shadowRoot ?? el.attachShadow({ mode: 'open' });
     const base = document.createElement('style');

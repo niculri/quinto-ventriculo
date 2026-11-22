@@ -6,6 +6,8 @@ const BUTTON = '.extras .bt[data-k]';
 function panelOf(button: Element): HTMLElement | null {
   const extras = button.closest('.extras');
   const key = button.getAttribute('data-k');
+  // Every button reached matched BUTTON, so it has an `.extras` above it and its `data-k`.
+  /* v8 ignore next */
   if (!extras || key === null) return null;
   const panels = extras.querySelectorAll<HTMLElement>('.panel[data-k]');
   return [...panels].find((p) => p.getAttribute('data-k') === key) ?? null;

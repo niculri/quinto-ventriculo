@@ -247,3 +247,211 @@ describe('listImages', () => {
     ]);
   });
 });
+
+describe('the title and what comes before it', () => {
+  it('takes the first level-1 heading as the title even after blank lines', () => {
+    expect(convert('\n\n# Título\ntexto')).toMatchObject({
+      title: 'Título',
+      html: '<p>texto</p>\n',
+    });
+  });
+
+  it('after any text a level-1 heading is not the title: the sanitizer keeps only its words', () => {
+    const r = convert('texto\n# Otro\nfin');
+    expect(r.title).toBeNull();
+    expect(r.html).toBe('<p>texto</p>\nOtro\n<p>fin</p>\n');
+  });
+
+  it('only the first level-1 heading is the title', () => {
+    const r = convert('# A\n# B');
+    expect(r.title).toBe('A');
+    expect(r.html).toBe('B\n');
+  });
+
+  it('the first creation date wins, and a page-break marker leaves no trace', () => {
+    const r = convert(
+      '<!-- creado: 2026-01-02 -->\n<!-- creado: 2027-03-04 -->\n<div class="nueva"></div>\ntexto',
+    );
+    expect(r.createdOn).toBe('2026-01-02');
+    expect(r.html).toBe('<p>texto</p>\n');
+  });
+});
+
+describe('callouts', () => {
+  it('«dato» is an ordinary note', () => {
+    expect(convert('> [!dato] cuerpo').html).toBe(
+      '<aside class="callout callout-note"><p>cuerpo</p>\n</aside>\n',
+    );
+  });
+
+  it('an error callout takes its label from the bold opening, without the final colon', () => {
+    const html = convert(
+      '> [!error] **Error en la diapositiva:** dice mal. **Lo correcto:** bien.',
+    ).html;
+    expect(html).toContain('<p class="callout-label">Error en la diapositiva</p>');
+    expect(html).toContain('<p>dice mal. <strong>Lo correcto:</strong> bien.</p>');
+  });
+
+  it('an error callout with no bold opening is labeled «Error», and its warning sign is dropped', () => {
+    const html = convert('> [!error] ⚠️ texto').html;
+    expect(html).toContain('<p class="callout-label">Error</p><p>texto</p>');
+    expect(html).not.toContain('⚠');
+  });
+
+  it('a question is a callout of its own, tagged with its letter or number, except «de la guía»', () => {
+    expect(convert('> **Pregunta 3.** ¿cuál?\n> más').html).toContain(
+      '<p class="callout-label">Pregunta de la guía <span class="callout-tag">3)</span></p><p>¿cuál?\nmás</p>',
+    );
+    const plain = convert('> **Pregunta de la guía.** ¿cuál?').html;
+    expect(plain).toContain('<p class="callout-label">Pregunta de la guía</p>');
+    expect(plain).not.toContain('callout-tag');
+    expect(convert('> **Pregunta DE LA GUÍA.** ¿cuál?').html).not.toContain('callout-tag');
+  });
+
+  it('only a note can be a question, not another kind of callout', () => {
+    expect(convert('> [!clave] **Pregunta 1.** x').html).not.toContain('callout-question');
+  });
+
+  it('a figure inside floats at 38 % unless it asks for 55 % or more, which makes it wide', () => {
+    const wide = convert('> [!clave] hola\n> ![fig](a.png){60%}').html;
+    expect(wide).toContain('class="figure figure-wide" style="width:60%"');
+    const narrow = convert('> [!clave] hola\n> ![fig](a.png){54%}').html;
+    expect(narrow).toContain('class="figure figure-float" style="width:54%"');
+    expect(convert('> [!clave] hola\n> ![fig](a.png){55%}').html).toContain('figure-wide');
+    expect(convert('> [!clave] hola\n> ![fig](a.png)').html).toContain('style="width:38%"');
+  });
+});
+
+describe('figures and the blocks around them', () => {
+  it('a side block floats its image to the right or the left, with the text beside it', () => {
+    const right = convert('::: der ![pie](a.png){150%!}\ntexto\n:::').html;
+    expect(right).toBe(
+      '<div class="side side-right"><figure class="figure figure-float figure-plate" style="width:100%"><img data-media="k/a.png" alt="pie" width="800" height="600" loading="lazy" decoding="async" /><figcaption>pie</figcaption></figure><p>texto</p>\n</div>\n',
+    );
+    expect(convert('::: izq ![](a.png)\ntexto\n:::').html).toContain('side-left');
+  });
+
+  it('a side block without a figcaption when the caption is empty, and at 40 % by default', () => {
+    const html = convert('::: izq ![](a.png)\ntexto\n:::').html;
+    expect(html).toContain('style="width:40%"');
+    expect(html).not.toContain('figcaption');
+  });
+
+  it('a side block never closed is an error, and what follows goes inside it', () => {
+    const r = convert('::: izq ![](a.png)\ntexto');
+    expect(r.errors).toEqual(['Bloque «:::» sin su cierre «:::»: «::: izq ![](a.png)»']);
+    expect(r.html).toContain('<p>texto</p>');
+  });
+
+  it('a «:::» with no image after it is not recognized', () => {
+    expect(convert(':::\nx').errors).toEqual([
+      'Bloque «:::» que no se reconoce (le falta su imagen): «:::»',
+    ]);
+  });
+
+  it('an image in the middle of a line is not recognized, and neither is a raw img tag', () => {
+    expect(convert('algo ![x](a.png) junto').errors).toEqual([
+      'Figura que no se reconoce: «algo ![x](a.png) junto»',
+    ]);
+    expect(convert('<img src="x.png">').errors).toEqual([
+      'Figura que no se reconoce: «<img src="x.png">»',
+    ]);
+  });
+
+  it('a line that is too long to quote is cut at 140 characters', () => {
+    const long = `${'x'.repeat(150)} ![a](a.png) y`;
+    const message = convert(long).errors[0]!;
+    expect(message).toBe(`Figura que no se reconoce: «${'x'.repeat(140)}…»`);
+    const exact = `${'y'.repeat(120)} ![a](a.png) ${'z'.repeat(7)}`;
+    expect(exact.length).toBe(140);
+    expect(convert(exact).errors[0]).toContain(exact);
+  });
+
+  it('a lone image that cannot be found is an error and shows a placeholder', () => {
+    const r = convertNote('![x](missing.png)', () => null);
+    expect(r.errors).toEqual(['Imagen no encontrada: missing.png']);
+    expect(r.html).toContain('imagen no encontrada');
+  });
+
+  it('two or more images alone on a line are a row, each as wide as the row gives it, whatever width they ask', () => {
+    const html = convert('![a](a.png){20%} ![b](b.png)').html;
+    expect(html).toMatch(
+      /^<div class="figure-row"><figure class="figure"><img data-media="k\/a.png"/,
+    );
+    expect(html).not.toContain('style=');
+  });
+
+  it('an image with no known size has no width or height', () => {
+    expect(convertNote('![x](a.png)', () => ({ key: 'k' })).html).not.toContain('width=');
+    expect(convertNote('![x](a.png)', () => ({ key: 'k', width: 5 })).html).not.toContain(
+      'height=',
+    );
+  });
+
+  it('the alt text is the caption without its formatting, escaped', () => {
+    const html = convert('![Un **codón** < y "dos" & más](a.png)').html;
+    expect(html).toContain('alt="Un codón &lt; y &quot;dos&quot; &amp; más"');
+  });
+});
+
+describe('what is at the end of a line', () => {
+  it('a source line stuck to the text before it becomes its own paragraph, and one at the start stays', () => {
+    expect(convert('texto\n*(Fuente, p. 4)*').html).toBe(
+      '<p>texto</p>\n<p class="source">(Fuente, p. 4)</p>\n',
+    );
+    expect(convert('*(Fuente, p. 4)*\nsiguiente').html).toBe(
+      '<p><em>(Fuente, p. 4)</em>\nsiguiente</p>\n',
+    );
+  });
+
+  it('a guide question in italics is a callout only if asked', () => {
+    const md = '*a) Primera cosa*\n*B. b) segunda*';
+    const asked = convertNote(md, resolver, { guideQuestions: true }).html;
+    expect(asked).toContain('<span class="callout-tag">a)</span></p><p><em>Primera cosa</em></p>');
+    expect(asked).toContain('<span class="callout-tag">B. b)</span>');
+    expect(convert(md).html).not.toContain('callout');
+  });
+});
+
+describe('the summary and the sections', () => {
+  it('«Resumen» is wrapped up to the next level-2 heading, and what follows stays outside', () => {
+    const html = convert('antes\n\n## Resumen\nuno\n\n## Otro\ndos').html;
+    expect(html).toBe(
+      '<p>antes</p>\n<section class="note-summary"><h2 id="resumen">Resumen</h2>\n<p>uno</p>\n</section><h2 id="otro">Otro</h2>\n<p>dos</p>\n',
+    );
+  });
+
+  it('a summary that is the last section wraps up to the end', () => {
+    expect(convert('## Resumen\nuno').html).toBe(
+      '<section class="note-summary"><h2 id="resumen">Resumen</h2>\n<p>uno</p>\n</section>',
+    );
+  });
+
+  it('the text before the first heading belongs to the note’s own title; an empty section has no entry', () => {
+    const r = convert('# T\n\nintro\n\n## S\ntexto\n\n## Vacía\n\n### Sub\n\nmás');
+    expect(r.sections).toEqual([
+      { anchor: '', title: 'T', level: 1, text: 'intro' },
+      { anchor: 's', title: 'S', level: 2, text: 'texto' },
+      { anchor: 'sub', title: 'Sub', level: 3, text: 'más' },
+    ]);
+  });
+
+  it('a note with no title and no headings is one section with an empty title', () => {
+    expect(convert('solo texto').sections).toEqual([
+      { anchor: '', title: '', level: 1, text: 'solo texto' },
+    ]);
+  });
+
+  it('a note with no text has no sections', () => {
+    expect(convert('').sections).toEqual([]);
+  });
+});
+
+describe('the same heading twice', () => {
+  it('the second one gets «-2», the third «-3», in the page and in the table of contents', () => {
+    const r = convert('## Núcleo\n\na\n\n## Núcleo\n\nb\n\n### Núcleo\n\nc');
+    expect(r.toc.map((t) => t.anchor)).toEqual(['nucleo', 'nucleo-2', 'nucleo-3']);
+    expect(r.sections.map((s) => s.anchor)).toEqual(['nucleo', 'nucleo-2', 'nucleo-3']);
+    expect(r.html).toContain('<h2 id="nucleo-2">');
+  });
+});

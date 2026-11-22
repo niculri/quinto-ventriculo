@@ -1,6 +1,6 @@
 // Text helpers for the notes' HTML: slugs and attribute escaping.
 
-/** «Núcleo celular: 1.º parte» → «nucleo-celular-1-o-parte». */
+/** «Núcleo celular: parte 1» → «nucleo-celular-parte-1». */
 export function slugify(text: string, max = 64): string {
   const base = text
     .normalize('NFD')

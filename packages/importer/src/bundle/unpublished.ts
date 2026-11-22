@@ -129,7 +129,7 @@ export function withoutUnpublished(
       kind: 'deck',
       id,
       what:
-        `«${root.name.split('::').at(-1) ?? root.name}» (${below.size} ${below.size === 1 ? 'mazo' : 'mazos'}, ` +
+        `«${root.name.split('::').at(-1)!}» (${below.size} ${below.size === 1 ? 'mazo' : 'mazos'}, ` +
         `${result.gone} notas, ${result.cards} tarjetas)`,
     });
   }

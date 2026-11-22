@@ -43,7 +43,7 @@ async function processImages(shared: Shared, entry: NoteEntry, markdown: string,
     } catch (e) {
       shared.unreadable.add(absolute);
       shared.errors.push(
-        `${entry.id} (${entry.sourceFile}): no se encontró o no se pudo leer la imagen ${path} (${(e as Error).message.split('\n')[0] ?? ''})`,
+        `${entry.id} (${entry.sourceFile}): no se encontró o no se pudo leer la imagen ${path} (${(e as Error).message.split('\n')[0]!})`,
       );
     }
   }

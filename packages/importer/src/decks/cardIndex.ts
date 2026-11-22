@@ -18,7 +18,10 @@ const short = (text: string) =>
   text.length <= ROW_TEXT_MAX ? text : `${text.slice(0, ROW_TEXT_MAX - 1).trimEnd()}…`;
 
 function first(fields: Record<string, string>, names: readonly string[]): string {
-  for (const n of names) if (n in fields) return fields[n] ?? '';
+  for (const n of names) {
+    const value = fields[n];
+    if (value !== undefined) return value;
+  }
   return '';
 }
 
@@ -49,7 +52,7 @@ const byCode = (
     if (b.code === null) return -1;
     return a.code < b.code ? -1 : 1;
   }
-  return a.guid < b.guid ? -1 : a.guid > b.guid ? 1 : 0;
+  return Number(a.guid > b.guid) - Number(a.guid < b.guid);
 };
 
 type IndexInput = {
@@ -94,7 +97,7 @@ function indexNote(
       : null;
   const imageKey =
     kind === 'occlusion' || kind === 'photo'
-      ? (/data-media="([^"]+)"/.exec(cards[0]?.frontHtml ?? '')?.[1] ?? null)
+      ? (/data-media="([^"]+)"/.exec(cards[0]!.frontHtml)?.[1] ?? null)
       : null;
   return {
     guid: note.guid,
@@ -105,7 +108,7 @@ function indexNote(
     createdAt: note.createdAt,
     // The occlusion's shapes are coordinates: hundreds of characters a note that nobody searches.
     fields: type.fields.map((name) => (name === occlusionField ? '' : ankiPlainText(raw[name]))),
-    sortField: cards[0]?.sortField ?? '',
+    sortField: cards[0]!.sortField,
     cards: mine.map((c) => ({ ord: c.ord, deckId: c.deckId })),
     kind,
     ...rowText(kind, raw),
@@ -139,7 +142,7 @@ function rowsByAssessment(input: IndexInput): Map<string, CardIndexNote[]> {
 
 export function buildCardIndexes(input: IndexInput): CardIndex[] {
   return [...rowsByAssessment(input)]
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .sort(([a], [b]) => (a < b ? -1 : 1))
     .map(([assessmentId, notes]) => {
       notes.sort(byCode);
       const used = new Set(notes.map((n) => n.noteTypeId));

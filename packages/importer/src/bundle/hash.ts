@@ -12,7 +12,7 @@ function sortKeys(value: unknown): unknown {
   if (value && typeof value === 'object') {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>)
-        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .sort(([a], [b]) => (a < b ? -1 : 1))
         .map(([k, v]) => [k, sortKeys(v)]),
     );
   }

@@ -70,7 +70,7 @@ function finish(state: DecksState): void {
       const parent = parentDeckName(d.name);
       return { ...d, parentId: parent === null ? null : decks.get(parent)!.id };
     })
-    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    .sort((a, b) => (a.name < b.name ? -1 : 1));
   result.noteTypes = [...state.noteTypes.values()];
   result.presets = [...presets.values()];
 }

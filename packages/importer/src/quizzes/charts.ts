@@ -30,8 +30,8 @@ const textOr = (text: Maybe<string>, fallback: string) =>
 /** The first of the texts that is not empty. */
 const firstText = (...texts: Maybe<string>[]) => texts.find((t) => t) ?? '';
 
-function esc(s: Maybe<string | number>): string {
-  return String(s ?? '').replace(
+function esc(s: string | number): string {
+  return String(s).replace(
     /[&<>"]/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!,
   );

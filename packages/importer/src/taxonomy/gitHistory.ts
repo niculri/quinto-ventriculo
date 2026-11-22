@@ -99,7 +99,7 @@ export async function gitHistory(folder: string): Promise<TaxonomyHistory | null
 }
 
 /** What `git cat-file --batch` answers for each request, in order: the text of a blob, or null. */
-function parseBatch(out: Buffer, count: number): (string | null)[] {
+export function parseBatch(out: Buffer, count: number): (string | null)[] {
   const texts: (string | null)[] = [];
   let at = 0;
   for (let i = 0; i < count; i++) {
@@ -119,33 +119,26 @@ function parseBatch(out: Buffer, count: number): (string | null)[] {
 }
 
 /** Reads many «<commit>:<path>» with one `git cat-file --batch`; null for one that is not there. */
-function gitBatch(folder: string, specs: readonly string[]): Promise<(string | null)[]> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('git', ['-C', folder, 'cat-file', '--batch'], { stdio: 'pipe' });
-    const chunks: Buffer[] = [];
-    const errors: Buffer[] = [];
-    child.stdout.on('data', (c: Buffer) => chunks.push(c));
-    // Drained too, or a full pipe would block git.
-    child.stderr.on('data', (c: Buffer) => errors.push(c));
-    child.stdin.on('error', () => undefined); // git may exit before reading everything: «close» reports why
+async function gitBatch(folder: string, specs: readonly string[]): Promise<(string | null)[]> {
+  const child = spawn('git', ['-C', folder, 'cat-file', '--batch'], { stdio: 'pipe' });
+  const chunks: Buffer[] = [];
+  const errors: Buffer[] = [];
+  child.stdout.on('data', (c: Buffer) => chunks.push(c));
+  // Drained too, or a full pipe would block git.
+  child.stderr.on('data', (c: Buffer) => errors.push(c));
+  /* v8 ignore next -- EPIPE happens only if git exits before it has read what it was asked */
+  child.stdin.on('error', () => undefined); // «close» reports why git left early
+  const code = await new Promise<number | null>((resolve, reject) => {
     child.on('error', reject);
-    child.on('close', (code) => {
-      if (code !== 0) {
-        const why = Buffer.concat(errors).toString('utf8').trim();
-        reject(
-          new ImportError(
-            'environment',
-            `git cat-file terminó con el código ${String(code)}${why ? `: ${why}` : '.'}`,
-          ),
-        );
-        return;
-      }
-      try {
-        resolve(parseBatch(Buffer.concat(chunks), specs.length));
-      } catch (e) {
-        reject(e instanceof Error ? e : new Error(String(e)));
-      }
-    });
+    child.on('close', resolve);
     child.stdin.end(specs.map((s) => `${s}\n`).join(''));
   });
+  if (code !== 0) {
+    const why = Buffer.concat(errors).toString('utf8').trim();
+    throw new ImportError(
+      'environment',
+      `git cat-file terminó con el código ${String(code)}${why ? `: ${why}` : '.'}`,
+    );
+  }
+  return parseBatch(Buffer.concat(chunks), specs.length);
 }

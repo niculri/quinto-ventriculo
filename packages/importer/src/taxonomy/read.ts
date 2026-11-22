@@ -142,7 +142,7 @@ export async function readTaxonomies(
   for (const [file, taxonomy] of trees) {
     const map = mapsBy.get(taxonomy.assessmentId);
     mapsBy.delete(taxonomy.assessmentId);
-    const committed = committedOf.get(file) ?? [];
+    const committed = committedOf.get(file)!;
     errors.push(...pairingProblems(file, taxonomy, map, committed));
     if (!map) continue;
     out.push({

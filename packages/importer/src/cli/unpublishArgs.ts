@@ -57,8 +57,9 @@ export function pieceOf(args: Pick<UnpublishArgs, 'positionals'>): {
   return { kind: kind.data, id };
 }
 
-export function parseUnpublishArgs(): UnpublishArgs {
+export function parseUnpublishArgs(argv?: string[]): UnpublishArgs {
   const { values, positionals } = parseArgs({
+    ...(argv ? { args: argv } : {}),
     allowPositionals: true,
     options: {
       reason: { type: 'string' },

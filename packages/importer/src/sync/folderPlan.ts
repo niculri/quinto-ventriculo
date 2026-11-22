@@ -12,7 +12,7 @@ export type AnkiParts = Pick<
 >;
 
 const byName = (a: { name: string }, b: { name: string }) =>
-  a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+  Number(a.name > b.name) - Number(a.name < b.name);
 
 export function planNotes(
   before: ContentBundle,

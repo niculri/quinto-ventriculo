@@ -66,6 +66,15 @@ describe('evaluation', () => {
     expect(matches('-prop:s>5', known)).toBe(true);
   });
 
+  it('a group is unknown, not false, when nothing decides it: its negation matches nothing either', () => {
+    const fresh = card();
+    expect(matches('-(prop:s>5 and is:new)', fresh)).toBe(false);
+    expect(matches('-(prop:s>5 or tag:nothing)', fresh)).toBe(false);
+    expect(matches('-(prop:s>5 or tag:nothing)', card({ tags: ['nothing'] }))).toBe(false);
+    expect(matches('-(prop:s>5 or tag:other)', card({ tags: ['nothing'] }))).toBe(false);
+    expect(matches('-(tag:a or tag:b)', card({ tags: ['c'] }))).toBe(true);
+  });
+
   it('LIKE folds only ASCII letters', () => {
     expect(matches('árbol', card())).toBe(false);
     expect(matches('ÁRBOL', card({ fields: ['árbol'] }))).toBe(false);
@@ -226,5 +235,44 @@ describe('speed', () => {
     expect(text.ms).toBeLessThan(2000);
     expect(mixed.ms).toBeLessThan(2000);
     expect(wildcard.ms).toBeLessThan(2000);
+  });
+});
+
+describe('what the context does not bring', () => {
+  const answered = card({ noteGuid: 'x' });
+
+  it('without answers, nobody has been rated, and without first answers nobody was introduced', () => {
+    expect(matches('rated:1', answered)).toBe(false);
+    expect(matches('introduced:1', answered)).toBe(false);
+  });
+
+  it('answers inside the window of days and with the asked rating are the ones that count', () => {
+    const day = 86_400;
+    const withAnswers = (atMs: number, rating: 1 | 2 | 3 | 4) => ({
+      ...ctx,
+      answers: [{ noteGuid: 'x', ord: 0, rating, atMs }],
+    });
+    const within = (ctx.timing.nextDayAt - day / 2) * 1000;
+    const before = (ctx.timing.nextDayAt - 2 * day) * 1000;
+    const run = (query: string, c: SearchContext) => compileSearch(parseSearch(query), c)(answered);
+    expect(run('rated:1', withAnswers(within, 3))).toBe(true);
+    expect(run('rated:1', withAnswers(before, 3))).toBe(false);
+    expect(run('rated:1:1', withAnswers(within, 3))).toBe(false);
+    expect(run('rated:1:3', withAnswers(within, 3))).toBe(true);
+    expect(run('rated:2', withAnswers(before + 1, 3))).toBe(true);
+  });
+
+  it('the first answer is judged against the window of days', () => {
+    const first = (atMs: number) => ({ ...ctx, firstAnswerMs: new Map([['x\u001f0', atMs]]) });
+    const edge = (ctx.timing.nextDayAt - 86_400) * 1000;
+    const run = (c: SearchContext) => compileSearch(parseSearch('introduced:1'), c)(answered);
+    expect(run(first(edge + 1))).toBe(true);
+    expect(run(first(edge))).toBe(false);
+  });
+
+  it('a card with a memory state but no review time and no due day has no retrievability', () => {
+    const lost = card({ stability: 5, difficulty: 5, lastReview: null, due: null });
+    expect(matches('prop:r>0', lost)).toBe(false);
+    expect(matches('-prop:r>0', lost)).toBe(false);
   });
 });

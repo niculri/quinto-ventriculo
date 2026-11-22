@@ -264,3 +264,46 @@ describe('errors', () => {
     expect(errorOf('prop:rated>1').kind).toBe('invalidNegativeWholeNumber');
   });
 });
+
+describe('what ends a search badly', () => {
+  it('a keyword that has nothing after or before it says which one', () => {
+    expect(errorOf('a or').kind).toBe('misplacedOr');
+    expect(errorOf('a and').kind).toBe('misplacedAnd');
+    expect(errorOf('a - and').kind).toBe('misplacedAnd');
+  });
+
+  it('a negated keyword is refused with the general message, not read as a word', () => {
+    for (const query of ['-and', 'a -and b', '-or']) {
+      const e = errorOf(query);
+      expect(e.kind).toBe('other');
+      expect(e.message).toBe('Búsqueda no válida: revisa la búsqueda.');
+    }
+    expect(parseSearch('"and"')).toEqual(t('and'));
+  });
+
+  it('empty quotes and unclosed quotes are told apart', () => {
+    expect(errorOf('""').kind).toBe('emptyQuote');
+    expect(errorOf('"a').kind).toBe('unclosedQuote');
+    expect(errorOf('"').kind).toBe('unclosedQuote');
+    expect(errorOf('"\\').kind).toBe('unclosedQuote');
+    expect(errorOf('a "').kind).toBe('unclosedQuote');
+  });
+
+  it('numbers that do not read: whole, finite and positive each have their own message', () => {
+    expect(errorOf('mid:x').kind).toBe('invalidWholeNumber');
+    expect(errorOf('prop:s>inf').kind).toBe('invalidNumber');
+    expect(errorOf('prop:d>nan').kind).toBe('invalidNumber');
+    expect(errorOf('prop:pos=x').kind).toBe('invalidPositiveWholeNumber');
+    expect(errorOf('prop:pos=-1').kind).toBe('invalidPositiveWholeNumber');
+    expect(errorOf('prop:cdn:x>abc').kind).toBe('invalidNumber');
+    expect(errorOf('prop:cds:x>abc').kind).toBe('unsupported');
+    expect(errorOf('prop:ease>x').kind).toBe('invalidNumber');
+  });
+
+  it('the properties Anki has but this does not read are refused after their number is checked', () => {
+    expect(errorOf('prop:resched>x').kind).toBe('invalidNegativeWholeNumber');
+    expect(errorOf('prop:resched>-1').kind).toBe('unsupported');
+    expect(errorOf('prop:rated>-1:5').kind).toBe('invalidAnswerButton');
+    expect(errorOf('prop:pos>1').kind).toBe('unsupported');
+  });
+});

@@ -2,7 +2,7 @@
 // it is on screen.
 import { createContext, use, useEffect } from 'react';
 
-export const FocusContext = createContext<(on: boolean) => void>(() => {});
+export const FocusContext = createContext<(on: boolean) => void>(() => undefined);
 
 export function useFocusMode(on: boolean): void {
   const setFocus = use(FocusContext);

@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 
 export function useAddFocus(addable: number) {
-  const addBox = useRef<HTMLDivElement>(null);
+  const addBoxRef = useRef<HTMLDivElement>(null);
   const [refocus, setRefocus] = useState(false);
   useEffect(() => {
     if (!refocus) return;
-    const button = addBox.current?.querySelector('button');
+    const button = addBoxRef.current?.querySelector('button');
     if (button && !button.disabled) {
       button.focus();
       setRefocus(false);
     }
   }, [refocus, addable]);
-  return { addBox, refocus: () => setRefocus(true) };
+  return { addBox: addBoxRef, refocus: () => setRefocus(true) };
 }

@@ -12,11 +12,12 @@ const lastOpen = new Map<string, number>();
 // Only the page that opens the piece calls this, not pages that merely read the same note, deck or test.
 export function useCountOpen(kind: 'note' | 'deck' | 'quiz', id: string | null) {
   const api = useApi();
-  const sent = useRef<string | null>(null);
+  const sentRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!id) return;
     const key = `${kind}:${id}`;
-    if (!id || sent.current === key) return;
-    sent.current = key;
+    if (sentRef.current === key) return;
+    sentRef.current = key;
     const now = Date.now();
     const at = lastOpen.get(key);
     if (at !== undefined && now - at < SAME_OPEN_MS) return;
@@ -32,7 +33,7 @@ export function countSearch(api: ApiClient, text: string, from: SearchContext) {
   const t = text.trim().toLowerCase().replace(/\s+/g, ' ');
   if (t.length < 2) return;
   const now = Date.now();
-  if (lastSearch && lastSearch.text === t && now - lastSearch.at < SAME_SEARCH_MS) return;
+  if (lastSearch?.text === t && now - lastSearch.at < SAME_SEARCH_MS) return;
   lastSearch = { text: t, at: now };
   send(api, { kind: 'search', from });
 }

@@ -33,9 +33,9 @@ export function useImageZoom(
 ) {
   const [stage, setStage] = useState<Size | null>(null);
   const [view, setView] = useState<View | null>(null);
-  const gesture = useRef<Gesture | null>(null);
-  const lastTap = useRef<{ at: number; point: Point } | null>(null);
-  const lastPointer = useRef('mouse');
+  const gestureRef = useRef<Gesture | null>(null);
+  const lastTapRef = useRef<{ at: number; point: Point } | null>(null);
+  const lastPointerRef = useRef('mouse');
 
   useEffect(() => {
     const el = stageRef.current;
@@ -113,14 +113,14 @@ export function useImageZoom(
   };
 
   const onPointerDown = (e: PointerEvent) => {
-    lastPointer.current = e.pointerType;
+    lastPointerRef.current = e.pointerType;
     if (!ready || (e.pointerType === 'mouse' && e.button !== 0)) return;
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
       // the pointer already went up: the gesture goes on without capture
     }
-    const g = gesture.current ?? {
+    const g = gestureRef.current ?? {
       pointers: new Map<number, Point>(),
       start: ready.view,
       from: [],
@@ -132,11 +132,11 @@ export function useImageZoom(
     g.start = ready.view;
     g.from = [...g.pointers.values()];
     if (g.pointers.size > 1) g.moved = true;
-    gesture.current = g;
+    gestureRef.current = g;
   };
 
   const onPointerMove = (e: PointerEvent) => {
-    const g = gesture.current;
+    const g = gestureRef.current;
     if (!g || !ready || !g.pointers.has(e.pointerId)) return;
     g.pointers.set(e.pointerId, local(e));
     const now = [...g.pointers.values()];
@@ -154,7 +154,7 @@ export function useImageZoom(
   };
 
   const onPointerUp = (e: PointerEvent) => {
-    const g = gesture.current;
+    const g = gestureRef.current;
     if (!g || !g.pointers.has(e.pointerId)) return;
     const point = g.pointers.get(e.pointerId)!;
     g.pointers.delete(e.pointerId);
@@ -163,7 +163,7 @@ export function useImageZoom(
       g.from = [...g.pointers.values()];
       return;
     }
-    gesture.current = null;
+    gestureRef.current = null;
     if (g.moved || e.type === 'pointercancel') return;
     if (!insideImage(point)) {
       onTapOutside();
@@ -171,22 +171,22 @@ export function useImageZoom(
     }
     // A mouse has its own double click (onDoubleClick); a finger, two taps close in time and place.
     if (e.pointerType === 'mouse') return;
-    const last = lastTap.current;
+    const last = lastTapRef.current;
     if (
       last &&
       e.timeStamp - last.at < DOUBLE_TAP_MS &&
       Math.hypot(point.x - last.point.x, point.y - last.point.y) < 40
     ) {
-      lastTap.current = null;
+      lastTapRef.current = null;
       toggleAt(point);
     } else {
-      lastTap.current = { at: e.timeStamp, point };
+      lastTapRef.current = { at: e.timeStamp, point };
     }
   };
 
   // A browser may also fire dblclick after a finger's double tap (Chrome on Android does): toggling twice undid it.
   const onDoubleClick = (e: { clientX: number; clientY: number }) => {
-    if (lastPointer.current !== 'mouse') return;
+    if (lastPointerRef.current !== 'mouse') return;
     const p = local(e);
     if (insideImage(p)) toggleAt(p);
   };

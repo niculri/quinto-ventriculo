@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 
 export function useMediaQuery(query: string, fallback: boolean): boolean {
   const [matches, setMatches] = useState(() =>
-    typeof window === 'undefined' || !window.matchMedia
+    typeof window === 'undefined' || typeof window.matchMedia !== 'function'
       ? fallback
       : window.matchMedia(query).matches,
   );
   useEffect(() => {
-    if (!window.matchMedia) return;
+    if (typeof window.matchMedia !== 'function') return;
     const m = window.matchMedia(query);
     const on = () => setMatches(m.matches);
     m.addEventListener('change', on);

@@ -1,5 +1,5 @@
 // Return from Google: waits while Supabase creates the session, then goes on to the saved destination or the notice.
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { paths } from '../../../shared/lib/paths';
 import { Navigate, useLocation } from 'react-router';
 import { Loading } from '../../../shared/ui/Loading';
@@ -9,8 +9,18 @@ import { storageKeys } from '../../../shared/lib/storage';
 import { safeDestination } from '../model/destination';
 import { authCallbackPageStrings } from './strings/AuthCallbackPage.strings';
 
+/** Where the person was going before Google, kept by the page that sent them there. */
+function savedDestination(): string | null {
+  try {
+    return sessionStorage.getItem(storageKeys.signInNext);
+  } catch {
+    return null;
+  }
+}
+
 export function AuthCallbackPage() {
   const { state } = useSession();
+  const [next] = useState(savedDestination);
   const { search, hash } = useLocation();
   const params = new URLSearchParams(search + hash.replace(/^#/, '&'));
   const error = params.get('error_description') ?? params.get('error');
@@ -29,11 +39,5 @@ export function AuthCallbackPage() {
   if (state.status === 'loading')
     return <Loading fullScreen text={authCallbackPageStrings.entering} />;
   if (state.status === 'signed-out') return <Navigate to={paths.landing()} replace />;
-  let next: string | null = null;
-  try {
-    next = sessionStorage.getItem(storageKeys.signInNext);
-  } catch {
-    // nothing
-  }
   return <Navigate to={safeDestination(next)} replace />;
 }

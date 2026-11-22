@@ -8,7 +8,7 @@ export function safeDestination(destination: string | null | undefined): string 
     !destination.startsWith('/') ||
     destination.startsWith('//') ||
     destination.includes('\\') ||
-    [...destination].some((c) => c.charCodeAt(0) < 0x20 || c.charCodeAt(0) === 0x7f)
+    Array.from(destination).some((c) => c.charCodeAt(0) < 0x20 || c.charCodeAt(0) === 0x7f)
   ) {
     return paths.home;
   }

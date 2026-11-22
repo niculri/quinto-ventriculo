@@ -16,9 +16,9 @@ interface Props {
 
 export function NoteContent({ html, onOpenImage, ref }: Props) {
   const clean = useMemo(() => prepareArticle(sanitizeInBrowser(html)), [html]);
-  const own = useRef<HTMLDivElement>(null);
-  useScrollableTables(own, clean);
-  useImperativeHandle(ref, () => own.current!, []);
+  const ownRef = useRef<HTMLDivElement>(null);
+  useScrollableTables(ownRef, clean);
+  useImperativeHandle(ref, () => ownRef.current!, []);
 
   const open = (e: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>) => {
     const img = (e.target as HTMLElement).closest('figure img');
@@ -34,7 +34,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
 
   return (
     <div
-      ref={own}
+      ref={ownRef}
       className="note-body"
       onClick={open}
       onKeyDown={(e) => {

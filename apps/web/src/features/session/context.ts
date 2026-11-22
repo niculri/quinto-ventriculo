@@ -9,8 +9,8 @@ export type SessionState =
 
 interface SessionValue {
   state: SessionState;
-  signIn(next?: string): Promise<void>;
-  signOut(): Promise<void>;
+  signIn: (next?: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 export const SessionContext = createContext<SessionValue | null>(null);

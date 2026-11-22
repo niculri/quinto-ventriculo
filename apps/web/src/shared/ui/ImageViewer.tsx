@@ -49,12 +49,12 @@ function Viewer({
   onClose: () => void;
   onReport: ((image: OpenImage) => void) | undefined;
 }) {
-  const stage = useRef<HTMLDivElement>(null);
-  const close = useRef<HTMLButtonElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   // Radix gives the focus back only to a Dialog.Trigger: the figure, the card or the photo that opened it is none.
   const [opener] = useState(() => document.activeElement);
   const [natural, setNatural] = useState<Size | null>(null);
-  const zoom = useImageZoom(stage, natural, onClose);
+  const zoom = useImageZoom(stageRef, natural, onClose);
   const percent = zoom.view ? Math.round(zoom.view.scale * 100) : null;
 
   return (
@@ -62,7 +62,7 @@ function Viewer({
       aria-describedby={image.caption ? 'image-viewer-caption' : undefined}
       onOpenAutoFocus={(e) => {
         e.preventDefault();
-        close.current?.focus();
+        closeRef.current?.focus();
       }}
       onCloseAutoFocus={(e) => {
         e.preventDefault();
@@ -118,7 +118,7 @@ function Viewer({
           )}
         </button>
         <Dialog.Close
-          ref={close}
+          ref={closeRef}
           aria-label={sharedStrings.close}
           className={`${TOOL} ml-2 bg-white/10`}
         >
@@ -127,7 +127,7 @@ function Viewer({
       </div>
 
       <div
-        ref={stage}
+        ref={stageRef}
         data-testid="image-stage"
         className={`relative min-h-0 flex-1 touch-none overflow-hidden select-none ${
           zoom.fitted ? 'cursor-zoom-in' : 'cursor-grab active:cursor-grabbing'

@@ -15,7 +15,7 @@ import { todayCourses } from '../model/todayCourses';
 
 export function useHomeSections(catalog: Catalog, saved: StudyPreferences, plan: StudyPlan) {
   const save = useSavePreferences();
-  const shown = save.isPending && save.variables ? save.variables : saved;
+  const shown = save.isPending ? save.variables : saved;
   const tree = useMemo(() => buildAnkiTree(catalog), [catalog]);
   const today = useMemo(() => todayCourses(catalog, plan), [catalog, plan]);
   const mine = useMemo(

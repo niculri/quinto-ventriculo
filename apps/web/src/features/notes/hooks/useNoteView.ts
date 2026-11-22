@@ -25,8 +25,8 @@ export interface Reporting {
 }
 
 export function useNoteView(note: Note, location: NoteLocation | null, remember: boolean) {
-  const content = useRef<HTMLDivElement>(null);
-  const body = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<OpenImage | null>(null);
   const [reporting, setReporting] = useState<Reporting | null>(null);
   const [thanks, setThanks] = useState(false);
@@ -35,9 +35,9 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
     const id = setTimeout(() => setThanks(false), 3000);
     return () => clearTimeout(id);
   }, [thanks]);
-  const selected = useArticleSelection(body, !reporting && !image);
+  const selected = useArticleSelection(bodyRef, !reporting && !image);
   const [tocOpen, setTocOpen] = useState(false);
-  const { active, progress } = useActiveSection(content, true);
+  const { active, progress } = useActiveSection(contentRef, true);
   const { hash, pathname } = useLocation();
   const targetOf = (place: ReportLocation): ReportTarget => ({
     kind: 'note',
@@ -48,7 +48,7 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
   });
   const located = location !== null;
   const practice = usePractice(note, location);
-  const hasPractice = !!location && !!(practice.quiz || practice.deck);
+  const hasPractice = !!location && !!(practice.quiz ?? practice.deck);
   const toc = useMemo(
     () =>
       hasPractice
@@ -82,8 +82,8 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
   const tocBar = useTocBar(tocOpen, setTocOpen);
 
   return {
-    content,
-    body,
+    content: contentRef,
+    body: bodyRef,
     image,
     setImage,
     reporting,
@@ -106,11 +106,11 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
 
 /** The phone's index bar: a touch outside it or Escape closes its panel. */
 function useTocBar(open: boolean, setOpen: Dispatch<SetStateAction<boolean>>) {
-  const tocBar = useRef<HTMLDivElement>(null);
+  const tocBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
-      if (!tocBar.current?.contains(e.target as Node)) setOpen(false);
+      if (!tocBarRef.current?.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
@@ -122,7 +122,7 @@ function useTocBar(open: boolean, setOpen: Dispatch<SetStateAction<boolean>>) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open, setOpen]);
-  return tocBar;
+  return tocBarRef;
 }
 
 export type NoteViewState = ReturnType<typeof useNoteView>;

@@ -12,7 +12,7 @@ export function useHomeBody(catalog: Catalog | undefined) {
   const plan = useStudyPlan();
   const rounds = useOpenRounds();
   const reserved = useMemo(() => savedHeight(), []);
-  const box = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
   // Once shown it stays: a later refetch changes what is inside, never the whole page.
   const [shown, setShown] = useState(false);
   const ready =
@@ -22,8 +22,8 @@ export function useHomeBody(catalog: Catalog | undefined) {
     (shown || (rounds.isFetchedAfterMount && !rounds.isFetching));
   if (ready && !shown) setShown(true);
   useLayoutEffect(() => {
-    if (!ready || !box.current) return;
-    saveHeight(box.current.offsetHeight);
+    if (!ready || !boxRef.current) return;
+    saveHeight(boxRef.current.offsetHeight);
   });
-  return { prefs, plan, rounds, reserved, box, ready };
+  return { prefs, plan, rounds, reserved, box: boxRef, ready };
 }

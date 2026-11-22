@@ -5,8 +5,7 @@ function detectMac(): boolean {
   if (typeof navigator === 'undefined') return false;
   const platform =
     (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ??
-    navigator.platform ??
-    '';
+    navigator.platform;
   return /mac|iphone|ipad|ipod/i.test(platform || navigator.userAgent);
 }
 

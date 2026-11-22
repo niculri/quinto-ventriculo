@@ -21,14 +21,14 @@ export function Toc({
   onSelect?: () => void;
   expandAll?: boolean;
 }) {
-  const list = useRef<HTMLOListElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
   const navigate = useNavigate();
   const activeH2 = activeLevel2(toc, active);
   const groups = groupByLevel2(toc);
 
   // The marked entry stays in sight inside the sticky column, without moving the page.
   useEffect(() => {
-    const ol = list.current;
+    const ol = listRef.current;
     const scroller = ol?.closest<HTMLElement>('[data-toc-scroll]');
     const item = ol?.querySelector<HTMLElement>('[aria-current="location"]');
     if (!scroller || !item) return;
@@ -80,7 +80,7 @@ export function Toc({
           />
         </div>
       ) : null}
-      <ol ref={list} className="space-y-0.5 border-l border-border text-[0.84rem] leading-snug">
+      <ol ref={listRef} className="space-y-0.5 border-l border-border text-[0.84rem] leading-snug">
         {groups.map(({ head, children }) => {
           const open = expandAll || head.anchor === activeH2;
           return (

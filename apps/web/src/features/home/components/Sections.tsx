@@ -43,7 +43,7 @@ export function Sections({
           study={today[0] ? paths.deckStudy(today[0].ref) : null}
         />
       ) : null}
-      <Today catalog={catalog} courses={today} choose={choose} />
+      <Today courses={today} choose={choose} />
       <Follow catalog={catalog} rounds={rounds} />
       {catalog.anki.decks.length ? (
         <Heatmap

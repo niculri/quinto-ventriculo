@@ -18,7 +18,7 @@ import {
 } from './api/queries';
 import { browserTimeZone, defaultPreferences } from './api/repository';
 import type { AssessmentSetting, StudyPreferences } from './api/repository';
-import { useCatalog } from '../catalog/hooks/useCatalog';
+import { useStudentCatalog, useStudentDeck } from '../catalog/hooks/useStudentView';
 import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
 import { useNow } from '../../shared/hooks/useNow';
@@ -137,7 +137,7 @@ export function useAssessmentView(assessmentId: string | null): AssessmentView |
   const plan = useStudyPlan();
   const progress = useDeckProgress(prefs);
   const today = useToday(prefs);
-  const catalog = useCatalog();
+  const catalog = useStudentCatalog();
   const decks = useMemo(
     () => (catalog.data ? treeDecks(catalog.data.anki.decks) : undefined),
     [catalog.data],
@@ -174,11 +174,14 @@ export function useAnswersToday(prefs: StudyPreferences | undefined) {
   return useQuery(answersTodayQuery(study, today, prefs));
 }
 
-export function useStudyData(deck: DeckDetail | undefined) {
+/** Over what the students have: in the admin mode, what only the draft has is not in the queue nor in the counts. */
+export function useStudyData(shown: DeckDetail | undefined) {
   const study = useStudyRepository();
   const preferences = usePreferences();
   const prefs = preferences.prefs;
-  const catalog = useCatalog();
+  const catalog = useStudentCatalog();
+  const studied = useStudentDeck(shown);
+  const deck = studied.data;
   const decks = useMemo(
     () => (catalog.data ? treeDecks(catalog.data.anki.decks) : undefined),
     [catalog.data],
@@ -190,7 +193,7 @@ export function useStudyData(deck: DeckDetail | undefined) {
   const settings = useDeckSettings();
   const plan = useStudyPlan();
   const progress = useDeckProgress(prefs);
-  const parts = [catalog, preferences, cards, answers, presets, settings, plan, progress];
+  const parts = [catalog, studied, preferences, cards, answers, presets, settings, plan, progress];
   const error = parts.find((p) => p.isError)?.error ?? null;
   const data = useMemo<StudyData | undefined>(() => {
     if (

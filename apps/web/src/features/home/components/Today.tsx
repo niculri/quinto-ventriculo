@@ -1,6 +1,5 @@
 // «Hoy» on the home page: a row for each course with something on or answered, or a way to choose what to study.
 
-import type { Catalog } from '@qv/schema';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { button, card } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
@@ -10,16 +9,8 @@ import { DeckTodayRow } from './DeckTodayRow';
 import { HashOrLink } from './HashOrLink';
 import { TodayRow } from './TodayRow';
 
-export function Today({
-  catalog,
-  courses,
-  choose,
-}: {
-  catalog: Catalog;
-  courses: CourseDeckNode[];
-  choose: string;
-}) {
-  const { study, results } = useTodayCounts(catalog, courses);
+export function Today({ courses, choose }: { courses: CourseDeckNode[]; choose: string }) {
+  const { study, results } = useTodayCounts(courses);
   return (
     <section className={`${card} mt-6 p-4 sm:mt-8 sm:p-6`} aria-labelledby="today">
       <h2 id="today" className="font-serif text-xl font-semibold">

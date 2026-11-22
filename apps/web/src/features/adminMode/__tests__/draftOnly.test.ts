@@ -36,45 +36,66 @@ describe('draftOnly', () => {
     expect(catalog).toHaveBeenCalledTimes(2);
   });
 
-  it('a card is of the draft when its deck is, and it is looked up only when some deck is', async () => {
-    const card = vi.fn(async () => ({ deckId: '20' }) as never);
-    const none = draftOnly(fakeApi({ card, catalog: async () => ({ ...CATALOG, adminOnly: {} }) }));
-    expect(await none.card({ noteGuid: 'g', ord: 0 })).toBe(false);
-    expect(card).not.toHaveBeenCalled();
-
-    const some = draftOnly(
-      fakeApi({
-        card,
-        catalog: async () => ({ ...CATALOG, adminOnly: { [adminKey('deck', '20')]: ['draft'] } }),
-      }),
+  const catalog = (keys: Record<string, string[]> = {}) => ({
+    catalog: async () => ({ ...CATALOG, adminOnly: keys as never }),
+  });
+  const gone = () => new ApiRequestError(404, 'not_found', 'no');
+  /** The cards the students have and the ones the draft has: a card of neither is not found anywhere. */
+  const cards = (students: string[], draft: string[]) =>
+    vi.fn(
+      async (
+        guid: string,
+        _ord: number,
+        _signal?: AbortSignal,
+        options?: { published?: boolean },
+      ) => {
+        if ((options?.published ? students : draft).includes(guid))
+          return { deckId: '10' } as never;
+        throw gone();
+      },
     );
-    expect(await some.card({ noteGuid: 'g', ord: 0 })).toBe(true);
-    expect(await some.card({ noteGuid: 'g', ord: 0 })).toBe(true);
-    expect(card).toHaveBeenCalledTimes(1);
+
+  it('a card is of the draft when the students do not have it and the draft does, deck or no deck marked', async () => {
+    const card = cards(['real'], ['real', 'new']);
+    const lookup = draftOnly(fakeApi({ ...catalog(), card }));
+    expect(await lookup.card({ noteGuid: 'real', ord: 0, deckId: '10' })).toBe(false);
+    expect(await lookup.card({ noteGuid: 'new', ord: 0, deckId: '10' })).toBe(true);
   });
 
-  it('a card the content no longer has is nobody’s draft; another failure is not hidden', async () => {
-    const catalog = async () => ({
-      ...CATALOG,
-      adminOnly: { [adminKey('deck', '20')]: ['draft' as const] },
-    });
-    const gone = draftOnly(
-      fakeApi({
-        catalog,
-        card: async () => {
-          throw new ApiRequestError(404, 'not_found', 'no');
-        },
-      }),
+  it('a card of a deck only the draft has is of the draft without being looked up', async () => {
+    const card = cards([], []);
+    const lookup = draftOnly(
+      fakeApi({ ...catalog({ [adminKey('deck', '20')]: ['draft'] }), card }),
     );
-    expect(await gone.card({ noteGuid: 'g', ord: 0 })).toBe(false);
-    const broken = draftOnly(
-      fakeApi({
-        catalog,
-        card: async () => {
-          throw new ApiRequestError(500, 'server', 'caído');
-        },
-      }),
-    );
-    await expect(broken.card({ noteGuid: 'g', ord: 0 })).rejects.toThrow('caído');
+    expect(await lookup.card({ noteGuid: 'anything', ord: 0, deckId: '20' })).toBe(true);
+    expect(card).not.toHaveBeenCalled();
+  });
+
+  it('looks each card up once, and the draft only when the students do not have it', async () => {
+    const card = cards(['real'], ['real', 'new']);
+    const lookup = draftOnly(fakeApi({ ...catalog(), card }));
+    await lookup.card({ noteGuid: 'real', ord: 0 });
+    await lookup.card({ noteGuid: 'real', ord: 0 });
+    expect(card).toHaveBeenCalledTimes(1);
+    await lookup.card({ noteGuid: 'new', ord: 1 });
+    await lookup.card({ noteGuid: 'new', ord: 1 });
+    expect(card.mock.calls.map(([, , , options]) => options?.published ?? false)).toEqual([
+      true,
+      true,
+      false,
+    ]);
+  });
+
+  it('a card the content no longer has is nobody’s draft; another failure is not hidden, nor remembered', async () => {
+    const lookup = draftOnly(fakeApi({ ...catalog(), card: cards([], []) }));
+    expect(await lookup.card({ noteGuid: 'gone', ord: 0 })).toBe(false);
+
+    const broken = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiRequestError(500, 'server', 'caído'))
+      .mockResolvedValue({ deckId: '10' });
+    const flaky = draftOnly(fakeApi({ ...catalog(), card: broken }));
+    await expect(flaky.card({ noteGuid: 'g', ord: 0 })).rejects.toThrow('caído');
+    expect(await flaky.card({ noteGuid: 'g', ord: 0 })).toBe(false);
   });
 });

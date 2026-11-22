@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Catalog } from '@qv/schema';
 import { useStudyRepository } from '../../progress/api/context';
+import { useStudentCatalog } from '../../catalog/hooks/useStudentView';
 import { descendants } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import {
@@ -20,8 +20,11 @@ import { treeDecks } from '@qv/study';
 import type { HomeStudyBase } from '@qv/study';
 import { homeCountsQuery } from '../api/queries';
 
-export function useHomeStudy(catalog: Catalog | undefined, courses: readonly CourseDeckNode[]) {
+/** Over what the students have: in the admin mode, a deck only the draft has adds nothing to the counts. */
+export function useHomeStudy(courses: readonly CourseDeckNode[]) {
   const study = useStudyRepository();
+  const studentCatalog = useStudentCatalog();
+  const catalog = studentCatalog.data;
   const preferences = usePreferences();
   const prefs = preferences.prefs;
   const today = useToday(prefs);
@@ -56,9 +59,10 @@ export function useHomeStudy(catalog: Catalog | undefined, courses: readonly Cou
   );
   const ids = useMemo(() => courses.flatMap((c) => descendants(c).map((d) => d.id)), [courses]);
   const home = useQuery(homeCountsQuery(study, today, prefs, base, ids));
-  const parts = [preferences, plan, progress, answers, presets, settings, home];
+  const parts = [studentCatalog, preferences, plan, progress, answers, presets, settings, home];
   return {
     base,
+    catalogDecks: catalog?.anki.decks,
     home: ids.length === 0 ? EMPTY : (home.data ?? null),
     error: parts.find((p) => p.isError)?.error ?? null,
     retry: () => parts.forEach((p) => p.isError && void p.refetch()),

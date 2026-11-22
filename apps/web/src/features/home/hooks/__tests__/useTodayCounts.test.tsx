@@ -1,7 +1,6 @@
 // Tests the counts of «Hoy»: they are computed again when a card comes due, with the clock of then, and not on any
 // other render, even though the data did not change.
 import { act, renderHook } from '@testing-library/react';
-import type { Catalog } from '@qv/schema';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CourseDeckNode } from '../../../catalog/model/tree';
 import { useTodayCounts } from '../useTodayCounts';
@@ -13,6 +12,7 @@ const home = vi.hoisted((): { study: object } => ({
   study: {
     home: { decks: new Map(), truncated: false },
     base: { prefs: { learnAheadMinutes: 20 } },
+    catalogDecks: [],
   },
 }));
 const fns = vi.hoisted(() => ({ homeCourseCounts: vi.fn(), nextChangeAt: vi.fn() }));
@@ -20,7 +20,6 @@ const fns = vi.hoisted(() => ({ homeCourseCounts: vi.fn(), nextChangeAt: vi.fn()
 vi.mock('../useHomeStudy', () => ({ useHomeStudy: () => home.study }));
 vi.mock('@qv/study', () => fns);
 
-const CATALOG = { anki: { decks: [] } } as unknown as Catalog;
 const COURSES = [{ id: 'course' }] as CourseDeckNode[];
 
 const counted = (result: { current: { results: Map<string, unknown> | null } }) =>
@@ -40,7 +39,7 @@ afterEach(() => vi.useRealTimers());
 
 describe('the counts', () => {
   it('are computed again, with the clock of then, when a card comes due', () => {
-    const { result } = renderHook(() => useTodayCounts(CATALOG, COURSES));
+    const { result } = renderHook(() => useTodayCounts(COURSES));
     expect(fns.homeCourseCounts).toHaveBeenCalledTimes(1);
     expect(counted(result)).toBe(START);
     act(() => {
@@ -51,7 +50,7 @@ describe('the counts', () => {
   });
 
   it('are computed again with the clock of then when the data changes, and not on another render', () => {
-    const { result, rerender } = renderHook(() => useTodayCounts(CATALOG, COURSES));
+    const { result, rerender } = renderHook(() => useTodayCounts(COURSES));
     act(() => {
       vi.advanceTimersByTime(10_000);
     });
@@ -60,6 +59,7 @@ describe('the counts', () => {
     home.study = {
       home: { decks: new Map(), truncated: false },
       base: { prefs: { learnAheadMinutes: 20 } },
+      catalogDecks: [],
     };
     rerender();
     expect(fns.homeCourseCounts).toHaveBeenCalledTimes(2);
@@ -68,7 +68,7 @@ describe('the counts', () => {
 
   it('are not computed again with no card coming due', () => {
     fns.nextChangeAt.mockReturnValue(null);
-    renderHook(() => useTodayCounts(CATALOG, COURSES));
+    renderHook(() => useTodayCounts(COURSES));
     act(() => {
       vi.advanceTimersByTime(3_600_000);
     });

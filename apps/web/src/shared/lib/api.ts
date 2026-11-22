@@ -103,11 +103,21 @@ export function createApiClient(
   }
 
   return {
-    /** `fresh`: not the copy the browser keeps (a minute), e.g. right after changing the site's settings. */
-    catalog: (signal?: AbortSignal, options: { fresh?: boolean } = {}) =>
-      request(apiPaths.catalog(), Catalog, signal, options.fresh ? { fresh: true } : {}),
+    /**
+     * `fresh`: not the copy the browser keeps (a minute), e.g. right after changing the site's settings. `published`:
+     * only in the admin mode, the catalog as the students have it.
+     */
+    catalog: (signal?: AbortSignal, options: { fresh?: boolean; published?: boolean } = {}) =>
+      request(
+        apiPaths.catalog(options.published),
+        Catalog,
+        signal,
+        options.fresh ? { fresh: true } : {},
+      ),
     note: (slug: string, signal?: AbortSignal) => request(apiPaths.note(slug), Note, signal),
-    deck: (id: string, signal?: AbortSignal) => request(apiPaths.deck(id), DeckDetail, signal),
+    /** `published`: only in the admin mode, the deck as the students have it (without the cards only the draft has). */
+    deck: (id: string, signal?: AbortSignal, options: { published?: boolean } = {}) =>
+      request(apiPaths.deck(id, options.published), DeckDetail, signal),
     cardIndex: (assessmentId: string, hash: string, signal?: AbortSignal) =>
       request(apiPaths.cardIndex(assessmentId, hash), CardIndex, signal),
     /** One signature for every thumbnail of the browser: `apiPaths.media(<thumb>)?<query>`. */
@@ -116,8 +126,12 @@ export function createApiClient(
     cardChanges: (since: number, signal?: AbortSignal) =>
       request(apiPaths.cardChanges(since), CardChanges, signal),
     /** The guid is Anki's: it may have «/», «%», «?»… (it travels encoded). */
-    card: (noteGuid: string, ord: number, signal?: AbortSignal) =>
-      request(apiPaths.card(noteGuid, ord), CardDetail, signal),
+    card: (
+      noteGuid: string,
+      ord: number,
+      signal?: AbortSignal,
+      options: { published?: boolean } = {},
+    ) => request(apiPaths.card(noteGuid, ord, options.published), CardDetail, signal),
     quizzes: (filter: { course?: string; assessment?: string } = {}, signal?: AbortSignal) =>
       request(apiPaths.quizzes(filter), QuizIndex, signal),
     quiz: (id: string, signal?: AbortSignal) => request(apiPaths.quiz(id), QuizDetail, signal),

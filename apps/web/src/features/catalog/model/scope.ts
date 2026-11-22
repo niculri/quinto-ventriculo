@@ -85,10 +85,11 @@ export function unitOptions(scope: DeckNode, current = ''): UnitOption[] {
 
 export function unitNode(scope: DeckNode, unit: string): DeckNode | null {
   if (!unit) return null;
-  let n: DeckNode | null = scope;
+  let n = scope;
   for (const s of unit.split('/')) {
-    n = n?.children.find((c) => c.slug === s) ?? null;
-    if (!n) return null;
+    const child = n.children.find((c) => c.slug === s);
+    if (!child) return null;
+    n = child;
   }
   return n;
 }

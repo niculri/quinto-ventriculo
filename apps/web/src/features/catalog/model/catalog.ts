@@ -63,7 +63,7 @@ export function countDecks(catalog: Catalog, courseId: string, assessmentId?: st
       d.courseId === courseId &&
       (assessmentId === undefined || d.assessmentId === assessmentId) &&
       own.get(d.id)! > 0 &&
-      !(d.parentId && (own.get(d.parentId) ?? 0) > 0),
+      !(d.parentId && own.get(d.parentId)! > 0),
   ).length;
 }
 

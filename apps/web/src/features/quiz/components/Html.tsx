@@ -1,9 +1,10 @@
 // A test's text as sanitized HTML (bold, italics, superscripts, subscripts and line breaks only).
+import { SafeHtml } from '../../../shared/ui/SafeHtml';
 import { cleanText } from '../model/html';
 
 export function Html({
   html,
-  as: Tag = 'span',
+  as = 'span',
   className,
   id,
 }: {
@@ -12,7 +13,5 @@ export function Html({
   className?: string;
   id?: string;
 }) {
-  return (
-    <Tag id={id} className={className} dangerouslySetInnerHTML={{ __html: cleanText(html) }} />
-  );
+  return <SafeHtml as={as} id={id} className={className} html={cleanText(html)} />;
 }

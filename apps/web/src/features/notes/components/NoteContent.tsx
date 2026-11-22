@@ -3,6 +3,7 @@
 import { useImperativeHandle, useMemo, useRef } from 'react';
 import type { KeyboardEvent, MouseEvent, Ref } from 'react';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
+import { SafeHtml } from '../../../shared/ui/SafeHtml';
 import { sectionAt } from '../model/selection';
 import { useScrollableTables } from '../hooks/useScrollableTables';
 import { prepareArticle } from '../model/articleHtml';
@@ -20,7 +21,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
   useScrollableTables(ownRef, clean);
   useImperativeHandle(ref, () => ownRef.current!, []);
 
-  const open = (e: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>) => {
+  const open = (e: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
     const img = (e.target as HTMLElement).closest('figure img');
     if (!(img instanceof HTMLImageElement)) return false;
     onOpenImage({
@@ -33,14 +34,15 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
   };
 
   return (
-    <div
+    <SafeHtml
+      as="div"
+      html={clean}
       ref={ownRef}
       className="note-body"
       onClick={open}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && open(e)) e.preventDefault();
       }}
-      dangerouslySetInnerHTML={{ __html: clean }}
     />
   );
 }

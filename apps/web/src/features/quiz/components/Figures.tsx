@@ -3,12 +3,13 @@ import type { QuizFigure, QuizTable } from '@qv/schema';
 import { keyed } from '../../../shared/lib/keyed';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { commonCaption, shownHeight } from '../model/figures';
+import { SafeHtml } from '../../../shared/ui/SafeHtml';
 import { cleanSvg, cleanText } from '../model/html';
 import { figuresStrings as s } from './strings/Figures.strings';
 
 function Figure({ figure: f, onZoom }: { figure: QuizFigure; onZoom: (image: OpenImage) => void }) {
   return f.kind === 'svg' ? (
-    <span className="fsvg" dangerouslySetInnerHTML={{ __html: cleanSvg(f.svg) }} />
+    <SafeHtml className="fsvg" html={cleanSvg(f.svg)} />
   ) : (
     <button
       type="button"
@@ -59,26 +60,24 @@ export function Figures({
 export function Table({ table }: { table: QuizTable }) {
   return (
     <>
-      {table.title ? (
-        <div className="tcap" dangerouslySetInnerHTML={{ __html: cleanText(table.title) }} />
-      ) : null}
+      {table.title ? <SafeHtml as="div" className="tcap" html={cleanText(table.title)} /> : null}
       <table>
         <tbody>
           {keyed(table.rows, (row) => row.map((c) => c.html).join('|')).map(
             ({ key: rowKey, item: row }) => (
               <tr key={rowKey}>
                 {keyed(row, (c) => c.html).map(({ key, item: c }) => {
-                  const Tag = c.header ? 'th' : 'td';
                   const cls = [c.highlight ? 'hl' : '', c.empty ? 'vacia' : '']
                     .filter(Boolean)
                     .join(' ');
                   return (
-                    <Tag
+                    <SafeHtml
+                      as={c.header ? 'th' : 'td'}
                       key={key}
                       colSpan={c.colSpan}
                       rowSpan={c.rowSpan}
                       className={cls || undefined}
-                      dangerouslySetInnerHTML={{ __html: cleanText(c.html) }}
+                      html={cleanText(c.html)}
                     />
                   );
                 })}

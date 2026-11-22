@@ -1,6 +1,8 @@
 // Prepares a sanitized article's HTML before the first paint: figure sizes, scrolling tables, the font's own
 // superscript glyphs and images that open the viewer.
 
+import { markSanitized } from '../../../shared/lib/sanitizedHtml';
+import type { SanitizedHtml } from '../../../shared/lib/sanitizedHtml';
 import { figureLayout, rowWidths, toRem } from './figures';
 import type { FigureSize } from './figures';
 import { placeThumbs } from './placeThumbs';
@@ -9,7 +11,7 @@ import { articleHtmlStrings } from './strings/articleHtml.strings';
 /** What Inter's superscripts and subscripts (`sups`, `subs`) cover: the glyphs of ⁰–⁹ ⁺ ⁻ ₀–₉ ᵢ and more. */
 const OWN_GLYPHS = /^[a-z0-9()[\]=+−]+$/;
 
-export function prepareArticle(html: string): string {
+export function prepareArticle(html: SanitizedHtml): SanitizedHtml {
   const template = document.createElement('template');
   template.innerHTML = html;
   const root = template.content;
@@ -18,7 +20,7 @@ export function prepareArticle(html: string): string {
   placeThumbs(root);
   markOwnGlyphs(root);
   labelImages(root);
-  return template.innerHTML;
+  return markSanitized(template.innerHTML);
 }
 
 function sizeFigures(root: DocumentFragment) {

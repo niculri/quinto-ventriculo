@@ -369,4 +369,11 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // The only place that puts HTML into the page, on purpose: it takes a `SanitizedHtml`, which only the sanitizers
+    // give (sanitizedHtml.test.ts checks who marks a text as one). The rule does not look at createElement today; the
+    // exception says it is meant, and goes after the React rules, which turn it on.
+    files: ['apps/web/src/shared/ui/SafeHtml.ts'],
+    rules: { '@eslint-react/dom-no-dangerously-set-innerhtml': 'off' },
+  },
 );

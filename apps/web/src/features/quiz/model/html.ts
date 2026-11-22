@@ -1,10 +1,16 @@
 // Sanitizes a test's texts and SVG figures again in the browser (defense in depth after the importer), with a cache.
 import DOMPurify from 'dompurify';
+import { markSanitized } from '../../../shared/lib/sanitizedHtml';
+import type { SanitizedHtml } from '../../../shared/lib/sanitizedHtml';
 
-const textCache = new Map<string, string>();
-const svgCache = new Map<string, string>();
+const textCache = new Map<string, SanitizedHtml>();
+const svgCache = new Map<string, SanitizedHtml>();
 
-function remember(cache: Map<string, string>, key: string, make: () => string): string {
+function remember(
+  cache: Map<string, SanitizedHtml>,
+  key: string,
+  make: () => SanitizedHtml,
+): SanitizedHtml {
   let v = cache.get(key);
   if (v === undefined) {
     v = make();
@@ -14,16 +20,18 @@ function remember(cache: Map<string, string>, key: string, make: () => string): 
   return v;
 }
 
-export function cleanText(html: string): string {
+export function cleanText(html: string): SanitizedHtml {
   return remember(textCache, html, () =>
-    DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'sup', 'sub', 'br'], ALLOWED_ATTR: [] }),
+    markSanitized(
+      DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'sup', 'sub', 'br'], ALLOWED_ATTR: [] }),
+    ),
   );
 }
 
 // DOMPurify lets `fill="url(https://…)"` through (also CSS-escaped, `u\72 l(`), and the browser would fetch it.
 const UNSAFE_VALUE = /url\s*\(|\\|javascript:|expression\s*\(/i;
 
-export function cleanSvg(svg: string): string {
+export function cleanSvg(svg: string): SanitizedHtml {
   return remember(svgCache, svg, () => {
     const fragment = DOMPurify.sanitize(svg, {
       USE_PROFILES: { svg: true },
@@ -39,6 +47,6 @@ export function cleanSvg(svg: string): string {
     }
     const box = document.createElement('div');
     box.append(fragment);
-    return box.innerHTML;
+    return markSanitized(box.innerHTML);
   });
 }

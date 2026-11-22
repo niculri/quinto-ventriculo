@@ -1,7 +1,8 @@
 // Tests the sizes of an article's figures, where thumbnails go, and the rest of prepareArticle.
 
 import { describe, expect, it } from 'vitest';
-import { prepareArticle } from '../articleHtml';
+import { markSanitized } from '../../../../shared/lib/sanitizedHtml';
+import { prepareArticle as prepareSanitized } from '../articleHtml';
 import {
   COLUMN_PX,
   PANORAMA,
@@ -11,6 +12,9 @@ import {
   figureLayout,
   rowWidths,
 } from '../figures';
+
+// What the browser's sanitizer gave, as the page passes it.
+const prepareArticle = (html: string) => prepareSanitized(markSanitized(html));
 
 const fig = (attrs: string, w = 1600, h = 1200, classes = 'figure') =>
   `<figure class="${classes}"${attrs}><img data-media="k" alt="Una lámina" width="${w}" height="${h}"></figure>`;

@@ -1,17 +1,2 @@
 {
-  "apps/web/src/features/notes/components/NoteContent.tsx": {
-    "@eslint-react/dom-no-dangerously-set-innerhtml": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/quiz/components/Figures.tsx": {
-    "@eslint-react/dom-no-dangerously-set-innerhtml": {
-      "count": 3
-    }
-  },
-  "apps/web/src/features/quiz/components/Html.tsx": {
-    "@eslint-react/dom-no-dangerously-set-innerhtml": {
-      "count": 1
-    }
-  }
 }

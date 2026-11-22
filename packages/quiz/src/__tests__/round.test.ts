@@ -466,3 +466,21 @@ describe('what the screen reads from a round it did not build', () => {
     expect(progress(round({ queue: [], orders: [], top: 0 }))).toBe(0);
   });
 });
+
+describe('the percentage of a round', () => {
+  const answered = (right: number, total: number): Round => ({
+    ...start(),
+    answers: Array.from({ length: total }, (_, i) => ({
+      position: i,
+      questionId: `q${i}`,
+      chosen: null,
+      correct: i < right,
+      at: T0.toISOString(),
+    })),
+  });
+
+  it('is rounded to the nearest whole number, not cut: two of three is 67 and one of eight is 13', () => {
+    expect(score(answered(2, 3)).percent).toBe(67);
+    expect(score(answered(1, 8)).percent).toBe(13);
+  });
+});

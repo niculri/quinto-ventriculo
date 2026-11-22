@@ -286,6 +286,53 @@ describe('saving and continuing a round', () => {
   });
 });
 
+describe('what a saved round says twice or beyond what it has', () => {
+  const saved = (over: Record<string, unknown>) => ({
+    version: 1,
+    id: 'r',
+    queue: ['a', 'b', 'c'],
+    index: 0,
+    top: 2,
+    finished: false,
+    screen: 'question',
+    ...over,
+  });
+  const answer = (position: number, chosen: number, questionId = ['a', 'b', 'c'][position]) => ({
+    position,
+    questionId,
+    chosen,
+    correct: false,
+    at: T0.toISOString(),
+  });
+
+  it('two answers for one position are one: the first stays', () => {
+    const r = restoreRound(saved({ answers: [answer(0, 1), answer(0, 3)] }), BY_ID)!;
+    expect(r.answers).toHaveLength(1);
+    expect(r.answers[0]).toMatchObject({ position: 0, chosen: 1 });
+  });
+
+  it('an order that names an alternative the question does not have is dropped', () => {
+    const q = new Map([['a', { id: 'a', options: 2, correct: 0 }]]);
+    const read = (order: number[]) =>
+      restoreRound(saved({ queue: ['a'], top: 0, orders: [order] }), q)!.orders[0];
+    expect(read([1, 0])).toEqual([1, 0]);
+    expect(read([0, 2])).toBeNull();
+  });
+
+  it('an order for a question with a single alternative is dropped: there is nothing to shuffle', () => {
+    const q = new Map([['a', { id: 'a', options: 1, correct: 0 }]]);
+    expect(restoreRound(saved({ queue: ['a'], top: 0, orders: [[0]] }), q)!.orders[0]).toBeNull();
+  });
+
+  it('the question on screen is the last one that is left when the farthest one reached was taken out', () => {
+    const without = new Map(BY_ID);
+    without.delete('c');
+    const r = restoreRound(saved({ index: 2, top: 2 }), without)!;
+    expect(r.queue).toEqual(['a', 'b']);
+    expect(r).toMatchObject({ index: 1, top: 1 });
+  });
+});
+
 describe('the history of a round', () => {
   it('counts answered, right and wrong; the end only when finished', () => {
     const r = halfway();

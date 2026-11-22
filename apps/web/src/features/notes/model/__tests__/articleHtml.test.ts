@@ -199,6 +199,13 @@ describe('prepareArticle', () => {
       'figure',
       'p',
     ]);
+    expect(order(fig('') + fig('') + para(70) + table + para(400))).toEqual([
+      'figure',
+      'p',
+      'div class="table-scroll"',
+      'figure',
+      'p',
+    ]);
     expect(order(fig('') + fig('') + para(400) + table)).toEqual([
       'figure',
       'figure',

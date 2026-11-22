@@ -102,14 +102,15 @@ describe('readSelection', () => {
   });
 
   it('the context is at most its length each side, and text outside any block takes the article as its block', () => {
-    const long = 'x'.repeat(QUOTE_CONTEXT + 20);
-    const r = article(`${long}MEDIO${long}`);
+    const before = 'a'.repeat(20) + 'x'.repeat(QUOTE_CONTEXT);
+    const after = 'y'.repeat(QUOTE_CONTEXT) + 'b'.repeat(20);
+    const r = article(`${before}MEDIO${after}`);
     const t = r.firstChild!;
-    select(t, long.length, t, long.length + 5);
+    select(t, before.length, t, before.length + 5);
     const read = readSelection(r)!;
     expect(read.quote?.exact).toBe('MEDIO');
     expect(read.quote?.prefix).toBe('x'.repeat(QUOTE_CONTEXT));
-    expect(read.quote?.suffix).toBe('x'.repeat(QUOTE_CONTEXT));
+    expect(read.quote?.suffix).toBe('y'.repeat(QUOTE_CONTEXT));
   });
 
   it('only spaces around the quote count as no context', () => {

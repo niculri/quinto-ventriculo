@@ -127,7 +127,7 @@ export function QuizScreen(props: {
 
   return (
     <>
-      {screen === 'question' ? (
+      {screen === 'question' && round ? (
         <QuizBar
           round={round}
           backLabel={backLabel(course.name, props.assessment?.name)}

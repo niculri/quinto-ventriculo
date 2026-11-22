@@ -73,7 +73,7 @@ export function StartForm({
       className={`${card} mt-6 p-4 sm:p-6`}
       onSubmit={(e) => {
         e.preventDefault();
-        if (chosen) onStart(preferences);
+        onStart(preferences);
       }}
     >
       <div className="flex flex-wrap items-center gap-4">

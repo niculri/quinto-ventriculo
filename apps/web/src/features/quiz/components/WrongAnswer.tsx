@@ -14,7 +14,7 @@ export function WrongAnswer({
 }: {
   entry: QuestionEntry;
   chosen: number | null;
-  onReport: ((entry: QuestionEntry) => void) | undefined;
+  onReport: (entry: QuestionEntry) => void;
 }) {
   const q = e.question;
   const why = (i: number) =>
@@ -29,12 +29,10 @@ export function WrongAnswer({
           {s.results.question}
           {e.number}
         </span>
-        {onReport ? (
-          <button type="button" className="qz-report" onClick={() => onReport(e)}>
-            <MessageSquareWarning className="size-4" aria-hidden="true" />
-            {` ${verdictStrings.question.report}`}
-          </button>
-        ) : null}
+        <button type="button" className="qz-report" onClick={() => onReport(e)}>
+          <MessageSquareWarning className="size-4" aria-hidden="true" />
+          {` ${verdictStrings.question.report}`}
+        </button>
       </div>
       <div className="fq">
         {q.context ? <TextWithStatements as="p" className="fctx" html={q.context} /> : null}
@@ -45,8 +43,8 @@ export function WrongAnswer({
           <>
             <dt>{s.results.yours}</dt>
             <dd className="cm">
-              <Html html={q.options[chosen ?? 0]!} />
-              {why(chosen ?? 0)}
+              <Html html={q.options[chosen!]!} />
+              {why(chosen!)}
             </dd>
             <dt>{s.results.correct}</dt>
             <dd className="cb">

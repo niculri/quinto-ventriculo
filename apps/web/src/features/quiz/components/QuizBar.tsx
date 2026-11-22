@@ -81,7 +81,7 @@ export function QuizBar({
   onRestart,
   onFinish,
 }: {
-  round: Round | null;
+  round: Round;
   backLabel: string;
   restartRef: Ref<HTMLButtonElement>;
   onBack: () => void;
@@ -93,13 +93,11 @@ export function QuizBar({
       <div className="wrap hrow">
         <BackButton className="qz-back" label={backLabel} onClick={onBack} />
         <span className="hgrow" />
-        {round ? (
-          <Counts round={round} restartRef={restartRef} onRestart={onRestart} onFinish={onFinish} />
-        ) : null}
+        <Counts round={round} restartRef={restartRef} onRestart={onRestart} onFinish={onFinish} />
       </div>
       <div className="wrap">
         <div className="pb">
-          <i style={{ width: `${round ? progress(round) * 100 : 0}%` }} />
+          <i style={{ width: `${progress(round) * 100}%` }} />
         </div>
       </div>
     </div>

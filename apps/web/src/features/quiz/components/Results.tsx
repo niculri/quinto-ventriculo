@@ -53,7 +53,7 @@ export function Results({
   onRepeatAll: () => void;
   onRepeatWrong: () => void;
   onHome: () => void;
-  onReport?: (entry: QuestionEntry) => void;
+  onReport: (entry: QuestionEntry) => void;
 }) {
   const result = score(round);
   const wrong = wrongAnswers(round);
@@ -93,12 +93,14 @@ export function Results({
               {s.results.toReview}
               {wrong.length})
             </h2>
-            {wrong.map((a) => {
-              const e = entries.get(a.questionId);
-              return e ? (
-                <WrongAnswer key={a.position} entry={e} chosen={a.chosen} onReport={onReport} />
-              ) : null;
-            })}
+            {wrong.map((a) => (
+              <WrongAnswer
+                key={a.position}
+                entry={entries.get(a.questionId)!}
+                chosen={a.chosen}
+                onReport={onReport}
+              />
+            ))}
           </>
         ) : (
           <div className="fallo limpio">

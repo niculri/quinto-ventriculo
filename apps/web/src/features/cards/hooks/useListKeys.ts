@@ -1,7 +1,7 @@
 // The keyboard of the cards page's list: the arrows, the pages, Home and End move the focus from note to note (in a
 // grid of photos, also across), scrolling the row into view first.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { KeyboardEvent, RefObject } from 'react';
 import type { Matched } from '../model/filters';
 import { BAR } from '../model/list';
@@ -19,14 +19,11 @@ export function useListKeys({
   view: { top: number; height: number };
 }) {
   const [focusAt, setFocusAt] = useState<number | null>(null);
-  const positions = useMemo(() => {
-    const out: { item: ListItem; m: Matched }[] = [];
-    for (const it of items) {
-      if (it.kind === 'row') out.push({ item: it, m: it.item });
-      else if (it.kind === 'cells') for (const m of it.items) out.push({ item: it, m });
-    }
-    return out;
-  }, [items]);
+  const positions: { item: ListItem; m: Matched }[] = [];
+  for (const it of items) {
+    if (it.kind === 'row') positions.push({ item: it, m: it.item });
+    else if (it.kind === 'cells') for (const m of it.items) positions.push({ item: it, m });
+  }
   // After the scroll draws its row (it may take a frame), the focus goes to it.
   useEffect(() => {
     if (focusAt === null) return;

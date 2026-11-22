@@ -14,6 +14,7 @@ export function useTableData({
   settings,
   draftOnly,
 }: Omit<TableSources, 'roots'>) {
+  // By hand, from the fields of the sources: the compiler would depend on the object, new in each render.
   return useMemo(
     () =>
       tableData({

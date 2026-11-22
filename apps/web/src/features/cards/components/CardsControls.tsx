@@ -1,6 +1,6 @@
 // The cards page's controls: the week or lecture, the search box (a moment after typing stops), «Lista / Tabla» in
 // «Modo avanzado» and the filters' button on a narrow screen.
-import { useMemo } from 'react';
+
 import { LayoutList, Search, SlidersHorizontal, Table2 } from 'lucide-react';
 import { Select } from '../../../shared/ui/Select';
 import { button } from '../../../shared/ui/styles';
@@ -33,7 +33,7 @@ export function CardsControls({
   onFilters: () => void;
   showSearch: boolean;
 }) {
-  const options = useMemo(() => unitOptions(scope.node, unit), [scope.node, unit]);
+  const options = unitOptions(scope.node, unit);
   const [text, setText] = useQueryBox(query, onQuery);
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2">

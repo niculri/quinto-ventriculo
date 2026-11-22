@@ -1,5 +1,4 @@
 // The cards page in «Modo avanzado» as Anki's table, with the notes of the week or lecture chosen.
-import { useMemo } from 'react';
 import type { AnkiTree } from '../../catalog/model/tree';
 import { CardTable } from './CardTable';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
@@ -22,13 +21,12 @@ export function CardsTable({
   const catalog = useCatalog();
   const presets = useUserPresets();
   const settings = useDeckSettings();
-  const notes = useMemo(() => {
-    const all = data.indexes.flatMap((i) => i.notes);
-    if (!unitDecks) return all;
-    return all
-      .map((n) => ({ ...n, cards: n.cards.filter((c) => unitDecks.has(c.deckId)) }))
-      .filter((n) => n.cards.length);
-  }, [data.indexes, unitDecks]);
+  const all = data.indexes.flatMap((i) => i.notes);
+  const notes = unitDecks
+    ? all
+        .map((n) => ({ ...n, cards: n.cards.filter((c) => unitDecks.has(c.deckId)) }))
+        .filter((n) => n.cards.length)
+    : all;
   if (!catalog.data || !presets.data || !settings.data) return <ListSkeleton />;
   return (
     <CardTable

@@ -29,6 +29,7 @@ export function useCardSearch({
     setShownQuery(query);
     setText(query);
   }
+  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
   const cards = useMemo(
     () =>
       buildBrowseCards(

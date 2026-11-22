@@ -21,10 +21,7 @@ import { useTextMatch } from './useTextMatch';
 export function usePracticeCards(node: CourseDeckNode) {
   const { catalog, tree } = useAnkiTree();
   const [params] = useSearchParams();
-  const scope = useMemo(
-    () => (catalog.data ? cardsScope(catalog.data, node) : null),
-    [catalog.data, node],
-  );
+  const scope = catalog.data ? cardsScope(catalog.data, node) : null;
   const now = useNow(60_000);
   const cards = useCardsData(scope, tree, now);
   const data = cards.data;
@@ -33,6 +30,7 @@ export function usePracticeCards(node: CourseDeckNode) {
   const text = useTextMatch(data, searchQuery(q, !!data?.prefs.fullAnki), tree);
   const day = useDayCards(scope, data, params.get('day'));
   const state = parseState(params.get('state'));
+  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
   const queue = useMemo(() => {
     const failedCards = failedOf(day.value, failed.data);
     if (!data || !scope || !failedCards || text.waiting || day.waiting) return null;

@@ -33,6 +33,7 @@ export function useCardsBody(scope: CardsScope, tree: AnkiTree) {
   const unitDeck = unitNode(scope.node, unit);
   const state = parseState(params.get('state'));
   const originText = params.get('origin');
+  // The compiler leaves this one without a cache (its output shows it), so it stays by hand.
   const origins = useMemo(() => parseOrigins(originText), [originText]);
   const kind = parseKind(params.get('kind'));
   const q = params.get('q') ?? '';

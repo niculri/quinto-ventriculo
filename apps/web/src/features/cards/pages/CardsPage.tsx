@@ -1,7 +1,6 @@
 // The cards of a course or an assessment: notes by lecture and topic, filters with their counts, the viewer,
 // «Practicar estas» and, in «Modo avanzado», Anki's table.
 
-import { useMemo } from 'react';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
 import { useTitle } from '../../../shared/hooks/useTitle';
@@ -15,10 +14,7 @@ import { cardsPageStrings } from './strings/CardsPage.strings';
 
 export function CardsPage({ node }: { node: CourseDeckNode }) {
   const { catalog, tree } = useAnkiTree();
-  const scope = useMemo(
-    () => (catalog.data ? cardsScope(catalog.data, node) : null),
-    [catalog.data, node],
-  );
+  const scope = catalog.data ? cardsScope(catalog.data, node) : null;
   const title = node.depth === 2 && node.course ? node.course.name : node.label;
   useTitle(cardsPageStrings.pageTitle(title));
   return (

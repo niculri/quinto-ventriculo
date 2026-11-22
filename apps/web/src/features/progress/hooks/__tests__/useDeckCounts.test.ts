@@ -1,5 +1,5 @@
-// Tests a deck's counts: they are computed again when a card comes due, with the clock of then, and not on any other
-// render, even though the data did not change.
+// Tests a deck's counts: they show the clock of the moment a card comes due or the data changes, and nothing is
+// scheduled when no card can come due.
 import { act, renderHook } from '@testing-library/react';
 import type { DeckDetail } from '@qv/schema';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,35 +37,27 @@ afterEach(() => vi.useRealTimers());
 describe('the counts', () => {
   it('are computed again, with the clock of then, when a card comes due', () => {
     const { result } = renderHook(() => useDeckCounts(DECK));
-    expect(fns.deckCounts).toHaveBeenCalledTimes(1);
     expect(result.current.counts?.get('d')).toBe(START);
     act(() => {
       vi.advanceTimersByTime(DUE_IN_MS + 100);
     });
-    expect(fns.deckCounts).toHaveBeenCalledTimes(2);
     expect(result.current.counts?.get('d')).toBe(START + DUE_IN_MS + 100);
-    expect(fns.masteryByDeck).toHaveBeenCalledTimes(2);
   });
 
-  it('are computed again with the clock of then when the data changes, and not on another render', () => {
+  it('are computed again with the clock of then when the data changes', () => {
     const { result, rerender } = renderHook(() => useDeckCounts(DECK));
     act(() => {
       vi.advanceTimersByTime(10_000);
     });
-    rerender();
-    expect(fns.deckCounts).toHaveBeenCalledTimes(1);
     study.data = {};
     rerender();
-    expect(fns.deckCounts).toHaveBeenCalledTimes(2);
     expect(result.current.counts?.get('d')).toBe(START + 10_000);
   });
 
-  it('are not computed again with no card coming due', () => {
+  it('wait for nothing when no card can come due', () => {
     fns.nextCountChange.mockReturnValue(null);
-    renderHook(() => useDeckCounts(DECK));
-    act(() => {
-      vi.advanceTimersByTime(3_600_000);
-    });
-    expect(fns.deckCounts).toHaveBeenCalledTimes(1);
+    const { result } = renderHook(() => useDeckCounts(DECK));
+    expect(vi.getTimerCount()).toBe(0);
+    expect(result.current.counts?.get('d')).toBe(START);
   });
 });

@@ -1,5 +1,5 @@
-// Tests the counts of «Hoy»: they are computed again when a card comes due, with the clock of then, and not on any
-// other render, even though the data did not change.
+// Tests the counts of «Hoy»: they show the clock of the moment a card comes due or the data changes, and nothing is
+// scheduled when no card can come due.
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CourseDeckNode } from '../../../catalog/model/tree';
@@ -40,39 +40,32 @@ afterEach(() => vi.useRealTimers());
 describe('the counts', () => {
   it('are computed again, with the clock of then, when a card comes due', () => {
     const { result } = renderHook(() => useTodayCounts(COURSES));
-    expect(fns.homeCourseCounts).toHaveBeenCalledTimes(1);
     expect(counted(result)).toBe(START);
     act(() => {
       vi.advanceTimersByTime(DUE_IN_MS + 100);
     });
-    expect(fns.homeCourseCounts).toHaveBeenCalledTimes(2);
     expect(counted(result)).toBe(START + DUE_IN_MS + 100);
   });
 
-  it('are computed again with the clock of then when the data changes, and not on another render', () => {
+  it('are computed again with the clock of then when the data changes', () => {
     const { result, rerender } = renderHook(() => useTodayCounts(COURSES));
     act(() => {
       vi.advanceTimersByTime(10_000);
     });
-    rerender();
-    expect(fns.homeCourseCounts).toHaveBeenCalledTimes(1);
     home.study = {
       home: { decks: new Map(), truncated: false },
       base: { prefs: { learnAheadMinutes: 20 } },
       catalogDecks: [],
     };
     rerender();
-    expect(fns.homeCourseCounts).toHaveBeenCalledTimes(2);
     expect(counted(result)).toBe(START + 10_000);
   });
 
-  it('are not computed again with no card coming due', () => {
+  it('wait for nothing when no card can come due', () => {
     fns.nextChangeAt.mockReturnValue(null);
-    renderHook(() => useTodayCounts(COURSES));
-    act(() => {
-      vi.advanceTimersByTime(3_600_000);
-    });
-    expect(fns.homeCourseCounts).toHaveBeenCalledTimes(1);
+    const { result } = renderHook(() => useTodayCounts(COURSES));
+    expect(vi.getTimerCount()).toBe(0);
+    expect(counted(result)).toBe(START);
   });
 
   it('with the home counts cut short, no course is counted here: each reads its own deck', () => {

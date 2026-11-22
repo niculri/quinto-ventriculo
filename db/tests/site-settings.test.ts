@@ -5,21 +5,16 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ContentBundle } from '@qv/schema';
 import { CloudTarget } from '@qv/importer';
 import type { MediaStore } from '@qv/importer';
-import { BC, article, catalog, image, serviceRpc, withHash } from './import-fixtures';
+import { BC, article, catalog, image, serviceRpc, withHash } from './helpers/import-fixtures';
 import { asUser, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 let db: PGlite;
 const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, []), store });
 const draft = new CloudTarget({ db: serviceRpc(() => db, [], 'draft'), store });
 
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 
 const BC3 = 'biologia-celular/certamen-3';
 const catalogWithC3 = {

@@ -3,6 +3,7 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 const ROOT = '1000000000000000001';
 const TOPIC = '1000000000000000002';
@@ -11,11 +12,7 @@ const OTHER = '1000000000000000004';
 
 let db: PGlite;
 
-const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return fn(tx);
-  });
+const { asService } = queriesOn(() => db);
 
 beforeAll(async () => {
   db = await createDatabase('content');

@@ -4,9 +4,11 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
 import type { MediaStore } from '@qv/importer';
-import { BC, ankiNote, article, bundleOf, everything, serviceRpc } from './import-fixtures';
-import type { Parts } from './import-fixtures';
+import { BC, ankiNote, article, everything, serviceRpc } from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { applyMigration, createDatabase } from './pglite';
+import { saveParts } from './helpers/content';
+import { queriesOn } from './helpers/queries';
 
 const MIGRATION = '20261117000000_card_browser_index.sql';
 
@@ -15,18 +17,8 @@ let db: PGlite;
 const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, []), store });
 const draft = new CloudTarget({ db: serviceRpc(() => db, [], 'draft'), store });
-const save = (target: CloudTarget, p: Parts) => {
-  const { bundle, media } = bundleOf(p);
-  return target.save(bundle, media);
-};
 
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 
 /** What public has in each table a publication takes (those before the migration), as text. */
 async function publicContent(names: string[]) {
@@ -81,11 +73,11 @@ let names: string[];
 
 beforeEach(async () => {
   db = await createDatabase('content', [], MIGRATION);
-  await save(published, everything());
+  await saveParts(published, everything());
   await service('select public.reset_draft()');
   names = await tables();
   before = await publicContent(names);
-  await save(draft, changed());
+  await saveParts(draft, changed());
 });
 
 // The migration adds a published table, which changes release_shape() and the digests; its first and last blocks keep
@@ -107,7 +99,7 @@ describe('the publication online, after the card browser migration', () => {
     await applyMigration(db, 'content', MIGRATION);
     const p = changed();
     p.ankiNotes[1] = ankiNote('bc-2', BC, 'dos corregido');
-    await save(draft, p);
+    await saveParts(draft, p);
     expect((await q('select assessment_id from draft.anki_browse_indexes')).length).toBeGreaterThan(
       0,
     );

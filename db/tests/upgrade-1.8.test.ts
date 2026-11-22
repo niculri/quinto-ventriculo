@@ -5,8 +5,9 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { ContentBundle } from '@qv/schema';
 import { CloudTarget } from '@qv/importer';
 import type { MediaStore } from '@qv/importer';
-import { AN, BC, article, catalog, image, serviceRpc, withHash } from './import-fixtures';
+import { AN, BC, article, catalog, image, serviceRpc, withHash } from './helpers/import-fixtures';
 import { applyMigration, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 const MIGRATION = '20261114000000_groups_and_site_settings.sql';
 const BC3 = 'biologia-celular/certamen-3';
@@ -18,11 +19,7 @@ const draft = new CloudTarget({ db: serviceRpc(() => db, [], 'draft'), store });
 
 /** As the database owner in the SQL editor (draft_drift() and draft_pending_changes() are not for the API). */
 const q = async (sql: string) => (await db.query(sql)).rows;
-const service = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { service } = queriesOn(() => db);
 
 function seminar(assessmentId: string, practice: boolean) {
   const a = article('AP-BC-C2-SEM8', assessmentId, 'Comunicación intercelular', 10);

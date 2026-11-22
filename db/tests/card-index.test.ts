@@ -20,9 +20,10 @@ import {
   only,
   serviceRpc,
   withHash,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { createDatabase, closeAfterEachTest } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 closeAfterEachTest();
 
@@ -65,13 +66,7 @@ const draft = new CloudTarget({ db: logged(() => db, 'draft'), store, thumbnail 
 const published = new CloudTarget({ db: logged(() => db, 'public'), store, thumbnail });
 const FULL: SaveScope = { notes: true, decks: true, tests: true };
 
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 const rows = (schema: 'public' | 'draft') =>
   q<{ assessment_id: string; hash: string; note_count: number; card_count: number }>(
     `select assessment_id, hash, note_count, card_count from ${schema}.anki_browse_indexes order by 1`,

@@ -3,6 +3,8 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, applyMigration, asUser, createDatabase, closeAfterEachTest } from './pglite';
+import { callAs, signIn } from './helpers/users';
+import type { Claims } from './helpers/users';
 
 closeAfterEachTest();
 
@@ -12,26 +14,11 @@ const FRIEND = { sub: '00000000-0000-4000-8000-0000000000d2', email: 'invitado@u
 const SECOND = { sub: '00000000-0000-4000-8000-0000000000d3', email: 'segunda.admin@ug.uchile.cl' };
 const ANA = { sub: '00000000-0000-4000-8000-0000000000d4', email: 'ana.perez@ug.uchile.cl' };
 
-type Claims = { sub: string; email: string; session_id?: string };
-
-async function signIn(user: { sub: string; email: string }): Promise<Claims> {
-  const { rows } = await db.query<{ id: string }>(
-    `insert into auth.sessions (user_id) values ($1) returning id`,
-    [user.sub],
-  );
-  const session = rows[0]!.id;
-  await db.query(
-    `insert into auth.refresh_tokens (token, user_id, session_id) values ($1, $2, $3)`,
-    [`rt-${session}`, user.sub, session],
-  );
-  return { ...user, session_id: session };
-}
-
 const call = <T = Record<string, unknown>>(
   claims: Claims | null,
   sql: string,
   args: unknown[] = [],
-) => asUser(db, claims, async (tx) => (await tx.query<{ r: T }>(sql, args)).rows[0]!.r);
+) => callAs<T>(db, claims, sql, args);
 const report = (c: Claims | null) => call(c, 'select public.admin_access_report() as r');
 const setAdmin = (c: Claims | null, p: unknown) =>
   call(c, 'select public.admin_set_admin($1::jsonb) as r', [JSON.stringify(p)]);
@@ -65,9 +52,9 @@ beforeEach(async () => {
   await db.query(`insert into public.admin_emails (email, note) values ($1, 'Segunda')`, [
     SECOND.email,
   ]);
-  owner = await signIn(OWNER);
-  friend = await signIn(FRIEND);
-  second = await signIn(SECOND);
+  owner = await signIn(db, OWNER);
+  friend = await signIn(db, FRIEND);
+  second = await signIn(db, SECOND);
 });
 
 describe('who the site owner is', () => {
@@ -132,7 +119,7 @@ describe('who can call admin_set_admin()', () => {
   });
 
   it('the site owner with the session closed gets session_closed', async () => {
-    const closed = await signIn(OWNER);
+    const closed = await signIn(db, OWNER);
     await db.query('delete from auth.sessions where id = $1', [closed.session_id]);
     await expect(setAdmin(closed, { email: FRIEND.email, admin: true })).rejects.toThrow(
       /session_closed/,
@@ -337,7 +324,7 @@ describe('the migration on a database as production had it', () => {
   it('keeps the administrators as they were, nobody is the site owner until the row is marked', async () => {
     db = await createDatabase('users', [], '20261116000000_admin_owner.sql');
     await db.query(`insert into auth.users (id, email) values ($1, $2)`, [OWNER.sub, OWNER.email]);
-    const me = await signIn(OWNER);
+    const me = await signIn(db, OWNER);
     const before = await report(me);
     await applyMigration(db, 'users', '20261116000000_admin_owner.sql');
     expect(await admins()).toEqual([{ email: OWNER.email, owner: false, added_by: null }]);

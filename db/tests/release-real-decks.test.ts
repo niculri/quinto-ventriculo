@@ -15,7 +15,7 @@ import {
 } from '@qv/importer';
 import type { Manifest, MediaStore, ProcessedImage } from '@qv/importer';
 import { ReleaseCardItem, ReleaseSummary } from '@qv/schema';
-import { serviceRpc } from './import-fixtures';
+import { serviceRpc } from './helpers/import-fixtures';
 import { createDatabase } from './pglite';
 
 // Two versions of the author's decks go to public and the draft; the known changes come from a script outside this

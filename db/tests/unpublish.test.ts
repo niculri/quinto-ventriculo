@@ -26,9 +26,10 @@ import {
   leafOf,
   serviceRpc,
   withHash,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 closeAfterEachTest();
 
@@ -97,8 +98,7 @@ const importAll = async (p: Parts) => {
   return { report, skipped: off.skipped };
 };
 
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
+const { q } = queriesOn(() => db);
 const snapshot = async () => ({
   notes: await q(
     'select id, hash, version, updated_at, published_at, version_at from notes order by id',

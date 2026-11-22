@@ -16,9 +16,10 @@ import {
   noteType,
   only,
   quiz,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+import { tick } from './helpers/content';
 
 closeAfterEachTest();
 
@@ -96,7 +97,6 @@ const of = (s: Snapshot, assessmentId: string) => ({
   ),
 });
 /** now() is the transaction's: a small wait so that two saves do not share it. */
-const tick = () => new Promise((r) => setTimeout(r, 15));
 
 beforeEach(async () => {
   db = await createDatabase('content');

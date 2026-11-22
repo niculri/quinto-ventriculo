@@ -3,16 +3,14 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, createDatabase } from './pglite';
+import { tick } from './helpers/content';
+import { queriesOn } from './helpers/queries';
 
 const MIGRATION = '20261104000000_articles.sql';
 
 let db: PGlite;
 
-const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return fn(tx);
-  });
+const { asService } = queriesOn(() => db);
 const save = async (n: object) =>
   (await asService((tx) => tx.query<{ ok: boolean }>('select public.save_note($1) as ok', [n])))
     .rows[0]!.ok;
@@ -33,7 +31,6 @@ const read = async (id = 'AP-BC-C2-08') =>
     )
   ).rows[0]!;
 /** now() is the transaction's: a small wait so that two saves do not share it. */
-const tick = () => new Promise((r) => setTimeout(r, 15));
 
 const pdfNote = {
   id: 'AP-BC-C2-08',

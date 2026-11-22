@@ -5,8 +5,9 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { ContentBundle } from '@qv/schema';
 import { CloudTarget } from '@qv/importer';
 import type { MediaStore } from '@qv/importer';
-import { AN, BC, article, catalog, image, serviceRpc } from './import-fixtures';
+import { AN, BC, article, catalog, image, serviceRpc } from './helpers/import-fixtures';
 import { applyMigration, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 const MIGRATION = '20261126000000_hidden_courses.sql';
 
@@ -14,11 +15,7 @@ let db: PGlite;
 const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, []), store });
 
-const service = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { service } = queriesOn(() => db);
 const settings = async () =>
   (await service<{ r: unknown }>('select public.site_settings() as r'))[0]!.r;
 

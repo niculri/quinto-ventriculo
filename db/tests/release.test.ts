@@ -19,9 +19,10 @@ import {
   leafOf,
   serviceRpc,
   withHash,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 closeAfterEachTest();
 
@@ -31,13 +32,7 @@ const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, calls), store });
 const draft = new CloudTarget({ db: serviceRpc(() => db, calls, 'draft'), store });
 
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 const summary = async () =>
   ReleaseSummary.parse(
     (await service<{ r: unknown }>('select public.release_summary() as r'))[0]!.r,

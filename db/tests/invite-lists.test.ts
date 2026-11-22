@@ -5,6 +5,8 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { CONTACT_EMAIL } from '@qv/schema';
 import { asUser, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
+import { signIn } from './helpers/users';
 
 let db: PGlite;
 const OWNER = { sub: '00000000-0000-4000-8000-0000000000b1', email: 'dueno@ug.uchile.cl' };
@@ -13,24 +15,7 @@ const ANA = { sub: '00000000-0000-4000-8000-0000000000b3', email: 'ana.perez@ug.
 const LUIS = { sub: '00000000-0000-4000-8000-0000000000b4', email: 'luis@ug.uchile.cl' };
 const STRAY = { sub: '00000000-0000-4000-8000-0000000000b5', email: 'sin.invitacion@ug.uchile.cl' };
 
-async function signIn(user: { sub: string; email: string }) {
-  const { rows } = await db.query<{ id: string }>(
-    `insert into auth.sessions (user_id) values ($1) returning id`,
-    [user.sub],
-  );
-  const session = rows[0]!.id;
-  await db.query(
-    `insert into auth.refresh_tokens (token, user_id, session_id) values ($1, $2, $3)`,
-    [`rt-${session}`, user.sub, session],
-  );
-  return { ...user, session_id: session };
-}
-
-const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return fn(tx);
-  });
+const { asService } = queriesOn(() => db);
 
 const invite = async (p: unknown) =>
   (await db.query<{ r: Record<string, unknown> }>('select public.invite_emails($1) as r', [p]))
@@ -203,9 +188,9 @@ describe('invite_emails', () => {
 
 describe('remove_invites', () => {
   it('by email: loses access at once, its sessions are closed, its progress stays', async () => {
-    const ana = await signIn(ANA);
-    await signIn(ANA);
-    const other = await signIn(LUIS);
+    const ana = await signIn(db, ANA);
+    await signIn(db, ANA);
+    const other = await signIn(db, LUIS);
     await asUser(db, ANA, (tx) =>
       tx.query(`insert into public.readings (note_id, progress) values ('AP-BC-C2-11', 0.5)`),
     );
@@ -238,7 +223,7 @@ describe('remove_invites', () => {
   });
 
   it('by list: every one of it, with their sessions', async () => {
-    await signIn(ANA);
+    await signIn(db, ANA);
     const r = await remove({ list: 'Curso de prueba 2026' });
     expect(r).toMatchObject({
       removed: ['ana.perez@ug.uchile.cl', 'luis@ug.uchile.cl'],
@@ -251,8 +236,8 @@ describe('remove_invites', () => {
   });
 
   it('never removes an administrator without "include_admins": true', async () => {
-    const owner = await signIn(OWNER);
-    await signIn(FRIEND);
+    const owner = await signIn(db, OWNER);
+    await signIn(db, FRIEND);
     const r = await remove({ list: 'Equipo' });
     expect(r).toMatchObject({
       removed: ['invitado@ug.uchile.cl'],
@@ -284,7 +269,7 @@ describe('remove_invites', () => {
   });
 
   it('closes the sessions of an asked account that had no invitation', async () => {
-    await signIn(STRAY);
+    await signIn(db, STRAY);
     expect(await remove({ emails: [STRAY.email] })).toMatchObject({
       removed: [],
       not_invited: [STRAY.email],
@@ -296,20 +281,20 @@ describe('remove_invites', () => {
 describe('access_status', () => {
   it('tells «not invited» from «signed out»: only the first one is told where to write', async () => {
     await invite({ emails: [LUIS.email], list: 'Curso de prueba 2026', by: 'dueño' });
-    const luis = await signIn(LUIS);
+    const luis = await signIn(db, LUIS);
     expect(await status(luis)).toBe('allowed');
     // Signed out on another device: supabase-js closes every session of the account, still invited.
     await db.query('delete from auth.sessions where user_id = $1', [LUIS.sub]);
     expect(await status(luis)).toBe('signed_out');
     expect(await status({ ...LUIS })).toBe('signed_out');
-    const again = await signIn(LUIS);
+    const again = await signIn(db, LUIS);
     await remove({ emails: [LUIS.email] });
     expect(await status(again)).toBe('not_invited');
     expect(await status({ sub: STRAY.sub, email: STRAY.email })).toBe('not_invited');
   });
 
   it('needs the session of the token, still open', async () => {
-    const owner = await signIn(OWNER);
+    const owner = await signIn(db, OWNER);
     expect(await hasAccess(owner)).toBe(true);
     expect(await hasAccess(OWNER)).toBe(false);
     expect(await hasAccess({ ...owner, session_id: 'no-es-un-uuid' })).toBe(false);
@@ -319,7 +304,7 @@ describe('access_status', () => {
       [owner.session_id],
     );
     expect(await hasAccess(owner)).toBe(false);
-    const friend = await signIn(FRIEND);
+    const friend = await signIn(db, FRIEND);
     expect(await hasAccess(friend)).toBe(true);
     await db.query('delete from auth.sessions where user_id = $1', [FRIEND.sub]);
     expect(await hasAccess(friend)).toBe(false);

@@ -3,7 +3,8 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { dayOf, dayOfStart } from '@qv/srs';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { asUser, createDatabase } from './pglite';
+import { asUser } from './pglite';
+import { usersDatabaseWith } from './helpers/users';
 
 const ANA = { sub: '00000000-0000-4000-8000-00000000003a', email: 'ana@ug.uchile.cl' };
 const BETO = { sub: '00000000-0000-4000-8000-00000000003b', email: 'beto@ug.uchile.cl' };
@@ -60,14 +61,7 @@ function answer(noteGuid: string, extra: Record<string, unknown> = {}, days = 3)
   };
 }
 
-async function newDatabase() {
-  const db = await createDatabase('users');
-  await db.query('update public.access_settings set open_to_domain = true');
-  for (const u of [ANA, BETO, OUTSIDER]) {
-    await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
-  }
-  return db;
-}
+const newDatabase = () => usersDatabaseWith([ANA, BETO, OUTSIDER]);
 
 const today = async (db: PGlite, user: { sub: string }) =>
   (await db.query<{ d: string }>(`select public.study_day_of($1, now())::text as d`, [user.sub]))

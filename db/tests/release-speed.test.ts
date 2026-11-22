@@ -9,15 +9,16 @@ import {
   BC,
   ankiNote,
   article,
-  bundleOf,
   decksOf,
   everything,
   quiz,
   serviceRpc,
   withHash,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { applyMigration, createDatabase, closeAfterEachTest } from './pglite';
+import { saveParts } from './helpers/content';
+import { queriesOn } from './helpers/queries';
 
 closeAfterEachTest();
 
@@ -28,17 +29,7 @@ let db: PGlite;
 const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, []), store });
 const draft = new CloudTarget({ db: serviceRpc(() => db, [], 'draft'), store });
-const save = (target: CloudTarget, p: Parts) => {
-  const { bundle, media } = bundleOf(p);
-  return target.save(bundle, media);
-};
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 
 const small = (): Parts => {
   const p = everything();
@@ -97,7 +88,7 @@ async function scansOf(sql: string) {
 }
 
 async function withVolume() {
-  await save(published, everything());
+  await saveParts(published, everything());
   await db.exec(`
     insert into public.anki_notes (guid, note_type_id, fields, tags, code, version, hash, updated_at)
     select 'syn-' || i, n.note_type_id, jsonb_build_object('Frente', 'Pregunta ' || i), '{}', 'T-SYN-' || i, 1,
@@ -117,7 +108,7 @@ describe('how many times publishing and undoing read the big tables whole', () =
   });
 
   it('a small publication reads each big table of each schema at most 4 times, and undoing it, once', async () => {
-    await save(draft, small());
+    await saveParts(draft, small());
     const fp = await markAll();
     const pub = await scansOf(publishCall(fp));
     expect(
@@ -136,7 +127,7 @@ describe('how many times publishing and undoing read the big tables whole', () =
   });
 
   it('the panel’s summary reads each big table of each schema at most 3 times', async () => {
-    await save(draft, small());
+    await saveParts(draft, small());
     const s = await scansOf('select public.release_summary() as r');
     expect(s.r).toHaveProperty('fingerprint');
     for (const t of BIG) {
@@ -149,7 +140,7 @@ describe('how many times publishing and undoing read the big tables whole', () =
 describe('the digests', () => {
   beforeEach(async () => {
     db = await createDatabase('content');
-    await save(published, everything());
+    await saveParts(published, everything());
     await service('select public.reset_draft()');
   });
 
@@ -177,7 +168,7 @@ describe('the digests', () => {
   });
 
   it('release_fingerprint() is the one publishing checks (a mark made for it lets publish)', async () => {
-    await save(draft, small());
+    await saveParts(draft, small());
     const fp = await markAll();
     const r = (await service<{ r: { id: number } }>(publishCall(fp)))[0]!.r;
     expect(r.id).toBe(1);
@@ -193,9 +184,9 @@ describe('the digests', () => {
 describe('a publication made before this migration', () => {
   beforeEach(async () => {
     db = await createDatabase('content', [], MIGRATION);
-    await save(published, everything());
+    await saveParts(published, everything());
     await service('select public.reset_draft()');
-    await save(draft, small());
+    await saveParts(draft, small());
   });
 
   async function publishBefore() {
@@ -266,12 +257,12 @@ const trigger = (sql: string) =>
 describe('what the row checks of publishing and undoing catch', () => {
   beforeEach(async () => {
     db = await createDatabase('content');
-    await save(published, everything());
+    await saveParts(published, everything());
     await service('select public.reset_draft()');
   });
 
   it('a row of public that publishing could not write in, or take out, refuses the publication (nothing written)', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const before = await publicContent();
     await trigger(`create trigger probe_in before insert on public.anki_cards for each row
                      when (new.note_guid = 'an-2') execute function probe.skip();`);
@@ -297,7 +288,7 @@ describe('what the row checks of publishing and undoing catch', () => {
   });
 
   it('undoing that could not take out a row the publication added is refused (public as the publication left it)', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const { id } = await publishNow();
     const after = await publicContent();
     await trigger(`create trigger probe_stay before delete on public.notes for each row
@@ -387,10 +378,10 @@ describe('the migration on a database like production', () => {
   // (with its release_changes), and the draft equal to what is published.
   it('keeps the records, the panel and the content as they were, and release 2 can be undone byte for byte', async () => {
     db = await createDatabase('content', [], MIGRATION);
-    await save(published, everything());
+    await saveParts(published, everything());
     await service('select public.reset_draft()');
     const original = await everythingOf('public');
-    await save(draft, small());
+    await saveParts(draft, small());
     const first = await publishNow();
     await service(revertCall(first.id));
     const second = await publishNow();
@@ -464,9 +455,9 @@ describe('the migration on a database like production', () => {
     });
     const of = async (until?: string) => {
       db = await createDatabase('content', [], until);
-      await save(published, everything());
+      await saveParts(published, everything());
       await service('select public.reset_draft()');
-      await save(draft, changed());
+      await saveParts(draft, changed());
       return panel();
     };
     const old = await of(MIGRATION);

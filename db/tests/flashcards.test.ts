@@ -2,14 +2,11 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 let db: PGlite;
 
-const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return fn(tx);
-  });
+const { asService } = queriesOn(() => db);
 
 const ANA = { sub: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.cl' };
 const ROOT = '2059400110';

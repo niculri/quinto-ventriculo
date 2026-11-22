@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 const MIGRATION = '20261102000000_deck_tree.sql';
 
@@ -50,11 +51,7 @@ function before(): Bundle {
 
 let db: PGlite;
 
-const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return fn(tx);
-  });
+const { asService } = queriesOn(() => db);
 
 async function save(b: Bundle) {
   let changed = 0;

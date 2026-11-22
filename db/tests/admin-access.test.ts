@@ -3,6 +3,8 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, asUser, createDatabase } from './pglite';
+import { callAs, signIn } from './helpers/users';
+import type { Claims } from './helpers/users';
 
 let db: PGlite;
 const OWNER = { sub: '00000000-0000-4000-8000-0000000000c1', email: OWNER_EMAIL };
@@ -10,26 +12,11 @@ const FRIEND = { sub: '00000000-0000-4000-8000-0000000000c2', email: 'invitado@u
 const SECOND = { sub: '00000000-0000-4000-8000-0000000000c3', email: 'segunda.admin@ug.uchile.cl' };
 const ANA = { sub: '00000000-0000-4000-8000-0000000000c4', email: 'ana.perez@ug.uchile.cl' };
 
-type Claims = { sub: string; email: string; session_id?: string };
-
-async function signIn(user: { sub: string; email: string }): Promise<Claims> {
-  const { rows } = await db.query<{ id: string }>(
-    `insert into auth.sessions (user_id) values ($1) returning id`,
-    [user.sub],
-  );
-  const session = rows[0]!.id;
-  await db.query(
-    `insert into auth.refresh_tokens (token, user_id, session_id) values ($1, $2, $3)`,
-    [`rt-${session}`, user.sub, session],
-  );
-  return { ...user, session_id: session };
-}
-
 const call = <T = Record<string, unknown>>(
   claims: Claims | null,
   sql: string,
   args: unknown[] = [],
-) => asUser(db, claims, async (tx) => (await tx.query<{ r: T }>(sql, args)).rows[0]!.r);
+) => callAs<T>(db, claims, sql, args);
 const report = (c: Claims | null) => call(c, 'select public.admin_access_report() as r');
 const invite = (c: Claims | null, p: unknown) =>
   call(c, 'select public.admin_invite_emails($1::jsonb) as r', [JSON.stringify(p)]);
@@ -51,9 +38,9 @@ beforeAll(async () => {
   await db.query(`insert into public.admin_emails (email, note) values ($1, 'Segunda')`, [
     SECOND.email,
   ]);
-  owner = await signIn(OWNER);
-  friend = await signIn(FRIEND);
-  second = await signIn(SECOND);
+  owner = await signIn(db, OWNER);
+  friend = await signIn(db, FRIEND);
+  second = await signIn(db, SECOND);
 });
 
 describe('who can call them', () => {
@@ -77,7 +64,7 @@ describe('who can call them', () => {
   });
 
   it('an administrator whose session was closed gets session_closed (the token lives up to an hour)', async () => {
-    const closed = await signIn(OWNER);
+    const closed = await signIn(db, OWNER);
     await db.query('delete from auth.sessions where id = $1', [closed.session_id]);
     await expect(report(closed)).rejects.toThrow(/session_closed/);
     await expect(invite(closed, { emails: ['y@ug.uchile.cl'], list: 'Curso' })).rejects.toThrow(
@@ -140,7 +127,7 @@ describe('what an administrator does', () => {
   });
 
   it('removes a person: their invitation and their sessions; their account and progress stay', async () => {
-    const ana = await signIn(ANA);
+    const ana = await signIn(db, ANA);
     const r = await remove(owner, { emails: ['ANA.perez@ug.uchile.cl'] });
     expect(r).toMatchObject({
       removed: ['ana.perez@ug.uchile.cl'],
@@ -189,7 +176,7 @@ describe('what an administrator does', () => {
       `select public.remove_invites('{"emails": ["${SECOND.email}"], "include_admins": true}'::jsonb)`,
     );
     await expect(report(second)).rejects.toThrow(/session_closed/);
-    const again = await signIn(SECOND);
+    const again = await signIn(db, SECOND);
     await expect(report(again)).rejects.toThrow(/admin_only/);
     await expect(invite(again, { emails: ['w@ug.uchile.cl'], list: 'Equipo' })).rejects.toThrow(
       /admin_only/,

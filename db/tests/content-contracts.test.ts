@@ -6,8 +6,9 @@ import type { MediaStore } from '@qv/importer';
 import { CONTENT_RPC, NoteDocument, NoteTypeTemplates, PresetRows } from '@qv/schema/content';
 import type { RpcArgs, RpcResult } from '@qv/schema/database';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { BC, article, bundleOf, everything, serviceRpc } from './import-fixtures';
+import { BC, article, bundleOf, everything, serviceRpc } from './helpers/import-fixtures';
 import { createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 type Name = keyof typeof CONTENT_RPC;
 
@@ -15,11 +16,7 @@ let db: PGlite;
 const ran = new Set<Name>();
 const store: MediaStore = { has: async () => true, put: async () => {} };
 
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { service } = queriesOn(() => db);
 
 async function argTypes(fn: string) {
   const rows = await service<{ names: string[] | null; types: string }>(

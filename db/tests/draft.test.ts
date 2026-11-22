@@ -19,9 +19,10 @@ import {
   only,
   quiz,
   serviceRpc,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { applyMigration, asUser, createDatabase, closeAfterEachTest } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 closeAfterEachTest();
 
@@ -52,13 +53,7 @@ const save = (target: CloudTarget, p: Parts, scope?: SaveScope) => {
   calls.length = 0;
   return target.save(bundle, media, scope);
 };
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 
 async function dump(schema: string) {
   const out: Record<string, string> = {};

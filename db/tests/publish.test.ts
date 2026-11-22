@@ -9,16 +9,17 @@ import {
   BC,
   ankiNote,
   article,
-  bundleOf,
   decksOf,
   everything,
   leafOf,
   quiz,
   serviceRpc,
   withHash,
-} from './import-fixtures';
-import type { Parts } from './import-fixtures';
+} from './helpers/import-fixtures';
+import type { Parts } from './helpers/import-fixtures';
 import { asUser, createDatabase, closeAfterEachTest } from './pglite';
+import { saveParts } from './helpers/content';
+import { queriesOn } from './helpers/queries';
 
 closeAfterEachTest();
 
@@ -27,18 +28,8 @@ const calls: { fn: string; args: Record<string, unknown> }[] = [];
 const store: MediaStore = { has: async () => true, put: async () => {} };
 const published = new CloudTarget({ db: serviceRpc(() => db, calls), store });
 const draft = new CloudTarget({ db: serviceRpc(() => db, calls, 'draft'), store });
-const save = (target: CloudTarget, p: Parts) => {
-  const { bundle, media } = bundleOf(p);
-  return target.save(bundle, media);
-};
 
-const q = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  (await db.query<T>(sql, params)).rows;
-const service = async <T>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { q, service } = queriesOn(() => db);
 
 async function tables() {
   return (await q<{ tbl: string }>('select tbl from public.release_tables() order by ord')).map(
@@ -123,13 +114,13 @@ const changed = (): Parts => {
 
 beforeEach(async () => {
   db = await createDatabase('content');
-  await save(published, everything());
+  await saveParts(published, everything());
   await service('select public.reset_draft()');
 });
 
 describe('publishing the draft', () => {
   it('leaves public byte for byte as the draft, and the draft as what is published', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const r = await publish();
     expect(r).toMatchObject({ id: 1, title: 'Biología celular · Certamen 2' });
     expect(r.changes).toMatchObject({
@@ -156,10 +147,10 @@ describe('publishing the draft', () => {
   });
 
   it('the version of an article goes up when publishing, once for several imports to the draft', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const twice = changed();
     twice.notes[0] = article('AP-BC-C2-08', BC, 'Transcripción corregida otra vez', 1);
-    await save(draft, twice);
+    await saveParts(draft, twice);
     expect(await q(`select version from draft.notes where id = 'AP-BC-C2-08'`)).toEqual([
       { version: 3 },
     ]);
@@ -188,7 +179,7 @@ describe('publishing the draft', () => {
   it('the version of a question goes up when its document changes, not when only its place does', async () => {
     const p = everything();
     p.quizzes[0] = quiz('practica-bc', BC, ['¿Uno?', '¿Dos, de otra forma?']);
-    await save(draft, p);
+    await saveParts(draft, p);
     await publish();
     expect(
       await q(
@@ -205,7 +196,7 @@ describe('publishing the draft', () => {
 describe('undoing the last publication', () => {
   it('leaves public byte for byte as it was, and the draft with what was undone', async () => {
     const before = await publicContent();
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const inDraft = await dump('draft');
     const { id } = (await publish()) as { id: number };
     const undone = await revert(id);
@@ -242,7 +233,7 @@ describe('undoing the last publication', () => {
   });
 
   it('an undone version number is not given again', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const first = (await publish()) as { id: number };
     await revert(first.id);
     expect(await q(`select version from public.notes where id = 'AP-BC-C2-08'`)).toEqual([
@@ -264,11 +255,11 @@ describe('undoing the last publication', () => {
   });
 
   it('only the last one, once', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const first = (await publish()) as { id: number };
     const p = changed();
     p.notes[1] = article('AP-BC-C2-09', BC, 'Procesamiento corregido', 2);
-    await save(draft, p);
+    await saveParts(draft, p);
     const second = (await publish()) as { id: number };
     await expect(revert(first.id)).rejects.toThrow(/revert_release: not_last/);
     await revert(second.id);
@@ -282,7 +273,7 @@ describe('undoing the last publication', () => {
   });
 
   it('is refused if public changed after publishing (npm run unpublish), and names what was taken off', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const { id } = (await publish()) as { id: number };
     await service(
       `select public.unpublish_content('note', 'AP-BC-C2-10', 'Error grave', 'dueño', true)`,
@@ -304,7 +295,7 @@ describe('undoing the last publication', () => {
     );
     const before = await publicContent();
     expect(JSON.parse(before.unpublished_note_versions)).toHaveLength(1);
-    await save(draft, everything());
+    await saveParts(draft, everything());
     const { id } = (await publish()) as { id: number };
     expect(await q(`select version from public.notes where id = 'AP-BC-C2-09'`)).toEqual([
       { version: 1 },
@@ -336,7 +327,7 @@ describe('what stops a publication', () => {
     ],
     ['a title too long', { title: 'x'.repeat(301) }, /invalid/],
   ])('%s', async (_what, extra, error) => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const before = { public: await publicContent(), draft: await dump('draft') };
     await expect(publish(extra)).rejects.toThrow(error);
     expect(await publicContent()).toEqual(before.public);
@@ -345,7 +336,7 @@ describe('what stops a publication', () => {
   });
 
   it('the marks by hand, which are of the draft they were made for', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const fp = await fingerprint();
     await service('select public.set_release_mark($1, $2, true, $3)', [fp, 'phone', 'dueño']);
     await expect(
@@ -358,7 +349,7 @@ describe('what stops a publication', () => {
   });
 
   it('something of content/unpublished.json, or IMAIOS, in the draft (checked again by the database)', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await q(
       `update draft.content_meta set value = '[{"kind": "note", "id": "AP-BC-C2-10"}]' where key = 'unpublished'`,
     );
@@ -371,13 +362,13 @@ describe('what stops a publication', () => {
   });
 
   it('a draft that is not the shape of public (a migration not made again)', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await q('alter table public.notes add column extra text');
     await expect(publish()).rejects.toThrow(/publish_release: drift/);
   });
 
   it('a fingerprint that changed because what is published did', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const fp = await markAll();
     await q(`update public.semesters set name = 'Otro' where number = 2`);
     await expect(
@@ -390,7 +381,7 @@ describe('one transaction', () => {
   // PGlite has one connection: two sessions cannot read at the same time. What makes a concurrent read never see a
   // mix is that publishing is one statement (one transaction): if anything fails after writing, nothing is left.
   it('a failure after writing part of it leaves public, the draft and the records as they were', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const before = { public: await dump('public'), draft: await dump('draft') };
     // The questions are among the last tables it writes: the articles and the cards were already written.
     // (its function outside public: the draft does not copy it, so the shape of both stays the same)
@@ -408,7 +399,7 @@ describe('one transaction', () => {
   });
 
   it('never takes a lock that stops a student’s read (only share row exclusive and row locks)', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const fp = await markAll();
     const locks = await db.transaction(async (tx) => {
       await tx.exec('set local role service_role');
@@ -530,7 +521,7 @@ describe('a student’s progress', () => {
       ['bc-2', 1],
       ['bc-3', 1],
     ]);
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const rowsBefore = await everyRow();
     const { id } = (await publish()) as { id: number };
     expect(await everyRow()).toEqual(rowsBefore);
@@ -559,7 +550,7 @@ describe('a student’s progress', () => {
       q(`select id, document, version from public.quiz_questions where id = 'practica-bc-q2'`);
     const was = await question();
     expect(was).toHaveLength(1);
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const { id } = (await publish()) as { id: number };
     expect(await question()).toEqual([]);
     expect(
@@ -572,7 +563,7 @@ describe('a student’s progress', () => {
 
 describe('the draft is not lost without a word', () => {
   it('rebuild_draft() (the end of every migration) stops if the draft has changes that are not published', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await expect(q('select public.rebuild_draft()')).rejects.toThrow(
       /the draft has changes that are not published \(.*anki_notes.*\)/,
     );
@@ -582,14 +573,14 @@ describe('the draft is not lost without a word', () => {
     });
     expect(await pending()).toEqual([]);
     expect(await q('select * from public.draft_drift()')).toEqual([]);
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await publish();
     await q('select public.rebuild_draft()');
     expect(await dump('public')).toEqual(await dump('draft'));
   });
 
   it('only the versions the draft gives itself at each import are not changes', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await publish();
     await q(`update draft.notes set version = 9, version_at = now()`);
     await q(`update draft.quiz_questions set version = 7`);
@@ -634,11 +625,11 @@ describe('who reaches publishing', () => {
   });
 
   it('the log: newest first, and only the last one can be undone', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await publish();
     const p = changed();
     p.notes[1] = article('AP-BC-C2-09', BC, 'Procesamiento corregido', 2);
-    await save(draft, p);
+    await saveParts(draft, p);
     await publish({ title: 'Otra' });
     const log = (
       await service<{ r: { releases: Record<string, unknown>[] } }>(
@@ -655,7 +646,7 @@ describe('who reaches publishing', () => {
 
 describe('migrations, keys and tables that publishing has to handle', () => {
   it('undoing after a migration that changed the published tables is refused: its «before» would leave the new column empty', async () => {
-    await save(draft, changed());
+    await saveParts(draft, changed());
     const { id } = (await publish()) as { id: number };
     await db.exec(`alter table public.anki_notes add column reading text;
       update public.anki_notes set reading = 'lleno';
@@ -676,7 +667,7 @@ describe('migrations, keys and tables that publishing has to handle', () => {
     expect(await pending()).toEqual([]);
     await expect(publish()).rejects.toThrow(/publish_release: empty/);
     await q('select public.rebuild_draft()');
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await q(
       `update draft.content_meta set value = '[{"kind": "note", "id": "AP-BC-C2-99"}]' where key = 'unpublished'`,
     );
@@ -692,9 +683,9 @@ describe('migrations, keys and tables that publishing has to handle', () => {
     const old = p.notes[0]!;
     // The importer cannot do it in one import (save_notes before prune_content); in two, the draft has it.
     p.notes.splice(0, 1);
-    await save(draft, p);
+    await saveParts(draft, p);
     p.notes.unshift({ ...article('AP-BC-C2-08P', BC, 'Transcripción', 1), slug: old.slug });
-    await save(draft, p);
+    await saveParts(draft, p);
     const before = { public: await publicContent(), draft: await dump('draft') };
     const error = await publish().then(
       () => null,
@@ -709,9 +700,9 @@ describe('migrations, keys and tables that publishing has to handle', () => {
     await service(`select public.discard_draft_assessment($1)`, [BC]);
     const first = everything();
     first.notes.splice(0, 1);
-    await save(draft, first);
+    await saveParts(draft, first);
     await publish();
-    await save(draft, p);
+    await saveParts(draft, p);
     await publish();
     expect(await q(`select id from public.notes where slug = $1`, [old.slug])).toEqual([
       { id: 'AP-BC-C2-08P' },
@@ -764,7 +755,7 @@ describe('migrations, keys and tables that publishing has to handle', () => {
       update draft.courses set emoji = '🔬' where id = 'biologia-celular';
       select public.rebuild_draft();`);
     expect(await pending()).toEqual([]);
-    await save(draft, changed());
+    await saveParts(draft, changed());
     await db.exec('begin');
     await db.exec(`update public.courses set emoji = '🧬' where id = 'biologia-celular';
       update draft.courses set emoji = '🧬' where id = 'biologia-celular';`);

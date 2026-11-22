@@ -4,6 +4,7 @@ import type { PGlite } from '@electric-sql/pglite';
 import { dayOf } from '@qv/srs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
+import { usersDatabaseWith } from './helpers/users';
 
 const MIGRATION = '20261106000000_light_history.sql';
 const ANA = { sub: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.cl' };
@@ -45,14 +46,7 @@ function answer(noteGuid: string, extra: Record<string, unknown> = {}) {
   };
 }
 
-async function newDatabase() {
-  const db = await createDatabase('users');
-  await db.query('update public.access_settings set open_to_domain = true');
-  for (const u of [ANA, BETO]) {
-    await db.query(`insert into auth.users (id, email) values ($1, $2)`, [u.sub, u.email]);
-  }
-  return db;
-}
+const newDatabase = () => usersDatabaseWith([ANA, BETO]);
 
 describe('the migration, on a database with history', () => {
   let db: PGlite;

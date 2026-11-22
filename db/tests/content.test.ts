@@ -2,6 +2,7 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 let db: PGlite;
 
@@ -135,11 +136,7 @@ describe('access', () => {
 });
 
 describe('save_note and save_catalog', () => {
-  const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-    db.transaction(async (tx) => {
-      await tx.exec('set local role service_role');
-      return fn(tx);
-    });
+  const { asService } = queriesOn(() => db);
   const note = {
     id: 'AP-BC-C2-12',
     slug: '12-comunicacion-celular',

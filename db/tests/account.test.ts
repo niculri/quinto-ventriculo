@@ -4,6 +4,7 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { LEGAL_VERSIONS } from '@qv/schema';
 import { asUser, createDatabase } from './pglite';
+import { callAs } from './helpers/users';
 
 const ANA = { sub: '00000000-0000-4000-8000-0000000000d1', email: 'ana.perez@ug.uchile.cl' };
 const LUIS = { sub: '00000000-0000-4000-8000-0000000000d2', email: 'luis.soto@ug.uchile.cl' };
@@ -30,23 +31,20 @@ async function signIn(db: PGlite, user: { sub: string; email: string }): Promise
   return { ...user, session_id: session };
 }
 
-const one = async <T>(db: PGlite, claims: Claims | null, sql: string, params: unknown[] = []) =>
-  asUser(db, claims, async (tx) => (await tx.query<{ r: T }>(sql, params)).rows[0]!.r);
-
 const status = (db: PGlite, claims: Claims, versions: [string, string] | null = [TERMS, PRIVACY]) =>
-  one<string>(
+  callAs<string>(
     db,
     claims,
     versions ? 'select public.access_status($1, $2) as r' : 'select public.access_status() as r',
     versions ?? [],
   );
 const accept = (db: PGlite, claims: Claims, terms = TERMS, privacy = PRIVACY) =>
-  one<{ accepted_at: string }>(db, claims, 'select public.accept_legal($1, $2) as r', [
+  callAs<{ accepted_at: string }>(db, claims, 'select public.accept_legal($1, $2) as r', [
     terms,
     privacy,
   ]);
 const resume = (db: PGlite, claims: Claims, versions: [string, string] | null = [TERMS, PRIVACY]) =>
-  one<{
+  callAs<{
     accepted: { terms_version: string; privacy_version: string; accepted_at: string } | null;
     deletion_cancelled: boolean;
   }>(
@@ -56,7 +54,7 @@ const resume = (db: PGlite, claims: Claims, versions: [string, string] | null = 
     versions ?? [],
   );
 const exportData = (db: PGlite, claims: Claims) =>
-  one<{
+  callAs<{
     user_id: string;
     account: { email: string };
     identities: unknown[];
@@ -64,7 +62,7 @@ const exportData = (db: PGlite, claims: Claims) =>
     tables: Record<string, unknown[]>;
   }>(db, claims, 'select public.export_my_data() as r');
 const requestDeletion = (db: PGlite, claims: Claims, email: string) =>
-  one<{ delete_after: string; sessions_closed: number }>(
+  callAs<{ delete_after: string; sessions_closed: number }>(
     db,
     claims,
     'select public.request_account_deletion($1) as r',
@@ -516,7 +514,7 @@ describe('deleting my account', () => {
       { user_id: null, comment: 'La respuesta dice 70S y es 80S.' },
       { user_id: LUIS.sub, comment: 'La respuesta dice 70S y es 80S.' },
     ]);
-    const panel = await one<{ open: { reports: { reporter: { email: string } | null }[] }[] }>(
+    const panel = await callAs<{ open: { reports: { reporter: { email: string } | null }[] }[] }>(
       db,
       await signIn(db, OWNER),
       'select public.admin_report_queue() as r',

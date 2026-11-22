@@ -4,18 +4,15 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CloudTarget } from '@qv/importer';
 import type { MediaStore } from '@qv/importer';
-import { BC, bundleOf, everything, leafOf, serviceRpc } from './import-fixtures';
+import { BC, bundleOf, everything, leafOf, serviceRpc } from './helpers/import-fixtures';
 import { createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 let db: PGlite;
 const store: MediaStore = { has: async () => true, put: async () => {} };
 const target = new CloudTarget({ db: serviceRpc(() => db, []), store });
 
-const service = async <T = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return (await tx.query<T>(sql, params)).rows;
-  });
+const { service } = queriesOn(() => db);
 const takeOff = (kind: string, id: string, reason: string) =>
   service(`select public.unpublish_content($1, $2, $3, 'dueño', true)`, [kind, id, reason]);
 type Entries = {

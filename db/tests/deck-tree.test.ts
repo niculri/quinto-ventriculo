@@ -3,6 +3,7 @@
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { applyMigration, asUser, createDatabase } from './pglite';
+import { queriesOn } from './helpers/queries';
 
 const MIGRATION = '20261102000000_deck_tree.sql';
 const ANA = { sub: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.cl' };
@@ -17,11 +18,7 @@ const W = '() Medicina UCH::1° Semestre::🦴 Anatomía I::Certamen 1::S3 - Col
 
 let db: PGlite;
 
-const asService = <T>(fn: (tx: Pick<PGlite, 'query'>) => Promise<T>) =>
-  db.transaction(async (tx) => {
-    await tx.exec('set local role service_role');
-    return fn(tx);
-  });
+const { asService } = queriesOn(() => db);
 
 const noteType = {
   id: '1607392319',

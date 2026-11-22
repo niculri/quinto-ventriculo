@@ -7,18 +7,31 @@ import { timingFor } from '@qv/study';
 import { useNow } from '../../../shared/hooks/useNow';
 import { combineSearch } from '../model/search';
 import type { Combine } from '../model/search';
+import { tableData } from '../model/tableData';
 import type { TableSources } from '../model/tableData';
 import { useActionRunner } from './useActionRunner';
 import { useCardActions } from './useCardActions';
 import { useCardSearch } from './useCardSearch';
 import { useSelection } from './useSelection';
-import { useTableData } from './useTableData';
 import { useTableShortcuts } from './useTableShortcuts';
 import { useViewPrefs } from './useViewPrefs';
 import type { ViewPrefs } from './useViewPrefs';
 
 export function useCardTable(sources: TableSources) {
-  const data = useTableData(sources);
+  // Each source is read on its own: the data is built again only when one of them changes.
+  const { notes, noteTypes, authorPresets, tree, rows, prefs, presets, settings, draftOnly } =
+    sources;
+  const data = tableData({
+    notes,
+    noteTypes,
+    authorPresets,
+    tree,
+    rows,
+    prefs,
+    presets,
+    settings,
+    draftOnly,
+  });
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
   const full = data.prefs.fullAnki;

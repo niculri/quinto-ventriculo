@@ -1,7 +1,7 @@
 // The cards of «Practicar estas»: the list's, with the filters of the URL, fixed when they are first known (practicing
 // changes nothing of them).
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useNow } from '../../../shared/hooks/useNow';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
@@ -30,26 +30,23 @@ export function usePracticeCards(node: CourseDeckNode) {
   const text = useTextMatch(data, searchQuery(q, !!data?.prefs.fullAnki), tree);
   const day = useDayCards(scope, data, params.get('day'));
   const state = parseState(params.get('state'));
-  // By hand: the compiler leaves it without a cache.
-  const queue = useMemo(() => {
-    const failedCards = failedOf(day.value, failed.data);
-    if (!data || !scope || !failedCards || text.waiting || day.waiting) return null;
-    const unit = unitNode(scope.node, params.get('unit') ?? '');
-    const { matched } = applyFilters(data.notes, {
-      ...NO_FILTERS,
-      unitDecks: unitDeckIds(unit),
-      text: text.keys,
-      day: day.value?.keys ?? null,
-      failed: failedCards,
-      state,
-      origins: parseOrigins(params.get('origin')),
-      kind: parseKind(params.get('kind')),
-    });
-    return practiceCards(groupNotes(matched), state);
-  }, [data, scope, failed.data, text, day, state, params]);
-
   // The round starts from what the list had when it was opened: practicing changes nothing of it.
   const [first, setFirst] = useState<CardRef[] | null>(null);
-  if (first === null && queue) setFirst(queue);
+  if (first === null) {
+    const failedCards = failedOf(day.value, failed.data);
+    if (data && scope && failedCards && !text.waiting && !day.waiting) {
+      const { matched } = applyFilters(data.notes, {
+        ...NO_FILTERS,
+        unitDecks: unitDeckIds(unitNode(scope.node, params.get('unit') ?? '')),
+        text: text.keys,
+        day: day.value?.keys ?? null,
+        failed: failedCards,
+        state,
+        origins: parseOrigins(params.get('origin')),
+        kind: parseKind(params.get('kind')),
+      });
+      setFirst(practiceCards(groupNotes(matched), state));
+    }
+  }
   return { params, cards, first };
 }

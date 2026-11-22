@@ -1,6 +1,7 @@
 // A row of the cards table built by hand: a new basic card of note «n1» in deck «20», with what a test changes in the
 // patch (the note's fields go in `note`).
 import type { BrowseNote } from '@qv/schema';
+import { cardKey } from '@qv/study';
 import type { BrowseCard } from '../features/cards/model/browseCards';
 
 export function browseCard(
@@ -20,7 +21,7 @@ export function browseCard(
     ...notePatch,
   };
   return {
-    key: `${note.guid}/0`,
+    key: cardKey({ noteGuid: note.guid, ord: patch.ord ?? 0 }),
     note,
     noteType: undefined,
     kind: 'basic',

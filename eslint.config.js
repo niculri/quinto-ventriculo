@@ -296,6 +296,32 @@ export default tseslint.config(
     },
   },
   {
+    // What the importer decides and reads does not know where an import is written nor the command line.
+    files: [
+      'packages/importer/src/{bundle,decks,manifest,media,notes,policy,quizzes,sync,taxonomy}/**/*.ts',
+    ],
+    ignores: ['**/*.test.ts', '**/test/**'],
+    rules: {
+      'no-console': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@qv/web', '@qv/web/*', '@qv/api', '@qv/api/*', '**/apps/**'],
+              message: 'A package does not depend on an app.',
+            },
+            {
+              group: ['**/targets/*', '**/cli/*'],
+              message:
+                "The importer's decisions do not import where it writes (targets/) nor its command line (cli/).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: LEAF_PACKAGES.map((name) => `packages/${name}/src/**/*.ts`),
     rules: {
       'no-restricted-imports': [

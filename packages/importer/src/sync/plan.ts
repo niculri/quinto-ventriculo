@@ -2,7 +2,6 @@
 // what a scoped import must not change, which cards moved and which browser indexes to write or remove.
 import type { ContentBundle } from '@qv/schema';
 import { ImportError } from '../errors';
-import type { PackedIndex } from '../targets/browse-index';
 import { inScope } from './scope';
 import type { SaveScope } from './scope';
 
@@ -141,11 +140,11 @@ export function cardMoves(before: CardsOf, after: CardsOf): { moved: number; ret
 }
 
 /** The browser's indexes to write (their hash is not the saved one), those that are as saved, and those to remove. */
-export function planIndexes(
-  packed: readonly PackedIndex[],
+export function planIndexes<T extends { record: { assessmentId: string; hash: string } }>(
+  packed: readonly T[],
   known: ReadonlyMap<string, string>,
   scoped: readonly string[] | null,
-): { changed: PackedIndex[]; unchanged: number; remove: string[] } {
+): { changed: T[]; unchanged: number; remove: string[] } {
   const changed = packed.filter((p) => known.get(p.record.assessmentId) !== p.record.hash);
   const fresh = new Set(packed.map((p) => p.record.assessmentId));
   const remove = [...known.keys()].filter((a) => !fresh.has(a) && (!scoped || scoped.includes(a)));

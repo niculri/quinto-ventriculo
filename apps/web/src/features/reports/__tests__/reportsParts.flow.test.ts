@@ -1,6 +1,6 @@
 // Characterizes «Mis reportes» and the «Reportar error» popup: the empty list, each report's lines with their text
 // nodes, and what the popup says for each kind, while sending and on an error it does not know.
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/render';
@@ -149,6 +149,7 @@ describe('the «Reportar error» popup, opened again', () => {
     await user.type(within(dialog).getByLabelText('¿Qué está mal?'), '   ');
     expect(within(dialog).getByRole('button', { name: 'Enviar' })).toBeDisabled();
     await user.keyboard('{Enter}');
+    fireEvent.submit(within(dialog).getByLabelText('¿Qué está mal?').closest('form')!);
     expect(sent).toHaveLength(0);
     await user.type(within(dialog).getByLabelText('¿Qué está mal?'), 'una errata');
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
@@ -161,5 +162,63 @@ describe('the «Reportar error» popup, opened again', () => {
       within(dialog).getByRole('button', { name: 'Qué tipo de error: El dato está mal' }),
     ).toBeInTheDocument();
     expect(within(dialog).getByLabelText('¿Qué está mal?')).toHaveValue('');
+  });
+});
+
+describe('«Mis reportes»: the corners', () => {
+  it('a report without a page nor a code names its kind, without a link', async () => {
+    const reports = localReportsRepository({ admin: true });
+    await reports.send({
+      kind: 'quiz_question',
+      id: 'quiz/q-1',
+      code: null,
+      version: null,
+      location: {},
+      category: 'answer_key',
+      comment: 'La clave es otra',
+    });
+    renderApp('/settings/reports', { reports });
+    const item = (await screen.findByText('La clave es otra')).closest('li')!;
+    expect(within(item).queryByRole('link')).toBeNull();
+    expect(within(item).getAllByText('Pregunta de test')).not.toHaveLength(0);
+    expect(item.querySelector('.font-mono')).toBeNull();
+  });
+
+  it('when the list cannot be read, «Reintentar» asks again and shows it', async () => {
+    const inner = localReportsRepository({ admin: true });
+    await inner.send(noteReport('Otro dato'));
+    let fails = true;
+    const reports: ReportsRepository = {
+      ...inner,
+      mine: async () => {
+        if (fails) throw new Error('Sin conexión de prueba');
+        return inner.mine();
+      },
+    };
+    const user = userEvent.setup();
+    renderApp('/settings/reports', { reports });
+    const retry = await screen.findByRole('button', { name: 'Reintentar' });
+    expect(screen.queryByText('Otro dato')).toBeNull();
+    fails = false;
+    await user.click(retry);
+    expect(await main().findByText('Otro dato')).toBeInTheDocument();
+  });
+});
+
+describe('the «Reportar error» popup: closing', () => {
+  it('Escape closes it, and opening it again starts over', async () => {
+    const user = userEvent.setup();
+    renderApp(NOTE_PATH, { reports: localReportsRepository({ admin: true }) });
+    const open = await screen.findByRole('button', { name: 'Reportar un error en este apunte' });
+    await user.click(open);
+    const dialog = await screen.findByRole('dialog', { name: 'Reportar error' });
+    await user.type(within(dialog).getByLabelText('¿Qué está mal?'), 'a medias');
+    await user.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Reportar error' })).toBeNull(),
+    );
+    await user.click(open);
+    const again = await screen.findByRole('dialog', { name: 'Reportar error' });
+    expect(within(again).getByLabelText('¿Qué está mal?')).toHaveValue('');
   });
 });

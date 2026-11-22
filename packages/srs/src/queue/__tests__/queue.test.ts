@@ -527,3 +527,59 @@ describe('random sessions', () => {
     }
   }
 });
+
+describe('what the queue refuses and what an update that removed nothing restores', () => {
+  it('a root deck that is not among the decks cannot be studied', () => {
+    expect(() => buildQueue({ ...input([]), rootDeckId: 'missing' })).toThrow(
+      'Mazo missing no encontrado',
+    );
+  });
+
+  it('undoing an update that took nothing out only restores the cutoff and the learning count', () => {
+    const q = sample();
+    const moved = withCutoff(q, NOW + 4000);
+    const undone = undoIn(moved, {
+      removed: null,
+      fromLearning: null,
+      requeued: null,
+      snapshot: { cutoff: q.cutoff, learningCount: countsOf(q).learning },
+    });
+    expect(undone.cutoff).toBe(q.cutoff);
+    expect(countsOf(undone)).toEqual(countsOf(q));
+    expect(undone.main).toEqual(moved.main);
+  });
+
+  it('keeps the learning cards that come out of the main queue counted as learning when undone', () => {
+    const q = sample();
+    const none = { removed: null, fromLearning: null, requeued: null };
+    const day = { noteGuid: 'd', ord: 0, deckId: '1', kind: 'learning' as const };
+    const undone = undoIn(q, {
+      ...none,
+      removed: day,
+      snapshot: { cutoff: q.cutoff, learningCount: 2 },
+    });
+    expect(undone.main[0]).toEqual(day);
+    expect(countsOf(undone).learning).toBe(3);
+  });
+});
+
+describe('undoing a requeued card that is no longer in the learning list', () => {
+  it('leaves the learning list as it is and still restores the counts of the snapshot', () => {
+    const q = sample();
+    const ghost = {
+      noteGuid: 'ghost',
+      ord: 0,
+      deckId: '1',
+      kind: 'learning' as const,
+      due: NOW + 10,
+    };
+    const undone = undoIn(q, {
+      removed: null,
+      fromLearning: null,
+      requeued: ghost,
+      snapshot: { cutoff: q.cutoff, learningCount: 7 },
+    });
+    expect(undone.learning).toEqual(q.learning);
+    expect(countsOf(undone).learning).toBe(7);
+  });
+});

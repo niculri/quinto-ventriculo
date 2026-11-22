@@ -1,6 +1,6 @@
 // Tests the command line of `npm run import`: what it takes by default and what it refuses before building anything.
 import { describe, expect, it } from 'vitest';
-import { ImportError } from '../../errors';
+import { ImportError } from '../../ImportError';
 import { parseImportArgs } from '../importArgs';
 
 const usageError = (...args: string[]) => {

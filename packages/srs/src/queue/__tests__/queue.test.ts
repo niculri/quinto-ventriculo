@@ -23,7 +23,7 @@ import {
   withCutoff,
 } from '../queue';
 import type { QueueState, QueueUpdate } from '../queue';
-import { ReferenceStudyQueue } from './referenceQueue';
+import { ReferenceStudyQueue } from './ReferenceStudyQueue';
 
 const NOW = 1_800_000_000;
 const timing: SchedTiming = { now: NOW, today: 20_000, nextDayAt: NOW + 30_000 };

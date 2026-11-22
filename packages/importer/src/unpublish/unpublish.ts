@@ -1,6 +1,6 @@
 // Takes a piece off the site (`npm run unpublish`) and puts it back in the list of what can be published.
 import { thumbKeyOf } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { UnpublishedItem } from '../manifest/schemas';
 import { readUnpublished } from '../manifest/read';
 import { canonicalId } from './ids';

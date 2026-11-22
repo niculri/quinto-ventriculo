@@ -36,6 +36,7 @@ tester.run('qv/file-name', fileName, {
       code: 'export class A extends Error {}\nexport class B extends Error {}',
     },
     { filename: '/x/e2eBrowse.ts', code: 'export const a = 1;' },
+    { filename: '/x/paths.ts', code: 'export const OUTPUT = (n: string) => n;' },
     { filename: '/x/Panel.test.tsx', code: 'render(<Panel />);' },
     { filename: '/x/panelParts.flow.test.tsx', code: 'render(<Panel />);' },
     { filename: '/x/routes.contract.test.ts', code: 'it("a", () => {});' },

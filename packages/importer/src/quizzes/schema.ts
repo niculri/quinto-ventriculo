@@ -2,7 +2,7 @@
 // messages are the skill's own. `validateTest` reports every problem at once, as the skill's validation does.
 import { isAbsolute, relative, resolve } from 'node:path';
 import { z } from 'zod';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { FIGURE_REQUIRED, FigureSpec } from './chartSpecs';
 import { asText, textOk } from './inline';
 

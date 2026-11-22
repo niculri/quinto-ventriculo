@@ -12,7 +12,7 @@ import { validateReferences } from '../../manifest/references';
 import type { Manifest } from '../../manifest/schemas';
 import { processCardImage, processImage } from '../../media/images';
 import { packCardIndexes } from '../../targets/browseIndex';
-import { FolderTarget } from '../../targets/folder';
+import { FolderTarget } from '../../targets/FolderTarget';
 import { createRoot, manifest } from '../../test/importerFixtures';
 import { containerDeckId } from '../names';
 

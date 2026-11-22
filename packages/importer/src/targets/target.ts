@@ -1,6 +1,6 @@
 // What every place an import can be written to has in common.
 import type { ContentBundle } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { ProcessedImage } from '../media/images';
 import type { Report } from '../sync/report';
 import type { SaveScope } from '../sync/scope';

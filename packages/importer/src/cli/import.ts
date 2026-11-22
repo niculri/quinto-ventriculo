@@ -3,11 +3,11 @@
 import { resolve } from 'node:path';
 import { buildBundle } from '../bundle/build';
 import { sameUnpublished } from '../bundle/unpublished';
-import { ImportError } from '../errors';
-import { ImageCache } from '../media/cache';
+import { ImportError } from '../ImportError';
+import { ImageCache } from '../media/ImageCache';
 import { readManifest, readUnpublished } from '../manifest/read';
 import { contentFolder, requireContentFolder } from '../privateFolder';
-import { FolderTarget } from '../targets/folder';
+import { FolderTarget } from '../targets/FolderTarget';
 import { CloudTarget } from '../targets/cloud';
 import { cloudConfigFromEnv, draftReviewUrl } from '../targets/cloudConfig';
 import { contentDatabase } from '../targets/contentDatabase';

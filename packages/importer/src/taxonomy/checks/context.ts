@@ -1,7 +1,7 @@
 // What the checks of one assessment share: its tree and map, the notes it lists, and what they find.
 import type { ContentBundle, TaxonomyTopic, TaxonomyUnit } from '@qv/schema';
 import type { Manifest, NoteEntry } from '../../manifest/schemas';
-import { Problems } from '../problems';
+import { Problems } from '../Problems';
 import type { AssessmentTaxonomy } from '../types';
 
 export interface TaxonomyCheck {

@@ -23,7 +23,7 @@ import {
 } from '../../scheduler';
 import type { StudyData } from '../../scheduler';
 import { actionLabel, asNew, blankRow } from '../../session';
-import { ReferenceQueue } from './referenceQueue';
+import { ReferenceQueue } from './ReferenceQueue';
 import type { CongratsInfo, HideAction, Shown } from '../../session';
 import {
   CardChangedError,

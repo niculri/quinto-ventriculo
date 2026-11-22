@@ -3,7 +3,7 @@
 import { resolve } from 'node:path';
 import { parentDeckName, readApkgFile } from '@qv/anki-format';
 import { ROOT_DECK_NAME } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { containerDeckId, DEFAULT_PRESET, levelOf } from './names';
 import { newestNoteTypes } from './noteTypes';
 import { processPackage } from './package';

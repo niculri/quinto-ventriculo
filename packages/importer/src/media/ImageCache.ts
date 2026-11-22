@@ -2,7 +2,7 @@
 import { createHash } from 'node:crypto';
 import { appendFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { CONVERSION, EFFORT, MAX_WIDTH, QUALITY, convert, digestOf } from './images';
 import type { ImageDataProcessor, ImageProcessor, Prefix, ProcessedImage } from './images';
 

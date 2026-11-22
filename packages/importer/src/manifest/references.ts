@@ -1,5 +1,5 @@
 // Checks the references inside the content folder: the catalog's links, the notes, decks and tests that name each other.
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { defaultQuizId } from '../quizzes/ids';
 import type { Manifest, NotesManifest } from './schemas';
 

@@ -1,7 +1,7 @@
 // The committed versions of the content folder's files, read from git.
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { TaxonomyHistory } from './types';
 
 type Walk = Promise<Map<string, Set<string>>>;

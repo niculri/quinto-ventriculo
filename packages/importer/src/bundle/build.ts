@@ -3,7 +3,7 @@
 import type { ImportedAnkiNote, ImportedQuiz } from '@qv/schema';
 import { buildDecks } from '../decks/buildDecks';
 import type { DecksResult } from '../decks/types';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { processCardImage, processQuizImage } from '../media/images';
 import type { ProcessedImage } from '../media/images';
 import { buildNotes } from '../notes/buildNotes';

@@ -7,7 +7,7 @@
  */
 import type { MemoryState, NextStates } from './fsrs';
 import { withReviewFuzz } from './fuzz';
-import type { LearningSteps } from './steps';
+import type { LearningSteps } from './LearningSteps';
 
 interface NewState {
   kind: 'new';

@@ -28,7 +28,7 @@ import {
 import type { QueueCard, QueueDeck } from '..';
 import { intersperse } from '../queue/intersperse';
 import { leechThresholdMet } from '../states';
-import { LearningSteps } from '../steps';
+import { LearningSteps } from '../LearningSteps';
 import { answerButtonTime, answerButtonTimeCollapsible } from '../timespan';
 import { utcOffset } from '../timing';
 

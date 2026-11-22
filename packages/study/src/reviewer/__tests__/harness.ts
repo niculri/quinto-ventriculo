@@ -9,15 +9,15 @@ import type { CommandId } from '../commands';
 import { createStudyState, studyReducer } from '../reducer';
 import { answeredToday, canUndo, commandsNotIn, congrats, countsOf, hasSeen } from '../selectors';
 import type { SaveFailure, StudyAction, StudyState, Toast } from '../state';
-import { CommandSaver } from './commandSaver';
-import { FakeRepository } from './fakeRepository';
-import type { Failures } from './fakeRepository';
+import { CommandSaver } from './CommandSaver';
+import { FakeRepository } from './FakeRepository';
+import type { Failures } from './FakeRepository';
 import { deepFreeze } from './freeze';
 import { ASSESSMENT, L1, L2 } from './fixtures';
 import type { Scenario } from './fixtures';
 import { chooseStep } from './steps';
 import type { Step } from './steps';
-import { ReferenceStudySession } from './referenceSession';
+import { ReferenceStudySession } from './ReferenceStudySession';
 import { studyStrings } from './referenceSave';
 
 export interface Stats {

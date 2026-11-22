@@ -1,7 +1,7 @@
 // Stops the import if a published card or question has no unit or topic, or the map points to an inactive topic, a
 // missing section or an unpublished item. An assessment without a taxonomy skips these checks.
 import { assessmentFileName } from './files';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { createContext } from './checks/context';
 import type { TaxonomyCheck } from './checks/context';
 import { checkDecks } from './checks/decks';

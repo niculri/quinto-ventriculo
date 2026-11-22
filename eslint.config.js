@@ -9,6 +9,7 @@ import sonarjs from 'eslint-plugin-sonarjs';
 import tseslint from 'typescript-eslint';
 import { domainPackages } from './eslintDomainPackages.js';
 import { fileNames } from './eslintFileNames.js';
+import { LITERAL_TEXT } from './eslintLiteralText.js';
 import { webLayers } from './eslintWebLayers.js';
 
 // Files that the size and complexity rules do not apply to: tests, their fixtures and helpers, and scripts.
@@ -43,9 +44,17 @@ const PORTED_FROM_ANKI = [
   ...['cloze', 'filters', 'html', 'render', 'template'].map(
     (f) => `packages/anki-render/src/${f}.ts`,
   ),
-  ...['card', 'config', 'fsrs', 'fuzz', 'random', 'states', 'steps', 'timespan', 'timing'].map(
-    (f) => `packages/srs/src/${f}.ts`,
-  ),
+  ...[
+    'card',
+    'config',
+    'fsrs',
+    'fuzz',
+    'random',
+    'states',
+    'LearningSteps',
+    'timespan',
+    'timing',
+  ].map((f) => `packages/srs/src/${f}.ts`),
 ];
 const FIXED_TEXT_PAGES = [
   'apps/web/src/features/legal/pages/AboutPage.tsx',
@@ -54,31 +63,6 @@ const FIXED_TEXT_PAGES = [
   'apps/web/src/features/legal/pages/TermsPage.tsx',
   'apps/web/src/features/help/pages/HelpPage.tsx',
 ];
-
-// What qv/no-literal-text reads as text besides the HTML and ARIA text attributes: the text props of the web's
-// components (not `name`, which is also a form control's name), the props that take a list of texts (with the keys of
-// their items that are text), the functions whose arguments are all text, and those whose are never (keys, locales).
-const LITERAL_TEXT = {
-  componentTextProps: [
-    'againLabel',
-    'busyLabel',
-    'confirm',
-    'empty',
-    'heading',
-    'help',
-    'longest',
-    'message',
-    'sectionLabel',
-    'sectionName',
-    'text',
-    'unit',
-    'why',
-  ],
-  listProps: ['choices', 'columns', 'items', 'lines', 'options'],
-  textKeys: ['description', 'help', 'label', 'text', 'title'],
-  textFunctions: ['plural'],
-  ignoreFunctions: ['keys', 'shortcut', 'toLocaleString'],
-};
 
 // OTHER_FILES are linted only for their comments, with the qv/comments language.
 const CODE = ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'];

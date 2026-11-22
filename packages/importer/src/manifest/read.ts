@@ -3,7 +3,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { z } from 'zod';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { readTaxonomies } from '../taxonomy/read';
 import { validateReferences } from './references';
 import {

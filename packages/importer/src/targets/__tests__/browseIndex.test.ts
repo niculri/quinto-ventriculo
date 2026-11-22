@@ -11,7 +11,7 @@ import type { Manifest } from '../../manifest/schemas';
 import { THUMB_WIDTH, processCardImage, processImage } from '../../media/images';
 import { createRoot, manifest } from '../../test/importerFixtures';
 import { packCardIndexes } from '../browseIndex';
-import { FolderTarget } from '../folder';
+import { FolderTarget } from '../FolderTarget';
 
 let root: string;
 

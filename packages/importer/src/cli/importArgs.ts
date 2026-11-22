@@ -1,6 +1,6 @@
 // The command line of `npm run import`: its help and the options, checked before anything is built or written.
 import { parseArgs } from 'node:util';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { PRIVATE_FOLDER_NAME } from '../privateFolder';
 
 const TARGET_CLOUD_GONE =

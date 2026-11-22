@@ -3,11 +3,11 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { TaxonomyFile, TopicMapFile } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { assessmentFileName } from './files';
 import { gitHistory } from './gitHistory';
 import { historyFindings } from './historyRules';
-import { Problems } from './problems';
+import { Problems } from './Problems';
 import type { AssessmentTaxonomy, TaxonomyHistory } from './types';
 
 type Named = [file: string, data: { assessmentId: string }][];

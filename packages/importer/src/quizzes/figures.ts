@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { sanitizeSvg } from '@qv/html/sanitize';
 import type { QuizFigure } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { ProcessedImage } from '../media/images';
 import { drawChart } from './charts';
 import type { FigureSpec } from './chartSpecs';

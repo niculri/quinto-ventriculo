@@ -13,7 +13,7 @@ import { assessmentOf } from '../unpublish/ids';
 import { restore } from '../unpublish/list';
 import { unpublish } from '../unpublish/unpublish';
 import type { UnpublishOutcome } from '../unpublish/types';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { HELP, parseUnpublishArgs, pieceOf } from './unpublishArgs';
 import type { UnpublishArgs } from './unpublishArgs';
 

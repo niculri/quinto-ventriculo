@@ -7,7 +7,7 @@ import { buildBundle } from '../../bundle/build';
 import type { Manifest } from '../../manifest/schemas';
 import { processImage } from '../../media/images';
 import { createRoot, manifest, twoAssessments } from '../../test/importerFixtures';
-import { FolderTarget } from '../folder';
+import { FolderTarget } from '../FolderTarget';
 
 let root: string;
 

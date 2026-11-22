@@ -2,7 +2,7 @@
 export { buildBundle } from './bundle/build';
 export { hash } from './bundle/hash';
 export type { BuildOptions, BuildResult } from './bundle/types';
-export { FolderTarget } from './targets/folder';
+export { FolderTarget } from './targets/FolderTarget';
 export { CloudTarget, batches } from './targets/cloud';
 export { cardMoves } from './sync/plan';
 export type { Report } from './sync/report';
@@ -52,7 +52,7 @@ export {
   processImage,
   processQuizImage,
 } from './media/images';
-export { ImageCache } from './media/cache';
+export { ImageCache } from './media/ImageCache';
 export type { ProcessedImage, ImageProcessor, ImageDataProcessor } from './media/images';
 export { convertQuiz } from './quizzes/convert';
 export { defaultQuizId, questionId, stableQuestionId } from './quizzes/ids';
@@ -63,8 +63,8 @@ export { readManifest, readUnpublished } from './manifest/read';
 export { validateReferences } from './manifest/references';
 export { UnpublishedItem, UnpublishedList } from './manifest/schemas';
 export type { Manifest, ReadManifestOptions, UnpublishedKind } from './manifest/schemas';
-export { ImportError } from './errors';
-export type { ImportErrorKind } from './errors';
+export { ImportError } from './ImportError';
+export type { ImportErrorKind } from './ImportError';
 export {
   PRIVATE_FOLDER_NAME,
   contentFolder,

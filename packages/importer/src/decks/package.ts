@@ -7,7 +7,7 @@ import { sanitizeCard } from '@qv/html/sanitize';
 import { isImageOcclusion, noteSortText } from '@qv/anki-render';
 import { parseCardCode } from '@qv/schema';
 import type { ImportedAnkiCard } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { ProcessedImage } from '../media/images';
 import type { DecksManifest } from '../manifest/schemas';
 import { IMAIOS, noteNamesImaios } from '../policy/imaios';

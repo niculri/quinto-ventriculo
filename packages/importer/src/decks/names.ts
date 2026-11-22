@@ -2,7 +2,7 @@
 // importer creates because Anki exports none.
 import { createHash } from 'node:crypto';
 import type { AnkiDeckRecord } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 
 /** The preset Anki gives the decks it creates. */
 export const DEFAULT_PRESET = 'Default';

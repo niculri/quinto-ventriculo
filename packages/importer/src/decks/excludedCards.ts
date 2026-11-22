@@ -1,7 +1,7 @@
 // Reads the list of cards a deck leaves out of the site.
 import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 
 const ExcludedCards = z.object({
   cards: z.array(z.object({ guid: z.string().min(1), ord: z.number().int().min(0) })),

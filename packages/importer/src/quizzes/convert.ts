@@ -3,7 +3,7 @@
 import { resolve } from 'node:path';
 import { ImportedQuiz } from '@qv/schema';
 import type { Assessment, QuizTheme } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { ProcessedImage } from '../media/images';
 import type { QuizImageProcessor, QuizState } from './figures';
 import { where } from './figures';

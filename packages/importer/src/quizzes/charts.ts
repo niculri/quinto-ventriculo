@@ -8,7 +8,7 @@ import type {
   LinesSpec,
   ScatterSpec,
 } from './chartSpecs';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 
 type Maybe<T> = T | null | undefined;
 type Margin = { l: number; r: number; t: number; b: number };

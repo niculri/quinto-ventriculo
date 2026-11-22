@@ -1,6 +1,6 @@
 // Checks that each article's «Ponte a prueba» points to a section and topics its test has.
 import type { ImportedNote, ImportedQuiz } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 
 function problemsOf(n: ImportedNote, quizzes: readonly ImportedQuiz[]): string[] {
   const p = n.practice;

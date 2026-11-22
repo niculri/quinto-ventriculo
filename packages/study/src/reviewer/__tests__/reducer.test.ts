@@ -10,14 +10,14 @@ import { createStudyState, studyReducer } from '../reducer';
 import type { CommandId } from '../commands';
 import { commandsNotIn, countsOf, isDone } from '../selectors';
 import type { StudyAction, StudyState } from '../state';
-import { CommandSaver } from './commandSaver';
+import { CommandSaver } from './CommandSaver';
 import { deepFreeze } from './freeze';
 import { emptyStats, runDifferential } from './harness';
 import type { Stats } from './harness';
 import { SCENARIOS } from './scenarios';
-import { FakeRepository } from './fakeRepository';
-import type { Failures } from './fakeRepository';
-import { ReferenceStudySession } from './referenceSession';
+import { FakeRepository } from './FakeRepository';
+import type { Failures } from './FakeRepository';
+import { ReferenceStudySession } from './ReferenceStudySession';
 
 const SEEDS = 36;
 const STEPS = 100;

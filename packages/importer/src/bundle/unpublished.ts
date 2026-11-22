@@ -1,6 +1,6 @@
 // Applies `content/unpublished.json` to a bundle: what it lists is left out of every import.
 import type { ContentBundle } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { hash } from './hash';
 import type { ProcessedImage } from '../media/images';
 import type { UnpublishedItem } from '../manifest/schemas';

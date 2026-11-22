@@ -1,6 +1,6 @@
 // What an import covers: the assessments in scope, the kinds it brings and what content/unpublished.json leaves out.
 import type { Assessment } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { UnpublishedItem } from '../manifest/schemas';
 import type { BuildOptions } from './types';
 

@@ -1106,9 +1106,6 @@
   "db/scripts/dbTypes.ts": {
     "@typescript-eslint/restrict-template-expressions": {
       "count": 3
-    },
-    "qv/file-name": {
-      "count": 1
     }
   },
   "db/tests/__tests__/account.flow.test.ts": {
@@ -1236,26 +1233,6 @@
       "count": 1
     }
   },
-  "packages/importer/src/errors.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/importer/src/media/cache.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/importer/src/targets/folder.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/importer/src/taxonomy/problems.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "packages/notes-md/src/convert.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 2
@@ -1338,16 +1315,6 @@
       "count": 1
     }
   },
-  "packages/srs/src/queue/__tests__/referenceQueue.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/srs/src/steps.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
   "packages/study/src/congrats.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
@@ -1385,26 +1352,6 @@
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 1
-    }
-  },
-  "packages/study/src/reviewer/__tests__/commandSaver.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/study/src/reviewer/__tests__/fakeRepository.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/study/src/reviewer/__tests__/referenceQueue.ts": {
-    "qv/file-name": {
-      "count": 1
-    }
-  },
-  "packages/study/src/reviewer/__tests__/referenceSession.ts": {
-    "qv/file-name": {
       "count": 1
     }
   },

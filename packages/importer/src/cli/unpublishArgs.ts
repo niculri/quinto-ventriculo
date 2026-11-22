@@ -1,7 +1,7 @@
 // The command line of `npm run unpublish`: its help and the options.
 import { parseArgs } from 'node:util';
 import { UnpublishedKind } from '../manifest/schemas';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { PRIVATE_FOLDER_NAME } from '../privateFolder';
 
 export const HELP = `Saca del sitio un artículo, un mazo (con los de abajo), un test o una imagen, en segundos, sin

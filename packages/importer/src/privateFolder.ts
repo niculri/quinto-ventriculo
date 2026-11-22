@@ -1,7 +1,7 @@
 // Finds the private repository next to this one (its `content/` and the real-material checks) and the material folder.
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
-import { ImportError } from './errors';
+import { ImportError } from './ImportError';
 
 /** The private repository sits next to this one; the material itself is in the folder that contains both. */
 export const PRIVATE_FOLDER_NAME = 'quinto-ventriculo-privado';

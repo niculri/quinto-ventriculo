@@ -1,7 +1,7 @@
 // Reads a test folder as the skill's `cargar()` does: test.json and the question files of its sections.
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { asText } from './inline';
 import type { LoadedGroup } from './schema';
 

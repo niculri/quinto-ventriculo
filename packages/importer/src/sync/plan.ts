@@ -1,7 +1,7 @@
 // The decisions of a save that touch no disk or network, shared by the dry-run folder and the cloud: what changed,
 // what a scoped import must not change, which cards moved and which browser indexes to write or remove.
 import type { ContentBundle } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { inScope } from './scope';
 import type { SaveScope } from './scope';
 

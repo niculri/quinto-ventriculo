@@ -6,6 +6,8 @@ const EXTENSION = /\.(?:[cm]?[jt]s|tsx|jsx)$/;
 // The kinds of file whose stem is the name of what they test or describe, from the longest suffix to the shortest.
 const SUFFIXES = ['.flow.test', '.contract.test', '.test', '.spec', '.strings'];
 const PASCAL = /^[A-Z][A-Za-z0-9]*$/;
+// A component or class name has lowercase letters: an ALL_CAPS constant is not one even when it holds a function.
+const PASCAL_NAME = /^[A-Z](?=[A-Za-z0-9]*[a-z])[A-Za-z0-9]*$/;
 const HOOK = /^use[A-Z][A-Za-z0-9]*$/;
 const CAMEL = /^[a-z][A-Za-z0-9]*$/;
 
@@ -31,7 +33,7 @@ export function parseName(base) {
 function exportKind(name, declaration, containsJsx) {
   if (declaration.isClass) return 'class';
   if (HOOK.test(name)) return 'hook';
-  if (PASCAL.test(name) && (containsJsx || declaration.isFunction)) return 'component';
+  if (PASCAL_NAME.test(name) && (containsJsx || declaration.isFunction)) return 'component';
   return 'value';
 }
 

@@ -1,5 +1,5 @@
 // The settings of the cloud target, read from the environment.
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 
 export interface CloudConfig {
   contentUrl: string;

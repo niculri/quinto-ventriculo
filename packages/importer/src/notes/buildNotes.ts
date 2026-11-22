@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { convertNote, listImages } from '@qv/notes-md';
 import type { ResolvedImage } from '@qv/notes-md';
 import type { ImportedNote } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { hash } from '../bundle/hash';
 import type { BuildScope } from '../bundle/scope';
 import type { BuildOptions } from '../bundle/types';

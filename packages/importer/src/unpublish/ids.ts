@@ -1,5 +1,5 @@
 // The ids a piece goes by: the manifest's own for a note or a test, and the assessment it belongs to.
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import type { Manifest, UnpublishedKind } from '../manifest/schemas';
 import { defaultQuizId } from '../quizzes/ids';
 

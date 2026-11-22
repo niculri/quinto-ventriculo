@@ -17,7 +17,7 @@ import {
   nextStates,
 } from './states';
 import type { CardState, SchedulingStates } from './states';
-import { LearningSteps } from './steps';
+import { LearningSteps } from './LearningSteps';
 import type { SchedTiming } from './timing';
 
 /** Anki's card type. */

@@ -2,7 +2,7 @@
 // then only what changed, images first, removing only inside the imported assessments.
 import { CONTENT_SCHEMA_VERSION } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
-import { ImportError } from '../errors';
+import { ImportError } from '../ImportError';
 import { makeThumbnail } from '../media/images';
 import type { ProcessedImage } from '../media/images';
 import { partitionByHash, planIndexes, pruneKeep, sharedConflictError } from '../sync/plan';

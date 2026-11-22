@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readManifest, readUnpublished } from '../../manifest/read';
 import type { Manifest } from '../../manifest/schemas';
 import { processCardImage, processImage } from '../../media/images';
-import { FolderTarget } from '../../targets/folder';
+import { FolderTarget } from '../../targets/FolderTarget';
 import { PRIVATE, createRoot, manifest, privately } from '../../test/importerFixtures';
 import { buildBundle } from '../build';
 import { hash } from '../hash';

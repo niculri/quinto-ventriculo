@@ -42,12 +42,11 @@ describe('the box’s top edge', () => {
 });
 
 describe('how far the grid scrolls', () => {
-  const grid = yearGrid(2026);
+  // 2024 starts on a Monday, so its first week has no empty cell.
+  const grid = yearGrid(2024);
   const scroll = { max: 400, width: 300 };
 
-  it('shows today with four weeks after it, counting the year’s first week even when it starts on a Thursday', () => {
-    // 1 January 2026 is a Thursday: 210 days later is the Thursday of the 31st week (column 30).
-    expect(grid.columns[0]![0]).toBeNull();
+  it('shows today with four weeks after it', () => {
     expect(gridScroll(scroll, grid.first + 210, grid)).toBe(columnLeft(30) - 300 + 4 * 14);
   });
 

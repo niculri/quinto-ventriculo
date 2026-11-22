@@ -58,6 +58,11 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   (en `npm run check`, la CI y el `pre-push`) falla con una prueba que no lo cumple y no está en `.test-names.json`, con
   una entrada de esa lista que ya lo cumple o no existe, y si la lista se alargó respecto de `origin/main`; `npm run
   test-names:baseline` la rehace, para sacar las que ya lo cumplen.
+- **Foto del esquema:** `db/users/schema/` y `db/content/schema/` guardan lo que dejan las migraciones en `public`, un
+  archivo por función y por tabla agrupados por dominio. Se generan con `npm run db:schema` y
+  `db/tests/schema-snapshot-contract.test.ts` falla si una migración cambia algo y no se rehízo; un objeto nuevo se
+  ubica en `db/scripts/schema/domains.ts`. `npm run db:schema:compare -- <users|content> --url-env VARIABLE` compara una
+  base real (solo lectura, con `psql`) con la foto. Los helpers de las pruebas de la base están en `db/tests/helpers/`.
 - **El estudio es un reductor puro: la hora va en la acción.** `studyReducer` de `@qv/study` no llama a `Date.now()` ni a
   `setTimeout`: cada acción trae su `now`, y lo que hay que guardar sale como órdenes numeradas en su bandeja, que un
   efecto del hook pasa a la `SaveQueue`. La pantalla recibe datos y `dispatch`, nunca un objeto mutable que lea mientras

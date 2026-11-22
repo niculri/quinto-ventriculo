@@ -136,11 +136,8 @@ export const errors = {
       'invalidAnswerButton',
       `se esperaba un botón de respuesta del 1 al 4 en \`${context}\`, pero se encontró \`${provided}\`.`,
     ),
-  invalidRegex: (pattern: string, detail?: string) =>
-    fail(
-      'invalidRegex',
-      `la expresión regular \`${pattern}\` no es válida${detail ? ` (${detail})` : ''}.`,
-    ),
+  invalidRegex: (pattern: string, detail: string) =>
+    fail('invalidRegex', `la expresión regular \`${pattern}\` no es válida (${detail}).`),
   unsupported: (what: string) => fail('unsupported', `\`${what}\` no está disponible aquí.`),
   other: () => fail('other', 'revisa la búsqueda.'),
 };

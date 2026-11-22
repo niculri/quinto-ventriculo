@@ -228,11 +228,12 @@ export function parseF32(s: string): number | null {
 export function f32AsWritten(x: number): number {
   const f = Math.fround(x);
   if (!Number.isFinite(f) || f === 0) return f;
-  for (let p = 1; p <= 9; p++) {
+  for (let p = 1; p < 9; p++) {
     const n = Number(f.toPrecision(p));
     if (Math.fround(n) === f) return n;
   }
-  return f;
+  // Nine significant digits always tell one f32 from another.
+  return Number(f.toPrecision(9));
 }
 
 /** `i64 as u32` (wraps). */
@@ -515,6 +516,6 @@ export function rustRegex(pattern: string, shownAs = pattern): RegExp {
     const top = base ?? { i: false, m: false, s: false };
     return new RegExp(out, `u${top.i ? 'i' : ''}${top.m ? 'm' : ''}`);
   } catch (e) {
-    throw errors.invalidRegex(shownAs, e instanceof Error ? e.message : undefined);
+    throw errors.invalidRegex(shownAs, (e as Error).message);
   }
 }

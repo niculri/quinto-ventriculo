@@ -323,9 +323,6 @@
     }
   },
   "apps/web/src/features/catalog/model/scope.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "@typescript-eslint/prefer-optional-chain": {
       "count": 1
     }
@@ -461,20 +458,7 @@
     }
   },
   "apps/web/src/features/notes/model/articleHtml.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "@typescript-eslint/prefer-nullish-coalescing": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/notes/model/placeThumbs.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 3
-    }
-  },
-  "apps/web/src/features/notes/model/selection.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     }
   },
@@ -608,11 +592,6 @@
   },
   "apps/web/src/features/quiz/model/__tests__/html.test.ts": {
     "@typescript-eslint/no-unsafe-return": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/quiz/model/cover.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     }
   },

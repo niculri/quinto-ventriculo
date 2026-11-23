@@ -20,8 +20,19 @@ if [ "$(git config --bool --get qv.requirePrivate 2>/dev/null)" = "true" ]; then
   export QV_REQUIRE_PRIVATE=1
 fi
 
+# From a linked worktree the private repository is the neighbour of the main checkout, not of this folder.
+if [ -z "$QV_PRIVATE_DIR" ]; then
+  main_top=$(cd "$(git rev-parse --git-common-dir)/.." && pwd)
+  if [ "$main_top" != "$(pwd)" ] && [ -d "$main_top/../quinto-ventriculo-privado" ]; then
+    export QV_PRIVATE_DIR="$main_top/../quinto-ventriculo-privado"
+  fi
+fi
+
 # Every commit of the push (refs on the standard input) against the private repository's forbidden patterns, if any.
 node .githooks/forbidden.mjs "$1" || exit 1
+
+# git hands the hook its own repository through these; the tests run git in temporary folders and must not inherit them.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
 
 echo "pre-push: tipos, lint, supresiones, ciclos, nombres de pruebas, código sin uso, formato y Vitest (en una emergencia, git push --no-verify lo salta)…"
 fail() {

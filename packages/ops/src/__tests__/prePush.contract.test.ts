@@ -42,7 +42,9 @@ const npmCalls = () => {
   }
 };
 const privateList = (patterns: string) => {
-  mkdirSync(join(root, 'quinto-ventriculo-privado', 'tests'), { recursive: true });
+  mkdirSync(join(root, 'quinto-ventriculo-privado', 'tests'), {
+    recursive: true,
+  });
   writeFileSync(join(root, 'quinto-ventriculo-privado', 'tests', 'prohibidos.txt'), patterns);
 };
 
@@ -58,7 +60,7 @@ beforeEach(() => {
   chmodSync(join(code, '.githooks', 'pre-push'), 0o755);
   writeFileSync(
     join(root, 'bin', 'npm'),
-    `#!/bin/sh\necho "npm $* QV_REQUIRE_PRIVATE=\${QV_REQUIRE_PRIVATE:-}" >> "${npmLog}"\nexit 0\n`,
+    `#!/bin/sh\necho "npm $* QV_REQUIRE_PRIVATE=\${QV_REQUIRE_PRIVATE:-}" >> "${npmLog}"\necho "git-env GIT_DIR=\${GIT_DIR:-} GIT_INDEX_FILE=\${GIT_INDEX_FILE:-}" >> "${npmLog}"\nexit 0\n`,
   );
   chmodSync(join(root, 'bin', 'npm'), 0o755);
   // Without CI, where the hook does nothing, and without this computer's private repository.
@@ -89,6 +91,25 @@ describe('the pre-push hook', () => {
     expect(remoteHead()).toBe(git('rev-parse', 'HEAD').trim());
     expect(npmCalls()).toContain('npm test --silent QV_REQUIRE_PRIVATE=');
     expect(npmCalls().some((c) => c.endsWith('=1'))).toBe(false);
+  });
+
+  it('from a linked worktree the checks run without its git variables, so their own git never writes in it', () => {
+    commit('a.ts', 'export const a = 1;\n');
+    const tree = join(root, 'tree');
+    git('worktree', 'add', '-q', '-b', 'side', tree);
+    mkdirSync(join(tree, '.githooks'));
+    for (const f of ['pre-push', 'forbidden.mjs']) {
+      copyFileSync(join(code, '.githooks', f), join(tree, '.githooks', f));
+    }
+    chmodSync(join(tree, '.githooks', 'pre-push'), 0o755);
+    writeFileSync(join(tree, 'b.ts'), 'export const b = 1;\n');
+    run('git', ['add', '-A'], tree);
+    run('git', ['commit', '-q', '-m', 'side'], tree);
+    const r = run('git', ['push', 'origin', 'side'], tree);
+    expect(r.status, r.stderr).toBe(0);
+    const envLines = npmCalls().filter((c) => c.startsWith('git-env'));
+    expect(envLines.length).toBeGreaterThan(0);
+    expect(envLines.every((c) => c === 'git-env GIT_DIR= GIT_INDEX_FILE=')).toBe(true);
   });
 
   it('with qv.requirePrivate the checks run with QV_REQUIRE_PRIVATE=1', () => {

@@ -31,7 +31,7 @@ describe('storage_health()', () => {
     expect(signedIn.rows).toEqual([{ ok: expected }]);
   });
 
-  it('runs as its owner with an empty search path, and the limit is 60 % of 500 MB', async () => {
+  it('runs as the caller with an empty search path, and the limit is 60 % of 500 MB', async () => {
     const { rows } = await db.query<{
       definer: boolean;
       body: string;
@@ -49,7 +49,7 @@ describe('storage_health()', () => {
              ) as public_execute
       from pg_proc p where p.oid = 'public.storage_health()'::regprocedure`);
     expect(rows[0]).toMatchObject({
-      definer: true,
+      definer: false,
       config: ['search_path=""'],
       result: 'boolean',
       anon_execute: true,

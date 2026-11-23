@@ -3,7 +3,6 @@
 CREATE OR REPLACE FUNCTION public.storage_health()
  RETURNS boolean
  LANGUAGE sql
- SECURITY DEFINER
  SET search_path TO ''
 AS $function$
   select pg_catalog.pg_database_size(pg_catalog.current_database()) < 300000000

@@ -98,6 +98,23 @@ describe('what an answer or an action sends', () => {
     expect(ok(STUDY_RPC.undo_last_review.args, undefined)).toBe(true);
   });
 
+  it('undoing may say which action it expects, with the answer’s id or without it', () => {
+    const args = STUDY_RPC.undo_last_review.args;
+    expect(ok(args, { expected: { ...ref, action: 'answer', actionId: 'a' } })).toBe(true);
+    expect(ok(args, { expected: { ...ref, action: 'bury_note' } })).toBe(true);
+    expect(ok(args, { expected: { ...ref, action: 'other' } })).toBe(false);
+    expect(ok(args, { expected: ref })).toBe(false);
+  });
+
+  it('the preferences go as a patch, the lists as what they gain and lose, and come back whole', () => {
+    const { args, returns } = STUDY_RPC.save_study_preferences;
+    expect(ok(args, { p: {} })).toBe(true);
+    expect(ok(args, { p: { fullAnki: true, semester: null } })).toBe(true);
+    expect(ok(args, { p: { dismissed: { add: ['tip-search'], remove: [] } } })).toBe(true);
+    expect(ok(args, { p: { dismissed: ['tip-search'] } })).toBe(false);
+    expect(ok(returns, { fullAnki: true })).toBe(false);
+  });
+
   it('practice has a list of decks with counts, and answers whether it was capped', () => {
     expect(ok(STUDY_RPC.record_practice.args, { p: { decks: [{ deckId: '1', n: 5 }] } })).toBe(
       true,

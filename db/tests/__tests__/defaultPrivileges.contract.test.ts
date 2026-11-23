@@ -1,10 +1,16 @@
 // A function created after the default-privileges migration is not executable by anon, authenticated or public, and
 // the functions that already existed keep exactly the grants they had.
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase } from '../pglite';
 
 const MIGRATION = '20261124000000_default_privileges.sql';
+/** The database just after it: the later migrations add and change functions of their own. */
+const NEXT = readdirSync(join(import.meta.dirname, '../../users/supabase/migrations'))
+  .sort()
+  .find((f) => f > MIGRATION);
 
 let before: PGlite;
 let db: PGlite;
@@ -24,7 +30,7 @@ const grants = async (d: PGlite) =>
 
 beforeAll(async () => {
   before = await createDatabase('users', [], MIGRATION);
-  db = await createDatabase('users');
+  db = await createDatabase('users', [], NEXT);
 });
 
 afterAll(async () => {

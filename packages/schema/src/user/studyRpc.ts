@@ -11,8 +11,11 @@ import {
   HomeQueue,
   PracticeCount,
   QueueName,
+  PreferencesPatch,
   Rating,
   ReconcileResult,
+  StudyPreferences,
+  UndoExpected,
   UndoResult,
 } from './study';
 
@@ -90,7 +93,12 @@ export const STUDY_RPC = {
   unsuspend_cards: rpcContract(Cards, Changed),
   unbury_cards: rpcContract(Cards, Changed),
   forget_cards: rpcContract(Cards.extend({ reset_counts: z.boolean().optional() }), Changed),
-  undo_last_review: rpcContract(NoArgs, UndoResult.nullable()),
+  // Without `expected` (the card browser) it undoes the last action; with it, only that one.
+  undo_last_review: rpcContract(
+    NoArgs.or(z.object({ expected: UndoExpected })),
+    UndoResult.nullable(),
+  ),
+  save_study_preferences: rpcContract(z.object({ p: PreferencesPatch }), StudyPreferences),
   reconcile_cards: rpcContract(
     z.object({
       p: z.object({ since: z.number(), upTo: z.number(), changes: z.array(CardChange) }),

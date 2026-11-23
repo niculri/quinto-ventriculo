@@ -86,6 +86,11 @@ describe('last_seen_at in access_report', () => {
     expect(instant((await seen(STRAY.email)).last_seen_at)).toBe(instant(SIGNED_IN));
   });
 
+  it('signing out deletes the sessions, so it goes back to the last sign-in', async () => {
+    await db.query('delete from auth.sessions where user_id = $1', [FRIEND.sub]);
+    expect(instant((await seen(FRIEND.email)).last_seen_at)).toBe(instant(SIGNED_IN));
+  });
+
   it('an invitation without an account has neither', async () => {
     const none = await seen('sin.cuenta@ug.uchile.cl');
     expect([none.last_sign_in_at, none.last_seen_at]).toEqual([null, null]);

@@ -1,6 +1,6 @@
 // Tests for the health checks of the users' and the content databases, with made-up URLs and keys.
 import { describe, expect, it } from 'vitest';
-import { authCheck, contentDatabaseCheck, usersDatabaseCheck } from '../health';
+import { authCheck, contentDatabaseCheck, usersDatabaseCheck, usersStorageCheck } from '../health';
 
 const USERS = 'https://users.example.supabase.co';
 const CONTENT = 'https://content.example.supabase.co';
@@ -33,6 +33,30 @@ describe('the database checks of the Worker', () => {
       usersDatabaseCheck(USERS, 'sb_publishable_x', fake(404, { message: 'no' }))(signal),
     ).rejects.toThrow();
     await expect(usersDatabaseCheck(USERS, undefined, fake(200, true))(signal)).rejects.toThrow();
+  });
+
+  it('users storage: storage_health() with the public key, and «false» is the database over 60 %', async () => {
+    const urls: string[] = [];
+    const fake = (status: number, body: unknown) =>
+      (async (url: string) => {
+        urls.push(url);
+        return answer(status, body);
+      }) as unknown as typeof fetch;
+    await usersStorageCheck(USERS, 'sb_publishable_x', fake(200, true))(signal);
+    expect(urls).toEqual([`${USERS}/rest/v1/rpc/storage_health`]);
+    await expect(
+      usersStorageCheck(USERS, 'sb_publishable_x', fake(200, false))(signal),
+    ).rejects.toThrow('over 60 % of its 500 MB');
+    await expect(
+      usersStorageCheck(USERS, 'sb_publishable_x', fake(200, 'true'))(signal),
+    ).rejects.toThrow('unexpected answer');
+    // Before its migration the function does not exist: the check fails, and says so.
+    await expect(
+      usersStorageCheck(USERS, 'sb_publishable_x', fake(404, { code: 'PGRST202' }))(signal),
+    ).rejects.toThrow('storage_health(): 404');
+    await expect(usersStorageCheck(USERS, undefined, fake(200, true))(signal)).rejects.toThrow(
+      'PUBLISHABLE_KEY',
+    );
   });
 
   it('auth: GET /auth/v1/health', async () => {

@@ -65,6 +65,9 @@ export {
   UsageOpenRequest,
   UsageOpens,
   UsageReport,
+  WORKER_DAILY_REQUESTS,
+  WORKER_REQUEST_DAYS,
+  WorkerRequestDay,
 } from './usage';
 export type {
   AdminUsageFigures,

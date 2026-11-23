@@ -5,6 +5,7 @@ export const ErrorCode = z.enum([
   'internal',
   'not_found',
   'unauthenticated',
+  'rate_limited',
   'terms_not_accepted',
   'not_invited',
   'access_unavailable',

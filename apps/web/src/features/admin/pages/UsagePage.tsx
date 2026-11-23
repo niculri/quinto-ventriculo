@@ -7,6 +7,7 @@ import { ClientErrors } from '../components/usage/ClientErrors';
 import { UsageChart } from '../components/usage/UsageChart';
 import { DetailsLoading, UsageDetails } from '../components/usage/UsageDetails';
 import { UsageSummary } from '../components/usage/UsageSummary';
+import { WorkerRequests } from '../components/usage/WorkerRequests';
 import { useUsageReport } from '../hooks/useUsageReport';
 import { usagePageStrings as s } from './strings/UsagePage.strings';
 
@@ -46,6 +47,7 @@ export function UsagePage() {
             <>
               <UsageDetails report={data.usage} catalog={data.catalog} />
               <ClientErrors report={data.usage} />
+              <WorkerRequests report={data.usage} />
             </>
           ) : (
             <DetailsLoading />

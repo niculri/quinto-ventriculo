@@ -10,6 +10,7 @@ import type {
   UsageFigures,
   UsageOpenFigures,
   UsageOpens,
+  WorkerRequestDay,
 } from '@qv/schema';
 import type { OpenCounts, UsageGroups } from '../ports/usage';
 
@@ -167,7 +168,10 @@ export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens
 export function usageReport(
   stats: unknown,
   opens: { status: 'ok'; counts: OpenCounts } | { status: 'not_configured' | 'unavailable' },
-  clientErrors: ClientErrorGroup[] | null = null,
+  extra: {
+    clientErrors?: ClientErrorGroup[] | null;
+    workerRequests?: WorkerRequestDay[] | null;
+  } = {},
 ): UsageReport {
   const raw = AdminUsageRow.parse(stats);
   return UsageReport.parse({
@@ -209,6 +213,7 @@ export function usageReport(
     },
     opens: opens.status === 'ok' ? opensFigures(opens.counts, raw) : null,
     opensStatus: opens.status,
-    clientErrors,
+    clientErrors: extra.clientErrors ?? null,
+    workerRequests: extra.workerRequests ?? null,
   });
 }

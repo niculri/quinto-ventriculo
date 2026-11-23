@@ -59,6 +59,7 @@ async function answer(input: RequestInfo | URL, init?: RequestInit) {
       {
         access_status: 'allowed',
         health: true,
+        storage_health: true,
         admin_usage: row(),
         is_admin: email.includes(ADMIN),
       }[fn] ?? null,
@@ -78,8 +79,30 @@ async function answer(input: RequestInfo | URL, init?: RequestInit) {
     if (fn === 'release_log') return json({ releases: [] });
     return json(pathname.startsWith('/rest/v1/rpc/') && !fn.startsWith('anki_') ? null : []);
   }
+  if (request.url === 'https://api.cloudflare.com/client/v4/graphql') {
+    const day = new Date().toISOString().slice(0, 10);
+    return json({
+      data: {
+        viewer: {
+          accounts: [
+            {
+              workersInvocationsAdaptive: [{ sum: { requests: 1234 }, dimensions: { date: day } }],
+            },
+          ],
+        },
+      },
+    });
+  }
   return json({ data: [] });
 }
+
+/** A rate limiting binding that refuses every key listed in `refused`, as the runtime's would once it is used up. */
+const limiter = (seen: string[], refused: Set<string>) => ({
+  limit: async ({ key }: { key: string }) => {
+    seen.push(key);
+    return { success: !refused.has(key) };
+  },
+});
 
 const bucket = () => ({
   get: async () => null,
@@ -107,6 +130,7 @@ async function workerWith(without: (keyof Env)[] = []) {
     default: { match: async () => undefined, put: async () => undefined },
   });
   const points: { indexes?: string[]; blobs?: string[] }[] = [];
+  const limited = { student: [] as string[], address: [] as string[], refused: new Set<string>() };
   const full: Record<string, unknown> = {
     ASSETS: { fetch: async () => new Response('<!doctype html>') },
     MEDIA: bucket(),
@@ -121,6 +145,8 @@ async function workerWith(without: (keyof Env)[] = []) {
     USAGE: { writeDataPoint: (p: (typeof points)[number]) => points.push(p) },
     CF_ACCOUNT_ID: 'cuenta',
     CF_ANALYTICS_TOKEN: 'token',
+    STUDENT_RATE_LIMIT: limiter(limited.student, limited.refused),
+    ADDRESS_RATE_LIMIT: limiter(limited.address, limited.refused),
   };
   const env = Object.fromEntries(
     Object.entries(full).filter(([key]) => !(without as string[]).includes(key)),
@@ -138,7 +164,7 @@ async function workerWith(without: (keyof Env)[] = []) {
       ctx,
     );
   };
-  return { call, points };
+  return { call, points, limited };
 }
 
 afterEach(() => {
@@ -157,19 +183,49 @@ describe('worker composition', () => {
     }
   });
 
-  it('the version, the deep health with its five checks, and the usage report with its two readers', async () => {
+  it('the version, the deep health with its six checks, and the usage report with its three readers', async () => {
     const { call } = await workerWith();
     expect(await (await call('/api/health', null)).json()).toEqual({
       ok: true,
       version: 'version-1',
     });
     const deep = await (await call('/api/health/deep', null)).json<{ checks: object }>();
-    expect(Object.keys(deep.checks)).toEqual(['auth', 'backups', 'content', 'media', 'users']);
+    expect(deep.checks).toEqual({
+      auth: 'ok',
+      backups: 'ok',
+      content: 'ok',
+      media: 'ok',
+      users: 'ok',
+      usersStorage: 'ok',
+    });
     const usage = await (await call('/api/admin/usage', ADMIN)).json<{
       opensStatus: string;
       clientErrors: unknown[] | null;
+      workerRequests: { requests: number }[] | null;
     }>();
     expect([usage.opensStatus, Array.isArray(usage.clientErrors)]).toEqual(['ok', true]);
+    expect(usage.workerRequests?.map((d) => d.requests).at(-1)).toBe(1234);
+    const bare = await workerWith(['CF_ANALYTICS_TOKEN']);
+    const without = await (await bare.call('/api/admin/usage', ADMIN)).json<{
+      workerRequests: unknown;
+    }>();
+    expect(without.workerRequests).toBeNull();
+  });
+
+  it('the two rate limits: by student with a session, by address without one, and 429 once used up', async () => {
+    const { call, limited } = await workerWith();
+    expect((await call('/api/me', STUDENT)).status).toBe(200);
+    expect((await call('/api/health', null)).status).toBe(200);
+    expect(limited.student).toEqual(['00000000-0000-4000-8000-000000000001']);
+    expect(limited.address).toEqual(['unknown']);
+    limited.refused.add('00000000-0000-4000-8000-000000000001');
+    const refused = await call('/api/me', STUDENT);
+    expect([refused.status, refused.headers.get('Retry-After')]).toEqual([429, '10']);
+    limited.refused.add('unknown');
+    expect((await call('/api/health', null)).status).toBe(429);
+    const free = await workerWith(['STUDENT_RATE_LIMIT', 'ADDRESS_RATE_LIMIT']);
+    free.limited.refused.add('unknown');
+    expect((await free.call('/api/health', null)).status).toBe(200);
   });
 
   it('an open and a browser error are counted in the binding, and only then', async () => {

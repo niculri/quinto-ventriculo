@@ -10,6 +10,8 @@ import type { ContentRepository } from './ports/content';
 import { NO_DEEP_HEALTH } from './ports/health';
 import type { DeepHealth } from './ports/health';
 import type { MediaStore } from './ports/media';
+import { NO_RATE_LIMIT } from './ports/rateLimit';
+import type { RateLimiter } from './ports/rateLimit';
 import { NO_RELEASES } from './ports/releases';
 import type { ReleaseRepository } from './ports/releases';
 import type { SessionVerifier } from './ports/session';
@@ -17,8 +19,13 @@ import { NO_SETTINGS_REPOSITORY } from './ports/settings';
 import type { SiteSettingsRepository } from './ports/settings';
 import { NO_UNPUBLISHED } from './ports/unpublished';
 import type { UnpublishedRepository } from './ports/unpublished';
-import { NO_USAGE_EVENTS, NO_USAGE_OPENS, NO_USAGE_STATS } from './ports/usage';
-import type { UsageOpensReader, UsageRecorder, UsageStatsSource } from './ports/usage';
+import { NO_USAGE_EVENTS, NO_USAGE_OPENS, NO_USAGE_STATS, NO_WORKER_REQUESTS } from './ports/usage';
+import type {
+  UsageOpensReader,
+  UsageRecorder,
+  UsageStatsSource,
+  WorkerRequestsReader,
+} from './ports/usage';
 import type { MediaSigner } from './services/mediaSigner';
 
 export interface AppOptions {
@@ -44,7 +51,12 @@ export interface AppOptions {
   settingsTtl?: number;
   clientErrors?: ClientErrorRecorder;
   clientErrorsReader?: ClientErrorsReader | null;
+  workerRequests?: WorkerRequestsReader | null;
   deepHealth?: DeepHealth;
+  /** Keyed by the student's id, on every route with a session. */
+  studentRateLimit?: RateLimiter;
+  /** Keyed by the visitor's address, on what comes without a session. */
+  addressRateLimit?: RateLimiter;
 }
 
 /** Which of the optional parts were given: a null implementation stands for the rest. */
@@ -56,6 +68,7 @@ interface Configured {
   usageOpens: boolean;
   usageEvents: boolean;
   clientErrorsReader: boolean;
+  workerRequests: boolean;
   deepHealth: boolean;
 }
 
@@ -79,7 +92,10 @@ export interface Dependencies {
   settingsTtl: number;
   clientErrors: ClientErrorRecorder;
   clientErrorsReader: ClientErrorsReader;
+  workerRequests: WorkerRequestsReader;
   deepHealth: DeepHealth;
+  studentRateLimit: RateLimiter;
+  addressRateLimit: RateLimiter;
   configured: Configured;
 }
 
@@ -104,7 +120,10 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     settingsTtl: options.settingsTtl ?? 3000,
     clientErrors: options.clientErrors ?? NO_CLIENT_ERRORS,
     clientErrorsReader: options.clientErrorsReader ?? NO_CLIENT_ERRORS_READER,
+    workerRequests: options.workerRequests ?? NO_WORKER_REQUESTS,
     deepHealth: options.deepHealth ?? NO_DEEP_HEALTH,
+    studentRateLimit: options.studentRateLimit ?? NO_RATE_LIMIT,
+    addressRateLimit: options.addressRateLimit ?? NO_RATE_LIMIT,
     configured: {
       releases: !!options.releases,
       settings: !!options.settings,
@@ -113,6 +132,7 @@ export function resolveDependencies(options: AppOptions): Dependencies {
       usageOpens: !!options.usageOpens,
       usageEvents: !!options.usageEvents,
       clientErrorsReader: !!options.clientErrorsReader,
+      workerRequests: !!options.workerRequests,
       deepHealth: !!options.deepHealth,
     },
   };

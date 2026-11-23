@@ -27,6 +27,22 @@
     { "binding": "BACKUPS", "bucket_name": "quinto-ventriculo-backups" },
   ],
   "analytics_engine_datasets": [{ "binding": "USAGE", "dataset": "qv_usage" }],
+  // Per Cloudflare location and approximate. The window (10 s) is RATE_LIMIT_PERIOD of src/ports/rateLimit.ts; the
+  // namespace ids only have to be unique in the account.
+  "ratelimits": [
+    // Per student: 60 in 10 s is six requests a second, many times what studying as fast as one can asks.
+    {
+      "name": "STUDENT_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": { "limit": 60, "period": 10 },
+    },
+    // Per address, only without a session (above all the images): a classroom behind one address fits; a flood does not.
+    {
+      "name": "ADDRESS_RATE_LIMIT",
+      "namespace_id": "1002",
+      "simple": { "limit": 1000, "period": 10 },
+    },
+  ],
   "vars": {
     "USERS_SUPABASE_URL": "https://nepxecanupunoezfblon.supabase.co",
     "CONTENT_SUPABASE_URL": "https://digqrtjqzdqlgjscnznj.supabase.co",

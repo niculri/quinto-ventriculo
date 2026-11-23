@@ -28,6 +28,9 @@ describe('the site client', () => {
     ['a 500, the third time', new ApiRequestError(500, 'unknown', 'x'), 2, false],
     ['no connection', new ApiRequestError(0, 'offline', 'x'), 1, true],
     ['a 400', new ApiRequestError(400, 'bad_request', 'x'), 0, false],
+    ['a 429, the first time', new ApiRequestError(429, 'rate_limited', 'x', 10), 0, true],
+    ['a 429, the second time', new ApiRequestError(429, 'rate_limited', 'x', 10), 1, true],
+    ['a 429, the third time', new ApiRequestError(429, 'rate_limited', 'x', 10), 2, false],
     ['another error', new Error('boom'), 0, true],
   ])('a read that failed with %s is retried: %s', (_case, error, attempts, retried) => {
     const retry = createQueryClient().getDefaultOptions().queries?.retry as (
@@ -35,6 +38,20 @@ describe('the site client', () => {
       error: Error,
     ) => boolean;
     expect(retry(attempts, error)).toBe(retried);
+  });
+
+  it.each([
+    ['a 429 waits what it asks for', new ApiRequestError(429, 'rate_limited', 'x', 10), 1, 10_000],
+    ['up to half a minute', new ApiRequestError(429, 'rate_limited', 'x', 600), 1, 30_000],
+    ['or 10 s without saying', new ApiRequestError(429, 'rate_limited', 'x'), 1, 10_000],
+    ['anything else backs off', new ApiRequestError(500, 'internal', 'x'), 1, 2_000],
+    ['up to half a minute too', new Error('boom'), 9, 30_000],
+  ])('the wait before retrying: %s', (_case, error, attempt, ms) => {
+    const delay = createQueryClient().getDefaultOptions().queries?.retryDelay as (
+      attempt: number,
+      error: Error,
+    ) => number;
+    expect(delay(attempt, error)).toBe(ms);
   });
 
   it('sends a write at once and shows its failure when there is no connection', async () => {

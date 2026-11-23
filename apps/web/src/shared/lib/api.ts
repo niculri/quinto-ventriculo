@@ -39,10 +39,12 @@ import type {
 import { apiStrings } from './strings/api.strings';
 
 export class ApiRequestError extends Error {
+  /** `retryAfter`: the seconds a 429 asks to wait (its `Retry-After`), null for any other answer. */
   constructor(
     readonly status: number,
     readonly code: string,
     message: string,
+    readonly retryAfter: number | null = null,
   ) {
     super(message);
     this.name = 'ApiRequestError';
@@ -87,6 +89,11 @@ function fetchInit(
   };
 }
 
+/** `Retry-After` in seconds; the date form and anything else count as unknown. */
+function retryAfterSeconds(header: string | null): number | null {
+  return header && /^\d{1,6}$/.test(header) ? Number(header) : null;
+}
+
 function requester(getToken: GetToken, base: string, headers: Record<string, string>) {
   return async function request<T>(
     path: string,
@@ -109,6 +116,7 @@ function requester(getToken: GetToken, base: string, headers: Record<string, str
         r.status,
         e.success ? e.data.error : 'unknown',
         e.success ? e.data.message : apiStrings.errors.server,
+        r.status === 429 ? retryAfterSeconds(r.headers.get('Retry-After')) : null,
       );
     }
     return schema.parse(body);

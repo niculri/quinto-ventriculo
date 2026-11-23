@@ -59,6 +59,7 @@ const REPORT: UsageReport = {
   opens: null,
   opensStatus: 'not_configured',
   clientErrors: null,
+  workerRequests: null,
 };
 
 describe('«Uso»', () => {
@@ -271,6 +272,30 @@ describe('«Uso»', () => {
     const item = within(section).getByRole('listitem');
     expect(item.querySelectorAll('p')).toHaveLength(1);
     expect(item).toHaveTextContent('/home · versión v1');
+  });
+
+  it('«Pedidos al Worker» shows each UTC day against the 100.000, today first, and marks the days near it', async () => {
+    const days = Array.from({ length: 14 }, (_, i) => ({
+      day: `2026-11-${String(10 + i).padStart(2, '0')}`,
+      requests: i === 13 ? 85_000 : i === 12 ? 120 : 0,
+    }));
+    const view = renderApp('/admin/usage', {
+      admin: admin(),
+      api: fakeApi({ usage: async () => ({ ...REPORT, workerRequests: days }) }),
+    });
+    const table = await screen.findByRole('table', { name: 'Pedidos al Worker' });
+    const rows = within(table).getAllByRole('row').slice(1);
+    expect(rows).toHaveLength(14);
+    expect(rows[0]!.textContent).toBe('Hoy, hasta ahora85.00085 %');
+    expect(within(rows[0]!).getAllByRole('cell')[1]).toHaveClass('font-semibold');
+    expect(rows[1]!.textContent).toBe('dom, 22 nov120menos de 1 %');
+    expect(within(rows[1]!).getAllByRole('cell')[1]).not.toHaveClass('font-semibold');
+    expect(rows[13]!.textContent).toBe('mar, 10 nov00 %');
+    view.unmount();
+    renderApp('/admin/usage', { admin: admin(), api: fakeApi({ usage: async () => REPORT }) });
+    expect(
+      await screen.findByText('No se pudieron leer los pedidos. Intenta de nuevo en un rato.'),
+    ).toBeInTheDocument();
   });
 
   it('when the report or the catalog does not come, «Reintentar» asks for both again', async () => {

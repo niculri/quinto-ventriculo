@@ -1,5 +1,6 @@
-// What the API counts of how the site is used: opens and searches as anonymous points, and the users' database figures.
-import type { SearchContext, UsageEventKind } from '@qv/schema';
+// What the API counts of how the site is used: opens and searches as anonymous points, the users' database figures and
+// the Worker's own requests against the free plan's daily limit.
+import type { SearchContext, UsageEventKind, WorkerRequestDay } from '@qv/schema';
 
 export interface UsageEvent {
   kind: UsageEventKind;
@@ -34,6 +35,15 @@ export type UsageGroups = {
 export interface UsageStatsSource {
   stats(token: string, groups: UsageGroups): Promise<unknown>;
 }
+
+/** The Worker's requests of the last days, by UTC day: what Cloudflare counts against the free plan's limit. */
+export interface WorkerRequestsReader {
+  read(): Promise<WorkerRequestDay[]>;
+}
+
+export const NO_WORKER_REQUESTS: WorkerRequestsReader = {
+  read: () => Promise.reject(new Error('The Worker requests are not configured')),
+};
 
 export const NO_USAGE_EVENTS: UsageRecorder = {
   record: () => undefined,

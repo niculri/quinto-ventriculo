@@ -6,7 +6,7 @@ import type { Guard } from './guard';
 
 export const UNAUTHENTICATED_MESSAGE = 'Entra con tu cuenta @ug.uchile.cl para ver esto.';
 
-function tokenFromHeader(header: string | undefined | null): string | null {
+export function tokenFromHeader(header: string | undefined | null): string | null {
   const token = BearerToken.safeParse(header);
   return token.success ? token.data : null;
 }

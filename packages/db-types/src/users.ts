@@ -984,6 +984,7 @@ export type Database = {
       set_flags: { Args: { cards: Json; flag: number }; Returns: number }
       site_day: { Args: { t: string }; Returns: string }
       site_day_start: { Args: { d: string }; Returns: string }
+      storage_health: { Args: never; Returns: boolean }
       study_day_of: { Args: { p_at: string; p_user: string }; Returns: string }
       study_day_of_start: {
         Args: { p_at: string; p_user: string }

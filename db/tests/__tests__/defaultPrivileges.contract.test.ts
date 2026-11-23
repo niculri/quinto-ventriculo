@@ -35,7 +35,9 @@ describe('default privileges of new functions in public', () => {
   it('the functions that already existed keep the grants they had', async () => {
     const [was, is] = [await grants(before), await grants(db)];
     expect(was.length).toBeGreaterThan(10);
-    expect(is).toEqual(was);
+    // A later migration adds functions with grants of its own: only the ones that were there are compared.
+    const existed = new Set(was.map((g) => g.fn));
+    expect(is.filter((g) => existed.has(g.fn))).toEqual(was);
   });
 
   it('a function created afterwards is executable by neither anon, authenticated nor public', async () => {

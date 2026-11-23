@@ -36,7 +36,7 @@ const USERS: Record<string, Domain> = {
   },
   admin: {
     function:
-      'admin_deck_impact admin_usage health site_day site_day_start usage_figure usage_students',
+      'admin_deck_impact admin_usage health site_day site_day_start storage_health usage_figure usage_students',
   },
 };
 

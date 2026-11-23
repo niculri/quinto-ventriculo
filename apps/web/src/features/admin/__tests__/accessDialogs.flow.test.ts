@@ -18,7 +18,7 @@ const person = (email: string, list: string, isAdmin = false): AccessInvite => (
   invitedAt: '2026-11-01T12:00:00.000Z',
   admin: isAdmin,
   hasAccount: false,
-  lastSignInAt: null,
+  lastSeenAt: null,
 });
 
 function pending<T>() {
@@ -239,7 +239,7 @@ describe('the lists', () => {
           {
             email: 'perdida@ug.uchile.cl',
             createdAt: '2026-11-02T10:00:00.000Z',
-            lastSignInAt: null,
+            lastSeenAt: null,
           },
         ],
       }),

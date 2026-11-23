@@ -61,20 +61,54 @@ describe('supabaseAdminRepository: «Acceso»', () => {
           invitedAt: '2026-11-01T12:00:00.123456+00:00',
           admin: false,
           hasAccount: true,
-          lastSignInAt: '2026-11-07T15:30:00+00:00',
+          lastSeenAt: '2026-11-07T15:30:00+00:00',
         },
       ],
       accountsWithoutInvite: [
         {
           email: 'perdida@ug.uchile.cl',
           createdAt: '2026-11-02T10:00:00+00:00',
-          lastSignInAt: null,
+          lastSeenAt: null,
         },
       ],
       // A database without the site owner column: nobody is the site owner, and no buttons.
       owner: null,
       youAreOwner: false,
     });
+  });
+
+  it('the last use is the last renewal of a session when the database gives it', async () => {
+    const { client } = clientWith(async () => ({
+      data: {
+        open_to_domain: false,
+        lists: [],
+        invited: [
+          {
+            email: 'ana.perez@ug.uchile.cl',
+            list: 'Curso de prueba',
+            note: null,
+            invited_by: null,
+            invited_at: '2026-11-01T12:00:00+00:00',
+            admin: false,
+            has_account: true,
+            last_sign_in_at: '2026-11-08T12:00:00+00:00',
+            last_seen_at: '2026-11-22T09:15:00+00:00',
+          },
+        ],
+        accounts_without_invite: [
+          {
+            email: 'perdida@ug.uchile.cl',
+            created_at: '2026-11-02T10:00:00+00:00',
+            last_sign_in_at: '2026-11-02T10:00:00+00:00',
+            last_seen_at: '2026-11-20T18:00:00+00:00',
+          },
+        ],
+      },
+      error: null,
+    }));
+    const r = await supabaseAdminRepository(client).accessReport();
+    expect(r.invited.map((i) => i.lastSeenAt)).toEqual(['2026-11-22T09:15:00+00:00']);
+    expect(r.accountsWithoutInvite.map((a) => a.lastSeenAt)).toEqual(['2026-11-20T18:00:00+00:00']);
   });
 
   it('the report says who the site owner is and whether it is who looks', async () => {

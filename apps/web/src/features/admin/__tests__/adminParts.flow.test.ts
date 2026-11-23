@@ -21,7 +21,7 @@ const person = (email: string, list: string, over: Partial<AccessInvite> = {}): 
   invitedAt: AT,
   admin: false,
   hasAccount: false,
-  lastSignInAt: null,
+  lastSeenAt: null,
   ...over,
 });
 
@@ -36,19 +36,19 @@ describe('«Administración», the texts of each section', () => {
           person('otra.admin@ug.uchile.cl', 'Equipo', {
             admin: true,
             hasAccount: true,
-            lastSignInAt: AT,
+            lastSeenAt: AT,
           }),
           person('uno@ug.uchile.cl', 'Curso', {
             hasAccount: true,
-            lastSignInAt: AT,
+            lastSeenAt: AT,
             note: 'Primera tanda',
           }),
           person('dos@ug.uchile.cl', 'Curso', { hasAccount: true }),
           person('tres@ug.uchile.cl', 'Solo', {}),
         ],
         accountsWithoutInvite: [
-          { email: 'perdida.uno@ug.uchile.cl', createdAt: AT, lastSignInAt: AT },
-          { email: 'perdida.dos@ug.uchile.cl', createdAt: AT, lastSignInAt: null },
+          { email: 'perdida.uno@ug.uchile.cl', createdAt: AT, lastSeenAt: AT },
+          { email: 'perdida.dos@ug.uchile.cl', createdAt: AT, lastSeenAt: null },
         ],
       }),
     });

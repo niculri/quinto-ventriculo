@@ -1,6 +1,8 @@
 // «Sitio»'s settings, read and changed; after a change the catalog is fetched fresh, so this tab shows it at once.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
+import { useRefreshContent } from '../../../shared/hooks/useRefreshContent';
+import { CONTENT_QUERY } from '../../../shared/lib/contentQuery';
 import type { SiteSettingsUpdate, SiteSettingsView } from '@qv/schema';
 import { adminKeys, siteSettingsQuery } from '../api/queries';
 
@@ -12,6 +14,7 @@ export function useSiteSettings(enabled: boolean) {
 export function useSetSiteSettings() {
   const api = useApi();
   const client = useQueryClient();
+  const refreshContent = useRefreshContent();
   return useMutation({
     mutationFn: (body: SiteSettingsUpdate) => api.setSiteSettings(body),
     onSuccess: async (saved) => {
@@ -25,9 +28,12 @@ export function useSetSiteSettings() {
         .query({
           queryKey: adminKeys.catalog,
           queryFn: ({ signal }) => api.catalog(signal, { fresh: true }),
+          meta: CONTENT_QUERY,
           staleTime: 0,
         })
         .catch(() => undefined);
+      // A course turned off or on changes the material of every page, not only the catalog.
+      refreshContent();
     },
   });
 }

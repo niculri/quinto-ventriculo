@@ -139,7 +139,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     await userEvent.click(toggle);
     await waitFor(() => expect(toggle).toBeChecked());
     expect(await screen.findByText(/Cambiado el .* por dueno@ug\.uchile\.cl/)).toBeInTheDocument();
-    expect(catalogCalls.at(-1)).toEqual({ fresh: true });
+    expect(catalogCalls).toContainEqual({ fresh: true });
   });
 
   it('«Sitio»: saved is saved, even if the catalog does not come right after', async () => {

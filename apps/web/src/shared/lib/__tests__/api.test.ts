@@ -1,6 +1,6 @@
 // Tests the content API client: what each request carries (token, body, cache, signal) and how each failure reads.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiRequestError, PREVIEW_HEADERS, createApiClient } from '../api';
+import { ApiRequestError, PREVIEW_HEADERS, createApiClient, forgetKeptAnswers } from '../api';
 
 type Call = [string, RequestInit];
 
@@ -46,7 +46,7 @@ describe('what a request carries', () => {
     await plain.catalog().catch(() => {});
     expect(lastCall()[1]).not.toHaveProperty('cache');
     await plain.catalog(undefined, { fresh: true }).catch(() => {});
-    expect(lastCall()[1].cache).toBe('no-cache');
+    expect(lastCall()[1].cache).toBe('reload');
     const admin = createApiClient(async () => null, '', PREVIEW_HEADERS);
     await admin.catalog().catch(() => {});
     expect(lastCall()[1]).toMatchObject({ cache: 'no-store', headers: PREVIEW_HEADERS });
@@ -103,5 +103,85 @@ describe('a failure', () => {
   it('an answer that is not what the route promises is refused, even with status 200', async () => {
     respond = () => json({ query: 'ribo' });
     await expect(api().search('ribo')).rejects.toThrow(/results/);
+  });
+});
+
+describe('the answers kept with their validator', () => {
+  const FOUND = { query: 'ribo', results: [] };
+  const tagged = (body: unknown, tag: string | null, status = 200) =>
+    Promise.resolve(
+      new Response(status === 304 ? null : JSON.stringify(body), {
+        status,
+        headers: tag ? { ETag: tag } : {},
+      }),
+    );
+  const ifNoneMatch = () => (lastCall()[1].headers as Record<string, string>)['If-None-Match'];
+
+  it('sends the validator back, outside the browser’s cache, and a 304 is the same answer, not parsed again', async () => {
+    const api = createApiClient(async () => 't');
+    respond = () => tagged(FOUND, 'W/"v1"');
+    const first = await api.search('ribo');
+    expect(ifNoneMatch()).toBeUndefined();
+    expect(lastCall()[1]).not.toHaveProperty('cache');
+    respond = () => tagged(null, 'W/"v1"', 304);
+    expect(await api.search('ribo')).toBe(first);
+    expect(ifNoneMatch()).toBe('W/"v1"');
+    expect(lastCall()[1].cache).toBe('no-store');
+  });
+
+  it('a new answer replaces the kept one; one without a validator is not kept', async () => {
+    const api = createApiClient(async () => 't');
+    respond = () => tagged(FOUND, 'W/"v1"');
+    await api.search('ribo');
+    respond = () => tagged({ ...FOUND, query: 'otra' }, 'W/"v2"');
+    expect((await api.search('ribo')).query).toBe('otra');
+    respond = () => tagged(FOUND, null);
+    await api.search('ribo');
+    expect(ifNoneMatch()).toBe('W/"v2"');
+    await api.search('ribo');
+    expect(ifNoneMatch()).toBeUndefined();
+  });
+
+  it('checking again without a connection, or with the server down, keeps what was shown; a 404 is said', async () => {
+    const api = createApiClient(async () => 't');
+    respond = () => tagged(FOUND, 'W/"v1"');
+    const first = await api.search('ribo');
+    respond = () => Promise.reject(new TypeError('Failed to fetch'));
+    expect(await api.search('ribo')).toBe(first);
+    respond = () => json({ error: 'internal', message: 'x' }, 503);
+    expect(await api.search('ribo')).toBe(first);
+    respond = () => json({ error: 'not_found', message: 'Ya no está.' }, 404);
+    await expect(api.search('ribo')).rejects.toMatchObject({ status: 404, code: 'not_found' });
+  });
+
+  it('after forgetting, each path comes once from the API past every copy, and then with its validator', async () => {
+    const api = createApiClient(async () => 't');
+    respond = () => tagged(FOUND, 'W/"v1"');
+    await api.search('ribo');
+    await api.note('a-b').catch(() => undefined);
+    forgetKeptAnswers(api);
+    respond = () => tagged(FOUND, 'W/"v2"');
+    await api.search('ribo');
+    expect(lastCall()[1].cache).toBe('reload');
+    expect(ifNoneMatch()).toBeUndefined();
+    await api.search('ribo');
+    expect(ifNoneMatch()).toBe('W/"v2"');
+    respond = () => tagged(null, 'W/"v2"', 304);
+    await api.note('a-b').catch(() => undefined);
+    expect(lastCall()[1].cache).toBe('reload');
+  });
+
+  it('nothing of the admin mode, nor of a write, is kept', async () => {
+    const admin = createApiClient(async () => 't', '', PREVIEW_HEADERS);
+    respond = () => tagged(FOUND, 'W/"v1"');
+    await admin.search('ribo');
+    await admin.search('ribo');
+    expect(ifNoneMatch()).toBeUndefined();
+    forgetKeptAnswers(admin);
+    const api = createApiClient(async () => 't');
+    respond = () => tagged({ ok: true }, 'W/"v1"');
+    await api.usageOpen({ kind: 'search', from: 'home' });
+    await api.usageOpen({ kind: 'search', from: 'home' });
+    expect(ifNoneMatch()).toBeUndefined();
   });
 });

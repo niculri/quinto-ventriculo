@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { ReleaseOverview } from '@qv/schema';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiRequestError } from '../../../shared/lib/api';
+import { fakeApi } from '../../../test/fakes/api';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 import { RELEASE_SUMMARY, releaseApi } from '../../../test/releases';
@@ -148,6 +149,7 @@ describe('publishing and undoing', () => {
   });
 
   it('publishes from its popup what the panel showed, with its review list; then shows it', async () => {
+    const catalog = vi.fn(fakeApi().catalog);
     let log = [] as ReturnType<typeof record>[];
     let overview = READY;
     const publishRelease = vi.fn(async (body: { fingerprint: string; title: string }) => {
@@ -161,6 +163,7 @@ describe('publishing and undoing', () => {
         releaseOverview: async () => overview,
         releaseLog: async () => ({ releases: log }),
         publishRelease,
+        catalog,
       }),
     });
     const button = await screen.findByRole('button', { name: 'Publicar' });
@@ -170,6 +173,7 @@ describe('publishing and undoing', () => {
     expect(dialog).toHaveTextContent('Anatomía I · Certamen 1 y Biología celular · Certamen 2');
     expect(dialog).toHaveTextContent(/Anatomía I · Certamen 1: .*tarjeta nueva/);
     expect(publishRelease).not.toHaveBeenCalled();
+    const readBefore = catalog.mock.calls.length;
     await userEvent.click(within(dialog).getByRole('button', { name: 'Publicar' }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(publishRelease).toHaveBeenCalledWith({
@@ -179,6 +183,8 @@ describe('publishing and undoing', () => {
     });
     expect(await screen.findByText(/N\.º 1 · Anatomía I/)).toBeInTheDocument();
     expect(await screen.findByText(/El borrador es igual a lo publicado/)).toBeInTheDocument();
+    // What the site already read of the material is read again: the menu shows what was published.
+    await waitFor(() => expect(catalog.mock.calls.length).toBeGreaterThan(readBefore));
   });
 
   it('the empty assessments of the catalog are one line each, with their course', async () => {
@@ -284,7 +290,8 @@ describe('publishing and undoing', () => {
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
   });
 
-  it('undoes the last publication from its popup', async () => {
+  it('undoes the last publication from its popup, and reads the material again', async () => {
+    const catalog = vi.fn(fakeApi().catalog);
     let log = [record(2), { ...record(1), canRevert: false }];
     const revertRelease = vi.fn(async (id: number) => {
       log = [record(2, 'reverted'), { ...record(1), canRevert: false }];
@@ -292,7 +299,7 @@ describe('publishing and undoing', () => {
     });
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
-      api: releaseApi({ releaseLog: async () => ({ releases: log }), revertRelease }),
+      api: releaseApi({ releaseLog: async () => ({ releases: log }), revertRelease, catalog }),
     });
     const undo = await screen.findByRole('button', { name: 'Deshacer la última publicación' });
     await waitFor(() => expect(undo).toBeEnabled());
@@ -300,9 +307,11 @@ describe('publishing and undoing', () => {
     const dialog = await screen.findByRole('alertdialog', {
       name: '¿Deshacer la publicación n.º 2?',
     });
+    const readBefore = catalog.mock.calls.length;
     await userEvent.click(within(dialog).getByRole('button', { name: 'Deshacer' }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(revertRelease).toHaveBeenCalledWith(2);
+    await waitFor(() => expect(catalog.mock.calls.length).toBeGreaterThan(readBefore));
     expect(
       await screen.findByText(/Deshecha el/, { selector: 'p[role=status]' }),
     ).toBeInTheDocument();

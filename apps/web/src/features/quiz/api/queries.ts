@@ -1,6 +1,7 @@
 // What a practice test page reads, with its keys: the test, a section's questions and what the user has saved of it.
 import { queryOptions } from '@tanstack/react-query';
 import type { ApiClient } from '../../../shared/lib/api';
+import { CONTENT_QUERY } from '../../../shared/lib/contentQuery';
 import type { QuizRepository } from './repository';
 
 export const quizKeys = {
@@ -19,6 +20,7 @@ export const quizDetailQuery = (api: ApiClient, id: string | null, published = f
   queryOptions({
     queryKey: quizKeys.detail(id, published),
     queryFn: ({ signal }) => api.quiz(id!, signal, { published }),
+    meta: CONTENT_QUERY,
     enabled: !!id,
     staleTime: 5 * 60_000,
   });
@@ -33,6 +35,7 @@ export const quizSectionQuery = (
   queryOptions({
     queryKey: quizKeys.section(id, sectionId, published),
     queryFn: ({ signal }) => api.quizSection(id!, sectionId!, signal, { published }),
+    meta: CONTENT_QUERY,
     enabled: !!id && !!sectionId,
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,

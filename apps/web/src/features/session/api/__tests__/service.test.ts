@@ -76,7 +76,7 @@ describe('the session', () => {
         name: 'Ana Pérez',
         avatar: 'https://a/1',
         createdAt: '2026-10-31T13:00:00Z',
-        lastSignInAt: '2026-11-01T12:30:00Z',
+        lastSeenAt: '2026-11-01T12:30:00Z',
       },
     });
   });
@@ -106,8 +106,17 @@ describe('the session', () => {
       name: null,
       avatar: null,
       createdAt: null,
-      lastSignInAt: null,
+      lastSeenAt: null,
     });
+  });
+
+  it('the last use is the renewal of its token when it came after the last sign-in', async () => {
+    const f = fakeAuth();
+    const claims = btoa(JSON.stringify({ iat: Date.parse('2026-11-23T14:05:00Z') / 1000 }));
+    f.set({ access_token: `header.${claims.replace(/=+$/, '')}.signature`, user: user() });
+    expect((await supabaseSessionService(f.client).current())?.user.lastSeenAt).toBe(
+      '2026-11-23T14:05:00.000Z',
+    );
   });
 
   it('follows its changes as sessions of the site, and stops when unsubscribed', () => {

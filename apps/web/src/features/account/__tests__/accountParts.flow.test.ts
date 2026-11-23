@@ -24,7 +24,7 @@ describe('«Datos de usuario»', () => {
     renderApp('/settings/account', {
       session: {
         ...SESSION_ANA,
-        user: { ...SESSION_ANA.user, name: null, createdAt: null, lastSignInAt: null },
+        user: { ...SESSION_ANA.user, name: null, createdAt: null, lastSeenAt: null },
       },
     });
     expect(
@@ -53,6 +53,8 @@ describe('«Datos de usuario»', () => {
     );
     expect(within(card).getByText('Cuenta creada el')).toBeInTheDocument();
     expect(within(card).getByText(/^31 de octubre de 2026\D+10:00$/)).toBeInTheDocument();
+    expect(within(card).getByText('Último ingreso')).toBeInTheDocument();
+    expect(within(card).getByText(/^1 de noviembre de 2026\D+09:30$/)).toBeInTheDocument();
   });
 
   it('says when the terms in force are not accepted yet', async () => {

@@ -39,7 +39,7 @@ export function AccountCard({ user }: { user: SessionUser }) {
           {user.createdAt ? formatDateTime(user.createdAt) : s.card.missing}
         </Row>
         <Row label={s.card.lastSignIn}>
-          {user.lastSignInAt ? formatDateTime(user.lastSignInAt) : s.card.missing}
+          {user.lastSeenAt ? formatDateTime(user.lastSeenAt) : s.card.missing}
         </Row>
       </dl>
     </section>

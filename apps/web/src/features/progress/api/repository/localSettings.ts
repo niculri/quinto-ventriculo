@@ -2,8 +2,9 @@
 import { settle } from '../../../../shared/lib/settle';
 import type { LocalStore } from './localStore';
 import { uuid } from './localStore';
+import { applyPreferencesPatch } from '@qv/study';
 import { defaultPreferences } from './model';
-import type { UserPreset } from './model';
+import type { StudyPreferences, UserPreset } from './model';
 import type { StudyRepository } from './port';
 
 type SettingsMethods = Pick<
@@ -21,16 +22,25 @@ type SettingsMethods = Pick<
   | 'saveAssessmentSetting'
 >;
 
+const DATABASE_TIME_ZONE = 'America/Santiago';
+
+// A copy saved before some field existed gets its default.
+const stored = (saved: StudyPreferences | null) =>
+  saved ? { ...defaultPreferences(saved.timeZone), ...saved } : null;
+
 export function localSettings({ read, write, stamp }: LocalStore): SettingsMethods {
   return {
-    preferences: () =>
+    preferences: () => settle(() => stored(read().preferences)),
+    savePreferences: (patch) =>
       settle(() => {
-        const saved = read().preferences;
-        return saved ? { ...defaultPreferences(saved.timeZone), ...saved } : null;
-      }),
-    savePreferences: (p) =>
-      settle(() => {
-        write({ ...read(), preferences: p });
+        const d = read();
+        // A first save starts from the database's defaults, as save_study_preferences() does.
+        const preferences = applyPreferencesPatch(
+          stored(d.preferences) ?? defaultPreferences(DATABASE_TIME_ZONE),
+          patch,
+        );
+        write({ ...d, preferences });
+        return preferences;
       }),
     presets: () => settle(() => read().presets),
     savePreset: ({ id, name, replaces, config }) =>

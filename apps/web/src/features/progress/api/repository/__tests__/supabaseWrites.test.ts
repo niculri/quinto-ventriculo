@@ -3,7 +3,12 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { describe, expect, it } from 'vitest';
-import { CardChangedError, PracticeRefusedError, supabaseStudyRepository } from '../';
+import {
+  CardChangedError,
+  PracticeRefusedError,
+  supabaseStudyRepository,
+  UndoRefusedError,
+} from '../';
 import type { StudyRepository } from '../';
 import {
   NO_AUTH,
@@ -131,5 +136,17 @@ describe('the card sync', () => {
 describe('undo', () => {
   it('nothing to undo is null', async () => {
     expect(await repo(() => ({ body: null })).study.undo()).toBeNull();
+  });
+
+  it('sends the action it expects, and a refusal for another one is an UndoRefusedError', async () => {
+    const { study, calls } = repo(() => refusal('P0001', 'undo_refused'));
+    const expected = { ...REF, action: 'answer' as const, actionId: 'a1' };
+    await expect(study.undo(expected)).rejects.toBeInstanceOf(UndoRefusedError);
+    expect(calls[0]!.body).toEqual({ expected });
+  });
+
+  it('an answer gives the id the database named it with', async () => {
+    const { study } = repo(() => ({ body: { actionId: 'a1', updatedAt: 't' } }));
+    expect(await study.recordReview(REVIEW)).toEqual({ actionId: 'a1', updatedAt: 't' });
   });
 });

@@ -18,6 +18,7 @@ import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../../admin/api/repository';
 import { defaultPreferences, supabaseStudyRepository } from '../../progress/api/repository';
 import { supabaseQuizRepository } from '../../quiz/api/repository';
+import { preferencesPatch } from '@qv/study';
 
 type PGlite = Awaited<ReturnType<typeof createDatabase>>;
 let db: PGlite;
@@ -50,12 +51,14 @@ async function student(email: string) {
   const rest = fakeSupabase(db, () => me);
   const client = createClient<Database>(rest.url, rest.key, rest.options);
   const study = supabaseStudyRepository(client);
-  await study.savePreferences({
-    ...defaultPreferences(ZONE),
-    fullAnki: true,
-    fourButtons: true,
-    welcomeSeen: true,
-  });
+  await study.savePreferences(
+    preferencesPatch(null, {
+      ...defaultPreferences(ZONE),
+      fullAnki: true,
+      fourButtons: true,
+      welcomeSeen: true,
+    }),
+  );
   await study.setDeckActivation('5', true);
   return { study, quiz: supabaseQuizRepository(client) };
 }

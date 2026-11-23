@@ -13,6 +13,7 @@ import {
   usersDbFetch,
 } from '../../../../../test/appFakes';
 import type { UsersDbAnswer, UsersDbCall } from '../../../../../test/appFakes';
+import { preferencesPatch } from '@qv/study';
 
 function repo(answer: (call: UsersDbCall) => UsersDbAnswer | undefined = () => undefined) {
   const { fetch, calls } = usersDbFetch(answer);
@@ -40,7 +41,7 @@ const PREFS = {
 
 const REFUSED: [string, (s: StudyRepository) => Promise<unknown>][] = [
   ['leer tus preferencias', (s) => s.preferences()],
-  ['guardar tus preferencias', (s) => s.savePreferences(PREFS)],
+  ['guardar tus preferencias', (s) => s.savePreferences(preferencesPatch(null, PREFS))],
   ['leer tus opciones', (s) => s.presets()],
   ['guardar las opciones', (s) => s.savePreset({ name: 'Mía', replaces: null, config: {} })],
   ['eliminar la configuración', (s) => s.deletePreset('p1')],

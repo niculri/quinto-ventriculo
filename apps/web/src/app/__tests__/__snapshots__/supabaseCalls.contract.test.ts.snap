@@ -717,36 +717,41 @@ exports[`users database: the calls of each adapter > study 1`] = `
     "calls": [
       {
         "body": {
-          "added_courses": [
-            "c1",
-          ],
-          "apply_all_parent_limits": false,
-          "day_starts_at": 4,
-          "dismissed": [
-            "tip",
-          ],
-          "four_buttons": false,
-          "full_anki": false,
-          "learn_ahead_minutes": 20,
-          "new_cards_ignore_review_limit": false,
-          "removed_courses": [],
-          "semester": 2,
-          "time_zone": "America/Santiago",
-          "updated_at": "2026-11-10T07:00:00.000Z",
-          "welcome_seen": true,
+          "p": {
+            "addedCourses": {
+              "add": [
+                "c1",
+              ],
+              "remove": [],
+            },
+            "applyAllParentLimits": false,
+            "dayStartsAt": 4,
+            "dismissed": {
+              "add": [
+                "tip",
+              ],
+              "remove": [],
+            },
+            "fourButtons": false,
+            "fullAnki": false,
+            "learnAheadMinutes": 20,
+            "newCardsIgnoreReviewLimit": false,
+            "semester": 2,
+            "timeZone": "America/Santiago",
+            "welcomeSeen": true,
+          },
         },
         "headers": {
           "apikey": "publishable-test-key",
           "authorization": "Bearer publishable-test-key",
           "content-profile": "public",
           "content-type": "application/json",
-          "prefer": "resolution=merge-duplicates",
         },
         "method": "POST",
-        "path": "/rest/v1/study_preferences?on_conflict=user_id",
+        "path": "/rest/v1/rpc/save_study_preferences",
       },
     ],
-    "result": undefined,
+    "result": null,
     "step": "savePreferences",
   },
   {
@@ -1104,6 +1109,7 @@ exports[`users database: the calls of each adapter > study 1`] = `
       },
     ],
     "result": {
+      "actionId": undefined,
       "updatedAt": "2026-11-10T07:00:01+00:00",
     },
     "step": "recordReview, before syncing",
@@ -1164,6 +1170,7 @@ exports[`users database: the calls of each adapter > study 1`] = `
       },
     ],
     "result": {
+      "actionId": undefined,
       "updatedAt": "2026-11-10T07:00:01+00:00",
     },
     "step": "recordReview",
@@ -1582,6 +1589,7 @@ exports[`users database: the calls of each adapter > study 1`] = `
       },
     ],
     "result": {
+      "actionId": undefined,
       "updatedAt": "2026-11-10T07:00:01+00:00",
     },
     "step": "recordReview, after reconciling",

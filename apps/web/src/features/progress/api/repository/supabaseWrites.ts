@@ -3,7 +3,7 @@
 import { databaseError } from '@qv/schema/database';
 import { STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../../shared/lib/json';
-import { CardChangedError, PracticeRefusedError } from './model';
+import { CardChangedError, PracticeRefusedError, UndoRefusedError } from './model';
 import type { StudyRepository } from './port';
 import { int8, refs } from './supabaseContext';
 import type { StudyContext } from './supabaseContext';
@@ -57,9 +57,8 @@ export function writes({ client, fail, write }: StudyContext): Writes {
         if (databaseError(error).says('card_changed')) throw new CardChangedError();
         fail('guardar tu respuesta', error);
       }
-      return {
-        updatedAt: fromDatabase('record_review', STUDY_RPC.record_review.returns, data).updatedAt,
-      };
+      const saved = fromDatabase('record_review', STUDY_RPC.record_review.returns, data);
+      return { updatedAt: saved.updatedAt, actionId: saved.actionId };
     },
     async bury(cards, until, note) {
       const { error } = await write('bury_cards', {
@@ -96,9 +95,12 @@ export function writes({ client, fail, write }: StudyContext): Writes {
       });
       if (error) fail('olvidar las tarjetas', error);
     },
-    async undo() {
-      const { data, error } = await write('undo_last_review');
-      if (error) fail('deshacer', error);
+    async undo(expected) {
+      const { data, error } = await write('undo_last_review', expected ? { expected } : undefined);
+      if (error) {
+        if (databaseError(error).says('undo_refused')) throw new UndoRefusedError();
+        fail('deshacer', error);
+      }
       return fromDatabase('undo_last_review', STUDY_RPC.undo_last_review.returns, data) ?? null;
     },
   };

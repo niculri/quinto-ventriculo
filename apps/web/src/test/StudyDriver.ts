@@ -37,6 +37,7 @@ export class StudyDriver {
       retryDelaysMs,
       (failure) => this.dispatch({ type: 'saveFailed', failure }),
       prefetch,
+      () => this.dispatch({ type: 'undoRefused' }),
     );
   }
 

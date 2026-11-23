@@ -19,6 +19,8 @@ export function toastText(toast: Toast, fullAnki: boolean): string {
       return messagesStrings.session.undone(actionLabel(toast.action, fullAnki));
     case 'nothingToUndo':
       return messagesStrings.session.nothingToUndo;
+    case 'undoRefused':
+      return messagesStrings.session.undoRefused;
   }
 }
 

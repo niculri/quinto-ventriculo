@@ -61,7 +61,7 @@ export function useTip(id: TipId, done: boolean) {
     close: () => {
       setShow(false);
       if (prefs && !prefs.dismissed.includes(id)) {
-        save.mutate({ ...prefs, dismissed: [...prefs.dismissed, id] });
+        save.mutate({ from: prefs, to: { ...prefs, dismissed: [...prefs.dismissed, id] } });
       }
     },
   };

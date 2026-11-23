@@ -14,7 +14,7 @@ import { todayCourses } from '../model/todayCourses';
 
 export function useHomeSections(catalog: Catalog, saved: StudyPreferences, plan: StudyPlan) {
   const save = useSavePreferences();
-  const shown = save.isPending ? save.variables : saved;
+  const shown = save.isPending ? save.variables.to : saved;
   const tree = buildAnkiTree(catalog);
   const today = todayCourses(catalog, plan);
   const mine = myCourses(catalog, shown, new Set(today.map((n) => n.ref.course.id)));
@@ -27,7 +27,7 @@ export function useHomeSections(catalog: Catalog, saved: StudyPreferences, plan:
     card: plan.answeredDecks.length > 0,
   };
   return {
-    save: (prefs: StudyPreferences) => save.mutate(prefs),
+    save: (prefs: StudyPreferences) => save.mutate({ from: shown, to: prefs }),
     shown,
     today,
     mine,

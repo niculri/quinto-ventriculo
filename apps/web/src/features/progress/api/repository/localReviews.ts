@@ -10,7 +10,9 @@ import {
   PRACTICE_BATCH_MAX,
   PRACTICE_DAY_MAX,
   PracticeRefusedError,
+  UndoRefusedError,
 } from './model';
+import type { UndoExpected } from './model';
 import type { StudyRepository } from './port';
 
 const UNDO_MS = 48 * 3_600_000;
@@ -26,6 +28,17 @@ function practiceBatch(counts: { deckId: string; n: number }[]) {
   for (const c of decks) byDeck.set(c.deckId, (byDeck.get(c.deckId) ?? 0) + c.n);
   return [...byDeck].map(([deckId, n]) => ({ deckId, n }));
 }
+
+// As undo_last_review(): the action's first row (its card) and, when the screen has it, the answer's id.
+const isExpected = (
+  main: { action: string; noteGuid: string; ord: number },
+  actionId: string,
+  expected: UndoExpected,
+) =>
+  (expected.actionId === undefined || expected.actionId === actionId) &&
+  main.action === expected.action &&
+  main.noteGuid === expected.noteGuid &&
+  main.ord === expected.ord;
 
 export function localReviews({ read, write }: LocalStore, { change }: Changes): ReviewMethods {
   return {
@@ -85,34 +98,46 @@ export function localReviews({ read, write }: LocalStore, { change }: Changes): 
           change(d, actionId, 'answer', sibling, at, { buriedUntil: input.buriedUntil });
         }
         write(d);
-        return { updatedAt: d.cards.find((c) => same(c, input.card))!.updatedAt };
+        return { updatedAt: d.cards.find((c) => same(c, input.card))!.updatedAt, actionId };
       }),
-    undo: () =>
-      settle(() => {
-        const d = read();
-        // As review_undo: only what was written in the last 48 hours can be undone.
-        const since = Date.now() - UNDO_MS;
-        const last = d.log.findLast((l) => Date.parse(l.loggedAt ?? l.reviewedAt) >= since);
-        if (!last) return null;
-        const rows = d.log.filter((l) => l.actionId === last.actionId);
-        for (const row of [...rows].reverse()) {
-          const i = d.cards.findIndex((c) => same(c, row));
-          if (row.before === null) {
-            if (i >= 0) d.cards.splice(i, 1);
-          } else if (i >= 0) {
-            const now = d.cards[i]!;
-            d.cards[i] = { ...row.before, deckId: now.deckId, retiredAt: now.retiredAt ?? null };
-          } else d.cards.push(row.before);
-        }
-        const main = rows[0]!;
-        write({ ...d, log: d.log.filter((l) => l.actionId !== last.actionId) });
-        return {
-          action: main.action,
-          noteGuid: main.noteGuid,
-          ord: main.ord,
-          deckId: main.deckId,
-          rating: main.rating,
-        };
-      }),
+    undo: (expected) => settle(() => undoLast(read, write, expected)),
+  };
+}
+
+/** The last action written in the 48 hours an undo keeps, put back; with `expected`, only if it is that one. */
+function undoLast(
+  read: LocalStore['read'],
+  write: LocalStore['write'],
+  expected: UndoExpected | undefined,
+) {
+  const d = read();
+  // As review_undo: only what was written in the last 48 hours can be undone.
+  const since = Date.now() - UNDO_MS;
+  const last = d.log.findLast((l) => Date.parse(l.loggedAt ?? l.reviewedAt) >= since);
+  if (!last) {
+    if (expected) throw new UndoRefusedError();
+    return null;
+  }
+  const rows = d.log.filter((l) => l.actionId === last.actionId);
+  if (expected && !isExpected(rows[0]!, last.actionId, expected)) {
+    throw new UndoRefusedError();
+  }
+  for (const row of [...rows].reverse()) {
+    const i = d.cards.findIndex((c) => same(c, row));
+    if (row.before === null) {
+      if (i >= 0) d.cards.splice(i, 1);
+    } else if (i >= 0) {
+      const now = d.cards[i]!;
+      d.cards[i] = { ...row.before, deckId: now.deckId, retiredAt: now.retiredAt ?? null };
+    } else d.cards.push(row.before);
+  }
+  const main = rows[0]!;
+  write({ ...d, log: d.log.filter((l) => l.actionId !== last.actionId) });
+  return {
+    action: main.action,
+    noteGuid: main.noteGuid,
+    ord: main.ord,
+    deckId: main.deckId,
+    rating: main.rating,
   };
 }

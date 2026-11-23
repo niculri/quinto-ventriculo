@@ -67,6 +67,7 @@ export function useStudySession(initial: StudyData, rootId: string) {
             void client.query(cardQuery(api, e.noteGuid, e.ord)).catch(() => undefined);
           }
         },
+        () => numbered({ type: 'undoRefused' }),
       ),
   );
   const saving = useSyncExternalStore(saves.subscribe, () => saves.pending > 0);

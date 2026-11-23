@@ -93,6 +93,28 @@ describe('the guard of the study repository', () => {
     expect(calls).toEqual([]);
   });
 
+  it('undoing an answer of the draft touches nothing; one of the students’ or the last action goes through', async () => {
+    const log: unknown[] = [];
+    const study = guardStudy(
+      {
+        ...fullAnkiStudy(),
+        undo: async (expected) => {
+          log.push(expected);
+          return null;
+        },
+      },
+      lookup,
+    );
+    expect(await study.undo({ ...draft, action: 'answer', actionId: 'x' })).toEqual({
+      ...draft,
+      action: 'answer',
+      rating: null,
+    });
+    await study.undo({ ...real, action: 'answer' });
+    await study.undo();
+    expect(log).toEqual([{ ...real, action: 'answer' }, undefined]);
+  });
+
   it('passes the students’ cards on with what each write was asked', async () => {
     const log: unknown[][] = [];
     const base = fullAnkiStudy();
@@ -147,7 +169,7 @@ describe('the guard of the study repository', () => {
     const study = guardStudy(proxy, lookup);
     await study.preferences();
     await study.deckActivations();
-    await study.savePreferences({ fullAnki: false } as never);
+    await study.savePreferences({ fullAnki: false });
     expect(calls).toEqual(['preferences', 'deckActivations', 'savePreferences']);
   });
 });

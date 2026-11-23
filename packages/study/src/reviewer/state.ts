@@ -13,7 +13,9 @@ export type ToastKind =
   | { readonly kind: 'skipped' }
   | { readonly kind: 'neverAgain' }
   | { readonly kind: 'undone'; readonly action: ActionName }
-  | { readonly kind: 'nothingToUndo' };
+  | { readonly kind: 'nothingToUndo' }
+  /** The database did not take back the last undo: another tab or device acted after it; what is saved stays. */
+  | { readonly kind: 'undoRefused' };
 
 /** A toast has a number: `toastExpired` only takes away the one it names, not a newer one. */
 export type Toast = ToastKind & { readonly id: number };
@@ -83,7 +85,8 @@ type StudyIntent =
       readonly now: number;
     }
   | { readonly type: 'toastExpired'; readonly id: number }
-  | { readonly type: 'saveFailed'; readonly failure: SaveFailure };
+  | { readonly type: 'saveFailed'; readonly failure: SaveFailure }
+  | { readonly type: 'undoRefused' };
 
 /**
  * An action as it is dispatched. `dispatch` numbers it, from outside the reducer: a replay of the action keeps the

@@ -17,12 +17,14 @@ export type {
   HomeCounts,
   HomeDeckCounts,
   PracticeCount,
+  PreferencesPatch,
   QueueName,
   RatedAnswer,
   ReconcileResult,
   ReviewInput,
   StoredCard,
   StudyPreferences,
+  UndoExpected,
   UndoResult,
   UserPreset,
 } from '@qv/schema/user';
@@ -39,5 +41,13 @@ export class CardChangedError extends Error {
   constructor() {
     super('Esta tarjeta cambió en otra pestaña o dispositivo.');
     this.name = 'CardChangedError';
+  }
+}
+
+/** The user's last action is not the one this screen is undoing (another tab or device acted after it): nothing changed. */
+export class UndoRefusedError extends Error {
+  constructor() {
+    super('No se pudo deshacer: hiciste algo después en otra pestaña o dispositivo.');
+    this.name = 'UndoRefusedError';
   }
 }

@@ -98,6 +98,8 @@ function reduce(state: StudyState, action: StudyAction): StudyState {
       return state.toast?.id === action.id ? { ...state, toast: null } : state;
     case 'saveFailed':
       return state.failure ? state : { ...state, failure: action.failure };
+    case 'undoRefused':
+      return withToast(state, { kind: 'undoRefused' });
   }
 }
 

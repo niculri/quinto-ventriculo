@@ -71,7 +71,10 @@ describe('a tip', () => {
     act(() => {
       result.current.close();
     });
-    expect(state.save).toHaveBeenCalledWith({ dismissed: ['tip-search'] });
+    expect(state.save).toHaveBeenCalledWith({
+      from: { dismissed: [] },
+      to: { dismissed: ['tip-search'] },
+    });
     state.prefs = { dismissed: ['tip-search'] };
     rerender();
     expect(result.current).toMatchObject({ show: false, shown: true });

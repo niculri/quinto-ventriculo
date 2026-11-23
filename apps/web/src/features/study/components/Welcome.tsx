@@ -12,7 +12,7 @@ export function Welcome({ prefs }: { prefs: StudyPreferences }) {
   const save = useSavePreferences();
   const close = () => {
     setOpen(false);
-    save.mutate({ ...prefs, welcomeSeen: true });
+    save.mutate({ from: prefs, to: { ...prefs, welcomeSeen: true } });
   };
   return (
     // Without a trigger, Radix only calls it to close.

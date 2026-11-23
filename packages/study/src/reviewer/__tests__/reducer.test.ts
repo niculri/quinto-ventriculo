@@ -250,6 +250,16 @@ describe('what the web leans on', () => {
     expect(back.toast).toMatchObject({ kind: 'undone', action: 'answer' });
   });
 
+  it('an undo the database refused only says so: the session goes on, with nothing to save', () => {
+    const back = run(opened(), reveal, answer(3), { type: 'undo', now: AT });
+    const refused = run(back, { type: 'undoRefused' });
+    expect(refused.toast).toMatchObject({ kind: 'undoRefused' });
+    expect(refused.failure).toBeNull();
+    expect(refused.outbox).toEqual(back.outbox);
+    expect(refused.shown).toEqual(back.shown);
+    expect(run(refused, reveal, answer(3)).answeredInSession).toBe(2);
+  });
+
   it('an undo says which command it takes back', () => {
     const state = run(opened(), { type: 'flag', value: 3 }, { type: 'undo', now: AT });
     const [flagged, undone] = state.outbox.filter((c) => c.kind !== 'prefetch');

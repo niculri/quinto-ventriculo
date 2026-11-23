@@ -5,14 +5,19 @@ import { useSearchParams } from 'react-router';
 import type { SetURLSearchParams } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DeckConfig } from '@qv/srs';
-import { presetChoices, presetOf, sameRef } from '@qv/study';
+import { preferencesPatch, presetChoices, presetOf, sameRef } from '@qv/study';
 import type { PresetChoice, PresetRef } from '@qv/study';
 import { useStudyRepository } from '../../progress/api/context';
 import { presetParam } from '../../progress/model/presets';
 import { hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 import { studyKeys } from '../../progress/queries';
-import type { DeckSetting, StudyPreferences, UserPreset } from '../../progress/api/repository';
+import type {
+  DeckSetting,
+  PreferencesPatch,
+  StudyPreferences,
+  UserPreset,
+} from '../../progress/api/repository';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import { errorText } from '../../../shared/lib/errorText';
 import { savePresetDraft } from '../api/savePresets';
@@ -112,7 +117,7 @@ function changesToSave(
 ) {
   return {
     changed: changedDrafts(drafts, choices),
-    prefs: prefsChanged(prefs, saved) ? prefs : null,
+    prefs: prefsChanged(prefs, saved) ? preferencesPatch(saved, prefs) : null,
   };
 }
 
@@ -122,7 +127,7 @@ function useSaveOptions() {
   return useMutation({
     mutationFn: async (w: {
       changed: [PresetChoice, DeckConfig][];
-      prefs: StudyPreferences | null;
+      prefs: PreferencesPatch | null;
     }) => {
       for (const [c, draft] of w.changed) await savePresetDraft(study, c, draft);
       if (w.prefs) await study.savePreferences(w.prefs);

@@ -29,9 +29,11 @@ const student = () => localStudyRepository(null, { welcomeSeen: true });
 function saving(study: StudyRepository) {
   const saved: StudyPreferences[] = [];
   const save = study.savePreferences.bind(study);
-  study.savePreferences = (p) => {
-    saved.push(p);
-    return save(p);
+  // What is stored after each save, as the database gives it back.
+  study.savePreferences = async (p) => {
+    const stored = await save(p);
+    saved.push(stored);
+    return stored;
   };
   return saved;
 }

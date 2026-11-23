@@ -1,6 +1,6 @@
 // The study adapter's settings: preferences, presets, each deck's preset and activation, and each assessment's
 // options.
-import { UserPreset } from '@qv/schema/user';
+import { STUDY_RPC, UserPreset } from '@qv/schema/user';
 import { fromDatabase, toJson } from '../../../../shared/lib/json';
 import type { StudyRepository } from './port';
 import { iso, listOf } from './supabaseContext';
@@ -51,26 +51,10 @@ export function preferencesAndPresets(ctx: StudyContext): PreferenceAndPresets {
         dismissed: listOf(r.dismissed),
       };
     },
-    async savePreferences(p) {
-      const { error } = await client.from('study_preferences').upsert(
-        {
-          time_zone: p.timeZone,
-          day_starts_at: p.dayStartsAt,
-          learn_ahead_minutes: p.learnAheadMinutes,
-          new_cards_ignore_review_limit: p.newCardsIgnoreReviewLimit,
-          apply_all_parent_limits: p.applyAllParentLimits,
-          full_anki: p.fullAnki,
-          four_buttons: p.fourButtons,
-          welcome_seen: p.welcomeSeen,
-          semester: p.semester,
-          added_courses: p.addedCourses,
-          removed_courses: p.removedCourses,
-          dismissed: p.dismissed,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' },
-      );
+    async savePreferences(patch) {
+      const { data, error } = await client.rpc('save_study_preferences', { p: patch });
       if (error) ctx.fail('guardar tus preferencias', error);
+      return fromDatabase('save_study_preferences', STUDY_RPC.save_study_preferences.returns, data);
     },
     async presets() {
       const { data, error } = await client

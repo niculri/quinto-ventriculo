@@ -23,6 +23,7 @@ import { defaultPreferences } from '../model';
 import type { StoredCard } from '../model';
 import type { StudyRepository } from '../port';
 import { supabaseStudyRepository } from '../supabase';
+import { preferencesPatch } from '@qv/study';
 
 type PGlite = Awaited<ReturnType<typeof createDatabase>>;
 let db: PGlite;
@@ -100,7 +101,10 @@ describe('the days of study', () => {
         (r) => r.recordReview(answer(card('a'), null, when)),
         (r) => r.recordPractice([{ deckId: DECK, n: 2 }]),
         (r) => r.heatmap(null),
-        (r) => r.savePreferences({ ...defaultPreferences('Asia/Tokyo'), dayStartsAt: 0 }),
+        (r) =>
+          r.savePreferences(
+            preferencesPatch(null, { ...defaultPreferences('Asia/Tokyo'), dayStartsAt: 0 }),
+          ),
         (r) => r.heatmap(null),
       ],
       inShape,

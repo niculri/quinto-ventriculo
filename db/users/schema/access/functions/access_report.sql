@@ -24,15 +24,25 @@ AS $function$
                'invited_at', i.invited_at,
                'admin', exists (select 1 from public.admin_emails a where a.email = i.email),
                'has_account', u.id is not null,
-               'last_sign_in_at', u.last_sign_in_at)
+               'last_sign_in_at', u.last_sign_in_at,
+               'last_seen_at', seen.at)
              order by i.list, i.email)
         from public.invited_emails i
-        left join auth.users u on lower(u.email) = i.email), '[]'::jsonb),
+        left join auth.users u on lower(u.email) = i.email
+        left join lateral (
+          select greatest(u.last_sign_in_at, max(s.updated_at), max(s.refreshed_at) at time zone 'UTC') as at
+            from auth.sessions s
+           where s.user_id = u.id) seen on true), '[]'::jsonb),
     'accounts_without_invite', coalesce((
       select jsonb_agg(jsonb_build_object(
-               'email', u.email, 'created_at', u.created_at, 'last_sign_in_at', u.last_sign_in_at)
+               'email', u.email, 'created_at', u.created_at, 'last_sign_in_at', u.last_sign_in_at,
+               'last_seen_at', seen.at)
              order by u.email)
         from auth.users u
+        left join lateral (
+          select greatest(u.last_sign_in_at, max(s.updated_at), max(s.refreshed_at) at time zone 'UTC') as at
+            from auth.sessions s
+           where s.user_id = u.id) seen on true
        where not exists (select 1 from public.invited_emails i where i.email = lower(u.email))), '[]'::jsonb));
 $function$;
 

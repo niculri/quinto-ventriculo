@@ -53,9 +53,9 @@ export interface AppOptions {
   clientErrorsReader?: ClientErrorsReader | null;
   workerRequests?: WorkerRequestsReader | null;
   deepHealth?: DeepHealth;
-  /** Keyed by the student's id, on every route with a session. */
+  /** Keyed by the student's id, on every request whose token verifies. */
   studentRateLimit?: RateLimiter;
-  /** Keyed by the visitor's address, on what comes without a session. */
+  /** Keyed by the visitor's address, on every other request (no token, or one that does not verify). */
   addressRateLimit?: RateLimiter;
 }
 

@@ -1,13 +1,12 @@
-// The limits on requests: by student once the session is known, and by address for what comes without a session (the
-// images, the health checks, the browsers' error reports and a token that does not verify).
+// The limit on requests, before any route: a request with a token that verifies counts against its student, anything
+// else (no token, a made-up one) against its address.
 import type { Context } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import type { Dependencies } from '../dependencies';
 import type { AppEnv } from '../env';
 import { apiError } from '../http';
 import { RATE_LIMIT_PERIOD } from '../ports/rateLimit';
-import { tokenFromHeader } from './authenticate';
-import type { Guard } from './guard';
+import { verifiedSession } from './authenticate';
 
 const RATE_LIMITED_MESSAGE =
   'Llegaron demasiados pedidos seguidos. Espera unos segundos y vuelve a intentarlo.';
@@ -21,27 +20,17 @@ function tooManyRequests(c: Context<AppEnv>) {
   return c.json(apiError('rate_limited', RATE_LIMITED_MESSAGE), 429);
 }
 
-/** By address, only what carries no session token: a classroom behind one address must not share a student's limit. */
-export function limitAnonymous(deps: Dependencies) {
+/**
+ * By student when the token verifies, so that a classroom behind one address does not share one limit; by address
+ * otherwise, so that sending a token, real or made up, is no way around it. Each request counts once.
+ */
+export function limitRequests(deps: Dependencies) {
   return createMiddleware<AppEnv>(async (c, next) => {
-    if (!tokenFromHeader(c.req.header('Authorization'))) {
-      if (!(await deps.addressRateLimit.allow(clientAddress(c)))) return tooManyRequests(c);
-    }
+    const { user } = await verifiedSession(deps, c);
+    const allowed = user
+      ? await deps.studentRateLimit.allow(user.id)
+      : await deps.addressRateLimit.allow(clientAddress(c));
+    if (!allowed) return tooManyRequests(c);
     await next();
   });
 }
-
-/** A token that does not verify counts against its address: sending made-up tokens is no way around the limit. */
-export const limitRejectedToken =
-  (deps: Dependencies, authenticate: Guard): Guard =>
-  async (c) => {
-    const refused = await authenticate(c);
-    if (!refused || !tokenFromHeader(c.req.header('Authorization'))) return refused;
-    return (await deps.addressRateLimit.allow(clientAddress(c))) ? refused : tooManyRequests(c);
-  };
-
-/** After the session is verified and before anything that asks the databases. */
-export const limitStudent =
-  (deps: Dependencies): Guard =>
-  async (c) =>
-    (await deps.studentRateLimit.allow(c.get('user').id)) ? undefined : tooManyRequests(c);

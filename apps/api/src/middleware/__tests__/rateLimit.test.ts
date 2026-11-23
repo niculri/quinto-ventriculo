@@ -13,13 +13,20 @@ const ANA = { id: '00000000-0000-4000-8000-00000000000a', email: 'ana@ug.uchile.
 const BETO = { id: '00000000-0000-4000-8000-00000000000b', email: 'beto@ug.uchile.cl' };
 const TOKENS: Record<string, typeof ANA> = { 'token-de-ana': ANA, 'token-de-beto': BETO };
 
+let verifications = 0;
+
 function appWith(
   op: { student?: number; address?: number; unlimited?: boolean } & Partial<AppOptions> = {},
 ) {
   let now = 1_800_000_000;
   const { student = 3, address = 3, unlimited = false, ...deps } = op;
   const app = createApp({
-    verifier: { verify: async (t) => TOKENS[t] ?? null },
+    verifier: {
+      verify: async (t) => {
+        verifications++;
+        return TOKENS[t] ?? null;
+      },
+    },
     repository: {} as ContentRepository,
     media: { get: async () => null },
     signer: new MediaSigner('secreto-de-prueba-0123456789-0123456789'),
@@ -73,6 +80,14 @@ describe('the limit by student', () => {
     expect((await app.get('/api/me', as('token-de-beto'))).status).toBe(200);
   });
 
+  it('the token is verified once a request, by the limit, and the session reuses it', async () => {
+    const app = appWith();
+    verifications = 0;
+    expect((await app.get('/api/me', as('token-de-ana'))).status).toBe(200);
+    expect((await app.get('/api/me', as('inventado'))).status).toBe(401);
+    expect(verifications).toBe(2);
+  });
+
   it('requests with a session do not use up their address', async () => {
     const app = appWith();
     for (let i = 0; i < 3; i++) await app.get('/api/me', as('token-de-ana'));
@@ -97,13 +112,34 @@ describe('the limit by address', () => {
     expect((await app.get('/api/me', from('200.89.1.1'))).status).toBe(429);
   });
 
-  it('a token that does not verify counts against its address, once a request', async () => {
+  it('a token that does not verify on a route with a session counts against its address, once a request', async () => {
     const app = appWith();
     for (let i = 0; i < 3; i++) {
       expect((await app.get('/api/me', as('inventado', '200.89.1.3'))).status).toBe(401);
     }
     expect((await app.get('/api/me', as('inventado', '200.89.1.3'))).status).toBe(429);
     expect((await app.get('/api/me', as('token-de-ana', '200.89.1.3'))).status).toBe(200);
+  });
+
+  it('a made-up token on a route without a session still pays its address', async () => {
+    const app = appWith();
+    for (const path of ['/api/health', '/api/media/x.png', '/api/health']) {
+      expect((await app.get(path, as('inventado', '200.89.1.6'))).status).not.toBe(429);
+    }
+    expect((await app.get('/api/health', as('inventado', '200.89.1.6'))).status).toBe(429);
+    expect((await app.get('/api/media/x.png', as('inventado', '200.89.1.6'))).status).toBe(429);
+    const report = '{"kind":"boot","page":"/x","message":"m","version":"v"}';
+    expect(
+      (await app.post('/api/client-error', report, as('inventado', '200.89.1.6'))).status,
+    ).toBe(429);
+  });
+
+  it('a real token on a route without a session counts against its student, not the address', async () => {
+    const app = appWith();
+    for (let i = 0; i < 3; i++) await app.get('/api/health', as('token-de-ana', '200.89.1.7'));
+    expect((await app.get('/api/health', as('token-de-ana', '200.89.1.7'))).status).toBe(429);
+    expect((await app.get('/api/me', as('token-de-ana', '200.89.1.7'))).status).toBe(429);
+    expect((await app.get('/api/health', from('200.89.1.7'))).status).toBe(200);
   });
 
   it('a report of a browser error is refused before it is read, and the route’s own budget still applies', async () => {

@@ -1,5 +1,5 @@
-// The content of the admin mode's demo server: the content of the e2e tests with one note more, only in the draft (the
-// published site, and the release files the other specs read, stay as they are). Run before that server starts.
+// The content of the demo servers of the admin mode and of e2e/fresh.spec.ts: the e2e content with one note more, only
+// in the draft (the published site and the release files stay as they are). Run before that server starts.
 import { cpSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 

@@ -1,7 +1,7 @@
 // Playwright configuration: the end-to-end tests in demo mode, with the test content of e2e/content.
 import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
-import { ADMIN_MODE_PORT, OWN_SERVER_PORT, PORT, demoState } from './e2e/accepted';
+import { ADMIN_MODE_PORT, FRESH_PORT, OWN_SERVER_PORT, PORT, demoState } from './e2e/accepted';
 
 /**
  * WebKit (Safari on the iPhone) runs only what a student does most on a phone, plus axe: running every spec a third time
@@ -20,12 +20,14 @@ const IPHONE_SPECS = [
   'viewer.spec.ts',
 ];
 
-/** Specs that change the server's settings: they run in `desktop` only, each on a server of its own, so no other spec sees it. */
-const OWN_SERVER = ['hiddenCourses.spec.ts', 'adminMode.spec.ts'];
+/** Specs that change what the server gives: they run in `desktop` only, each on a server of its own, so no other spec sees it. */
+const OWN_SERVER = ['hiddenCourses.spec.ts', 'adminMode.spec.ts', 'fresh.spec.ts'];
 
 const CONTENT = resolve(import.meta.dirname, 'e2e/content');
 /** The admin mode's server has a note more in its draft: `e2e/adminModeContent.ts` makes it a copy of the content. */
 const ADMIN_MODE_CONTENT = resolve(import.meta.dirname, 'node_modules/.cache/admin-mode-content');
+/** The same content, for the server where a spec publishes that note and undoes it. */
+const FRESH_CONTENT = resolve(import.meta.dirname, 'node_modules/.cache/fresh-content');
 
 const demoServer = (port: number, content = CONTENT) => {
   const prepare =
@@ -62,5 +64,6 @@ export default defineConfig({
     demoServer(PORT),
     demoServer(OWN_SERVER_PORT),
     demoServer(ADMIN_MODE_PORT, ADMIN_MODE_CONTENT),
+    demoServer(FRESH_PORT, FRESH_CONTENT),
   ],
 });

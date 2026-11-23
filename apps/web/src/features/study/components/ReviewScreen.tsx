@@ -4,9 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
 import { button } from '../../../shared/ui/styles';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
-import { cardQuery } from '../../decks/api/queries';
 import { answerRound, dropCurrent, revealCard } from '@qv/study';
 import type { Round } from '@qv/study';
+import { prefetchCards } from '../api/prefetchCards';
 import { useCardMaterial } from '../hooks/useCardMaterial';
 import { useReviewShortcuts } from '../hooks/useReviewShortcuts';
 import type { CardRef } from '../../progress/api/repository';
@@ -33,9 +33,7 @@ export function ReviewScreen({
   const { revealed } = round;
 
   useEffect(() => {
-    for (const c of round.queue.slice(1, 4)) {
-      void client.query(cardQuery(api, c.noteGuid, c.ord)).catch(() => undefined);
-    }
+    prefetchCards(client, api, round.queue.slice(1, 4));
   }, [api, client, round.queue]);
 
   useReviewShortcuts(round, current, onChange, onAnswer);

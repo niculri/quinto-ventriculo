@@ -8,8 +8,8 @@ import type { CommandId, HideAction, StudyAction, StudyData } from '@qv/study';
 import { useApi } from '../../../shared/hooks/useApi';
 import { useStudyRepository } from '../../progress/api/context';
 import { studyKeys } from '../../progress/queries';
-import { cardQuery } from '../../decks/api/queries';
 import { SaveQueue } from '../api/SaveQueue';
+import { prefetchCards } from '../api/prefetchCards';
 
 const RETRY_DELAYS_MS = [1000, 3000];
 const TOAST_MS = 3000;
@@ -62,11 +62,7 @@ export function useStudySession(initial: StudyData, rootId: string) {
         new Map([...initial.rows].map(([k, r]) => [k, r.updatedAt])),
         RETRY_DELAYS_MS,
         (failure) => numbered({ type: 'saveFailed', failure }),
-        (entries) => {
-          for (const e of entries) {
-            void client.query(cardQuery(api, e.noteGuid, e.ord)).catch(() => undefined);
-          }
-        },
+        (entries) => prefetchCards(client, api, entries),
       ),
   );
   const saving = useSyncExternalStore(saves.subscribe, () => saves.pending > 0);

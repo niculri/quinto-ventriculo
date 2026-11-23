@@ -7,6 +7,8 @@ import type { AdminChecker } from './ports/admin';
 import { NO_CLIENT_ERRORS, NO_CLIENT_ERRORS_READER } from './ports/clientErrors';
 import type { ClientErrorRecorder, ClientErrorsReader } from './ports/clientErrors';
 import type { ContentRepository } from './ports/content';
+import { NO_CONTENT_VERSION } from './ports/contentVersion';
+import type { ContentVersionSource } from './ports/contentVersion';
 import { NO_DEEP_HEALTH } from './ports/health';
 import type { DeepHealth } from './ports/health';
 import type { MediaStore } from './ports/media';
@@ -42,6 +44,10 @@ export interface AppOptions {
   usageTtl?: number;
   /** Milliseconds a read of the settings is kept (3000 by default); a change through the panel drops it at once. */
   settingsTtl?: number;
+  /** What changes when the students' material does: without it, the material always goes in full. */
+  contentVersion?: ContentVersionSource;
+  /** Milliseconds the content version is kept (3000 by default); publishing or undoing here drops it at once. */
+  contentVersionTtl?: number;
   clientErrors?: ClientErrorRecorder;
   clientErrorsReader?: ClientErrorsReader | null;
   deepHealth?: DeepHealth;
@@ -50,6 +56,7 @@ export interface AppOptions {
 /** Which of the optional parts were given: a null implementation stands for the rest. */
 interface Configured {
   releases: boolean;
+  contentVersion: boolean;
   settings: boolean;
   unpublished: boolean;
   usageStats: boolean;
@@ -77,6 +84,8 @@ export interface Dependencies {
   usageEvents: UsageRecorder;
   usageTtl: number;
   settingsTtl: number;
+  contentVersion: ContentVersionSource;
+  contentVersionTtl: number;
   clientErrors: ClientErrorRecorder;
   clientErrorsReader: ClientErrorsReader;
   deepHealth: DeepHealth;
@@ -102,11 +111,14 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     usageEvents: options.usageEvents ?? NO_USAGE_EVENTS,
     usageTtl: options.usageTtl ?? 60,
     settingsTtl: options.settingsTtl ?? 3000,
+    contentVersion: options.contentVersion ?? NO_CONTENT_VERSION,
+    contentVersionTtl: options.contentVersionTtl ?? 3000,
     clientErrors: options.clientErrors ?? NO_CLIENT_ERRORS,
     clientErrorsReader: options.clientErrorsReader ?? NO_CLIENT_ERRORS_READER,
     deepHealth: options.deepHealth ?? NO_DEEP_HEALTH,
     configured: {
       releases: !!options.releases,
+      contentVersion: !!options.contentVersion,
       settings: !!options.settings,
       unpublished: !!options.unpublished,
       usageStats: !!options.usageStats,

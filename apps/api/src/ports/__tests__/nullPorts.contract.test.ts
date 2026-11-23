@@ -1,6 +1,7 @@
 // What every port does when its part is not configured: what only reports does nothing, what reads or writes fails loudly.
 import { describe, expect, it } from 'vitest';
 import { NO_CLIENT_ERRORS, NO_CLIENT_ERRORS_READER } from '../clientErrors';
+import { NO_CONTENT_VERSION } from '../contentVersion';
 import { NO_DEEP_HEALTH } from '../health';
 import { NO_RELEASES } from '../releases';
 import { NO_SETTINGS_REPOSITORY } from '../settings';
@@ -28,6 +29,7 @@ describe('the parts that read or write', () => {
     ['release summary', () => NO_RELEASES.summaryJson(), 'release'],
     ['release log', () => NO_RELEASES.log(), 'release'],
     ['release revert', () => NO_RELEASES.revert(1, 'x'), 'release'],
+    ['content version', () => NO_CONTENT_VERSION.current(), 'content version'],
   ])('%s is rejected with a message that says what is missing', async (_name, call, word) => {
     await expect(call()).rejects.toThrow(new RegExp(`${word}.*not configured`, 'i'));
   });

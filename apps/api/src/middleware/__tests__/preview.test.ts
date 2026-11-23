@@ -32,7 +32,7 @@ describe('the preview of the draft', () => {
   it('a student with the header gets what is published (and the browser keeps it apart)', async () => {
     const r = await request('/api/catalog', 'ana@ug.uchile.cl', { [PREVIEW_HEADER]: 'draft' });
     expect(await titleOf(r)).toBe('Traducción');
-    expect(r.headers.get('Cache-Control')).toBe('private, max-age=60');
+    expect(r.headers.get('Cache-Control')).toBe('private, no-cache');
     expect(r.headers.get(PREVIEW_HEADER)).toBeNull();
     expect(r.headers.get('Vary')).toBe(`Authorization, ${PREVIEW_HEADER}`);
     const cookie = await request('/api/catalog', ADMIN, {

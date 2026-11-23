@@ -8,6 +8,7 @@ import { supabaseUsageStats } from '../usageStats';
 import { contentClient } from '../client';
 import { supabaseReleaseRepository } from '../release';
 import { supabaseRepository } from '../content';
+import { supabaseContentVersion } from '../contentVersion';
 import { supabaseSiteSettingsRepository } from '../settings';
 import { supabaseUnpublishedRepository } from '../unpublished';
 
@@ -187,6 +188,33 @@ describe('content database: the calls of each adapter', () => {
       calls,
     );
     expect(out).toMatchSnapshot();
+  });
+
+  it('content version', async () => {
+    const { calls } = recorder((c) =>
+      rpcName(c) === 'release_log'
+        ? {
+            body: {
+              releases: [
+                {
+                  id: 4,
+                  status: 'reverted',
+                  title: 'T',
+                  schemaVersion: 1,
+                  publishedAt: '2026-11-07T12:00:00+00:00',
+                  publishedBy: 'admin@ug.uchile.cl',
+                  revertedAt: '2026-11-07T12:05:00+00:00',
+                  revertedBy: 'admin@ug.uchile.cl',
+                  changes: {},
+                  canRevert: false,
+                },
+              ],
+            },
+          }
+        : { body: { total: 2, entries: [] } },
+    );
+    const source = supabaseContentVersion(contentClient(URL_, KEY));
+    expect(await run([['current', () => source.current()]], calls)).toMatchSnapshot();
   });
 
   it('site settings and the unpublished log', async () => {

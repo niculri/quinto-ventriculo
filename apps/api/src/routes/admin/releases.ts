@@ -17,6 +17,7 @@ import {
 import type { AppContext } from '../../context';
 import type { AppEnv } from '../../env';
 import { JSON_TYPE, apiError } from '../../http';
+import { forgettingReleases } from '../../services/contentVersion';
 import { isOnSite } from '../../services/mediaPresence';
 import { publishRefusal, revertRefusal } from '../../services/releases';
 
@@ -26,9 +27,10 @@ const MEDIA_PAGE = 40;
 const text = async (body: string | ReadableStream<Uint8Array>) =>
   typeof body === 'string' ? body : new Response(body).text();
 
-export function releasesRoutes({ deps, mw }: AppContext) {
+export function releasesRoutes({ deps, mw, services }: AppContext) {
   const routes = new Hono<AppEnv>();
   const panel = [mw.session, mw.releasesAdmin] as const;
+  const releases = forgettingReleases(deps.releases, services.contentVersion);
 
   routes.get(R.release.pattern, ...panel, async (c) => {
     const [summary, indexes] = await Promise.all([
@@ -98,7 +100,7 @@ export function releasesRoutes({ deps, mw }: AppContext) {
     if (!body.success) {
       return c.json(apiError('invalid_release', 'Esa publicación no es válida.'), 400);
     }
-    const r = await deps.releases.publish({
+    const r = await releases.publish({
       ...body.data,
       schemaVersion: CONTENT_SCHEMA_VERSION,
       // The only mark sent here is the announcement's, and there are no announcements yet.
@@ -115,7 +117,7 @@ export function releasesRoutes({ deps, mw }: AppContext) {
     if (!body.success) {
       return c.json(apiError('invalid_release', 'Esa publicación no existe.'), 400);
     }
-    const r = await deps.releases.revert(body.data.id, c.get('user').email);
+    const r = await releases.revert(body.data.id, c.get('user').email);
     if (r.ok) return c.json(r.result satisfies RevertResult);
     const refusal = revertRefusal(r.reason, r.detail);
     return c.json(refusal.body, refusal.status);

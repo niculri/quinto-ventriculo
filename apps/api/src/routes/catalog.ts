@@ -8,14 +8,20 @@ import { asksPublished } from '../middleware/preview';
 import { catalogFor } from '../services/catalog';
 
 export function catalogRoutes({ deps, mw }: AppContext) {
-  return new Hono<AppEnv>().get(R.catalog.pattern, mw.session, mw.visibleContent, async (c) => {
-    const catalog = await catalogFor({
-      repository: c.get('repository'),
-      published: deps.repository,
-      preview: c.get('preview'),
-      asksPublished: asksPublished(c),
-      settings: c.get('settings'),
-    });
-    return c.json(catalog satisfies Catalog);
-  });
+  return new Hono<AppEnv>().get(
+    R.catalog.pattern,
+    mw.session,
+    mw.visibleContent,
+    mw.revalidate,
+    async (c) => {
+      const catalog = await catalogFor({
+        repository: c.get('repository'),
+        published: deps.repository,
+        preview: c.get('preview'),
+        asksPublished: asksPublished(c),
+        settings: c.get('settings'),
+      });
+      return c.json(catalog satisfies Catalog);
+    },
+  );
 }

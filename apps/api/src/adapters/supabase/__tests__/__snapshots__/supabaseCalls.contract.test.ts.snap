@@ -732,6 +732,43 @@ exports[`content database: the calls of each adapter > content (public) 1`] = `
 ]
 `;
 
+exports[`content database: the calls of each adapter > content version 1`] = `
+[
+  {
+    "calls": [
+      {
+        "body": {
+          "max_rows": 1,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/release_log",
+      },
+      {
+        "body": {
+          "max_entries": 1,
+        },
+        "headers": {
+          "apikey": "service-test-key",
+          "authorization": "Bearer service-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/unpublish_log_entries",
+      },
+    ],
+    "result": "r4x.u2",
+    "step": "current",
+  },
+]
+`;
+
 exports[`content database: the calls of each adapter > release 1`] = `
 [
   {

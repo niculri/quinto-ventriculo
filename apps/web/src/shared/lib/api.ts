@@ -132,7 +132,8 @@ function requester(
       if (previous) return reuse();
       throw new ApiRequestError(0, 'offline', apiStrings.errors.offline);
     }
-    if (previous && (r.status === 304 || r.status >= 500)) return reuse();
+    // Unchanged, or the API could not check it now (too many requests in a row, or down): what was shown stays.
+    if (previous && (r.status === 304 || r.status === 429 || r.status >= 500)) return reuse();
     const body: unknown = await r.json().catch(() => null);
     if (!r.ok) {
       const e = ApiError.safeParse(body);

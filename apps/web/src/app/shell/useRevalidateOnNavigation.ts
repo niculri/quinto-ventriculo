@@ -4,6 +4,12 @@ import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isContentQuery } from '../../shared/lib/contentQuery';
 
+/**
+ * What was read or checked this recently is not asked again: a few clicks in a row (a redirect, going back) cost one
+ * request, not one per click, against each student's limit and the daily requests of the free plan.
+ */
+export const RECHECK_AFTER_MS = 15_000;
+
 export function useRevalidateOnNavigation(pathname: string, adminMode: boolean) {
   const client = useQueryClient();
   const lastRef = useRef(pathname);
@@ -11,7 +17,11 @@ export function useRevalidateOnNavigation(pathname: string, adminMode: boolean) 
     if (lastRef.current === pathname) return;
     lastRef.current = pathname;
     if (adminMode) return;
+    const readBefore = Date.now() - RECHECK_AFTER_MS;
     // A read still on its way is the check already.
-    void client.invalidateQueries({ predicate: isContentQuery }, { cancelRefetch: false });
+    void client.invalidateQueries(
+      { predicate: (q) => isContentQuery(q) && q.state.dataUpdatedAt <= readBefore },
+      { cancelRefetch: false },
+    );
   }, [client, pathname, adminMode]);
 }

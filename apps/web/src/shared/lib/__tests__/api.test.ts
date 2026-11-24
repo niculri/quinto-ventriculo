@@ -142,13 +142,15 @@ describe('the answers kept with their validator', () => {
     expect(ifNoneMatch()).toBeUndefined();
   });
 
-  it('checking again without a connection, or with the server down, keeps what was shown; a 404 is said', async () => {
+  it('checking again without a connection, with the server down or too many requests in a row, keeps what was shown; a 404 is said', async () => {
     const api = createApiClient(async () => 't');
     respond = () => tagged(FOUND, 'W/"v1"');
     const first = await api.search('ribo');
     respond = () => Promise.reject(new TypeError('Failed to fetch'));
     expect(await api.search('ribo')).toBe(first);
     respond = () => json({ error: 'internal', message: 'x' }, 503);
+    expect(await api.search('ribo')).toBe(first);
+    respond = () => json({ error: 'rate_limited', message: 'x' }, 429);
     expect(await api.search('ribo')).toBe(first);
     respond = () => json({ error: 'not_found', message: 'Ya no está.' }, 404);
     await expect(api.search('ribo')).rejects.toMatchObject({ status: 404, code: 'not_found' });

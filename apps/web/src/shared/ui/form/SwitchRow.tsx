@@ -26,7 +26,14 @@ export function SwitchRow({
   const id = useId();
   return (
     <Row label={label} id={id} help={help}>
-      <Switch id={id} label={label} checked={value} disabled={disabled} onChange={onChange} />
+      <Switch
+        id={id}
+        label={label}
+        checked={value}
+        disabled={disabled}
+        wholeRow
+        onChange={onChange}
+      />
       <Revert value={value} fallback={fallback} onChange={onChange} />
     </Row>
   );

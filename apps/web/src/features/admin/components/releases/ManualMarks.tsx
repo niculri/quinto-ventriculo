@@ -25,7 +25,7 @@ export function ManualMarks({ review, fingerprint }: { review: ReviewList; finge
     <>
       <ul className={`${card} mt-2 divide-y divide-border`}>
         {review.manual.map((m) => (
-          <li key={m.mark} className="flex items-center gap-3 px-4 py-3 sm:px-5">
+          <li key={m.mark} className="relative flex items-center gap-3 px-4 py-3 sm:px-5">
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-medium text-ink">{m.label}</span>
               <Reserved longest={s.marks.longest} className="text-xs text-muted">
@@ -35,6 +35,7 @@ export function ManualMarks({ review, fingerprint }: { review: ReviewList; finge
             <Switch
               label={m.label}
               checked={shown[m.mark] ?? m.checked}
+              wholeRow
               onChange={(checked) => {
                 setShown((v) => ({ ...v, [m.mark]: checked }));
                 mark.mutate(

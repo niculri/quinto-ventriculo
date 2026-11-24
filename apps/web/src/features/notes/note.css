@@ -20,6 +20,19 @@
   }
 }
 
+/*
+ * The measure (`--measure`, set by the article: about 70 letters): the text, its lists and its callouts stop there,
+ * on the column's left edge, as the title does. The column stays whole for the figures: the thumbnails float to its
+ * right edge (the text beside them is narrower still), and the wide figures, the rows and the tables use all of it,
+ * also inside a callout that has one. Without `--measure` (the help pages) nothing changes.
+ */
+.note-body :is(p, ul, ol, blockquote, .callout, .note-summary) {
+  max-width: var(--measure, none);
+}
+.note-body .callout:has(> .is-wide, > .figure-row, > .table-scroll) {
+  max-width: none;
+}
+
 .note-body h2,
 .note-body h3,
 .note-body h4 {

@@ -164,6 +164,18 @@ describe('prepareArticle', () => {
     ]);
   });
 
+  it('counts the text beside a thumbnail with the measure: shorter lines, more of them', () => {
+    const html = para(5) + fig('', 400, 1200) + para(175) + table + para(400);
+    const at = (textPx: number) =>
+      [
+        ...prepareSanitized(markSanitized(html), textPx).matchAll(
+          /<(figure|p|div class="table-scroll")/g,
+        ),
+      ].map((m) => m[1]);
+    expect(at(596)).toEqual(['p', 'figure', 'p', 'div class="table-scroll"', 'p']);
+    expect(at(COLUMN_PX)).toEqual(['figure', 'p', 'p', 'div class="table-scroll"', 'p']);
+  });
+
   it('without enough text anywhere in its section, it stays a thumbnail where the strip is smallest', () => {
     const html = '<h3>A</h3>' + fig('') + para(5) + table + '<h3>B</h3>' + para(300);
     expect(order(html)).toEqual(['h3', 'figure', 'p', 'div class="table-scroll"', 'h3', 'p']);

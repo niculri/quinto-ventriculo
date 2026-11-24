@@ -289,3 +289,41 @@ test('no figure is taller than the window under the site’s bars, caption inclu
     expect(Math.abs(f.drawn - f.shape) / f.shape).toBeLessThan(0.02);
   }
 });
+
+test('the text stops at its measure on the column’s left edge, the wide figures and the tables use the whole column', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'on a phone the column is narrower than any measure');
+  await signIn(page);
+  const widths = async (measure: string) => {
+    await page.goto(`/dev/reading${measure ? `?measure=${measure}` : ''}`);
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
+    ).toBeVisible();
+    return page.evaluate(() => {
+      const body = document.querySelector('.note-body')!.getBoundingClientRect();
+      const widest = (selector: string) =>
+        Math.max(
+          ...[...document.querySelectorAll(selector)].map((e) => e.getBoundingClientRect().width),
+        );
+      const lefts = [...document.querySelectorAll('.note-body > p, .note-body > .callout')].map(
+        (e) => e.getBoundingClientRect().left - body.left,
+      );
+      return {
+        text: widest('.note-body > p, .note-body > ul, .note-body > ol, .note-body > .callout'),
+        wide: widest('.note-body .table-scroll, .note-body > figure.is-wide'),
+        column: body.width,
+        lefts,
+      };
+    });
+  };
+  const standard = await widths('');
+  expect(standard.text).toBeLessThanOrEqual(596.5);
+  expect(standard.text).toBeGreaterThan(590);
+  expect(standard.wide).toBeCloseTo(standard.column, 0);
+  for (const left of standard.lefts) expect(Math.abs(left)).toBeLessThanOrEqual(1);
+  expect((await widths('65')).text).toBeLessThanOrEqual(552.5);
+  expect((await widths('75')).text).toBeLessThanOrEqual(640.5);
+  expect((await widths('full')).text).toBeCloseTo(standard.column, 0);
+});

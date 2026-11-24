@@ -3,16 +3,18 @@
 
 import { includesExtras, isExtras, UNIT_DEPTH } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
-import { ancestry } from '../../catalog/model/tree';
+import { ancestry, hasPage } from '../../catalog/model/tree';
 import type { CourseDeckNode, DeckNode } from '../../catalog/model/tree';
 
 function assessmentOf(node: DeckNode): DeckNode | null {
   return ancestry(node).find((n) => n.depth === 3) ?? null;
 }
 
+/** A subdeck without cards has no page, so it is not listed either. */
 export function visibleChildren(node: DeckNode, plan: StudyPlan): CourseDeckNode[] {
-  return (node.children as CourseDeckNode[]).filter(
-    (c) => !isExtras(c.name) || includesExtras(plan, assessmentOf(c)?.id ?? ''),
+  return node.children.filter(
+    (c): c is CourseDeckNode =>
+      hasPage(c) && (!isExtras(c.name) || includesExtras(plan, assessmentOf(c)?.id ?? '')),
   );
 }
 

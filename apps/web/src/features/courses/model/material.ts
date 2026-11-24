@@ -10,8 +10,7 @@ import { materialStrings as s } from './strings/material.strings';
 export function assessmentDeck(tree: AnkiTree, a: AssessmentWithNotes): CourseDeckNode | null {
   return (
     tree.nodes.find(
-      (n): n is CourseDeckNode =>
-        n.depth === 3 && hasPage(n) && n.assessmentId === a.id && n.cardCount > 0,
+      (n): n is CourseDeckNode => n.depth === 3 && hasPage(n) && n.assessmentId === a.id,
     ) ?? null
   );
 }

@@ -72,7 +72,9 @@ function refOf(node: DeckNode): DeckRef | null {
 
 export type CourseDeckNode = DeckNode & { ref: DeckRef };
 
-export const hasPage = (node: DeckNode): node is CourseDeckNode => node.ref !== null;
+/** A deck below a course has a page while it has cards: without any it is not published, as a deck made up. */
+export const hasPage = (node: DeckNode): node is CourseDeckNode =>
+  node.ref !== null && node.cardCount > 0;
 
 export function deckCrumbs(node: CourseDeckNode, last?: Crumb): Crumb[] {
   const items: Crumb[] = [{ label: 'Inicio', to: paths.home }];
@@ -152,9 +154,7 @@ export function resolveCourseDeck(
   subdeck: string | null,
 ): Resolved {
   const resolved = findCourseDeck(tree, semester, courseId, segments, subdeck);
-  return resolved.kind !== 'missing' && resolved.node.cardCount === 0
-    ? { kind: 'missing' }
-    : resolved;
+  return resolved.kind !== 'missing' && !hasPage(resolved.node) ? { kind: 'missing' } : resolved;
 }
 
 function findCourseDeck(

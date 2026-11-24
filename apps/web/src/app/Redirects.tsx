@@ -1,5 +1,6 @@
 // Redirects from old URLs (saved links and progress) to the canonical ones.
 import { Navigate, useLocation, useParams } from 'react-router';
+import { courseHasMaterial } from '@qv/schema/http';
 import { paths } from '../shared/lib/paths';
 import { ErrorWithRetry } from '../shared/ui/Notice';
 import { Loading } from '../shared/ui/Loading';
@@ -29,7 +30,7 @@ export function LegacyCourseRedirect() {
     <LegacyRedirect
       target={(c) => {
         const found = findCourse(c, courseId);
-        return found ? paths.course(found.course) : null;
+        return found && courseHasMaterial(c, found.course) ? paths.course(found.course) : null;
       }}
     />
   );
@@ -59,7 +60,7 @@ export function LegacyDeckRedirect() {
   if (!node) return <NotFoundPage />;
   const subdeck = new URLSearchParams(search).get('subdeck');
   const target = (subdeck ? descendants(node).find((n) => n.slug === subdeck) : undefined) ?? node;
-  if (!hasPage(target) || target.cardCount === 0) return <NotFoundPage />;
+  if (!hasPage(target)) return <NotFoundPage />;
   return <Navigate to={paths.deck(target.ref)} replace />;
 }
 

@@ -1,6 +1,6 @@
 // Tests that the addresses of what is not published (no material, an empty part, a deck without cards) answer as an
 // address made up, and that the admin mode opens what has material in the draft and nothing more.
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { adminKey } from '@qv/schema/http';
@@ -84,6 +84,61 @@ describe('what is not published', () => {
       expect(await page(), url).toBe(madeUp);
       view.unmount();
     }
+  });
+
+  it('shows the menu of an address made up, and its old address stays where it is', async () => {
+    const shown = async (url: string) => {
+      const view = renderApp(url, { api: fakeApi({ catalog: async () => withEmptyDeck() }) });
+      await page();
+      const menu = screen.getByRole('navigation', { name: 'Menú del sitio' }).innerHTML;
+      const at = view.router.state.location.pathname;
+      view.unmount();
+      return { menu, at };
+    };
+    const MADE_UP = '/semesters/2/courses/inventado';
+    for (const [url, never] of [
+      [PHYSICS, MADE_UP],
+      [`${PHYSICS}/anki/cards`, `${MADE_UP}/anki/cards`],
+      [`${PHYSICS}/assessments/certamen-1/notes`, `${MADE_UP}/assessments/certamen-1/notes`],
+      [`${PHYSICS}/notes/fluidos`, `${MADE_UP}/notes/fluidos`],
+      ['/semesters/3', '/semesters/9'],
+      [paths.deck(emptyDeck.ref), `${paths.deck(emptyDeck.ref)}-inventado`],
+      ['/courses/fisica', '/courses/inventado'],
+    ] as const) {
+      const [one, other] = [await shown(url), await shown(never)];
+      expect(one.menu, url).toBe(other.menu);
+      expect(one.at, url).toBe(url);
+    }
+  });
+
+  it('a course page links no deck without cards', async () => {
+    const c = structuredClone(CATALOG);
+    const empty = { ...c.anki.decks[0]!, semester: 2, noteCount: 0, cardCount: 0 };
+    const course = { ...empty, courseId: 'biologia-celular' };
+    c.anki.decks.push(
+      { ...empty, id: '30', name: '() Medicina UCH::2° Semestre', parentId: '1' },
+      {
+        ...course,
+        id: '31',
+        name: '() Medicina UCH::2° Semestre::🧬 Biología celular',
+        parentId: '30',
+      },
+      {
+        ...course,
+        id: '32',
+        name: '() Medicina UCH::2° Semestre::🧬 Biología celular::Certamen 2',
+        parentId: '31',
+        assessmentId: 'biologia-celular/certamen-2',
+      },
+    );
+    renderApp(BIOLOGY, { api: fakeApi({ catalog: async () => c }) });
+    const main = await screen.findByRole('main');
+    await within(main).findByRole('heading', { level: 1, name: /Biología celular/ });
+    const links = within(main)
+      .getAllByRole('link')
+      .map((a) => a.getAttribute('href'));
+    expect(links.length).toBeGreaterThan(0);
+    expect(links.filter((href) => href?.includes('/anki'))).toEqual([]);
   });
 
   it('the deck with cards beside it opens', async () => {

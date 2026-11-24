@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { AnkiTreeDeck, Catalog } from '@qv/schema';
 import { CATALOG } from '../../../../test/fixtures/catalog';
 import { DECK_PATH } from '../../../../test/fixtures/deck';
-import { buildAnkiTree, deckCrumbs, resolveCourseDeck, studyBackLabel } from '../tree';
+import { buildAnkiTree, deckCrumbs, hasPage, resolveCourseDeck, studyBackLabel } from '../tree';
 import type { CourseDeckNode } from '../tree';
 
 const WEEK = 'R::1° Semestre::Anatomía::Certamen 2::S4';
@@ -162,6 +162,23 @@ describe('resolveCourseDeck', () => {
     const r = resolveCourseDeck(tree, '1', 'fisica', ['certamen-1', 's1-semana-de-prueba'], null);
     expect(r.kind).toBe('moved');
     expect(r.kind === 'moved' && [r.node.id, r.screen]).toEqual(['5', 'page']);
+  });
+
+  it('a deck without cards has no page, whatever leads to it', () => {
+    const empty = buildAnkiTree({
+      ...CATALOG,
+      anki: {
+        ...CATALOG.anki,
+        decks: CATALOG.anki.decks.map((d) => (d.id === '20' ? { ...d, cardCount: 0 } : d)),
+      },
+    });
+    const deck = empty.byId.get('20')!;
+    expect(deck.ref).not.toBeNull();
+    expect(hasPage(deck)).toBe(false);
+    expect(hasPage(empty.byId.get('5')!)).toBe(true);
+    expect(resolveCourseDeck(empty, '1', 'anatomia-1', ['mazo-de-prueba'], null).kind).toBe(
+      'missing',
+    );
   });
 
   it('an old address with a subdeck that does not exist opens the deck', () => {

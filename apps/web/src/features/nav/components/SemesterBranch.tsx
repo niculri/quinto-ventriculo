@@ -27,7 +27,9 @@ export function SemesterBranch({
   pathname: string;
   onNavigate?: (() => void) | undefined;
 }) {
-  const course = semester.courses.find((c) => c.id === where.courseId) ?? null;
+  // A course without material is not open in the menu, as a course made up: it does not exist.
+  const course =
+    semester.courses.find((c) => c.id === where.courseId && courseHasMaterial(catalog, c)) ?? null;
   const emoji = (c: CourseWithAssessments) => (
     <span className="w-4 flex-none text-center" aria-hidden="true">
       {c.emoji}
@@ -107,8 +109,7 @@ function CourseAssessments({
   onNavigate?: (() => void) | undefined;
 }) {
   const decks = tree.nodes.filter(
-    (n): n is CourseDeckNode =>
-      n.depth === 3 && hasPage(n) && n.courseId === course.id && n.cardCount > 0,
+    (n): n is CourseDeckNode => n.depth === 3 && hasPage(n) && n.courseId === course.id,
   );
   const assessments = course.assessments.filter((a) => assessmentHasMaterial(catalog, a));
   // On the course's page every assessment is open; deeper, the one being read.

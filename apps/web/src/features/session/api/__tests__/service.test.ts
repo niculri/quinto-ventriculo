@@ -1,5 +1,5 @@
 // Tests the Supabase session service over a fake auth client: what of Google's account the session keeps, following
-// the changes, and signing in with Google only for the allowed domain.
+// the changes, and signing in with Google (redirect or ID token) only for the allowed domain.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { ALLOWED_DOMAIN } from '@qv/schema';
@@ -14,7 +14,7 @@ interface FakeAuthUser {
   last_sign_in_at?: unknown;
 }
 
-function fakeAuth(over: { oauthError?: Error } = {}) {
+function fakeAuth(over: { oauthError?: Error; idTokenError?: Error } = {}) {
   let session: { access_token: string; user: FakeAuthUser } | null = null;
   let listener: ((event: string, s: typeof session) => void) | null = null;
   const unsubscribe = vi.fn();
@@ -25,6 +25,7 @@ function fakeAuth(over: { oauthError?: Error } = {}) {
       return { data: { subscription: { unsubscribe } } };
     },
     signInWithOAuth: vi.fn(async () => ({ error: over.oauthError ?? null })),
+    signInWithIdToken: vi.fn(async () => ({ error: over.idTokenError ?? null })),
     signOut: vi.fn(async () => ({ error: null })),
   };
   return {
@@ -159,6 +160,21 @@ describe('signing in and out', () => {
     await expect(supabaseSessionService(f.client).signInWithGoogle('/x')).rejects.toThrow(
       'provider disabled',
     );
+  });
+
+  it('gives Supabase the ID token of the Google button with the raw nonce, and throws its refusal', async () => {
+    const f = fakeAuth();
+    await supabaseSessionService(f.client).signInWithIdToken('id-token', 'raw-nonce');
+    expect(f.auth.signInWithIdToken).toHaveBeenCalledWith({
+      provider: 'google',
+      token: 'id-token',
+      nonce: 'raw-nonce',
+    });
+    expect(window.sessionStorage.getItem('qv-next')).toBeNull();
+    const refused = fakeAuth({ idTokenError: new Error('solo entran cuentas invitadas') });
+    await expect(
+      supabaseSessionService(refused.client).signInWithIdToken('id-token', 'raw-nonce'),
+    ).rejects.toThrow('solo entran cuentas invitadas');
   });
 
   it('signing out signs out of Supabase', async () => {

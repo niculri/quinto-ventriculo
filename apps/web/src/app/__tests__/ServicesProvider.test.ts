@@ -133,6 +133,14 @@ describe('with the users database', () => {
     expect(h.dbCalls).toEqual(['card_sync', 'answered_decks']);
   });
 
+  it('Google’s own button only with a client ID, and its script is not added until asked', () => {
+    expect(createServices().google).toBeUndefined();
+    vi.stubEnv('VITE_GOOGLE_CLIENT_ID', 'client.apps.googleusercontent.com');
+    const { google } = createServices();
+    expect(google).toBeTypeOf('function');
+    expect(document.head.querySelector('script')).toBeNull();
+  });
+
   it('the admin mode’s API asks for the draft, the site’s does not', async () => {
     const api = stubApi();
     const services = createServices();
@@ -153,6 +161,12 @@ describe('the demo', () => {
     const services = createServices();
     expect(h.made).toEqual([]);
     expect(await services.session.current()).toBeNull();
+  });
+
+  it('Google’s button is the demo’s stand-in, which loads without any script', async () => {
+    const services = createServices();
+    await expect(services.google?.()).resolves.toBeDefined();
+    expect(document.head.querySelector('script')).toBeNull();
   });
 
   it('signed out the demo API has no token; once signed in, the demo’s, also for the made-up history', async () => {

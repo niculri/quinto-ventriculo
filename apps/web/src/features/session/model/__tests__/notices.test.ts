@@ -6,6 +6,7 @@ import {
   GOOGLE_NOTICE,
   INVITE_NOTICE,
   noticeCodeForError,
+  noticeForError,
   noticeText,
   noticeTitle,
 } from '../notices';
@@ -34,5 +35,19 @@ describe('noticeText and noticeTitle', () => {
   it('only a deletion has its own title', () => {
     expect(noticeTitle('deletion')).not.toBe(noticeTitle('domain'));
     expect(noticeTitle('domain')).toBe(noticeTitle(null));
+  });
+});
+
+describe('noticeForError', () => {
+  it('says the refusals of the users database by their meaning, and anything else as Google', () => {
+    expect(
+      noticeForError(
+        'El Quinto Ventrículo está en prueba: por ahora solo entran cuentas invitadas.',
+      ),
+    ).toBe(INVITE_NOTICE);
+    expect(noticeForError('El Quinto Ventrículo es solo para cuentas @ug.uchile.cl.')).toBe(
+      DOMAIN_NOTICE,
+    );
+    expect(noticeForError('Nonces mismatch')).toBe(GOOGLE_NOTICE);
   });
 });

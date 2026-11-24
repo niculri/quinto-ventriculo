@@ -1,4 +1,4 @@
-// The authentication service the web uses, and its Supabase implementation (Google sign-in).
+// The authentication service the web uses, and its Supabase implementation (Google's button, or the redirect).
 import type { Session as SupabaseSession, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { ALLOWED_DOMAIN } from '@qv/schema';
@@ -23,7 +23,10 @@ export interface Session {
 export interface SessionService {
   current(): Promise<Session | null>;
   subscribe(onChange: (s: Session | null) => void): () => void;
+  /** The redirect to Google through Supabase Auth: the fallback when Google's button cannot be used. */
   signInWithGoogle(next: string): Promise<void>;
+  /** Google's ID token from its button, with the raw nonce whose SHA-256 the token carries. */
+  signInWithIdToken(idToken: string, nonce: string): Promise<void>;
   signOut(): Promise<void>;
 }
 
@@ -68,6 +71,14 @@ export function supabaseSessionService(client: SupabaseClient<Database>): Sessio
           // `hd` makes Google show only accounts of the domain; the real rule lives on the server.
           queryParams: { hd: ALLOWED_DOMAIN, prompt: 'select_account' },
         },
+      });
+      if (error) throw error;
+    },
+    async signInWithIdToken(idToken, nonce) {
+      const { error } = await client.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+        nonce,
       });
       if (error) throw error;
     },

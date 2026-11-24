@@ -1,6 +1,8 @@
 // Tests the demo's session: signed out until «entering», remembered in the browser, told to whoever follows it.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEMO_EMAIL, demoSessionService } from '../demo';
+import { demoIdToken } from '../demoGoogle';
+import { sha256Hex } from '../../model/nonce';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -34,5 +36,16 @@ describe('the demo session', () => {
       throw new Error('denied');
     });
     expect(await demoSessionService().current()).toBeNull();
+  });
+
+  it('enters with a test ID token only when the raw nonce hashes to the one it carries', async () => {
+    const session = demoSessionService();
+    const token = demoIdToken(await sha256Hex('raw-nonce'));
+    await expect(session.signInWithIdToken(token, 'another')).rejects.toThrow('Nonces mismatch');
+    await expect(session.signInWithIdToken('not-a-jwt', 'raw-nonce')).rejects.toThrow();
+    await expect(session.signInWithIdToken('a.e30.b', 'raw-nonce')).rejects.toThrow();
+    expect(await session.current()).toBeNull();
+    await session.signInWithIdToken(token, 'raw-nonce');
+    expect((await session.current())?.user.email).toBe(DEMO_EMAIL);
   });
 });

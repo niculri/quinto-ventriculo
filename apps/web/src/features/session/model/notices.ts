@@ -30,3 +30,8 @@ export function noticeCodeForError(description: string): NoticeCode {
   if (text.includes('invitad')) return 'invite';
   return text.includes(ALLOWED_DOMAIN) ? 'domain' : 'google';
 }
+
+/** What to say when Supabase Auth refuses Google's ID token: the hook's refusals by their meaning, anything else as Google's. */
+export function noticeForError(error: unknown): string {
+  return NOTICES[noticeCodeForError(error instanceof Error ? error.message : String(error))];
+}

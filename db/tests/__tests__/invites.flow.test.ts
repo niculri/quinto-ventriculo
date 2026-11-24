@@ -48,6 +48,33 @@ describe('invite list', () => {
     ).rejects.toThrow(/check constraint/);
   });
 
+  it('decides the same for an account that comes with the ID token of the Google button', async () => {
+    const fromIdToken = async (email: string) =>
+      (
+        await db.query<{ r: { error?: { message: string } } }>(
+          'select public.hook_before_user_created($1) as r',
+          [
+            {
+              metadata: { name: 'before-user-created', time: '2026-11-24T12:00:00Z' },
+              user: {
+                email,
+                app_metadata: { provider: 'google', providers: ['google'] },
+                user_metadata: { email, email_verified: true, iss: 'https://accounts.google.com' },
+                identities: [{ provider: 'google', identity_data: { email } }],
+              },
+            },
+          ],
+        )
+      ).rows[0]!.r;
+    expect(await fromIdToken('dueno@ug.uchile.cl')).toEqual({});
+    expect((await fromIdToken('otra.persona@ug.uchile.cl')).error?.message).toMatch(
+      /solo entran cuentas invitadas/,
+    );
+    expect((await fromIdToken('alguien@gmail.com')).error?.message).toMatch(
+      /solo para cuentas @ug.uchile.cl/,
+    );
+  });
+
   it('opening it to the domain lets in every @ug.uchile.cl account', async () => {
     await setOpen(true);
     expect(await hook('otra.persona@ug.uchile.cl')).toEqual({});

@@ -11,7 +11,12 @@ const within = (state: SessionState) =>
   function Wrapper({ children }: { children: ReactNode }) {
     return (
       <SessionContext
-        value={{ state, signIn: async () => undefined, signOut: async () => undefined }}
+        value={{
+          state,
+          signIn: async () => undefined,
+          signInWithIdToken: async () => undefined,
+          signOut: async () => undefined,
+        }}
       >
         {children}
       </SessionContext>

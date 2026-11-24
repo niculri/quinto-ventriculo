@@ -27,7 +27,10 @@ import type { AccountRepository } from '../features/account/api/repository';
 import { DEMO_EMAIL, demoSessionService } from '../features/session/api/demo';
 import { supabaseSessionService } from '../features/session/api/service';
 import type { SessionService } from '../features/session/api/service';
-import { SessionServiceContext } from '../features/session/api/context';
+import { GoogleIdentityContext, SessionServiceContext } from '../features/session/api/context';
+import { demoGoogleIdentity } from '../features/session/api/demoGoogle';
+import { gisLoader } from '../features/session/api/googleIdentity';
+import type { GoogleIdentityLoader } from '../features/session/api/googleIdentity';
 import { ApiClientContext } from '../shared/hooks/useApi';
 import { StudyRepositoryContext } from '../features/progress/api/context';
 import { QuizRepositoryContext } from '../features/quiz/api/context';
@@ -45,6 +48,8 @@ export interface Services {
   reports: ReportsRepository;
   account: AccountRepository;
   adminApi?: ApiClient;
+  /** Google's sign-in button; without it the landing page signs in by redirect only. */
+  google?: GoogleIdentityLoader;
 }
 
 export function createServices(): Services {
@@ -58,6 +63,7 @@ export function createServices(): Services {
     const api = demo.api;
     return {
       session,
+      google: demoGoogleIdentity(window.localStorage),
       api,
       adminApi: createApiClient(token, '', PREVIEW_HEADERS),
       study: withDemoHistory(demo.study, () => api.catalog()),
@@ -98,8 +104,10 @@ export function createServices(): Services {
   const session = supabaseSessionService(client);
   const token = async () => (await session.current())?.token ?? null;
   const api = createApiClient(token);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   return {
     session,
+    ...(googleClientId ? { google: gisLoader(googleClientId) } : {}),
     api,
     adminApi: createApiClient(token, '', PREVIEW_HEADERS),
     // Before reading their progress, the student's cards follow what the author moved or took out.
@@ -144,19 +152,21 @@ export function ServicesProvider({
 }) {
   return (
     <SessionServiceContext value={services.session}>
-      <ApiClientContext value={services.api}>
-        <StudyRepositoryContext value={services.study}>
-          <QuizRepositoryContext value={services.quiz}>
-            <AdminRepositoryContext value={services.admin}>
-              <ReportsRepositoryContext value={services.reports}>
-                <AccountRepositoryContext value={services.account}>
-                  {children}
-                </AccountRepositoryContext>
-              </ReportsRepositoryContext>
-            </AdminRepositoryContext>
-          </QuizRepositoryContext>
-        </StudyRepositoryContext>
-      </ApiClientContext>
+      <GoogleIdentityContext value={services.google ?? null}>
+        <ApiClientContext value={services.api}>
+          <StudyRepositoryContext value={services.study}>
+            <QuizRepositoryContext value={services.quiz}>
+              <AdminRepositoryContext value={services.admin}>
+                <ReportsRepositoryContext value={services.reports}>
+                  <AccountRepositoryContext value={services.account}>
+                    {children}
+                  </AccountRepositoryContext>
+                </ReportsRepositoryContext>
+              </AdminRepositoryContext>
+            </QuizRepositoryContext>
+          </StudyRepositoryContext>
+        </ApiClientContext>
+      </GoogleIdentityContext>
     </SessionServiceContext>
   );
 }

@@ -43,11 +43,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [session]);
 
   const signIn = (next = paths.home) => session.signInWithGoogle(next);
+  const signInWithIdToken = (idToken: string, nonce: string) =>
+    session.signInWithIdToken(idToken, nonce);
   const signOut = async () => {
     await session.signOut();
     queryClient.clear();
   };
 
-  const value = { state, signIn, signOut };
+  const value = { state, signIn, signInWithIdToken, signOut };
   return <SessionContext value={value}>{children}</SessionContext>;
 }

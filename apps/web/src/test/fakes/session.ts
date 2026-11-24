@@ -1,12 +1,23 @@
-// A session service with a fixed student, that remembers who asked to sign in.
+// A session service with a fixed student, that remembers who asked to sign in and with which ID tokens.
 import type { Session, SessionService } from '../../features/session/api/service';
 
-export function fakeSession(initial: Session | null): SessionService & { signIns: string[] } {
+export function fakeSession(initial: Session | null): SessionService & {
+  signIns: string[];
+  idTokens: [string, string][];
+  emit: (s: Session | null) => void;
+} {
   let current = initial;
   const listeners = new Set<(s: Session | null) => void>();
   const signIns: string[] = [];
+  const idTokens: [string, string][] = [];
+  const emit = (s: Session | null) => {
+    current = s;
+    listeners.forEach((f) => f(s));
+  };
   return {
     signIns,
+    idTokens,
+    emit,
     current: async () => current,
     subscribe: (f) => {
       listeners.add(f);
@@ -15,9 +26,9 @@ export function fakeSession(initial: Session | null): SessionService & { signIns
     signInWithGoogle: async (next) => {
       signIns.push(next);
     },
-    signOut: async () => {
-      current = null;
-      listeners.forEach((f) => f(null));
+    signInWithIdToken: async (idToken, nonce) => {
+      idTokens.push([idToken, nonce]);
     },
+    signOut: async () => emit(null),
   };
 }

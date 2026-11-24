@@ -10,6 +10,7 @@ export type SessionState =
 interface SessionValue {
   state: SessionState;
   signIn: (next?: string) => Promise<void>;
+  signInWithIdToken: (idToken: string, nonce: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 

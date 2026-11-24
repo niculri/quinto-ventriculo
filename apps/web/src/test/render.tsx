@@ -14,6 +14,7 @@ import { localQuizRepository } from '../features/quiz/api/repository';
 import type { QuizRepository } from '../features/quiz/api/repository';
 import { localReportsRepository } from '../features/reports/api/repository';
 import type { ReportsRepository } from '../features/reports/api/repository';
+import type { GoogleIdentityLoader } from '../features/session/api/googleIdentity';
 import type { Session } from '../features/session/api/service';
 import type { ApiClient } from '../shared/lib/api';
 import { fakeApi } from './fakes/api';
@@ -32,6 +33,7 @@ export function renderApp(
     reports?: ReportsRepository;
     account?: AccountRepository;
     adminApi?: ApiClient;
+    google?: GoogleIdentityLoader;
   } = {},
 ) {
   const session = fakeSession(op.session === undefined ? SESSION_ANA : op.session);
@@ -44,6 +46,7 @@ export function renderApp(
     reports: op.reports ?? localReportsRepository({ admin: true }),
     account: op.account ?? acceptedAccount(),
     ...(op.adminApi ? { adminApi: op.adminApi } : {}),
+    ...(op.google ? { google: op.google } : {}),
   };
   const router = createMemoryRouter(routes, { initialEntries: [route] });
   const r = render(

@@ -26,7 +26,7 @@ export function FilterList<T>({
         {options.map((o) => (
           <li key={String(o.value)}>
             <label className="flex cursor-pointer items-center gap-4 py-2.5">
-              <span className="min-w-0 flex-1 truncate">{o.label}</span>
+              <span className="min-w-0 flex-1 break-words">{o.label}</span>
               <span className="flex-none text-muted tabular-nums">{s.stations(o.count)}</span>
               <Switch
                 label={o.label}

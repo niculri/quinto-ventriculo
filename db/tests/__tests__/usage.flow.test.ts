@@ -4,8 +4,8 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, asUser, createDatabase } from '../pglite';
 
-// Every figure is exact from 0 up (also with 1 to 4 students), the lists have whatever 1 student or more used, and the
-// activation counts the first answer within 7 days of the account.
+// Every figure is exact from 0 up (also with 1 to 4 students), the lists have whatever 1 student or more used (with
+// `exact`, as the Worker asks), and the activation counts the first answer within 7 days of the account.
 
 type Claims = { sub: string; email: string; session_id?: string };
 
@@ -69,6 +69,7 @@ interface Usage {
   };
 }
 
+/** As the Worker asks it: an object `p` goes with `exact`, anything else as it is. */
 const usage = (db: PGlite, c: Claims | null, p: unknown = {}) =>
   asUser(
     db,
@@ -76,7 +77,9 @@ const usage = (db: PGlite, c: Claims | null, p: unknown = {}) =>
     async (tx) =>
       (
         await tx.query<{ r: Usage }>('select public.admin_usage($1::jsonb) as r', [
-          JSON.stringify(p),
+          JSON.stringify(
+            p && typeof p === 'object' && !Array.isArray(p) ? { exact: true, ...p } : p,
+          ),
         ])
       ).rows[0]!.r,
   );
@@ -160,6 +163,7 @@ describe('who can call it', () => {
     await expect(usage(db, owner, { decks: { '1': ['2'] } })).rejects.toThrow(/unit/);
     await expect(usage(db, owner, { quizzes: { 'Mal Id': [null, null] } })).rejects.toThrow(/unit/);
     await expect(usage(db, owner, [])).rejects.toThrow(/expected/);
+    await expect(usage(db, owner, { exact: 'yes' })).rejects.toThrow(/"exact" is true or false/);
   });
 
   it('the helpers are not callable through the API, and the threshold ones are gone', async () => {
@@ -277,6 +281,16 @@ describe('exact figures from 0 up', () => {
         rounds_finished: 3,
       },
     ]);
+  });
+
+  it('a Worker of before (no `exact`) gets exact figures, the lists of 5 or more and `min_students`', async () => {
+    const exact = await usage(db, owner, groups);
+    const before = await usage(db, owner, { ...groups, exact: false });
+    expect(before).toMatchObject({ min_students: 5, totals: exact.totals, days: exact.days });
+    expect([before.decks, before.quizzes]).toEqual([[], [exact.quizzes[0]]]);
+    expect(before.courses).toEqual(exact.courses);
+    expect(before.assessments).toEqual(exact.assessments);
+    expect(exact.decks.map((d) => d.students)).toEqual([4, 1]);
   });
 
   it('the answer has no id, email or name of anybody', async () => {

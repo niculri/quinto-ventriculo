@@ -23,7 +23,10 @@ export function supabaseUsageStats(op: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({ p: groups } satisfies Functions['admin_usage']['Args']),
+        // `exact`: the lists from 1 student; without it a database keeps those of 5 or more, for the Worker of before.
+        body: JSON.stringify({
+          p: { ...groups, exact: true },
+        } satisfies Functions['admin_usage']['Args']),
       });
       if (!r.ok) throw new Error(`admin_usage: ${r.status}`);
       return r.json();

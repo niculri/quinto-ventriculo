@@ -5,10 +5,10 @@
 -- account, the sessions and the progress stay as they were. `email` is the key of invited_emails and `list` is not
 -- null, so a person is always in exactly one list.
 --
--- B14: admin_usage() gives every figure exact, from 0 up, and the lists of the most used have whatever anybody used:
--- the panel is only for an administrator. It no longer sends `min_students`, and its two helpers go away.
--- Order: the Worker that accepts exact figures first, then this migration (the Worker of before rejects a list with
--- fewer than 5 students).
+-- B14: admin_usage() gives every figure exact, from 0 up, and with `"exact": true` (what the Worker sends) the lists of
+-- the most used have whatever anybody used: the panel is only for an administrator. Its two helpers go away.
+-- Any order: the Worker of before sends no `exact`, so it still gets lists of 5 students or more and `min_students`,
+-- which it needs; the Worker of after takes the answer of before too.
 -- No backslash escapes inside a string (the Supabase connector turns them into the character).
 
 -- 1. Moving between lists ----------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ grant execute on function public.admin_move_invites(jsonb) to authenticated;
 -- 2. «Uso» with exact figures -----------------------------------------------------------------------------------
 
 -- The figures and shape of 20261119000000_admin_usage.sql, all exact: a student is counted from 1, a list has
--- whatever 1 student or more used, and the activation percent is null only with nobody eligible.
+-- whatever 1 student or more used (only with `exact`), and the activation percent is null only with nobody eligible.
 create or replace function public.admin_usage(p jsonb default '{}'::jsonb)
 returns jsonb
 language plpgsql
@@ -123,6 +123,7 @@ declare
   v_lists jsonb;
   v_invited jsonb;
   v_activation jsonb;
+  v_exact boolean;
 begin
   perform public.require_admin_session();
   if p is null then
@@ -136,6 +137,11 @@ begin
   if jsonb_typeof(v_decks) <> 'object' or jsonb_typeof(v_quizzes) <> 'object' then
     raise exception 'admin_usage: "decks" and "quizzes" are objects' using errcode = '22023';
   end if;
+  if jsonb_typeof(coalesce(p -> 'exact', 'false'::jsonb)) <> 'boolean' then
+    raise exception 'admin_usage: "exact" is true or false' using errcode = '22023';
+  end if;
+  -- A Worker of before this migration sends no `exact` and refuses a list with fewer than 5 students.
+  v_exact := coalesce((p -> 'exact')::boolean, false);
   if (select count(*) from jsonb_object_keys(v_decks)) > 20000
      or (select count(*) from jsonb_object_keys(v_quizzes)) > 5000 then
     raise exception 'admin_usage: too many decks or tests' using errcode = '22023';
@@ -253,6 +259,7 @@ begin
       from anki a join map m on m.deck_id = a.deck_id
      where m.unit_id is not null
      group by m.unit_id
+    having v_exact or count(distinct a.user_id) >= 5
   ),
   quizzes as (
     select t.quiz_id, count(distinct t.user_id) as students,
@@ -260,6 +267,7 @@ begin
            sum(t.finished)::bigint as finished
       from tests t
      group by t.quiz_id
+    having v_exact or count(distinct t.user_id) >= 5
   ),
   courses as (
     select g.course_id, count(distinct g.user_id) as students,
@@ -270,6 +278,7 @@ begin
       from grouped g
      where g.course_id is not null
      group by g.course_id
+    having v_exact or count(distinct g.user_id) >= 5
   ),
   assessments as (
     select g.assessment_id, min(g.course_id) as course_id, count(distinct g.user_id) as students,
@@ -280,6 +289,7 @@ begin
       from grouped g
      where g.assessment_id is not null
      group by g.assessment_id
+    having v_exact or count(distinct g.user_id) >= 5
   )
   select jsonb_build_object(
     'decks', coalesce((
@@ -347,6 +357,7 @@ begin
     'generated_at', now(),
     'today', v_today,
     'time_zone', 'America/Santiago')
+    || case when v_exact then '{}'::jsonb else jsonb_build_object('min_students', 5) end
     || v_periods || v_lists
     || jsonb_build_object('invited', v_invited, 'activation', v_activation);
 end;

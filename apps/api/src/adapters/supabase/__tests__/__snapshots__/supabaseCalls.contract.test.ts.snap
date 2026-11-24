@@ -1183,6 +1183,7 @@ exports[`users database with the student’s token: the calls > access, administ
         "body": {
           "p": {
             "decks": {},
+            "exact": true,
             "quizzes": {},
           },
         },

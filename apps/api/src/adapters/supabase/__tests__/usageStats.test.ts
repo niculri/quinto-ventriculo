@@ -6,7 +6,7 @@ import { supabaseUsageStats } from '../usageStats';
 describe('supabaseUsageStats', () => {
   const groups = { decks: { d: ['u', 'a', 'c'] as [string, string, string] }, quizzes: {} };
 
-  it('asks admin_usage() with the token of the person asking, not with the Worker’s key', async () => {
+  it('asks admin_usage() for exact lists with the token of the person asking, not with the Worker’s key', async () => {
     const seen: { url: string; headers: Headers; body: string }[] = [];
     const stats = supabaseUsageStats({
       supabaseUrl: 'https://u.example.co//',
@@ -20,7 +20,7 @@ describe('supabaseUsageStats', () => {
     expect(seen[0]!.url).toBe('https://u.example.co/rest/v1/rpc/admin_usage');
     expect(seen[0]!.headers.get('Authorization')).toBe('Bearer token-de-ana');
     expect(seen[0]!.headers.get('apikey')).toBe('sb_publishable_x');
-    expect(JSON.parse(seen[0]!.body)).toEqual({ p: groups });
+    expect(JSON.parse(seen[0]!.body)).toEqual({ p: { ...groups, exact: true } });
   });
 
   it('a refusal is an error with its status', async () => {

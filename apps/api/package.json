@@ -17,7 +17,7 @@
   "dependencies": {
     "@qv/schema": "0.0.0",
     "@supabase/supabase-js": "2.118.0",
-    "hono": "4.13.14",
+    "hono": "4.13.21",
     "jose": "6.2.14"
   },
   "devDependencies": {

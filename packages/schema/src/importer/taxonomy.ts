@@ -47,7 +47,7 @@ export const TaxonomyTopic = z
     retired: z.literal(true).optional(),
   })
   .refine((t) => !(t.retired && t.mergedInto), {
-    message: 'un tema retirado no puede estar además juntado (mergedInto)',
+    error: 'un tema retirado no puede estar además juntado (mergedInto)',
   });
 export type TaxonomyTopic = z.infer<typeof TaxonomyTopic>;
 

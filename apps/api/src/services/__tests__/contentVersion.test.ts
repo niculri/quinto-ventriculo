@@ -3,12 +3,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resolveDependencies } from '../../dependencies';
 import type { AppOptions } from '../../dependencies';
 import { contentVersionReader } from '../contentVersion';
+import { MediaSigner } from '../mediaSigner';
 
 const base = {
   verifier: { verify: () => Promise.resolve(null) },
   repository: {} as AppOptions['repository'],
   media: { get: () => Promise.resolve(null) },
-  signer: {} as AppOptions['signer'],
+  signer: new MediaSigner('s'.repeat(32)),
 };
 
 const reader = (options: Partial<AppOptions>) =>

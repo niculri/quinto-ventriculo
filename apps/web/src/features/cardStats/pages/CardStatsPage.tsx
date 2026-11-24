@@ -22,7 +22,7 @@ export function CardStatsPage({ node }: { node: CourseDeckNode }) {
       <p className="mt-2 text-muted">{s.scope(title)}</p>
       {query.isError && !query.data ? (
         <ErrorWithRetry error={query.error} onRetry={() => void query.refetch()} />
-      ) : (
+      ) : advanced === null ? null : (
         <StatsBody node={node} data={query.data ?? null} advanced={advanced} hard={hard} />
       )}
     </div>

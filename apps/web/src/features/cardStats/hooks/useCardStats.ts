@@ -1,5 +1,5 @@
-// A deck's statistics page: the student's numbers for the deck and everything below it, the advanced mode, and the
-// code and front of the cards forgotten most often (from the indexes of their assessments).
+// A deck's statistics page: the student's numbers for the deck and everything below it, whether the advanced mode is on
+// (null while unknown), and the code and front of the cards forgotten most often (from the indexes of their assessments).
 
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
@@ -17,7 +17,7 @@ export function useCardStats(node: CourseDeckNode) {
   const study = useStudyRepository();
   const api = useApi();
   const catalog = useCatalog().data;
-  const { prefs } = usePreferences();
+  const preferences = usePreferences();
   const below = descendants(node);
   const query = useQuery(
     cardStatsQuery(
@@ -39,9 +39,9 @@ export function useCardStats(node: CourseDeckNode) {
     queries: refs.map((r) => cardIndexQuery(api, r)),
     combine: (results) => results.flatMap((r) => (r.data ? [r.data] : [])),
   });
-  return {
-    query,
-    advanced: !!prefs?.fullAnki,
-    hard: hardCardRows(hardest, indexes),
-  };
+  // The advanced mode adds lines and columns: null until it is known (simple if the preferences cannot be read).
+  let advanced: boolean | null = null;
+  if (preferences.prefs) advanced = preferences.prefs.fullAnki;
+  else if (preferences.isError) advanced = false;
+  return { query, advanced, hard: hardCardRows(hardest, indexes) };
 }

@@ -207,6 +207,16 @@ describe('a deck’s statistics', () => {
     expect(screen.queryByText(/En total:/)).toBeNull();
   });
 
+  it('without the preferences, shows them as in the simple mode', async () => {
+    const base = localStudyRepository(null);
+    base.preferences = () => Promise.reject(new Error('sin red'));
+    renderApp(PAGE, { study: study(DATA, base).study });
+    await screen.findByText('Viste 7 de 4');
+    const table = screen.getByRole('table', { name: /Tus respuestas, tu tiempo/ });
+    expect(within(table).queryByText('Jóvenes')).toBeNull();
+    expect(screen.getByText(/En «Modo avanzado» ves además/)).toBeInTheDocument();
+  });
+
   it('says why it could not read them, and tries again', async () => {
     const { study: s } = study(new Error('No se pudo leer tus estadísticas: sin red'));
     renderApp(PAGE, { study: s });

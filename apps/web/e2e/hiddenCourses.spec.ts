@@ -51,7 +51,7 @@ test.describe('a course turned off', () => {
 
     await page.goto('/admin/site');
     const bio = page.getByRole('switch', { name: 'Biología celular' });
-    const anatomy = page.getByRole('switch', { name: 'Anatomía I' });
+    const anatomy = page.getByRole('switch', { name: 'Anatomía I', exact: true });
     const save = page.getByRole('button', { name: 'Guardar' });
     await expect(bio).toBeChecked();
     await expect(save).toBeDisabled();

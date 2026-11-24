@@ -34,6 +34,13 @@
       "name": "Anatomía I",
       "emoji": "🦴",
       "position": 1
+    },
+    {
+      "id": "anatomia-2",
+      "semester": 2,
+      "name": "Anatomía II",
+      "emoji": "🦴",
+      "position": 3
     }
   ],
   "assessments": [
@@ -48,6 +55,12 @@
       "courseId": "anatomia-1",
       "name": "Certamen 1",
       "position": 1
+    },
+    {
+      "id": "anatomia-2/certamen-2",
+      "courseId": "anatomia-2",
+      "name": "Certamen 2",
+      "position": 2
     }
   ],
   "notes": [
@@ -208,6 +221,34 @@
       ],
       "css": "\n.card {\n  --fondo: #ffffff; --texto: #1f2328; --acento: #1a64d6;\n  font-family: Arial, sans-serif; font-size: 20px; text-align: center;\n  color: var(--texto); background-color: var(--fondo); padding: 16px;\n}\n.card.nightMode, .nightMode .card { --fondo: #1c1f24; --texto: #e6e8eb; --acento: #6ea8ff; }\nb, strong { color: var(--acento); }\n.cloze { color: var(--acento); font-weight: 700; }\n.extra { margin-top: 12px; font-size: 0.8em; }\n#image-occlusion-canvas {\n  --inactive-shape-color: #ffe08a;\n  --active-shape-color: #ff7b72;\n  --inactive-shape-border: 1px #3d3d3d;\n  --active-shape-border: 1px #3d3d3d;\n  --highlight-shape-color: #ff7b7200;\n  --highlight-shape-border: 2px #ff4f45;\n}\n.nightMode #image-occlusion-canvas { --inactive-shape-color: #d9b44a; --active-shape-color: #e5534b; }\n.pie { position: fixed; right: 10px; bottom: 6px; font-size: 8px; opacity: 0.5; }\n",
       "sortField": 0
+    },
+    {
+      "id": "1607392330",
+      "name": "Prueba · Foto",
+      "kind": "normal",
+      "occlusion": false,
+      "fields": [
+        "ID",
+        "Encabezado",
+        "Pregunta",
+        "Respuesta",
+        "Etiqueta",
+        "Extra",
+        "Fuente",
+        "Código",
+        "Creación",
+        "Actualización",
+        "Prioridad"
+      ],
+      "templates": [
+        {
+          "name": "Foto",
+          "qfmt": "<div class=\"encabezado\">{{Encabezado}}</div><div class=\"io-img\">{{Pregunta}}</div>",
+          "afmt": "<div class=\"encabezado\">{{Encabezado}}</div><div class=\"io-img\">{{Respuesta}}</div><hr id=\"answer\"><div class=\"respuesta\"><b>{{Etiqueta}}</b></div>{{#Extra}}<div class=\"extra\">{{Extra}}</div>{{/Extra}}\n{{#Código}}<div class=\"pie\">{{Código}} · creada el {{Creación}}{{#Actualización}} · actualizada el {{Actualización}}{{/Actualización}}</div>{{/Código}}"
+        }
+      ],
+      "css": "\n.card { font-family: Arial, sans-serif; font-size: 20px; text-align: center; color: #1f2328; background: #fff; }\n.card.nightMode, .nightMode .card { color: #e6e8eb; background: #1c1f24; }\n.encabezado { font-size: 0.8em; margin-bottom: 8px; }\n.io-img img { max-width: 100%; }\n.respuesta { margin-top: 10px; }\n.pie { position: fixed; right: 10px; bottom: 6px; font-size: 8px; opacity: 0.5; }\n\n\n/* El Quinto Ventrículo: the footer goes in the flow, at the end of the card, after the source. */\n.pie {\n  position: static; right: auto; bottom: auto; z-index: auto; pointer-events: auto;\n  max-width: 720px; margin: 12px auto 0; text-align: center;\n  font-size: 0.55em; line-height: 1.4; letter-spacing: 0.01em; opacity: 0.8;\n}\n",
+      "sortField": 4
     }
   ],
   "ankiPresets": [
@@ -285,6 +326,46 @@
         },
         "timer": 0,
         "usn": 0
+      }
+    },
+    {
+      "name": "Gymkana",
+      "config": {
+        "autoplay": true,
+        "id": 1700000000002,
+        "lapse": {
+          "delays": [10],
+          "leechAction": 0,
+          "leechFails": 8,
+          "minInt": 1,
+          "mult": 0
+        },
+        "maxTaken": 60,
+        "mod": 0,
+        "name": "Gymkana",
+        "new": {
+          "bury": true,
+          "delays": [1, 10],
+          "initialFactor": 2500,
+          "ints": [1, 4, 7],
+          "order": 1,
+          "perDay": 20,
+          "separate": true
+        },
+        "replayq": true,
+        "rev": {
+          "bury": true,
+          "ease4": 1.3,
+          "fuzz": 0.05,
+          "ivlFct": 1,
+          "maxIvl": 36500,
+          "minSpace": 1,
+          "perDay": 100
+        },
+        "timer": 0,
+        "usn": 0,
+        "newGatherPriority": 4,
+        "newSortOrder": 4
       }
     }
   ],
@@ -364,6 +445,50 @@
       "courseId": "anatomia-1",
       "assessmentId": "anatomia-1/certamen-1",
       "preset": "Extras",
+      "position": 0
+    },
+    {
+      "id": "9975658712623598866",
+      "name": "() Medicina UCH::2° Semestre",
+      "description": "",
+      "parentId": "1253733533499951883",
+      "semester": 2,
+      "courseId": null,
+      "assessmentId": null,
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "6089664730380994941",
+      "name": "() Medicina UCH::2° Semestre::🦴 Anatomía II",
+      "description": "",
+      "parentId": "9975658712623598866",
+      "semester": 2,
+      "courseId": "anatomia-2",
+      "assessmentId": null,
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "6895444088313015282",
+      "name": "() Medicina UCH::2° Semestre::🦴 Anatomía II::Certamen 2",
+      "description": "",
+      "parentId": "6089664730380994941",
+      "semester": 2,
+      "courseId": "anatomia-2",
+      "assessmentId": "anatomia-2/certamen-2",
+      "preset": "Default",
+      "position": 0
+    },
+    {
+      "id": "2059400120",
+      "name": "() Medicina UCH::2° Semestre::🦴 Anatomía II::Certamen 2::Gymkana",
+      "description": "Gymkana sintética para las pruebas",
+      "parentId": "6895444088313015282",
+      "semester": 2,
+      "courseId": "anatomia-2",
+      "assessmentId": "anatomia-2/certamen-2",
+      "preset": "Gymkana",
       "position": 0
     }
   ],
@@ -618,6 +743,222 @@
       "hash": "e2e-nueva-1",
       "updatedAt": "2026-10-31T12:00:00.000Z",
       "media": []
+    },
+    {
+      "guid": "gymkana-1",
+      "noteTypeId": "1607392330",
+      "fields": {
+        "ID": "gym1",
+        "Encabezado": "¿Qué estructura señala el alfiler rojo?",
+        "Pregunta": "<img src=\"prueba_estacion_1_q.png\">",
+        "Respuesta": "<img src=\"prueba_estacion_1_a.png\">",
+        "Etiqueta": "Músculo recto lateral",
+        "Extra": "",
+        "Fuente": "Dibujo hecho para las pruebas",
+        "Código": "T-PR-G2-0001.1",
+        "Creación": "24-11-2026",
+        "Actualización": "",
+        "Prioridad": "1"
+      },
+      "tags": ["atlas_a", "gymkana", "orbita", "S1"],
+      "code": "T-PR-G2-0001",
+      "version": 1,
+      "createdAt": "2026-11-24T06:15:27.977Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400120",
+          "frontHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/b873e978a40a674887841affb10c0f99.webp\" /></div>",
+          "backHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/0c2fbb79c30da818786004f841644b33.webp\" /></div><hr id=\"answer\" /><div class=\"respuesta\"><b>Músculo recto lateral</b></div>\n<div class=\"pie\">T-PR-G2-0001.1 · creada el 24-11-2026</div>",
+          "sortField": "Músculo recto lateral"
+        }
+      ],
+      "media": [
+        "cards/0c2fbb79c30da818786004f841644b33.webp",
+        "cards/b873e978a40a674887841affb10c0f99.webp"
+      ],
+      "hash": "870e5c9e1d9362e869a3d0e3f4fcc82829f78b28930ad181254ff12efb25f2cc",
+      "updatedAt": "2026-10-31T12:00:00.000Z"
+    },
+    {
+      "guid": "gymkana-2",
+      "noteTypeId": "1607392330",
+      "fields": {
+        "ID": "gym2",
+        "Encabezado": "¿Qué estructura señala el alfiler rojo?",
+        "Pregunta": "<img src=\"prueba_estacion_2_q.png\">",
+        "Respuesta": "<img src=\"prueba_estacion_2_a.png\">",
+        "Etiqueta": "Nervio óptico",
+        "Extra": "",
+        "Fuente": "Dibujo hecho para las pruebas",
+        "Código": "T-PR-G2-0002.1",
+        "Creación": "24-11-2026",
+        "Actualización": "",
+        "Prioridad": "1"
+      },
+      "tags": ["atlas_a", "gymkana", "orbita", "S1"],
+      "code": "T-PR-G2-0002",
+      "version": 1,
+      "createdAt": "2026-11-24T06:15:27.979Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400120",
+          "frontHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/bcc56f49efd2202890f3fd7f5a52af0a.webp\" /></div>",
+          "backHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/d44d152fe2f9b4f34bb90e780f009207.webp\" /></div><hr id=\"answer\" /><div class=\"respuesta\"><b>Nervio óptico</b></div>\n<div class=\"pie\">T-PR-G2-0002.1 · creada el 24-11-2026</div>",
+          "sortField": "Nervio óptico"
+        }
+      ],
+      "media": [
+        "cards/bcc56f49efd2202890f3fd7f5a52af0a.webp",
+        "cards/d44d152fe2f9b4f34bb90e780f009207.webp"
+      ],
+      "hash": "3c16309008b337674e8f08985e4a3b33a0e7f8cadcf2d2970753161f3bef9c64",
+      "updatedAt": "2026-10-31T12:00:00.000Z"
+    },
+    {
+      "guid": "gymkana-3",
+      "noteTypeId": "1607392330",
+      "fields": {
+        "ID": "gym3",
+        "Encabezado": "¿Qué estructura señala el alfiler rojo?",
+        "Pregunta": "<img src=\"prueba_estacion_3_q.png\">",
+        "Respuesta": "<img src=\"prueba_estacion_3_a.png\">",
+        "Etiqueta": "Arteria carótida interna",
+        "Extra": "",
+        "Fuente": "Dibujo hecho para las pruebas",
+        "Código": "T-PR-G2-0003.1",
+        "Creación": "24-11-2026",
+        "Actualización": "",
+        "Prioridad": "1"
+      },
+      "tags": ["atlas_a", "cuello", "gymkana", "S1"],
+      "code": "T-PR-G2-0003",
+      "version": 1,
+      "createdAt": "2026-11-24T06:15:27.981Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400120",
+          "frontHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/e2f4e4b96586e56a52cd92c3fd2acd02.webp\" /></div>",
+          "backHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/c5d14b8ba82b14e22e70459f23a88cc0.webp\" /></div><hr id=\"answer\" /><div class=\"respuesta\"><b>Arteria carótida interna</b></div>\n<div class=\"pie\">T-PR-G2-0003.1 · creada el 24-11-2026</div>",
+          "sortField": "Arteria carótida interna"
+        }
+      ],
+      "media": [
+        "cards/c5d14b8ba82b14e22e70459f23a88cc0.webp",
+        "cards/e2f4e4b96586e56a52cd92c3fd2acd02.webp"
+      ],
+      "hash": "eef4714cc4fa582ae86021aaee5ed548162d155c2ec1b69d106840b431dbfb7b",
+      "updatedAt": "2026-10-31T12:00:00.000Z"
+    },
+    {
+      "guid": "gymkana-4",
+      "noteTypeId": "1607392330",
+      "fields": {
+        "ID": "gym4",
+        "Encabezado": "¿Qué estructura señala el alfiler rojo?",
+        "Pregunta": "<img src=\"prueba_estacion_4_q.png\">",
+        "Respuesta": "<img src=\"prueba_estacion_4_a.png\">",
+        "Etiqueta": "Vena yugular interna",
+        "Extra": "",
+        "Fuente": "Dibujo hecho para las pruebas",
+        "Código": "T-PR-G2-0004.1",
+        "Creación": "24-11-2026",
+        "Actualización": "",
+        "Prioridad": "1"
+      },
+      "tags": ["cuello", "gymkana", "modelo", "S1"],
+      "code": "T-PR-G2-0004",
+      "version": 1,
+      "createdAt": "2026-11-24T06:15:27.983Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400120",
+          "frontHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/4596dd12cde7e174a526a5f3e5e5f8fe.webp\" /></div>",
+          "backHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/1ccf2e0cfc238daf316b1c6afae7ba2d.webp\" /></div><hr id=\"answer\" /><div class=\"respuesta\"><b>Vena yugular interna</b></div>\n<div class=\"pie\">T-PR-G2-0004.1 · creada el 24-11-2026</div>",
+          "sortField": "Vena yugular interna"
+        }
+      ],
+      "media": [
+        "cards/1ccf2e0cfc238daf316b1c6afae7ba2d.webp",
+        "cards/4596dd12cde7e174a526a5f3e5e5f8fe.webp"
+      ],
+      "hash": "310bce52dfb79ed9b13b961ab02526ec911f58d56e08c5b0d12c4618b631beb4",
+      "updatedAt": "2026-10-31T12:00:00.000Z"
+    },
+    {
+      "guid": "gymkana-5",
+      "noteTypeId": "1607392330",
+      "fields": {
+        "ID": "gym5",
+        "Encabezado": "¿Qué estructura señala el alfiler rojo?",
+        "Pregunta": "<img src=\"prueba_estacion_5_q.png\">",
+        "Respuesta": "<img src=\"prueba_estacion_5_a.png\">",
+        "Etiqueta": "Glándula parótida",
+        "Extra": "",
+        "Fuente": "Dibujo hecho para las pruebas",
+        "Código": "T-PR-G2-0005.1",
+        "Creación": "24-11-2026",
+        "Actualización": "",
+        "Prioridad": "3"
+      },
+      "tags": ["cara", "gymkana", "modelo", "S1"],
+      "code": "T-PR-G2-0005",
+      "version": 1,
+      "createdAt": "2026-11-24T06:15:27.985Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400120",
+          "frontHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/a1e78f6eb75ca6a5c82a5b0ea3414566.webp\" /></div>",
+          "backHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/3ea11b9d91f0538f96ce6b188ebe994b.webp\" /></div><hr id=\"answer\" /><div class=\"respuesta\"><b>Glándula parótida</b></div>\n<div class=\"pie\">T-PR-G2-0005.1 · creada el 24-11-2026</div>",
+          "sortField": "Glándula parótida"
+        }
+      ],
+      "media": [
+        "cards/3ea11b9d91f0538f96ce6b188ebe994b.webp",
+        "cards/a1e78f6eb75ca6a5c82a5b0ea3414566.webp"
+      ],
+      "hash": "16b8e2b6a3dc7e43dfba688d341a01b46cbaacf7717532d6a3151b96316babd6",
+      "updatedAt": "2026-10-31T12:00:00.000Z"
+    },
+    {
+      "guid": "gymkana-6",
+      "noteTypeId": "1607392330",
+      "fields": {
+        "ID": "gym6",
+        "Encabezado": "¿Qué estructura señala el alfiler rojo?",
+        "Pregunta": "<img src=\"prueba_estacion_6_q.png\">",
+        "Respuesta": "<img src=\"prueba_estacion_6_a.png\">",
+        "Etiqueta": "Hueso cigomático (hueso malar)",
+        "Extra": "",
+        "Fuente": "Dibujo hecho para las pruebas",
+        "Código": "T-PR-G2-0006.1",
+        "Creación": "24-11-2026",
+        "Actualización": "",
+        "Prioridad": "3"
+      },
+      "tags": ["atlas_a", "cara", "gymkana", "S1"],
+      "code": "T-PR-G2-0006",
+      "version": 1,
+      "createdAt": "2026-11-24T06:15:27.987Z",
+      "cards": [
+        {
+          "ord": 0,
+          "deckId": "2059400120",
+          "frontHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/0f37916b06725c158a6c216d07600645.webp\" /></div>",
+          "backHtml": "<div class=\"encabezado\">¿Qué estructura señala el alfiler rojo?</div><div class=\"io-img\"><img data-media=\"cards/cd18cd0952fe1bd778f175aba1889ada.webp\" /></div><hr id=\"answer\" /><div class=\"respuesta\"><b>Hueso cigomático (hueso malar)</b></div>\n<div class=\"pie\">T-PR-G2-0006.1 · creada el 24-11-2026</div>",
+          "sortField": "Hueso cigomático (hueso malar)"
+        }
+      ],
+      "media": [
+        "cards/0f37916b06725c158a6c216d07600645.webp",
+        "cards/cd18cd0952fe1bd778f175aba1889ada.webp"
+      ],
+      "hash": "2c389943173e10a9bec7b06a9cf2bbf97c7622dde87395435b9cc4c748ecf9ac",
+      "updatedAt": "2026-10-31T12:00:00.000Z"
     }
   ],
   "quizzes": [
@@ -820,6 +1161,42 @@
       "noteCount": 7,
       "cardCount": 16,
       "bytes": 1129
+    },
+    {
+      "assessmentId": "anatomia-2/certamen-2",
+      "hash": "a013a96a9a3763898e13d708c05f014a",
+      "noteCount": 6,
+      "cardCount": 6,
+      "bytes": 1024
+    }
+  ],
+  "ankiGymkanas": [
+    {
+      "deckId": "2059400120",
+      "regions": [
+        {
+          "tag": "orbita",
+          "label": "Órbita"
+        },
+        {
+          "tag": "cuello",
+          "label": "Cuello"
+        },
+        {
+          "tag": "cara",
+          "label": "Cara"
+        }
+      ],
+      "sources": [
+        {
+          "label": "Atlas de prueba",
+          "tags": ["atlas_a"]
+        },
+        {
+          "label": "Modelos de prueba",
+          "tags": ["modelo"]
+        }
+      ]
     }
   ]
 }

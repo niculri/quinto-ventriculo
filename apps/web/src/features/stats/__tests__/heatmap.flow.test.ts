@@ -242,6 +242,20 @@ describe('the questions of tests in the heatmap', () => {
     expect(within(today).queryByRole('link')).toBeNull();
   });
 
+  it('a question answered in a test is there on going back, without waiting for the heatmap to age', async () => {
+    let tests: HeatmapData['tests'] = [];
+    const { study } = withHeatmap(async () => ({ ...DATA, tests }));
+    const { router } = renderApp('/home', { study });
+    await grid();
+    await router.navigate('/semesters/2/courses/biologia-celular/tests/certamen-2/practica/pautas');
+    await userEvent.click(await screen.findByRole('button', { name: 'Comenzar' }));
+    tests = [{ day: TODAY, quizId: 'practica-biocel', answers: 1 }];
+    await userEvent.click(await screen.findByRole('button', { name: /Splicing alternativo/ }));
+    await screen.findByText('Correcta', { exact: true });
+    await router.navigate('/home');
+    await waitFor(() => expect(cell(/\(hoy\): 1 respuesta$/)).toBeInTheDocument());
+  });
+
   it('without a streak, the split is of every day', async () => {
     const { study } = withHeatmap(async () => ({
       days: [{ day: D('2026-11-01'), deckId: '20', answers: 3, practice: 0 }],

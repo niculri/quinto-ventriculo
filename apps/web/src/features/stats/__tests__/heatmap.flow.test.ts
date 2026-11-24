@@ -241,7 +241,7 @@ describe('the questions of tests in the heatmap', () => {
   });
 
   it('a question answered in a test is there on going back, without waiting for the heatmap to age', async () => {
-    let tests: HeatmapData['tests'] = [];
+    let tests: NonNullable<HeatmapData['tests']> = [];
     const { study } = withHeatmap(async () => ({ ...DATA, tests }));
     const { router } = renderApp('/home', { study });
     await grid();

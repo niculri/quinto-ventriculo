@@ -1,6 +1,6 @@
 // An open assessment in the site's menu: its notes (by week or kind), its tests and its deck.
 import { useState } from 'react';
-import { BookOpen, Layers, ListChecks } from 'lucide-react';
+import { BookOpen, Layers, ListChecks, MapPin } from 'lucide-react';
 import type { CourseWithAssessments, NoteSummary } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
@@ -14,12 +14,14 @@ export function AssessmentParts({
   course,
   assessment,
   deck,
+  gymkana,
   where,
   onNavigate,
 }: {
   course: CourseWithAssessments;
   assessment: CourseWithAssessments['assessments'][number];
   deck: CourseDeckNode | null;
+  gymkana: CourseDeckNode | null;
   where: Where;
   onNavigate?: (() => void) | undefined;
 }) {
@@ -83,8 +85,37 @@ export function AssessmentParts({
           ))}
         </Branch>
       ) : null}
+      <DeckLinks
+        course={course}
+        assessmentId={assessment.id}
+        deck={deck}
+        gymkana={gymkana}
+        where={where}
+        onNavigate={onNavigate}
+      />
+    </>
+  );
+}
+
+/** The assessment's deck and its gymkana: their weeks or lectures are chosen on their page, so nothing opens below. */
+function DeckLinks({
+  course,
+  assessmentId,
+  deck,
+  gymkana,
+  where,
+  onNavigate,
+}: {
+  course: CourseWithAssessments;
+  assessmentId: string;
+  deck: CourseDeckNode | null;
+  gymkana: CourseDeckNode | null;
+  where: Where;
+  onNavigate?: (() => void) | undefined;
+}) {
+  return (
+    <>
       {deck ? (
-        // An assessment's weeks or lectures are chosen on its page: there is nothing to go to inside them.
         <li>
           <NavLink
             to={paths.deck(deck.ref)}
@@ -93,7 +124,19 @@ export function AssessmentParts({
             onNavigate={onNavigate}
           >
             {assessmentPartsStrings.anki}
-            <ListMark thing={['deck', deck.id]} holder={['assessment', assessment.id]} />
+            <ListMark thing={['deck', deck.id]} holder={['assessment', assessmentId]} />
+          </NavLink>
+        </li>
+      ) : null}
+      {gymkana ? (
+        <li>
+          <NavLink
+            to={paths.gymkana(course, assessmentId)}
+            active={where.tab === 'gymkana'}
+            icon={<MapPin className={icon} aria-hidden="true" />}
+            onNavigate={onNavigate}
+          >
+            {assessmentPartsStrings.gymkana}
           </NavLink>
         </li>
       ) : null}

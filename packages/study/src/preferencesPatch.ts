@@ -6,7 +6,7 @@ import type { ListPatch, StudyPreferences } from '@qv/schema/user';
 type ListName = 'addedCourses' | 'removedCourses' | 'dismissed';
 
 /** How many of each list the database keeps (its checks): the newest stay. */
-export const PREFERENCE_LIST_CAPS: Record<ListName, number> = {
+const PREFERENCE_LIST_CAPS: Record<ListName, number> = {
   addedCourses: 100,
   removedCourses: 100,
   dismissed: 50,

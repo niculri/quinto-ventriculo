@@ -105,11 +105,9 @@ describe('study', () => {
   });
 
   it('undo_refused (P0001)', async () => {
-    const e = await refusal(
-      ana,
-      'select public.undo_last_review(expected => $1::jsonb)',
-      [json({ noteGuid: 'nadie', ord: 0, deckId: '1', action: 'answer' })],
-    );
+    const e = await refusal(ana, 'select public.undo_last_review(expected => $1::jsonb)', [
+      json({ noteGuid: 'nadie', ord: 0, deckId: '1', action: 'answer' }),
+    ]);
     expectReason(e, 'undo_refused', 'P0001');
   });
 

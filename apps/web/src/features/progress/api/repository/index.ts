@@ -25,7 +25,6 @@ export type {
   ReviewInput,
   StoredCard,
   StudyPreferences,
-  UndoExpected,
   UserPreset,
 } from './model';
 export type { StudyRepository } from './port';

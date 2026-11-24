@@ -87,6 +87,23 @@ describe('DayLoad', () => {
     }
   });
 
+  it('a screen reader hears the breakdown with the closed button', () => {
+    render(<DayLoad counts={SOME} medianAnswerMs={10_000} detail />);
+    const button = screen.getByRole('button', { name: /6 para hoy/ });
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(button).toHaveAccessibleDescription('Nuevas: 3 · Aprendiendo: 1 · A repasar: 2');
+  });
+
+  it('beside the text from `sm` up: to its left, or to its right when asked', () => {
+    const { rerender } = render(<DayLoad counts={SOME} medianAnswerMs={10_000} detail />);
+    const box = () => screen.getByRole('status', { hidden: true });
+    expect(box()).toHaveClass('sm:right-full');
+    expect(box()).not.toHaveClass('sm:left-full');
+    rerender(<DayLoad counts={SOME} medianAnswerMs={10_000} detail side="right" />);
+    expect(box()).toHaveClass('sm:left-full');
+    expect(box()).not.toHaveClass('sm:right-full');
+  });
+
   it('from the keyboard: Enter opens it, Escape and leaving with Tab close it', async () => {
     render(
       <>

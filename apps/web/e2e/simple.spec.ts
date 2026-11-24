@@ -136,6 +136,16 @@ test('the deck list ends with its last row, and a row’s breakdown leaves the l
   // Over the box the mouse is out of the text: it closes, and the row below can be read.
   await page.mouse.move(box.x + box.width / 2, box.y + box.height - 2);
   await expect(breakdown).toBeHidden();
+
+  // Beside «Estudiar» it opens to the right: the button stays in view.
+  const today = panel.getByRole('group', { name: 'Para hoy' });
+  await today.getByRole('button').hover();
+  await expect(today.getByRole('status')).toBeVisible();
+  const beside = (await today.getByRole('status').boundingBox())!;
+  const todayText = (await today.getByRole('button').boundingBox())!;
+  const study = (await panel.getByRole('link', { name: 'Estudiar', exact: true }).boundingBox())!;
+  expect(beside.x).toBeGreaterThanOrEqual(todayText.x + todayText.width);
+  expect(beside.x).toBeGreaterThanOrEqual(study.x + study.width);
 });
 
 test('the course’s decks: the new cards a day of each assessment, in the box of the assessment’s page', async ({

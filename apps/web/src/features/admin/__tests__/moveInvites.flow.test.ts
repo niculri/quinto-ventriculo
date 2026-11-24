@@ -26,14 +26,33 @@ const admin = () =>
   localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl', invites: invites() });
 
 const list = (name: string) => screen.getByRole('article', { name: `Lista ${name}` });
+/** «Mover» and «Deshacer» stay focusable when they cannot be used: aria-disabled, not disabled. */
+const off = (bar: HTMLElement, name: string) =>
+  within(bar).getByRole('button', { name }).getAttribute('aria-disabled');
 
 describe('«Mover a otra lista»', () => {
   it('nothing chosen: «Mover» and «Deshacer» are there but cannot be used', async () => {
-    renderApp('/admin/access', { admin: admin() });
+    const repo = admin();
+    const calls: unknown[] = [];
+    renderApp('/admin/access', {
+      admin: {
+        ...repo,
+        moveInvites: async (moves) => {
+          calls.push(moves);
+          return repo.moveInvites(moves);
+        },
+      },
+    });
     const bar = await screen.findByRole('region', { name: 'Mover a otra lista' });
     expect(bar).toHaveTextContent('Elige personas con las casillas');
-    expect(within(bar).getByRole('button', { name: 'Mover' })).toBeDisabled();
-    expect(within(bar).getByRole('button', { name: 'Deshacer' })).toBeDisabled();
+    within(bar).getByRole('button', { name: 'Mover' }).focus();
+    await userEvent.keyboard('{Enter}');
+    await userEvent.tab();
+    expect(within(bar).getByRole('button', { name: 'Deshacer' })).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    expect(calls).toEqual([]);
+    expect(off(bar, 'Mover')).toBe('true');
+    expect(off(bar, 'Deshacer')).toBe('true');
   });
 
   it('moves 30 people of a whole list to a new one in one step, and undoes it', async () => {
@@ -76,7 +95,7 @@ describe('«Mover a otra lista»', () => {
     expect(await screen.findByRole('article', { name: 'Lista Curso' })).toHaveTextContent(
       '30 invitados',
     );
-    expect(within(bar).getByRole('button', { name: 'Deshacer' })).toBeDisabled();
+    expect(off(bar, 'Deshacer')).toBe('true');
   });
 
   it('one person to an existing list; the list box shows some chosen', async () => {
@@ -89,8 +108,10 @@ describe('«Mover a otra lista»', () => {
     const bar = screen.getByRole('region', { name: 'Mover a otra lista' });
     await userEvent.click(within(bar).getByRole('button', { name: /^Lista de destino/ }));
     await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Equipo' }));
-    await userEvent.click(within(bar).getByRole('button', { name: 'Mover' }));
+    within(bar).getByRole('button', { name: 'Mover' }).focus();
+    await userEvent.keyboard('{Enter}');
     expect(await screen.findByText('1 persona pasó a «Equipo».')).toBeInTheDocument();
+    expect(within(bar).getByRole('button', { name: 'Mover' })).toHaveFocus();
     await waitFor(() =>
       expect(within(list('Equipo')).getByText('alumno3@ug.uchile.cl')).toBeInTheDocument(),
     );
@@ -127,7 +148,7 @@ describe('«Mover a otra lista»', () => {
     await userEvent.click(within(bar).getByRole('button', { name: 'Mover' }));
     expect(await within(bar).findByRole('alert')).toHaveTextContent('Solo para administradores.');
     expect(list('Curso')).toHaveTextContent('30 invitados');
-    expect(within(bar).getByRole('button', { name: 'Deshacer' })).toBeDisabled();
+    expect(off(bar, 'Deshacer')).toBe('true');
   });
 
   it('while it moves, the button says so and the boxes wait', async () => {
@@ -148,7 +169,8 @@ describe('«Mover a otra lista»', () => {
     await userEvent.click(box);
     const bar = screen.getByRole('region', { name: 'Mover a otra lista' });
     await userEvent.click(within(bar).getByRole('button', { name: 'Mover' }));
-    expect(await within(bar).findByRole('button', { name: 'Moviendo…' })).toBeDisabled();
+    await within(bar).findByRole('button', { name: 'Moviendo…' });
+    expect(off(bar, 'Moviendo…')).toBe('true');
     expect(box).toBeDisabled();
     finish();
     expect(await screen.findByText('Ya estaban en «Curso».')).toBeInTheDocument();
@@ -163,6 +185,6 @@ describe('«Mover a otra lista»', () => {
     expect(within(bar).getByRole('button', { name: 'Lista de destino: Curso' })).toBeVisible();
     await userEvent.click(within(bar).getByRole('button', { name: 'Mover' }));
     expect(await screen.findByText('Ya estaban en «Curso».')).toBeInTheDocument();
-    expect(within(bar).getByRole('button', { name: 'Deshacer' })).toBeDisabled();
+    expect(off(bar, 'Deshacer')).toBe('true');
   });
 });

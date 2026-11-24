@@ -7,18 +7,20 @@ import { Select } from '../../../../shared/ui/Select';
 import { button, card } from '../../../../shared/ui/styles';
 import { NEW_LIST } from '../../model/access';
 import type { useMoveBar } from '../../hooks/useMoveBar';
-import { accessFailureStrings } from '../../hooks/strings/accessFailure.strings';
 import { moveBarStrings as s } from './strings/MoveBar.strings';
 
 const field =
   'mt-1.5 h-11 w-full rounded-lg border border-border bg-bg px-3 text-base text-ink disabled:opacity-50 sm:h-10 sm:text-sm';
+// aria-disabled, not disabled: a disabled button loses the focus, and «Mover» and «Deshacer» go off as they are pressed.
+const offWhenAria = 'aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
 export function MoveBar({ bar }: { bar: ReturnType<typeof useMoveBar> }) {
   const id = useId();
   return (
+    // Fixed under the site's bar only from `sm`: on a phone it would cover half the screen and leave two people in sight.
     <section
       aria-labelledby={`${id}-title`}
-      className={`${card} sticky top-16 z-10 mt-3 px-4 py-3 sm:px-5`}
+      className={`${card} mt-3 px-4 py-3 sm:sticky sm:top-16 sm:z-10 sm:px-5`}
     >
       <form
         onSubmit={(e) => {
@@ -68,8 +70,8 @@ export function MoveBar({ bar }: { bar: ReturnType<typeof useMoveBar> }) {
           <div className="flex gap-2">
             <button
               type="submit"
-              disabled={!bar.ready}
-              className={`${button.base} ${button.primary} flex-1 sm:flex-none`}
+              aria-disabled={!bar.ready}
+              className={`${button.base} ${button.primary} ${offWhenAria} flex-1 sm:flex-none`}
             >
               <ArrowRightLeft className="size-4" aria-hidden="true" />
               <span className="grid place-items-center">
@@ -82,14 +84,14 @@ export function MoveBar({ bar }: { bar: ReturnType<typeof useMoveBar> }) {
             <button
               type="button"
               onClick={bar.undo}
-              disabled={!bar.canUndo}
-              className={`${button.base} ${button.secondary} flex-1 sm:flex-none`}
+              aria-disabled={!bar.canUndo}
+              className={`${button.base} ${button.secondary} ${offWhenAria} flex-1 sm:flex-none`}
             >
               <Undo2 className="size-4" aria-hidden="true" /> {s.undo}
             </button>
           </div>
         </div>
-        <Reserved longest={accessFailureStrings.genericFailure} className="mt-2 text-xs">
+        <Reserved longest={s.help} className="mt-2 text-xs">
           {bar.error !== null ? (
             <p role="alert" className="text-state-learn">
               {bar.error}

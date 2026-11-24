@@ -1,5 +1,5 @@
-// «Uso» without React: how a figure is written, the rows and periods of the summary, the
-// points of the chart, and the name and link of a deck, a test or a note.
+// «Uso» without React: how a figure is written, the rows and periods of the summary, the points of the chart, and the
+// name and link of a deck, a test or a note.
 import { FEW } from '@qv/schema';
 import type { Catalog, UsageCount, UsageFigures, UsageOpenFigures, UsageReport } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';

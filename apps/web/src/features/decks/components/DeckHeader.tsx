@@ -15,7 +15,7 @@ export function DeckHeader({ node }: { node: CourseDeckNode }) {
         <h1 className="font-serif text-3xl font-semibold tracking-tight">{deckTitle(node)}</h1>
         <p className="mt-2 text-muted">{s.header.counts(node.noteCount, node.cardCount)}</p>
       </div>
-      <nav aria-label={s.header.tools} className="flex flex-none flex-wrap gap-2">
+      <nav aria-label={s.header.tools} className="flex max-w-full flex-wrap gap-2">
         <Link to={paths.cards(node.ref)} className={`${button.base} ${button.secondary}`}>
           <Search className="size-4" aria-hidden="true" /> {s.header.cards}
         </Link>

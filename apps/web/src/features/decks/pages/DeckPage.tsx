@@ -1,5 +1,5 @@
-// A deck's page below a course (an assessment, a week, a deck): its options, «Estudiar» with the load, its
-// subdecks and the way to the final review.
+// A deck's page from a course down (the course, an assessment, a week, a deck): its options, «Estudiar» with the
+// load, its subdecks and the way to the final review.
 
 import { Navigate } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
@@ -11,6 +11,7 @@ import { useDraftOnly } from '../../catalog/hooks/useDraftOnly';
 import { deckCrumbs } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { AssessmentOptions } from '../components/AssessmentOptions';
+import { CourseOptions } from '../components/CourseOptions';
 import { DeckHeader } from '../components/DeckHeader';
 import { DeckStudyPanel } from '../components/DeckStudyPanel';
 import { useDeckPage } from '../hooks/useDeckPage';
@@ -34,6 +35,7 @@ export function DeckPage({ node }: { node: CourseDeckNode }) {
       {!draftOnly && node.depth === 3 ? (
         <AssessmentOptions node={node} plan={plan.data} view={view} />
       ) : null}
+      {!draftOnly && node.depth === 2 ? <CourseOptions node={node} plan={plan.data} /> : null}
 
       {draftOnly ? null : deck.isError ? (
         <div className="mt-6">

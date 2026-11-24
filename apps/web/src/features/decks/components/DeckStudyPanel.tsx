@@ -53,7 +53,12 @@ export function DeckStudyPanel({
               {!own ? (
                 <Skeleton className="h-6 w-36" />
               ) : (
-                <DayLoad counts={own} medianAnswerMs={plan.data?.medianAnswerMs ?? null} detail />
+                <DayLoad
+                  counts={own}
+                  medianAnswerMs={plan.data?.medianAnswerMs ?? null}
+                  detail
+                  side="right"
+                />
               )}
             </div>
             <div className="order-4 flex h-5 items-center max-sm:basis-full sm:order-3">

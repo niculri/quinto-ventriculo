@@ -271,6 +271,8 @@ test('nothing jumps while the page loads', async ({ page }) => {
   expect(await measure(COURSE_URL, page.getByText('Faltan 12 días · vas al día'))).toBeLessThan(
     0.02,
   );
+  const fixedByDate = page.getByText(/el número lo fija la fecha$/).filter({ visible: true });
+  expect(await measure(`${COURSE_URL}/anki`, fixedByDate)).toBeLessThan(0.02);
   expect(await measure('/home', page.getByText(/Certamen 1 · Faltan 12 días/))).toBeLessThan(0.02);
 });
 

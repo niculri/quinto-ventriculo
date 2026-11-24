@@ -13,7 +13,7 @@ export function DeckHeader({ node }: { node: CourseDeckNode }) {
     <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
       <div className="min-w-0">
         <h1 className="font-serif text-3xl font-semibold tracking-tight">{deckTitle(node)}</h1>
-        <p className="mt-2 text-muted">{s.header.counts(node.noteCount, node.cardCount)}</p>
+        <p className="mt-1 text-sm text-muted">{s.header.counts(node.noteCount, node.cardCount)}</p>
       </div>
       <nav aria-label={s.header.tools} className="flex max-w-full flex-wrap gap-2">
         <Link to={paths.cards(node.ref)} className={`${button.base} ${button.secondary}`}>

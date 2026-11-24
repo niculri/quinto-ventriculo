@@ -110,6 +110,100 @@ test('the assessment’s page: new cards a day and «Incluir extras», and its E
   await expect(number).toHaveValue('2');
 });
 
+test('the deck list ends with its last row, and a row’s breakdown leaves the loads below in view', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
+  const panel = page.getByRole('region', { name: 'Estudiar' });
+  const rows = page.getByRole('list', { name: 'Submazos' }).getByRole('listitem');
+  await expect(rows.last()).toContainText('para hoy');
+  const last = (await rows.last().boundingBox())!;
+  const bottom = (await panel.boundingBox())!;
+  const padding = await panel.evaluate((e) => parseFloat(getComputedStyle(e).paddingBottom));
+  expect(bottom.y + bottom.height - (last.y + last.height)).toBeLessThanOrEqual(padding + 2);
+
+  if (isMobile) return;
+  const load = rows.first().getByRole('button', { name: /para hoy/ });
+  await load.hover();
+  const breakdown = rows.first().getByRole('status');
+  await expect(breakdown).toBeVisible();
+  const box = (await breakdown.boundingBox())!;
+  const text = (await load.boundingBox())!;
+  expect(box.x + box.width).toBeLessThanOrEqual(text.x);
+  // Over the box the mouse is out of the text: it closes, and the row below can be read.
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height - 2);
+  await expect(breakdown).toBeHidden();
+
+  // Beside «Estudiar» it opens to the right: the button stays in view.
+  const today = panel.getByRole('group', { name: 'Para hoy' });
+  await today.getByRole('button').hover();
+  await expect(today.getByRole('status')).toBeVisible();
+  const beside = (await today.getByRole('status').boundingBox())!;
+  const todayText = (await today.getByRole('button').boundingBox())!;
+  const study = (await panel.getByRole('link', { name: 'Estudiar', exact: true }).boundingBox())!;
+  expect(beside.x).toBeGreaterThanOrEqual(todayText.x + todayText.width);
+  expect(beside.x).toBeGreaterThanOrEqual(study.x + study.width);
+});
+
+test('a course’s page, its decks and an assessment’s notes: the same small line under the title', async ({
+  page,
+}) => {
+  await signIn(page);
+  const under = async () => {
+    const title = page.getByRole('main').getByRole('heading', { level: 1 });
+    await expect(title).toBeVisible();
+    return title.evaluate((h) => {
+      const line = h.nextElementSibling!;
+      const gap = line.getBoundingClientRect().top - h.getBoundingClientRect().bottom;
+      return [Math.round(gap), getComputedStyle(line).fontSize];
+    });
+  };
+  await page.goto(COURSE_URL);
+  const course = await under();
+  await page.goto(`${COURSE_URL}/anki`);
+  expect(await under()).toEqual(course);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  expect(await under()).toEqual(course);
+  await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
+  expect(await under()).toEqual(course);
+});
+
+test('the course’s decks: the new cards a day of each assessment, in the box of the assessment’s page', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  const options = page.getByRole('region', { name: 'Opciones de Certamen 1' });
+  await expect(options).toBeVisible();
+  const there = (await options.boundingBox())!;
+
+  await page.goto(`${COURSE_URL}/anki`);
+  const box = page.getByRole('region', { name: 'Tarjetas nuevas por día en Anatomía I' });
+  await expect(box).toContainText('Sin fecha de prueba');
+  const here = (await box.boundingBox())!;
+  expect([here.x, here.y, here.width].map(Math.round)).toEqual(
+    [there.x, there.y, there.width].map(Math.round),
+  );
+  const number = box.getByRole('spinbutton', { name: 'Tarjetas nuevas por día en Certamen 1' });
+  await expect(number).toHaveValue('20');
+  await number.fill('7');
+  await number.press('Enter');
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  const own = page.getByRole('spinbutton', { name: 'Tarjetas nuevas por día' });
+  await expect(own).toHaveValue('7');
+  // And the other way round: what the assessment's page saves is what the course's shows.
+  await own.fill('9');
+  await own.press('Enter');
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('qv-demo-study')))
+    .toContain('"newPerDay":9');
+  await page.goto(`${COURSE_URL}/anki`);
+  await expect(number).toHaveValue('9');
+});
+
 test('«Modo avanzado» adds options, and the four buttons are a choice of their own', async ({
   page,
 }) => {

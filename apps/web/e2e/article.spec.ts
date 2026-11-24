@@ -140,6 +140,8 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
     '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica/nuevas',
   );
   expect(await where()).toEqual(course);
+  await page.goto('/semesters/1/courses/anatomia-1/anki/certamen-1');
+  expect(await where()).toEqual(course);
   await page.goto('/home');
   expect(await where()).toEqual(course);
 });

@@ -13,8 +13,10 @@ AS $function$
           from (
             select c.x, c.i
               from unnest(current) with ordinality as c(x, i)
-             where c.x <> all (array(select jsonb_array_elements_text(patch -> 'remove')))
-               and c.x <> all (array(select jsonb_array_elements_text(patch -> 'add')))
+             where c.x <> all (array(
+                     select e from jsonb_array_elements_text(patch -> 'remove') e where e is not null))
+               and c.x <> all (array(
+                     select e from jsonb_array_elements_text(patch -> 'add') e where e is not null))
             union all
             select a.x, 1000000 + min(a.i)
               from jsonb_array_elements_text(patch -> 'add') with ordinality as a(x, i)

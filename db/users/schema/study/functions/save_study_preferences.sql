@@ -22,6 +22,14 @@ begin
                      'addedCourses', 'removedCourses', 'dismissed')) then
     raise exception 'invalid_preferences' using errcode = '22023';
   end if;
+  -- A list given as a whole array would otherwise be ignored without a word: it is refused.
+  if exists (
+    select from unnest(array['addedCourses', 'removedCourses', 'dismissed']) k
+     where p ? k and (jsonb_typeof(p -> k) <> 'object'
+                      or jsonb_typeof(p -> k -> 'add') is distinct from 'array'
+                      or jsonb_typeof(p -> k -> 'remove') is distinct from 'array')) then
+    raise exception 'invalid_preferences' using errcode = '22023';
+  end if;
   insert into public.study_preferences (user_id) values (auth.uid()) on conflict (user_id) do nothing;
   -- One statement over the locked row: a list merges with what is stored at that moment.
   update public.study_preferences s set

@@ -88,7 +88,8 @@ $$;
 -- 2. Preferences -------------------------------------------------------------------------------------------------
 
 -- `current` without what `patch` takes out or adds, then what it adds (each once, in its order), keeping the last
--- `cap`: the newest choices stay when a list is full. A null patch leaves the list as it is.
+-- `cap`: the newest choices stay when a list is full. A null patch leaves the list as it is. A null inside `remove`
+-- takes out nothing (with `<> all`, it would take out everything); one inside `add` is refused by the table's check.
 create function public.patch_text_list(current text[], patch jsonb, cap integer)
 returns text[]
 language sql
@@ -102,8 +103,10 @@ as $$
           from (
             select c.x, c.i
               from unnest(current) with ordinality as c(x, i)
-             where c.x <> all (array(select jsonb_array_elements_text(patch -> 'remove')))
-               and c.x <> all (array(select jsonb_array_elements_text(patch -> 'add')))
+             where c.x <> all (array(
+                     select e from jsonb_array_elements_text(patch -> 'remove') e where e is not null))
+               and c.x <> all (array(
+                     select e from jsonb_array_elements_text(patch -> 'add') e where e is not null))
             union all
             select a.x, 1000000 + min(a.i)
               from jsonb_array_elements_text(patch -> 'add') with ordinality as a(x, i)
@@ -134,6 +137,14 @@ begin
      where k not in ('timeZone', 'dayStartsAt', 'learnAheadMinutes', 'newCardsIgnoreReviewLimit',
                      'applyAllParentLimits', 'fullAnki', 'fourButtons', 'welcomeSeen', 'semester',
                      'addedCourses', 'removedCourses', 'dismissed')) then
+    raise exception 'invalid_preferences' using errcode = '22023';
+  end if;
+  -- A list given as a whole array would otherwise be ignored without a word: it is refused.
+  if exists (
+    select from unnest(array['addedCourses', 'removedCourses', 'dismissed']) k
+     where p ? k and (jsonb_typeof(p -> k) <> 'object'
+                      or jsonb_typeof(p -> k -> 'add') is distinct from 'array'
+                      or jsonb_typeof(p -> k -> 'remove') is distinct from 'array')) then
     raise exception 'invalid_preferences' using errcode = '22023';
   end if;
   insert into public.study_preferences (user_id) values (auth.uid()) on conflict (user_id) do nothing;

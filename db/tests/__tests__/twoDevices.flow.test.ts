@@ -237,7 +237,18 @@ describe('preferences as a patch', () => {
     await expect(save(ANA, { dismissed: { add: ['Con Espacio'], remove: [] } })).rejects.toThrow(
       /check constraint/,
     );
+    await expect(save(ANA, { dismissed: { add: [null], remove: [] } })).rejects.toThrow(
+      /check constraint/,
+    );
     expect((await save(ANA, {})).semester).toBe(3);
+  });
+
+  it('a list sent whole, or without what it gains or loses, is refused; a null in what it loses takes out nothing', async () => {
+    const before = await save(ANA, {});
+    for (const dismissed of [['tip-x'], { add: ['tip-x'] }, { add: ['tip-x'], remove: 'tip-a' }]) {
+      await expect(save(ANA, { dismissed })).rejects.toThrow(/invalid_preferences/);
+    }
+    expect(await save(ANA, { dismissed: { add: [], remove: [null] } })).toEqual(before);
   });
 
   it('only the student’s own row, never for somebody not invited, and the list helper is not callable', async () => {

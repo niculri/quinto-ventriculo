@@ -191,6 +191,7 @@ describe('a deck’s statistics', () => {
     expect(activityChartStrings.dueToday(1, 1)).toBe(
       'Hoy te toca repasar 1 tarjeta, más 1 atrasada.',
     );
+    expect(activityChartStrings.dueToday(2, 0)).toBe('Hoy te toca repasar 2 tarjetas.');
     expect(activityChartStrings.dueToday(0, 3)).toBe('Hoy tienes 3 atrasadas por repasar.');
     expect(activityChartStrings.dueToday(0, 1)).toBe('Hoy tienes 1 atrasada por repasar.');
   });

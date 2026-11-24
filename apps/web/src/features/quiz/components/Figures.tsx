@@ -1,5 +1,6 @@
 // A question's figures (inline SVG or a photo that opens bigger) and its table, sanitized.
 import type { QuizFigure, QuizTable } from '@qv/schema';
+import { drawnWidth } from '../../../shared/lib/drawnWidth';
 import { keyed } from '../../../shared/lib/keyed';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { commonCaption, shownHeight } from '../model/figures';
@@ -20,7 +21,8 @@ function Figure({ figure: f, onZoom }: { figure: QuizFigure; onZoom: (image: Ope
           src: f.src ?? '',
           alt: f.alt,
           caption: f.caption ?? '',
-          shown: e.currentTarget.getBoundingClientRect().width,
+          // The photo's own frame (padding and border) is not drawn in the viewer.
+          shown: drawnWidth(e.currentTarget.querySelector('img')!),
         })
       }
     >

@@ -18,11 +18,12 @@ export type SqlState =
 /**
  * Each reason the code tells apart, with the text of the message that carries it. The SQL raises
  * `raise exception '<reason>' using errcode = '<SQLSTATE>'`, and the SQLSTATE is shared by several reasons (P0001 is
- * card_changed, quota_exceeded and the report limits; 42501 is not_allowed, owner_only and admin_account): only the
+ * card_changed, undo_refused, quota_exceeded and the report limits; 42501 is not_allowed, owner_only and admin_account): only the
  * message, the reason itself or `<function>: <reason>`, tells them apart.
  */
 const REASON_TEXT = {
   card_changed: 'card_changed',
+  undo_refused: 'undo_refused',
   quota_exceeded: 'quota_exceeded',
   session_closed: 'session_closed',
   email_mismatch: 'email_mismatch',

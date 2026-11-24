@@ -19,7 +19,14 @@ import {
 import { browserTimeZone, defaultPreferences } from './api/repository';
 import type { AssessmentSetting, StudyPreferences } from './api/repository';
 import { useStudentCatalog, useStudentDeck } from '../catalog/hooks/useStudentView';
-import { assessmentView, cardKey, deckIds, timingFor, treeDecks } from '@qv/study';
+import {
+  assessmentView,
+  cardKey,
+  deckIds,
+  preferencesPatch,
+  timingFor,
+  treeDecks,
+} from '@qv/study';
 import type { AssessmentView, StudyData, StudyPlan } from '@qv/study';
 import { useNow } from '../../shared/hooks/useNow';
 
@@ -43,23 +50,32 @@ export function usePreferences() {
   const prefs: StudyPreferences | undefined = query.data?.prefs;
   // The stored zone is kept as the browser's: the statistics and other devices use it.
   const { mutate: saveZone } = useMutation({
-    mutationFn: (next: StudyPreferences) => study.savePreferences(next),
-    onSuccess: (_, next) => client.setQueryData(studyKeys.preferences, next),
+    mutationFn: (p: { stored: StudyPreferences | null; next: StudyPreferences }) =>
+      study.savePreferences(preferencesPatch(p.stored, p.next)),
+    onSuccess: (saved) => client.setQueryData(studyKeys.preferences, saved),
   });
   useEffect(() => {
     if (query.data === undefined || query.data.stored?.timeZone === zone) return;
-    saveZone(query.data.prefs);
+    saveZone({ stored: query.data.stored, next: query.data.prefs });
   }, [query.data, saveZone, zone]);
   return { ...query, prefs };
 }
 
+/** The preferences a page showed and the same with its change: only the difference is saved. */
+export interface PreferencesChange {
+  from: StudyPreferences;
+  to: StudyPreferences;
+}
+
+/** What is stored comes back, with what another device changed in the meantime. */
 export function useSavePreferences() {
   const study = useStudyRepository();
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (p: StudyPreferences) => study.savePreferences(p),
-    onSuccess: (_, p) => {
-      client.setQueryData(studyKeys.preferences, p);
+    mutationFn: ({ from, to }: PreferencesChange) =>
+      study.savePreferences(preferencesPatch(from, to)),
+    onSuccess: (saved) => {
+      client.setQueryData(studyKeys.preferences, saved);
       void client.invalidateQueries({ queryKey: studyKeys.allAnswers });
     },
   });

@@ -164,9 +164,20 @@ describe('study', () => {
     await rpc(ana, 'forget_cards', { cards: [card('n2')], reset_counts: true });
   });
 
+  it('saves the preferences as a patch and gives them back whole', async () => {
+    const prefs = await rpc(ana, 'save_study_preferences', {
+      p: { fullAnki: true, semester: 2, dismissed: { add: ['tip-search'], remove: [] } },
+    });
+    expect(prefs).toMatchObject({ fullAnki: true, semester: 2, dismissed: ['tip-search'] });
+  });
+
   it('undoes and reconciles', async () => {
     const undone = await rpc(ana, 'undo_last_review', undefined);
     expect(undone?.action).toBe('forget');
+    const flags = await rpc(ana, 'undo_last_review', {
+      expected: { ...card('n1'), action: 'flag' },
+    });
+    expect(flags?.noteGuid).toBe('n1');
     await rpc(beto, 'undo_last_review', undefined);
     const changes = [{ noteGuid: 'n1', ord: 0, deckId: null }];
     const r = await rpc(ana, 'reconcile_cards', { p: { since: 0, upTo: 7, changes } });

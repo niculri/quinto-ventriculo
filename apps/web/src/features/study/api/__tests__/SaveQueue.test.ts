@@ -152,7 +152,7 @@ describe('saving the answers when the connection fails', () => {
 });
 
 describe('undo', () => {
-  it('stops if the database undid another action (one done in another tab after this one)', async () => {
+  it('another tab acted after it: the database undoes nothing, the session says so and goes on', async () => {
     const local = localStudyRepository(null);
     const here = session(local);
     here.showNext();
@@ -162,10 +162,33 @@ describe('undo', () => {
     there.showNext();
     there.flag(1);
     await there.saved();
+    const saved = await local.cards(['20', '21']);
 
     here.undo();
     await here.saved();
-    expect(here.failure).toMatch(/cambió en otra pestaña/);
+    expect(here.failure).toBeNull();
+    expect(here.toast).toMatch(/No se deshizo: después estudiaste en otra pestaña/);
+    expect(await local.cards(['20', '21'])).toEqual(saved);
+  });
+
+  it('says which answer it takes back, by the id the repository gave it', async () => {
+    const local = localStudyRepository(null);
+    const expected: unknown[] = [];
+    const s = session({
+      ...local,
+      undo: (e) => {
+        expected.push(e);
+        return local.undo(e);
+      },
+    });
+    s.showNext();
+    answer(s);
+    s.undo();
+    await s.saved();
+    const id: unknown = expect.any(String);
+    expect(expected).toEqual([
+      expect.objectContaining({ action: 'answer', actionId: id, deckId: '20' }),
+    ]);
   });
 
   it('undoes the session’s own last action', async () => {
@@ -199,31 +222,34 @@ describe('undo', () => {
   });
 });
 
-it('an undo of something this queue never wrote stops the session, as one the database does not match', async () => {
+it('an undo of something this queue never wrote is refused, without an id and without stopping', async () => {
   const failures: SaveFailure[] = [];
-  const queue = new SaveQueue(
-    localStudyRepository(null),
-    new Map(),
-    [0, 0],
-    (f) => failures.push(f),
-    () => {},
-  );
-  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
-  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'answer', card });
-  await queue.saved();
-  expect(failures).toEqual([{ kind: 'changedElsewhere' }]);
-  expect(queue.pending).toBe(0);
-});
-
-it('an undo of another card of the same note stops the session: the database undid the one that came before', async () => {
+  let refused = 0;
   const local = localStudyRepository(null);
-  const failures: SaveFailure[] = [];
   const queue = new SaveQueue(
     local,
     new Map(),
     [0, 0],
     (f) => failures.push(f),
     () => {},
+    () => refused++,
+  );
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'answer', card });
+  await queue.saved();
+  expect([failures, refused, queue.pending]).toEqual([[], 1, 0]);
+});
+
+it('an undo of another card of the same note is refused: the one that came before stays', async () => {
+  const local = localStudyRepository(null);
+  let refused = 0;
+  const queue = new SaveQueue(
+    local,
+    new Map(),
+    [0, 0],
+    () => {},
+    () => {},
+    () => refused++,
   );
   const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
   await local.setFlag(card, 2);
@@ -235,8 +261,42 @@ it('an undo of another card of the same note stops the session: the database und
     card: { ...card, ord: 1 },
   });
   await queue.saved();
-  expect(failures).toEqual([{ kind: 'changedElsewhere' }]);
+  expect(refused).toBe(1);
+  expect(await local.cards(['20', '21'])).toEqual([expect.objectContaining({ flag: 2 })]);
+});
+
+it('an undo the database takes for a command this queue did not write leaves the marks as they are', async () => {
+  const local = localStudyRepository(null);
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  await local.setFlag(card, 2);
+  const queue = new SaveQueue(
+    local,
+    new Map(),
+    [0, 0],
+    () => {},
+    () => {},
+    () => {},
+  );
+  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'flag', card });
+  await queue.saved();
+  expect(queue.failure).toBeNull();
   expect(await local.cards(['20', '21'])).toEqual([]);
+});
+
+it('a failed undo for another reason stops the session', async () => {
+  const failures: SaveFailure[] = [];
+  const queue = new SaveQueue(
+    { ...localStudyRepository(null), undo: () => Promise.reject(NETWORK()) },
+    new Map(),
+    [0, 0],
+    (f) => failures.push(f),
+    () => {},
+    () => {},
+  );
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'answer', card });
+  await queue.saved();
+  expect(failures).toEqual([{ kind: 'message', message: NETWORK().message }]);
 });
 
 describe('the marks of the cards that were written', () => {

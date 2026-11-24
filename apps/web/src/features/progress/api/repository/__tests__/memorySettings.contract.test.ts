@@ -18,6 +18,7 @@ import { localStudyRepository } from '../memory';
 import { defaultPreferences } from '../model';
 import type { StudyRepository } from '../port';
 import { supabaseStudyRepository } from '../supabase';
+import { preferencesPatch } from '@qv/study';
 
 type PGlite = Awaited<ReturnType<typeof createDatabase>>;
 let db: PGlite;
@@ -60,8 +61,13 @@ describe('preferences and presets', () => {
       memory,
       [
         (r) => r.preferences(),
-        (r) => r.savePreferences(prefs),
-        (r) => r.savePreferences({ ...prefs, dayStartsAt: 5, fullAnki: true }),
+        (r) => r.savePreferences(preferencesPatch(null, prefs)),
+        (r) =>
+          r.savePreferences({
+            dayStartsAt: 5,
+            fullAnki: true,
+            dismissed: { add: ['b'], remove: ['tip'] },
+          }),
         (r) => r.preferences(),
         (r) => r.presets(),
         (r) =>

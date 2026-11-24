@@ -17,15 +17,20 @@ export type {
   HomeCounts,
   HomeDeckCounts,
   PracticeCount,
+  PreferencesPatch,
   QueueName,
   RatedAnswer,
   ReconcileResult,
   ReviewInput,
   StoredCard,
   StudyPreferences,
+  UndoExpected,
   UndoResult,
   UserPreset,
 } from '@qv/schema/user';
+
+/** The zone study_preferences gets when its first save does not bring one (its column's default). */
+export const DATABASE_TIME_ZONE = 'America/Santiago';
 
 export const PRACTICE_BATCH_MAX = 1000;
 export const PRACTICE_BATCH_DECKS = 100;
@@ -39,5 +44,13 @@ export class CardChangedError extends Error {
   constructor() {
     super('Esta tarjeta cambió en otra pestaña o dispositivo.');
     this.name = 'CardChangedError';
+  }
+}
+
+/** The user's last action is not the one this screen is undoing (another tab or device acted after it): nothing changed. */
+export class UndoRefusedError extends Error {
+  constructor() {
+    super('No se pudo deshacer: hiciste algo después en otra pestaña o dispositivo.');
+    this.name = 'UndoRefusedError';
   }
 }

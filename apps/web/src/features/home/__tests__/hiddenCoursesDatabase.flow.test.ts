@@ -13,6 +13,7 @@ import { CATALOG } from '../../../test/fixtures/catalog';
 import { renderApp } from '../../../test/render';
 import { defaultPreferences, supabaseStudyRepository } from '../../progress/api/repository';
 import { supabaseQuizRepository } from '../../quiz/api/repository';
+import { preferencesPatch } from '@qv/study';
 
 // A Tuesday of November, at noon in Santiago.
 const NOW = new Date('2026-11-10T12:00:00-03:00');
@@ -40,7 +41,9 @@ async function student() {
   const quiz = supabaseQuizRepository(client);
   // The browser's own zone: the site saves it on opening, and this test is not about that.
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  await study.savePreferences({ ...defaultPreferences(zone), welcomeSeen: true });
+  await study.savePreferences(
+    preferencesPatch(null, { ...defaultPreferences(zone), welcomeSeen: true }),
+  );
   await study.setDeckActivation('5', true);
   await study.saveAssessmentSetting({
     deckId: '4',

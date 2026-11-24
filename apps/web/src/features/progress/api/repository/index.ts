@@ -7,6 +7,7 @@ export {
   PRACTICE_BATCH_MAX,
   PRACTICE_DAY_MAX,
   PracticeRefusedError,
+  UndoRefusedError,
 } from './model';
 export type {
   AnswerToday,
@@ -20,6 +21,7 @@ export type {
   DeckSetting,
   HomeDeckCounts,
   PracticeCount,
+  PreferencesPatch,
   ReviewInput,
   StoredCard,
   StudyPreferences,

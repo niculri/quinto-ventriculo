@@ -45,8 +45,9 @@ export interface SetFlagCommand {
 }
 
 /**
- * Undoes the last write of the database; it must have been `action` on `card`, or the session stops. `undoes` is the
- * id of the command whose effect is being taken back (so the saving side can put back that command's marks).
+ * Undoes the last write of the database if it is `action` on `card` (the saving side says which answer, when it has
+ * its id); if it is not, nothing is undone and the session gets `undoRefused`. `undoes` is the id of the command
+ * whose effect is being taken back (so the saving side can put back that command's marks).
  */
 export interface UndoCommand {
   readonly kind: 'undo';

@@ -12,7 +12,11 @@ import { CATALOG } from '../../../../test/fixtures/catalog';
 import { DECK } from '../../../../test/fixtures/deck';
 import { fakeApi } from '../../../../test/fakes/api';
 import { StudyRepositoryContext } from '../../../progress/api/context';
-import { defaultPreferences, localStudyRepository } from '../../../progress/api/repository';
+import {
+  defaultPreferences,
+  localStudyRepository,
+  UndoRefusedError,
+} from '../../../progress/api/repository';
 import type { StudyRepository } from '../../../progress/api/repository';
 import { cardQuery } from '../../../decks/api/queries';
 import {
@@ -93,6 +97,20 @@ describe('the study session hook in StrictMode', () => {
     expect(calls.setFlag).toHaveBeenCalledTimes(1);
     expect(calls.bury).toHaveBeenCalledTimes(1);
     expect(result.current.state.outbox.filter((c) => c.kind === 'saveAnswer')).toHaveLength(1);
+  });
+
+  it('an undo the database refuses is a notice, and the session goes on', async () => {
+    const local = localStudyRepository(null);
+    const { result } = mount({ ...local, undo: () => Promise.reject(new UndoRefusedError()) });
+    await settle();
+    act(() => result.current.act.reveal());
+    act(() => result.current.act.answer(3));
+    act(() => result.current.act.undo());
+    await settle();
+    await act(() => result.current.saves.saved());
+    await settle();
+    expect(result.current.state.toast).toMatchObject({ kind: 'undoRefused' });
+    expect(result.current.state.failure).toBeNull();
   });
 
   it('opens on the first card, and with nothing left looks for more every 15 s', async () => {

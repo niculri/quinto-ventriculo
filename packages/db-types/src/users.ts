@@ -963,6 +963,10 @@ export type Database = {
       median_answer_ms: { Args: never; Returns: number }
       my_reports: { Args: never; Returns: Json }
       normalize_invite_email: { Args: { raw: string }; Returns: string }
+      patch_text_list: {
+        Args: { cap: number; current: string[]; patch: Json }
+        Returns: string[]
+      }
       purge_deleted_accounts: { Args: never; Returns: Json }
       reconcile_cards: { Args: { p: Json }; Returns: Json }
       record_practice: { Args: { p: Json }; Returns: Json }
@@ -980,6 +984,7 @@ export type Database = {
         Returns: Json
       }
       save_quiz_progress: { Args: { p: Json }; Returns: undefined }
+      save_study_preferences: { Args: { p: Json }; Returns: Json }
       set_flag: { Args: { card: Json; flag: number }; Returns: undefined }
       set_flags: { Args: { cards: Json; flag: number }; Returns: number }
       site_day: { Args: { t: string }; Returns: string }
@@ -994,7 +999,7 @@ export type Database = {
       suspend_cards: { Args: { cards: Json; note?: boolean }; Returns: number }
       token_session_open: { Args: never; Returns: boolean }
       unbury_cards: { Args: { cards: Json }; Returns: number }
-      undo_last_review: { Args: never; Returns: Json }
+      undo_last_review: { Args: { expected?: Json }; Returns: Json }
       unsuspend_cards: { Args: { cards: Json }; Returns: number }
       usage_figure: { Args: { students: number; v: number }; Returns: Json }
       usage_students: { Args: { n: number }; Returns: Json }

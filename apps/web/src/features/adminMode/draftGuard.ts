@@ -38,6 +38,17 @@ export function guardStudy(real: StudyRepository, draft: DraftOnly): StudyReposi
       (await inDraftDeck(draft, input.card))
         ? { updatedAt: input.expectedUpdatedAt ?? new Date().toISOString() }
         : real.recordReview(input),
+    // An answer of the draft was never written: undoing it touches nothing either.
+    undo: async (expected) =>
+      expected && (await inDraftDeck(draft, expected))
+        ? {
+            noteGuid: expected.noteGuid,
+            ord: expected.ord,
+            deckId: expected.deckId,
+            action: expected.action,
+            rating: null,
+          }
+        : real.undo(expected),
     bury: (cards, until, note) => cardsWrite((c) => real.bury(c, until, note))(cards),
     suspend: (cards, note) => cardsWrite((c) => real.suspend(c, note))(cards),
     unsuspend: (cards) => cardsWrite((c) => real.unsuspend(c))(cards),

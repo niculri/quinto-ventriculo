@@ -83,6 +83,18 @@ export const StudyPreferences = z.object({
 });
 export type StudyPreferences = z.infer<typeof StudyPreferences>;
 
+/** What a list of the preferences gained and lost: saved over what is stored, not as a whole new list. */
+export const ListPatch = z.object({ add: z.array(z.string()), remove: z.array(z.string()) });
+export type ListPatch = z.infer<typeof ListPatch>;
+
+/** Only what changed of the preferences, as save_study_preferences() takes it. */
+export const PreferencesPatch = StudyPreferences.extend({
+  addedCourses: ListPatch,
+  removedCourses: ListPatch,
+  dismissed: ListPatch,
+}).partial();
+export type PreferencesPatch = z.infer<typeof PreferencesPatch>;
+
 export const UserPreset = z.object({
   id: z.string(),
   name: z.string(),
@@ -192,6 +204,13 @@ export type RatedAnswer = z.infer<typeof RatedAnswer>;
 
 export const UndoResult = CardRef.extend({ action: ActionName, rating: z.number().nullable() });
 export type UndoResult = z.infer<typeof UndoResult>;
+
+/**
+ * The action the study screen is taking back: the database undoes nothing if its last one is another. `actionId` is
+ * record_review()'s, when the screen has it.
+ */
+export const UndoExpected = CardRef.extend({ action: ActionName, actionId: z.string().optional() });
+export type UndoExpected = z.infer<typeof UndoExpected>;
 
 /** A card that moved or was taken out, as the API gives it: what reconcile_cards() receives. */
 export { CardChange } from '../anki/flashcards';

@@ -1,18 +1,31 @@
-// A function created after the default-privileges migration is not executable by anon, authenticated or public, and
-// the functions that already existed keep exactly the grants they had.
+// A function created after the default-privileges migration is not executable by anon, authenticated or public, the
+// functions that already existed keep exactly the grants they had, and the later migrations grant only on purpose.
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { PGlite } from '@electric-sql/pglite';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase } from '../pglite';
 
 const MIGRATION = '20261124000000_default_privileges.sql';
+/** The first migration after it: stopping there gives the database that migration left. */
+const NEXT = readdirSync(join(import.meta.dirname, '../../users/supabase/migrations'))
+  .sort()
+  .find((f) => f > MIGRATION);
+/** The functions the later migrations made that a signed-in student calls: each granted on purpose. */
+const GRANTED_LATER = [
+  'save_study_preferences(jsonb)',
+  'storage_health()',
+  'undo_last_review(jsonb)',
+];
+/** Answers only yes or no, for the health check, which calls it without a session like `health()`. */
+const GRANTED_TO_ANON_LATER = ['storage_health()'];
 
-let before: PGlite;
-let db: PGlite;
+type Grant = { fn: string; grantee: string };
 
 /** Who can execute each function of `public`; a function without its own list has the default one (acldefault). */
 const grants = async (d: PGlite) =>
   (
-    await d.query<{ fn: string; grantee: string }>(`
+    await d.query<Grant>(`
       select p.oid::regprocedure::text as fn,
              case a.grantee when 0 then 'public' else a.grantee::regrole::text end as grantee
         from pg_proc p
@@ -22,22 +35,42 @@ const grants = async (d: PGlite) =>
        order by 1, 2`)
   ).rows;
 
-beforeAll(async () => {
-  before = await createDatabase('users', [], MIGRATION);
-  db = await createDatabase('users');
-});
+let before: Grant[];
+let justAfter: Grant[];
+/** Every migration: what the later ones did is checked here too (`all`, before the tests add their functions). */
+let db: PGlite;
+let all: Grant[];
 
-afterAll(async () => {
-  await before.close();
+beforeAll(async () => {
+  const [b, a] = await Promise.all([
+    createDatabase('users', [], MIGRATION),
+    createDatabase('users', [], NEXT),
+  ]);
+  [before, justAfter] = [await grants(b), await grants(a)];
+  await Promise.all([b.close(), a.close()]);
+  db = await createDatabase('users');
+  all = await grants(db);
 });
 
 describe('default privileges of new functions in public', () => {
-  it('the functions that already existed keep the grants they had', async () => {
-    const [was, is] = [await grants(before), await grants(db)];
-    expect(was.length).toBeGreaterThan(10);
-    // A later migration adds functions with grants of its own: only the ones that were there are compared.
-    const existed = new Set(was.map((g) => g.fn));
-    expect(is.filter((g) => existed.has(g.fn))).toEqual(was);
+  it('the functions that already existed keep the grants they had', () => {
+    expect(before.length).toBeGreaterThan(10);
+    expect(justAfter).toEqual(before);
+  });
+
+  it('the later migrations give no function to public, and to anon and authenticated only on purpose', () => {
+    const existing = new Set(before.map((g) => g.fn));
+    const later = all.filter((g) => !existing.has(g.fn));
+    expect(later.filter((g) => g.grantee === 'public')).toEqual([]);
+    expect([...new Set(later.filter((g) => g.grantee === 'anon').map((g) => g.fn))]).toEqual(
+      GRANTED_TO_ANON_LATER,
+    );
+    expect([
+      ...new Set(later.filter((g) => g.grantee === 'authenticated').map((g) => g.fn)),
+    ]).toEqual(GRANTED_LATER);
+    // A function that was already there may lose a grant, never gain one.
+    const had = new Set(before.map((g) => `${g.fn} ${g.grantee}`));
+    expect(all.filter((g) => existing.has(g.fn) && !had.has(`${g.fn} ${g.grantee}`))).toEqual([]);
   });
 
   it('a function created afterwards is executable by neither anon, authenticated nor public', async () => {

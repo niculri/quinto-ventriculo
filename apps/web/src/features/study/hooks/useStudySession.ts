@@ -63,6 +63,7 @@ export function useStudySession(initial: StudyData, rootId: string) {
         RETRY_DELAYS_MS,
         (failure) => numbered({ type: 'saveFailed', failure }),
         (entries) => prefetchCards(client, api, entries),
+        () => numbered({ type: 'undoRefused' }),
       ),
   );
   const saving = useSyncExternalStore(saves.subscribe, () => saves.pending > 0);

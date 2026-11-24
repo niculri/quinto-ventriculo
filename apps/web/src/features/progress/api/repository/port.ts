@@ -11,11 +11,13 @@ import type {
   DeckSetting,
   HomeCounts,
   PracticeCount,
+  PreferencesPatch,
   RatedAnswer,
   ReconcileResult,
   ReviewInput,
   StoredCard,
   StudyPreferences,
+  UndoExpected,
   UndoResult,
   UserPreset,
 } from './model';
@@ -29,7 +31,8 @@ export interface StudyRepository {
   firstAnswersSince: (since: Date) => Promise<{ noteGuid: string; ord: number; at: string }[]>;
   answersSince: (since: Date) => Promise<AnswerToday[]>;
   preferences: () => Promise<StudyPreferences | null>;
-  savePreferences: (p: StudyPreferences) => Promise<void>;
+  /** Saves only what changed and gives back the preferences as they are stored now. */
+  savePreferences: (patch: PreferencesPatch) => Promise<StudyPreferences>;
   presets: () => Promise<UserPreset[]>;
   savePreset: (p: {
     id?: string;
@@ -50,7 +53,8 @@ export interface StudyRepository {
   answeredDecks: () => Promise<string[]>;
   medianAnswerMs: () => Promise<number | null>;
   deckProgress: (dayStart: Date) => Promise<DeckProgress[]>;
-  recordReview: (input: ReviewInput) => Promise<{ updatedAt: string }>;
+  /** `actionId` names the answer for undoing it; a repository that answers without saving leaves it out. */
+  recordReview: (input: ReviewInput) => Promise<{ updatedAt: string; actionId?: string }>;
   bury: (cards: CardRef[], until: Date, note: boolean) => Promise<void>;
   suspend: (cards: CardRef[], note: boolean) => Promise<void>;
   setFlag: (card: CardRef, flag: number) => Promise<void>;
@@ -58,7 +62,8 @@ export interface StudyRepository {
   unsuspend: (cards: CardRef[]) => Promise<void>;
   unbury: (cards: CardRef[]) => Promise<void>;
   forget: (cards: CardRef[], resetCounts: boolean) => Promise<void>;
-  undo: () => Promise<UndoResult | null>;
+  /** The last action; with `expected`, only if it is that one (else UndoRefusedError). */
+  undo: (expected?: UndoExpected) => Promise<UndoResult | null>;
   heatmap: (deckIds: string[] | null) => Promise<HeatmapData>;
   recordPractice: (counts: PracticeCount[]) => Promise<void>;
   homeCounts: (

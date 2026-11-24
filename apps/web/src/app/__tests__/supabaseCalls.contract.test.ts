@@ -8,6 +8,7 @@ import { supabaseAdminRepository } from '../../features/admin/api/repository';
 import { supabaseQuizRepository } from '../../features/quiz/api/repository';
 import { supabaseReportsRepository } from '../../features/reports/api/repository';
 import { supabaseStudyRepository } from '../../features/progress/api/repository';
+import { preferencesPatch } from '@qv/study';
 
 const URL_ = 'https://users.example.test';
 const KEY = 'publishable-test-key';
@@ -195,7 +196,7 @@ describe('users database: the calls of each adapter', () => {
       ['firstAnswersSince', () => repo.firstAnswersSince(AT)],
       ['answersSince', () => repo.answersSince(AT)],
       ['preferences', () => repo.preferences()],
-      ['savePreferences', () => repo.savePreferences(prefs)],
+      ['savePreferences', () => repo.savePreferences(preferencesPatch(null, prefs))],
       ['presets', () => repo.presets()],
       ['savePreset, new', () => repo.savePreset({ name: 'Mío', replaces: null, config: { a: 1 } })],
       ['savePreset', () => repo.savePreset({ id: 'p1', name: 'Mío', replaces: 'x', config: {} })],

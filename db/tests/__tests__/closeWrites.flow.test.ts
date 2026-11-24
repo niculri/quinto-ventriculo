@@ -93,9 +93,10 @@ describe('writes only through the functions', () => {
     const r = await db.query<{ proname: string; prosecdef: boolean }>(
       `select proname, prosecdef from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname = 'public' and proname in ('record_review', 'bury_cards', 'suspend_cards', 'set_flag',
-          'undo_last_review', 'unsuspend_cards', 'unbury_cards', 'set_flags', 'forget_cards', 'save_quiz_progress')`,
+          'undo_last_review', 'unsuspend_cards', 'unbury_cards', 'set_flags', 'forget_cards', 'save_quiz_progress',
+          'save_study_preferences')`,
     );
-    expect(r.rows).toHaveLength(10);
+    expect(r.rows).toHaveLength(11);
     expect(r.rows.filter((x) => !x.prosecdef)).toEqual([]);
     for (const sql of [
       `select public.lock_user_study()`,
@@ -142,6 +143,7 @@ describe('writes only through the functions', () => {
       'request_account_deletion',
       'resume_account',
       'save_quiz_progress',
+      'save_study_preferences',
       'set_flag',
       'set_flags',
       'study_heatmap',

@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import userEvent from '@testing-library/user-event';
-import { timingFor } from '@qv/study';
+import { preferencesPatch, timingFor } from '@qv/study';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientContext } from '../../../shared/hooks/useApi';
 import { cardText } from '../../../test/dom';
@@ -31,12 +31,13 @@ describe('the preferences', () => {
   }
   const settle = () => act(() => new Promise((r) => setTimeout(r, 30)));
 
-  it('keep the browser’s time zone: a stored one that differs is saved once, with the rest as it was', async () => {
+  it('keep the browser’s time zone: a stored one that differs is saved once, and only it', async () => {
     const study = localStudyRepository(null, { timeZone: OTHER_ZONE, fourButtons: true });
     const save = vi.spyOn(study, 'savePreferences');
     const { result } = preferencesOf(study);
     await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
-    expect(save.mock.calls[0]![0]).toEqual({
+    expect(save.mock.calls[0]![0]).toEqual({ timeZone: browserTimeZone() });
+    expect(await study.preferences()).toEqual({
       ...defaultPreferences(),
       timeZone: browserTimeZone(),
       fourButtons: true,
@@ -54,7 +55,10 @@ describe('the preferences', () => {
       expect(result.current.prefs).toEqual(defaultPreferences(browserTimeZone())),
     );
     await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
-    expect(save).toHaveBeenCalledWith(defaultPreferences(browserTimeZone()));
+    expect(save).toHaveBeenCalledWith(
+      preferencesPatch(null, defaultPreferences(browserTimeZone())),
+    );
+    expect(await study.preferences()).toEqual(defaultPreferences(browserTimeZone()));
   });
 
   it('a stored zone that is the browser’s is left alone, and its read is the same object in each render', async () => {

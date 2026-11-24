@@ -3,7 +3,12 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
 import { describe, expect, it } from 'vitest';
-import { CardChangedError, PracticeRefusedError, supabaseStudyRepository } from '../';
+import {
+  CardChangedError,
+  PracticeRefusedError,
+  supabaseStudyRepository,
+  UndoRefusedError,
+} from '../';
 import type { StudyRepository } from '../';
 import {
   NO_AUTH,
@@ -131,5 +136,46 @@ describe('the card sync', () => {
 describe('undo', () => {
   it('nothing to undo is null', async () => {
     expect(await repo(() => ({ body: null })).study.undo()).toBeNull();
+  });
+
+  it('sends the action it expects, and a refusal for another one is an UndoRefusedError', async () => {
+    const { study, calls } = repo(() => refusal('P0001', 'undo_refused'));
+    const expected = { ...REF, action: 'answer' as const, actionId: 'a1' };
+    await expect(study.undo(expected)).rejects.toBeInstanceOf(UndoRefusedError);
+    expect(calls[0]!.body).toEqual({ expected });
+  });
+
+  it('a users’ database from before the expected action: the last one is undone and then compared', async () => {
+    const answer = { ...REF, action: 'answer' as const, rating: 3 };
+    const old = (undone: unknown) =>
+      repo((c) =>
+        'expected' in Object(c.body)
+          ? refusal('PGRST202', 'Could not find the function')
+          : { body: undone },
+      );
+    const same = old(answer);
+    expect(await same.study.undo({ ...REF, action: 'answer', actionId: 'a1' })).toEqual(answer);
+    expect(same.calls.map((c) => 'expected' in Object(c.body))).toEqual([true, false]);
+    for (const undone of [
+      { ...answer, ord: 1 },
+      { ...answer, noteGuid: 'g2' },
+      { ...answer, action: 'flag' },
+      null,
+    ]) {
+      await expect(old(undone).study.undo({ ...REF, action: 'answer' })).rejects.toBeInstanceOf(
+        CardChangedError,
+      );
+    }
+    const failing = repo(() => refusal('PGRST202', 'Could not find the function'));
+    await expect(failing.study.undo({ ...REF, action: 'answer' })).rejects.toThrow(
+      'No se pudo deshacer: Could not find the function',
+    );
+    await expect(failing.study.undo()).rejects.toThrow('No se pudo deshacer');
+    expect(failing.calls).toHaveLength(3);
+  });
+
+  it('an answer gives the id the database named it with', async () => {
+    const { study } = repo(() => ({ body: { actionId: 'a1', updatedAt: 't' } }));
+    expect(await study.recordReview(REVIEW)).toEqual({ actionId: 'a1', updatedAt: 't' });
   });
 });

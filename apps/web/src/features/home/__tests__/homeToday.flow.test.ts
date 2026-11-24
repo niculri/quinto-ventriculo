@@ -10,7 +10,7 @@ import { chooseIn } from '../../../test/dom';
 import { renderApp } from '../../../test/render';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { localStudyRepository } from '../../progress/api/repository';
-import type { StudyPreferences } from '../../progress/api/repository';
+import type { PreferencesPatch, StudyPreferences } from '../../progress/api/repository';
 import { localQuizRepository } from '../../quiz/api/repository';
 import { DECK } from '../../../test/fixtures/deck';
 
@@ -119,8 +119,8 @@ describe('the rest of the home page', () => {
     const study = localStudyRepository(null, { welcomeSeen: true });
     const save = study.savePreferences.bind(study);
     let finish = () => {};
-    study.savePreferences = (p: StudyPreferences) =>
-      new Promise<void>((resolve) => {
+    study.savePreferences = (p: PreferencesPatch) =>
+      new Promise<StudyPreferences>((resolve) => {
         finish = () => void save(p).then(resolve);
       });
     renderApp('/home', { study });

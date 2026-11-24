@@ -170,6 +170,43 @@ describe('answers and the browser’s changes', () => {
     }
   });
 
+  it('an undo that expects another action is refused, changing nothing; the expected one goes', async () => {
+    const { sql, memory } = await pair();
+    const ids = new Map<StudyRepository, string | undefined>();
+    const expectedAnswer = (r: StudyRepository) =>
+      r.undo({ ...A, action: 'answer', ...(ids.get(r) ? { actionId: ids.get(r)! } : {}) });
+    const steps: ((r: StudyRepository) => Promise<unknown>)[] = [
+      async (r) => ids.set(r, (await r.recordReview(answer(A, null, T))).actionId),
+      (r) => r.suspend([D], false),
+      expectedAnswer,
+      async (r) => byCard(await r.allCards()),
+      (r) => r.undo({ ...D, action: 'suspend_note' }),
+      (r) => r.undo({ ...D, action: 'suspend_card' }),
+      (r) => r.undo({ ...A, action: 'answer', actionId: 'not-this-one' }),
+      expectedAnswer,
+      expectedAnswer,
+    ];
+    const got = await onBoth(sql, memory, steps, inShape);
+    expect(got.memory).toEqual(got.sql);
+    const refusal: unknown = expect.stringMatching(/No se pudo deshacer/);
+    const undone = (action: string): unknown => expect.objectContaining({ action });
+    const anything: unknown = expect.anything();
+    const refused = { error: refusal };
+    expect(got.memory).toMatchObject([
+      {},
+      {},
+      refused,
+      { value: anything },
+      refused,
+      { value: undone('suspend_card') },
+      refused,
+      { value: undone('answer') },
+      refused,
+    ]);
+    expect(ids.get(sql)).toEqual(expect.any(String));
+    expect(ids.get(memory)).toEqual(expect.any(String));
+  });
+
   it('the median of the time per answer: from 20 answers, the last 500, an undone one leaves it', async () => {
     const { sql, memory } = await pair();
     const steps: ((r: StudyRepository) => Promise<unknown>)[] = [];

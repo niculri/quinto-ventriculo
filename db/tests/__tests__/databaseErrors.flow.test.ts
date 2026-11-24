@@ -104,6 +104,13 @@ describe('study', () => {
     expectReason(e, 'card_changed', 'P0001');
   });
 
+  it('undo_refused (P0001)', async () => {
+    const e = await refusal(ana, 'select public.undo_last_review(expected => $1::jsonb)', [
+      json({ noteGuid: 'nadie', ord: 0, deckId: '1', action: 'answer' }),
+    ]);
+    expectReason(e, 'undo_refused', 'P0001');
+  });
+
   it('quota_exceeded of the day (P0001, details «changes») and of the cards', async () => {
     await db.query(
       `update public.user_quotas set day = (now() at time zone 'UTC')::date, changes_today = 50000

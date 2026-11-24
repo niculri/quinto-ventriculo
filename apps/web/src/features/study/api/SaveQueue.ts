@@ -1,9 +1,9 @@
-// How a study session saves the reducer's commands: one write after another, with each card's concurrency mark filled
-// in as the write runs, an answer retried twice if the connection fails and nothing written after a failure.
+// How a study session saves the reducer's commands: one write after another, each card's mark filled in as it runs, an
+// answer retried twice, nothing written after a failure, and an undo that says which action it takes back.
 import { cardKey, touchedBy } from '@qv/study';
 import type { Command, CommandId, SaveFailure } from '@qv/study';
 import type { QueueEntry } from '@qv/srs';
-import { CardChangedError } from '../../progress/api/repository';
+import { CardChangedError, UndoRefusedError } from '../../progress/api/repository';
 import type { CardRef, ReviewInput, StudyRepository } from '../../progress/api/repository';
 
 export class SaveQueue {
@@ -13,6 +13,8 @@ export class SaveQueue {
   private readonly listeners = new Set<() => void>();
   /** The marks of the cards a command changed, as they were when its write began: an undo puts them back. */
   private readonly before = new Map<CommandId, Map<string, string | null>>();
+  /** The database's id of each answer saved, so an undo can say which one it takes back. */
+  private readonly actionIds = new Map<CommandId, string>();
   private readonly stamps: Map<string, string | null>;
 
   constructor(
@@ -21,6 +23,7 @@ export class SaveQueue {
     private readonly retryDelaysMs: readonly number[],
     private readonly onFailure: (failure: SaveFailure) => void,
     private readonly onPrefetch: (entries: readonly QueueEntry[]) => void,
+    private readonly onUndoRefused: () => void,
   ) {
     this.stamps = new Map(marks);
   }
@@ -44,13 +47,14 @@ export class SaveQueue {
         const key = cardKey(command.review.card);
         this.enqueue(async () => {
           this.remember(command);
-          await saveAnswer(
+          const actionId = await saveAnswer(
             repository,
             stamps,
             this.retryDelaysMs,
             { ...command.review, expectedUpdatedAt: stamps.get(key) ?? null },
             key,
           );
+          if (actionId !== undefined) this.actionIds.set(command.id, actionId);
           if (command.review.bury.length)
             await refreshStamps(repository, stamps, deckIdsOf(command.review.bury));
         });
@@ -79,20 +83,25 @@ export class SaveQueue {
         return;
       case 'undo':
         this.enqueue(async () => {
-          const undone = await repository.undo();
+          const actionId = this.actionIds.get(command.undoes);
+          const marks = this.before.get(command.undoes);
+          this.before.delete(command.undoes);
+          this.actionIds.delete(command.undoes);
+          try {
+            await repository.undo({
+              ...command.card,
+              action: command.action,
+              ...(actionId === undefined ? {} : { actionId }),
+            });
+          } catch (e) {
+            // Another tab or device acted after it: nothing was undone, so the marks stay as they are.
+            if (!(e instanceof UndoRefusedError)) throw e;
+            this.onUndoRefused();
+            return;
+          }
           // The database gives the card back its old mark: put it back here only now, or the end of the write
           // being undone would overwrite it.
-          for (const [k, stamp] of this.before.get(command.undoes) ?? []) stamps.set(k, stamp);
-          this.before.delete(command.undoes);
-          // The database undoes the user's last action: if it was not this one (another tab or device did
-          // something after it), what is shown here is no longer what is saved.
-          if (
-            undone?.action !== command.action ||
-            undone.noteGuid !== command.card.noteGuid ||
-            undone.ord !== command.card.ord
-          ) {
-            throw new CardChangedError();
-          }
+          for (const [k, stamp] of marks ?? []) stamps.set(k, stamp);
         });
     }
   }
@@ -130,26 +139,26 @@ export class SaveQueue {
 const deckIdsOf = (cards: readonly CardRef[]) => cards.map((c) => c.deckId);
 
 // A retry cannot save an answer twice: the database takes it only if the card is as it was shown, and finding it
-// changed by this very answer counts as saved.
+// changed by this very answer counts as saved (without the answer's id then). Gives that id.
 async function saveAnswer(
   repository: StudyRepository,
   stamps: Map<string, string | null>,
   retryDelaysMs: readonly number[],
   input: ReviewInput,
   key: string,
-): Promise<void> {
+): Promise<string | undefined> {
   for (let attempt = 0; ; attempt++) {
     try {
       const saved = await repository.recordReview(input);
       stamps.set(key, saved.updatedAt);
-      return;
+      return saved.actionId;
     } catch (e) {
       if (attempt > 0 && e instanceof CardChangedError) {
         const rows = await repository.cards([input.card.deckId]);
         const row = rows.find((r) => cardKey(r) === key);
         if (row?.lastReview === input.state.lastReview && row.reps === input.state.reps) {
           stamps.set(key, row.updatedAt);
-          return;
+          return undefined;
         }
       }
       const delay = retryDelaysMs[attempt];

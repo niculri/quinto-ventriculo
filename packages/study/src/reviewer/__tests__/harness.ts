@@ -95,6 +95,8 @@ function toastText(t: Toast | null, full: boolean): string | null {
       return s.undone(actionLabel(t.action, full));
     case 'nothingToUndo':
       return s.nothingToUndo;
+    case 'undoRefused':
+      return t.kind;
   }
 }
 

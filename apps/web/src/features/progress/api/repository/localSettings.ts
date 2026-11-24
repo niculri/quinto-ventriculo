@@ -3,7 +3,7 @@ import { settle } from '../../../../shared/lib/settle';
 import type { LocalStore } from './localStore';
 import { uuid } from './localStore';
 import { applyPreferencesPatch } from '@qv/study';
-import { defaultPreferences } from './model';
+import { DATABASE_TIME_ZONE, defaultPreferences } from './model';
 import type { StudyPreferences, UserPreset } from './model';
 import type { StudyRepository } from './port';
 
@@ -21,8 +21,6 @@ type SettingsMethods = Pick<
   | 'assessmentSettings'
   | 'saveAssessmentSetting'
 >;
-
-const DATABASE_TIME_ZONE = 'America/Santiago';
 
 // A copy saved before some field existed gets its default.
 const stored = (saved: StudyPreferences | null) =>

@@ -170,8 +170,8 @@ function StudySection() {
         Las tarjetas: lo que cambia respecto de Anki
       </h2>
       <p className="mt-2 leading-relaxed text-muted">
-        Las tarjetas se programan con FSRS, como en Anki, pero el sitio parte en un modo simple:
-        menos botones y menos opciones, para que basten unos minutos al día.
+        Las tarjetas se programan con FSRS, uno de los algoritmos de Anki, pero el sitio parte en un
+        modo más simple, con menos botones y opciones.
       </p>
       <dl className="mt-4 space-y-4 leading-relaxed">
         <div>
@@ -209,9 +209,9 @@ function StudySection() {
         <div>
           <dt className="font-semibold">Deshacer</dt>
           <dd className="text-muted">
-            «Deshacer» toma de vuelta lo último que hiciste en esa sesión de estudio. Si después
-            estudiaste en otra pestaña o en otro dispositivo, no se deshace nada y el sitio te
-            avisa: lo que respondiste sigue guardado.
+            «Deshacer» anula lo último que hiciste en esa sesión de estudio. Si después estudiaste
+            en otra pestaña o en otro dispositivo, no se deshace nada y el sitio te avisa: lo que
+            hiciste sigue guardado.
           </dd>
         </div>
         <div>

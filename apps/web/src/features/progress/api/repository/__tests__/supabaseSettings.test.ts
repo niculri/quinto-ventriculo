@@ -64,6 +64,65 @@ describe('a refused settings call', () => {
 });
 
 describe('the preferences', () => {
+  it('a users’ database from before save_study_preferences(): the patch over what is stored, saved whole', async () => {
+    const stored = {
+      time_zone: 'America/Santiago',
+      day_starts_at: 4,
+      learn_ahead_minutes: 20,
+      new_cards_ignore_review_limit: false,
+      apply_all_parent_limits: false,
+      full_anki: true,
+      four_buttons: false,
+      welcome_seen: true,
+      semester: 2,
+      added_courses: [],
+      removed_courses: [],
+      dismissed: ['tip-a'],
+    };
+    const old = (row: unknown[]) =>
+      repo((c) => {
+        if (c.rpc) return refusal('PGRST202', 'Could not find the function');
+        return c.method === 'GET' ? { body: row } : { body: null };
+      });
+    const { study, calls } = old([stored]);
+    const saved = await study.savePreferences({
+      fourButtons: true,
+      dismissed: { add: ['tip-b'], remove: [] },
+    });
+    expect(saved).toEqual({
+      ...PREFS,
+      fullAnki: true,
+      fourButtons: true,
+      dismissed: ['tip-a', 'tip-b'],
+    });
+    const upsert = calls.at(-1)!;
+    expect([upsert.method, upsert.name, upsert.search.get('on_conflict')]).toEqual([
+      'POST',
+      'study_preferences',
+      'user_id',
+    ]);
+    expect(upsert.body).toMatchObject({
+      full_anki: true,
+      four_buttons: true,
+      dismissed: ['tip-a', 'tip-b'],
+    });
+    expect(await old([]).study.savePreferences({ fullAnki: true })).toMatchObject({
+      timeZone: 'America/Santiago',
+      fullAnki: true,
+      welcomeSeen: false,
+    });
+  });
+
+  it('a users’ database from before it that refuses the whole row says so', async () => {
+    const { study } = repo((c) => {
+      if (c.rpc) return refusal('PGRST202', 'Could not find the function');
+      return c.method === 'GET' ? { body: [] } : refusal('42501', 'permission denied');
+    });
+    await expect(study.savePreferences({ fullAnki: true })).rejects.toThrow(
+      'No se pudo guardar tus preferencias: permission denied',
+    );
+  });
+
   it('none without a row; the columns a users’ database from before them does not send read as empty', async () => {
     expect(await repo(() => ({ body: [] })).study.preferences()).toBeNull();
     const old = {

@@ -29,6 +29,9 @@ export type {
   UserPreset,
 } from '@qv/schema/user';
 
+/** The zone study_preferences gets when its first save does not bring one (its column's default). */
+export const DATABASE_TIME_ZONE = 'America/Santiago';
+
 export const PRACTICE_BATCH_MAX = 1000;
 export const PRACTICE_BATCH_DECKS = 100;
 /** The database counts practice up to this a day and takes the rest without failing, so the final review goes on. */

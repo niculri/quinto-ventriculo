@@ -15,7 +15,7 @@ export const messagesStrings = {
     undone: (action: string) => `Deshecho: ${action}`,
     nothingToUndo: 'No hay nada que deshacer',
     undoRefused:
-      'No se deshizo en tu cuenta: después estudiaste en otra pestaña o dispositivo. Lo que respondiste quedó guardado.',
+      'No se deshizo: después estudiaste en otra pestaña o dispositivo, y lo que hiciste quedó guardado.',
     changedElsewhere:
       'Esta tarjeta cambió en otra pestaña o dispositivo. Vuelve a cargar para seguir estudiando.',
     notSaved: 'No se pudo guardar tu avance. Revisa tu conexión y vuelve a cargar.',

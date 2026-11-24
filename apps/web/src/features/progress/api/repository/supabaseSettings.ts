@@ -1,7 +1,11 @@
 // The study adapter's settings: preferences, presets, each deck's preset and activation, and each assessment's
 // options.
+import { databaseError } from '@qv/schema/database';
 import { STUDY_RPC, UserPreset } from '@qv/schema/user';
+import { applyPreferencesPatch } from '@qv/study';
 import { fromDatabase, toJson } from '../../../../shared/lib/json';
+import { DATABASE_TIME_ZONE, defaultPreferences } from './model';
+import type { StudyPreferences } from './model';
 import type { StudyRepository } from './port';
 import { iso, listOf } from './supabaseContext';
 import type { StudyContext } from './supabaseContext';
@@ -30,31 +34,22 @@ export function preferencesAndPresets(ctx: StudyContext): PreferenceAndPresets {
     updatedAt: r.updated_at,
   });
   return {
-    async preferences() {
-      const { data, error } = await client.from('study_preferences').select('*').maybeSingle();
-      if (error) ctx.fail('leer tus preferencias', error);
-      if (!data) return null;
-      const r = data;
-      return {
-        timeZone: r.time_zone,
-        dayStartsAt: r.day_starts_at,
-        learnAheadMinutes: r.learn_ahead_minutes,
-        newCardsIgnoreReviewLimit: r.new_cards_ignore_review_limit,
-        applyAllParentLimits: r.apply_all_parent_limits,
-        fullAnki: r.full_anki,
-        fourButtons: r.four_buttons,
-        welcomeSeen: r.welcome_seen,
-        // A users' database from before these columns does not send them.
-        semester: r.semester ?? null,
-        addedCourses: listOf(r.added_courses),
-        removedCourses: listOf(r.removed_courses),
-        dismissed: listOf(r.dismissed),
-      };
-    },
+    preferences: () => readPreferences(ctx),
     async savePreferences(patch) {
       const { data, error } = await client.rpc('save_study_preferences', { p: patch });
-      if (error) ctx.fail('guardar tus preferencias', error);
-      return fromDatabase('save_study_preferences', STUDY_RPC.save_study_preferences.returns, data);
+      if (!error) {
+        return fromDatabase(
+          'save_study_preferences',
+          STUDY_RPC.save_study_preferences.returns,
+          data,
+        );
+      }
+      if (!databaseError(error).hasCode('PGRST202')) ctx.fail('guardar tus preferencias', error);
+      // A users' database from before save_study_preferences(): the patch over what is stored, saved whole.
+      const stored = await readPreferences(ctx);
+      const next = applyPreferencesPatch(stored ?? defaultPreferences(DATABASE_TIME_ZONE), patch);
+      await saveWhole(ctx, next);
+      return next;
     },
     async presets() {
       const { data, error } = await client
@@ -167,4 +162,48 @@ export function deckSettings(ctx: StudyContext): DeckSettings {
       if (error) ctx.fail('guardar las opciones del certamen', error);
     },
   };
+}
+
+async function readPreferences(ctx: StudyContext): Promise<StudyPreferences | null> {
+  const { data, error } = await ctx.client.from('study_preferences').select('*').maybeSingle();
+  if (error) ctx.fail('leer tus preferencias', error);
+  if (!data) return null;
+  const r = data;
+  return {
+    timeZone: r.time_zone,
+    dayStartsAt: r.day_starts_at,
+    learnAheadMinutes: r.learn_ahead_minutes,
+    newCardsIgnoreReviewLimit: r.new_cards_ignore_review_limit,
+    applyAllParentLimits: r.apply_all_parent_limits,
+    fullAnki: r.full_anki,
+    fourButtons: r.four_buttons,
+    welcomeSeen: r.welcome_seen,
+    // A users' database from before these columns does not send them.
+    semester: r.semester ?? null,
+    addedCourses: listOf(r.added_courses),
+    removedCourses: listOf(r.removed_courses),
+    dismissed: listOf(r.dismissed),
+  };
+}
+
+async function saveWhole(ctx: StudyContext, p: StudyPreferences) {
+  const { error } = await ctx.client.from('study_preferences').upsert(
+    {
+      time_zone: p.timeZone,
+      day_starts_at: p.dayStartsAt,
+      learn_ahead_minutes: p.learnAheadMinutes,
+      new_cards_ignore_review_limit: p.newCardsIgnoreReviewLimit,
+      apply_all_parent_limits: p.applyAllParentLimits,
+      full_anki: p.fullAnki,
+      four_buttons: p.fourButtons,
+      welcome_seen: p.welcomeSeen,
+      semester: p.semester,
+      added_courses: p.addedCourses,
+      removed_courses: p.removedCourses,
+      dismissed: p.dismissed,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' },
+  );
+  if (error) ctx.fail('guardar tus preferencias', error);
 }

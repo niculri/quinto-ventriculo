@@ -167,7 +167,7 @@ describe('undo', () => {
     here.undo();
     await here.saved();
     expect(here.failure).toBeNull();
-    expect(here.toast).toMatch(/No se deshizo en tu cuenta/);
+    expect(here.toast).toMatch(/No se deshizo: después estudiaste en otra pestaña/);
     expect(await local.cards(['20', '21'])).toEqual(saved);
   });
 

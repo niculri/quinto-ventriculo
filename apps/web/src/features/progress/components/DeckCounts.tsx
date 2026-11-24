@@ -74,12 +74,10 @@ function LoadWithBreakdown({
       <span className="font-semibold tabular-nums">{value}</span>
     </span>
   );
-  // A screen reader hears the breakdown with the button, without opening it: the box is hidden until it opens.
+  // A screen reader hears the breakdown with the button, without opening the box; it goes last so that the text of
+  // the place starts with the load.
   return (
     <span ref={boxRef} className="relative inline-flex">
-      <span id={breakdownId} hidden>
-        {breakdown}
-      </span>
       <button
         type="button"
         aria-expanded={open}
@@ -100,6 +98,9 @@ function LoadWithBreakdown({
         {row(s.new, counts.new, 'text-state-new')}
         {row(s.learning, counts.learning, 'text-state-learn')}
         {row(s.review, counts.review, 'text-state-review')}
+      </span>
+      <span id={breakdownId} hidden>
+        {breakdown}
       </span>
     </span>
   );

@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { longDate } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
+import { Skeleton } from '../../../shared/ui/Loading';
 import { Reserved } from '../../../shared/ui/Reserved';
 import { card } from '../../../shared/ui/styles';
 import { useAssessmentView } from '../../progress/queries';
@@ -52,7 +53,13 @@ function AssessmentRow({ node, plan }: { node: CourseDeckNode; plan: StudyPlan |
           {node.label}
         </Link>
         <Reserved longest={s.longestDate} className="mt-0.5 text-xs text-muted">
-          {o.date ? s.withDate(longDate(o.date), byDate) : s.noDate}
+          {!plan ? (
+            <Skeleton className="h-4 w-32" />
+          ) : o.date ? (
+            s.withDate(longDate(o.date), byDate)
+          ) : (
+            s.noDate
+          )}
         </Reserved>
         {o.save.isError ? (
           <p role="alert" className="mt-1 text-xs text-state-learn">

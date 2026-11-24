@@ -126,6 +126,15 @@ describe('the new cards a day of a course', () => {
     expect(numberOf('Certamen 2')).toBeDisabled();
   });
 
+  it('while the plan comes, the date line waits instead of saying there is no date', async () => {
+    const study = await student();
+    study.answeredDecks = () => new Promise(() => {});
+    renderApp(COURSE_PATH, { study });
+    const first = await row('Certamen 1');
+    expect(numberOf('Certamen 1')).toBeDisabled();
+    expect(within(first).queryByText('Sin fecha de prueba')).toBeNull();
+  });
+
   it('says so when a number cannot be saved', async () => {
     const study = await student();
     study.saveAssessmentSetting = () => Promise.reject(new Error('offline'));

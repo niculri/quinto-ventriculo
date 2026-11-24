@@ -192,7 +192,16 @@ test('the course’s decks: the new cards a day of each assessment, in the box o
   await number.fill('7');
   await number.press('Enter');
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
-  await expect(page.getByRole('spinbutton', { name: 'Tarjetas nuevas por día' })).toHaveValue('7');
+  const own = page.getByRole('spinbutton', { name: 'Tarjetas nuevas por día' });
+  await expect(own).toHaveValue('7');
+  // And the other way round: what the assessment's page saves is what the course's shows.
+  await own.fill('9');
+  await own.press('Enter');
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('qv-demo-study')))
+    .toContain('"newPerDay":9');
+  await page.goto(`${COURSE_URL}/anki`);
+  await expect(number).toHaveValue('9');
 });
 
 test('«Modo avanzado» adds options, and the four buttons are a choice of their own', async ({

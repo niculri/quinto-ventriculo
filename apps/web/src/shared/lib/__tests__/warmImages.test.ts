@@ -1,4 +1,5 @@
-// Tests warmImages: each URL asked for once while the browser keeps it, the urgent ones first and a failed one again.
+// Tests warmImages: each URL asked for once while the browser keeps it, the card on screen's first, all of them under
+// the images on screen, and a failed one again.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 class FakeImage {
@@ -13,7 +14,7 @@ class FakeImage {
   }
 }
 
-const started = () => FakeImage.made.map((i) => [i.src, i.fetchPriority]);
+const started = () => FakeImage.made.map((i) => i.src);
 const image = (src: string) => FakeImage.made.find((i) => i.src === src)!;
 
 async function load() {
@@ -34,65 +35,76 @@ afterEach(() => {
 });
 
 describe('warmImages', () => {
-  it('asks for each image once, decoded off the main thread and with its priority', async () => {
+  it('asks for each image once, decoded off the main thread', async () => {
     const warm = await load();
-    warm(['/a', '/b', '/a'], 'low');
-    warm(['/b'], 'low');
-    expect(started()).toEqual([
-      ['/a', 'low'],
-      ['/b', 'low'],
-    ]);
+    warm(['/a', '/b', '/a'], 'after');
+    warm(['/b'], 'after');
+    expect(started()).toEqual(['/a', '/b']);
     expect(image('/a').decoding).toBe('async');
+  });
+
+  it('asks with a low priority, also for the card on screen’s back, so as not to slow its front', async () => {
+    const warm = await load();
+    warm(['/back'], 'first');
+    warm(['/next'], 'after');
+    image('/back').onload!();
+    expect(FakeImage.made.map((i) => i.fetchPriority)).toEqual(['low', 'low']);
   });
 
   it('asks again once the browser no longer keeps its copy', async () => {
     const warm = await load();
-    warm(['/a'], 'high');
+    warm(['/a'], 'first');
     vi.setSystemTime(Date.now() + 599_999);
-    warm(['/a'], 'high');
+    warm(['/a'], 'first');
     expect(started()).toHaveLength(1);
     vi.setSystemTime(Date.now() + 1);
-    warm(['/a'], 'high');
+    warm(['/a'], 'first');
     expect(started()).toHaveLength(2);
   });
 
   it('asks again for one that failed, and not for one that arrived', async () => {
     const warm = await load();
-    warm(['/ok', '/broken'], 'low');
+    warm(['/ok', '/broken'], 'after');
     image('/ok').onload!();
     image('/broken').onerror!();
-    warm(['/ok', '/broken'], 'low');
-    expect(started().map(([src]) => src)).toEqual(['/ok', '/broken', '/broken']);
+    warm(['/ok', '/broken'], 'after');
+    expect(started()).toEqual(['/ok', '/broken', '/broken']);
   });
 
-  it('holds the next cards’ images until the urgent ones arrived', async () => {
+  it('holds the next cards’ images until the back of the one on screen arrived', async () => {
     const warm = await load();
-    warm(['/back1', '/back2'], 'high');
-    warm(['/next'], 'low');
-    expect(started().map(([src]) => src)).toEqual(['/back1', '/back2']);
+    warm(['/back1', '/back2'], 'first');
+    warm(['/next'], 'after');
+    expect(started()).toEqual(['/back1', '/back2']);
     image('/back1').onload!();
     expect(started()).toHaveLength(2);
     image('/back2').onerror!();
-    expect(started()).toEqual([
-      ['/back1', 'high'],
-      ['/back2', 'high'],
-      ['/next', 'low'],
-    ]);
+    expect(started()).toEqual(['/back1', '/back2', '/next']);
+  });
+
+  it('starts at once a held image whose card came up, and holds it only once', async () => {
+    const warm = await load();
+    warm(['/back'], 'first');
+    warm(['/next-front', '/next-back'], 'after');
+    vi.setSystemTime(Date.now() + 600_000);
+    warm(['/next-front'], 'after');
+    warm(['/next-back'], 'first');
+    expect(started()).toEqual(['/back', '/next-back']);
+    image('/back').onload!();
+    expect(started()).toEqual(['/back', '/next-back']);
+    image('/next-back').onload!();
+    expect(started()).toEqual(['/back', '/next-back', '/next-front']);
   });
 
   it('forgets the old URLs when it remembers many, and keeps the fresh ones', async () => {
     const warm = await load();
     warm(
       Array.from({ length: 499 }, (_, i) => `/old${i}`),
-      'low',
+      'after',
     );
     vi.setSystemTime(Date.now() + 600_000);
-    warm(['/fresh'], 'low');
-    warm(['/fresh', '/new'], 'low');
-    expect(
-      started()
-        .slice(499)
-        .map(([src]) => src),
-    ).toEqual(['/fresh', '/new']);
+    warm(['/fresh'], 'after');
+    warm(['/fresh', '/new'], 'after');
+    expect(started().slice(499)).toEqual(['/fresh', '/new']);
   });
 });

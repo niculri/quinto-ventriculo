@@ -1,7 +1,8 @@
 // Asks the browser for images before they show, so that the page takes them from its cache: each URL once while that
-// copy is fresh, the urgent ones first, and every image kept referenced until it arrives.
+// copy is fresh, the ones about to show first, and every image kept referenced until it arrives.
 
-export type WarmPriority = 'high' | 'low';
+/** `first`: an image about to show; `after`: one that shows later, which waits while a `first` one is on its way. */
+export type WarmTurn = 'first' | 'after';
 
 /** How long the media route lets the browser keep an image: after that it would ask the server again anyway. */
 const FRESH_MS = 600_000;
@@ -9,32 +10,41 @@ const MAX_REMEMBERED = 500;
 
 const asked = new Map<string, number>();
 const inFlight = new Set<HTMLImageElement>();
-const waiting: string[] = [];
-let urgent = 0;
+const waiting = new Set<string>();
+let firsts = 0;
 
-/** A low one waits while an urgent one is on its way: the next cards never hold up the one on screen. */
-export function warmImages(urls: readonly string[], priority: WarmPriority): void {
+/**
+ * On the network every warm-up goes with a low priority, under the images already on screen. A `first` one starts at
+ * once, also one that was waiting as `after`, and the `after` ones wait until no `first` one is on its way.
+ */
+export function warmImages(urls: readonly string[], turn: WarmTurn): void {
   const now = Date.now();
   forgetStale(now);
   for (const url of urls) {
+    if (turn === 'first' && waiting.delete(url)) {
+      start(url, turn);
+      continue;
+    }
     const at = asked.get(url);
     if (at !== undefined && now - at < FRESH_MS) continue;
     asked.set(url, now);
-    if (priority === 'low' && urgent > 0) waiting.push(url);
-    else start(url, priority);
+    if (turn === 'after' && firsts > 0) waiting.add(url);
+    else start(url, turn);
   }
 }
 
-function start(url: string, priority: WarmPriority) {
+function start(url: string, turn: WarmTurn) {
   const image = new Image();
   image.decoding = 'async';
-  image.fetchPriority = priority;
-  if (priority === 'high') urgent++;
+  image.fetchPriority = 'low';
+  if (turn === 'first') firsts++;
   const settle = (failed: boolean) => {
     inFlight.delete(image);
     if (failed) asked.delete(url);
-    if (priority === 'high' && --urgent === 0) {
-      for (const next of waiting.splice(0)) start(next, 'low');
+    if (turn === 'first' && --firsts === 0) {
+      const next = [...waiting];
+      waiting.clear();
+      for (const later of next) start(later, 'after');
     }
   };
   image.onload = () => settle(false);

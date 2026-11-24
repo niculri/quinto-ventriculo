@@ -17,7 +17,7 @@ export function prefetchCards(
   for (const { noteGuid, ord } of entries) {
     void client
       .query(cardQuery(api, noteGuid, ord))
-      .then((card) => warmImages(upcomingImagesOf(card, saveData), 'low'))
+      .then((card) => warmImages(upcomingImagesOf(card, saveData), 'after'))
       .catch(() => undefined);
   }
 }

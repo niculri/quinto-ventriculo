@@ -31,7 +31,7 @@ export function StudyCard({
   // While the front is up, its back's images: also with the data saver, as the answer is about to be seen.
   const shown = card.data;
   useEffect(() => {
-    if (shown && !revealed) warmImages(backImagesOf(shown), 'high');
+    if (shown && !revealed) warmImages(backImagesOf(shown), 'first');
   }, [shown, revealed]);
   if (missing) return <Loading text={studyCardStrings.loadingCard} />;
   if (card.isError)

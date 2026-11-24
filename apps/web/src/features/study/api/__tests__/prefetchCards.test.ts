@@ -32,14 +32,14 @@ describe('prefetchCards', () => {
     expect(query.mock.calls.map(([o]) => o.queryKey)).toEqual([
       cardQuery(fakeApi(), 'n1', 0).queryKey,
     ]);
-    await vi.waitFor(() => expect(warmImages).toHaveBeenCalledWith([SRC], 'low'));
+    await vi.waitFor(() => expect(warmImages).toHaveBeenCalledWith([SRC], 'after'));
   });
 
   it('asks for no image when the browser saves data', async () => {
     saving(true);
     const { c } = client(Promise.resolve(card));
     prefetchCards(c, fakeApi(), [{ noteGuid: 'n1', ord: 0 }]);
-    await vi.waitFor(() => expect(warmImages).toHaveBeenCalledWith([], 'low'));
+    await vi.waitFor(() => expect(warmImages).toHaveBeenCalledWith([], 'after'));
   });
 
   it('lets a card that cannot be read go: it is asked for again when it comes up', async () => {

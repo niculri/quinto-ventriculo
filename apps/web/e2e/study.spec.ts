@@ -2,7 +2,7 @@
 // options, reporting an error, a card taken out mid-session and a deck that does not load.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
-import { DECK_URL, scrollCard, signIn } from './helpers';
+import { DECK_URL, fetchWhole, scrollCard, signIn } from './helpers';
 
 async function openDeck(page: Page) {
   await page.goto('/');
@@ -154,7 +154,7 @@ test('a card taken out of the site in the middle of a session is skipped, and th
   page,
 }) => {
   await page.route('**/api/cards/**', async (route) => {
-    const response = await route.fetch();
+    const response = await fetchWhole(route);
     const body = await response.text();
     if (body.includes('Pregunta sin extra ni pista')) {
       await route.fulfill({

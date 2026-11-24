@@ -1,6 +1,6 @@
 // Helpers of the e2e tests: signing in, the test deck's URL and scrolling a long card.
 import { expect } from '@playwright/test';
-import type { Locator, Page } from '@playwright/test';
+import type { Locator, Page, Route } from '@playwright/test';
 
 /**
  * Scrolls a long card with the wheel (a mouse or a trackpad) or with a finger (phone), and says how far its
@@ -104,4 +104,13 @@ export function tagGeometry(page: Page) {
       sideScroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
+}
+
+/**
+ * The API's whole answer for a test that changes it: without the validator the client sends, which the API would answer
+ * with a 304 that has nothing to change.
+ */
+export function fetchWhole(route: Route) {
+  const { 'if-none-match': _validator, ...headers } = route.request().headers();
+  return route.fetch({ headers });
 }

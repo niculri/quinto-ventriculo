@@ -2,7 +2,7 @@
 // and the administrator's switch that hides the semesters without material; nothing moves.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
-import { signIn } from './helpers';
+import { fetchWhole, signIn } from './helpers';
 
 interface NoteShape {
   id: string;
@@ -24,7 +24,7 @@ interface CatalogShape {
 
 async function withCatalog(page: Page, change: (c: CatalogShape) => void) {
   await page.route('**/api/catalog', async (route) => {
-    const response = await route.fetch();
+    const response = await fetchWhole(route);
     const catalog = (await response.json()) as CatalogShape;
     change(catalog);
     await route.fulfill({ response, json: catalog });

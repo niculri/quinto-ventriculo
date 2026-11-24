@@ -2,7 +2,7 @@
 // moving, and a test taken off in the middle of a round lets the round go on until a reload.
 import { expect, test } from './test';
 import type { Page, Route } from '@playwright/test';
-import { signIn } from './helpers';
+import { fetchWhole, signIn } from './helpers';
 
 const ARTICLE = '/semesters/2/courses/biologia-celular/notes/11-traduccion';
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
@@ -17,7 +17,7 @@ interface CatalogShape {
 /** From now on the site no longer has that article or test, as after unpublish_content(). */
 async function takeOff(page: Page, piece: { note?: string; quiz?: string }) {
   await page.route('**/api/catalog', async (route) => {
-    const response = await route.fetch();
+    const response = await fetchWhole(route);
     const catalog = (await response.json()) as CatalogShape;
     for (const s of catalog.semesters) {
       for (const c of s.courses) {

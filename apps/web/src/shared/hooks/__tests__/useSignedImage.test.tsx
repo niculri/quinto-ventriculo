@@ -205,37 +205,37 @@ describe('a photo drawn', () => {
 });
 
 describe('a photo not drawn yet', () => {
-  it('whose link expires within two hours is signed again at once, and once', async () => {
+  it('whose link expires within ten minutes is signed again at once, and once', async () => {
     const renew = vi.fn(() => Promise.resolve(freshWith(FRESH)));
-    render(<Photo src={url(NOW + HOUR)} renew={renew} />);
+    render(<Photo src={url(NOW + 5 * 60)} renew={renew} />);
     await settle();
-    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + 2 * HOUR);
+    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + 10 * 60);
     expect(img()).toHaveAttribute('src', FRESH);
   });
 
   it('a renewal that brings nothing is not asked for again, nor when the page comes back', async () => {
-    const renew = vi.fn(() => Promise.resolve(freshWith(url(NOW + HOUR))));
-    render(<Photo src={url(NOW + HOUR)} renew={renew} />);
+    const renew = vi.fn(() => Promise.resolve(freshWith(url(NOW + 5 * 60))));
+    render(<Photo src={url(NOW + 5 * 60)} renew={renew} />);
     await settle();
     visibility('visible');
     await settle();
     expect(renew).toHaveBeenCalledTimes(1);
-    expect(img()).toHaveAttribute('src', url(NOW + HOUR));
+    expect(img()).toHaveAttribute('src', url(NOW + 5 * 60));
   });
 
-  it('a later one waits until two hours before it expires; hidden, until the page comes back', async () => {
+  it('a later one waits until ten minutes before it expires; hidden, until the page comes back', async () => {
     vi.useFakeTimers({ now: NOW * 1000, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
     const renew = vi.fn(() => Promise.resolve(freshWith(FRESH)));
-    render(<Photo src={url(NOW + 5 * HOUR)} renew={renew} />);
-    await act(() => vi.advanceTimersByTimeAsync(2 * HOUR * 1000));
+    render(<Photo src={url(NOW + HOUR)} renew={renew} />);
+    await act(() => vi.advanceTimersByTimeAsync(30 * 60 * 1000));
     visibility('visible');
     expect(renew).not.toHaveBeenCalled();
     visibility('hidden');
-    await act(() => vi.advanceTimersByTimeAsync(HOUR * 1000 + 1000));
+    await act(() => vi.advanceTimersByTimeAsync(20 * 60 * 1000 + 1000));
     expect(renew).not.toHaveBeenCalled();
     visibility('visible');
     await act(() => vi.advanceTimersByTimeAsync(0));
-    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + 5 * HOUR + 1);
+    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + HOUR + 1);
     expect(img()).toHaveAttribute('src', FRESH);
   });
 });

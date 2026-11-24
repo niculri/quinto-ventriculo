@@ -284,20 +284,58 @@ describe('«Reintentar»', () => {
 });
 
 describe('the images not loaded yet', () => {
-  it('are signed again at once when their links expire within two hours, each link once', async () => {
-    const soon = image(url(NOW + HOUR));
-    const drawn = image(url(NOW + HOUR), { loaded: true });
+  const MIN = 60;
+  const MARGIN = 10 * MIN;
+  const other = (key: string, e: number) => `/api/media/notes/${key}.webp?e=${e}&s=s${e}`;
+
+  it('are signed again at once when their links expire within ten minutes, each link once', async () => {
+    const soon = image(url(NOW + 5 * MIN));
+    const drawn = image(url(NOW + 5 * MIN), { loaded: true });
     const renew = vi.fn(() => Promise.resolve(freshWith(FRESH)));
     const root = article(soon, drawn);
     const watcher = watchMedia(root, renew);
     await vi.waitFor(() => expect(soon.getAttribute('src')).toBe(FRESH));
-    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + 2 * HOUR);
-    expect(drawn.getAttribute('src')).toBe(url(NOW + HOUR));
+    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + MARGIN);
+    expect(drawn.getAttribute('src')).toBe(url(NOW + 5 * MIN));
+    watcher.stop();
+  });
+
+  it('the images of one read come with one renewal; only one it did not bring asks for its own', async () => {
+    const a = image(url(NOW + 5 * MIN));
+    const b = image(other('bbbb', NOW + 5 * MIN));
+    const c = image(other('cccc', NOW + 5 * MIN));
+    const d = image(other('dddd', NOW + 5 * MIN));
+    // The first renewal brings a and b; d only with a link that expires soon too, and c not at all.
+    const first: FreshMedia = (path) =>
+      ({
+        [PATH]: FRESH,
+        '/api/media/notes/bbbb.webp': other('bbbb', NOW + HOUR),
+        '/api/media/notes/dddd.webp': other('dddd', NOW + MIN),
+      })[path] ?? null;
+    const own =
+      (key: string): FreshMedia =>
+      (path) =>
+        path === `/api/media/notes/${key}.webp` ? other(key, NOW + HOUR) : null;
+    const renew = vi.fn<RenewMedia>((path) =>
+      Promise.resolve(path === PATH ? first : own(path.slice('/api/media/notes/'.length, -5))),
+    );
+    const watcher = watchMedia(article(a, b, c, d), renew);
+    await vi.waitFor(() => expect(d.getAttribute('src')).toBe(other('dddd', NOW + HOUR)));
+    expect(renew.mock.calls.map(([path]) => path)).toEqual([
+      PATH,
+      '/api/media/notes/cccc.webp',
+      '/api/media/notes/dddd.webp',
+    ]);
+    expect([a, b, c].map((i) => i.getAttribute('src'))).toEqual([
+      FRESH,
+      other('bbbb', NOW + HOUR),
+      other('cccc', NOW + HOUR),
+    ]);
     watcher.stop();
   });
 
   it('a renewal that brings nothing is not asked for again, nor when the page comes back', async () => {
-    const soon = image(url(NOW + HOUR));
+    const soon = image(url(NOW + 5 * MIN));
     const renew = vi.fn(() => Promise.reject(new Error('sin red')));
     const watcher = watchMedia(article(soon), renew);
     await vi.waitFor(() => expect(renew).toHaveBeenCalledTimes(1));
@@ -307,27 +345,27 @@ describe('the images not loaded yet', () => {
     watcher.stop();
   });
 
-  it('later ones wait until two hours before they expire; hidden, until the page comes back', async () => {
+  it('later ones wait until ten minutes before they expire; hidden, until the page comes back', async () => {
     vi.useFakeTimers({ now: NOW * 1000, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
-    const later = image(url(NOW + 5 * HOUR));
+    const later = image(url(NOW + HOUR));
     const renew = vi.fn(() => Promise.resolve(freshWith(FRESH)));
     const root = article(later);
     const watcher = watchMedia(root, renew);
-    await vi.advanceTimersByTimeAsync(3 * HOUR * 1000);
+    await vi.advanceTimersByTimeAsync((HOUR - MARGIN) * 1000);
     expect(renew).not.toHaveBeenCalled();
     visibility('hidden');
     await vi.advanceTimersByTimeAsync(1000);
     expect(renew).not.toHaveBeenCalled();
     visibility('visible');
     await vi.advanceTimersByTimeAsync(0);
-    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + 5 * HOUR + 1);
+    expect(renew).toHaveBeenCalledExactlyOnceWith(PATH, NOW + HOUR + 1);
     expect(later.getAttribute('src')).toBe(FRESH);
 
     // An image that comes with the content after it is planned when the page says so.
-    const next = image(url(NOW + 4 * HOUR));
+    const next = image(url(NOW + HOUR + 30 * MIN));
     add(root, next);
     watcher.plan();
-    await vi.advanceTimersByTimeAsync(HOUR * 1000);
+    await vi.advanceTimersByTimeAsync(30 * MIN * 1000);
     expect(renew).toHaveBeenCalledTimes(2);
     watcher.stop();
   });
@@ -350,8 +388,8 @@ describe('the images not loaded yet', () => {
     vi.useFakeTimers({ now: NOW * 1000, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
     let arrive = (_: FreshMedia) => {};
     const renew = vi.fn(() => new Promise<FreshMedia>((resolve) => (arrive = resolve)));
-    const soon = image(url(NOW + HOUR));
-    const later = image(`/api/media/notes/bbbb.webp?e=${NOW + 5 * HOUR}&s=s`);
+    const soon = image(url(NOW + 5 * MIN));
+    const later = image(other('bbbb', NOW + HOUR));
     const watcher = watchMedia(article(soon, later), renew);
     await vi.advanceTimersByTimeAsync(0);
     expect(renew).toHaveBeenCalledTimes(1);
@@ -363,17 +401,17 @@ describe('the images not loaded yet', () => {
 
   it('nothing once it stops, and nothing to plan without them', async () => {
     vi.useFakeTimers({ now: NOW * 1000, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
-    const later = image(url(NOW + 5 * HOUR));
+    const later = image(url(NOW + HOUR));
     const renew = vi.fn();
     const root = article(later, image('/logo.svg'), image(null));
     const watcher = watchMedia(root, renew);
     watcher.stop();
     visibility('visible');
-    await vi.advanceTimersByTimeAsync(6 * HOUR * 1000);
+    await vi.advanceTimersByTimeAsync(2 * HOUR * 1000);
     expect(renew).not.toHaveBeenCalled();
     later.remove();
     watcher.plan();
-    await vi.advanceTimersByTimeAsync(6 * HOUR * 1000);
+    await vi.advanceTimersByTimeAsync(2 * HOUR * 1000);
     expect(renew).not.toHaveBeenCalled();
   });
 });

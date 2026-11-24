@@ -88,7 +88,7 @@ describe('useMediaRecovery', () => {
     const { wrapper } = setup();
     let e = NOW + 30 * 3600;
     const read = vi.fn(() => Promise.resolve(`<img src="${src(e)}" alt="a">`));
-    vi.useFakeTimers({ now: (NOW + 29 * 3600) * 1000, toFake: ['Date'] });
+    vi.useFakeTimers({ now: (NOW + 30 * 3600 - 5 * 60) * 1000, toFake: ['Date'] });
     const { getByTestId } = render(<Article read={read} />, { wrapper });
     e = NEXT;
     await vi.waitFor(() => expect(read).toHaveBeenCalledTimes(2));

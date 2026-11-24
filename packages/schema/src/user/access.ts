@@ -11,7 +11,8 @@ export const AccessInvite = z.object({
   invitedAt: z.string(),
   admin: z.boolean(),
   hasAccount: z.boolean(),
-  lastSignInAt: z.string().nullable(),
+  /** The last sign-in or the last renewal of a session, whichever came later. */
+  lastSeenAt: z.string().nullable(),
 });
 export type AccessInvite = z.infer<typeof AccessInvite>;
 
@@ -21,7 +22,7 @@ export const AccessReport = z.object({
   lists: z.array(z.object({ list: z.string(), invited: z.number(), withAccount: z.number() })),
   invited: z.array(AccessInvite),
   accountsWithoutInvite: z.array(
-    z.object({ email: z.string(), createdAt: z.string(), lastSignInAt: z.string().nullable() }),
+    z.object({ email: z.string(), createdAt: z.string(), lastSeenAt: z.string().nullable() }),
   ),
   /** Never removed as an administrator; null until the row is marked. */
   owner: z.string().nullable(),
@@ -58,7 +59,10 @@ export const RemoveResult = z.object({
 });
 export type RemoveResult = z.infer<typeof RemoveResult>;
 
-/** `access_report()` and what `admin_access_report()` adds; a database without the site owner's column lacks those two. */
+/**
+ * `access_report()` and what `admin_access_report()` adds; a database without the site owner's column lacks those two,
+ * and one without `last_seen_at` (the last use of the session) only has the last sign-in.
+ */
 export const AccessReportRow = z.object({
   open_to_domain: z.boolean(),
   lists: z.array(z.object({ list: z.string(), invited: z.number(), with_account: z.number() })),
@@ -72,6 +76,7 @@ export const AccessReportRow = z.object({
       admin: z.boolean(),
       has_account: z.boolean(),
       last_sign_in_at: z.string().nullable(),
+      last_seen_at: z.string().nullable().optional(),
     }),
   ),
   accounts_without_invite: z.array(
@@ -79,6 +84,7 @@ export const AccessReportRow = z.object({
       email: z.string(),
       created_at: z.string(),
       last_sign_in_at: z.string().nullable(),
+      last_seen_at: z.string().nullable().optional(),
     }),
   ),
   owner: z.string().nullable().optional(),

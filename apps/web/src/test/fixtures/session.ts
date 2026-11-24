@@ -9,6 +9,6 @@ export const SESSION_ANA: Session = {
     name: 'Ana Pérez',
     avatar: null,
     createdAt: '2026-10-31T13:00:00.000Z',
-    lastSignInAt: '2026-11-01T12:30:00.000Z',
+    lastSeenAt: '2026-11-01T12:30:00.000Z',
   },
 };

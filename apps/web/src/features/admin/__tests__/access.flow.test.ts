@@ -51,7 +51,7 @@ describe('«Acceso»', () => {
           {
             email: 'perdida@ug.uchile.cl',
             createdAt: '2026-11-02T10:00:00.000Z',
-            lastSignInAt: null,
+            lastSeenAt: null,
           },
         ],
       }),
@@ -167,7 +167,7 @@ describe('«Acceso»', () => {
           invitedAt: '2026-11-01T12:00:00.000Z',
           admin: true,
           hasAccount: true,
-          lastSignInAt: null,
+          lastSeenAt: null,
         },
         {
           email: 'ayudante@ug.uchile.cl',
@@ -177,7 +177,7 @@ describe('«Acceso»', () => {
           invitedAt: '2026-11-01T12:00:00.000Z',
           admin: false,
           hasAccount: false,
-          lastSignInAt: null,
+          lastSeenAt: null,
         },
       ],
     });
@@ -256,7 +256,7 @@ describe('«Acceso»: administrators', () => {
       invitedAt: '2026-11-01T12:00:00.000Z',
       admin: isAdmin,
       hasAccount: true,
-      lastSignInAt: null,
+      lastSeenAt: null,
     };
   }
 

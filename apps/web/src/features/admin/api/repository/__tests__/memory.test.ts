@@ -13,7 +13,7 @@ const person = (email: string, list: string, admin = false): AccessInvite => ({
   invitedAt: '2026-03-01T12:00:00.000Z',
   admin,
   hasAccount: true,
-  lastSignInAt: null,
+  lastSeenAt: null,
 });
 
 const people = () => [

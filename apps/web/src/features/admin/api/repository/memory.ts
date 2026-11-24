@@ -20,7 +20,7 @@ function invite(email: string, list: string, admin: boolean, hasAccount: boolean
     invitedAt: '2026-11-01T12:00:00.000Z',
     admin,
     hasAccount,
-    lastSignInAt: hasAccount ? '2026-11-07T15:30:00.000Z' : null,
+    lastSeenAt: hasAccount ? '2026-11-07T15:30:00.000Z' : null,
   };
 }
 

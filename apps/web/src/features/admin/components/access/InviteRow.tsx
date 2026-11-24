@@ -27,8 +27,8 @@ export function InviteRow({
           {inviteRowStrings.row.invitedOn(formatDate(i.invitedAt))}
           {inviteRowStrings.sep}
           {i.hasAccount
-            ? i.lastSignInAt
-              ? inviteRowStrings.row.lastSignIn(formatDateTime(i.lastSignInAt))
+            ? i.lastSeenAt
+              ? inviteRowStrings.row.lastSignIn(formatDateTime(i.lastSeenAt))
               : inviteRowStrings.row.hasAccount
             : inviteRowStrings.row.noAccount}
           {i.note ? `${inviteRowStrings.sep}${i.note}` : ''}

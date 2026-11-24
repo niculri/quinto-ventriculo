@@ -56,7 +56,7 @@ export function addInvites(
           invitedAt: at,
           admin: false,
           hasAccount: false,
-          lastSignInAt: null,
+          lastSeenAt: null,
         });
       }
     }

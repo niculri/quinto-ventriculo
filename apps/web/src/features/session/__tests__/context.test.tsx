@@ -37,7 +37,7 @@ describe('the session hooks', () => {
       name: null,
       avatar: null,
       createdAt: null,
-      lastSignInAt: null,
+      lastSeenAt: null,
     };
     const { result } = renderHook(() => useUser(), {
       wrapper: within({ status: 'signed-in', user }),

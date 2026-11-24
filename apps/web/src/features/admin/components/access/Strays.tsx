@@ -28,7 +28,7 @@ export function Strays({ report }: { report: AccessReport }) {
                 <span className="font-mono break-all text-ink">{a.email}</span>
                 <span className="text-xs text-muted">
                   {s.strays.created(formatDate(a.createdAt))}
-                  {a.lastSignInAt ? s.strays.lastSignIn(formatDateTime(a.lastSignInAt)) : ''}
+                  {a.lastSeenAt ? s.strays.lastSignIn(formatDateTime(a.lastSeenAt)) : ''}
                 </span>
               </li>
             ))}

@@ -31,6 +31,33 @@ describe('AccessReportRow', () => {
     const { has_account: _h, ...without } = invite;
     expect(ok(AccessReportRow, { ...row, invited: [without] })).toBe(false);
   });
+
+  it('a database without the last use of the session only sends the last sign-in, and with it the use may be null', () => {
+    const invite = {
+      email: 'a@ug.uchile.cl',
+      list: 'Medicina',
+      note: null,
+      invited_by: null,
+      invited_at: 't',
+      admin: false,
+      has_account: true,
+      last_sign_in_at: 't',
+    };
+    const stray = { email: 'b@ug.uchile.cl', created_at: 't', last_sign_in_at: null };
+    for (const seen of [{}, { last_seen_at: null }, { last_seen_at: 't' }]) {
+      expect(
+        ok(AccessReportRow, {
+          ...row,
+          invited: [{ ...invite, ...seen }],
+          accounts_without_invite: [{ ...stray, ...seen }],
+        }),
+      ).toBe(true);
+    }
+    expect(ok(AccessReportRow, { ...row, invited: [{ ...invite, last_seen_at: 7 }] })).toBe(false);
+    expect(
+      ok(AccessReportRow, { ...row, accounts_without_invite: [{ ...stray, last_seen_at: 7 }] }),
+    ).toBe(false);
+  });
 });
 
 describe('the functions', () => {

@@ -3,6 +3,7 @@ import type { Session as SupabaseSession, SupabaseClient } from '@supabase/supab
 import type { Database } from '@qv/db-types/users';
 import { ALLOWED_DOMAIN } from '@qv/schema';
 import { storageKeys } from '../../../shared/lib/storage';
+import { lastSeenAt } from '../model/lastSeen';
 
 export interface SessionUser {
   id: string;
@@ -10,7 +11,8 @@ export interface SessionUser {
   name: string | null;
   avatar: string | null;
   createdAt: string | null;
-  lastSignInAt: string | null;
+  /** The last sign-in or the last renewal of the session, whichever came later. */
+  lastSeenAt: string | null;
 }
 
 export interface Session {
@@ -38,7 +40,7 @@ function toSession(s: SupabaseSession | null): Session | null {
       name: text(m.full_name) ?? text(m.name),
       avatar: text(m.avatar_url) ?? text(m.picture),
       createdAt: text(s.user.created_at),
-      lastSignInAt: text(s.user.last_sign_in_at),
+      lastSeenAt: lastSeenAt(text(s.user.last_sign_in_at), s.access_token),
     },
   };
 }

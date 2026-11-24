@@ -1,8 +1,6 @@
 // The texts of Hero.
 
 export const heroStrings = {
-  opening: 'Abriendo Google…',
-  signIn: 'Entrar con Google',
   failed: 'No se pudo entrar',
   kicker: 'Medicina · Universidad de Chile',
   title: 'El Quinto Ventrículo',

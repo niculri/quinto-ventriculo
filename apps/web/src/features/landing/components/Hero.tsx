@@ -1,19 +1,19 @@
 // The top of the landing page: what the site is, who enters and the sign-in with Google, with the notice of a failed one.
+import type { ReactNode } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { Notice } from '../../../shared/ui/Notice';
-import { button } from '../../../shared/ui/styles';
 import { withContactLink } from '../../../shared/ui/ContactLink';
-import { GoogleLogo, Illustration } from './Art';
+import { Illustration } from './Art';
 import { heroStrings as s } from './strings/Hero.strings';
 
 export function Hero({
-  signingIn,
-  onSignIn,
+  signIn,
+  otherWay,
   notice,
   title,
 }: {
-  signingIn: boolean;
-  onSignIn: () => void;
+  signIn: ReactNode;
+  otherWay: ReactNode;
   notice: string | null;
   title: string;
 }) {
@@ -31,19 +31,13 @@ export function Hero({
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted">{s.lead}</p>
         <p className="mt-4 max-w-xl text-lg font-medium text-ink">{s.invited}</p>
         <div className="mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-          <button
-            type="button"
-            onClick={onSignIn}
-            disabled={signingIn}
-            className={`${button.base} ${button.primary} h-12 px-6 text-base`}
-          >
-            <GoogleLogo /> {signingIn ? s.opening : s.signIn}
-          </button>
+          {signIn}
           <span className="flex items-center gap-1.5 text-sm text-muted">
             <ShieldCheck className="size-4" aria-hidden="true" />
             {s.onlyDomain}
           </span>
         </div>
+        {otherWay}
         {notice ? (
           <div className="mt-6 max-w-xl">
             <Notice title={title} tone={title === s.failed ? 'error' : 'info'}>

@@ -1,5 +1,5 @@
 // The study screen's top bar: «Volver», what is left (the three counts, or the time in the simple mode), the card's
-// flag and «Más» (in the simple mode, with «Deshacer» beside it, the card's material in it and its one-time tip).
+// flag and «Más» (in the simple mode, with «Deshacer» beside it, the card's material in it and its one-time tip on it).
 import { Flag, Undo2 } from 'lucide-react';
 import type { Counts } from '@qv/srs';
 import { FLAGS } from '@qv/study';
@@ -14,7 +14,6 @@ import { CountNumbers, DayLoad } from '../../progress/components/DeckCounts';
 import type { StudyActions } from '../hooks/useStudySession';
 import { useTip } from '../../tips/hooks/useTip';
 import { useCardMaterial } from '../hooks/useCardMaterial';
-import { MaterialTip } from './MaterialTip';
 import { MoreMenu } from './MoreMenu';
 import { SimpleMenu } from './SimpleMenu';
 import { studyTopBarStrings } from './strings/StudyTopBar.strings';
@@ -54,7 +53,7 @@ export function StudyTopBar({
   const material = useCardMaterial(shown?.entry.deckId);
   const tip = useTip('tip-material', !full && revealed && !!material && answered > 0);
   return (
-    <div className={`${answerBar} relative pb-2`}>
+    <div className={`${answerBar} pb-2`}>
       <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
       <div
         className="flex min-w-0 justify-center"
@@ -100,8 +99,9 @@ export function StudyTopBar({
               onReport={onReport}
               material={material}
               revealed={revealed}
+              hint={tip.show}
+              onHintSeen={tip.close}
             />
-            {tip.show ? <MaterialTip onClose={tip.close} /> : null}
           </>
         )}
       </div>

@@ -613,26 +613,30 @@ describe('the keyboard in the study screen', () => {
     );
   });
 
-  it('a tip once: after answering, the next answer says what «Ver apunte» is', async () => {
+  it('a tip once: after answering, a dot on «Más» says that «Ver apunte» is in it, until it opens', async () => {
     window.localStorage.removeItem('qv-tips-shown');
     window.sessionStorage.clear();
     const study = await withWeekOn();
-    renderApp(`${DECK_PATH}/study`, {
+    const { container } = renderApp(`${DECK_PATH}/study`, {
       study,
       api: fakeApi({ catalog: async () => withMaterial() }),
     });
-    const tip = /«Ver apunte», en «Más», lleva al apunte/;
+    const tip = 'Aquí está «Ver apunte»: lleva al apunte del que sale esta tarjeta.';
+    const more = () => screen.getByRole('button', { name: 'Más' });
     await cardText(/Frente de la tarjeta/);
     fireEvent.keyDown(window, { key: ' ' });
     await cardText(/Reverso de la tarjeta/);
-    expect(screen.queryByText(tip)).toBeNull();
+    expect(more()).not.toHaveAccessibleDescription();
     fireEvent.keyDown(document.body, { key: 'Enter' });
     await cardText(/Frente de la tarjeta/);
     fireEvent.keyDown(window, { key: ' ' });
-    expect(await screen.findByText(tip)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Cerrar el consejo' }));
-    expect(screen.queryByRole('button', { name: 'Cerrar el consejo' })).toBeNull();
-    expect(screen.queryByText(tip)).toBeNull();
+    await waitFor(() => expect(more()).toHaveAccessibleDescription(tip));
+    expect(more()).toHaveAttribute('title', tip);
+    expect(container.querySelectorAll('[data-hint]')).toHaveLength(1);
+    await userEvent.click(more());
+    expect(await screen.findByRole('menuitem', { name: 'Ver apunte' })).toBeInTheDocument();
+    expect(more()).not.toHaveAccessibleDescription();
+    expect(container.querySelector('[data-hint]')).toBeNull();
     await waitFor(async () =>
       expect((await study.preferences())?.dismissed).toContain('tip-material'),
     );

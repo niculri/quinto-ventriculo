@@ -10,9 +10,12 @@ import type { ReactNode } from 'react';
  */
 export function MenuRoot({
   closeOnly = false,
+  onOpenChange,
   children,
 }: {
   closeOnly?: boolean;
+  /** Told when the menu opens or closes. */
+  onOpenChange?: (open: boolean) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -30,7 +33,14 @@ export function MenuRoot({
     return () => window.removeEventListener('pointerdown', onPointerDown, true);
   }, [open, closeOnly]);
   return (
-    <Menu.Root modal={false} open={open} onOpenChange={setOpen}>
+    <Menu.Root
+      modal={false}
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        onOpenChange?.(next);
+      }}
+    >
       {children}
     </Menu.Root>
   );

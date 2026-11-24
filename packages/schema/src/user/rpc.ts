@@ -19,6 +19,8 @@ const USAGE_RPC = {
         .object({
           decks: z.record(z.string(), z.tuple([Group, Group, Group])),
           quizzes: z.record(z.string(), z.tuple([Group, Group])),
+          /** The lists from 1 student; without it they keep 5 or more, for the Worker of before. */
+          exact: z.boolean().optional(),
         })
         .optional(),
     }),

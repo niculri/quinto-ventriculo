@@ -317,7 +317,10 @@ describe('access and usage', () => {
   });
 
   it('the usage figures', async () => {
-    await rpc(owner, 'admin_usage', { p: { decks: { [DECK]: [null, 'a1', 'c1'] }, quizzes: {} } });
+    await rpc(owner, 'admin_usage', {
+      p: { decks: { [DECK]: [null, 'a1', 'c1'] }, quizzes: {}, exact: true },
+    });
+    await rpc(owner, 'admin_usage', { p: { decks: {}, quizzes: {} } });
     await rpc(owner, 'admin_usage', {});
   });
 });

@@ -32,5 +32,7 @@ describe('USERS_RPC', () => {
     expect(args.safeParse({ p: { decks: { '1': ['a', 'b'] }, quizzes: {} } }).success).toBe(false);
     expect(args.safeParse({ p: { decks: {}, quizzes: { q: ['a'] } } }).success).toBe(false);
     expect(args.safeParse({ p: { decks: {} } }).success).toBe(false);
+    expect(args.safeParse({ p: { decks: {}, quizzes: {}, exact: true } }).success).toBe(true);
+    expect(args.safeParse({ p: { decks: {}, quizzes: {}, exact: 'yes' } }).success).toBe(false);
   });
 });

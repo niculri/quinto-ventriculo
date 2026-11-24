@@ -300,6 +300,18 @@ describe('access and usage', () => {
     await rpc(owner, 'admin_set_admin', { p: { email: 'nueva@ug.uchile.cl', admin: false } });
     const report = await rpc(owner, 'admin_access_report', undefined);
     expect(report.you_are_owner).toBe(true);
+    const moved = await rpc(owner, 'admin_move_invites', {
+      p: {
+        moves: [
+          { email: 'nueva@ug.uchile.cl', list: 'Lista C' },
+          { email: 'nadie@ug.uchile.cl', list: 'Lista C' },
+        ],
+      },
+    });
+    expect(moved.moved).toEqual([{ email: 'nueva@ug.uchile.cl', from: 'Lista B', to: 'Lista C' }]);
+    await rpc(owner, 'admin_move_invites', {
+      p: { moves: [{ email: 'nueva@ug.uchile.cl', list: 'Lista B' }] },
+    });
     await rpc(owner, 'admin_remove_invites', { p: { emails: ['nadie@ug.uchile.cl'] } });
     await rpc(owner, 'admin_remove_invites', { p: { list: 'Lista B' } });
   });

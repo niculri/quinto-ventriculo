@@ -838,6 +838,7 @@ export type Database = {
         }[]
       }
       admin_invite_emails: { Args: { p: Json }; Returns: Json }
+      admin_move_invites: { Args: { p: Json }; Returns: Json }
       admin_remove_invites: { Args: { p: Json }; Returns: Json }
       admin_reopen_reports: { Args: { p: Json }; Returns: Json }
       admin_report_queue: { Args: never; Returns: Json }
@@ -1001,8 +1002,6 @@ export type Database = {
       unbury_cards: { Args: { cards: Json }; Returns: number }
       undo_last_review: { Args: { expected?: Json }; Returns: Json }
       unsuspend_cards: { Args: { cards: Json }; Returns: number }
-      usage_figure: { Args: { students: number; v: number }; Returns: Json }
-      usage_students: { Args: { n: number }; Returns: Json }
     }
     Enums: {
       [_ in never]: never

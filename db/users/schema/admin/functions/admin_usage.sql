@@ -90,16 +90,12 @@ begin
   ),
   figures as (
     select x.kind, x.key, jsonb_build_object(
-             'active_students', public.usage_students(count(distinct x.user_id) filter (where x.active)),
-             'new_students', public.usage_students(count(distinct x.user_id) filter (where x.joined)),
-             'anki_answers', public.usage_figure(sum(x.answers)::bigint,
-               count(distinct x.user_id) filter (where x.answers > 0)),
-             'new_cards', public.usage_figure(sum(x.new_seen)::bigint,
-               count(distinct x.user_id) filter (where x.new_seen > 0)),
-             'rounds_started', public.usage_figure(sum(x.started)::bigint,
-               count(distinct x.user_id) filter (where x.started > 0)),
-             'rounds_finished', public.usage_figure(sum(x.finished)::bigint,
-               count(distinct x.user_id) filter (where x.finished > 0))) as j
+             'active_students', count(distinct x.user_id) filter (where x.active),
+             'new_students', count(distinct x.user_id) filter (where x.joined),
+             'anki_answers', sum(x.answers)::bigint,
+             'new_cards', sum(x.new_seen)::bigint,
+             'rounds_started', sum(x.started)::bigint,
+             'rounds_finished', sum(x.finished)::bigint) as j
       from bucketed x
      group by x.kind, x.key
   )
@@ -116,7 +112,7 @@ begin
                 left join figures f on f.kind = 'week' and f.key = g.d))
     into v_periods;
 
-  -- The most used of the last 30 days, and by course and assessment: only what 5 students or more used.
+  -- The most used of the last 30 days, and by course and assessment.
   with map as (
     select e.key as deck_id, e.value ->> 0 as unit_id, e.value ->> 1 as assessment_id, e.value ->> 2 as course_id
       from jsonb_each(v_decks) e
@@ -151,119 +147,104 @@ begin
   ),
   units as (
     select m.unit_id, count(distinct a.user_id) as students, sum(a.answers)::bigint as answers,
-           sum(a.new_seen)::bigint as new_seen,
-           count(distinct a.user_id) filter (where a.new_seen > 0) as new_students
+           sum(a.new_seen)::bigint as new_seen
       from anki a join map m on m.deck_id = a.deck_id
      where m.unit_id is not null
      group by m.unit_id
-    having count(distinct a.user_id) >= 5
   ),
   quizzes as (
     select t.quiz_id, count(distinct t.user_id) as students,
-           sum(t.started)::bigint as started, count(distinct t.user_id) filter (where t.started > 0) as started_students,
-           sum(t.finished)::bigint as finished,
-           count(distinct t.user_id) filter (where t.finished > 0) as finished_students
+           sum(t.started)::bigint as started,
+           sum(t.finished)::bigint as finished
       from tests t
      group by t.quiz_id
-    having count(distinct t.user_id) >= 5
   ),
   courses as (
     select g.course_id, count(distinct g.user_id) as students,
-           sum(g.answers)::bigint as answers, count(distinct g.user_id) filter (where g.answers > 0) as answer_students,
-           sum(g.new_seen)::bigint as new_seen, count(distinct g.user_id) filter (where g.new_seen > 0) as new_students,
-           sum(g.started)::bigint as started, count(distinct g.user_id) filter (where g.started > 0) as started_students,
-           sum(g.finished)::bigint as finished,
-           count(distinct g.user_id) filter (where g.finished > 0) as finished_students
+           sum(g.answers)::bigint as answers,
+           sum(g.new_seen)::bigint as new_seen,
+           sum(g.started)::bigint as started,
+           sum(g.finished)::bigint as finished
       from grouped g
      where g.course_id is not null
      group by g.course_id
-    having count(distinct g.user_id) >= 5
   ),
   assessments as (
     select g.assessment_id, min(g.course_id) as course_id, count(distinct g.user_id) as students,
-           sum(g.answers)::bigint as answers, count(distinct g.user_id) filter (where g.answers > 0) as answer_students,
-           sum(g.new_seen)::bigint as new_seen, count(distinct g.user_id) filter (where g.new_seen > 0) as new_students,
-           sum(g.started)::bigint as started, count(distinct g.user_id) filter (where g.started > 0) as started_students,
-           sum(g.finished)::bigint as finished,
-           count(distinct g.user_id) filter (where g.finished > 0) as finished_students
+           sum(g.answers)::bigint as answers,
+           sum(g.new_seen)::bigint as new_seen,
+           sum(g.started)::bigint as started,
+           sum(g.finished)::bigint as finished
       from grouped g
      where g.assessment_id is not null
      group by g.assessment_id
-    having count(distinct g.user_id) >= 5
   )
   select jsonb_build_object(
     'decks', coalesce((
       select jsonb_agg(jsonb_build_object(
                'deck_id', u.unit_id, 'students', u.students, 'answers', u.answers,
-               'new_cards', public.usage_figure(u.new_seen, u.new_students))
+               'new_cards', u.new_seen)
              order by u.students desc, u.answers desc, u.unit_id)
         from (select * from units order by students desc, answers desc, unit_id limit 10) u), '[]'::jsonb),
     'quizzes', coalesce((
       select jsonb_agg(jsonb_build_object(
                'quiz_id', q.quiz_id, 'students', q.students,
-               'rounds_started', public.usage_figure(q.started, q.started_students),
-               'rounds_finished', public.usage_figure(q.finished, q.finished_students))
+               'rounds_started', q.started,
+               'rounds_finished', q.finished)
              order by q.students desc, q.started desc, q.quiz_id)
         from (select * from quizzes order by students desc, started desc, quiz_id limit 10) q), '[]'::jsonb),
     'courses', coalesce((
       select jsonb_agg(jsonb_build_object(
                'course_id', c.course_id, 'students', c.students,
-               'anki_answers', public.usage_figure(c.answers, c.answer_students),
-               'new_cards', public.usage_figure(c.new_seen, c.new_students),
-               'rounds_started', public.usage_figure(c.started, c.started_students),
-               'rounds_finished', public.usage_figure(c.finished, c.finished_students))
+               'anki_answers', c.answers,
+               'new_cards', c.new_seen,
+               'rounds_started', c.started,
+               'rounds_finished', c.finished)
              order by c.students desc, c.course_id)
         from (select * from courses order by students desc, course_id limit 50) c), '[]'::jsonb),
     'assessments', coalesce((
       select jsonb_agg(jsonb_build_object(
                'assessment_id', s.assessment_id, 'course_id', s.course_id, 'students', s.students,
-               'anki_answers', public.usage_figure(s.answers, s.answer_students),
-               'new_cards', public.usage_figure(s.new_seen, s.new_students),
-               'rounds_started', public.usage_figure(s.started, s.started_students),
-               'rounds_finished', public.usage_figure(s.finished, s.finished_students))
+               'anki_answers', s.answers,
+               'new_cards', s.new_seen,
+               'rounds_started', s.started,
+               'rounds_finished', s.finished)
              order by s.students desc, s.assessment_id)
         from (select * from assessments order by students desc, assessment_id limit 100) s), '[]'::jsonb))
     into v_lists;
 
   -- The invited who have an account (they signed in at least once) and those who never did.
   select jsonb_build_object(
-           'signed_in', public.usage_students(count(u.id)),
-           'never', public.usage_students(count(*) - count(u.id)))
+           'signed_in', count(u.id),
+           'never', count(*) - count(u.id))
     into v_invited
     from public.invited_emails i
     left join auth.users u on lower(u.email) = i.email;
 
-  -- Activation (EXP-C8). If either part (activated or not) is 1 to 4 students, neither part nor the percent goes (null):
-  -- with the eligible exact, the part that showed would give the other one by subtraction.
+  -- Activation (EXP-C8): of the accounts created 7 days ago or more, those that answered within 7 days of being created.
   select jsonb_build_object(
-           'eligible', public.usage_students(x.eligible),
-           'activated', case when not x.few then public.usage_students(x.activated) end,
-           'not_activated', case when not x.few then public.usage_students(x.eligible - x.activated) end,
-           'percent', case
-             when x.eligible >= 5 and not x.few then round(100.0 * x.activated / x.eligible)::integer
-           end)
+           'eligible', z.eligible,
+           'activated', z.activated,
+           'not_activated', z.eligible - z.activated,
+           'percent', case when z.eligible > 0 then round(100.0 * z.activated / z.eligible)::integer end)
     into v_activation
     from (
-      select z.eligible, z.activated,
-             z.activated between 1 and 4 or z.eligible - z.activated between 1 and 4 as few
+      select count(*) as eligible, count(*) filter (where y.ok) as activated
         from (
-          select count(*) as eligible, count(*) filter (where y.ok) as activated
-            from (
-              select exists (
-                       select 1 from public.review_log l
-                        where l.user_id = pr.id and l.rating is not null
-                          and l.reviewed_at <= pr.created_at + interval '7 days')
-                     or exists (
-                       select 1 from public.quiz_answers q
-                        where q.user_id = pr.id and q.answered_at <= pr.created_at + interval '7 days') as ok
-                from public.profiles pr
-               where pr.created_at <= now() - interval '7 days') y) z) x;
+          select exists (
+                   select 1 from public.review_log l
+                    where l.user_id = pr.id and l.rating is not null
+                      and l.reviewed_at <= pr.created_at + interval '7 days')
+                 or exists (
+                   select 1 from public.quiz_answers q
+                    where q.user_id = pr.id and q.answered_at <= pr.created_at + interval '7 days') as ok
+            from public.profiles pr
+           where pr.created_at <= now() - interval '7 days') y) z;
 
   return jsonb_build_object(
     'generated_at', now(),
     'today', v_today,
-    'time_zone', 'America/Santiago',
-    'min_students', 5)
+    'time_zone', 'America/Santiago')
     || v_periods || v_lists
     || jsonb_build_object('invited', v_invited, 'activation', v_activation);
 end;

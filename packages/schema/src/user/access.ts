@@ -59,6 +59,14 @@ export const RemoveResult = z.object({
 });
 export type RemoveResult = z.infer<typeof RemoveResult>;
 
+/** Each one moved, with the list they left (to undo), and what did not change. */
+export const MoveResult = z.object({
+  moved: z.array(z.object({ email: z.string(), from: z.string(), to: z.string() })),
+  already: z.array(z.string()),
+  notInvited: z.array(z.string()),
+});
+export type MoveResult = z.infer<typeof MoveResult>;
+
 /**
  * `access_report()` and what `admin_access_report()` adds; a database without the site owner's column lacks those two,
  * and one without `last_seen_at` (the last use of the session) only has the last sign-in.
@@ -114,6 +122,16 @@ export const ACCESS_RPC = {
       kept_admins: Emails,
       sessions_closed: z.number(),
       open_to_domain: z.boolean(),
+    }),
+  ),
+  admin_move_invites: rpcContract(
+    z.object({
+      p: z.object({ moves: z.array(z.object({ email: z.string(), list: z.string() })) }),
+    }),
+    z.object({
+      moved: z.array(z.object({ email: z.string(), from: z.string(), to: z.string() })),
+      already: Emails,
+      not_invited: Emails,
     }),
   ),
   admin_set_admin: rpcContract(

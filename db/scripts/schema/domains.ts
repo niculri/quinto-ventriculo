@@ -7,7 +7,7 @@ type Domain = Partial<Record<ObjectKind, string>>;
 const USERS: Record<string, Domain> = {
   access: {
     table: 'access_settings admin_emails invited_emails',
-    function: `access_report access_status admin_access_report admin_invite_emails admin_remove_invites
+    function: `access_report access_status admin_access_report admin_invite_emails admin_move_invites admin_remove_invites
       admin_set_admin caller_is_owner hook_before_user_created invite_emails is_admin is_allowed_email
       is_allowed_user is_invited normalize_invite_email remove_invites require_admin_session token_session_open`,
   },
@@ -36,8 +36,7 @@ const USERS: Record<string, Domain> = {
       anonymize_old_reports check_new_report my_reports report_content report_limits`,
   },
   admin: {
-    function:
-      'admin_deck_impact admin_usage health site_day site_day_start storage_health usage_figure usage_students',
+    function: 'admin_deck_impact admin_usage health site_day site_day_start storage_health',
   },
 };
 

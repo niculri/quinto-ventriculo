@@ -4,8 +4,8 @@ import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { OWNER_EMAIL, asUser, createDatabase } from '../pglite';
 
-// A figure of 1 to 4 students goes as '<5' (and so does a figure made by 1 to 4 students), the lists only have what 5
-// or more used, and the activation counts the first answer within 7 days of the account.
+// Every figure is exact from 0 up (also with 1 to 4 students), the lists have whatever 1 student or more used, and the
+// activation counts the first answer within 7 days of the account.
 
 type Claims = { sub: string; email: string; session_id?: string };
 
@@ -37,7 +37,7 @@ async function person(
   return { sub, email: mail, session_id: rows[0]!.id };
 }
 
-type Figure = number | '<5';
+type Figure = number;
 interface Figures {
   active_students: Figure;
   new_students: Figure;
@@ -48,7 +48,6 @@ interface Figures {
 }
 interface Usage {
   today: string;
-  min_students: number;
   totals: { today: Figures; last_7: Figures; last_30: Figures };
   days: (Figures & { day: string })[];
   weeks: (Figures & { week: string })[];
@@ -64,8 +63,8 @@ interface Usage {
   invited: { signed_in: Figure; never: Figure };
   activation: {
     eligible: Figure;
-    activated: Figure | null;
-    not_activated: Figure | null;
+    activated: Figure;
+    not_activated: Figure;
     percent: number | null;
   };
 }
@@ -138,7 +137,7 @@ describe('who can call it', () => {
 
   it('an administrator gets the figures', async () => {
     const r = await usage(db, owner);
-    expect(r.min_students).toBe(5);
+    expect(r).not.toHaveProperty('min_students');
     expect(r.days).toHaveLength(30);
     expect(r.weeks).toHaveLength(12);
     expect(r.days.at(-1)!.day).toBe(await siteDay(db));
@@ -163,18 +162,18 @@ describe('who can call it', () => {
     await expect(usage(db, owner, [])).rejects.toThrow(/expected/);
   });
 
-  it('the helpers are not callable through the API', async () => {
-    for (const sql of [
-      'select public.site_day(now())',
-      `select public.usage_students(3)`,
-      `select public.usage_figure(3, 3)`,
-    ]) {
-      await expect(asUser(db, student, (tx) => tx.query(sql))).rejects.toThrow(/permission denied/);
-    }
+  it('the helpers are not callable through the API, and the threshold ones are gone', async () => {
+    await expect(
+      asUser(db, student, (tx) => tx.query('select public.site_day(now())')),
+    ).rejects.toThrow(/permission denied/);
+    const { rows } = await db.query(
+      `select 1 from pg_proc where proname in ('usage_students', 'usage_figure')`,
+    );
+    expect(rows).toEqual([]);
   });
 });
 
-describe('fewer than 5 students', () => {
+describe('exact figures from 0 up', () => {
   let db: PGlite;
   let owner: Claims;
   const students: Claims[] = [];
@@ -195,30 +194,63 @@ describe('fewer than 5 students', () => {
     }
   });
 
-  it('4 students: their count and what they did go as «<5», and the lists leave them out', async () => {
-    const today = await siteDay(db);
-    for (const s of students.slice(0, 4)) {
-      await studied(db, s, today, DECK);
-      await round(db, s, 'test-de-prueba', true);
-    }
+  it('nobody: zeros, and empty lists', async () => {
     const r = await usage(db, owner, groups);
-    for (const f of [r.totals.today, r.totals.last_7, r.totals.last_30, r.days.at(-1)!]) {
-      expect(f.active_students).toBe('<5');
-      expect(f.anki_answers).toBe('<5');
-      expect(f.new_cards).toBe('<5');
-      expect(f.rounds_started).toBe('<5');
-      expect(f.rounds_finished).toBe('<5');
-      expect(f.new_students).toBe(0);
-    }
-    expect(r.weeks.at(-1)!.active_students).toBe('<5');
-    expect(r.days[0]!.active_students).toBe(0);
-    expect(r.decks).toEqual([]);
-    expect(r.quizzes).toEqual([]);
-    expect(r.courses).toEqual([]);
-    expect(r.assessments).toEqual([]);
+    expect(r.totals.today).toEqual({
+      active_students: 0,
+      new_students: 0,
+      anki_answers: 0,
+      new_cards: 0,
+      rounds_started: 0,
+      rounds_finished: 0,
+    });
+    expect([r.decks, r.quizzes, r.courses, r.assessments]).toEqual([[], [], [], []]);
   });
 
-  it('with the 5th they are exact', async () => {
+  it('1 student: the count and what they did are exact, and the lists have them', async () => {
+    const today = await siteDay(db);
+    await studied(db, students[0]!, today, DECK);
+    await round(db, students[0]!, 'test-de-prueba', true);
+    const r = await usage(db, owner, groups);
+    for (const f of [r.totals.today, r.totals.last_7, r.totals.last_30, r.days.at(-1)!]) {
+      expect(f).toMatchObject({
+        active_students: 1,
+        anki_answers: 10,
+        new_cards: 3,
+        rounds_started: 1,
+        rounds_finished: 1,
+        new_students: 0,
+      });
+    }
+    expect(r.weeks.at(-1)!.active_students).toBe(1);
+    expect(r.days[0]!.active_students).toBe(0);
+    expect(r.decks).toEqual([{ deck_id: '900', students: 1, answers: 10, new_cards: 3 }]);
+    expect(r.quizzes).toEqual([
+      { quiz_id: 'test-de-prueba', students: 1, rounds_started: 1, rounds_finished: 1 },
+    ]);
+    expect(r.courses.map((c) => [c.course_id, c.students, c.anki_answers])).toEqual([
+      ['ramo', 1, 10],
+    ]);
+    expect(r.assessments.map((a) => [a.assessment_id, a.course_id, a.students])).toEqual([
+      ['ramo/certamen-1', 'ramo', 1],
+    ]);
+  });
+
+  it('2, 3 and 4 students are counted one by one', async () => {
+    const today = await siteDay(db);
+    for (const [i, s] of students.slice(1, 4).entries()) {
+      await studied(db, s, today, DECK);
+      await round(db, s, 'test-de-prueba', i === 0);
+      const r = await usage(db, owner, groups);
+      expect(r.totals.today.active_students).toBe(i + 2);
+      expect(r.totals.today.anki_answers).toBe(10 * (i + 2));
+      expect(r.totals.today.rounds_started).toBe(i + 2);
+      expect(r.totals.today.rounds_finished).toBe(2);
+      expect(r.decks[0]!.students).toBe(i + 2);
+    }
+  });
+
+  it('a deck that only one student opened is in the list too, after the most used', async () => {
     const today = await siteDay(db);
     await studied(db, students[4]!, today, OTHER, 7, 0);
     await round(db, students[4]!, 'test-de-prueba', true);
@@ -227,35 +259,24 @@ describe('fewer than 5 students', () => {
       active_students: 5,
       new_students: 0,
       anki_answers: 47,
-      new_cards: '<5',
+      new_cards: 12,
       rounds_started: 5,
-      rounds_finished: 5,
+      rounds_finished: 3,
     });
-    expect(r.decks).toEqual([]);
+    expect(r.decks).toEqual([
+      { deck_id: '900', students: 4, answers: 40, new_cards: 12 },
+      { deck_id: '901', students: 1, answers: 7, new_cards: 0 },
+    ]);
     expect(r.courses).toEqual([
       {
         course_id: 'ramo',
         students: 5,
         anki_answers: 47,
-        new_cards: '<5',
+        new_cards: 12,
         rounds_started: 5,
-        rounds_finished: 5,
+        rounds_finished: 3,
       },
     ]);
-    expect(r.assessments.map((a) => [a.assessment_id, a.course_id, a.students])).toEqual([
-      ['ramo/certamen-1', 'ramo', 5],
-    ]);
-    expect(r.quizzes).toEqual([
-      { quiz_id: 'test-de-prueba', students: 5, rounds_started: 5, rounds_finished: 5 },
-    ]);
-  });
-
-  it('a deck used by 5 students goes in the list of its unit', async () => {
-    await studied(db, students[4]!, await siteDay(db, 1), DECK, 5, 5);
-    const r = await usage(db, owner, groups);
-    expect(r.decks).toEqual([{ deck_id: '900', students: 5, answers: 45, new_cards: 17 }]);
-    expect(r.days.at(-2)!.anki_answers).toBe('<5');
-    expect(r.totals.last_7.active_students).toBe(5);
   });
 
   it('the answer has no id, email or name of anybody', async () => {
@@ -272,17 +293,13 @@ describe('fewer than 5 students', () => {
     }
   });
 
-  it('the invited who signed in and those who never did', async () => {
-    let r = await usage(db, owner);
-    expect(r.invited).toEqual({ signed_in: 6, never: '<5' });
-    for (let i = 0; i < 4; i++) {
-      await db.query(
-        `insert into public.invited_emails (email, list) values ($1, 'Curso de prueba')`,
-        [`nunca.${i}@ug.uchile.cl`],
-      );
-    }
-    r = await usage(db, owner);
-    expect(r.invited).toEqual({ signed_in: 6, never: 5 });
+  it('the invited who signed in and those who never did, exact', async () => {
+    const before = (await usage(db, owner)).invited;
+    expect(before.signed_in).toBe(6);
+    await db.query(
+      `insert into public.invited_emails (email, list) values ('nunca.0@ug.uchile.cl', 'Curso de prueba')`,
+    );
+    expect((await usage(db, owner)).invited).toEqual({ signed_in: 6, never: before.never + 1 });
   });
 });
 
@@ -351,43 +368,28 @@ describe('activation: the accounts that answered within their first 7 days', () 
     });
   });
 
-  it('a part of 1 to 4 students hides both parts and the percent (one would give the other by subtraction)', async () => {
+  it('with 1 to 4 students in a part, both parts and the percent are exact', async () => {
     const fresh = await createDatabase('users');
     const admin = await person(fresh, { email: OWNER_EMAIL });
+    expect((await usage(fresh, admin)).activation).toEqual({
+      eligible: 0,
+      activated: 0,
+      not_activated: 0,
+      percent: null,
+    });
     const created = `timestamptz '${new Date(Date.now() - 10 * 86_400_000).toISOString()}'`;
-    const firstAnswer = (who: Claims) =>
-      fresh.query(
-        `insert into public.review_log (user_id, action, note_guid, ord, deck_id, reviewed_at, rating, queue_before,
-           phase_before, phase_after)
-         values ($1, 'answer', 'g1', 0, '1001', ${created} + interval '1 day', 3, 'new', 'new', 'learning')`,
-        [who.sub],
-      );
-    const accounts: Claims[] = [];
-    for (let i = 0; i < 6; i++) accounts.push(await person(fresh, { createdAt: created }));
-    const r = await usage(fresh, admin);
-    expect(r.activation).toEqual({ eligible: 6, activated: 0, not_activated: 6, percent: 0 });
-    // 1 activated and 6 not: «7 − 6» would say the 1.
-    await firstAnswer(await person(fresh, { createdAt: created }));
+    await fresh.query(
+      `insert into public.review_log (user_id, action, note_guid, ord, deck_id, reviewed_at, rating, queue_before,
+         phase_before, phase_after)
+       values ($1, 'answer', 'g1', 0, '1001', ${created} + interval '1 day', 3, 'new', 'new', 'learning')`,
+      [(await person(fresh, { createdAt: created })).sub],
+    );
+    for (let i = 0; i < 2; i++) await person(fresh, { createdAt: created });
     expect((await usage(fresh, admin)).activation).toEqual({
-      eligible: 7,
-      activated: null,
-      not_activated: null,
-      percent: null,
-    });
-    // 5 activated and 2 not: «7 − 5» would say the 2.
-    for (const a of accounts.slice(0, 4)) await firstAnswer(a);
-    expect((await usage(fresh, admin)).activation).toEqual({
-      eligible: 7,
-      activated: null,
-      not_activated: null,
-      percent: null,
-    });
-    for (let i = 0; i < 3; i++) await person(fresh, { createdAt: created });
-    expect((await usage(fresh, admin)).activation).toEqual({
-      eligible: 10,
-      activated: 5,
-      not_activated: 5,
-      percent: 50,
+      eligible: 3,
+      activated: 1,
+      not_activated: 2,
+      percent: 33,
     });
   });
 });

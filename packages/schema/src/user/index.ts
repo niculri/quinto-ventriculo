@@ -46,6 +46,7 @@ export {
   AccessReportRow,
   InviteRejection,
   InviteResult,
+  MoveResult,
   RemoveResult,
   SetAdminResult,
 } from './access';

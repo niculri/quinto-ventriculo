@@ -12,8 +12,9 @@ export class CardChangedError extends Error {
 /** The texts of the study screens that a session's saving and toasts use. */
 export const studyStrings = {
   session: {
-    leech: 'La tarjeta era una sanguijuela.',
-    leechSuspended: 'La tarjeta era una sanguijuela. Ha sido suspendida.',
+    leech: 'Fallaste esta tarjeta muchas veces: quedó marcada como difícil.',
+    leechSuspended:
+      'Fallaste esta tarjeta muchas veces y quedó suspendida. Puedes quitarle la suspensión en el explorador.',
     hidden: {
       bury_card: 'Tarjeta enterrada.',
       bury_note: 'Nota enterrada.',

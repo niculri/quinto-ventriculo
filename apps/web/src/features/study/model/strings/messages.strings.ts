@@ -2,8 +2,9 @@
 
 export const messagesStrings = {
   session: {
-    leech: 'La tarjeta era una sanguijuela.',
-    leechSuspended: 'La tarjeta era una sanguijuela. Ha sido suspendida.',
+    leech: 'Fallaste esta tarjeta muchas veces: quedó marcada como difícil.',
+    leechSuspended:
+      'Fallaste esta tarjeta muchas veces y quedó suspendida. Puedes quitarle la suspensión en el explorador.',
     hidden: {
       bury_card: 'Tarjeta enterrada.',
       bury_note: 'Nota enterrada.',

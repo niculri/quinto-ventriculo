@@ -385,7 +385,7 @@ describe('a card that costs a lot (a leech)', () => {
     });
     const full = await answerIt(true);
     expect(full.state).toMatchObject({ leech: true, suspended: true });
-    expect(full.toast).toMatch(/sanguijuela/);
+    expect(full.toast).toMatch(/Fallaste esta tarjeta muchas veces y quedó suspendida/);
   });
 });
 

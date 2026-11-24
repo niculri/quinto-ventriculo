@@ -1,5 +1,5 @@
 // The state of an article's page: the open image, the report and its thanks, the selection, the index (and its
-// phone panel), the reading position, «Ponte a prueba», the last note, the tip and arriving at a section.
+// phone panel), the reading position and place, «Ponte a prueba», the last note, the tip and arriving at a section.
 import { useEffect, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useLocation } from 'react-router';
@@ -18,6 +18,7 @@ import { useNoteViewStrings } from './strings/useNoteView.strings';
 import { useActiveSection } from './useActiveSection';
 import { useArticleSelection } from './useArticleSelection';
 import { usePractice } from './usePractice';
+import { useReadingPlace } from './useReadingPlace';
 
 export interface Reporting {
   target: ReportTarget;
@@ -71,6 +72,7 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
     el.scrollIntoView({ block: 'start' });
     flashHeading(el);
   }, [hash]);
+  useReadingPlace(bodyRef);
 
   const current = activeTitle(toc, active);
   const tocBar = useTocBar(tocOpen, setTocOpen);

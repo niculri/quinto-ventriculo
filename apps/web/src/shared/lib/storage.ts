@@ -4,6 +4,7 @@ export const storageKeys = {
   signInNext: 'qv-next',
   adminMode: 'qv-admin-mode',
   lastNote: 'qv-last-note',
+  readingPlaces: 'qv-reading-places',
   tipThisVisit: 'qv-tip',
   tipsShown: 'qv-tips-shown',
   browserView: 'qv-browse',

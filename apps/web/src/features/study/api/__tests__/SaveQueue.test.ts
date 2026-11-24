@@ -1,11 +1,12 @@
 // Tests what a study session saves: answers when the connection fails, undo, and what an answer saves for statistics.
 
 import { DEFAULT_PARAMETERS, retrievability } from '@qv/srs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CATALOG } from '../../../../test/fixtures/catalog';
 import { DECK } from '../../../../test/fixtures/deck';
 import {
   CardChangedError,
+  ConnectionError,
   defaultPreferences,
   localStudyRepository,
 } from '../../../progress/api/repository';
@@ -15,9 +16,18 @@ import { StudyDriver } from '../../../../test/StudyDriver';
 import { SaveQueue } from '../SaveQueue';
 import type { SaveFailure } from '@qv/study';
 
-const NETWORK = () => new Error('No se pudo guardar tu respuesta: TypeError: Failed to fetch');
+const NETWORK = () => new ConnectionError('guardar tu respuesta');
+const REFUSED = () => new Error('No se pudo guardar tu respuesta: internal error');
 
-function session(repository: StudyRepository, rootId = DECK.id, rows: StoredCard[] = []) {
+/** Long enough that only `retryNow` makes a waiting write go again. */
+const NEVER = [3_600_000];
+
+function session(
+  repository: StudyRepository,
+  rootId = DECK.id,
+  rows: StoredCard[] = [],
+  retryDelaysMs: readonly number[] = [0, 0],
+) {
   return new StudyDriver(
     {
       deck: DECK,
@@ -33,7 +43,7 @@ function session(repository: StudyRepository, rootId = DECK.id, rows: StoredCard
     rootId,
     repository,
     () => {},
-    [0, 0],
+    retryDelaysMs,
   );
 }
 
@@ -79,17 +89,172 @@ describe('saving the answers when the connection fails', () => {
     expect(await local.answersSince(new Date(0))).toHaveLength(2);
   });
 
-  it('when it keeps failing the session stops, and nothing after it is written', async () => {
+  it('a refusal stops the session at once, and nothing after it is written', async () => {
     const local = localStudyRepository(null);
-    const s = session({ ...local, recordReview: () => Promise.reject(NETWORK()) });
+    let calls = 0;
+    const s = session({
+      ...local,
+      recordReview: () => {
+        calls++;
+        return Promise.reject(REFUSED());
+      },
+    });
     s.showNext();
     answer(s);
     s.flag(2);
     s.hide('suspend_card');
     await s.saved();
-    expect(s.failure).toMatch(/No se pudo guardar tu respuesta/);
-    expect(s.pending).toBe(0);
+    expect(calls).toBe(1);
+    expect(s.failure).toBe('No se pudo guardar tu respuesta: internal error');
+    expect([s.pending, s.unsaved]).toEqual([0, 0]);
     expect(await local.cards(['20', '21'])).toEqual([]);
+  });
+
+  it('without a connection the session goes on, and everything is saved in order once it is back', async () => {
+    const local = localStudyRepository(null);
+    let down = true;
+    const s = session(
+      {
+        ...local,
+        recordReview: (input) => (down ? Promise.reject(NETWORK()) : local.recordReview(input)),
+      },
+      DECK.id,
+      [],
+      NEVER,
+    );
+    s.showNext();
+    answer(s);
+    answer(s, 1);
+    s.flag(2);
+    await vi.waitFor(() => expect(s.unsaved).toBe(3));
+    expect(s.failure).toBeNull();
+    expect(await local.answersSince(new Date(0))).toEqual([]);
+    down = false;
+    s.retryNow();
+    await s.saved();
+    expect([s.failure, s.pending, s.unsaved]).toEqual([null, 0, 0]);
+    expect(await local.answersSince(new Date(0))).toHaveLength(2);
+    expect(await local.cards(['20', '21'])).toEqual(
+      expect.arrayContaining([expect.objectContaining({ flag: 2 })]),
+    );
+    // Asked to hurry when nothing waits: nothing happens.
+    s.retryNow();
+    expect(s.pending).toBe(0);
+  });
+
+  it('each wait is longer than the one before, and the last one repeats', async () => {
+    vi.useFakeTimers();
+    try {
+      const local = localStudyRepository(null);
+      let calls = 0;
+      const s = session(
+        {
+          ...local,
+          recordReview: (input) =>
+            ++calls < 5 ? Promise.reject(NETWORK()) : local.recordReview(input),
+        },
+        DECK.id,
+        [],
+        [10, 100],
+      );
+      s.showNext();
+      answer(s);
+      await vi.advanceTimersByTimeAsync(9);
+      expect(calls).toBe(1);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(calls).toBe(2);
+      await vi.advanceTimersByTimeAsync(100);
+      expect(calls).toBe(3);
+      await vi.advanceTimersByTimeAsync(99);
+      expect(calls).toBe(3);
+      await vi.advanceTimersByTimeAsync(101);
+      await s.saved();
+      expect([calls, s.failure, s.unsaved]).toEqual([5, null, 0]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('burying, suspending, flagging and reading the marks again are tried again too', async () => {
+    const local = localStudyRepository(null);
+    const once = <A extends unknown[], R>(call: (...args: A) => Promise<R>) => {
+      let failed = false;
+      return (...args: A): Promise<R> => {
+        if (failed) return call(...args);
+        failed = true;
+        return Promise.reject(NETWORK());
+      };
+    };
+    const s = session({
+      ...local,
+      bury: once(local.bury),
+      suspend: once(local.suspend),
+      setFlag: once(local.setFlag),
+      cards: once(local.cards),
+    });
+    s.showNext();
+    s.flag(3);
+    s.hide('bury_card');
+    s.hide('suspend_card');
+    await s.saved();
+    expect([s.failure, s.unsaved]).toEqual([null, 0]);
+    const saved = await local.cards(['20', '21']);
+    expect(saved).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ flag: 3, buriedUntil: expect.any(String) as string }),
+        expect.objectContaining({ suspended: true }),
+      ]),
+    );
+  });
+
+  it('a flag, a burying or a suspending that was saved with its reply lost is not written twice', async () => {
+    const local = localStudyRepository(null);
+    const calls = { setFlag: 0, bury: 0, suspend: 0 };
+    const lost = <A extends unknown[]>(
+      name: keyof typeof calls,
+      call: (...args: A) => Promise<void>,
+    ) => {
+      return async (...args: A): Promise<void> => {
+        await call(...args);
+        if (calls[name]++ === 0) throw NETWORK();
+      };
+    };
+    const s = session({
+      ...local,
+      setFlag: lost('setFlag', local.setFlag),
+      bury: lost('bury', local.bury),
+      suspend: lost('suspend', local.suspend),
+    });
+    s.showNext();
+    s.flag(3);
+    s.undo();
+    await s.saved();
+    // Written twice, the undo would take back only the second one and leave the card flagged.
+    expect(await local.cards(['20', '21'])).toEqual([]);
+    s.hide('bury_card');
+    s.hide('suspend_card');
+    await s.saved();
+    expect([s.failure, calls]).toEqual([null, { setFlag: 1, bury: 1, suspend: 1 }]);
+  });
+
+  it('the reading that tells whether a lost answer was saved is tried again as well', async () => {
+    const local = localStudyRepository(null);
+    let lose = 1;
+    let reads = 0;
+    const s = session({
+      ...local,
+      recordReview: async (input) => {
+        const saved = await local.recordReview(input);
+        if (lose-- > 0) throw NETWORK();
+        return saved;
+      },
+      cards: (ids) => (reads++ === 0 ? Promise.reject(NETWORK()) : local.cards(ids)),
+    });
+    s.showNext();
+    answer(s);
+    await s.saved();
+    expect(s.failure).toBeNull();
+    expect(await local.answersSince(new Date(0))).toHaveLength(1);
   });
 
   it('a retry that finds the card changed by something else stops the session', async () => {
@@ -222,6 +387,111 @@ describe('undo', () => {
   });
 });
 
+describe('an undo whose reply was lost', () => {
+  const lostOnce = (local: StudyRepository): StudyRepository => {
+    let lose = true;
+    return {
+      ...local,
+      undo: async (expected) => {
+        const undone = await local.undo(expected);
+        if (!lose) return undone;
+        lose = false;
+        throw new ConnectionError('deshacer');
+      },
+    };
+  };
+
+  it('of a new card’s answer: asked again, the card with no row is already undone', async () => {
+    const local = localStudyRepository(null);
+    const s = session(lostOnce(local));
+    s.showNext();
+    answer(s);
+    s.undo();
+    answer(s);
+    await s.saved();
+    expect([s.failure, s.toast]).toEqual([null, expect.stringMatching(/^Deshecho/)]);
+    expect(await local.answersSince(new Date(0))).toHaveLength(1);
+  });
+
+  it('of a flag on a card with a row: back at its mark counts as undone, and the next answer is saved', async () => {
+    const local = localStudyRepository(null);
+    const s = session(lostOnce(local));
+    s.showNext();
+    answer(s, 1);
+    await s.saved();
+    const [before] = await local.cards(['20', '21']);
+    s.showNext();
+    s.flag(2);
+    s.undo();
+    await s.saved();
+    expect([s.failure, s.toast]).toEqual([null, expect.stringMatching(/^Deshecho/)]);
+    expect(await local.cards(['20', '21'])).toEqual([before]);
+  });
+
+  it('of the second of two flags in a row: the first one, which looks the same to the database, stays', async () => {
+    const local = localStudyRepository(null);
+    const s = session(lostOnce(local));
+    s.showNext();
+    s.flag(2);
+    s.flag(3);
+    s.undo();
+    await s.saved();
+    expect(s.failure).toBeNull();
+    expect(await local.cards(['20', '21'])).toEqual([expect.objectContaining({ flag: 2 })]);
+    s.flag(4);
+    await s.saved();
+    expect(s.failure).toBeNull();
+  });
+
+  it('but another tab acting meanwhile is a refusal: the card is not back at its mark', async () => {
+    const local = localStudyRepository(null);
+    let lose = true;
+    const s = session({
+      ...local,
+      undo: async (expected) => {
+        if (!lose) return local.undo(expected);
+        lose = false;
+        await local.setFlag({ noteGuid: expected!.noteGuid, ord: expected!.ord, deckId: '20' }, 5);
+        throw new ConnectionError('deshacer');
+      },
+    });
+    s.showNext();
+    answer(s);
+    s.undo();
+    await s.saved();
+    expect(s.failure).toBeNull();
+    expect(s.toast).toMatch(/No se deshizo/);
+    expect(await local.cards(['20', '21'])).toEqual([
+      expect.objectContaining({ flag: 5, reps: 1 }),
+    ]);
+  });
+});
+
+it('an undo asked again of something this queue never wrote is refused, as the first time', async () => {
+  let refused = 0;
+  let lose = true;
+  const local = localStudyRepository(null);
+  const queue = new SaveQueue(
+    {
+      ...local,
+      undo: (expected) => {
+        if (!lose) return local.undo(expected);
+        lose = false;
+        return Promise.reject(new ConnectionError('deshacer'));
+      },
+    },
+    new Map(),
+    [0],
+    () => {},
+    () => {},
+    () => refused++,
+  );
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'answer', card });
+  await queue.saved();
+  expect([refused, queue.failure, queue.waiting]).toEqual([1, null, false]);
+});
+
 it('an undo of something this queue never wrote is refused, without an id and without stopping', async () => {
   const failures: SaveFailure[] = [];
   let refused = 0;
@@ -286,7 +556,7 @@ it('an undo the database takes for a command this queue did not write leaves the
 it('a failed undo for another reason stops the session', async () => {
   const failures: SaveFailure[] = [];
   const queue = new SaveQueue(
-    { ...localStudyRepository(null), undo: () => Promise.reject(NETWORK()) },
+    { ...localStudyRepository(null), undo: () => Promise.reject(REFUSED()) },
     new Map(),
     [0, 0],
     (f) => failures.push(f),
@@ -296,7 +566,7 @@ it('a failed undo for another reason stops the session', async () => {
   const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
   queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'answer', card });
   await queue.saved();
-  expect(failures).toEqual([{ kind: 'message', message: NETWORK().message }]);
+  expect(failures).toEqual([{ kind: 'message', message: REFUSED().message }]);
 });
 
 describe('the marks of the cards that were written', () => {

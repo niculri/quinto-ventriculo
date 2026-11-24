@@ -38,7 +38,7 @@ export function writes({ client, fail, write }: StudyContext): Writes {
       }
     },
     async recordReview(input) {
-      const { data, error } = await write('record_review', {
+      const { data, error, status } = await write('record_review', {
         a: {
           ...refs([input.card])[0]!,
           expectedUpdatedAt: input.expectedUpdatedAt,
@@ -56,48 +56,51 @@ export function writes({ client, fail, write }: StudyContext): Writes {
       });
       if (error) {
         if (databaseError(error).says('card_changed')) throw new CardChangedError();
-        fail('guardar tu respuesta', error);
+        fail('guardar tu respuesta', error, status);
       }
       const saved = fromDatabase('record_review', STUDY_RPC.record_review.returns, data);
       return { updatedAt: saved.updatedAt, actionId: saved.actionId };
     },
     async bury(cards, until, note) {
-      const { error } = await write('bury_cards', {
+      const { error, status } = await write('bury_cards', {
         cards: refs(cards),
         until: until.toISOString(),
         note,
       });
-      if (error) fail('enterrar', error);
+      if (error) fail('enterrar', error, status);
     },
     async suspend(cards, note) {
-      const { error } = await write('suspend_cards', { cards: refs(cards), note });
-      if (error) fail('suspender', error);
+      const { error, status } = await write('suspend_cards', { cards: refs(cards), note });
+      if (error) fail('suspender', error, status);
     },
     async setFlag(card, flag) {
-      const { error } = await write('set_flag', { card: refs([card])[0]!, flag });
-      if (error) fail('marcar la tarjeta', error);
+      const { error, status } = await write('set_flag', { card: refs([card])[0]!, flag });
+      if (error) fail('marcar la tarjeta', error, status);
     },
     async setFlags(cards, flag) {
-      const { error } = await write('set_flags', { cards: refs(cards), flag });
-      if (error) fail('marcar las tarjetas', error);
+      const { error, status } = await write('set_flags', { cards: refs(cards), flag });
+      if (error) fail('marcar las tarjetas', error, status);
     },
     async unsuspend(cards) {
-      const { error } = await write('unsuspend_cards', { cards: refs(cards) });
-      if (error) fail('quitar la suspensión', error);
+      const { error, status } = await write('unsuspend_cards', { cards: refs(cards) });
+      if (error) fail('quitar la suspensión', error, status);
     },
     async unbury(cards) {
-      const { error } = await write('unbury_cards', { cards: refs(cards) });
-      if (error) fail('desenterrar', error);
+      const { error, status } = await write('unbury_cards', { cards: refs(cards) });
+      if (error) fail('desenterrar', error, status);
     },
     async forget(cards, resetCounts) {
-      const { error } = await write('forget_cards', {
+      const { error, status } = await write('forget_cards', {
         cards: refs(cards),
         reset_counts: resetCounts,
       });
-      if (error) fail('olvidar las tarjetas', error);
+      if (error) fail('olvidar las tarjetas', error, status);
     },
     async undo(expected) {
-      const { data, error } = await write('undo_last_review', expected ? { expected } : undefined);
+      const { data, error, status } = await write(
+        'undo_last_review',
+        expected ? { expected } : undefined,
+      );
       if (!error) {
         return fromDatabase('undo_last_review', STUDY_RPC.undo_last_review.returns, data) ?? null;
       }
@@ -105,7 +108,7 @@ export function writes({ client, fail, write }: StudyContext): Writes {
       if (expected && databaseError(error).hasCode('PGRST202')) {
         return undoThenCompare(write, fail, expected);
       }
-      return fail('deshacer', error);
+      return fail('deshacer', error, status);
     },
   };
 }
@@ -115,11 +118,11 @@ type CardSync = Pick<StudyRepository, 'cardsSyncedTo' | 'reconcileCards'>;
 export function cardSync({ client, fail, sync }: StudyContext): CardSync {
   return {
     async cardsSyncedTo() {
-      const { data, error } = await client
+      const { data, error, status } = await client
         .from('card_sync')
         .select('synced_to, repair_from')
         .maybeSingle();
-      if (error) fail('leer tu avance', error);
+      if (error) fail('leer tu avance', error, status);
       const row = data;
       // Rows a page that was behind created: from there again (reconcile_cards() takes it as the cursor).
       const stored = int8(row?.repair_from ?? row?.synced_to ?? 0);
@@ -127,8 +130,8 @@ export function cardSync({ client, fail, sync }: StudyContext): CardSync {
       return stored;
     },
     async reconcileCards(input) {
-      const { data, error } = await client.rpc('reconcile_cards', { p: input });
-      if (error) fail('poner al día tus tarjetas', error);
+      const { data, error, status } = await client.rpc('reconcile_cards', { p: input });
+      if (error) fail('poner al día tus tarjetas', error, status);
       const r = fromDatabase('reconcile_cards', STUDY_RPC.reconcile_cards.returns, data);
       const syncedTo = int8(r.syncedTo);
       if (r.applied) sync.seenTo = syncedTo;
@@ -144,8 +147,8 @@ async function undoThenCompare(
   fail: StudyContext['fail'],
   expected: UndoExpected,
 ): Promise<UndoResult> {
-  const { data, error } = await write('undo_last_review');
-  if (error) fail('deshacer', error);
+  const { data, error, status } = await write('undo_last_review');
+  if (error) fail('deshacer', error, status);
   const undone = fromDatabase('undo_last_review', STUDY_RPC.undo_last_review.returns, data);
   if (
     undone?.action !== expected.action ||

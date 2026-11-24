@@ -2,6 +2,7 @@
 export {
   browserTimeZone,
   CardChangedError,
+  ConnectionError,
   defaultPreferences,
   PRACTICE_BATCH_DECKS,
   PRACTICE_BATCH_MAX,
@@ -25,6 +26,7 @@ export type {
   ReviewInput,
   StoredCard,
   StudyPreferences,
+  UndoExpected,
   UserPreset,
 } from './model';
 export type { StudyRepository } from './port';

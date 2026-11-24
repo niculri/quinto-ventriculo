@@ -1,5 +1,5 @@
 // A deck's study session on screen: the reducer's state, the actions the screen can take, and what runs around it
-// (saving what the reducer asks for, the clock, the toast's timer and the browser's «leave?» while it saves).
+// (saving what the reducer asks for, the clock, the toast's timer and what waits for the connection).
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Rating } from '@qv/srs';
@@ -11,8 +11,9 @@ import { studyKeys } from '../../progress/queries';
 import { SaveQueue } from '../api/SaveQueue';
 import { prefetchCards } from '../api/prefetchCards';
 
-const RETRY_DELAYS_MS = [1000, 3000];
-const TOAST_MS = 3000;
+const RETRY_DELAYS_MS = [1000, 3000, 10_000, 30_000];
+/** Long enough to read the longest one, which tells of a card that was suspended by itself. */
+const TOAST_MS = 5000;
 const LOOK_FOR_MORE_MS = 15_000;
 
 /** What the screen can do to the session; each action carries the moment it happens. */
@@ -27,18 +28,48 @@ export interface StudyActions {
   skipMissing: (card: { noteGuid: string; ord: number }) => void;
 }
 
-function actionsOf(dispatch: (action: StudyAction) => void): StudyActions {
+// `held`: too much waits for the connection, and nothing else that has to be saved is taken until it is back.
+function actionsOf(dispatch: (action: StudyAction) => void, held: () => boolean): StudyActions {
+  const change = (action: StudyAction) => {
+    if (!held()) dispatch(action);
+  };
   return {
     open: () => dispatch({ type: 'opened', now: Date.now() }),
     tick: () => dispatch({ type: 'tick', now: Date.now() }),
     reveal: () => dispatch({ type: 'reveal' }),
-    answer: (rating) => dispatch({ type: 'answer', rating, now: Date.now() }),
-    hide: (action) => dispatch({ type: 'hide', action, now: Date.now() }),
-    flag: (value) => dispatch({ type: 'flag', value }),
-    undo: () => dispatch({ type: 'undo', now: Date.now() }),
+    answer: (rating) => change({ type: 'answer', rating, now: Date.now() }),
+    hide: (action) => change({ type: 'hide', action, now: Date.now() }),
+    flag: (value) => change({ type: 'flag', value }),
+    undo: () => change({ type: 'undo', now: Date.now() }),
     skipMissing: ({ noteGuid, ord }) =>
       dispatch({ type: 'skipMissing', card: { noteGuid, ord }, now: Date.now() }),
   };
+}
+
+// The connection is back, or the student is: the write that waits does not sit out the rest of its pause.
+function hurryOnReturn(saves: SaveQueue): () => void {
+  const retry = () => {
+    if (document.visibilityState === 'visible') saves.retryNow();
+  };
+  window.addEventListener('online', retry);
+  document.addEventListener('visibilitychange', retry);
+  return () => {
+    window.removeEventListener('online', retry);
+    document.removeEventListener('visibilitychange', retry);
+  };
+}
+
+// Left with something still waiting for the connection: until it is written, the browser goes on asking before the tab
+// is closed and the write goes at once when the connection is back.
+function keepGuarding(saves: SaveQueue) {
+  if (saves.pending === 0) return;
+  const onLeave = (e: BeforeUnloadEvent) => e.preventDefault();
+  window.addEventListener('beforeunload', onLeave);
+  const stop = hurryOnReturn(saves);
+  void saves.saved().then(() => {
+    window.removeEventListener('beforeunload', onLeave);
+    stop();
+  });
 }
 
 export function useStudySession(initial: StudyData, rootId: string) {
@@ -54,7 +85,6 @@ export function useStudySession(initial: StudyData, rootId: string) {
   const [numbered] = useState(
     () => (action: StudyAction) => dispatch({ ...action, dispatch: ++dispatchCountRef.current }),
   );
-  const [act] = useState(() => actionsOf(numbered));
   const [saves] = useState(
     () =>
       new SaveQueue(
@@ -66,7 +96,10 @@ export function useStudySession(initial: StudyData, rootId: string) {
         () => numbered({ type: 'undoRefused' }),
       ),
   );
+  const [act] = useState(() => actionsOf(numbered, () => saves.full));
   const saving = useSyncExternalStore(saves.subscribe, () => saves.pending > 0);
+  const unsaved = useSyncExternalStore(saves.subscribe, () => saves.unsaved);
+  const held = useSyncExternalStore(saves.subscribe, () => saves.full);
 
   // Each command goes to the save queue once, by its id, whatever the number of times this runs or the state is
   // drawn again with the same action replayed.
@@ -93,7 +126,11 @@ export function useStudySession(initial: StudyData, rootId: string) {
     return () => window.removeEventListener('beforeunload', onLeave);
   }, [saving]);
 
-  return { state, act, saves };
+  useEffect(() => hurryOnReturn(saves), [saves]);
+
+  useEffect(() => () => keepGuarding(saves), [saves]);
+
+  return { state, act, saves, unsaved, held };
 }
 
 // The first card, a look for more every 15 s while nothing is left, and the deck's figures read again once everything

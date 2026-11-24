@@ -28,20 +28,24 @@ const row = (note_guid: string, deck_id: string) => ({
 function fakeClient(rpc: { data: unknown; error: { code: string; message: string } | null }) {
   const calls: string[] = [];
   const client = {
-    rpc: async (fn: string, args: { p_deck_ids: string[] }) => {
-      calls.push(`${fn}(${args.p_deck_ids.length})`);
-      return rpc;
-    },
+    rpc: (fn: string, args: { p_deck_ids: string[] }) => ({
+      abortSignal: async () => {
+        calls.push(`${fn}(${args.p_deck_ids.length})`);
+        return rpc;
+      },
+    }),
     from: (table: string) => {
       const q = {
         ids: [] as string[],
         select: () => q,
         in: (_c: string, ids: string[]) => ((q.ids = ids), q),
         order: () => q,
-        range: async (from: number) => {
-          calls.push(`${table}.in(${q.ids.length}) from ${from}`);
-          return { data: from === 0 ? q.ids.map((d) => row(`p-${d}`, d)) : [], error: null };
-        },
+        range: (from: number) => ({
+          abortSignal: async () => {
+            calls.push(`${table}.in(${q.ids.length}) from ${from}`);
+            return { data: from === 0 ? q.ids.map((d) => row(`p-${d}`, d)) : [], error: null };
+          },
+        }),
       };
       return q;
     },

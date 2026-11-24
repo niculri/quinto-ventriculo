@@ -17,7 +17,9 @@ import { StudyLoading } from '../components/StudyLoading';
 import { useStudyData } from '../../progress/queries';
 import { useCountOpen } from '../../usage/api/count';
 import { Reviewer } from '../components/Reviewer';
+import { useEarlierSaves } from '../hooks/useEarlierSaves';
 import { finalReviewPageStrings } from './strings/FinalReviewPage.strings';
+import { studyPageStrings } from './strings/StudyPage.strings';
 
 export function StudyPage({ node }: { node: CourseDeckNode }) {
   const deck = useDeck(node.id);
@@ -45,17 +47,20 @@ function StudyLoader({
   deck: DeckDetail;
   rootId: string;
 }) {
+  const earlier = useEarlierSaves();
   const study = useStudyData(deck);
   // The session starts from what the database said when it was opened; afterwards it keeps its own state.
   const [initial, setInitial] = useState<StudyData | null>(null);
-  if (!initial && study.data) setInitial(study.data);
+  if (!initial && !earlier && study.data) setInitial(study.data);
   if (!initial) {
     return (
       <StudyFallback back={paths.deck(node.ref)} label={studyBackLabel(node)}>
         {study.error ? (
           <ErrorWithRetry error={study.error} onRetry={study.retry} />
         ) : (
-          <Loading text={finalReviewPageStrings.preparingCards} />
+          <Loading
+            text={earlier ? studyPageStrings.savingEarlier : finalReviewPageStrings.preparingCards}
+          />
         )}
       </StudyFallback>
     );

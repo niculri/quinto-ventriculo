@@ -13,6 +13,7 @@ import { DECK } from '../../../../test/fixtures/deck';
 import { fakeApi } from '../../../../test/fakes/api';
 import { StudyRepositoryContext } from '../../../progress/api/context';
 import {
+  ConnectionError,
   defaultPreferences,
   localStudyRepository,
   UndoRefusedError,
@@ -183,7 +184,7 @@ describe('an answer lost to the connection', () => {
       ...local,
       recordReview: (input) =>
         ++calls < 3
-          ? Promise.reject(new Error('No se pudo guardar tu respuesta: red'))
+          ? Promise.reject(new ConnectionError('guardar tu respuesta'))
           : local.recordReview(input),
     };
     const { result } = mount(flaky);
@@ -201,22 +202,95 @@ describe('an answer lost to the connection', () => {
     expect(calls).toBe(3);
     expect(result.current.state.failure).toBeNull();
   });
+
+  it('is tried at once when the connection is back or the student comes back to the tab, not while it is hidden', async () => {
+    const local = localStudyRepository(null);
+    let calls = 0;
+    let down = true;
+    const offline: StudyRepository = {
+      ...local,
+      recordReview: (input) => {
+        calls++;
+        return down
+          ? Promise.reject(new ConnectionError('guardar tu respuesta'))
+          : local.recordReview(input);
+      },
+    };
+    const visibility = vi.spyOn(document, 'visibilityState', 'get');
+    const { result, unmount } = mount(offline);
+    await settle();
+    act(() => result.current.act.reveal());
+    act(() => result.current.act.answer(3));
+    await settle();
+    expect([calls, result.current.unsaved, result.current.held]).toEqual([1, 1, false]);
+
+    visibility.mockReturnValue('hidden');
+    act(() => void document.dispatchEvent(new Event('visibilitychange')));
+    await settle();
+    expect(calls).toBe(1);
+
+    visibility.mockReturnValue('visible');
+    act(() => void document.dispatchEvent(new Event('visibilitychange')));
+    await settle();
+    expect(calls).toBe(2);
+
+    down = false;
+    act(() => void window.dispatchEvent(new Event('online')));
+    await act(() => result.current.saves.saved());
+    expect([calls, result.current.unsaved]).toEqual([3, 0]);
+
+    unmount();
+    act(() => void window.dispatchEvent(new Event('online')));
+    visibility.mockRestore();
+  });
+
+  it('with 30 changes waiting no other is taken until it is back; the answer can still be looked at', async () => {
+    const local = localStudyRepository(null);
+    let down = true;
+    const offline: StudyRepository = {
+      ...local,
+      setFlag: (card, flag) =>
+        down ? Promise.reject(new ConnectionError('marcar la tarjeta')) : local.setFlag(card, flag),
+    };
+    const { result } = mount(offline, false);
+    await settle();
+    for (let i = 0; i < 30; i++) act(() => result.current.act.flag((i % 2) + 1));
+    await settle();
+    expect([result.current.unsaved, result.current.held]).toEqual([30, true]);
+    const asked = result.current.state.outbox.length;
+
+    act(() => result.current.act.reveal());
+    act(() => result.current.act.answer(3));
+    act(() => result.current.act.flag(4));
+    act(() => result.current.act.hide('bury_card'));
+    act(() => result.current.act.undo());
+    expect(result.current.state.revealed).toBe(true);
+    expect(result.current.state.outbox).toHaveLength(asked);
+
+    down = false;
+    act(() => void window.dispatchEvent(new Event('online')));
+    await act(() => result.current.saves.saved());
+    expect([result.current.unsaved, result.current.held]).toEqual([0, false]);
+    act(() => result.current.act.answer(3));
+    await act(() => result.current.saves.saved());
+    expect(await local.answersSince(new Date(0))).toHaveLength(1);
+  });
 });
 
 describe('the toast of the session', () => {
-  it('goes away 3 s after it appeared, and a newer one is not taken away by the older one’s timer', async () => {
+  it('goes away 5 s after it appeared, and a newer one is not taken away by the older one’s timer', async () => {
     const { result } = mount(localStudyRepository(null));
     await settle();
     act(() => result.current.act.undo());
     const first = result.current.state.toast;
     expect(first).toMatchObject({ kind: 'nothingToUndo' });
-    await act(() => vi.advanceTimersByTimeAsync(2000));
+    await act(() => vi.advanceTimersByTimeAsync(3000));
     act(() => result.current.act.undo());
     const second = result.current.state.toast;
     expect(second!.id).toBeGreaterThan(first!.id);
-    await act(() => vi.advanceTimersByTimeAsync(2000));
+    await act(() => vi.advanceTimersByTimeAsync(3000));
     expect(result.current.state.toast).toEqual(second);
-    await act(() => vi.advanceTimersByTimeAsync(1000));
+    await act(() => vi.advanceTimersByTimeAsync(2000));
     expect(result.current.state.toast).toBeNull();
   });
 });

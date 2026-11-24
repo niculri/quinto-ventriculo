@@ -320,6 +320,14 @@
 .note-body .figure.is-thumb:not(:has(figcaption)):hover::after {
   opacity: 1;
 }
+/*
+ * A wide figure is at most 85 % of the full column (53rem), so that at the column's full width it stops short of the
+ * text's edges; in a narrower window the column reaches that width and the figure is as wide as the text again.
+ */
+.note-body > .figure.is-wide,
+.note-body > .side > .figure.is-wide {
+  width: min(100%, calc(53rem * 0.85), var(--fig, 100%), var(--fit-w));
+}
 /* Where nothing floats, every figure takes the column; on a phone, the screen's width, without its frame. */
 @container (max-width: 44.99rem) {
   .note-body .figure:not(.gallery-slide) {

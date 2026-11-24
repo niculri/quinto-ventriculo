@@ -351,13 +351,14 @@ test('in a very short window a tall plate does not become a stamp: it keeps 20re
   for (const f of tallest) expect(f.imageTall).toBeGreaterThanOrEqual(319);
 });
 
-test('the text, the wide figures and the tables fill the column, as on Wikipedia', async ({
+test('the text and the tables fill the column, and a wide figure stops short of its edges until the column is that narrow', async ({
   page,
   isMobile,
 }) => {
   test.skip(isMobile, 'on a phone the figures take the screen’s width, past the text’s margin');
   await signIn(page);
-  const widths = async () => {
+  const widths = async (width: number) => {
+    await page.setViewportSize({ width, height: 1000 });
     await page.goto('/dev/reading');
     await expect(
       page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
@@ -373,16 +374,22 @@ test('the text, the wide figures and the tables fill the column, as on Wikipedia
       );
       return {
         text: widest('.note-body > p, .note-body > ul, .note-body > ol, .note-body > .callout'),
-        wide: widest('.note-body .table-scroll, .note-body > figure.is-wide'),
+        table: widest('.note-body .table-scroll'),
+        figure: widest('.note-body > figure.is-wide'),
         column: body.width,
         lefts,
       };
     });
   };
-  const standard = await widths();
-  expect(standard.text).toBeCloseTo(standard.column, 0);
-  expect(standard.wide).toBeCloseTo(standard.column, 0);
-  for (const left of standard.lefts) expect(Math.abs(left)).toBeLessThanOrEqual(1);
+  const full = await widths(1440);
+  expect(full.column).toBeCloseTo(COLUMN, 0);
+  expect(full.text).toBeCloseTo(full.column, 0);
+  expect(full.table).toBeCloseTo(full.column, 0);
+  expect(full.figure).toBeCloseTo(COLUMN * 0.85, 0);
+  for (const left of full.lefts) expect(Math.abs(left)).toBeLessThanOrEqual(1);
+  const narrow = await widths(700);
+  expect(narrow.column).toBeLessThan(COLUMN * 0.85);
+  expect(narrow.figure).toBeCloseTo(narrow.column, 0);
 });
 
 test('a gallery: its arrows right under the image, its slides of one height, and nothing moves when stepping', async ({

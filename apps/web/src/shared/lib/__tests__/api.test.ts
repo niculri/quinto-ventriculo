@@ -84,6 +84,27 @@ describe('a failure', () => {
       .catch((x: unknown) => x);
     expect(e).toBeInstanceOf(ApiRequestError);
     expect(e).toMatchObject({ status: 404, code: 'not_found', message: 'No existe ese apunte.' });
+    expect(e).toMatchObject({ retryAfter: null });
+  });
+
+  it.each([
+    ['10', 10],
+    ['Wed, 25 Nov 2026 12:00:00 GMT', null],
+    [null, null],
+  ])('a 429 keeps the seconds of its Retry-After (%s → %s)', async (header, seconds) => {
+    respond = () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: 'rate_limited', message: 'Espera unos segundos.' }), {
+          status: 429,
+          headers: header ? { 'Retry-After': header } : {},
+        }),
+      );
+    await expect(api().search('ribo')).rejects.toMatchObject({
+      status: 429,
+      code: 'rate_limited',
+      message: 'Espera unos segundos.',
+      retryAfter: seconds,
+    });
   });
 
   it.each([

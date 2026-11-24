@@ -8,6 +8,7 @@ import { resolveDependencies } from './dependencies';
 import type { AppOptions } from './dependencies';
 import type { AppEnv } from './env';
 import { apiError } from './http';
+import { limitRequests } from './middleware/rateLimit';
 import { releasesRoutes } from './routes/admin/releases';
 import { siteSettingsRoutes } from './routes/admin/siteSettings';
 import { unpublishedRoutes } from './routes/admin/unpublished';
@@ -28,6 +29,7 @@ export function createApp(options: AppOptions) {
   const app = new Hono<AppEnv>().basePath(API_PREFIX);
 
   app.use('*', secureHeaders({ crossOriginResourcePolicy: 'same-origin' }));
+  app.use('*', limitRequests(ctx.deps));
   app.onError((err, c) => {
     console.error(err);
     return c.json(apiError('internal', 'Algo salió mal. Intenta de nuevo en un rato.'), 500);

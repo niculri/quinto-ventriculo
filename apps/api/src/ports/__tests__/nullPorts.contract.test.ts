@@ -5,7 +5,8 @@ import { NO_DEEP_HEALTH } from '../health';
 import { NO_RELEASES } from '../releases';
 import { NO_SETTINGS_REPOSITORY } from '../settings';
 import { NO_UNPUBLISHED } from '../unpublished';
-import { NO_USAGE_EVENTS, NO_USAGE_OPENS, NO_USAGE_STATS } from '../usage';
+import { NO_RATE_LIMIT } from '../rateLimit';
+import { NO_USAGE_EVENTS, NO_USAGE_OPENS, NO_USAGE_STATS, NO_WORKER_REQUESTS } from '../usage';
 
 describe('the parts that only report', () => {
   it('a point that nobody listens to is lost without an error, never held back', () => {
@@ -16,11 +17,18 @@ describe('the parts that only report', () => {
   });
 });
 
+describe('the limits', () => {
+  it('without a limiter nothing is refused', async () => {
+    expect(await NO_RATE_LIMIT.allow('ana')).toBe(true);
+  });
+});
+
 describe('the parts that read or write', () => {
   it.each([
     ['opens', () => NO_USAGE_OPENS.read(), 'opens'],
     ['usage figures', () => NO_USAGE_STATS.stats('t', { decks: {}, quizzes: {} }), 'usage figures'],
     ['errors of the browsers', () => NO_CLIENT_ERRORS_READER.read(), 'errors'],
+    ["the Worker's requests", () => NO_WORKER_REQUESTS.read(), 'Worker requests'],
     ['deep health', () => NO_DEEP_HEALTH.run(), 'deep health'],
     ['unpublished record', () => NO_UNPUBLISHED.log(), 'unpublished'],
     ['site settings (read)', () => NO_SETTINGS_REPOSITORY.get(), 'site settings'],

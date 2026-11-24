@@ -92,6 +92,15 @@ export type UsageOpenAck = z.infer<typeof UsageOpenAck>;
 
 const Day = z.iso.date();
 
+/** What the Workers free plan takes in a day, counted over the whole Cloudflare account and reset at midnight UTC. */
+export const WORKER_DAILY_REQUESTS = 100_000;
+/** How many days back «Pedidos al Worker» goes, today included. */
+export const WORKER_REQUEST_DAYS = 14;
+
+/** The Worker's requests of one UTC day (the day of the free plan's limit, not the site's day). */
+export const WorkerRequestDay = z.object({ day: Day, requests: z.number().int().nonnegative() });
+export type WorkerRequestDay = z.infer<typeof WorkerRequestDay>;
+
 const PeriodTotals = <T extends z.ZodType>(f: T) => z.object({ today: f, last7: f, last30: f });
 
 const GroupFigures = z.object({
@@ -155,6 +164,8 @@ export const UsageReport = z.object({
   opensStatus: z.enum(['ok', 'not_configured', 'unavailable']),
   /** Null when they could not be read (no Analytics Engine token, or its query failed): `opensStatus` does not say it. */
   clientErrors: z.array(ClientErrorGroup).nullable(),
+  /** Oldest first; null when they could not be read (no Analytics token, or its query failed). */
+  workerRequests: z.array(WorkerRequestDay).nullable(),
 });
 export type UsageReport = z.infer<typeof UsageReport>;
 

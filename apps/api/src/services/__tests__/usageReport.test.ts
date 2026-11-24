@@ -271,7 +271,17 @@ describe('usageReport', () => {
         lastSeen: '2026-11-19T12:00:00.000Z',
       },
     ];
-    expect(usageReport(stats(), { status: 'unavailable' }, errors).clientErrors).toEqual(errors);
+    expect(
+      usageReport(stats(), { status: 'unavailable' }, { clientErrors: errors }).clientErrors,
+    ).toEqual(errors);
+  });
+
+  it('the Worker requests go as they are, or null when nobody read them', () => {
+    expect(usageReport(stats(), { status: 'unavailable' }).workerRequests).toBeNull();
+    const days = [{ day: '2026-11-23', requests: 4210 }];
+    expect(
+      usageReport(stats(), { status: 'unavailable' }, { workerRequests: days }).workerRequests,
+    ).toEqual(days);
   });
 
   it('an answer of the database that is not a usage row is an error, not a report with holes', () => {

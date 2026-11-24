@@ -9,12 +9,19 @@ import {
   analyticsEngineErrorsReader,
 } from './adapters/cloudflare/clientErrors';
 import { cloudflareHealthCache, latestBackupCheck, mediaCheck } from './adapters/cloudflare/health';
+import { bindingRateLimiter } from './adapters/cloudflare/rateLimit';
 import { r2Store } from './adapters/cloudflare/r2';
+import { workerRequestsReader } from './adapters/cloudflare/workerRequests';
 import { supabaseAccessChecker } from './adapters/supabase/access';
 import { supabaseAdminChecker } from './adapters/supabase/admin';
 import { contentClient } from './adapters/supabase/client';
 import { supabaseRepository } from './adapters/supabase/content';
-import { authCheck, contentDatabaseCheck, usersDatabaseCheck } from './adapters/supabase/health';
+import {
+  authCheck,
+  contentDatabaseCheck,
+  usersDatabaseCheck,
+  usersStorageCheck,
+} from './adapters/supabase/health';
 import { supabaseReleaseRepository } from './adapters/supabase/release';
 import { supabaseVerifier } from './adapters/supabase/session';
 import { supabaseSiteSettingsRepository } from './adapters/supabase/settings';
@@ -42,9 +49,49 @@ export interface Env {
   CF_ANALYTICS_TOKEN?: string;
   /** Only listed, for `/api/health/deep`: the copies are encrypted with a key the Worker does not have. */
   BACKUPS?: R2Bucket;
+  /** Without them nothing is limited (`ratelimits` in wrangler.jsonc). */
+  STUDENT_RATE_LIMIT?: RateLimit;
+  ADDRESS_RATE_LIMIT?: RateLimit;
+  MEDIA_RATE_LIMIT?: RateLimit;
 }
 
 let app: ReturnType<typeof createApp> | null = null;
+
+/** What «Uso» reads from Cloudflare with the analytics token: the opens, the browsers' errors and the requests. */
+function analyticsReaders(env: Env) {
+  if (!env.CF_ACCOUNT_ID || !env.CF_ANALYTICS_TOKEN) {
+    return { usageOpens: null, clientErrorsReader: null, workerRequests: null };
+  }
+  const op = { accountId: env.CF_ACCOUNT_ID, token: env.CF_ANALYTICS_TOKEN };
+  return {
+    usageOpens: analyticsEngineReader(op),
+    clientErrorsReader: analyticsEngineErrorsReader(op),
+    workerRequests: workerRequestsReader(op),
+  };
+}
+
+function rateLimiters(env: Env) {
+  return {
+    ...(env.STUDENT_RATE_LIMIT
+      ? { studentRateLimit: bindingRateLimiter(env.STUDENT_RATE_LIMIT) }
+      : {}),
+    ...(env.ADDRESS_RATE_LIMIT
+      ? { addressRateLimit: bindingRateLimiter(env.ADDRESS_RATE_LIMIT) }
+      : {}),
+    ...(env.MEDIA_RATE_LIMIT ? { mediaRateLimit: bindingRateLimiter(env.MEDIA_RATE_LIMIT) } : {}),
+  };
+}
+
+function healthChecks(env: Env) {
+  return {
+    users: usersDatabaseCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
+    usersStorage: usersStorageCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
+    auth: authCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
+    content: contentDatabaseCheck(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY),
+    media: mediaCheck(env.MEDIA),
+    backups: latestBackupCheck(env.BACKUPS),
+  };
+}
 
 function getApp(env: Env, origin: string) {
   let client: ReturnType<typeof contentClient> | undefined;
@@ -107,31 +154,16 @@ function getApp(env: Env, origin: string) {
           }),
         }
       : {}),
-    usageOpens:
-      env.CF_ACCOUNT_ID && env.CF_ANALYTICS_TOKEN
-        ? analyticsEngineReader({ accountId: env.CF_ACCOUNT_ID, token: env.CF_ANALYTICS_TOKEN })
-        : null,
     ...(env.USAGE
       ? {
           usageEvents: analyticsEngineRecorder(env.USAGE),
           clientErrors: analyticsEngineErrorRecorder(env.USAGE),
         }
       : {}),
-    clientErrorsReader:
-      env.CF_ACCOUNT_ID && env.CF_ANALYTICS_TOKEN
-        ? analyticsEngineErrorsReader({
-            accountId: env.CF_ACCOUNT_ID,
-            token: env.CF_ANALYTICS_TOKEN,
-          })
-        : null,
+    ...analyticsReaders(env),
+    ...rateLimiters(env),
     deepHealth: deepHealth(
-      {
-        users: usersDatabaseCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
-        auth: authCheck(env.USERS_SUPABASE_URL, env.USERS_SUPABASE_PUBLISHABLE_KEY),
-        content: contentDatabaseCheck(env.CONTENT_SUPABASE_URL, env.CONTENT_SERVICE_ROLE_KEY),
-        media: mediaCheck(env.MEDIA),
-        backups: latestBackupCheck(env.BACKUPS),
-      },
+      healthChecks(env),
       // Cloudflare's `caches.default` (the WebWorker lib's CacheStorage type does not have it).
       { shared: cloudflareHealthCache((caches as unknown as { default: Cache }).default, origin) },
     ),

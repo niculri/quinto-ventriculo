@@ -27,6 +27,32 @@
     { "binding": "BACKUPS", "bucket_name": "quinto-ventriculo-backups" },
   ],
   "analytics_engine_datasets": [{ "binding": "USAGE", "dataset": "qv_usage" }],
+  // Per Cloudflare location and approximate. The window (10 s) is RATE_LIMIT_PERIOD of src/ports/rateLimit.ts; the
+  // namespace ids only have to be unique in the account.
+  "ratelimits": [
+    // Per student: 300 in 10 s. Holding an arrow key in the card viewer asks for a card at the key's repeat rate, up
+    // to 30 a second; a loop of the web or a script goes past it in seconds.
+    {
+      "name": "STUDENT_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": { "limit": 300, "period": 10 },
+    },
+    // Per address, without a session and not the images: health, the browsers' error reports and refusals, which no
+    // classroom asks for by the thousand.
+    {
+      "name": "ADDRESS_RATE_LIMIT",
+      "namespace_id": "1002",
+      "simple": { "limit": 1000, "period": 10 },
+    },
+    // Per address, the signed images. Forty students opening a grid of photos at once ask some 2,400 (60 each), a few
+    // hundred more each as they scroll, and a faculty studying behind one address ~10 a student; past 1,000 a second
+    // it is not a classroom.
+    {
+      "name": "MEDIA_RATE_LIMIT",
+      "namespace_id": "1003",
+      "simple": { "limit": 10000, "period": 10 },
+    },
+  ],
   "vars": {
     "USERS_SUPABASE_URL": "https://nepxecanupunoezfblon.supabase.co",
     "CONTENT_SUPABASE_URL": "https://digqrtjqzdqlgjscnznj.supabase.co",

@@ -273,6 +273,33 @@ describe('what the page does besides showing the note', () => {
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
     expect(screen.queryByText('404')).toBeNull();
   });
+
+  it('too many requests in a row says to wait, and «Reintentar» opens the note once it went through', async () => {
+    let refused = true;
+    renderApp(PATH, {
+      api: fakeApi({
+        note: async () => {
+          if (refused) {
+            throw new ApiRequestError(
+              429,
+              'rate_limited',
+              'Llegaron demasiados pedidos seguidos. Espera unos segundos y vuelve a intentarlo.',
+              10,
+            );
+          }
+          return NOTE;
+        },
+      }),
+    });
+    expect(
+      await screen.findByText(
+        'Llegaron demasiados pedidos seguidos. Espera unos segundos y vuelve a intentarlo.',
+      ),
+    ).toBeInTheDocument();
+    refused = false;
+    await userEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
+    expect(await screen.findByRole('heading', { level: 1, name: NOTE.title })).toBeInTheDocument();
+  });
 });
 
 describe('the images of the article', () => {

@@ -76,8 +76,9 @@ test('in the admin mode: what is off is there, each with its tag, and the tag mo
   await expect(main.getByRole('heading', { level: 1 })).toContainText('Biología celular');
   await expect(tag).toHaveCount(0);
   expect(await place(main.getByRole('heading', { level: 1 }))).toEqual(tagged);
+  // A hidden semester without anything, not even in the draft, has no page in the admin mode either.
   await page.goto('/semesters/3');
-  await expect(page.locator('[data-admin-tag]')).toContainText('Semestre oculto');
+  await expect(page.getByRole('heading', { level: 1, name: NOT_FOUND })).toBeVisible();
 });
 
 test('the tags are on the row of the breadcrumbs, to the right, centered with them and below the bar', async ({

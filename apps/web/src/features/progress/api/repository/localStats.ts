@@ -85,7 +85,8 @@ function hardestOf(cards: StoredCard[]): HardCard[] {
       (a, b) =>
         b.lapses - a.lapses ||
         b.reps - a.reps ||
-        (a.noteGuid < b.noteGuid ? -1 : a.noteGuid > b.noteGuid ? 1 : a.ord - b.ord),
+        a.noteGuid.localeCompare(b.noteGuid) ||
+        a.ord - b.ord,
     )
     .slice(0, 10)
     .map(({ noteGuid, ord, deckId, lapses, reps }) => ({ noteGuid, ord, deckId, lapses, reps }));

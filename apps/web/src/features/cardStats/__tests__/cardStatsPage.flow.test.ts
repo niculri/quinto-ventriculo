@@ -156,7 +156,7 @@ describe('a deck’s statistics', () => {
         day(0, {
           answers: 1,
           ms: 5000,
-          youngPassed: 0,
+          youngPassed: 1,
           youngFailed: 0,
           maturePassed: 0,
           matureFailed: 0,
@@ -172,7 +172,9 @@ describe('a deck’s statistics', () => {
     expect(screen.getByText('Viste 0 de 4')).toBeInTheDocument();
     expect(screen.getByText('Todavía no respondes tarjetas de aquí.')).toBeInTheDocument();
     const table = screen.getByRole('table', { name: /Tus respuestas, tu tiempo/ });
-    expect(within(table).getAllByRole('row')[1]).toHaveTextContent('Hoy1menos de 1 min—0 repasos');
+    expect(within(table).getAllByRole('row')[1]).toHaveTextContent(
+      'Hoy1menos de 1 min100 %1 repaso',
+    );
     expect(screen.getByText('Hoy te tocan 0 por repasar.')).toBeInTheDocument();
   });
 

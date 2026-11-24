@@ -4,6 +4,7 @@
 import type { CardStatsData } from '@qv/study';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { activityChart, CHART_DAYS } from '../model/chart';
+import type { Chart } from '../model/chart';
 import { DUE_BAR, PAST_BAR } from '../model/shades';
 import { activityChartStrings as s } from './strings/ActivityChart.strings';
 
@@ -17,8 +18,8 @@ export function ActivityChart({
   data: Pick<CardStatsData, 'days' | 'due' | 'today' | 'overdue'> | null;
 }) {
   const chart = data ? activityChart(data) : null;
-  const sum = (kind: 'past' | 'due') =>
-    (chart?.bars ?? []).filter((b) => b.kind === kind).reduce((t, b) => t + b.value, 0);
+  const sum = (c: Chart, kind: 'past' | 'due') =>
+    c.bars.filter((b) => b.kind === kind).reduce((t, b) => t + b.value, 0);
   const dueToday = data?.due.find((d) => d.day === data.today)?.cards ?? 0;
   return (
     <div>
@@ -45,7 +46,7 @@ export function ActivityChart({
         {chart ? (
           <svg
             role="img"
-            aria-label={s.summary(sum('past'), sum('due'))}
+            aria-label={s.summary(sum(chart, 'past'), sum(chart, 'due'))}
             viewBox={`0 0 ${String(WIDTH)} ${String(HEIGHT)}`}
             preserveAspectRatio="none"
             className="size-full"

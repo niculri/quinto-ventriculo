@@ -29,9 +29,12 @@ export function useCardStats(node: CourseDeckNode) {
   const hardest = query.data?.hardest ?? [];
   const assessmentOf = new Map(below.map((n) => [n.id, n.assessmentId]));
   const wanted = new Set(hardest.map((h) => assessmentOf.get(h.deckId)));
-  const refs = (catalog ? cardsScope(catalog, node).assessments : []).flatMap((a) =>
-    a.cardIndex && wanted.has(a.id) ? [{ id: a.id, hash: a.cardIndex.hash }] : [],
-  );
+  // A deck's screen is drawn once the catalog arrived: the fallback only satisfies the types.
+  /* v8 ignore next -- @preserve */
+  const assessments = catalog ? cardsScope(catalog, node).assessments : [];
+  const refs = assessments
+    .filter((a) => wanted.has(a.id))
+    .flatMap((a) => (a.cardIndex ? [{ id: a.id, hash: a.cardIndex.hash }] : []));
   const indexes = useQueries({
     queries: refs.map((r) => cardIndexQuery(api, r)),
     combine: (results) => results.flatMap((r) => (r.data ? [r.data] : [])),

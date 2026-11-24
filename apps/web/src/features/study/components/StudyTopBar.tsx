@@ -1,5 +1,5 @@
 // The study screen's top bar: «Volver», what is left (the three counts, or the time in the simple mode), the card's
-// flag and «Más» (in the simple mode, with «Deshacer» beside it).
+// flag and «Más» (in the simple mode, with «Deshacer» beside it, the card's material in it and its one-time tip on it).
 import { Flag, Undo2 } from 'lucide-react';
 import type { Counts } from '@qv/srs';
 import { FLAGS } from '@qv/study';
@@ -12,6 +12,8 @@ import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { CountNumbers, DayLoad } from '../../progress/components/DeckCounts';
 import type { StudyActions } from '../hooks/useStudySession';
+import { useTip } from '../../tips/hooks/useTip';
+import { useCardMaterial } from '../hooks/useCardMaterial';
 import { MoreMenu } from './MoreMenu';
 import { SimpleMenu } from './SimpleMenu';
 import { studyTopBarStrings } from './strings/StudyTopBar.strings';
@@ -31,6 +33,8 @@ export function StudyTopBar({
   full,
   medianAnswerMs,
   onReport,
+  revealed,
+  answered,
 }: {
   counts: Counts;
   shown: Shown | null;
@@ -42,7 +46,12 @@ export function StudyTopBar({
   full: boolean;
   medianAnswerMs: number | null;
   onReport: () => void;
+  revealed: boolean;
+  /** Cards answered in this session: the tip shows from the second answer on. */
+  answered: number;
 }) {
+  const material = useCardMaterial(shown?.entry.deckId);
+  const tip = useTip('tip-material', !full && revealed && !!material && answered > 0);
   return (
     <div className={`${answerBar} pb-2`}>
       <BackButton to={deckPath} label={studyBackLabel(node)} className="justify-self-start" />
@@ -88,6 +97,10 @@ export function StudyTopBar({
               onHide={act.hide}
               onMark={() => act.flag(currentFlag || REVIEW_FLAG)}
               onReport={onReport}
+              material={material}
+              revealed={revealed}
+              hint={tip.show}
+              onHintSeen={tip.close}
             />
           </>
         )}

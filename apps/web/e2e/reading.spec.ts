@@ -252,3 +252,101 @@ test('a test: its questions are first drawn with Inter, the italic too', async (
     ),
   ).toEqual([true, true, true]);
 });
+
+/** Each figure of the test article: the room under the bars (the site's, and below xl the index's), its height and shape. */
+async function figureFit(page: Page) {
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
+  ).toBeVisible();
+  return page.evaluate(() => {
+    const header = document.querySelector('header')!.getBoundingClientRect().height;
+    const index = [...document.querySelectorAll('button')].find((b) =>
+      b.textContent.startsWith('Índice'),
+    );
+    const bar = index?.closest('.sticky');
+    const height = bar?.getBoundingClientRect().height ?? 0;
+    const bars = bar && height ? parseFloat(getComputedStyle(bar).top) + height : header;
+    return [...document.querySelectorAll<HTMLElement>('.note-body figure')].map((f) => {
+      const img = f.querySelector('img')!;
+      const shape = Number(img.getAttribute('width')) / Number(img.getAttribute('height'));
+      const box = img.getBoundingClientRect();
+      return {
+        room: window.innerHeight - bars,
+        tall: f.getBoundingClientRect().height,
+        imageTall: box.height,
+        plate: f.classList.contains('figure-plate'),
+        drawn: box.width / box.height,
+        shape,
+      };
+    });
+  });
+}
+
+test('no figure is taller than the window under the site’s bars, caption included, and each keeps its shape', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  // On the desktop also between lg and xl, where the index's bar is under the site's one.
+  for (const width of isMobile
+    ? [page.viewportSize()!.width]
+    : [page.viewportSize()!.width, 1100]) {
+    await page.setViewportSize({ width, height: 720 });
+    await page.goto('/dev/reading');
+    const figures = await figureFit(page);
+    expect(figures.some((f) => f.shape < 0.6)).toBe(true);
+    for (const f of figures) {
+      expect(f.tall).toBeLessThanOrEqual(f.room);
+      expect(Math.abs(f.drawn - f.shape) / f.shape).toBeLessThan(0.02);
+    }
+  }
+});
+
+test('in a very short window a tall plate does not become a stamp: it keeps 20rem of height', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: page.viewportSize()!.width, height: 360 });
+  await signIn(page);
+  await page.goto('/dev/reading');
+  const tallest = (await figureFit(page)).filter((f) => f.plate && f.shape < 0.6);
+  expect(tallest.length).toBeGreaterThan(0);
+  for (const f of tallest) expect(f.imageTall).toBeGreaterThanOrEqual(319);
+});
+
+test('the text stops at its measure on the column’s left edge, the wide figures and the tables use the whole column', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'on a phone the column is narrower than any measure');
+  await signIn(page);
+  const widths = async (measure: string) => {
+    await page.goto(`/dev/reading${measure ? `?measure=${measure}` : ''}`);
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
+    ).toBeVisible();
+    return page.evaluate(() => {
+      const body = document.querySelector('.note-body')!.getBoundingClientRect();
+      const widest = (selector: string) =>
+        Math.max(
+          ...[...document.querySelectorAll(selector)].map((e) => e.getBoundingClientRect().width),
+        );
+      const lefts = [...document.querySelectorAll('.note-body > p, .note-body > .callout')].map(
+        (e) => e.getBoundingClientRect().left - body.left,
+      );
+      return {
+        text: widest('.note-body > p, .note-body > ul, .note-body > ol, .note-body > .callout'),
+        wide: widest('.note-body .table-scroll, .note-body > figure.is-wide'),
+        column: body.width,
+        lefts,
+      };
+    });
+  };
+  const standard = await widths('');
+  expect(standard.text).toBeLessThanOrEqual(596.5);
+  expect(standard.text).toBeGreaterThan(590);
+  expect(standard.wide).toBeCloseTo(standard.column, 0);
+  for (const left of standard.lefts) expect(Math.abs(left)).toBeLessThanOrEqual(1);
+  expect((await widths('65')).text).toBeLessThanOrEqual(552.5);
+  expect((await widths('75')).text).toBeLessThanOrEqual(640.5);
+  expect((await widths('full')).text).toBeCloseTo(standard.column, 0);
+});

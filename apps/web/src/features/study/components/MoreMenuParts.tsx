@@ -1,4 +1,5 @@
 // What the «Más» menus of the study screens share: the button, the list that opens under it and a shortcut's key.
+import { useId } from 'react';
 import type { ReactNode } from 'react';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
@@ -13,14 +14,33 @@ export const shortcut = (k: string) => (
   <kbd className="ml-auto pl-4 font-sans text-xs text-muted">{keys(k)}</kbd>
 );
 
-export function MoreTrigger() {
+/**
+ * «Más»; with `hint`, something new inside: a dot on its corner, which covers nothing and moves nothing, and the hint as
+ * its description (and its title, on hover).
+ */
+export function MoreTrigger({ hint }: { hint?: string | undefined }) {
+  const id = useId();
   return (
     <Menu.Trigger
-      className={`${button.base} ${button.ghost}`}
+      className={`${button.base} ${button.ghost} relative`}
       aria-label={moreMenuPartsStrings.menu.more}
+      aria-describedby={hint ? id : undefined}
+      title={hint}
     >
       <MoreHorizontal className="size-5" aria-hidden="true" />
       <span className="hidden sm:inline">{moreMenuPartsStrings.menu.more}</span>
+      {hint ? (
+        <>
+          <span
+            data-hint=""
+            aria-hidden="true"
+            className="absolute top-1 right-1 size-2 rounded-full bg-brand ring-2 ring-bg"
+          />
+          <span id={id} className="sr-only">
+            {hint}
+          </span>
+        </>
+      ) : null}
     </Menu.Trigger>
   );
 }

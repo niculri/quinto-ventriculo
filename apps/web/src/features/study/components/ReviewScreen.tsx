@@ -7,12 +7,10 @@ import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { answerRound, dropCurrent, revealCard } from '@qv/study';
 import type { Round } from '@qv/study';
 import { prefetchCards } from '../api/prefetchCards';
-import { useCardMaterial } from '../hooks/useCardMaterial';
 import { useReviewShortcuts } from '../hooks/useReviewShortcuts';
 import type { CardRef } from '../../progress/api/repository';
 import { RATINGS } from './ratings';
 import { StudyCard } from './StudyCard';
-import { MaterialRow } from './MaterialRow';
 import { reviewScreenStrings } from './strings/ReviewScreen.strings';
 
 export function ReviewScreen({
@@ -29,7 +27,6 @@ export function ReviewScreen({
   const night = useDarkMode();
   const api = useApi();
   const client = useQueryClient();
-  const material = useCardMaterial(current.deckId);
   const { revealed } = round;
 
   useEffect(() => {
@@ -83,7 +80,6 @@ export function ReviewScreen({
             </button>
           </div>
         )}
-        <MaterialRow material={material} revealed={revealed} />
       </div>
     </>
   );

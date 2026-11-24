@@ -1,5 +1,5 @@
 // What other features use of study (its pages are loaded directly, never from here).
-export { MaterialLink } from './components/MaterialRow';
+export { MaterialLink } from './components/MaterialLink';
 export { ReportEntry } from './components/ReportEntry';
 export { ReviewMenu } from './components/ReviewMenu';
 export { ReviewScreen } from './components/ReviewScreen';

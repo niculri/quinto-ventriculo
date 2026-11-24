@@ -1,4 +1,4 @@
-// «Más» of a round of review or practice: mark the card for review and report it.
+// «Más» of a round of review or practice: the card's material, mark the card for review and report it.
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import * as Menu from '@radix-ui/react-dropdown-menu';
@@ -10,6 +10,8 @@ import { ReportEntry } from './ReportEntry';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
 import { LiveToast } from '../../../shared/ui/Toast';
 import { useTransient } from '../hooks/useTransient';
+import { useCardMaterial } from '../hooks/useCardMaterial';
+import { MaterialItems } from './MaterialItems';
 import { MoreContent, MoreTrigger } from './MoreMenuParts';
 import { reviewMenuStrings } from './strings/ReviewMenu.strings';
 import { moreMenuStrings } from './strings/MoreMenu.strings';
@@ -22,12 +24,15 @@ export function ReviewMenu({
   flag,
   onMarked,
   markable = true,
+  revealed,
 }: {
   current: CardRef;
   flag: number;
   onMarked: (key: string, flag: number) => void;
   markable?: boolean;
+  revealed: boolean;
 }) {
+  const material = useCardMaterial(current.deckId);
   const study = useStudyRepository();
   const [reporting, setReporting] = useState<CardKey | null>(null);
   const [message, setMessage] = useTransient<string | null>(null);
@@ -65,6 +70,7 @@ export function ReviewMenu({
       <MenuRoot closeOnly>
         <MoreTrigger />
         <MoreContent>
+          <MaterialItems material={material} revealed={revealed} />
           {markable ? (
             <Menu.Item className={item} onSelect={toggle}>
               <Flag className="size-4 text-muted" aria-hidden="true" />

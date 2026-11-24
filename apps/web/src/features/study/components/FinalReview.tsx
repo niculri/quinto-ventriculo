@@ -52,6 +52,7 @@ export function FinalReview({ node, data }: { node: CourseDeckNode; data: StudyD
           {round?.queue[0] ? (
             <ReviewMenu
               current={round.queue[0]}
+              revealed={round.revealed}
               flag={marks.get(cardKey(round.queue[0])) ?? flagOf(data, round.queue[0])}
               onMarked={(key, flag) => {
                 markedRef.current = true;

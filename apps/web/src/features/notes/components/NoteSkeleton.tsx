@@ -1,4 +1,5 @@
-// The loading state of a note's page, as tall as the note's header, with the real breadcrumbs once the catalog is in.
+// The loading state of a note's page, as tall as the note's header, with the real breadcrumbs: before they are known
+// it draws nothing, since anything drawn would move when they come.
 import { Skeleton } from '../../../shared/ui/Loading';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
@@ -6,17 +7,18 @@ import type { NoteLocation } from '../../catalog/model/catalog';
 import { noteCrumbs } from '../model/noteCrumbs';
 import { noteSkeletonStrings } from './strings/NoteSkeleton.strings';
 
-/** Real breadcrumbs once the catalog is in: on a phone they wrap, and a one-line stand-in would move the title. */
+/** On a phone the breadcrumbs wrap, so their height is known only with them: a stand-in would move the title. */
 export function NoteSkeleton({ location }: { location: NoteLocation | null }) {
+  if (!location) {
+    return (
+      <div className={page}>
+        <div role="status" aria-label={noteSkeletonStrings.loading} />
+      </div>
+    );
+  }
   return (
     <div className={page}>
-      {location ? (
-        <Breadcrumbs items={noteCrumbs(location, location.note.title)} />
-      ) : (
-        <div className="mb-4 flex h-5 items-center">
-          <Skeleton className="h-3.5 w-80 max-w-full" />
-        </div>
-      )}
+      <Breadcrumbs items={noteCrumbs(location, location.note.title)} />
       <div role="status" aria-label={noteSkeletonStrings.loading}>
         <div className="mb-10 border-b border-border pb-8">
           <div className="flex h-[2.625rem] items-center sm:h-[3.25rem]">

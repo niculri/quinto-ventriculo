@@ -25,7 +25,11 @@ export function NotePage() {
     if (note.error instanceof ApiRequestError && note.error.status === 404) return <NotFoundPage />;
     return <ErrorWithRetry error={note.error} onRetry={() => void note.refetch()} />;
   }
-  if (!note.data || !fonts) return <NoteSkeleton location={location} />;
+  // Without the catalog the path is not known yet: drawn later, it would push the article down a line or two. Only
+  // its first request is awaited: once it failed (it retries for seconds) or waits for the connection, the article goes.
+  const pathComing =
+    catalog.isPending && catalog.fetchStatus === 'fetching' && catalog.failureCount === 0;
+  if (!note.data || !fonts || pathComing) return <NoteSkeleton location={location} />;
   if (
     location &&
     (String(location.semester.number) !== number || location.course.id !== courseId)

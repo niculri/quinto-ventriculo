@@ -563,13 +563,33 @@ describe('the keyboard in the study screen', () => {
       api: fakeApi({ catalog: async () => catalog }),
     });
     await cardText(/Frente de la tarjeta/);
-    expect(screen.queryByRole('link', { name: 'Preguntas' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Más' }));
+    const early = await screen.findByRole('menuitem', { name: 'Preguntas' });
+    expect(early).toHaveAttribute('aria-disabled', 'true');
+    expect(early).not.toHaveAttribute('href');
+    await userEvent.keyboard('{Escape}');
     fireEvent.keyDown(window, { key: ' ' });
     await cardText(/Reverso de la tarjeta/);
-    expect(await screen.findByRole('link', { name: 'Preguntas' })).toHaveAttribute(
+    await userEvent.click(screen.getByRole('button', { name: 'Más' }));
+    expect(await screen.findByRole('menuitem', { name: 'Preguntas' })).toHaveAttribute(
       'href',
       '/semesters/1/courses/anatomia-1/tests/certamen-1/practica/pautas',
     );
+    expect(screen.getByRole('menuitem', { name: 'Ver apunte' })).toHaveAttribute(
+      'target',
+      '_blank',
+    );
+  });
+
+  it('no link under the answers: the material is only in «Más»', async () => {
+    renderApp(`${DECK_PATH}/study`, {
+      study: await withWeekOn(),
+      api: fakeApi({ catalog: async () => withMaterial() }),
+    });
+    await cardText(/Frente de la tarjeta/);
+    fireEvent.keyDown(window, { key: ' ' });
+    await cardText(/Reverso de la tarjeta/);
+    expect(screen.queryByRole('link', { name: 'Ver apunte' })).toBeNull();
   });
 
   it('after opening «Ver apunte», Enter answers: it does not open the article again', async () => {
@@ -581,40 +601,42 @@ describe('the keyboard in the study screen', () => {
     await cardText(/Frente de la tarjeta/);
     fireEvent.keyDown(window, { key: ' ' });
     await cardText(/Reverso de la tarjeta/);
-    const link = await screen.findByRole('link', { name: 'Ver apunte' });
+    await userEvent.click(screen.getByRole('button', { name: 'Más' }));
+    const link = await screen.findByRole('menuitem', { name: 'Ver apunte' });
     expect(link).toHaveAttribute('target', '_blank');
-    link.focus();
     fireEvent.click(link);
-    expect(document.activeElement).not.toBe(link);
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+    expect(document.activeElement).not.toBe(screen.getByRole('button', { name: 'Más' }));
     fireEvent.keyDown(document.body, { key: 'Enter' });
     await waitFor(async () =>
       expect(await study.ratedSince(new Date(0))).toEqual([expect.objectContaining({ rating: 3 })]),
     );
   });
 
-  it('a tip once: after answering, the next answer says what «Ver apunte» is', async () => {
+  it('a tip once: after answering, a dot on «Más» says that «Ver apunte» is in it, until it opens', async () => {
     window.localStorage.removeItem('qv-tips-shown');
     window.sessionStorage.clear();
     const study = await withWeekOn();
-    renderApp(`${DECK_PATH}/study`, {
+    const { container } = renderApp(`${DECK_PATH}/study`, {
       study,
       api: fakeApi({ catalog: async () => withMaterial() }),
     });
+    const tip = 'Aquí está «Ver apunte»: lleva al apunte del que sale esta tarjeta.';
+    const more = () => screen.getByRole('button', { name: 'Más' });
     await cardText(/Frente de la tarjeta/);
     fireEvent.keyDown(window, { key: ' ' });
-    await screen.findByRole('link', { name: 'Ver apunte' });
-    expect(screen.queryByText('lleva al apunte del que sale esta tarjeta')).toBeNull();
+    await cardText(/Reverso de la tarjeta/);
+    expect(more()).not.toHaveAccessibleDescription();
     fireEvent.keyDown(document.body, { key: 'Enter' });
     await cardText(/Frente de la tarjeta/);
     fireEvent.keyDown(window, { key: ' ' });
-    expect(
-      await screen.findByText('lleva al apunte del que sale esta tarjeta'),
-    ).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Cerrar el consejo' }));
-    expect(screen.queryByRole('button', { name: 'Cerrar el consejo' })).toBeNull();
-    expect(
-      screen.getByText('lleva al apunte del que sale esta tarjeta').closest('[aria-hidden="true"]'),
-    ).toHaveClass('invisible');
+    await waitFor(() => expect(more()).toHaveAccessibleDescription(tip));
+    expect(more()).toHaveAttribute('title', tip);
+    expect(container.querySelectorAll('[data-hint]')).toHaveLength(1);
+    await userEvent.click(more());
+    expect(await screen.findByRole('menuitem', { name: 'Ver apunte' })).toBeInTheDocument();
+    expect(more()).not.toHaveAccessibleDescription();
+    expect(container.querySelector('[data-hint]')).toBeNull();
     await waitFor(async () =>
       expect((await study.preferences())?.dismissed).toContain('tip-material'),
     );

@@ -4,6 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL, openModeRow, setAdminMode, signIn } from './helpers';
+import { ACCEPTED_ACCOUNT, PORT } from './accepted';
 
 test.skip(({ isMobile }) => !isMobile, 'phone only');
 test.use({ viewport: { width: 375, height: 667 } });
@@ -256,11 +257,6 @@ async function watchShifts(page: Page) {
 }
 const shifts = (page: Page) =>
   page.evaluate(() => (window as unknown as { shift_: number }).shift_);
-/** Counts from here on: how the pages arrive on a loaded machine is not what a test about a gesture looks at. */
-const forgetShifts = (page: Page) =>
-  page.evaluate(() => {
-    (window as unknown as { shift_: number }).shift_ = 0;
-  });
 
 test('studying takes the whole screen: no top bar, the answers at the bottom, nothing moves', async ({
   page,
@@ -290,6 +286,44 @@ test('studying takes the whole screen: no top bar, the answers at the bottom, no
   await expect(page.getByRole('banner')).toBeVisible();
 });
 
+test.describe('the simple mode', () => {
+  test.use({
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: `http://localhost:${PORT}`,
+          localStorage: [
+            {
+              name: 'qv-demo-study',
+              value: JSON.stringify({
+                preferences: { fullAnki: false, welcomeSeen: true },
+                activations: [{ deckId: '1006809718735317183', active: true }],
+              }),
+            },
+            ACCEPTED_ACCOUNT,
+          ],
+        },
+      ],
+    },
+  });
+
+  test('nothing under the answers takes room from the card: the material is in «Más»', async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(`${DECK_URL}/study`);
+    const reveal = page.getByRole('button', { name: 'Mostrar respuesta' });
+    const box = (await reveal.boundingBox())!;
+    expect(667 - (box.y + box.height)).toBeLessThan(24);
+    await reveal.click();
+    const answers = (await page.getByRole('group', { name: 'Responder' }).boundingBox())!;
+    expect(667 - (answers.y + answers.height)).toBeLessThan(12);
+    await page.getByRole('button', { name: 'Más' }).click();
+    await expect(page.getByRole('menuitem', { name: /^Saltar por hoy/ })).toBeVisible();
+  });
+});
+
 test('a long note: the index is always at hand, takes to the section below its bar and closes', async ({
   page,
   browserName,
@@ -298,11 +332,9 @@ test('a long note: the index is always at hand, takes to the section below its b
   await signIn(page);
   await page.goto(`${BIOCEL}/notes/11-traduccion`);
   await settle(page);
-  // The path comes with the catalog, and on a loaded machine after the text: it pushes the article down 24 px.
   await expect(page.getByRole('main').getByRole('navigation', { name: 'Ruta' })).toContainText(
     'Biología celular',
   );
-  if (browserName === 'chromium') await forgetShifts(page);
   const bar = page.getByRole('button', { name: 'Índice', exact: true });
   await page.getByRole('heading', { level: 2, name: 'Resumen' }).scrollIntoViewIfNeeded();
   await expect(bar).toBeInViewport();
@@ -319,6 +351,28 @@ test('a long note: the index is always at hand, takes to the section below its b
   expect(heading.y).toBeLessThan(667 / 2);
   if (browserName === 'chromium') expect(await shifts(page)).toBe(0);
 });
+
+for (const late of ['catalog', 'note'] as const) {
+  test(`a note does not move while it loads, with the ${late} arriving last`, async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'layout-shift is measured only in Chromium');
+    await watchShifts(page);
+    await signIn(page);
+    await page.route(late === 'catalog' ? '**/api/catalog' : '**/api/notes/*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      await route.continue();
+    });
+    await page.goto(`${BIOCEL}/notes/11-traduccion`);
+    await expect(page.getByRole('heading', { level: 1, name: 'Traducción' })).toBeVisible();
+    await expect(page.getByRole('main').getByRole('navigation', { name: 'Ruta' })).toContainText(
+      'Biología celular',
+    );
+    await page.waitForTimeout(300);
+    expect(await shifts(page)).toBe(0);
+  });
+}
 
 test('the admin mode row is in the account menu on the phone: it fits, has its name and the mode shows elsewhere', async ({
   page,

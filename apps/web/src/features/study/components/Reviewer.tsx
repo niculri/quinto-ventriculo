@@ -18,8 +18,6 @@ import {
 } from '@qv/study';
 import type { StudyData } from '@qv/study';
 import { DaySummary } from './DaySummary';
-import { useCardMaterial } from '../hooks/useCardMaterial';
-import { useTip } from '../../tips/hooks/useTip';
 import { LiveToast } from '../../../shared/ui/Toast';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import {
@@ -60,11 +58,6 @@ export function Reviewer({
   const { shown, revealed, failure } = state;
   const full = initial.prefs.fullAnki;
   const fourButtons = initial.prefs.fourButtons;
-  const material = useCardMaterial(shown?.entry.deckId);
-  const tip = useTip(
-    'tip-material',
-    !full && revealed && !!material && state.answeredInSession > 0,
-  );
   const load = useOpeningLoad(countsOf(state), full, initial.plan.medianAnswerMs);
   const report = useCardReport();
   const toast = state.toast ? toastText(state.toast, full) : null;
@@ -97,6 +90,8 @@ export function Reviewer({
         full={full}
         medianAnswerMs={initial.plan.medianAnswerMs}
         onReport={reportShown}
+        revealed={revealed}
+        answered={state.answeredInSession}
       />
 
       {load.heavy && shown ? (
@@ -119,8 +114,6 @@ export function Reviewer({
           night={night}
           full={full}
           fourButtons={fourButtons}
-          material={material}
-          tip={tip}
         />
       ) : (
         <StudyEnd

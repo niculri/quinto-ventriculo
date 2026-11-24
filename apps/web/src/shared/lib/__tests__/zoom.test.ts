@@ -6,6 +6,7 @@ import {
   fitView,
   isFitted,
   maxScale,
+  openView,
   panBy,
   pinch,
   toggledScale,
@@ -102,5 +103,24 @@ describe('the image viewer’s geometry', () => {
     );
     expect(out.scale).toBeCloseTo(v.scale * 2);
     expect(Number.isFinite(out.x)).toBe(true);
+  });
+
+  it('opens as it fits, unless the image was shown bigger: then as wide as it can, from its top', () => {
+    const tall = { width: 870, height: 1547 };
+    const notebook = { width: 1440, height: 630 };
+    expect(openView(tall, notebook)).toEqual(fitView(tall, notebook));
+    expect(openView(tall, notebook, 200)).toEqual(fitView(tall, notebook));
+    const opened = openView(tall, notebook, 368);
+    expect(opened.scale).toBe(1);
+    expect(opened.y).toBe(0);
+    expect(opened.x).toBeCloseTo((1440 - 870) / 2);
+    expect(tall.width * opened.scale).toBeGreaterThan(368);
+  });
+
+  it('never opens smaller than it was shown, nor past the zoom limit', () => {
+    const small = { width: 300, height: 900 };
+    const narrow = { width: 200, height: 400 };
+    expect(openView(small, narrow, 250).scale).toBeCloseTo(250 / 300);
+    expect(openView(small, narrow, 300 * 9).scale).toBe(maxScale(small, narrow));
   });
 });

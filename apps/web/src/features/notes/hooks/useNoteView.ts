@@ -46,7 +46,6 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
     version: note.version ?? null,
     location: { path: pathname, title: note.title, ...place },
   });
-  const located = location !== null;
   const practice = usePractice(note, location);
   const hasPractice = !!location && !!(practice.quiz ?? practice.deck);
   const toc = hasPractice
@@ -71,8 +70,7 @@ export function useNoteView(note: Note, location: NoteLocation | null, remember:
     if (!el) return;
     el.scrollIntoView({ block: 'start' });
     flashHeading(el);
-    // `located`: again when the catalog arrives, since the breadcrumbs push the text down.
-  }, [hash, located]);
+  }, [hash]);
 
   const current = activeTitle(toc, active);
   const tocBar = useTocBar(tocOpen, setTocOpen);

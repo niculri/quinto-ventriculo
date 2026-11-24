@@ -19,8 +19,9 @@ export function useImageZoom(
   stageRef: RefObject<HTMLElement | null>,
   image: Size | null,
   onTapOutside: () => void,
+  shown?: number,
 ) {
-  const { stage, view, setView } = useStageView(stageRef, image);
+  const { stage, view, setView } = useStageView(stageRef, image, shown);
   const ready = image && stage && view ? { image, stage, view } : null;
   useWheelZoom(stageRef, ready, setView);
   const { handlers, toggleAt } = useImageGestures(stageRef, ready, setView, onTapOutside);

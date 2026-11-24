@@ -48,6 +48,22 @@ export function fitView(image: Size, stage: Size): View {
   return clampView({ scale: 0, x: 0, y: 0 }, image, stage);
 }
 
+/**
+ * Where the viewer opens: what fits, unless the image was shown bigger than that where it was opened (a tall plate in
+ * an article). Then it opens as wide as the stage allows, up to its natural size and never smaller than it was, from its
+ * top: the rest is a drag away.
+ */
+export function openView(image: Size, stage: Size, shown?: number): View {
+  const fit = fitScale(image, stage);
+  const was = shown ? shown / image.width : 0;
+  if (was <= fit) return fitView(image, stage);
+  const scale = Math.min(
+    maxScale(image, stage),
+    Math.max(was, Math.min(1, stage.width / image.width)),
+  );
+  return clampView({ scale, x: 0, y: 0 }, image, stage);
+}
+
 /** Another scale, keeping the point of the image under `at` where it is. */
 export function zoomAt(view: View, wanted: number, at: Point, image: Size, stage: Size): View {
   const scale = clampScale(wanted, image, stage);

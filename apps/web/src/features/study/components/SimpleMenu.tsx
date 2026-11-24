@@ -1,8 +1,12 @@
-// «Más» of the study screen in the simple mode: skip for today, do not show again, mark and report.
+// «Más» of the study screen in the simple mode: the card's material, skip for today, do not show again, mark and report.
+// `hint` puts the one-time tip on its button until it opens.
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { Flag, MessageSquareWarning, EyeOff, SkipForward } from 'lucide-react';
 import type { HideAction } from '@qv/study';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
+import type { CardMaterial } from '../model/material';
+import { MaterialItems } from './MaterialItems';
+import { materialItemsStrings } from './strings/MaterialItems.strings';
 import { MENU_ITEM, MoreContent, MoreTrigger, shortcut } from './MoreMenuParts';
 import { simpleMenuStrings } from './strings/SimpleMenu.strings';
 import { reviewMenuStrings } from './strings/ReviewMenu.strings';
@@ -14,17 +18,31 @@ export function SimpleMenu({
   onHide,
   onMark,
   onReport,
+  material,
+  revealed,
+  hint,
+  onHintSeen,
 }: {
   disabled: boolean;
   marked: boolean;
   onHide: (action: HideAction) => void;
   onMark: () => void;
   onReport: () => void;
+  material: CardMaterial | null;
+  revealed: boolean;
+  hint: boolean;
+  onHintSeen: () => void;
 }) {
   return (
-    <MenuRoot closeOnly>
-      <MoreTrigger />
+    <MenuRoot
+      closeOnly
+      onOpenChange={(open) => {
+        if (open && hint) onHintSeen();
+      }}
+    >
+      <MoreTrigger hint={hint ? materialItemsStrings.material.hint : undefined} />
       <MoreContent>
+        <MaterialItems material={material} revealed={revealed} />
         <Menu.Item className={MENU_ITEM} disabled={disabled} onSelect={() => onHide('bury_note')}>
           <SkipForward className="size-4 text-muted" aria-hidden="true" />{' '}
           {simpleMenuStrings.menu.skip} {shortcut('-')}

@@ -3,6 +3,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { QueryClient } from '@tanstack/react-query';
 import type { Note } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { fakeApi } from '../../../test/fakes/api';
@@ -218,7 +219,7 @@ describe('arriving at a section', () => {
     await waitFor(() => expect(scrolledTo(spy)).toEqual(['núcleo celular']));
   });
 
-  it('the section is looked for again when the catalog arrives, because the breadcrumbs push the text down', async () => {
+  it('the article waits for the catalog, whose breadcrumbs would push it down, and then goes to the section once', async () => {
     let arrive: () => void = () => undefined;
     const gate = new Promise<void>((resolve) => (arrive = resolve));
     const spy = vi.spyOn(Element.prototype, 'scrollIntoView');
@@ -231,10 +232,26 @@ describe('arriving at a section', () => {
         },
       }),
     });
+    expect(await screen.findByRole('status', { name: 'Cargando el apunte' })).toBeEmptyDOMElement();
+    expect(screen.queryByRole('heading', { level: 2, name: 'Ribosomas' })).toBeNull();
+    await act(async () => arrive());
     await screen.findByRole('heading', { level: 2, name: 'Ribosomas' });
     await waitFor(() => expect(scrolledTo(spy)).toEqual(['ribosomas']));
-    await act(async () => arrive());
-    await waitFor(() => expect(scrolledTo(spy)).toEqual(['ribosomas', 'ribosomas']));
+  });
+
+  it('the article does not wait for the catalog once its first request failed, while it retries', async () => {
+    renderApp(PATH, {
+      api: fakeApi({
+        catalog: () => Promise.reject(new ApiRequestError(503, 'unavailable', 'Unavailable')),
+      }),
+      queryClient: new QueryClient({
+        defaultOptions: { queries: { retry: 1, retryDelay: 60_000 } },
+      }),
+    });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Traducción' })).toBeVisible();
+    expect(
+      within(screen.getByRole('main')).getByRole('navigation', { name: 'Ruta' }),
+    ).not.toHaveTextContent('Biología celular');
   });
 });
 

@@ -1,10 +1,6 @@
-// The card being studied and what is under it: its answers and, in the simple mode, «Ver apunte» and «Preguntas».
+// The card being studied and its answers under it.
 import type { Shown } from '@qv/study';
-import type { useTip } from '../../tips/hooks/useTip';
 import type { StudyActions } from '../hooks/useStudySession';
-import type { CardMaterial } from '../model/material';
-import { MaterialRow } from './MaterialRow';
-import { MaterialTip } from './MaterialTip';
 import { StudyAnswers } from './StudyAnswers';
 import { StudyCard } from './StudyCard';
 import { reviewScreenStrings } from './strings/ReviewScreen.strings';
@@ -17,8 +13,6 @@ export function StudyCardArea({
   night,
   full,
   fourButtons,
-  material,
-  tip,
 }: {
   act: StudyActions;
   shown: Shown;
@@ -27,8 +21,6 @@ export function StudyCardArea({
   night: boolean;
   full: boolean;
   fourButtons: boolean;
-  material: CardMaterial | null;
-  tip: ReturnType<typeof useTip>;
 }) {
   return (
     <>
@@ -49,11 +41,6 @@ export function StudyCardArea({
           full={full}
           failed={failed}
         />
-        {!full ? (
-          <MaterialRow material={material} revealed={revealed}>
-            {tip.shown ? <MaterialTip show={tip.show} onClose={tip.close} /> : null}
-          </MaterialRow>
-        ) : null}
       </div>
     </>
   );

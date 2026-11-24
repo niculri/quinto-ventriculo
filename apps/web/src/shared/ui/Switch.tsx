@@ -1,8 +1,9 @@
 // The site's on/off switch; `label` is its name for screen readers (the text beside it, or the row it is in).
 
 /**
- * With `wholeRow` the switch's (invisible) input covers its row, the nearest ancestor with `relative`: a click anywhere
- * on the row turns it, with the same focus and the same name. Another control on that row goes above it (`z-20`).
+ * With `wholeRow` the switch's (invisible) input covers its row, the nearest ancestor with `relative isolate`: a click
+ * anywhere on the row turns it, with the same focus and the same name. Another control on that row goes above it
+ * (`relative z-20`). `isolate` keeps those layers inside the row, under a sticky bar the row scrolls beneath.
  */
 export function Switch({
   id,
@@ -21,7 +22,7 @@ export function Switch({
 }) {
   return (
     <span
-      className={`group/switch inline-flex h-6 w-10 flex-none items-center ${wholeRow ? '' : 'relative'}`}
+      className={`group/switch inline-flex h-6 w-10 flex-none items-center ${wholeRow ? '' : 'relative isolate'}`}
     >
       <input
         id={id}

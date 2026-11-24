@@ -4,7 +4,7 @@
 // Spanish texts from Anki's translations (BSD-3-Clause and public domain, as Anki's LICENSE says).
 
 // A row of an options form: the label (with its help) on the left, the control and its «restore» button on the right.
-// It is `relative`, so that a switch with `wholeRow` covers it.
+// It is `relative isolate`, so that a switch with `wholeRow` covers it, and only it.
 import type { ReactNode } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { rowStrings } from './strings/Row.strings';
@@ -21,7 +21,7 @@ export function Row({
   children: ReactNode;
 }) {
   return (
-    <div className="relative flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
+    <div className="relative isolate flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
       <div className="min-w-0 flex-1 basis-56">
         <label htmlFor={id} className="text-sm font-medium">
           {label}

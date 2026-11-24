@@ -72,3 +72,35 @@ test('the site settings and the marks by hand of a draft: the whole row turns th
   await clickRowFarFromSwitch(page, phone);
   await clickRowFarFromSwitch(page, phone);
 });
+
+test('a row under the sticky «Guardar» bar takes none of its clicks, nor paints over it', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/settings/anki');
+  await expect(page.getByRole('switch', { name: 'Mostrar los 4 botones' })).toBeChecked();
+  const hits = await page.evaluate(async () => {
+    document.body.style.minHeight = '300vh';
+    const input = document.querySelector<HTMLElement>('[aria-label="Mostrar los 4 botones"]')!;
+    const restore = input
+      .closest('.relative')!
+      .querySelector<HTMLElement>('[aria-label="Restablecer el valor predeterminado"]')!;
+    const save = [...document.querySelectorAll('button')].find((b) => b.textContent === 'Guardar')!;
+    const bar = save.closest<HTMLElement>('.sticky')!;
+    const middle = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      return [r.left + r.width / 2, r.top + r.height / 2] as const;
+    };
+    // Where the bar sticks, not where it is before scrolling.
+    const stuck = parseFloat(getComputedStyle(bar).top) + bar.getBoundingClientRect().height / 2;
+    window.scrollBy(0, middle(restore)[1] - stuck);
+    await new Promise(requestAnimationFrame);
+    const lands = (el: HTMLElement) => bar.contains(document.elementFromPoint(...middle(el)));
+    return {
+      save: lands(save),
+      restore: lands(restore),
+      under: Math.abs(middle(restore)[1] - stuck) < 2,
+    };
+  });
+  expect(hits).toEqual({ save: true, restore: true, under: true });
+});

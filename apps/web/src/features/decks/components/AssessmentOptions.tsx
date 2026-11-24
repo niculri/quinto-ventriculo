@@ -171,7 +171,7 @@ function FinalReviewDays({ o, view }: { o: Options; view: AssessmentView | null 
 
 function ExtrasRow({ o, plan }: { o: Options; plan: StudyPlan | undefined }) {
   return (
-    <div className="relative mt-4 flex items-center justify-between gap-4 border-t border-border pt-4">
+    <div className="relative isolate mt-4 flex items-center justify-between gap-4 border-t border-border pt-4">
       <div className="min-w-0">
         <p className="text-sm font-medium">{s.assessment.extras}</p>
         <p className="mt-0.5 text-xs text-muted">{s.assessment.extrasHelp}</p>

@@ -27,7 +27,7 @@ export function SitePage() {
     <>
       <AdminSectionTitle title={s.title} />
       <div className={`${card} mt-6 px-4 py-4 sm:px-5`}>
-        <div className="relative flex items-start justify-between gap-4">
+        <div className="relative isolate flex items-start justify-between gap-4">
           <div className="min-w-0">
             <label htmlFor={id} className="font-medium text-ink">
               {s.label}

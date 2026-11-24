@@ -1,5 +1,5 @@
 // A course's page, a dashboard: for each assessment, one card per section (notes, tests, Anki) with what it has.
-import { Layers, Search } from 'lucide-react';
+import { ChartColumn, Layers, Search } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import type { Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
@@ -113,6 +113,13 @@ function CourseView({
           >
             <Search className="size-4" aria-hidden="true" />
             {s.seeCards}
+          </Link>
+          <Link
+            to={paths.deckStats(decks.decks.ref)}
+            className="inline-flex items-center gap-1.5 text-muted hover:text-ink"
+          >
+            <ChartColumn className="size-4" aria-hidden="true" />
+            {s.stats}
           </Link>
         </p>
       ) : null}

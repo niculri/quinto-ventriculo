@@ -133,7 +133,7 @@ export function courseDeck(tree: AnkiTree, courseId: string): CourseDeckNode | n
   );
 }
 
-export type DeckScreen = 'page' | 'study' | 'review' | 'cards' | 'practice';
+export type DeckScreen = 'page' | 'study' | 'review' | 'cards' | 'practice' | 'stats';
 
 export type Resolved =
   | { kind: 'deck'; node: CourseDeckNode; screen: DeckScreen }
@@ -160,7 +160,7 @@ export function resolveCourseDeck(
   return r.kind === 'deck' ? { ...r, kind: 'moved' } : r;
 }
 
-const SUBSCREENS = ['study', 'review', 'cards'] as const;
+const SUBSCREENS = ['study', 'review', 'cards', 'stats'] as const;
 
 /** The screen a path ends in and the path of the deck it belongs to. */
 function screenOf(segments: string[]): { screen: DeckScreen; path: string[] } {

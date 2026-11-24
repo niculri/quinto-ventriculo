@@ -71,6 +71,8 @@ export const paths = {
     [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'study'].join('/'),
   deckReview: (ref: DeckRef) =>
     [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'review'].join('/'),
+  deckStats: (ref: DeckRef) =>
+    [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'stats'].join('/'),
   cards: (ref: DeckRef, query?: CardsQuery) =>
     withQuery(
       [`${paths.course(ref.course)}/anki`, ...ref.segments.map(seg), 'cards'].join('/'),

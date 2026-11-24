@@ -103,6 +103,8 @@ function screenPath(node: CourseDeckNode, screen: DeckScreen, search: URLSearchP
       return paths.deckReview(node.ref);
     case 'page':
       return paths.deck(node.ref);
+    case 'stats':
+      return paths.deckStats(node.ref);
     case 'cards':
     case 'practice': {
       const scope = node.depth > 3 ? scopeAbove(node) : node;

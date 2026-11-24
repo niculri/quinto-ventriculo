@@ -2,14 +2,14 @@
 // choices the student saved.
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
-import { gymkanaDeck } from '../../catalog/model/gymkana';
+import { caQuizId, gymkanaDeck } from '../../catalog/model/gymkana';
 import { descendants } from '../../catalog/model/tree';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import { cardIndexQuery } from '../../cards/api/queries';
 import { useAssessmentSection } from '../../courses/hooks/useAssessmentSection';
 import { useQuizRepository } from '../../quiz/api/context';
 import { savedQuizQuery } from '../../quiz/api/queries';
-import { CA_SECTION, caQuizId } from '../model/saving';
+import { CA_SECTION } from '../model/saving';
 import { gymkanaStations } from '../model/stations';
 
 export function useGymkana() {

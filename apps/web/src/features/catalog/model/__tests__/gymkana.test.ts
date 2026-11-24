@@ -1,8 +1,8 @@
-// An assessment's gymkana: the deck «Gymkana» right under it, with cards.
+// An assessment's gymkana: the deck «Gymkana» right under it, with cards, and its writing rounds' test id.
 import { describe, expect, it } from 'vitest';
 import { GYM_CATALOG, GYM_DECK } from '../../../../test/fixtures/gymkana';
 import { CATALOG } from '../../../../test/fixtures/catalog';
-import { gymkanaDeck } from '../gymkana';
+import { caQuizId, gymkanaDeck } from '../gymkana';
 import { buildAnkiTree } from '../tree';
 
 describe('gymkanaDeck', () => {
@@ -24,5 +24,11 @@ describe('gymkanaDeck', () => {
       parentId: deeper.anki.decks.at(-2)!.id,
     });
     expect(gymkanaDeck(buildAnkiTree(deeper), 'anatomia-1/certamen-1')).toBeNull();
+  });
+});
+
+describe('caQuizId', () => {
+  it('is a test id of its own', () => {
+    expect(caQuizId('123')).toBe('gymkana-123');
   });
 });

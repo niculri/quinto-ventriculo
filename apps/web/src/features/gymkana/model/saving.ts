@@ -7,9 +7,6 @@ import type { Station } from './stations';
 
 export const CA_SECTION = 'write';
 
-/** A test id (`^[a-z0-9]+(-[a-z0-9]+)*$`) that no imported test has: theirs come from their slugs. */
-export const caQuizId = (deckId: string) => `gymkana-${deckId}`;
-
 const ANSWER_ID = /^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$/;
 
 function hex(text: string): string {

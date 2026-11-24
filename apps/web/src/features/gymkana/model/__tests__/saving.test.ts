@@ -1,11 +1,10 @@
 // How a round is kept as a test's steps: its id, the station's id for the answers, the round's info and an answer.
 import { describe, expect, it } from 'vitest';
 import { answer, startRound } from '@qv/gymkana';
-import { CA_SECTION, answerId, answerInfo, caQuizId, roundInfo } from '../saving';
+import { CA_SECTION, answerId, answerInfo, roundInfo } from '../saving';
 
 describe('saving a round', () => {
-  it('has its own test id and section', () => {
-    expect(caQuizId('123')).toBe('gymkana-123');
+  it('has its own section', () => {
     expect(CA_SECTION).toBe('write');
   });
 

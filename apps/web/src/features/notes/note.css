@@ -189,13 +189,15 @@
  * No image is taller than the window under the site's bars, with room for a few lines of caption (`--fit-h`): its
  * width follows from its shape (`--ar`, width / height, set with `--fig`), so it keeps its proportions and its height
  * is still known before it loads. The small viewport height (svh) does not change when a phone's address bar hides.
+ * Below xl the index's bar sticks under the site's. Never under 20rem: in a window that short (a phone held sideways)
+ * a figure that fit would be a stamp, with its caption in a tall narrow column.
  */
 .note-body {
-  --fit-h: calc(100svh - 4.0625rem - 5rem);
+  --fit-h: max(calc(100svh - 4.0625rem - 5rem), 20rem);
 }
-@media (max-width: 1023.98px) {
+@media (max-width: 1279.98px) {
   .note-body {
-    --fit-h: calc(100svh - 6.875rem - 5rem);
+    --fit-h: max(calc(100svh - 6.875rem - 5rem), 20rem);
   }
 }
 .note-body .figure {

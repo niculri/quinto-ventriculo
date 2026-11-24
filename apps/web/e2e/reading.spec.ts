@@ -253,17 +253,12 @@ test('a test: its questions are first drawn with Inter, the italic too', async (
   ).toEqual([true, true, true]);
 });
 
-test('no figure is taller than the window under the site’s bars, caption included, and each keeps its shape', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: page.viewportSize()!.width, height: 720 });
-  await signIn(page);
-  await page.goto('/dev/reading');
+/** Each figure of the test article: the room under the bars (the site's, and below xl the index's), its height and shape. */
+async function figureFit(page: Page) {
   await expect(
     page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
   ).toBeVisible();
-  const figures = await page.evaluate(() => {
-    // The site's bar, and below lg the index's bar that sticks under it.
+  return page.evaluate(() => {
     const header = document.querySelector('header')!.getBoundingClientRect().height;
     const index = [...document.querySelectorAll('button')].find((b) =>
       b.textContent.startsWith('Índice'),
@@ -278,16 +273,44 @@ test('no figure is taller than the window under the site’s bars, caption inclu
       return {
         room: window.innerHeight - bars,
         tall: f.getBoundingClientRect().height,
+        imageTall: box.height,
+        plate: f.classList.contains('figure-plate'),
         drawn: box.width / box.height,
         shape,
       };
     });
   });
-  expect(figures.some((f) => f.shape < 0.6)).toBe(true);
-  for (const f of figures) {
-    expect(f.tall).toBeLessThanOrEqual(f.room);
-    expect(Math.abs(f.drawn - f.shape) / f.shape).toBeLessThan(0.02);
+}
+
+test('no figure is taller than the window under the site’s bars, caption included, and each keeps its shape', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  // On the desktop also between lg and xl, where the index's bar is under the site's one.
+  for (const width of isMobile
+    ? [page.viewportSize()!.width]
+    : [page.viewportSize()!.width, 1100]) {
+    await page.setViewportSize({ width, height: 720 });
+    await page.goto('/dev/reading');
+    const figures = await figureFit(page);
+    expect(figures.some((f) => f.shape < 0.6)).toBe(true);
+    for (const f of figures) {
+      expect(f.tall).toBeLessThanOrEqual(f.room);
+      expect(Math.abs(f.drawn - f.shape) / f.shape).toBeLessThan(0.02);
+    }
   }
+});
+
+test('in a very short window a tall plate does not become a stamp: it keeps 20rem of height', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: page.viewportSize()!.width, height: 360 });
+  await signIn(page);
+  await page.goto('/dev/reading');
+  const tallest = (await figureFit(page)).filter((f) => f.plate && f.shape < 0.6);
+  expect(tallest.length).toBeGreaterThan(0);
+  for (const f of tallest) expect(f.imageTall).toBeGreaterThanOrEqual(319);
 });
 
 test('the text stops at its measure on the column’s left edge, the wide figures and the tables use the whole column', async ({

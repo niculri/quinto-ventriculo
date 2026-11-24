@@ -133,6 +133,19 @@ describe('buildCardIndexes: what each kind of note shows', () => {
     ]);
   });
 
+  it('carries the gymkanas of its assessment, in order, and none when it has none', () => {
+    const gym = (deckId: string) => ({ deckId, regions: [], sources: [] });
+    const notes = [note('a', '1', {}, [{ ord: 0, deckId: 'd1' }])];
+    const [index] = buildCardIndexes({
+      noteTypes: [type('1', ['Frente', 'Reverso'])],
+      decks: [...DECKS, { id: 'd3', assessmentId: 'ramo/c1' }],
+      notes,
+      gymkanas: [gym('d3'), gym('d2'), gym('d1')],
+    });
+    expect(index!.gymkanas!.map((g) => g.deckId)).toEqual(['d1', 'd3']);
+    expect(build(notes)[0]).not.toHaveProperty('gymkanas');
+  });
+
   it('the text of a row is cut at 240 characters with an ellipsis, and exactly 240 is kept', () => {
     const [index] = build([
       note('a', '1', { Frente: 'x'.repeat(240), Reverso: 'y'.repeat(300) }, [

@@ -16,6 +16,7 @@ import { checkDeckName, createdAt, levelOf, safeDecode, sameConfig } from './nam
 import { remapNotes } from './noteTypes';
 import type { NewestNoteTypes } from './noteTypes';
 import { forSite } from './siteNoteTypes';
+import { gymkanaOf, gymkanaWarnings } from './gymkana';
 import type { AssessmentPlace, DecksOptions, DecksState } from './types';
 
 type Entry = DecksManifest['decks'][number];
@@ -260,6 +261,16 @@ export async function processPackage(
   registerDecks(ctx, tree);
   const { byNote, left } = await cardsByNote(ctx, entry, new Set(included.keys()));
   const imaios = await addNotes(ctx, byNote, imageLoader(ctx));
+  const gymkana = gymkanaOf(
+    label,
+    entry,
+    place,
+    [...included.values()].map((n) => n.deck),
+  );
+  if (gymkana) {
+    state.result.gymkanas.push(gymkana);
+    gymkanaWarnings(gymkana, state.result.notes, !!entry.gymkana).forEach(warn);
+  }
   if (imaios.length && !entry.excludeImaios) {
     throw new ImportError(
       'material',

@@ -57,12 +57,13 @@ export class FolderTarget implements Target {
     report.unchangedNotes = notes.unchanged;
     report.removedNotes = notes.removed;
 
-    // Only these four fields: spreading all of `before` would put back its notes and catalog.
+    // Only the Anki fields: spreading all of `before` would put back its notes and catalog.
     let anki: AnkiParts = {
       ankiNoteTypes: before.ankiNoteTypes,
       ankiPresets: before.ankiPresets,
       ankiDecks: before.ankiDecks,
       ankiNotes: before.ankiNotes,
+      ...(before.ankiGymkanas ? { ankiGymkanas: before.ankiGymkanas } : {}),
     };
     if (scope.decks) {
       const plan = planAnki(before, bundle, scope);

@@ -83,7 +83,15 @@ export async function buildDecks(op: DecksOptions): Promise<DecksResult> {
     decks: new Map(),
     deckIds: new Set(),
     guids: new Set(),
-    result: { noteTypes: [], presets: [], decks: [], notes: [], media: new Map(), warnings: [] },
+    result: {
+      noteTypes: [],
+      presets: [],
+      decks: [],
+      notes: [],
+      media: new Map(),
+      gymkanas: [],
+      warnings: [],
+    },
   };
   const tied = new Set<string>();
   const newest = await newestNoteTypes(

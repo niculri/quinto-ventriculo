@@ -33,3 +33,4 @@ export {
   thumbKeyOf,
   ThumbSignature,
 } from './browseIndex';
+export { GYMKANA_DECK_LABEL, GymkanaMeta, GymkanaPlaces } from './gymkana';

@@ -5,6 +5,7 @@ import type {
   AnkiNoteTypeRecord,
   AnkiPresetRecord,
   Assessment,
+  GymkanaMeta,
   ImportedAnkiNote,
   Semester,
 } from '@qv/schema';
@@ -17,6 +18,7 @@ export interface DecksResult {
   decks: AnkiDeckRecord[];
   notes: Omit<ImportedAnkiNote, 'hash' | 'updatedAt'>[];
   media: Map<string, ProcessedImage>;
+  gymkanas: GymkanaMeta[];
   warnings: string[];
 }
 

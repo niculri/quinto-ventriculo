@@ -1,5 +1,5 @@
-// Puts the synthetic deck (anki-format's sample.apkg) into the e2e content (apps/web/e2e/content) as the importer
-// would. Run: `npx tsx packages/importer/scripts/e2eDecks.ts`.
+// Puts the synthetic decks (anki-format's sample.apkg and gymkana.apkg) into the e2e content (apps/web/e2e/content)
+// as the importer would. Run: `npx tsx packages/importer/scripts/e2eDecks.ts`.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ContentBundle } from '@qv/schema';
@@ -28,11 +28,52 @@ if (!bundle.courses.some((c) => c.id === 'anatomia-1')) {
     position: 1,
   });
 }
-if (!bundle.assessments.some((a) => a.id === ASSESSMENT.id)) bundle.assessments.push(ASSESSMENT);
+const GYMKANA = {
+  id: 'anatomia-2/certamen-2',
+  courseId: 'anatomia-2',
+  name: 'Certamen 2',
+  position: 2,
+};
+if (!bundle.courses.some((c) => c.id === 'anatomia-2')) {
+  bundle.courses.push({
+    id: 'anatomia-2',
+    semester: 2,
+    name: 'Anatomía II',
+    emoji: '🦴',
+    position: 3,
+  });
+}
+for (const a of [ASSESSMENT, GYMKANA]) {
+  if (!bundle.assessments.some((x) => x.id === a.id)) bundle.assessments.push(a);
+}
 
 const decks = await buildDecks({
-  manifests: [{ assessmentId: ASSESSMENT.id, decks: [{ apkg: 'sample.apkg' }] }],
-  assessments: new Map([[ASSESSMENT.id, ASSESSMENT]]),
+  manifests: [
+    { assessmentId: ASSESSMENT.id, decks: [{ apkg: 'sample.apkg' }] },
+    {
+      assessmentId: GYMKANA.id,
+      decks: [
+        {
+          apkg: 'gymkana.apkg',
+          gymkana: {
+            regions: [
+              { tag: 'orbita', label: 'Órbita' },
+              { tag: 'cuello', label: 'Cuello' },
+              { tag: 'cara', label: 'Cara' },
+            ],
+            sources: [
+              { label: 'Atlas de prueba', tags: ['atlas_a'] },
+              { label: 'Modelos de prueba', tags: ['modelo'] },
+            ],
+          },
+        },
+      ],
+    },
+  ],
+  assessments: new Map([
+    [ASSESSMENT.id, ASSESSMENT],
+    [GYMKANA.id, GYMKANA],
+  ]),
   courses: bundle.courses,
   semesters: bundle.semesters,
   root: join(REPO, 'packages/anki-format/test/fixtures'),
@@ -49,6 +90,7 @@ const output: ContentBundle = {
   ankiNoteTypes: decks.noteTypes,
   ankiPresets: decks.presets,
   ankiDecks: decks.decks,
+  ankiGymkanas: decks.gymkanas,
   ankiNotes: decks.notes.map((n) => ({
     ...n,
     hash: hash(n),

@@ -9,6 +9,7 @@ import type {
   CardIndexKind,
   CardIndexNote,
   CardOrigin,
+  GymkanaMeta,
   ImportedAnkiNote,
 } from '@qv/schema';
 
@@ -59,6 +60,7 @@ type IndexInput = {
   noteTypes: readonly AnkiNoteTypeRecord[];
   decks: readonly Pick<AnkiDeckRecord, 'id' | 'assessmentId'>[];
   notes: readonly ImportedAnkiNote[];
+  gymkanas?: readonly GymkanaMeta[];
   assessments?: readonly string[];
 };
 
@@ -140,7 +142,16 @@ function rowsByAssessment(input: IndexInput): Map<string, CardIndexNote[]> {
   return byAssessment;
 }
 
+/** Only when the assessment has one, so the other indexes keep their file (and their hash). */
+function gymkanasOf(input: IndexInput, assessmentOf: Map<string, string | null>, id: string) {
+  const gymkanas = (input.gymkanas ?? [])
+    .filter((g) => assessmentOf.get(g.deckId) === id)
+    .sort((a, b) => Number(a.deckId > b.deckId) - Number(a.deckId < b.deckId));
+  return gymkanas.length ? { gymkanas } : {};
+}
+
 export function buildCardIndexes(input: IndexInput): CardIndex[] {
+  const assessmentOf = new Map(input.decks.map((d) => [d.id, d.assessmentId]));
   return [...rowsByAssessment(input)]
     .sort(([a], [b]) => (a < b ? -1 : 1))
     .map(([assessmentId, notes]) => {
@@ -161,6 +172,7 @@ export function buildCardIndexes(input: IndexInput): CardIndex[] {
             sortField: t.sortField,
           })),
         notes,
+        ...gymkanasOf(input, assessmentOf, assessmentId),
       };
     });
 }

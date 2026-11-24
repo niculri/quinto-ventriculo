@@ -9,6 +9,7 @@ import {
   ImportedAnkiNote,
 } from '../anki/flashcards';
 import { CardIndexRecord } from '../anki/browseIndex';
+import { GymkanaMeta } from '../anki/gymkana';
 import { ImportedQuiz } from '../quiz/quizzes';
 
 const NoteSection = z.object({
@@ -39,6 +40,8 @@ export const ContentBundle = z.object({
   ankiDecks: z.array(AnkiDeckRecord).default([]),
   ankiNotes: z.array(ImportedAnkiNote).default([]),
   quizzes: z.array(ImportedQuiz).default([]),
+  /** An older bundle has none. */
+  ankiGymkanas: z.array(GymkanaMeta).optional(),
   ankiBrowseIndexes: z.array(CardIndexRecord).optional(),
 });
 export type ContentBundle = z.infer<typeof ContentBundle>;

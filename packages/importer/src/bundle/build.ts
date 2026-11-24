@@ -108,6 +108,7 @@ export async function buildBundle(op: BuildOptions): Promise<BuildResult> {
     ankiDecks: decks?.decks ?? [],
     ankiNotes,
     quizzes: tests.quizzes,
+    ankiGymkanas: decks?.gymkanas ?? [],
   };
   const published = withoutUnpublished(
     whole,

@@ -12,8 +12,28 @@ import { localAdminRepository } from '../../admin/api/repository';
 
 afterEach(() => window.localStorage.clear());
 
+/** Física has a note in the admin mode's catalog: what has nothing at all has no page, there either. */
+function withPhysics(): Catalog['semesters'] {
+  const semesters = structuredClone(CATALOG.semesters);
+  const bio = semesters[1]!.courses[0]!.assessments[0]!;
+  semesters[1]!.courses[1]!.assessments = [
+    {
+      ...bio,
+      id: 'fisica/certamen-1',
+      courseId: 'fisica',
+      name: 'Certamen 1',
+      notes: [
+        { ...bio.notes[0]!, id: 'AP-FI-1', slug: 'fluidos', assessmentId: 'fisica/certamen-1' },
+      ],
+      quizzes: [],
+    },
+  ];
+  return semesters;
+}
+
 const ADMIN_CATALOG: Catalog = {
   ...CATALOG,
+  semesters: withPhysics(),
   adminOnly: {
     [adminKey('course', 'fisica')]: ['hiddenCourse'],
     [adminKey('note', 'AP-BC-C2-11')]: ['draft'],

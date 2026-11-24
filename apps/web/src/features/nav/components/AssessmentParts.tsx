@@ -5,7 +5,9 @@ import type { CourseWithAssessments, NoteSummary } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { menuNoteBlocks } from '../model/where';
+import { noteBlocks } from '../../catalog/model/catalog';
+import { toggleWeek, weekOpen } from '../model/weeks';
+import { useWeekMemory } from '../hooks/useWeekMemory';
 import type { Where } from '../model/where';
 import { assessmentPartsStrings } from './strings/AssessmentParts.strings';
 import { Branch, NavLink, icon } from './NavLink';
@@ -144,6 +146,10 @@ function DeckLinks({
   );
 }
 
+/**
+ * The notes of an assessment: in one list, or, if some note has a week, a branch per block (the same blocks as the
+ * assessment's list: a note without a week goes under its kind), open only the one of the note being read.
+ */
 function NoteLinks({
   course,
   assessmentId,
@@ -157,29 +163,37 @@ function NoteLinks({
   where: Where;
   onNavigate?: (() => void) | undefined;
 }) {
+  const [memory, setMemory] = useWeekMemory();
+  const link = (n: NoteSummary) => (
+    <li key={n.id}>
+      <NavLink
+        to={paths.note(course, n.slug)}
+        active={n.slug === where.noteSlug}
+        onNavigate={onNavigate}
+      >
+        {n.title}
+        <ListMark thing={['note', n.id]} holder={['assessment', assessmentId]} />
+      </NavLink>
+    </li>
+  );
+  if (!notes.some((n) => n.group)) return <>{notes.map(link)}</>;
   return (
     <>
-      {menuNoteBlocks(notes).flatMap((block, b) =>
-        block.notes.map((n, i) => (
-          <li key={n.id}>
-            {block.title !== null && i === 0 ? (
-              <p
-                className={`${b > 0 ? 'mt-2' : ''} px-2.5 pt-0.5 pb-1 text-[0.7rem] font-semibold tracking-wide text-muted uppercase`}
-              >
-                {block.title}
-              </p>
-            ) : null}
-            <NavLink
-              to={paths.note(course, n.slug)}
-              active={n.slug === where.noteSlug}
-              onNavigate={onNavigate}
-            >
-              {n.title}
-              <ListMark thing={['note', n.id]} holder={['assessment', assessmentId]} />
-            </NavLink>
-          </li>
-        )),
-      )}
+      {noteBlocks(notes).map((block) => {
+        const key = `${assessmentId}:${block.key}`;
+        const holdsNote = block.notes.some((n) => n.slug === where.noteSlug);
+        return (
+          <Branch
+            key={block.key}
+            label={block.title}
+            open={weekOpen(memory, where, key, holdsNote)}
+            inPath={holdsNote}
+            onToggle={() => setMemory((m) => toggleWeek(m, where, key, holdsNote))}
+          >
+            {block.notes.map(link)}
+          </Branch>
+        );
+      })}
     </>
   );
 }

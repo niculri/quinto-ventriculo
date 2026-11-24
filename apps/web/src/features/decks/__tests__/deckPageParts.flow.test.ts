@@ -211,6 +211,8 @@ it('an assessment without weeks yet has no list of subdecks', async () => {
   catalog.anki.decks.push({
     ...catalog.anki.decks.find((d) => d.id === '4')!,
     ...empty,
+    // With cards of its own: a deck without any has no page.
+    cardCount: 1,
     id: '30',
     name: fullName,
   });

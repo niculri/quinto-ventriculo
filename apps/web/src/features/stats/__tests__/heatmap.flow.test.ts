@@ -132,7 +132,7 @@ describe('the heatmap on the home page', () => {
     const { study } = withHeatmap(async () => DATA);
     renderApp('/home', { study });
     await grid();
-    const back = screen.getByRole('button', { name: 'Año anterior' });
+    const back = await screen.findByRole('button', { name: 'Año anterior' });
     const ahead = screen.getByRole('button', { name: 'Año siguiente' });
     const home = screen.getByRole('button', { name: 'Volver a hoy' });
     await waitFor(() => expect(back).toBeEnabled());
@@ -150,6 +150,27 @@ describe('the heatmap on the home page', () => {
     expect(
       await screen.findByRole('grid', { name: 'Días de estudio de 2026' }),
     ).toBeInTheDocument();
+  });
+
+  it('with one year of study, only the year: the buttons come with the second one, on its left', async () => {
+    const oneYear = { ...DATA, days: DATA.days.slice(1) };
+    const { study } = withHeatmap(async () => oneYear);
+    renderApp('/home', { study });
+    await waitFor(() => expect(cell(/^8 de noviembre de 2026: 32/)).toBeInTheDocument());
+    const year = screen.getByRole('group', { name: 'Año' });
+    expect(year).toHaveTextContent(/^2026$/);
+    expect(within(year).queryAllByRole('button')).toHaveLength(0);
+  });
+
+  it('due cards next year are a second year: the buttons come, with the year last', async () => {
+    const ahead = { days: DATA.days.slice(1), due: [{ day: D('2027-01-04'), cards: 3 }] };
+    const { study } = withHeatmap(async () => ahead);
+    renderApp('/home', { study });
+    const next = await screen.findByRole('button', { name: 'Año siguiente' });
+    await waitFor(() => expect(next).toBeEnabled());
+    expect(screen.getByRole('button', { name: 'Año anterior' })).toBeDisabled();
+    const year = screen.getByRole('group', { name: 'Año' });
+    expect(year.lastElementChild).toHaveTextContent('2026');
   });
 
   it('with nothing yet: the empty grid and one line where the figures go', async () => {

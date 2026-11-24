@@ -1,5 +1,6 @@
 // What a course's page counts: the assessments with material, what each one has, and an assessment's turned-on units.
-import type { AssessmentWithNotes, CourseWithAssessments } from '@qv/schema';
+import type { AssessmentWithNotes, Catalog, CourseWithAssessments } from '@qv/schema';
+import { assessmentHasMaterial } from '@qv/schema/http';
 import { activeUnits } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { descendants, hasPage } from '../../catalog/model/tree';
@@ -14,10 +15,8 @@ export function assessmentDeck(tree: AnkiTree, a: AssessmentWithNotes): CourseDe
   );
 }
 
-export function withMaterial(course: CourseWithAssessments, tree: AnkiTree) {
-  return course.assessments.filter(
-    (a) => a.notes.length || a.quizzes.length || assessmentDeck(tree, a),
-  );
+export function withMaterial(catalog: Catalog, course: CourseWithAssessments) {
+  return course.assessments.filter((a) => assessmentHasMaterial(catalog, a));
 }
 
 export const joined = (parts: string[]) => parts.filter(Boolean).join(' · ');

@@ -72,7 +72,9 @@ function refOf(node: DeckNode): DeckRef | null {
 
 export type CourseDeckNode = DeckNode & { ref: DeckRef };
 
-export const hasPage = (node: DeckNode): node is CourseDeckNode => node.ref !== null;
+/** A deck below a course has a page while it has cards: without any it is not published, as a deck made up. */
+export const hasPage = (node: DeckNode): node is CourseDeckNode =>
+  node.ref !== null && node.cardCount > 0;
 
 export function deckCrumbs(node: CourseDeckNode, last?: Crumb): Crumb[] {
   const items: Crumb[] = [{ label: 'Inicio', to: paths.home }];
@@ -141,7 +143,21 @@ export type Resolved =
   | { kind: 'legacy'; node: CourseDeckNode; what: 'page' | 'study' | 'options' }
   | { kind: 'missing' };
 
+type Found = Exclude<Resolved, { kind: 'missing' }>;
+
+/** A deck without cards is not published: its addresses do not exist, as the ones of a deck made up. */
 export function resolveCourseDeck(
+  tree: AnkiTree,
+  semester: string,
+  courseId: string,
+  segments: string[],
+  subdeck: string | null,
+): Resolved {
+  const resolved = findCourseDeck(tree, semester, courseId, segments, subdeck);
+  return resolved.kind !== 'missing' && !hasPage(resolved.node) ? { kind: 'missing' } : resolved;
+}
+
+function findCourseDeck(
   tree: AnkiTree,
   semester: string,
   courseId: string,
@@ -151,10 +167,11 @@ export function resolveCourseDeck(
   const here = courseDeck(tree, courseId);
   const found = (here && inCourse(here, semester, segments, subdeck)) ?? null;
   if (found) return found;
+  // A deck moved to another course is found there; another course's own deck is not a course's.
   const elsewhere = tree.nodes
     .filter((n): n is CourseDeckNode => n.depth === 2 && hasPage(n) && n !== here)
     .map((n) => inCourse(n, semester, segments, subdeck))
-    .filter((r): r is Resolved => r !== null);
+    .filter((r): r is Found => r !== null && r.node.depth > 2);
   if (elsewhere.length !== 1) return { kind: 'missing' };
   const r = elsewhere[0]!;
   return r.kind === 'deck' ? { ...r, kind: 'moved' } : r;
@@ -187,7 +204,7 @@ function legacyIn(
   course: CourseDeckNode,
   segments: string[],
   subdeck: string | null,
-): Resolved | null {
+): Found | null {
   const last = segments.at(-1);
   const what = last === 'study' ? 'study' : last === 'options' ? 'options' : 'page';
   const old = what === 'page' ? segments : segments.slice(0, -1);
@@ -203,7 +220,7 @@ function inCourse(
   semester: string,
   segments: string[],
   subdeck: string | null,
-): Resolved | null {
+): Found | null {
   const { screen, path } = screenOf(segments);
   const node = descend(course, path);
   if (node) {

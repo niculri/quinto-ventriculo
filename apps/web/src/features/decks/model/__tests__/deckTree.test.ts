@@ -33,6 +33,13 @@ describe('the subdecks a deck shows', () => {
     expect(ids(visibleChildren(lecture, withExtras('other', true)))).toEqual([]);
   });
 
+  it('a subdeck without cards does not show: it has no page to go to', () => {
+    const holder = deck('holder', 'Semana', null);
+    deck('full', 'Clase', holder);
+    deck('empty', 'Clase vacía', holder).cardCount = 0;
+    expect(ids(visibleChildren(holder, EMPTY_PLAN))).toEqual(['full']);
+  });
+
   it('a deck named Extras above the units is an ordinary deck', () => {
     expect(ids(visibleChildren(course, EMPTY_PLAN))).toEqual(['course-x', 'cert']);
   });

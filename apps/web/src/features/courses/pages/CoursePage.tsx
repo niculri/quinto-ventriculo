@@ -1,12 +1,13 @@
 // A course's page, a dashboard: for each assessment, one card per section (notes, tests, Anki) with what it has.
 import { ChartColumn, Layers, Search } from 'lucide-react';
 import { Link, useParams } from 'react-router';
+import { courseHasMaterial } from '@qv/schema/http';
 import type { Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { Loading } from '../../../shared/ui/Loading';
-import { button, page } from '../../../shared/ui/styles';
+import { page } from '../../../shared/ui/styles';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, findCourse, quizIdsOf } from '../../catalog/model/catalog';
@@ -26,7 +27,8 @@ export function CoursePage() {
     return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
   if (!catalog.data) return <Loading />;
   const found = findCourse(catalog.data, courseId);
-  if (!found) return <NotFoundPage />;
+  // A course without anything published does not exist, as an address made up.
+  if (!found || !courseHasMaterial(catalog.data, found.course)) return <NotFoundPage />;
   const { semester, course } = found;
   if (String(semester.number) !== number) return <Canonical path={paths.course(course)} />;
   return <CourseView catalog={catalog.data} semester={semester} course={course} />;
@@ -42,7 +44,7 @@ function CourseView({
   course: CourseWithAssessments;
 }) {
   const decks = useCourseDecks(catalog, course);
-  const assessments = withMaterial(course, decks.tree);
+  const assessments = withMaterial(catalog, course);
   const notes = countNotes(course);
   const quizzes = course.assessments.reduce((t, a) => t + a.quizzes.length, 0);
   const deckCount = countDecks(catalog, course.id);
@@ -65,7 +67,7 @@ function CourseView({
       <h1 className="flex items-center gap-3 font-serif text-3xl font-semibold tracking-tight">
         <span aria-hidden="true">{course.emoji}</span> {course.name}
       </h1>
-      {material ? <p className="mt-1 text-sm text-muted">{material}</p> : null}
+      <p className="mt-1 text-sm text-muted">{material}</p>
 
       {decks.decks || quizzes > 0 ? (
         <Heatmap
@@ -79,24 +81,15 @@ function CourseView({
         />
       ) : null}
 
-      {assessments.length === 0 ? (
-        <div className="mt-6 text-muted">
-          <p>{s.empty}</p>
-          <Link to={paths.courses} className={`${button.base} ${button.secondary} mt-4`}>
-            {s.career}
-          </Link>
-        </div>
-      ) : (
-        assessments.map((a) => (
-          <AssessmentCards
-            key={a.id}
-            catalog={catalog}
-            course={course}
-            assessment={a}
-            decks={decks}
-          />
-        ))
-      )}
+      {assessments.map((a) => (
+        <AssessmentCards
+          key={a.id}
+          catalog={catalog}
+          course={course}
+          assessment={a}
+          decks={decks}
+        />
+      ))}
 
       {decks.decks ? (
         <p className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">

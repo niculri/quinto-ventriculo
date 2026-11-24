@@ -80,6 +80,7 @@ function richCatalog(): Catalog {
 }
 
 const main = () => within(screen.getByRole('main'));
+const NOT_FOUND = 'Esta página no aparece ni en el Netter';
 
 const api = () => fakeApi({ catalog: async () => richCatalog() });
 
@@ -112,26 +113,32 @@ describe('the career', () => {
     ]);
   });
 
-  it('a semester with courses but no material says the notes are on their way', async () => {
+  it('a semester whose courses have no material is not a link; one with only tests says how many', async () => {
     const c = structuredClone(CATALOG);
-    c.semesters[1]!.courses = [c.semesters[1]!.courses[1]!];
+    const [bio, other] = c.semesters[1]!.courses;
+    c.semesters[1]!.courses = [other!];
     renderApp('/courses', { api: fakeApi({ catalog: async () => c }) });
-    const link = await within(await screen.findByRole('main')).findByRole('link', {
-      name: /2° Semestre/,
-    });
-    expect(within(link).getByText('Apuntes en camino')).toBeInTheDocument();
+    const main = within(await screen.findByRole('main'));
+    expect(await main.findByText('2° Semestre')).toBeInTheDocument();
+    expect(main.queryByRole('link', { name: /2° Semestre/ })).toBeNull();
+    expect(main.getByText('2° Semestre').nextSibling).toHaveTextContent('Pronto.');
+
+    const tests = structuredClone(CATALOG);
+    const onlyTests = tests.semesters[1]!.courses[0]!;
+    for (const a of onlyTests.assessments) a.notes = [];
+    tests.anki.decks = tests.anki.decks.filter((d) => d.courseId !== bio!.id);
+    renderApp('/courses', { api: fakeApi({ catalog: async () => tests }) });
+    const link = await screen.findAllByRole('link', { name: /2° Semestre/ });
+    expect(within(link.at(-1)!).getByText('1 test')).toBeInTheDocument();
   });
 });
 
 describe('a semester', () => {
-  it('without courses says so', async () => {
+  it('without material does not exist, as one made up', async () => {
     renderApp('/semesters/3', { api: api() });
     expect(
-      await within(await screen.findByRole('main')).findByText(
-        'Todavía no hay ramos de este semestre.',
-      ),
-    ).toBeInTheDocument();
-    expect(main().getByRole('heading', { level: 1 })).toHaveTextContent('3° Semestre');
+      await within(await screen.findByRole('main')).findByRole('heading', { level: 1 }),
+    ).toHaveTextContent('Esta página no aparece ni en el Netter');
   });
 
   it('links the courses with material, with their assessments, and not the others', async () => {
@@ -142,6 +149,16 @@ describe('a semester', () => {
     expect(within(link).getByText('5 apuntes · Certamen 2, Certamen 3')).toBeInTheDocument();
     expect(main().queryByRole('link', { name: /Física/ })).toBeNull();
     expect(main().getByText('Física').nextSibling).toHaveTextContent('Próximamente');
+  });
+
+  it('links a course with tests only, with its assessments', async () => {
+    const c = structuredClone(CATALOG);
+    for (const a of c.semesters[1]!.courses[0]!.assessments) a.notes = [];
+    renderApp('/semesters/2', { api: fakeApi({ catalog: async () => c }) });
+    const link = await within(await screen.findByRole('main')).findByRole('link', {
+      name: /Biología celular/,
+    });
+    expect(within(link).getByText('Certamen 2')).toBeInTheDocument();
   });
 });
 
@@ -193,17 +210,11 @@ describe('a course', () => {
     ]);
   });
 
-  it('without material says so and offers the career', async () => {
+  it('without material does not exist, as one made up', async () => {
     renderApp('/semesters/2/courses/fisica');
     expect(
-      await within(await screen.findByRole('main')).findByText(
-        'Todavía no hay material de este ramo.',
-      ),
-    ).toBeInTheDocument();
-    expect(main().getByRole('link', { name: 'Ver toda la carrera' })).toHaveAttribute(
-      'href',
-      '/courses',
-    );
+      await within(await screen.findByRole('main')).findByRole('heading', { level: 1 }),
+    ).toHaveTextContent(NOT_FOUND);
   });
 
   it('the Anki card: its decks and cards, today and what is being studied', async () => {
@@ -271,21 +282,11 @@ describe('an assessment’s notes', () => {
     expect(within(nine).getByText('2025 · Con subtítulo')).toBeInTheDocument();
   });
 
-  it('an assessment without notes says so and goes back to the course', async () => {
+  it('an assessment without notes has no list of notes', async () => {
     renderApp('/semesters/1/courses/anatomia-1/assessments/certamen-1/notes');
     expect(
-      await within(await screen.findByRole('main')).findByText(
-        'Todavía no hay apuntes de este certamen.',
-      ),
-    ).toBeInTheDocument();
-    expect(main().getByRole('link', { name: 'Volver a Anatomía I' })).toHaveAttribute(
-      'href',
-      '/semesters/1/courses/anatomia-1',
-    );
-    expect(textNodes(main().getByRole('link', { name: 'Volver a Anatomía I' }))).toEqual([
-      'Volver a ',
-      'Anatomía I',
-    ]);
+      await within(await screen.findByRole('main')).findByRole('heading', { level: 1 }),
+    ).toHaveTextContent(NOT_FOUND);
   });
 });
 
@@ -312,31 +313,19 @@ describe('an assessment’s tests', () => {
     );
   });
 
-  it('without tests, points to the notes if there are, or back to the course', async () => {
+  it('an assessment without tests has no list of tests, with notes or without', async () => {
     const { unmount } = renderApp(
       '/semesters/2/courses/biologia-celular/assessments/certamen-3/tests',
       { api: api() },
     );
     expect(
-      await within(await screen.findByRole('main')).findByText(
-        'Todavía no hay tests de este certamen. Mientras, puedes repasar con sus apuntes.',
-      ),
-    ).toBeInTheDocument();
-    expect(main().getByRole('link', { name: 'Ver los apuntes' })).toHaveAttribute(
-      'href',
-      '/semesters/2/courses/biologia-celular/assessments/certamen-3/notes',
-    );
+      await within(await screen.findByRole('main')).findByRole('heading', { level: 1 }),
+    ).toHaveTextContent(NOT_FOUND);
     unmount();
     renderApp('/semesters/1/courses/anatomia-1/assessments/certamen-1/tests');
     expect(
-      await within(await screen.findByRole('main')).findByText(
-        'Todavía no hay tests de este certamen.',
-      ),
-    ).toBeInTheDocument();
-    expect(main().getByRole('link', { name: 'Volver a Anatomía I' })).toHaveAttribute(
-      'href',
-      '/semesters/1/courses/anatomia-1',
-    );
+      await within(await screen.findByRole('main')).findByRole('heading', { level: 1 }),
+    ).toHaveTextContent(NOT_FOUND);
   });
 });
 

@@ -10,8 +10,10 @@ import { appNavStrings } from './strings/AppNav.strings';
 import { catalogStrings } from '../../../shared/strings/catalog.strings';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import type { AnkiTree } from '../../catalog/model/tree';
-import { hasMaterial, locate } from '../model/where';
+import { semesterHasMaterial } from '@qv/schema/http';
+import { locate } from '../model/where';
 import type { Where } from '../model/where';
+import { useActiveInSight } from '../hooks/useActiveInSight';
 import { NavLink, icon } from './NavLink';
 import { SemesterBranch } from './SemesterBranch';
 import { AdminBranch, SettingsBranch } from './SectionBranches';
@@ -21,9 +23,11 @@ export function AppNav({ onNavigate }: { onNavigate?: (() => void) | undefined }
   const { catalog, tree } = useAnkiTree();
   const data = catalog.data ?? null;
   const where = locate(pathname, data, tree);
+  const navRef = useActiveInSight(pathname, data !== null);
   return (
-    <nav aria-label={appNavStrings.menu} className="text-[0.86rem] leading-snug">
-      {/* What was opened or closed by hand is forgotten on going to another page. */}
+    <nav ref={navRef} aria-label={appNavStrings.menu} className="text-[0.86rem] leading-snug">
+      {/* What was opened or closed by hand is forgotten on going to another page, but for the weeks of the notes
+          (WeekMemoryProvider), kept while in the same assessment. */}
       <NavTree
         key={pathname}
         where={where}
@@ -49,9 +53,7 @@ function NavTree({
   pathname: string;
   onNavigate?: (() => void) | undefined;
 }) {
-  const semesters = (catalog?.semesters ?? []).filter((s) =>
-    s.courses.some((c) => hasMaterial(c, tree)),
-  );
+  const semesters = catalog ? catalog.semesters.filter((s) => semesterHasMaterial(catalog, s)) : [];
   const semester = semesters.find((s) => s.number === where.semester) ?? null;
   const link = { onNavigate };
   return (
@@ -70,8 +72,9 @@ function NavTree({
         <SettingsBranch pathname={pathname} onNavigate={onNavigate} />
       ) : where.admin ? (
         <AdminBranch pathname={pathname} onNavigate={onNavigate} />
-      ) : semester && tree ? (
+      ) : catalog && semester && tree ? (
         <SemesterBranch
+          catalog={catalog}
           semester={semester}
           where={where}
           tree={tree}

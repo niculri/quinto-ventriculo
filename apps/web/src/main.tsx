@@ -4,10 +4,12 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 import { Providers } from './app/Providers';
 import { routes } from './app/routes';
+import { keyFirstEntry } from './app/historyKey';
 import { createServices } from './app/ServicesProvider';
 import { ROOT_ERROR_HANDLERS } from './shared/lib/reportError';
 import './styles.css';
 
+keyFirstEntry(window.history);
 const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById('root')!, ROOT_ERROR_HANDLERS).render(

@@ -1,31 +1,35 @@
 // The semester open in the site's menu: its courses with material, or the open course with its assessments.
 import { useState } from 'react';
 import { CalendarDays, ChevronRight } from 'lucide-react';
-import type { CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
+import type { Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
+import { assessmentHasMaterial, courseHasMaterial } from '@qv/schema/http';
 import { paths } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import { hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
-import { hasMaterial } from '../model/where';
 import type { Where } from '../model/where';
 import { AssessmentParts } from './AssessmentParts';
 import { NavLink, Nested, icon } from './NavLink';
 import { gymkanaDeck } from '../../catalog/model/gymkana';
 
 export function SemesterBranch({
+  catalog,
   semester,
   where,
   tree,
   pathname,
   onNavigate,
 }: {
+  catalog: Catalog;
   semester: SemesterWithCourses;
   where: Where;
   tree: AnkiTree;
   pathname: string;
   onNavigate?: (() => void) | undefined;
 }) {
-  const course = semester.courses.find((c) => c.id === where.courseId) ?? null;
+  // A course without material is not open in the menu, as a course made up: it does not exist.
+  const course =
+    semester.courses.find((c) => c.id === where.courseId && courseHasMaterial(catalog, c)) ?? null;
   const emoji = (c: CourseWithAssessments) => (
     <span className="w-4 flex-none text-center" aria-hidden="true">
       {c.emoji}
@@ -47,7 +51,7 @@ export function SemesterBranch({
         {course ? null : (
           <Nested>
             {semester.courses
-              .filter((c) => hasMaterial(c, tree))
+              .filter((c) => courseHasMaterial(catalog, c))
               .map((c) => (
                 <li key={c.id}>
                   <NavLink
@@ -78,7 +82,13 @@ export function SemesterBranch({
               <ListMark thing={['course', course.id]} holder={['semester', semester.number]} />
             </NavLink>
           </li>
-          <CourseAssessments course={course} where={where} tree={tree} onNavigate={onNavigate} />
+          <CourseAssessments
+            catalog={catalog}
+            course={course}
+            where={where}
+            tree={tree}
+            onNavigate={onNavigate}
+          />
         </>
       ) : null}
     </>
@@ -86,11 +96,13 @@ export function SemesterBranch({
 }
 
 function CourseAssessments({
+  catalog,
   course,
   where,
   tree,
   onNavigate,
 }: {
+  catalog: Catalog;
   course: CourseWithAssessments;
   where: Where;
   tree: AnkiTree;
@@ -99,12 +111,9 @@ function CourseAssessments({
   const decks = tree.nodes.filter(
     (n): n is CourseDeckNode => n.depth === 3 && hasPage(n) && n.courseId === course.id,
   );
-  const assessments = course.assessments.filter(
-    (a) => a.notes.length || a.quizzes.length || decks.some((d) => d.assessmentId === a.id),
-  );
+  const assessments = course.assessments.filter((a) => assessmentHasMaterial(catalog, a));
   // On the course's page every assessment is open; deeper, the one being read.
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
-  if (!assessments.length) return null;
   return (
     <>
       {assessments.map((a) => {

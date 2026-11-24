@@ -69,6 +69,8 @@ const places = (page: Page) =>
       section: at(section),
       grid: at(section?.querySelector('[role="grid"]')),
       figures: at(section?.querySelector('dl')?.parentElement),
+      // Without data there is one year and no buttons; with the demo's, several: the year stays where it was.
+      year: at(section?.querySelector('[role="group"] [aria-live]')),
       after: at(document.getElementById('my-courses')),
     };
   });
@@ -81,6 +83,7 @@ test('the same places with and without data, and while they come', async ({ page
   await signIn(page);
   await expect(page.getByText('Tus días de estudio van a aparecer aquí.')).toBeVisible();
   await fontsLoaded(page);
+  await expect(box(page).getByRole('group', { name: 'Año' }).getByRole('button')).toHaveCount(0);
   const empty = await places(page);
 
   await flags(page, null);
@@ -88,6 +91,7 @@ test('the same places with and without data, and while they come', async ({ page
   await expect(box(page).getByText('Racha actual', { exact: true })).toBeVisible();
   await expect(today(page)).toBeVisible();
   await expect(box(page).locator('dd').first()).toHaveText(/\d+ respuestas?/);
+  await expect(box(page).getByRole('group', { name: 'Año' }).getByRole('button')).toHaveCount(3);
   await fontsLoaded(page);
   expect(await places(page)).toEqual(empty);
 

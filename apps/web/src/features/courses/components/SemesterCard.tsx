@@ -1,12 +1,14 @@
-// A semester in «La carrera»: its courses and how much material they have, or «Pronto.» without courses.
+// A semester in «La carrera»: its courses and how much material they have, or «Pronto.» while it has none.
 import { ArrowRight, BookOpen } from 'lucide-react';
 import { Link } from 'react-router';
 import type { Catalog, SemesterWithCourses } from '@qv/schema';
+import { semesterHasMaterial } from '@qv/schema/http';
 import { paths } from '../../../shared/lib/paths';
 import { card, linkCard } from '../../../shared/ui/styles';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
 import { semesterCardStrings as s } from './strings/SemesterCard.strings';
+import { assessmentCardsStrings } from './strings/AssessmentCards.strings';
 
 export function SemesterCard({
   semester,
@@ -17,7 +19,11 @@ export function SemesterCard({
 }) {
   const notes = semester.courses.reduce((t, c) => t + countNotes(c), 0);
   const decks = semester.courses.reduce((t, c) => t + countDecks(catalog, c.id), 0);
-  if (!semester.courses.length) {
+  const tests = semester.courses.reduce(
+    (t, c) => t + c.assessments.reduce((u, a) => u + a.quizzes.length, 0),
+    0,
+  );
+  if (!semesterHasMaterial(catalog, semester)) {
     return (
       <div className={`${card} border-dashed p-5 shadow-none`}>
         <p className="font-semibold text-muted">
@@ -50,7 +56,7 @@ export function SemesterCard({
       </ul>
       <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
         <BookOpen className="size-3.5" aria-hidden="true" />
-        {materialLabel(notes, decks) || s.onTheWay}
+        {materialLabel(notes, decks) || assessmentCardsStrings.tests(tests)}
       </p>
     </Link>
   );

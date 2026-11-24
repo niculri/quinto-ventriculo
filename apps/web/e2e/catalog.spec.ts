@@ -114,10 +114,76 @@ test('29 articles in 5 weeks: one block per week, in order, and the frame does n
       'aria-expanded',
       'true',
     );
-    for (const week of WEEKS) await expect(menu.getByText(week, { exact: true })).toBeVisible();
-    await expect(menu.getByRole('link', { name: /^Tema \d+ de la semana/ })).toHaveCount(29);
+    for (const week of WEEKS) {
+      await expect(menu.getByRole('button', { name: week, exact: true })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+    }
+    await expect(menu.getByRole('link', { name: /^Tema \d+ de la semana/ })).toHaveCount(0);
     await expect(menu.getByRole('link', { name: WEEKS[0]! })).toHaveCount(0);
   }
+});
+
+test('the weeks of the menu: closed in the list, open only the one being read, and what is opened by hand stays', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  await withCatalog(page, twentyNine);
+  const main = page.getByRole('main');
+  const menu = page.getByRole('navigation', { name: 'Menú del sitio' });
+  const notes = menu.getByRole('link', { name: /^Tema \d+ de la semana/ });
+  const week = (w: number) => menu.getByRole('button', { name: WEEKS[w]!, exact: true });
+  const opened = async (...open: number[]) => {
+    for (let w = 0; w < WEEKS.length; w++) {
+      await expect(week(w)).toHaveAttribute('aria-expanded', String(open.includes(w)));
+    }
+  };
+  const showMenu = async () => {
+    if (!isMobile) return;
+    await page.getByRole('button', { name: 'Abrir el menú' }).click();
+    await expect(page.getByRole('dialog', { name: 'Menú' })).toBeVisible();
+  };
+
+  await page.goto(NOTES_URL);
+  await expect(main.getByRole('heading', { level: 1, name: 'Apuntes' })).toBeVisible();
+  await showMenu();
+  await opened();
+  await expect(notes).toHaveCount(0);
+  if (isMobile) await page.keyboard.press('Escape');
+
+  await main.getByRole('link', { name: 'Tema 29 de la semana 8' }).click();
+  await expect(page).toHaveURL(/\/notes\/s8-tema-4$/);
+  await showMenu();
+  await opened(4);
+  await expect(notes).toHaveCount(PER_WEEK[4]!);
+  const reading = menu.getByRole('link', { name: 'Tema 29 de la semana 8' });
+  await expect(reading).toHaveAttribute('aria-current', 'page');
+  await expect(reading).toBeInViewport();
+
+  // With the drawer open the page is hidden from the accessibility tree: it is found by its id.
+  const content = page.locator('#content');
+  const scroll = await page.evaluate(() => window.scrollY);
+  const box = await content.boundingBox();
+  await week(0).click();
+  await opened(0, 4);
+  await expect(notes).toHaveCount(PER_WEEK[0]! + PER_WEEK[4]!);
+  await week(0).press('Enter');
+  await opened(4);
+  await week(0).press('Space');
+  await opened(0, 4);
+  expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
+  expect(await content.boundingBox()).toEqual(box);
+
+  await menu.getByRole('link', { name: 'Tema 2 de la semana 4' }).click();
+  await expect(page).toHaveURL(/\/notes\/s4-tema-2$/);
+  await showMenu();
+  await opened(0);
+  await expect(menu.getByRole('link', { name: 'Tema 2 de la semana 4' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
 });
 
 test('a note that changes assessment: its link opens it in the new one, and the old forms still work', async ({

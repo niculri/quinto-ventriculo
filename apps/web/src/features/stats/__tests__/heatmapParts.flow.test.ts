@@ -261,7 +261,7 @@ describe('closing and moving', () => {
       study: withHeatmap(async () => ({ ...DATA, due: [{ day: D('2027-01-04'), cards: 9 }] })),
     });
     await grid();
-    const ahead = screen.getByRole('button', { name: 'Año siguiente' });
+    const ahead = await screen.findByRole('button', { name: 'Año siguiente' });
     await waitFor(() => expect(ahead).toBeEnabled());
     await userEvent.click(ahead);
     expect(

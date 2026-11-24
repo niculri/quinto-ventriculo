@@ -1,8 +1,8 @@
 // Where in the site a path is, for the menu: the semester, the course, the assessment and the part of it open.
-import type { Catalog, CourseWithAssessments, NoteSummary } from '@qv/schema';
+import type { Catalog } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
-import { locateNote, noteBlocks } from '../../catalog/model/catalog';
-import { courseDeck, hasPage } from '../../catalog/model/tree';
+import { locateNote } from '../../catalog/model/catalog';
+import { hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 
 export interface Where {
@@ -88,21 +88,4 @@ function deckAt(pathname: string, courseId: string, tree: AnkiTree | null): Cour
     }
   }
   return best;
-}
-
-export function hasMaterial(course: CourseWithAssessments, tree: AnkiTree | null): boolean {
-  return (
-    course.assessments.some((a) => a.notes.length || a.quizzes.length) ||
-    (tree !== null && courseDeck(tree, course.id) !== null)
-  );
-}
-
-/**
- * The notes of an assessment: if some note has a week, the same blocks as the assessment's list (a note without a week
- * goes under its kind, not under the last week); else one block in order.
- */
-export function menuNoteBlocks(
-  notes: readonly NoteSummary[],
-): { key: string; title: string | null; notes: readonly NoteSummary[] }[] {
-  return notes.some((n) => n.group) ? noteBlocks(notes) : [{ key: 'all', title: null, notes }];
 }

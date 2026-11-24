@@ -1,5 +1,5 @@
 // Tests for the limits on requests: by student with a session, by address without one (an IPv6 one by its /64), the
-// signed images under neither, the 429 they answer, and how they sit with the client-error route's own budget.
+// signed images by address apart, the 429 they answer, and how they sit with the client-error route's own budget.
 import { describe, expect, it } from 'vitest';
 import { memoryClientErrors } from '../../adapters/memory/clientErrors';
 import { memoryRateLimiter } from '../../adapters/memory/rateLimit';
@@ -16,10 +16,15 @@ const TOKENS: Record<string, typeof ANA> = { 'token-de-ana': ANA, 'token-de-beto
 let verifications = 0;
 
 function appWith(
-  op: { student?: number; address?: number; unlimited?: boolean } & Partial<AppOptions> = {},
+  op: {
+    student?: number;
+    address?: number;
+    images?: number;
+    unlimited?: boolean;
+  } & Partial<AppOptions> = {},
 ) {
   let now = 1_800_000_000;
-  const { student = 3, address = 3, unlimited = false, ...deps } = op;
+  const { student = 3, address = 3, images = 5, unlimited = false, ...deps } = op;
   const app = createApp({
     verifier: {
       verify: async (t) => {
@@ -36,6 +41,7 @@ function appWith(
       : {
           studentRateLimit: memoryRateLimiter(student, 10, () => now),
           addressRateLimit: memoryRateLimiter(address, 10, () => now),
+          mediaRateLimit: memoryRateLimiter(images, 10, () => now),
         }),
     ...deps,
   });
@@ -121,17 +127,24 @@ describe('the limit by address', () => {
     expect((await app.get('/api/health', from('::ffff:200.89.1.10'))).status).toBe(200);
   });
 
-  it('a signed image is never refused, nor uses up its address, with a token or without one', async () => {
+  it('a signed image counts against its address apart, with a token or without one, and never verifies it', async () => {
     const app = appWith();
-    for (let i = 0; i < 10; i++) {
-      expect((await app.get('/api/media/x.png', from('200.89.1.8'))).status).not.toBe(429);
-      expect((await app.get('/api/media/x.png', as('inventado', '200.89.1.8'))).status).not.toBe(
-        429,
-      );
-    }
+    verifications = 0;
     for (let i = 0; i < 3; i++)
       expect((await app.get('/api/health', from('200.89.1.8'))).status).toBe(200);
     expect((await app.get('/api/health', from('200.89.1.8'))).status).toBe(429);
+    for (let i = 0; i < 4; i++) {
+      expect((await app.get('/api/media/x.png', from('200.89.1.8'))).status).not.toBe(429);
+    }
+    expect((await app.get('/api/media/x.png', as('token-de-ana', '200.89.1.8'))).status).not.toBe(
+      429,
+    );
+    const refused = await app.get('/api/media/x.png', as('inventado', '200.89.1.8'));
+    expect([refused.status, refused.headers.get('Retry-After')]).toEqual([429, '10']);
+    expect(verifications).toBe(0);
+    expect((await app.get('/api/media/x.png', from('200.89.1.9'))).status).not.toBe(429);
+    expect((await app.get('/api/me', as('token-de-ana', '200.89.1.8'))).status).toBe(200);
+    app.wait(10);
     expect((await app.get('/api/media/x.png', from('200.89.1.8'))).status).not.toBe(429);
   });
 

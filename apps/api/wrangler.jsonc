@@ -37,12 +37,20 @@
       "namespace_id": "1001",
       "simple": { "limit": 300, "period": 10 },
     },
-    // Per address, only without a session and never for the images (src/middleware/rateLimit.ts): what is left is
-    // health, the browsers' error reports and refusals, which no classroom asks for by the thousand.
+    // Per address, without a session and not the images: health, the browsers' error reports and refusals, which no
+    // classroom asks for by the thousand.
     {
       "name": "ADDRESS_RATE_LIMIT",
       "namespace_id": "1002",
       "simple": { "limit": 1000, "period": 10 },
+    },
+    // Per address, the signed images. Forty students opening a grid of photos at once ask some 2,400 (60 each), a few
+    // hundred more each as they scroll, and a faculty studying behind one address ~10 a student; past 1,000 a second
+    // it is not a classroom.
+    {
+      "name": "MEDIA_RATE_LIMIT",
+      "namespace_id": "1003",
+      "simple": { "limit": 10000, "period": 10 },
     },
   ],
   "vars": {

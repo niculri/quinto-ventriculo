@@ -52,6 +52,7 @@ export interface Env {
   /** Without them nothing is limited (`ratelimits` in wrangler.jsonc). */
   STUDENT_RATE_LIMIT?: RateLimit;
   ADDRESS_RATE_LIMIT?: RateLimit;
+  MEDIA_RATE_LIMIT?: RateLimit;
 }
 
 let app: ReturnType<typeof createApp> | null = null;
@@ -77,6 +78,7 @@ function rateLimiters(env: Env) {
     ...(env.ADDRESS_RATE_LIMIT
       ? { addressRateLimit: bindingRateLimiter(env.ADDRESS_RATE_LIMIT) }
       : {}),
+    ...(env.MEDIA_RATE_LIMIT ? { mediaRateLimit: bindingRateLimiter(env.MEDIA_RATE_LIMIT) } : {}),
   };
 }
 

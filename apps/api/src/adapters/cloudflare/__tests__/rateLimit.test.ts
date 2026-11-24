@@ -1,5 +1,5 @@
-// Tests for the Workers rate limiting binding as a limiter, and that wrangler.jsonc declares both with the window the
-// 429 tells to wait.
+// Tests for the Workers rate limiting binding as a limiter, and that wrangler.jsonc declares the three with the window
+// the 429 tells to wait.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { RATE_LIMIT_PERIOD } from '../../../ports/rateLimit';
@@ -26,7 +26,7 @@ describe('bindingRateLimiter', () => {
 });
 
 describe('wrangler.jsonc', () => {
-  it('declares the two limits with the window of RATE_LIMIT_PERIOD and namespaces of their own', () => {
+  it('declares the three limits with the window of RATE_LIMIT_PERIOD and namespaces of their own', () => {
     const text = readFileSync(new URL('../../../../wrangler.jsonc', import.meta.url), 'utf8')
       .replace(/^\s*\/\/.*$/gm, '')
       .replace(/,(\s*[}\]])/g, '$1');
@@ -39,9 +39,10 @@ describe('wrangler.jsonc', () => {
     };
     expect(config.ratelimits.map((r) => r.name).sort()).toEqual([
       'ADDRESS_RATE_LIMIT',
+      'MEDIA_RATE_LIMIT',
       'STUDENT_RATE_LIMIT',
     ]);
-    expect(new Set(config.ratelimits.map((r) => r.namespace_id)).size).toBe(2);
+    expect(new Set(config.ratelimits.map((r) => r.namespace_id)).size).toBe(3);
     for (const r of config.ratelimits) expect(r.simple.period).toBe(RATE_LIMIT_PERIOD);
   });
 });

@@ -55,8 +55,10 @@ export interface AppOptions {
   deepHealth?: DeepHealth;
   /** Keyed by the student's id, on every request whose token verifies. */
   studentRateLimit?: RateLimiter;
-  /** Keyed by the visitor's address, on every other request (no token, or one that does not verify). */
+  /** Keyed by the visitor's address, on every other request (no token, or one that does not verify)… */
   addressRateLimit?: RateLimiter;
+  /** …but the signed images, which no <img> can tie to a student: by address too, with a limit of their own. */
+  mediaRateLimit?: RateLimiter;
 }
 
 /** Which of the optional parts were given: a null implementation stands for the rest. */
@@ -96,6 +98,7 @@ export interface Dependencies {
   deepHealth: DeepHealth;
   studentRateLimit: RateLimiter;
   addressRateLimit: RateLimiter;
+  mediaRateLimit: RateLimiter;
   configured: Configured;
 }
 
@@ -124,6 +127,7 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     deepHealth: options.deepHealth ?? NO_DEEP_HEALTH,
     studentRateLimit: options.studentRateLimit ?? NO_RATE_LIMIT,
     addressRateLimit: options.addressRateLimit ?? NO_RATE_LIMIT,
+    mediaRateLimit: options.mediaRateLimit ?? NO_RATE_LIMIT,
     configured: {
       releases: !!options.releases,
       settings: !!options.settings,

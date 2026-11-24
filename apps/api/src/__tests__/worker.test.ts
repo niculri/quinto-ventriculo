@@ -130,7 +130,12 @@ async function workerWith(without: (keyof Env)[] = []) {
     default: { match: async () => undefined, put: async () => undefined },
   });
   const points: { indexes?: string[]; blobs?: string[] }[] = [];
-  const limited = { student: [] as string[], address: [] as string[], refused: new Set<string>() };
+  const limited = {
+    student: [] as string[],
+    address: [] as string[],
+    media: [] as string[],
+    refused: new Set<string>(),
+  };
   const full: Record<string, unknown> = {
     ASSETS: { fetch: async () => new Response('<!doctype html>') },
     MEDIA: bucket(),
@@ -147,6 +152,7 @@ async function workerWith(without: (keyof Env)[] = []) {
     CF_ANALYTICS_TOKEN: 'token',
     STUDENT_RATE_LIMIT: limiter(limited.student, limited.refused),
     ADDRESS_RATE_LIMIT: limiter(limited.address, limited.refused),
+    MEDIA_RATE_LIMIT: limiter(limited.media, limited.refused),
   };
   const env = Object.fromEntries(
     Object.entries(full).filter(([key]) => !(without as string[]).includes(key)),
@@ -212,20 +218,24 @@ describe('worker composition', () => {
     expect(without.workerRequests).toBeNull();
   });
 
-  it('the two rate limits: by student with a session, by address without one, and 429 once used up', async () => {
+  it('the three rate limits: by student with a session, by address without one, the images apart, and 429 once used up', async () => {
     const { call, limited } = await workerWith();
     expect((await call('/api/me', STUDENT)).status).toBe(200);
     expect((await call('/api/health', null)).status).toBe(200);
+    expect((await call('/api/media/x.png', null)).status).not.toBe(429);
     expect(limited.student).toEqual(['00000000-0000-4000-8000-000000000001']);
     expect(limited.address).toEqual(['unknown']);
+    expect(limited.media).toEqual(['unknown']);
     limited.refused.add('00000000-0000-4000-8000-000000000001');
     const refused = await call('/api/me', STUDENT);
     expect([refused.status, refused.headers.get('Retry-After')]).toEqual([429, '10']);
     limited.refused.add('unknown');
     expect((await call('/api/health', null)).status).toBe(429);
-    const free = await workerWith(['STUDENT_RATE_LIMIT', 'ADDRESS_RATE_LIMIT']);
+    expect((await call('/api/media/x.png', null)).status).toBe(429);
+    const free = await workerWith(['STUDENT_RATE_LIMIT', 'ADDRESS_RATE_LIMIT', 'MEDIA_RATE_LIMIT']);
     free.limited.refused.add('unknown');
     expect((await free.call('/api/health', null)).status).toBe(200);
+    expect((await free.call('/api/media/x.png', null)).status).not.toBe(429);
   });
 
   it('an open and a browser error are counted in the binding, and only then', async () => {

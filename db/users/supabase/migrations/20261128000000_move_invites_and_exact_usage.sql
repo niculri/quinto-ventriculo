@@ -54,6 +54,14 @@ begin
     raise exception 'admin_move_invites: each email goes once' using errcode = '22023';
   end if;
 
+  -- Locked first and by email: two administrators moving the same people wait in the same order instead of
+  -- deadlocking, and the second one sorts each email by what the first left (no email out of the three lists).
+  perform 1
+     from public.invited_emails i
+    where i.email in (select m ->> 'email' from jsonb_array_elements(v_moves) m)
+    order by i.email
+      for update;
+
   select coalesce(array_agg(m ->> 'email' order by m ->> 'email') filter (where i.email is null), '{}'),
          coalesce(array_agg(m ->> 'email' order by m ->> 'email') filter (where i.list = m ->> 'list'), '{}')
     into v_not_invited, v_already
@@ -68,7 +76,6 @@ begin
       from public.invited_emails i
       join asked a on a.email = i.email
      where i.list <> a.list
-       for update of i
   ),
   done as (
     update public.invited_emails i

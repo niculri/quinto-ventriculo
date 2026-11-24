@@ -7,6 +7,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
 import { creatorPhoto } from './build/creatorPhoto';
+import { obfuscate } from './build/obfuscate';
 import { compilerPreset } from './build/reactCompiler';
 import { preloadFont } from './build/preloadFont';
 import { securityHeaders } from './build/securityHeaders';
@@ -102,6 +103,7 @@ export default defineConfig(({ command, mode }) => {
       thirdPartyLicenses(),
       creatorPhoto(),
       preloadFont(),
+      obfuscate(),
     ],
     define: { 'import.meta.env.VITE_DEMO': JSON.stringify(demo ? '1' : '') },
     server: {
@@ -118,6 +120,18 @@ export default defineConfig(({ command, mode }) => {
           entryFileNames: 'assets/[name].[hash].js',
           chunkFileNames: 'assets/[name].[hash].js',
           assetFileNames: 'assets/[name].[hash][extname]',
+          // The libraries every page loads and runs the most, in chunks of their own: `obfuscate()` leaves a chunk
+          // with no code of the site as it is, and theirs is public and would only get heavier and slower.
+          codeSplitting: {
+            groups: [
+              { name: 'react', test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+              {
+                name: 'router',
+                test: /[\\/]node_modules[\\/](react-router|cookie|set-cookie-parser)[\\/]/,
+              },
+              { name: 'zod', test: /[\\/]node_modules[\\/]zod[\\/]/ },
+            ],
+          },
         },
       },
     },

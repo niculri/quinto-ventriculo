@@ -52,7 +52,7 @@ export function WorkerRequests({ report }: { report: UsageReport }) {
                     {d.requests.toLocaleString('es-CL')}
                   </td>
                   <td
-                    className={`px-4 py-2 text-right tabular-nums sm:px-5 ${share >= NEAR_LIMIT ? 'font-semibold text-[#c2410c]' : 'text-muted'}`}
+                    className={`px-4 py-2 text-right tabular-nums sm:px-5 ${share >= NEAR_LIMIT ? 'font-semibold text-[#c2410c] dark:text-[#f0875a]' : 'text-muted'}`}
                   >
                     {s.percent(share)}
                   </td>

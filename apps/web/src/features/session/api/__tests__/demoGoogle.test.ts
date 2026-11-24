@@ -33,14 +33,14 @@ describe('demoGoogleIdentity', () => {
     const google = await demoGoogleIdentity(window.localStorage)();
     const parent = document.createElement('div');
     parent.append(document.createElement('span'));
-    google.renderButton(parent, { size: 'medium', text: 'signin', width: 104 });
+    google.renderButton(parent, { size: 'medium', text: 'signin', width: 104 }, false);
     expect(parent.children).toHaveLength(1);
     expect(parent.textContent).toBe('Entrar');
     const tokens: string[] = [];
     parent.querySelector('button')!.click();
     expect(tokens).toEqual([]);
     google.start('hashed', (t) => tokens.push(t));
-    google.renderButton(parent, { size: 'large', text: 'signin_with', width: 260 });
+    google.renderButton(parent, { size: 'large', text: 'signin_with', width: 260 }, true);
     expect(parent.textContent).toBe('Entrar con Google');
     parent.querySelector('button')!.click();
     expect(tokens).toHaveLength(1);

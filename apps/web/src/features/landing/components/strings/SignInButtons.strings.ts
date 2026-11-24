@@ -6,5 +6,5 @@ export const signInButtonsStrings = {
   entering: 'Entrando…',
   signIn: 'Entrar con Google',
   otherWayQuestion: '¿No se abre la ventana de Google? ',
-  otherWay: 'Entra de otra forma',
+  otherWay: 'Ábrela en esta pestaña',
 } as const;

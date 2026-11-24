@@ -2,6 +2,7 @@
 // each in a box of fixed size so that nothing moves when one takes the other's place.
 import { LogIn } from 'lucide-react';
 import type { GoogleButtonStyle, GoogleIdentity } from '../../session/api/googleIdentity';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { button } from '../../../shared/ui/styles';
 import type { GoogleButtonState } from '../hooks/useGoogleSignIn';
 import { GoogleLogo } from './Art';
@@ -16,12 +17,14 @@ interface Props {
 const HERO: GoogleButtonStyle = { size: 'large', text: 'signin_with', width: 260 };
 const HEADER: GoogleButtonStyle = { size: 'medium', text: 'signin', width: 104 };
 
+/** Google draws its button again when the site's theme changes, in its light or dark version. */
 function GoogleSlot({ google, style }: { google: GoogleIdentity; style: GoogleButtonStyle }) {
+  const dark = useDarkMode();
   return (
     <div
       className={`flex size-full items-center ${style === HEADER ? 'justify-end' : 'justify-start'}`}
       ref={(el) => {
-        if (el) google.renderButton(el, style);
+        if (el) google.renderButton(el, style, dark);
       }}
     />
   );

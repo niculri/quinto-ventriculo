@@ -10,7 +10,8 @@ export interface GoogleButtonStyle {
 export interface GoogleIdentity {
   /** The next account chosen with a button comes back to `onCredential` as an ID token that carries `hashedNonce`. */
   start(hashedNonce: string, onCredential: (idToken: string) => void): void;
-  renderButton(parent: HTMLElement, style: GoogleButtonStyle): void;
+  /** `dark` draws Google's dark button, for the site's dark theme. */
+  renderButton(parent: HTMLElement, style: GoogleButtonStyle, dark: boolean): void;
 }
 
 /** Resolves once Google's button can be drawn; rejects when it cannot load (blocked, offline, slow). */
@@ -46,11 +47,11 @@ function wrap(id: GsiId, clientId: string): GoogleIdentity {
         },
       });
     },
-    renderButton(parent, style) {
+    renderButton(parent, style, dark) {
       parent.replaceChildren();
       id.renderButton(parent, {
         type: 'standard',
-        theme: 'outline',
+        theme: dark ? 'outline_dark' : 'outline',
         shape: 'rectangular',
         logo_alignment: 'left',
         locale: LOCALE,

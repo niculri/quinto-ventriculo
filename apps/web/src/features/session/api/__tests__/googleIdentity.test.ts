@@ -1,5 +1,5 @@
-// Tests the loader of Google's script: it adds it once, gives Google's button the client, the hashed nonce and the
-// domain, and fails (so the page falls back to the redirect) when blocked, slow, incomplete or on a home-screen app.
+// Tests the loader of Google's script: it adds it once, gives Google's button the client, the hashed nonce, the domain
+// and the theme, and fails (so the page falls back to the redirect) when blocked, slow, incomplete or on a home-screen app.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GIS_SCRIPT, gisLoader } from '../googleIdentity';
 
@@ -52,7 +52,7 @@ describe('gisLoader', () => {
 
     const parent = document.createElement('div');
     parent.append(document.createElement('span'));
-    google.renderButton(parent, { size: 'large', text: 'signin_with', width: 260 });
+    google.renderButton(parent, { size: 'large', text: 'signin_with', width: 260 }, false);
     expect(parent.children).toHaveLength(0);
     expect(gsi.renderButton).toHaveBeenCalledWith(parent, {
       type: 'standard',
@@ -64,6 +64,11 @@ describe('gisLoader', () => {
       text: 'signin_with',
       width: 260,
     });
+    google.renderButton(parent, { size: 'medium', text: 'signin', width: 104 }, true);
+    expect(gsi.renderButton).toHaveBeenLastCalledWith(
+      parent,
+      expect.objectContaining({ theme: 'outline_dark', size: 'medium' }),
+    );
   });
 
   it('fails when the script is blocked', async () => {

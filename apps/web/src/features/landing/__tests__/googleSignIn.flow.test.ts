@@ -1,8 +1,8 @@
-// Signing in with Google's own button on the landing page: ours waits in its place while it loads, the ID token goes
-// with the raw nonce of the hash Google got, a refusal re-arms it with a new one, and who enters does not change.
+// Signing in with Google's own button on the landing page: ours waits while it loads, the token goes with the raw
+// nonce of Google's hash, a refusal re-arms it with a new one, it follows the theme, and who enters does not change.
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { GoogleIdentity } from '../../session/api/googleIdentity';
 import { sha256Hex } from '../../session/model/nonce';
 import { renderApp } from '../../../test/render';
@@ -12,13 +12,15 @@ function fakeGoogle() {
   let settle: { resolve: (g: GoogleIdentity) => void; reject: (e: Error) => void } | null = null;
   const loaded = new Promise<GoogleIdentity>((resolve, reject) => (settle = { resolve, reject }));
   const starts: string[] = [];
+  const themes: string[] = [];
   let give: (token: string) => void = () => undefined;
   const google: GoogleIdentity = {
     start(hashedNonce, onCredential) {
       starts.push(hashedNonce);
       give = onCredential;
     },
-    renderButton(parent, style) {
+    renderButton(parent, style, dark) {
+      themes.push(`${style.size} ${dark ? 'dark' : 'light'}`);
       const b = document.createElement('button');
       b.textContent = `Google ${style.size}`;
       b.addEventListener('click', () => give(`token-${starts.length}`));
@@ -28,6 +30,7 @@ function fakeGoogle() {
   return {
     load: vi.fn(() => loaded),
     starts,
+    themes,
     ready: async () => {
       await act(async () => settle?.resolve(google));
       await screen.findByRole('button', { name: 'Google large' });
@@ -44,15 +47,17 @@ function fakeGoogle() {
 
 const ours = () => screen.getByRole('button', { name: 'Entrar con Google' });
 
+afterEach(() => document.documentElement.classList.remove('dark'));
+
 describe('while Google loads', () => {
-  it('our buttons wait in their places, and «Entra de otra forma» already takes the redirect', async () => {
+  it('our buttons wait in their places, and «Ábrela en esta pestaña» already takes the redirect', async () => {
     const user = userEvent.setup();
     const g = fakeGoogle();
     const { session } = renderApp('/?next=%2Fhome', { session: null, google: g.load });
     expect(await screen.findByRole('button', { name: 'Entrar con Google' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeDisabled();
     expect(screen.getByText(/¿No se abre la ventana de Google\?/)).not.toHaveClass('invisible');
-    await user.click(screen.getByRole('button', { name: 'Entra de otra forma' }));
+    await user.click(screen.getByRole('button', { name: 'Ábrela en esta pestaña' }));
     expect(session.signIns).toEqual(['/home']);
     for (const b of screen.getAllByRole('button', { name: 'Abriendo Google…' })) {
       expect(b).toBeDisabled();
@@ -121,6 +126,17 @@ describe('with Google ready', () => {
       entered();
     });
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/home'));
+  });
+
+  it('draws Google’s dark button in the dark theme, and again when the theme changes', async () => {
+    document.documentElement.classList.add('dark');
+    const g = fakeGoogle();
+    renderApp('/', { session: null, google: g.load });
+    await screen.findByRole('button', { name: 'Entrar con Google' });
+    await g.ready();
+    expect(g.themes).toEqual(['medium dark', 'large dark']);
+    await act(async () => document.documentElement.classList.remove('dark'));
+    expect(g.themes.slice(2)).toEqual(['medium light', 'large light']);
   });
 
   it.each([

@@ -38,7 +38,8 @@ export function headersFile(supabaseUrl: string, googleButton: boolean): string 
     '  Referrer-Policy: strict-origin-when-cross-origin',
     '  Permissions-Policy: camera=(), microphone=(), geolocation=()',
     '  Strict-Transport-Security: max-age=31536000; includeSubDomains',
-    // Google's popup answers the page that opened it; a window this site opens to another origin cannot reach it.
+    // Google's popup keeps its link to the page that opened it; a page of another origin that opens this site does not
+    // get one.
     '  Cross-Origin-Opener-Policy: same-origin-allow-popups',
     '/assets/*',
     '  Cache-Control: public, max-age=31536000, immutable',

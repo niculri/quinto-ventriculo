@@ -1,4 +1,5 @@
-// The study heatmap of the home and course pages: a calendar year of days, its four figures and a day's box.
+// The study heatmap of the home and course pages: a calendar year of days (cards and tests), its four figures and a
+// day's box.
 
 import { useId } from 'react';
 import type { Catalog } from '@qv/schema';
@@ -14,6 +15,8 @@ import { YearNav } from './YearNav';
 interface HeatmapProps {
   scope: string;
   deckIds: string[] | null;
+  /** The tests counted; null, every test. */
+  quizIds: string[] | null;
   catalog: Catalog;
   groupBy: GroupBy;
   courseId?: string;
@@ -23,14 +26,27 @@ interface HeatmapProps {
 export function Heatmap({
   scope,
   deckIds,
+  quizIds,
   catalog,
   groupBy,
   courseId,
   className = '',
 }: HeatmapProps) {
   const headingId = useId();
-  const { query, today, data, ready, studied, due, stats, range, thisYear, year, setChosen } =
-    useHeatmap(scope, deckIds);
+  const {
+    query,
+    today,
+    data,
+    ready,
+    studied,
+    due,
+    stats,
+    split,
+    range,
+    thisYear,
+    year,
+    setChosen,
+  } = useHeatmap(scope, deckIds, quizIds);
   const groups = heatmapGroups(catalog, groupBy, courseId);
 
   return (
@@ -55,7 +71,7 @@ export function Heatmap({
         error={query.isError && !data}
         onRetry={() => void query.refetch()}
       />
-      <Figures stats={ready ? stats : null} />
+      <Figures stats={ready ? stats : null} split={ready ? split : null} />
     </section>
   );
 }

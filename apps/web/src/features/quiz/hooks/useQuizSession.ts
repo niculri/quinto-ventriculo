@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { currentQuestionId, restorePreferences, restoreRound, toCover } from '@qv/quiz';
 import type { Preferences, Round } from '@qv/quiz';
 import type { QuizSectionDetail } from '@qv/schema';
+import { heatmapKeys } from '../../stats/api/queries';
 import { useQuizRepository } from '../api/context';
 import { quizKeys } from '../api/queries';
 import type { AnswerInfo, SavedQuiz, SavedSection } from '../api/repository';
@@ -61,6 +62,10 @@ export function useQuizSession(options: {
       ...(round ? { roundInfo: roundInfo(round) } : {}),
       ...(extra.answer ? { answer: extra.answer } : {}),
     });
+    // «Días de estudio» counts the questions of tests: once this one is saved, it reads them again.
+    if (extra.answer) {
+      void saver.flush().then(() => queryClient.invalidateQueries({ queryKey: heatmapKeys.all }));
+    }
     queryClient.setQueryData<SavedQuiz>(quizKeys.saved(quizId), (old) => ({
       ...old,
       [section.sectionId]: {

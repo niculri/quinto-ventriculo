@@ -1,5 +1,5 @@
 // The port of the user's study data: what the Supabase adapter and the in-memory repository both implement.
-import type { HeatmapData } from '@qv/study';
+import type { CardStatsData, HeatmapData } from '@qv/study';
 import type {
   AnswerToday,
   AssessmentSetting,
@@ -64,7 +64,10 @@ export interface StudyRepository {
   forget: (cards: CardRef[], resetCounts: boolean) => Promise<void>;
   /** The last action; with `expected`, only if it is that one (else UndoRefusedError). */
   undo: (expected?: UndoExpected) => Promise<UndoResult | null>;
-  heatmap: (deckIds: string[] | null) => Promise<HeatmapData>;
+  /** With `quizIds`, the questions of those tests only; without, of every test. */
+  heatmap: (deckIds: string[] | null, quizIds?: string[] | null) => Promise<HeatmapData>;
+  /** The statistics of the caller's own cards in those decks (all, with null). */
+  cardStats: (deckIds: string[] | null) => Promise<CardStatsData>;
   recordPractice: (counts: PracticeCount[]) => Promise<void>;
   homeCounts: (
     deckIds: string[],

@@ -88,6 +88,18 @@ export {
   yearRange,
 } from './heatmap';
 export type { CellValue, HeatmapData, HeatmapStats } from './heatmap';
+export { streakDays, studiedByDay, studySplit } from './studyDays';
+export {
+  answersSeries,
+  dueSeries,
+  PERIODS,
+  periodSums,
+  retention,
+  reviewsOf,
+  stateBreakdown,
+} from './cardStats';
+export type { CardStatsData, CardStatsDay, HardCard, Period, StateBreakdown } from './cardStats';
+export type { StudyScope, StudySplit } from './studyDays';
 export { correctPercent, daySummary } from './daySummary';
 export { decayByDeck, homeCourseCounts, nextChangeAt } from './homeCounts';
 export type { HomeStudyBase } from './homeCounts';

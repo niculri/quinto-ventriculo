@@ -27,7 +27,11 @@ describe('a deck’s page, what it says', () => {
     const heading = await screen.findByRole('heading', { level: 1, name: 'Certamen 1' });
     expect(heading.nextElementSibling!.textContent).toBe('Mazo de Anki · 3 notas · 4 tarjetas');
     const tools = screen.getByRole('navigation', { name: 'Herramientas de Anki' });
-    expect(within(tools).getByRole('link').textContent).toBe(' Ver las tarjetas');
+    expect(
+      within(tools)
+        .getAllByRole('link')
+        .map((a) => a.textContent),
+    ).toEqual([' Ver las tarjetas', ' Estadísticas']);
     const review = await screen.findByRole('button', { name: 'Repaso final' });
     expect(review).toHaveAttribute('title', 'Se activa cuando hayas visto tarjetas');
     const panel = screen.getByRole('region', { name: 'Estudiar' });

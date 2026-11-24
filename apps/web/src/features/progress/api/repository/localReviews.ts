@@ -91,6 +91,7 @@ export function localReviews({ read, write }: LocalStore, { change }: Changes): 
             rating: input.rating,
             queueBefore: input.queueBefore,
             interval: input.interval,
+            lastInterval: input.lastInterval,
             durationMs: input.durationMs,
           },
         );

@@ -962,6 +962,7 @@ export type Database = {
         Returns: number
       }
       median_answer_ms: { Args: never; Returns: number }
+      my_card_stats: { Args: { p_deck_ids?: string[] }; Returns: Json }
       my_reports: { Args: never; Returns: Json }
       normalize_invite_email: { Args: { raw: string }; Returns: string }
       patch_text_list: {
@@ -996,7 +997,10 @@ export type Database = {
         Args: { p_at: string; p_user: string }
         Returns: string
       }
-      study_heatmap: { Args: { p_deck_ids?: string[] }; Returns: Json }
+      study_heatmap: {
+        Args: { p_deck_ids?: string[]; p_quiz_ids?: string[] }
+        Returns: Json
+      }
       suspend_cards: { Args: { cards: Json; note?: boolean }; Returns: number }
       token_session_open: { Args: never; Returns: boolean }
       unbury_cards: { Args: { cards: Json }; Returns: number }

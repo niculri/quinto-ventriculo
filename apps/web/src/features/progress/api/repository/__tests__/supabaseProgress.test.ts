@@ -29,6 +29,8 @@ const REFUSED: [string, (s: StudyRepository) => Promise<unknown>][] = [
   ['leer tu avance', (s) => s.deckProgress(UNTIL)],
   ['leer tu tiempo por tarjeta', (s) => s.medianAnswerMs()],
   ['leer tus días de estudio', (s) => s.heatmap(null)],
+  ['leer tus días de estudio', (s) => s.heatmap(['d1'], ['q1'])],
+  ['leer tus estadísticas', (s) => s.cardStats(['d1'])],
   ['leer tu avance', (s) => s.homeCounts(['d1'], UNTIL, {})],
 ];
 
@@ -46,10 +48,43 @@ describe('the counts', () => {
 
   it('the days of all decks ask for none; of some, for those', async () => {
     const { study, calls } = repo(() => ({ body: {} }));
-    expect(await study.heatmap(null)).toEqual({ days: [], due: [] });
+    expect(await study.heatmap(null)).toEqual({ days: [], due: [], tests: [] });
     await study.heatmap(['d1', 'd2']);
-    expect(calls.map((c) => c.body)).toEqual([{}, { p_deck_ids: ['d1', 'd2'] }]);
-    expect(await repo(() => ({ body: null })).study.heatmap(null)).toEqual({ days: [], due: [] });
+    await study.heatmap(null, ['q1']);
+    expect(calls.map((c) => c.body)).toEqual([
+      {},
+      { p_deck_ids: ['d1', 'd2'] },
+      { p_quiz_ids: ['q1'] },
+    ]);
+    expect(await repo(() => ({ body: null })).study.heatmap(null)).toEqual({
+      days: [],
+      due: [],
+      tests: [],
+    });
+  });
+
+  it('a users’ database without the tests in the heatmap: the days of Anki alone', async () => {
+    const { study, calls } = repo((call) =>
+      call.body && typeof call.body === 'object' && 'p_quiz_ids' in call.body
+        ? refusal('PGRST202', 'Could not find the function public.study_heatmap')
+        : { body: { days: [['2026-11-03', 'd1', 2, 0]], due: [] } },
+    );
+    const heat = await study.heatmap(['d1'], ['q1']);
+    expect(heat.days).toHaveLength(1);
+    expect(heat.tests).toEqual([]);
+    expect(calls.map((c) => c.body)).toEqual([
+      { p_deck_ids: ['d1'], p_quiz_ids: ['q1'] },
+      { p_deck_ids: ['d1'] },
+    ]);
+    const { study: home } = repo(() => refusal('PGRST202', 'Could not find the function'));
+    await expect(home.heatmap(null)).rejects.toThrow('No se pudo leer tus días de estudio');
+  });
+
+  it('a users’ database without my_card_stats(): the statistics say they are not there yet', async () => {
+    const { study } = repo(() => refusal('PGRST202', 'Could not find the function'));
+    await expect(study.cardStats(null)).rejects.toThrow(
+      'Tus estadísticas todavía no están disponibles. Vuelve a intentarlo más tarde.',
+    );
   });
 
   it('the home page’s counts: nothing to ask for no decks; a missing list reads as empty', async () => {

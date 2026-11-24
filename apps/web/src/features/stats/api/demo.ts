@@ -27,11 +27,11 @@ export function withDemoHistory(
       }));
   return {
     ...study,
-    async heatmap(deckIds) {
+    async heatmap(deckIds, quizIds = null) {
       const on = flags();
       if (on.includes('slow')) await new Promise((r) => setTimeout(r, 1500));
       if (on.includes('error')) throw new Error('No se pudo leer tus días de estudio.');
-      const real = await study.heatmap(deckIds);
+      const real = await study.heatmap(deckIds, quizIds);
       if (on.includes('empty')) return real;
       const today = dayOf(Date.now() / 1000, browserTimeZone(), 4);
       const all = await leaves();
@@ -112,5 +112,6 @@ function merge(a: HeatmapData, b: HeatmapData): HeatmapData {
   return {
     days: [...b.days, ...a.days].sort((x, y) => x.day - y.day),
     due: [...due].sort((x, y) => x[0] - y[0]).map(([day, cards]) => ({ day, cards })),
+    ...(a.tests ? { tests: a.tests } : {}),
   };
 }

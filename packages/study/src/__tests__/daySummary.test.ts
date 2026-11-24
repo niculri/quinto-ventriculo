@@ -55,13 +55,27 @@ describe('daySummary', () => {
     const all = daySummary([], decks, days, TODAY);
     expect(all.streak).toBe(3);
     expect(all.courseStreak).toBeNull();
-    const course = daySummary([], decks, days, TODAY, new Set(['d2']));
+    const course = daySummary([], decks, days, TODAY, { decks: new Set(['d2']) });
     expect(course.courseStreak).toBe(2);
     expect(course.streak).toBe(3);
   });
 
+  it('a day with only tests of the course keeps both streaks', () => {
+    const days = {
+      ...heat([[TODAY - 1, 'd2', 1]]),
+      tests: [{ day: TODAY, quizId: 'q1', answers: 4 }],
+    };
+    const s = daySummary([], decks, days, TODAY, {
+      decks: new Set(['d2']),
+      quizzes: new Set(['q1']),
+    });
+    expect([s.streak, s.courseStreak]).toEqual([2, 2]);
+  });
+
   it('a streak that stopped before yesterday is zero', () => {
-    const s = daySummary([], decks, heat([[TODAY - 2, 'd1', 5]]), TODAY, new Set(['d1']));
+    const s = daySummary([], decks, heat([[TODAY - 2, 'd1', 5]]), TODAY, {
+      decks: new Set(['d1']),
+    });
     expect([s.streak, s.courseStreak]).toEqual([0, 0]);
   });
 });

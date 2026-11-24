@@ -9,4 +9,5 @@ export const coursePageStrings = {
   career: 'Ver toda la carrera',
   allDecks: ' Todos los mazos del ramo',
   seeCards: ' Ver las tarjetas',
+  stats: ' Tus estadísticas',
 } as const;

@@ -77,6 +77,11 @@ export const ankiScreens: Record<DeckScreen, LazyScreen> = {
       <PracticePage {...p} />
     )),
   ),
+  stats: lazyScreen(() =>
+    import('../features/cardStats/pages/CardStatsPage').then(({ CardStatsPage }) => (p) => (
+      <CardStatsPage {...p} />
+    )),
+  ),
 };
 
 // The links of a deck's page ask for their screen by this name when a pointer or the focus gets to them.
@@ -90,5 +95,6 @@ export function screenOfPath(pathname: string): DeckScreen {
   if (pathname.endsWith('/cards')) return 'cards';
   if (pathname.endsWith('/study')) return 'study';
   if (pathname.endsWith('/review')) return 'review';
+  if (pathname.endsWith('/stats')) return 'stats';
   return 'page';
 }

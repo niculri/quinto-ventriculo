@@ -1,5 +1,5 @@
-// A day's box over the heatmap: its date, its total and its groups; pinned, it links each group (and the whole) to
-// the cards of that day and can be closed.
+// A day's box over the heatmap: its date, its total (how much of Anki and of tests) and its groups; pinned, it links
+// each group with cards (and the whole) to the cards of that day and can be closed.
 
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router';
@@ -12,10 +12,16 @@ import { sharedStrings } from '../../../shared/strings/shared.strings';
 import { useDayBox } from '../hooks/useDayBox';
 import type { OpenDay } from '../hooks/useHeatmapGrid';
 import type { HeatmapGroups } from '../model/groups';
+import { dayTotals } from '../model/dayParts';
+import type { DayPart } from '../model/dayParts';
 import { BOX_WIDTH, MARGIN, boxLeft } from '../model/layout';
 
-function total(cell: CellValue) {
-  if (cell.kind === 'past') return cell.value > 0 ? answersText(cell.value) : s.noStudy;
+function total(cell: CellValue, parts: readonly DayPart[]) {
+  if (cell.kind === 'past') {
+    if (cell.value === 0) return s.noStudy;
+    const { anki, tests } = dayTotals(parts);
+    return tests > 0 ? s.split(answersText(cell.value), anki, tests) : answersText(cell.value);
+  }
   return cell.value > 0 ? dueText(cell.value) : s.nothingDue;
 }
 
@@ -25,19 +31,19 @@ function DayParts({
   pinned,
   placeOf,
 }: {
-  parts: [string, number][];
+  parts: DayPart[];
   day: number;
   pinned: boolean;
   placeOf: HeatmapGroups['placeOf'];
 }) {
   return (
     <ul className="mt-2 space-y-1 border-t border-border pt-2">
-      {parts.map(([label, n]) => {
-        const place = pinned ? placeOf(label) : null;
+      {parts.map(({ label, anki, tests }) => {
+        const place = pinned && anki > 0 ? placeOf(label) : null;
         const inner = (
           <>
             <span className="min-w-0 truncate">{label}</span>
-            <span className="flex-none text-muted tabular-nums">{s.count(n)}</span>
+            <span className="flex-none text-muted tabular-nums">{s.part(anki, tests)}</span>
           </>
         );
         return (
@@ -64,7 +70,7 @@ export function DayBox({
   today,
   cell,
   data,
-  groups: { groupOf, placeOf, whole },
+  groups,
   onClose,
   onOutside,
 }: {
@@ -80,14 +86,16 @@ export function DayBox({
     open,
     cell,
     data,
-    groupOf,
+    groups,
     onClose,
     onOutside,
   });
+  const { placeOf, whole } = groups;
   const { rect } = open;
+  const withCards = parts.filter((p) => p.anki > 0);
   const all =
-    open.pinned && cell.value > 0
-      ? (whole ?? (parts.length === 1 ? placeOf(parts[0]![0]) : null))
+    open.pinned && withCards.length > 0
+      ? (whole ?? (withCards.length === 1 ? placeOf(withCards[0]!.label) : null))
       : null;
   return createPortal(
     <div
@@ -123,7 +131,7 @@ export function DayBox({
       </div>
       <div id={bodyId}>
         <p className="mt-0.5 text-muted tabular-nums" aria-live="polite">
-          {total(cell)}
+          {total(cell, parts)}
         </p>
         {parts.length ? (
           <DayParts parts={parts} day={open.day} pinned={open.pinned} placeOf={placeOf} />

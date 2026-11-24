@@ -21,7 +21,7 @@ const USERS: Record<string, Domain> = {
       study_days study_preferences user_presets user_quotas`,
     function: `answered_decks browse_change_card bury_cards card_rows_from_a_page_behind card_states_of_decks
       change_card deck_progress first_answers_since forget_cards home_counts lock_card_state lock_user_study
-      log_change median_answer_ms patch_text_list quota_cards quota_changes quota_rows reconcile_cards
+      log_change median_answer_ms my_card_stats patch_text_list quota_cards quota_changes quota_rows reconcile_cards
       record_practice record_review review_log_set_day save_study_preferences set_flag set_flags study_day_of
       study_day_of_start study_days_count study_heatmap suspend_cards unbury_cards undo_last_review
       unsuspend_cards`,

@@ -51,6 +51,10 @@ export function countNotes(course: CourseWithAssessments): number {
   return course.assessments.reduce((t, a) => t + a.notes.length, 0);
 }
 
+/** The ids of every test of a course. */
+export const quizIdsOf = (course: CourseWithAssessments): string[] =>
+  course.assessments.flatMap((a) => a.quizzes.map((q) => q.id));
+
 /** Decks as one counts them: those with cards of their own whose parent has none (a deck and its subdecks are one). */
 export function countDecks(catalog: Catalog, courseId: string, assessmentId?: string): number {
   const decks = catalog.anki.decks;

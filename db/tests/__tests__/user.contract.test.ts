@@ -150,7 +150,12 @@ describe('study', () => {
     const map = await rpc(ana, 'study_heatmap', { p_deck_ids: [DECK] });
     expect(map.days?.length).toBe(1);
     await rpc(ana, 'study_heatmap', {});
-    expect(await rpc(beto, 'study_heatmap', {})).toEqual({ days: [], due: [] });
+    expect(await rpc(beto, 'study_heatmap', {})).toEqual({ days: [], due: [], tests: [] });
+    await rpc(ana, 'study_heatmap', { p_deck_ids: [DECK], p_quiz_ids: ['test-a'] });
+    const stats = await rpc(ana, 'my_card_stats', { p_deck_ids: [DECK] });
+    expect(stats.days.length).toBe(1);
+    await rpc(ana, 'my_card_stats', {});
+    expect((await rpc(beto, 'my_card_stats', {})).hardest).toEqual([]);
 
     const until2 = new Date(Date.now() + 86_400_000).toISOString();
     expect(await rpc(ana, 'bury_cards', { cards: [card('n2')], until: until2, note: true })).toBe(
@@ -248,6 +253,8 @@ describe('practice tests', () => {
     await rpc(ana, 'save_quiz_progress', {
       p: { ...step, round: null, roundInfo: { ...roundInfo, finished: true } },
     });
+    const heat = await rpc(ana, 'study_heatmap', { p_quiz_ids: ['test-a'] });
+    expect(heat.tests?.[0]?.slice(1)).toEqual(['test-a', 1]);
   });
 });
 

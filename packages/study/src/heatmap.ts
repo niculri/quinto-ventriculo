@@ -15,9 +15,18 @@ export interface HeatmapDue {
   cards: number;
 }
 
+/** The questions answered in a test on a day. */
+export interface HeatmapTest {
+  day: number;
+  quizId: string;
+  answers: number;
+}
+
+/** `tests` is absent in what a database without them gives. */
 export interface HeatmapData {
   days: HeatmapDay[];
   due: HeatmapDue[];
+  tests?: HeatmapTest[];
 }
 
 export function dayNumber(iso: string): number {

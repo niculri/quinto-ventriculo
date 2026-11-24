@@ -1,7 +1,7 @@
-// How a day's answers are grouped in the heatmap's box: by course (home page) or by assessment (a course's page), and
-// which page of cards each group and the whole course take to.
+// How a day's answers and questions of tests are grouped in the heatmap's box: by course (home page) or by assessment
+// (a course's page), and which page of cards each group and the whole course take to.
 
-import type { Catalog } from '@qv/schema';
+import type { Catalog, CourseWithAssessments } from '@qv/schema';
 import { buildAnkiTree, courseDeck, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode, DeckNode } from '../../catalog/model/tree';
 import { groupsStrings as s } from './strings/groups.strings';
@@ -10,6 +10,7 @@ export type GroupBy = 'course' | 'assessment';
 
 export interface HeatmapGroups {
   groupOf: (deckId: string) => string;
+  groupOfQuiz: (quizId: string) => string;
   placeOf: (label: string) => CourseDeckNode | null;
   whole: CourseDeckNode | null;
 }
@@ -28,6 +29,20 @@ function placeOf(
     }
   }
   return place;
+}
+
+/** Each test's group: its course on the home page, its assessment on a course's page. */
+function quizLabels(courses: CourseWithAssessments[], groupBy: GroupBy): Map<string, string> {
+  return new Map(
+    courses.flatMap((course) =>
+      course.assessments.flatMap((a) =>
+        a.quizzes.map(
+          (q) =>
+            [q.id, groupBy === 'course' ? s.course(course.emoji, course.name) : a.name] as const,
+        ),
+      ),
+    ),
+  );
 }
 
 export function heatmapGroups(
@@ -56,9 +71,11 @@ export function heatmapGroups(
     const place = placeOf(tree, d.id, course.id, groupBy);
     if (place && hasPage(place)) places.set(label, place);
   }
+  const byQuiz = quizLabels([...courses.values()], groupBy);
   const own = courseId ? courseDeck(tree, courseId) : null;
   return {
     groupOf: (deckId: string) => byDeck.get(deckId) ?? s.otherDecks,
+    groupOfQuiz: (quizId: string) => byQuiz.get(quizId) ?? s.otherTests,
     placeOf: (label: string) => places.get(label) ?? null,
     whole: own,
   };

@@ -1,5 +1,5 @@
 // A course's page, a dashboard: for each assessment, one card per section (notes, tests, Anki) with what it has.
-import { Layers, Search } from 'lucide-react';
+import { ChartColumn, Layers, Search } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import type { Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
@@ -9,7 +9,7 @@ import { Loading } from '../../../shared/ui/Loading';
 import { button, page } from '../../../shared/ui/styles';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
-import { countDecks, countNotes, findCourse } from '../../catalog/model/catalog';
+import { countDecks, countNotes, findCourse, quizIdsOf } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { Heatmap } from '../../stats/components/Heatmap';
 import { useCourseDecks } from '../hooks/useCourseDecks';
@@ -67,10 +67,11 @@ function CourseView({
       </h1>
       {material ? <p className="mt-2 text-muted">{material}</p> : null}
 
-      {decks.decks ? (
+      {decks.decks || quizzes > 0 ? (
         <Heatmap
           scope={`course:${course.id}`}
           deckIds={catalog.anki.decks.filter((d) => d.courseId === course.id).map((d) => d.id)}
+          quizIds={quizIdsOf(course)}
           catalog={catalog}
           groupBy="assessment"
           courseId={course.id}
@@ -112,6 +113,13 @@ function CourseView({
           >
             <Search className="size-4" aria-hidden="true" />
             {s.seeCards}
+          </Link>
+          <Link
+            to={paths.deckStats(decks.decks.ref)}
+            className="inline-flex items-center gap-1.5 text-muted hover:text-ink"
+          >
+            <ChartColumn className="size-4" aria-hidden="true" />
+            {s.stats}
           </Link>
         </p>
       ) : null}

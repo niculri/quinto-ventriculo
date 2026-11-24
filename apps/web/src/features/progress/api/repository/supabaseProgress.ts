@@ -1,9 +1,11 @@
-// The study adapter's counts: progress per deck, the decks studied, the time per card, the days of study and what is
-// due on the home page.
+// The study adapter's counts: progress per deck, the decks studied, the time per card, the days of study, what is due
+// on the home page and the statistics of the student's cards.
 import type { Database } from '@qv/db-types/users';
+import { databaseError } from '@qv/schema/database';
 import { STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../../shared/lib/json';
 import { dayNumber } from '@qv/study';
+import type { CardStatsData } from '@qv/study';
 import type { HomeCounts } from './model';
 import type { StudyRepository } from './port';
 import { listOf } from './supabaseContext';
@@ -27,9 +29,40 @@ function homeCountsFromJson(data: Functions['home_counts']['Returns'] | null): H
   };
 }
 
+function cardStatsFromJson(data: Functions['my_card_stats']['Returns'] | null): CardStatsData {
+  const raw = fromDatabase('my_card_stats', STUDY_RPC.my_card_stats.returns, data);
+  const [learning, relearning, young, mature, suspended, buried] = raw.cards;
+  const [answers, ms, days] = raw.total;
+  return {
+    today: dayNumber(raw.today),
+    cards: { learning, relearning, young, mature, suspended, buried },
+    days: raw.days.map(([day, n, newCards, learn, time, yp, yf, mp, mf]) => ({
+      day: dayNumber(day),
+      answers: n,
+      newCards,
+      learning: learn,
+      ms: time,
+      youngPassed: yp,
+      youngFailed: yf,
+      maturePassed: mp,
+      matureFailed: mf,
+    })),
+    due: raw.due.map(([day, cards]) => ({ day: dayNumber(day), cards })),
+    overdue: raw.overdue,
+    hardest: raw.hardest.map(([noteGuid, ord, deckId, lapses, reps]) => ({
+      noteGuid,
+      ord,
+      deckId,
+      lapses,
+      reps,
+    })),
+    total: { answers, ms, days },
+  };
+}
+
 type ProgressReads = Pick<
   StudyRepository,
-  'deckProgress' | 'answeredDecks' | 'medianAnswerMs' | 'heatmap' | 'homeCounts'
+  'deckProgress' | 'answeredDecks' | 'medianAnswerMs' | 'heatmap' | 'homeCounts' | 'cardStats'
 >;
 
 export function progressReads({ client, fail, all }: StudyContext): ProgressReads {
@@ -61,11 +94,16 @@ export function progressReads({ client, fail, all }: StudyContext): ProgressRead
       if (error) fail('leer tu tiempo por tarjeta', error);
       return data ?? null;
     },
-    async heatmap(deckIds) {
-      const { data, error } = await client.rpc(
-        'study_heatmap',
-        deckIds === null ? {} : { p_deck_ids: deckIds },
-      );
+    async heatmap(deckIds, quizIds = null) {
+      const decks = deckIds === null ? {} : { p_deck_ids: deckIds };
+      let { data, error } = await client.rpc('study_heatmap', {
+        ...decks,
+        ...(quizIds === null ? {} : { p_quiz_ids: quizIds }),
+      });
+      // A users' database from before the tests in the heatmap: the days of Anki alone.
+      if (error && quizIds !== null && databaseError(error).hasCode('PGRST202')) {
+        ({ data, error } = await client.rpc('study_heatmap', decks));
+      }
       if (error) fail('leer tus días de estudio', error);
       const raw = fromDatabase('study_heatmap', STUDY_RPC.study_heatmap.returns, data ?? {});
       return {
@@ -76,7 +114,25 @@ export function progressReads({ client, fail, all }: StudyContext): ProgressRead
           practice,
         })),
         due: (raw.due ?? []).map(([day, cards]) => ({ day: dayNumber(day), cards })),
+        tests: (raw.tests ?? []).map(([day, quizId, answers]) => ({
+          day: dayNumber(day),
+          quizId,
+          answers,
+        })),
       };
+    },
+    async cardStats(deckIds) {
+      const { data, error } = await client.rpc(
+        'my_card_stats',
+        deckIds === null ? {} : { p_deck_ids: deckIds },
+      );
+      if (error && databaseError(error).hasCode('PGRST202')) {
+        throw new Error(
+          'Tus estadísticas todavía no están disponibles. Vuelve a intentarlo más tarde.',
+        );
+      }
+      if (error) fail('leer tus estadísticas', error);
+      return cardStatsFromJson(data);
     },
     async homeCounts(deckIds, until, decay) {
       if (!deckIds.length) return { decks: [], truncated: false };

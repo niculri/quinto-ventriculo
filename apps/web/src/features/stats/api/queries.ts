@@ -9,9 +9,14 @@ export const heatmapKeys = {
   scope: (scope: string) => [...studyKeys.all, 'heatmap', scope] as const,
 };
 
-export const heatmapQuery = (study: StudyRepository, scope: string, deckIds: string[] | null) =>
+export const heatmapQuery = (
+  study: StudyRepository,
+  scope: string,
+  deckIds: string[] | null,
+  quizIds: string[] | null,
+) =>
   queryOptions({
     queryKey: heatmapKeys.scope(scope),
-    queryFn: () => study.heatmap(deckIds),
+    queryFn: () => study.heatmap(deckIds, quizIds),
     staleTime: 5 * 60_000,
   });

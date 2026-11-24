@@ -1,8 +1,10 @@
 // The summary of «Listo por hoy»: today's answers in what was studied, how many were not «Otra vez», the cards
-// failed, and the streak of «Días de estudio».
+// failed, and the streak of «Días de estudio» (Anki and tests).
 
-import { countsByDay, heatmapStats } from './heatmap';
+import { heatmapStats } from './heatmap';
 import type { HeatmapData } from './heatmap';
+import { studiedByDay } from './studyDays';
+import type { StudyScope } from './studyDays';
 import type { RatedAnswer } from '@qv/schema/user';
 
 export interface DaySummary {
@@ -18,7 +20,7 @@ export function daySummary(
   decks: ReadonlySet<string>,
   heat: HeatmapData,
   today: number,
-  courseDecks: ReadonlySet<string> | null = null,
+  course: StudyScope | null = null,
 ): DaySummary {
   let total = 0;
   let correct = 0;
@@ -33,9 +35,9 @@ export function daySummary(
     answers: total,
     correct,
     failedCards: failed.size,
-    streak: heatmapStats(countsByDay(heat.days, today), today).currentStreak,
-    courseStreak: courseDecks
-      ? heatmapStats(countsByDay(heat.days, today, courseDecks), today).currentStreak
+    streak: heatmapStats(studiedByDay(heat, today), today).currentStreak,
+    courseStreak: course
+      ? heatmapStats(studiedByDay(heat, today, course), today).currentStreak
       : null,
   };
 }

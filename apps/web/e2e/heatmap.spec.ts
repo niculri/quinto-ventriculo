@@ -85,7 +85,7 @@ test('the same places with and without data, and while they come', async ({ page
 
   await flags(page, null);
   await page.reload();
-  await expect(box(page).getByText('Racha actual')).toBeVisible();
+  await expect(box(page).getByText('Racha actual', { exact: true })).toBeVisible();
   await expect(today(page)).toBeVisible();
   await expect(box(page).locator('dd').first()).toHaveText(/\d+ respuestas?/);
   await fontsLoaded(page);

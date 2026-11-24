@@ -1,6 +1,7 @@
 // What the browser copy reads from its cards and its log: the cards, the answers and the counts of its screens.
 import { settle } from '../../../../shared/lib/settle';
 import { checkDecks, deckProgressOf, heatmapOf, homeCountsOf, medianOf } from './localCounts';
+import { cardStatsOf } from './localStats';
 import type { LocalStore } from './localStore';
 import { same } from './localStore';
 import type { StudyRepository } from './port';
@@ -15,9 +16,10 @@ type ReadMethods = Pick<
   | 'medianAnswerMs'
   | 'heatmap'
   | 'homeCounts'
+  | 'cardStats'
 >;
 
-export function localReads({ read }: LocalStore): ReadMethods {
+export function localReads({ read, quizAnswers }: LocalStore): ReadMethods {
   return {
     cards: (deckIds) =>
       settle(() => {
@@ -52,11 +54,17 @@ export function localReads({ read }: LocalStore): ReadMethods {
         return [...new Set(answered.map((c) => c.deckId))];
       }),
     medianAnswerMs: () => settle(() => medianOf(read().log)),
-    heatmap: (deckIds) =>
+    heatmap: (deckIds, quizIds = null) =>
+      settle(() => {
+        const refused = checkDecks(deckIds, {}, quizIds);
+        if (refused) throw new Error(`No se pudo leer tus días de estudio: ${refused}`);
+        return heatmapOf(read(), deckIds, quizIds, quizAnswers());
+      }),
+    cardStats: (deckIds) =>
       settle(() => {
         const refused = checkDecks(deckIds);
-        if (refused) throw new Error(`No se pudo leer tus días de estudio: ${refused}`);
-        return heatmapOf(read(), deckIds);
+        if (refused) throw new Error(`No se pudo leer tus estadísticas: ${refused}`);
+        return cardStatsOf(read(), deckIds);
       }),
     homeCounts: (deckIds, until, decay) =>
       settle(() => {

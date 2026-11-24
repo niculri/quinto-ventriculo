@@ -27,7 +27,10 @@ function sizeFigures(root: DocumentFragment) {
   for (const row of root.querySelectorAll('.figure-row')) {
     const figures = [...row.querySelectorAll<HTMLElement>(':scope > figure')];
     const widths = rowWidths(figures.map(sizeOf));
-    figures.forEach((figure, i) => setWidth(figure, widths[i]!));
+    figures.forEach((figure, i) => {
+      setWidth(figure, widths[i]!);
+      setShape(figure, sizeOf(figure));
+    });
   }
   for (const figure of root.querySelectorAll<HTMLElement>('figure')) {
     if (figure.closest('.figure-row')) continue;
@@ -39,6 +42,7 @@ function sizeFigures(root: DocumentFragment) {
     });
     figure.classList.add(layout.kind === 'wide' ? 'is-wide' : 'is-thumb');
     setWidth(figure, layout.width);
+    setShape(figure, size);
   }
 }
 
@@ -81,6 +85,13 @@ function sizeOf(figure: HTMLElement): FigureSize {
     ...(width ? { width } : {}),
     ...(height ? { height } : {}),
   };
+}
+
+/** Its width over its height, for the CSS that keeps it within the window's height. */
+function setShape(figure: HTMLElement, size: FigureSize) {
+  if (size.width && size.height) {
+    figure.style.setProperty('--ar', String(Math.round((size.width / size.height) * 1000) / 1000));
+  }
 }
 
 function setWidth(figure: HTMLElement, px: number) {

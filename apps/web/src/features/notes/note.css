@@ -172,9 +172,22 @@
  * column (a large plate, a panorama, a row), centered and below every float. Where the column is too narrow for text
  * beside a thumbnail (under 45rem: the phone and narrow windows), nothing floats and every figure goes centered. The
  * <img> keeps its width and height attributes, so its height is known before it loads in every browser.
+ *
+ * No image is taller than the window under the site's bars, with room for a few lines of caption (`--fit-h`): its
+ * width follows from its shape (`--ar`, width / height, set with `--fig`), so it keeps its proportions and its height
+ * is still known before it loads. The small viewport height (svh) does not change when a phone's address bar hides.
  */
+.note-body {
+  --fit-h: calc(100svh - 4.0625rem - 5rem);
+}
+@media (max-width: 1023.98px) {
+  .note-body {
+    --fit-h: calc(100svh - 6.875rem - 5rem);
+  }
+}
 .note-body .figure {
-  width: min(100%, var(--fig, 100%));
+  --fit-w: calc(var(--fit-h) * var(--ar, 100));
+  width: min(100%, var(--fig, 100%), var(--fit-w));
   margin: 1.8em auto;
 }
 .note-body .figure img {
@@ -226,11 +239,11 @@
   .note-body .figure.is-thumb {
     float: right;
     clear: right;
-    width: min(50%, var(--fig, 100%));
+    width: min(50%, var(--fig, 100%), var(--fit-w));
     margin: 0.35em 0 1.1em 1.6em;
   }
   .note-body .callout .figure.is-thumb {
-    width: min(40%, var(--fig, 100%));
+    width: min(40%, var(--fig, 100%), var(--fit-w));
   }
 }
 .note-body :is(h2, hr, .table-scroll, .figure-row, .is-wide, .note-summary) {
@@ -246,6 +259,7 @@
 .note-body .figure-row .figure {
   flex: 0 1 var(--fig, 100%);
   min-width: 0;
+  max-width: var(--fit-w);
   margin: 0;
 }
 .note-body .side {
@@ -549,6 +563,6 @@
   }
   .note-body .figure-row .figure {
     flex: none;
-    width: min(100%, var(--fig, 100%));
+    width: min(100%, var(--fig, 100%), var(--fit-w));
   }
 }

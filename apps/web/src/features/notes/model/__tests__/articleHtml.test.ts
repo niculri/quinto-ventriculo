@@ -93,7 +93,7 @@ describe('prepareArticle', () => {
     const html = prepareArticle(
       fig(' style="width:40%"') + para(300) + fig('', 1600, 1200, 'figure figure-plate'),
     );
-    expect(html).toContain('class="figure is-thumb" style="--fig: 18.75rem;"');
+    expect(html).toContain('class="figure is-thumb" style="--fig: 18.75rem; --ar: 1.333;"');
     expect(html).toContain('is-wide');
     expect(html).not.toContain('40%');
     expect(html).toContain('role="button"');
@@ -105,6 +105,19 @@ describe('prepareArticle', () => {
     expect(html).toContain(`--fig: ${(COLUMN_PX * 0.5) / 16}rem`);
     expect(html).toContain('is-wide');
     expect(html).not.toContain('50%');
+  });
+
+  it('gives each figure its shape, so the CSS keeps it within the window; without its size, none', () => {
+    const html = prepareArticle(
+      fig('', 870, 1547, 'figure figure-plate') + '<figure class="figure"><img></figure>',
+    );
+    expect(html).toContain('--ar: 0.562;');
+    expect(html.match(/--ar/g)).toHaveLength(1);
+    const row = prepareArticle(
+      `<div class="figure-row">${fig('', 800, 400)}${fig('', 400, 400)}</div>`,
+    );
+    expect(row).toContain('--ar: 2;');
+    expect(row).toContain('--ar: 1;');
   });
 
   it('in a callout, the figure the source made wide fills it', () => {

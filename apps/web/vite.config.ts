@@ -9,6 +9,7 @@ import type { Plugin } from 'vite';
 import { creatorPhoto } from './build/creatorPhoto';
 import { compilerPreset } from './build/reactCompiler';
 import { preloadFont } from './build/preloadFont';
+import { securityHeaders } from './build/securityHeaders';
 import { thirdPartyLicenses } from './build/licenses';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -74,45 +75,6 @@ async function forwardToApi(
   res.end(Buffer.from(await r.arrayBuffer()));
 }
 
-function securityHeaders(supabaseUrl: string): Plugin {
-  const csp = [
-    "default-src 'self'",
-    // Cloudflare Web Analytics injects its beacon into the HTML; it reports to /cdn-cgi/rum on the site's own domain,
-    // and to cloudflareinsights.com when installed by hand.
-    "script-src 'self' https://static.cloudflareinsights.com",
-    // The widths of the note figures go in style attributes.
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://lh3.googleusercontent.com",
-    "font-src 'self'",
-    `connect-src 'self' ${supabaseUrl} https://cloudflareinsights.com`,
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "object-src 'none'",
-  ].join('; ');
-  return {
-    name: 'qv-headers',
-    apply: 'build',
-    generateBundle() {
-      this.emitFile({
-        type: 'asset',
-        fileName: '_headers',
-        source: [
-          '/*',
-          `  Content-Security-Policy: ${csp}`,
-          '  X-Content-Type-Options: nosniff',
-          '  Referrer-Policy: strict-origin-when-cross-origin',
-          '  Permissions-Policy: camera=(), microphone=(), geolocation=()',
-          '  Strict-Transport-Security: max-age=31536000; includeSubDomains',
-          '/assets/*',
-          '  Cache-Control: public, max-age=31536000, immutable',
-          '',
-        ].join('\n'),
-      });
-    },
-  };
-}
-
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, import.meta.dirname, 'VITE_');
   const demo = mode === 'demo';
@@ -136,7 +98,7 @@ export default defineConfig(({ command, mode }) => {
       tailwindcss(),
       ...(demo ? [demoApi()] : []),
       ...(local ? [demoApi(env.VITE_USERS_SUPABASE_URL)] : []),
-      securityHeaders(env.VITE_USERS_SUPABASE_URL ?? ''),
+      securityHeaders(env.VITE_USERS_SUPABASE_URL ?? '', Boolean(env.VITE_GOOGLE_CLIENT_ID)),
       thirdPartyLicenses(),
       creatorPhoto(),
       preloadFont(),

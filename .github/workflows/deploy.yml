@@ -39,6 +39,7 @@ jobs:
         env:
           VITE_USERS_SUPABASE_URL: ${{ vars.USERS_SUPABASE_URL }}
           VITE_USERS_SUPABASE_PUBLISHABLE_KEY: ${{ vars.USERS_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       - run: npx wrangler deploy
         working-directory: apps/api
         env:

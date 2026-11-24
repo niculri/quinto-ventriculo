@@ -23,6 +23,19 @@ describe('the usage report', () => {
     expect(Object.keys(usageGroups(catalog).decks)).toEqual(['3', '4', '5', '6']);
   });
 
+  it('a gymkana’s writing rounds count in its course and assessment, under its deck’s test id', () => {
+    const catalog = structuredClone(CATALOG);
+    const assessment = catalog.anki.decks.find((d) => d.id === '4')!;
+    catalog.anki.decks.push(
+      { ...assessment, id: '7', name: `${assessment.name}::Gymkana`, parentId: '4' },
+      { ...assessment, id: '8', name: `${assessment.name}::01 - Clase::Gymkana`, parentId: '5' },
+    );
+    expect(usageGroups(catalog).quizzes).toEqual({
+      'test-de-prueba': ['ramo/certamen-1', 'ramo'],
+      'gymkana-7': ['ramo/certamen-1', 'ramo'],
+    });
+  });
+
   it('with fewer than 5 students active in the 30 days, no list of the most opened', () => {
     const r = row();
     r.totals.last_30.active_students = FEW;

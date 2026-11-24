@@ -5,6 +5,12 @@ import { DeckId } from './flashcards';
 
 export const GYMKANA_DECK_LABEL = 'Gymkana';
 
+/**
+ * The test id a gymkana's writing rounds are kept under, in the users' database as a test's: it matches a test id
+ * (`^[a-z0-9]+(-[a-z0-9]+)*$`) that no imported test has, since theirs come from their slugs.
+ */
+export const gymkanaQuizId = (deckId: string) => `gymkana-${deckId}`;
+
 const GymkanaRegion = z.object({ tag: z.string().min(1), label: z.string().min(1) });
 
 const GymkanaSource = z.object({

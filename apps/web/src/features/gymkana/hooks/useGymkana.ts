@@ -2,7 +2,8 @@
 // choices the student saved.
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
-import { caQuizId, gymkanaDeck } from '../../catalog/model/gymkana';
+import { gymkanaQuizId } from '@qv/schema';
+import { gymkanaDeck } from '../../catalog/model/gymkana';
 import { descendants } from '../../catalog/model/tree';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import { cardIndexQuery } from '../../cards/api/queries';
@@ -23,7 +24,7 @@ export function useGymkana() {
     ...cardIndexQuery(api, ref ?? { id: '', hash: '' }),
     enabled: !!ref && !!node,
   });
-  const quizId = node ? caQuizId(node.id) : null;
+  const quizId = node ? gymkanaQuizId(node.id) : null;
   const saved = useQuery(savedQuizQuery(useQuizRepository(), quizId));
   const data =
     index.data && node

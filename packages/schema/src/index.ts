@@ -118,6 +118,7 @@ export {
   GYMKANA_DECK_LABEL,
   GymkanaMeta,
   GymkanaPlaces,
+  gymkanaQuizId,
   ImportedAnkiCard,
   ImportedAnkiNote,
   NoteTypeSummary,

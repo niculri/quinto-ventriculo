@@ -4,6 +4,7 @@ import { FEW } from '@qv/schema';
 import type { AnkiTreeDeck, Catalog, UsageFigures, UsageReport } from '@qv/schema';
 import { describe, expect, it } from 'vitest';
 import { CATALOG } from '../../../../test/fixtures/catalog';
+import { GYM_CATALOG, GYM_DECK, GYM_PAGE } from '../../../../test/fixtures/gymkana';
 import { buildAnkiTree } from '../../../catalog/model/tree';
 import {
   barHeight,
@@ -136,6 +137,14 @@ describe('the name of a test and a note', () => {
     expect([quiz.name, quiz.detail]).toEqual(['Práctica de Biocel', 'Biología celular']);
     expect(quiz.to).toMatch(/\/practica$/);
     expect(quizNamed(CATALOG, 'no-existe')).toEqual({ name: 'no-existe', detail: null, to: null });
+  });
+
+  it('a gymkana’s writing rounds read by the gymkana, and link to it', () => {
+    expect(quizNamed(GYM_CATALOG, `gymkana-${GYM_DECK}`)).toEqual({
+      name: 'Gymkana del Certamen 2: escribir el nombre',
+      detail: 'Anatomía II',
+      to: GYM_PAGE,
+    });
   });
 
   it('a note of the catalog links to it with its course; an unknown one reads by its slug', () => {

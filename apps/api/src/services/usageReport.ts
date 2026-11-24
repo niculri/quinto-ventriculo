@@ -1,5 +1,13 @@
 // Builds the «Uso» report: the users' database figures with the opens, hidden where too few students were active.
-import { AdminUsageRow, FEW, SEARCH_CONTEXTS, USAGE_MIN_STUDENTS, UsageReport } from '@qv/schema';
+import {
+  AdminUsageRow,
+  FEW,
+  GYMKANA_DECK_LABEL,
+  SEARCH_CONTEXTS,
+  USAGE_MIN_STUDENTS,
+  UsageReport,
+  gymkanaQuizId,
+} from '@qv/schema';
 import type {
   AdminUsageFigures,
   AdminUsageGroup,
@@ -39,13 +47,24 @@ function deckGroups(catalog: Catalog): UsageGroups['decks'] {
   );
 }
 
+/** The tests, and the gymkanas' writing rounds, kept as a test's under their deck (the unit «Gymkana»). */
 function quizGroups(catalog: Catalog): UsageGroups['quizzes'] {
-  return Object.fromEntries(
-    catalog.semesters
-      .flatMap((s) => s.courses.flatMap((c) => c.assessments.flatMap((a) => a.quizzes)))
-      .filter((q) => QUIZ_ID.test(q.id))
-      .map((q): [string, UsageGroups['quizzes'][string]] => [q.id, [q.assessmentId, q.courseId]]),
-  );
+  const tests = catalog.semesters
+    .flatMap((s) => s.courses.flatMap((c) => c.assessments.flatMap((a) => a.quizzes)))
+    .filter((q) => QUIZ_ID.test(q.id))
+    .map((q): [string, UsageGroups['quizzes'][string]] => [q.id, [q.assessmentId, q.courseId]]);
+  const gymkanas = catalog.anki.decks
+    .filter((d) => {
+      const parts = d.name.split('::');
+      return (
+        parts.length === UNIT_LEVEL && parts.at(-1) === GYMKANA_DECK_LABEL && DECK_ID.test(d.id)
+      );
+    })
+    .map((d): [string, UsageGroups['quizzes'][string]] => [
+      gymkanaQuizId(d.id),
+      [d.assessmentId, d.courseId],
+    ]);
+  return Object.fromEntries([...tests, ...gymkanas]);
 }
 
 export const usageGroups = (catalog: Catalog): UsageGroups => ({

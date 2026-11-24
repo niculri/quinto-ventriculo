@@ -5,6 +5,7 @@ export type {
   AccessReport,
   InviteRejection,
   InviteResult,
+  MoveResult,
   RemoveResult,
   SetAdminResult,
 } from '@qv/schema/user';

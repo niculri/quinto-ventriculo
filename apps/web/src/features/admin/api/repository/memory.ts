@@ -2,7 +2,13 @@
 import type { AdminRepository } from './port';
 import { AccessError } from './model';
 import type { AccessInvite, AccessReport } from './model';
-import { addInvites, deckImpactOf, removeFromInvites, withAdminSet } from './memoryInvites';
+import {
+  addInvites,
+  deckImpactOf,
+  moveInInvites,
+  removeFromInvites,
+  withAdminSet,
+} from './memoryInvites';
 import { settle } from '../../../../shared/lib/settle';
 import { storageKeys } from '../../../../shared/lib/storage';
 
@@ -78,6 +84,13 @@ export function localAdminRepository(
       youAreOwner,
     };
   };
+  const change = <R>(apply: (list: AccessInvite[]) => { result: R; next: AccessInvite[] }) =>
+    settle(() => {
+      onlyAdmin();
+      const { result, next } = apply(invites);
+      keepInvites(next);
+      return result;
+    });
   return {
     isAdmin: () => Promise.resolve(admin),
     accessReport: () =>
@@ -92,20 +105,9 @@ export function localAdminRepository(
         if (result.changed) keepInvites(next);
         return result;
       }),
-    invite: (input) =>
-      settle(() => {
-        onlyAdmin();
-        const { result, next } = addInvites(invites, input, me);
-        keepInvites(next);
-        return result;
-      }),
-    removeInvites: (target) =>
-      settle(() => {
-        onlyAdmin();
-        const { result, next } = removeFromInvites(invites, target, openToDomain);
-        keepInvites(next);
-        return result;
-      }),
+    invite: (input) => change((list) => addInvites(list, input, me)),
+    removeInvites: (target) => change((list) => removeFromInvites(list, target, openToDomain)),
+    moveInvites: (moves) => change((list) => moveInInvites(list, moves, me)),
     deckImpact: (deckIds) =>
       settle(() => {
         onlyAdmin();

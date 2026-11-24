@@ -8,5 +8,6 @@ export const inviteListStrings = {
     invitedCount: (n: number) => plural(n, 'invitado', 'invitados'),
     withAccount: (n: number) => plural(n, 'con cuenta', 'con cuenta'),
     removeList: 'Sacar la lista',
+    chooseList: (list: string) => `Elegir a todos en ${list}`,
   },
 } as const;

@@ -1,5 +1,6 @@
-// «Acceso» without React: the invited grouped by list, what each list lets remove, and the form's list names.
-import type { AccessInvite, AccessReport } from '@qv/schema/user';
+// «Acceso» without React: the invited grouped by list, what each list lets remove, the form's list names and who is
+// chosen to move.
+import type { AccessInvite, AccessReport, MoveResult } from '@qv/schema/user';
 
 export type Removing =
   | { kind: 'person'; email: string }
@@ -35,3 +36,27 @@ export function listChoice(lists: readonly string[], choice: string) {
 export const removalKey = (t: Removing) => (t.kind === 'person' ? `p:${t.email}` : `l:${t.list}`);
 
 export const appointingKey = (t: Appointing) => `${t.admin ? 'a' : 'r'}:${t.email}`;
+
+/** Who of `people` is chosen: all, some or none (the list's «choose all» box). */
+export function listChoiceState(people: readonly AccessInvite[], chosen: ReadonlySet<string>) {
+  const n = people.filter((p) => chosen.has(p.email)).length;
+  return n === 0 ? 'none' : n === people.length ? 'all' : 'some';
+}
+
+/** The chosen with these emails added (`on`) or taken out. */
+export function withChosen(chosen: ReadonlySet<string>, emails: readonly string[], on: boolean) {
+  const next = new Set(chosen);
+  for (const e of emails) {
+    if (on) next.add(e);
+    else next.delete(e);
+  }
+  return next;
+}
+
+/** Only the chosen who are still invited, in the order of the report. */
+export const chosenInvites = (invited: readonly AccessInvite[], chosen: ReadonlySet<string>) =>
+  invited.filter((i) => chosen.has(i.email)).map((i) => i.email);
+
+/** Sending each one moved back to the list they left. */
+export const undoMoves = (moved: MoveResult['moved']) =>
+  moved.map((m) => ({ email: m.email, list: m.from }));

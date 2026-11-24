@@ -107,6 +107,12 @@ export function supabaseAdminRepository(client: SupabaseClient<Database>): Admin
         openToDomain: r.open_to_domain,
       };
     },
+    async moveInvites(moves) {
+      const { data, error } = await client.rpc('admin_move_invites', { p: { moves } });
+      if (error) throw accessError(error);
+      const r = fromDatabase('admin_move_invites', ACCESS_RPC.admin_move_invites.returns, data);
+      return { moved: r.moved, already: r.already, notInvited: r.not_invited };
+    },
     async setAdmin({ email, admin }) {
       const { data, error } = await client.rpc('admin_set_admin', { p: { email, admin } });
       if (error) throw accessError(error);

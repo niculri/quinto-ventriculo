@@ -222,6 +222,29 @@ describe('supabaseAdminRepository: «Acceso»', () => {
     });
   });
 
+  it('moves with { p: { moves } } and gives the page’s names', async () => {
+    const { client, spy } = clientWith(async () => ({
+      data: {
+        moved: [{ email: 'a@ug.uchile.cl', from: 'Curso', to: 'Equipo' }],
+        already: ['b@ug.uchile.cl'],
+        not_invited: [],
+      },
+      error: null,
+    }));
+    const moves = [
+      { email: 'a@ug.uchile.cl', list: 'Equipo' },
+      { email: 'b@ug.uchile.cl', list: 'Equipo' },
+    ];
+    expect(await supabaseAdminRepository(client).moveInvites(moves)).toEqual({
+      moved: [{ email: 'a@ug.uchile.cl', from: 'Curso', to: 'Equipo' }],
+      already: ['b@ug.uchile.cl'],
+      notInvited: [],
+    });
+    expect(spy).toHaveBeenLastCalledWith('admin_move_invites', { p: { moves } });
+    const refusing = supabaseAdminRepository(clientWith(refused('42501', 'admin_only')).client);
+    await expect(refusing.moveInvites(moves)).rejects.toThrow('Solo para administradores.');
+  });
+
   it('says each refusal of the database in Spanish', async () => {
     const cases: [Rpc, string][] = [
       [refused('28000', 'session_closed'), 'Tu sesión se cerró. Sal y vuelve a entrar.'],

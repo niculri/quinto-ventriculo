@@ -1,21 +1,26 @@
-// «Acceso» once its report came: the accounts without an invitation, who comes in, the form, the invited by list and
-// the popups to remove and to name.
+// «Acceso» once its report came: the accounts without an invitation, who comes in, the form, the invited by list with
+// the people chosen to move, and the popups to remove and to name.
 import { useState } from 'react';
 import { Users } from 'lucide-react';
+import { LiveToast } from '../../../../shared/ui/Toast';
 import { card } from '../../../../shared/ui/styles';
 import type { AccessReport } from '../../api/repository';
-import { appointingKey, invitesByList, removalKey } from '../../model/access';
+import { appointingKey, invitesByList, removalKey, withChosen } from '../../model/access';
+import { useMoveBar } from '../../hooks/useMoveBar';
 import type { Appointing, Removing } from '../../model/access';
 import { accessViewStrings as s } from './strings/AccessView.strings';
 import { AdminDialog } from './AdminDialog';
 import { InviteForm } from './InviteForm';
 import { InviteList } from './InviteList';
+import { MoveBar } from './MoveBar';
 import { RemoveDialog } from './RemoveDialog';
 import { Strays } from './Strays';
 
 export function AccessView({ report }: { report: AccessReport }) {
   const [removing, setRemoving] = useState<Removing | null>(null);
   const [appointing, setAppointing] = useState<Appointing | null>(null);
+  const [chosen, setChosen] = useState<ReadonlySet<string>>(() => new Set());
+  const bar = useMoveBar(report, chosen, () => setChosen(new Set()));
   const byList = invitesByList(report.invited);
   return (
     <>
@@ -38,14 +43,18 @@ export function AccessView({ report }: { report: AccessReport }) {
         <h3 id="invited" className="text-lg font-semibold">
           {s.invited.title}
         </h3>
+        {byList.length ? <MoveBar bar={bar} /> : null}
         {byList.length ? (
-          <div className="mt-3 space-y-4">
+          <div className="mt-4 space-y-4">
             {byList.map(([list, people]) => (
               <InviteList
                 key={list}
                 list={list}
                 people={people}
                 report={report}
+                chosen={chosen}
+                onChoose={(emails, on) => setChosen((c) => withChosen(c, emails, on))}
+                busy={bar.busy}
                 onRemove={setRemoving}
                 onAppoint={setAppointing}
               />
@@ -70,6 +79,7 @@ export function AccessView({ report }: { report: AccessReport }) {
           onClose={() => setAppointing(null)}
         />
       ) : null}
+      <LiveToast message={bar.toast} />
     </>
   );
 }

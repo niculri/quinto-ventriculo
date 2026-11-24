@@ -15,5 +15,6 @@ export const inviteRowStrings = {
     appointLabel: (email: string) => `Hacer administrador a ${email}`,
     remove: 'Sacar',
     removeLabel: (email: string) => `Sacar a ${email}`,
+    chooseLabel: (email: string) => `Elegir a ${email}`,
   },
 } as const;

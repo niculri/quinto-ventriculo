@@ -1,8 +1,9 @@
-// The rules of the invitations of the in-memory administration repository, as invite_emails() and remove_invites() apply them.
+// The rules of the invitations of the in-memory administration repository, as invite_emails(), remove_invites() and
+// admin_move_invites() apply them.
 import type { DeckImpact } from '@qv/schema';
 import { AccessError, MAX_EMAILS, normalizeEmail } from './model';
 import { blankToNull } from '../../../../shared/lib/blankToNull';
-import type { AccessInvite, InviteResult, RemoveResult, SetAdminResult } from './model';
+import type { AccessInvite, InviteResult, MoveResult, RemoveResult, SetAdminResult } from './model';
 
 const TOO_MANY = `A lo más ${MAX_EMAILS} correos por vez.`;
 /** What the Supabase adapter says for a refusal it does not name. */
@@ -95,6 +96,39 @@ export function removeFromInvites(
       // The demo has no sessions: one for each person removed.
       sessionsClosed: removed.length,
       openToDomain,
+    },
+  };
+}
+
+/** The invitations with each one moved to their list and `by` as who put them there, and what became of each email. */
+export function moveInInvites(
+  invites: AccessInvite[],
+  moves: { email: string; list: string }[],
+  by: string,
+): { result: MoveResult; next: AccessInvite[] } {
+  if (moves.length > MAX_EMAILS) throw new AccessError(TOO_MANY);
+  const asked = moves.map((m) => ({ email: normalizeEmail(m.email), list: m.list.trim() }));
+  if (asked.some((m) => !m.list || length(m.list) > 60)) {
+    throw new AccessError('El nombre de la lista tiene que tener entre 1 y 60 letras.');
+  }
+  const emails = asked.map((m) => m.email).filter(Boolean);
+  if (new Set(emails).size !== emails.length) throw new AccessError(FAILED);
+  const byEmail = new Map(invites.map((i) => [i.email, i]));
+  const sorted = [...asked].sort((a, b) => a.email.localeCompare(b.email));
+  const moved = sorted.flatMap((m) => {
+    const found = byEmail.get(m.email);
+    return found && found.list !== m.list ? [{ email: m.email, from: found.list, to: m.list }] : [];
+  });
+  const to = new Map(moved.map((m) => [m.email, m.to]));
+  return {
+    next: invites.map((i) => {
+      const list = to.get(i.email);
+      return list ? { ...i, list, invitedBy: by } : i;
+    }),
+    result: {
+      moved,
+      already: sorted.filter((m) => byEmail.get(m.email)?.list === m.list).map((m) => m.email),
+      notInvited: sorted.filter((m) => !byEmail.has(m.email)).map((m) => m.email),
     },
   };
 }

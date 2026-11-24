@@ -123,6 +123,7 @@ describe('writes only through the functions', () => {
       'admin_access_report',
       'admin_deck_impact',
       'admin_invite_emails',
+      'admin_move_invites',
       'admin_remove_invites',
       'admin_reopen_reports',
       'admin_report_queue',

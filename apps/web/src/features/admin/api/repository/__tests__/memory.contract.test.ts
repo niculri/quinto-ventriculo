@@ -5,7 +5,13 @@ import type { Database } from '@qv/db-types/users';
 import { createDatabase, OWNER_EMAIL } from '@qv/db/testing';
 import { fakeSupabase, signIn } from '@qv/db/postgrest';
 import type { Person } from '@qv/db/postgrest';
-import { AccessReport, InviteResult, RemoveResult, SetAdminResult } from '@qv/schema/user';
+import {
+  AccessReport,
+  InviteResult,
+  MoveResult,
+  RemoveResult,
+  SetAdminResult,
+} from '@qv/schema/user';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DATABASE_TIMEOUT, onBoth } from '../../../../../test/contract';
 import { localAdminRepository } from '../memory';
@@ -110,6 +116,38 @@ describe('invitations', () => {
     expect(withoutSessions(got.memory)).toEqual(withoutSessions(got.sql));
     expect(RemoveResult.parse(got.raw.sql[0])).toBeTruthy();
     expect(RemoveResult.parse(got.raw.memory[0])).toBeTruthy();
+  });
+});
+
+describe('moving between lists', () => {
+  it('to an existing list or a new one, undoing, what stays, the refusals and the limits', async () => {
+    await sqlAs(owner).invite({ emails: [mail(1), mail(2), mail(3)], list: 'Curso A', note: null });
+    await sqlAs(owner).invite({ emails: [mail(4)], list: 'Curso B', note: null });
+    await sqlAs(owner).setAdmin({ email: mail(2), admin: true });
+    const { sql, memory } = await pair(owner, { admin: true, owner: true });
+    const to = (list: string, ...emails: string[]) => emails.map((email) => ({ email, list }));
+    const got = await onBoth(sql, memory, [
+      (r) =>
+        r.moveInvites(to('Curso B', mail(1), ` ${mail(2).toUpperCase()} `, mail(4), mail(9), '')),
+      (r) => r.moveInvites(to('  Ayudantes ', mail(3))),
+      (r) => r.moveInvites([...to('Curso A', mail(1)), ...to('Curso A', mail(2))]),
+      (r) => r.moveInvites([...to('Curso A', mail(1)), ...to('Curso B', mail(1))]),
+      (r) => r.moveInvites(to('', mail(1))),
+      (r) => r.moveInvites(to('x'.repeat(61), mail(1))),
+      (r) => r.moveInvites(to('Curso A', ...many(501))),
+      (r) => r.accessReport(),
+    ]);
+    expect(got.memory).toEqual(got.sql);
+    expect(MoveResult.parse(got.raw.sql[0])).toEqual(MoveResult.parse(got.raw.memory[0]));
+  });
+
+  it('a student cannot move anybody', async () => {
+    const student = await signIn(db, mail(8));
+    const { sql, memory } = await pair(student, { admin: false, owner: false });
+    const got = await onBoth(sql, memory, [
+      (r) => r.moveInvites([{ email: OWNER_EMAIL, list: 'Fuera' }]),
+    ]);
+    expect(got.memory).toEqual(got.sql);
   });
 });
 

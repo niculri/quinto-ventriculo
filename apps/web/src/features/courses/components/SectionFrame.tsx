@@ -32,7 +32,7 @@ export function SectionFrame({
         ]}
       />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{title}</h1>
-      <p className="mt-2 text-muted">
+      <p className="mt-1 text-sm text-muted">
         {course.name} · {assessment.name}
       </p>
       {children}

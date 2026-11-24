@@ -25,7 +25,7 @@ describe('a deck’s page, what it says', () => {
   it('its title line, its tools, the waiting final review and the lines under «Estudiar»', async () => {
     renderApp(ASSESSMENT_PATH, { study: await student() });
     const heading = await screen.findByRole('heading', { level: 1, name: 'Certamen 1' });
-    expect(heading.nextElementSibling!.textContent).toBe('Mazo de Anki · 3 notas · 4 tarjetas');
+    expect(heading.nextElementSibling!.textContent).toBe('3 notas · 4 tarjetas');
     const tools = screen.getByRole('navigation', { name: 'Herramientas de Anki' });
     expect(
       within(tools)
@@ -146,7 +146,7 @@ describe('a deck’s page when something is missing', () => {
       api: fakeApi({ catalog: async () => catalog }),
     });
     const heading = await screen.findByRole('heading', { level: 1, name: 'Certamen 1' });
-    expect(heading.nextElementSibling!.textContent).toBe('Mazo de Anki · 1 nota · 1 tarjeta');
+    expect(heading.nextElementSibling!.textContent).toBe('1 nota · 1 tarjeta');
   });
 
   it('the dialog of a deck’s configuration waits for the presets before offering them', async () => {

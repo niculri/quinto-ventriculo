@@ -148,6 +148,29 @@ test('the deck list ends with its last row, and a row’s breakdown leaves the l
   expect(beside.x).toBeGreaterThanOrEqual(study.x + study.width);
 });
 
+test('a course’s page, its decks and an assessment’s notes: the same small line under the title', async ({
+  page,
+}) => {
+  await signIn(page);
+  const under = async () => {
+    const title = page.getByRole('main').getByRole('heading', { level: 1 });
+    await expect(title).toBeVisible();
+    return title.evaluate((h) => {
+      const line = h.nextElementSibling!;
+      const gap = line.getBoundingClientRect().top - h.getBoundingClientRect().bottom;
+      return [Math.round(gap), getComputedStyle(line).fontSize];
+    });
+  };
+  await page.goto(COURSE_URL);
+  const course = await under();
+  await page.goto(`${COURSE_URL}/anki`);
+  expect(await under()).toEqual(course);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  expect(await under()).toEqual(course);
+  await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
+  expect(await under()).toEqual(course);
+});
+
 test('the course’s decks: the new cards a day of each assessment, in the box of the assessment’s page', async ({
   page,
 }) => {

@@ -65,7 +65,7 @@ function CourseView({
       <h1 className="flex items-center gap-3 font-serif text-3xl font-semibold tracking-tight">
         <span aria-hidden="true">{course.emoji}</span> {course.name}
       </h1>
-      {material ? <p className="mt-2 text-muted">{material}</p> : null}
+      {material ? <p className="mt-1 text-sm text-muted">{material}</p> : null}
 
       {decks.decks || quizzes > 0 ? (
         <Heatmap

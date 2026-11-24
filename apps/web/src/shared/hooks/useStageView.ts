@@ -1,7 +1,7 @@
 // The size of the image viewer's stage and the view of the image in it, refitted when either one changes.
 import { useEffect, useState } from 'react';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import { clampView, fitView, isFitted } from '../lib/zoom';
+import { clampView, isFitted, openView } from '../lib/zoom';
 import type { Size, View } from '../lib/zoom';
 
 /** What can be done to the image once its size, the stage's and the view are known. */
@@ -13,7 +13,11 @@ export interface Ready {
 
 export type SetView = Dispatch<SetStateAction<View | null>>;
 
-export function useStageView(stageRef: RefObject<HTMLElement | null>, image: Size | null) {
+export function useStageView(
+  stageRef: RefObject<HTMLElement | null>,
+  image: Size | null,
+  shown?: number,
+) {
   const [stage, setStage] = useState<Size | null>(null);
   const [view, setView] = useState<View | null>(null);
 
@@ -27,8 +31,8 @@ export function useStageView(stageRef: RefObject<HTMLElement | null>, image: Siz
     return () => observer?.disconnect();
   }, [stageRef]);
 
-  // A new image, or the stage changed (turning the phone): what fitted the last ones fits the new ones, the rest stays
-  // in bounds.
+  // A new image, or the stage changed (turning the phone): what fitted the last ones opens again as a new one would
+  // (never smaller than where it was opened), the rest stays in bounds.
   const [fittedFor, setFittedFor] = useState<{ key: string; image: Size; stage: Size } | null>(
     null,
   );
@@ -41,7 +45,7 @@ export function useStageView(stageRef: RefObject<HTMLElement | null>, image: Siz
     setView((v) =>
       v && fittedFor && !isFitted(v, fittedFor.image, fittedFor.stage)
         ? clampView(v, sizes.image, sizes.stage)
-        : fitView(sizes.image, sizes.stage),
+        : openView(sizes.image, sizes.stage, shown),
     );
   }
   return { stage, view, setView };

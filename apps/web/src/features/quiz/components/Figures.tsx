@@ -15,7 +15,14 @@ function Figure({ figure: f, onZoom }: { figure: QuizFigure; onZoom: (image: Ope
       type="button"
       className="fbtn"
       aria-label={s.figures.zoom(f.alt)}
-      onClick={() => onZoom({ src: f.src ?? '', alt: f.alt, caption: f.caption ?? '' })}
+      onClick={(e) =>
+        onZoom({
+          src: f.src ?? '',
+          alt: f.alt,
+          caption: f.caption ?? '',
+          shown: e.currentTarget.getBoundingClientRect().width,
+        })
+      }
     >
       <img
         className="fimg"

@@ -28,6 +28,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
       src: img.currentSrc || img.src,
       alt: img.alt,
       caption: img.closest('figure')?.querySelector('figcaption')?.textContent ?? '',
+      shown: img.getBoundingClientRect().width,
       ...sectionAt(e.currentTarget, img),
     });
     return true;

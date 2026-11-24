@@ -146,12 +146,24 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
 function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
   if (target?.closest('#image-occlusion-container')) {
     const src = occlusionSnapshot(root);
-    const alt = root.querySelector<HTMLImageElement>('#image-occlusion-container img')?.alt;
-    return src ? { src, alt: alt! || s.frame.image, caption: '' } : null;
+    if (!src) return null;
+    // A snapshot exists only with the image loaded.
+    const base = root.querySelector<HTMLImageElement>('#image-occlusion-container img')!;
+    return {
+      src,
+      alt: base.alt || s.frame.image,
+      caption: '',
+      shown: base.getBoundingClientRect().width,
+    };
   }
   const img = target?.closest('img');
   if (!(img instanceof HTMLImageElement)) return null;
-  return { src: img.currentSrc || img.src, alt: img.alt || s.frame.image, caption: '' };
+  return {
+    src: img.currentSrc || img.src,
+    alt: img.alt || s.frame.image,
+    caption: '',
+    shown: img.getBoundingClientRect().width,
+  };
 }
 
 export function cardShadowRoot(region: Element): ShadowRoot | null {

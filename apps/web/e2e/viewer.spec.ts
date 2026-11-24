@@ -144,6 +144,32 @@ test('from a note: fitted, pinch, drag, double tap, keys; closing goes back wher
   await expect(viewer(page)).toBeVisible();
 });
 
+test('a tall plate opens at least as big as in the article, from its top, and still fits on request', async ({
+  page,
+  isMobile,
+}) => {
+  await page.setViewportSize({ width: page.viewportSize()!.width, height: 800 });
+  await signIn(page);
+  await page.goto('/dev/reading');
+  const plate = page.getByRole('button', {
+    name: /^Ampliar la imagen: La escala de los potenciales, como/,
+  });
+  await plate.scrollIntoViewIfNeeded();
+  const inArticle = (await plate.boundingBox())!;
+  await plate.click();
+  await expect.poll(() => scale(page)).toBeGreaterThan(0);
+  const [x, y, width] = await imageBox(page);
+  const stage = (await page.getByTestId('image-stage').boundingBox())!;
+  expect(width).toBeGreaterThanOrEqual(Math.floor(inArticle.width));
+  expect(y).toBe(Math.round(stage.y));
+  expect(x + width).toBeLessThanOrEqual(Math.round(stage.x + stage.width));
+  // On a phone the article's column is narrower than what fits: it opens fitted, as before.
+  if (!isMobile) await viewer(page).getByRole('button', { name: 'Ajustar a la pantalla' }).click();
+  await expect
+    .poll(async () => (await imageBox(page))[3])
+    .toBeLessThanOrEqual(Math.ceil(stage.height));
+});
+
 test('a real double tap zooms in once, also where the browser adds a dblclick', async ({
   page,
   isMobile,

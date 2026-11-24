@@ -14,6 +14,8 @@ export interface OpenImage {
   src: string;
   alt: string;
   caption: string;
+  /** How wide (CSS px) it was where it was opened: the viewer never opens it smaller than that. */
+  shown?: number | undefined;
   section?: string | undefined;
   sectionTitle?: string | undefined;
 }
@@ -149,7 +151,7 @@ function Viewer({
   // Radix gives the focus back only to a Dialog.Trigger: the figure, the card or the photo that opened it is none.
   const [opener] = useState(() => document.activeElement);
   const [natural, setNatural] = useState<Size | null>(null);
-  const zoom = useImageZoom(stageRef, natural, onClose);
+  const zoom = useImageZoom(stageRef, natural, onClose, image.shown);
 
   return (
     <Dialog.Content

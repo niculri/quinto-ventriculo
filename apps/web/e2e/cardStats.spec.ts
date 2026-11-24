@@ -60,13 +60,16 @@ test('a question answered in a test counts in today’s «Días de estudio», ap
   await expect(page.getByText('Correcta', { exact: true })).toBeVisible();
 
   await page.goto('/home');
-  const today = page.getByRole('gridcell', { name: /\(hoy\): 1 respuesta$/ });
+  const region = page.getByRole('region', { name: 'Días de estudio' });
+  const today = region.getByRole('gridcell', { name: /\(hoy\): 1 respuesta$/ });
   await expect(today).toBeVisible();
+  await expect(region.getByText(/^En la racha actual/)).toBeVisible();
+  await region.scrollIntoViewIfNeeded();
   await today.click();
   const day = page.getByRole('dialog');
   await expect(day).toContainText('1 respuesta de tests');
   await expect(day.getByRole('listitem')).toHaveText(/Biología celular.*1 en tests$/);
   await expect(
-    page.getByText('En la racha actual: 0 respuestas de Anki y 1 pregunta de tests'),
+    region.getByText('En la racha actual: 0 respuestas de Anki y 1 pregunta de tests'),
   ).toBeVisible();
 });

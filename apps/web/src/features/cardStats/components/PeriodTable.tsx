@@ -7,7 +7,7 @@ import { Skeleton } from '../../../shared/ui/Loading';
 import { periodRows } from '../model/periods';
 import { periodTableStrings as s } from './strings/PeriodTable.strings';
 
-const cell = 'px-2 py-2 text-right tabular-nums';
+const cell = 'px-2 py-2 text-right whitespace-nowrap tabular-nums';
 
 export function PeriodTable({
   data,

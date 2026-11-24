@@ -50,8 +50,10 @@ describe('locate', () => {
     });
   });
 
-  it('an assessment’s section is its notes, or its tests', () => {
+  it('an assessment’s section is its notes, its tests or its gymkana', () => {
     const base = '/semesters/2/courses/biologia-celular/assessments/certamen-2';
+    expect(locate(`${base}/gymkana`, CATALOG, tree).tab).toBe('gymkana');
+    expect(locate(`${base}/gymkana/write`, CATALOG, tree).tab).toBe('gymkana');
     expect(locate(base, CATALOG, tree).tab).toBe('notes');
     expect(locate(`${base}/notes`, CATALOG, tree).tab).toBe('notes');
     expect(locate(`${base}/tests`, CATALOG, tree).tab).toBe('tests');

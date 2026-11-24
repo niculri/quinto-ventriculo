@@ -83,3 +83,16 @@ export function AnkiArt(props: SVGProps<SVGSVGElement>) {
     </Art>
   );
 }
+
+export function GymkanaArt(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Art {...props}>
+      <rect x="22" y="34" width="116" height="92" rx="10" fill="currentColor" fillOpacity=".08" />
+      <path d="M44 104c10-26 22-40 36-40s26 14 36 40" />
+      <path d="M62 104c6-14 11-20 18-20s12 6 18 20" strokeWidth="2.5" />
+      <path d="m96 58 22-20" />
+      <circle cx="121" cy="35" r="6" fill="currentColor" fillOpacity=".55" />
+      <path d="M40 140h44" strokeWidth="2" strokeDasharray="1 7" />
+    </Art>
+  );
+}

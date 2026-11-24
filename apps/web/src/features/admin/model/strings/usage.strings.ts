@@ -24,5 +24,6 @@ export const usageStrings = {
   },
   details: {
     deck: (id: string) => `Mazo ${id}`,
+    gymkana: (assessment: string) => `Gymkana del ${assessment}: escribir el nombre`,
   },
 } as const;

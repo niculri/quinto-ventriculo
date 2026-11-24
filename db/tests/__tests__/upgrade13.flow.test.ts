@@ -15,7 +15,7 @@ interface Bundle {
   assessments: unknown[];
   ankiNoteTypes: { id: string }[];
   ankiPresets: { name: string }[];
-  ankiDecks: { id: string; parentId: string | null; semester?: number | null }[];
+  ankiDecks: { id: string; name: string; parentId: string | null; semester?: number | null }[];
   ankiNotes: {
     guid: string;
     hash: string;
@@ -25,13 +25,18 @@ interface Bundle {
   }[];
 }
 
-// The e2e content: the importer's output for the test package.
-const bundle = JSON.parse(
+// The e2e content: the importer's output for the test package (without the gymkana, which came after the deck tree).
+const e2e = JSON.parse(
   readFileSync(
     join(import.meta.dirname, '..', '..', '..', 'apps', 'web', 'e2e', 'content', 'content.json'),
     'utf8',
   ),
 ) as Bundle;
+const bundle: Bundle = {
+  ...e2e,
+  ankiDecks: e2e.ankiDecks.filter((d) => !d.name.includes('Anatomía II')),
+  ankiNotes: e2e.ankiNotes.filter((n) => !n.guid.startsWith('gymkana-')),
+};
 const DECK = '2059400110';
 const EXTRAS = '2059400111';
 

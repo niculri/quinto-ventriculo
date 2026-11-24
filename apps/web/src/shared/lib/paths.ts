@@ -52,6 +52,10 @@ export const paths = {
     `${paths.course(course)}/assessments/${seg(assessmentAnchor(assessmentId))}/notes`,
   assessmentTests: (course: CourseRef, assessmentId: string) =>
     `${paths.course(course)}/assessments/${seg(assessmentAnchor(assessmentId))}/tests`,
+  gymkana: (course: CourseRef, assessmentId: string) =>
+    `${paths.course(course)}/assessments/${seg(assessmentAnchor(assessmentId))}/gymkana`,
+  gymkanaWrite: (course: CourseRef, assessmentId: string) =>
+    `${paths.gymkana(course, assessmentId)}/write`,
   note: (course: CourseRef, noteSlug: string, anchor?: string | null) =>
     `${paths.course(course)}/notes/${seg(noteSlug)}${anchor ? `#${anchor}` : ''}`,
   quiz: (

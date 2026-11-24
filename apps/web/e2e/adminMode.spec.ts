@@ -46,7 +46,7 @@ test('as a student: no course turned off, no hidden semester and not a tag, mark
   expect(await adminModeIsOn(page)).toBe(false);
   await page.goto('/courses');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.getByRole('main').getByText(/Anatomía I|3° Semestre/)).toHaveCount(0);
+  await expect(page.getByRole('main').getByText(/Anatomía I(?!I)|3° Semestre/)).toHaveCount(0);
   await expect(marks(page)).toHaveCount(0);
   await page.goto(OFF_COURSE);
   await expect(page.getByRole('heading', { level: 1, name: NOT_FOUND })).toBeVisible();
@@ -58,7 +58,7 @@ test('in the admin mode: what is off is there, each with its tag, and the tag mo
   await page.goto('/courses');
   await setAdminMode(page, true);
   const main = page.getByRole('main');
-  await expect(main.getByText('Anatomía I')).toBeVisible();
+  await expect(main.getByText(/Anatomía I(?!I)/)).toBeVisible();
   await expect(main.getByText('3° Semestre')).toBeVisible();
   await expect(main.locator('[data-admin-mark]').filter({ hasText: 'Ramo apagado' })).toBeVisible();
   // Semester 1 is left with nothing a student sees, and so is the empty 3.

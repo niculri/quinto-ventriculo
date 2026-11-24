@@ -6,7 +6,8 @@ import { assessmentAnchor } from '../../../shared/lib/paths';
 import { ListMark } from '../../catalog/components/AdminMarks';
 import type { CourseDecks } from '../hooks/useCourseDecks';
 import { assessmentDeck, notesLine } from '../model/material';
-import { AnkiArt, NotesArt, TestsArt } from './SectionArt';
+import { AnkiArt, GymkanaArt, NotesArt, TestsArt } from './SectionArt';
+import { gymkanaDeck } from '../../catalog/model/gymkana';
 import { ART, SectionCard } from './SectionCard';
 import { AnkiCard } from './AnkiCard';
 import { ChooseUnits } from './ChooseUnits';
@@ -25,6 +26,7 @@ export function AssessmentCards({
 }) {
   const { counts, mastery, failed, plan } = decks;
   const node = assessmentDeck(decks.tree, a);
+  const gymkana = gymkanaDeck(decks.tree, a.id);
   const questions = a.quizzes.reduce((t, q) => t + q.questionCount, 0);
   const onlyQuiz = a.quizzes.length === 1 ? a.quizzes[0]! : null;
   return (
@@ -62,6 +64,15 @@ export function AssessmentCards({
             decks={decks}
             art={<AnkiArt className={ART} />}
           />
+        ) : null}
+        {gymkana ? (
+          <SectionCard
+            to={paths.gymkana(course, a.id)}
+            title={s.section.gymkana}
+            art={<GymkanaArt className={ART} />}
+          >
+            {s.stations(gymkana.cardCount)}
+          </SectionCard>
         ) : null}
       </div>
       {plan && node ? (

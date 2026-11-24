@@ -14,6 +14,9 @@ export function answerScreenBack(
   if (pathname.endsWith('/cards/practice')) {
     return { to: `${pathname.slice(0, -'/practice'.length)}${search}`, label: 'Tarjetas' };
   }
+  if (pathname.endsWith('/gymkana/write')) {
+    return { to: pathname.slice(0, -'/write'.length), label: 'Gymkana' };
+  }
   for (const end of ['/study', '/review']) {
     if (pathname.endsWith(end)) return { to: pathname.slice(0, -end.length), label: 'Anki' };
   }

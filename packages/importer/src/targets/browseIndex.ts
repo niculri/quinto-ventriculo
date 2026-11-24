@@ -19,13 +19,14 @@ const digest = (json: string) => createHash('sha256').update(json).digest('hex')
 
 /** The JSON is built in a fixed order, so the same notes always give the same file and key. */
 export function packCardIndexes(
-  bundle: Pick<ContentBundle, 'ankiNoteTypes' | 'ankiDecks' | 'ankiNotes'>,
+  bundle: Pick<ContentBundle, 'ankiNoteTypes' | 'ankiDecks' | 'ankiNotes' | 'ankiGymkanas'>,
   assessments: readonly string[] | null = null,
 ): PackedIndex[] {
   return buildCardIndexes({
     noteTypes: bundle.ankiNoteTypes,
     decks: bundle.ankiDecks,
     notes: bundle.ankiNotes,
+    gymkanas: bundle.ankiGymkanas ?? [],
     ...(assessments ? { assessments } : {}),
   }).map((index) => {
     const json = JSON.stringify(index);

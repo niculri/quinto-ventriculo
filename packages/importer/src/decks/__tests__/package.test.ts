@@ -695,7 +695,15 @@ describe('decks: the packages that do not fit', () => {
       decks: new Map(),
       deckIds: new Set(),
       guids: new Set(),
-      result: { noteTypes: [], presets: [], decks: [], notes: [], media: new Map(), warnings: [] },
+      result: {
+        noteTypes: [],
+        presets: [],
+        decks: [],
+        notes: [],
+        media: new Map(),
+        gymkanas: [],
+        warnings: [],
+      },
     };
     await processPackage(
       {

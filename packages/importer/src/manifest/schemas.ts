@@ -4,6 +4,7 @@ import {
   Assessment,
   Course,
   DeckId,
+  GymkanaPlaces,
   NoteCode,
   NoteGroup,
   NoteHeader,
@@ -59,6 +60,8 @@ export const DecksManifest = z.object({
       /** A JSON `{ cards: [{ guid, ord }] }`, relative like `apkg`: those cards stay out of the site; a note left
        * without cards, too. For decks whose author took cards out of his own collection. */
       excludeCards: z.string().min(1).endsWith('.json').optional(),
+      /** The package's «Gymkana» deck: the regions and sources the writing mode filters by, from the notes' tags. */
+      gymkana: GymkanaPlaces.optional(),
     }),
   ),
 });

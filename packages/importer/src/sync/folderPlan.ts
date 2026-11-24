@@ -8,7 +8,7 @@ import { withVersion } from './versions';
 
 export type AnkiParts = Pick<
   ContentBundle,
-  'ankiNoteTypes' | 'ankiPresets' | 'ankiDecks' | 'ankiNotes'
+  'ankiNoteTypes' | 'ankiPresets' | 'ankiDecks' | 'ankiNotes' | 'ankiGymkanas'
 >;
 
 const byName = (a: { name: string }, b: { name: string }) =>
@@ -93,8 +93,21 @@ export function planAnki(before: ContentBundle, bundle: ContentBundle, scope: Sa
     ),
     ...bundle.ankiDecks,
   ].sort(byName);
+  // A gymkana whose deck came again is the new one; the others stay while their deck does.
+  const deckIds = new Set(ankiDecks.map((d) => d.id));
+  const ankiGymkanas = [
+    ...(before.ankiGymkanas ?? []).filter(
+      (g) => !freshDecks.has(g.deckId) && deckIds.has(g.deckId),
+    ),
+    ...(bundle.ankiGymkanas ?? []),
+  ];
   return {
-    anki: { ...stillUsed(before, bundle, ankiNotes, ankiDecks), ankiDecks, ankiNotes },
+    anki: {
+      ...stillUsed(before, bundle, ankiNotes, ankiDecks),
+      ankiDecks,
+      ankiNotes,
+      ankiGymkanas,
+    },
     changed: changed.map((n) => n.guid),
     unchanged: unchanged.map((n) => n.guid),
     removed: before.ankiNotes.filter((n) => !freshCards.has(n.guid) && inAssessments(n)).length,

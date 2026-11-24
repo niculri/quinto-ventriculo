@@ -19,6 +19,7 @@
     "@fontsource-variable/source-serif-4": "5.3.1",
     "@qv/anki-search": "0.0.0",
     "@qv/html": "0.0.0",
+    "@qv/gymkana": "0.0.0",
     "@qv/quiz": "0.0.0",
     "@qv/release-review": "0.0.0",
     "@qv/schema": "0.0.0",

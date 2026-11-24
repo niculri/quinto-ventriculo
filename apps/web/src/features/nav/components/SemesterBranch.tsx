@@ -10,6 +10,7 @@ import { hasMaterial } from '../model/where';
 import type { Where } from '../model/where';
 import { AssessmentParts } from './AssessmentParts';
 import { NavLink, Nested, icon } from './NavLink';
+import { gymkanaDeck } from '../../catalog/model/gymkana';
 
 export function SemesterBranch({
   semester,
@@ -133,6 +134,7 @@ function CourseAssessments({
                   course={course}
                   assessment={a}
                   deck={deck}
+                  gymkana={gymkanaDeck(tree, a.id)}
                   where={
                     inPath
                       ? where

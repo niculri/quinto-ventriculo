@@ -92,7 +92,7 @@ const NO_HAND_MEMO = {
     'The React Compiler keeps what a render builds: write it plainly, or split the hook so it can.',
 };
 
-const LEAF_PACKAGES = ['srs', 'quiz', 'anki-search', 'anki-render', 'anki-format'];
+const LEAF_PACKAGES = ['srs', 'quiz', 'gymkana', 'anki-search', 'anki-render', 'anki-format'];
 
 export default tseslint.config(
   {

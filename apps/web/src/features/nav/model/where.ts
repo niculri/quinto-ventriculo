@@ -9,7 +9,7 @@ export interface Where {
   semester: number | null;
   courseId: string | null;
   assessmentId: string | null;
-  tab: 'notes' | 'tests' | 'anki' | null;
+  tab: 'notes' | 'tests' | 'anki' | 'gymkana' | null;
   noteSlug: string | null;
   quizSlug: string | null;
   deckId: string | null;
@@ -63,7 +63,7 @@ export function locate(pathname: string, catalog: Catalog | null, tree: AnkiTree
     where.quizSlug = rest[1] ?? null;
   } else if (kind === 'assessments' && rest[0]) {
     where.assessmentId = `${courseId}/${rest[0]}`;
-    where.tab = rest[1] === 'tests' ? 'tests' : 'notes';
+    where.tab = rest[1] === 'tests' || rest[1] === 'gymkana' ? rest[1] : 'notes';
   } else if (kind === 'anki') {
     where.tab = 'anki';
     const best = deckAt(pathname, courseId, tree);

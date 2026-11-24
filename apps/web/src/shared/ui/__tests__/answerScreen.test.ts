@@ -11,6 +11,12 @@ describe('the screens where one answers', () => {
     expect(isAnswerScreen('/semesters/1/courses/anatomia-1/anki/certamen-1/cards/practice')).toBe(
       true,
     );
+    expect(
+      isAnswerScreen('/semesters/2/courses/anatomia-2/assessments/certamen-2/gymkana/write'),
+    ).toBe(true);
+    expect(isAnswerScreen('/semesters/2/courses/anatomia-2/assessments/certamen-2/gymkana')).toBe(
+      false,
+    );
     expect(isAnswerScreen(DECK)).toBe(false);
     expect(isAnswerScreen('/semesters/1/courses/anatomia-1/anki/certamen-1/cards')).toBe(false);
     expect(isAnswerScreen('/home')).toBe(false);
@@ -30,6 +36,12 @@ describe('the screens where one answers', () => {
     ).toEqual({
       to: '/semesters/1/courses/anatomia-1/anki/certamen-1/cards?state=failed',
       label: 'Tarjetas',
+    });
+    expect(
+      answerScreenBack('/semesters/2/courses/anatomia-2/assessments/certamen-2/gymkana/write', ''),
+    ).toEqual({
+      to: '/semesters/2/courses/anatomia-2/assessments/certamen-2/gymkana',
+      label: 'Gymkana',
     });
     expect(answerScreenBack('/home', '')).toBeNull();
   });

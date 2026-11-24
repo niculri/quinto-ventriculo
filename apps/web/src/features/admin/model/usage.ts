@@ -1,6 +1,6 @@
 // «Uso» without React: how a figure is written, the rows and periods of the summary, the points of the chart, and the
 // name and link of a deck, a test or a note.
-import { FEW } from '@qv/schema';
+import { FEW, gymkanaQuizId } from '@qv/schema';
 import type { Catalog, UsageCount, UsageFigures, UsageOpenFigures, UsageReport } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import type { buildAnkiTree } from '../../catalog/model/tree';
@@ -88,12 +88,18 @@ export function deckNamed(tree: ReturnType<typeof buildAnkiTree>, id: string): N
   };
 }
 
+/** A test of the catalog, or a gymkana's writing rounds, kept as a test's under its deck. */
 export function quizNamed(catalog: Catalog, id: string): Named {
+  const gymkana = catalog.anki.decks.find((d) => gymkanaQuizId(d.id) === id);
   for (const sem of catalog.semesters) {
     for (const course of sem.courses) {
       for (const a of course.assessments) {
         const q = a.quizzes.find((x) => x.id === id);
         if (q) return { name: q.title, detail: course.name, to: paths.quiz(course, q) };
+        if (gymkana?.assessmentId === a.id) {
+          const name = s.details.gymkana(a.name);
+          return { name, detail: course.name, to: paths.gymkana(course, a.id) };
+        }
       }
     }
   }

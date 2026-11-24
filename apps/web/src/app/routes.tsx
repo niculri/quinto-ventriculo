@@ -112,6 +112,20 @@ export const routes: RouteObject[] = [
             ),
           },
           {
+            path: 'semesters/:number/courses/:courseId/assessments/:assessment/gymkana',
+            lazy: page(
+              () => import('../features/gymkana/pages/GymkanaPage'),
+              (m) => m.GymkanaPage,
+            ),
+          },
+          {
+            path: 'semesters/:number/courses/:courseId/assessments/:assessment/gymkana/write',
+            lazy: page(
+              () => import('../features/gymkana/pages/GymkanaWritePage'),
+              (m) => m.GymkanaWritePage,
+            ),
+          },
+          {
             path: 'semesters/:number/courses/:courseId/notes/:noteSlug',
             lazy: page(
               () => import('../features/notes/pages/NotePage'),

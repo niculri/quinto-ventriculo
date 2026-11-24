@@ -51,7 +51,7 @@ test.describe('a course turned off', () => {
 
     await page.goto('/admin/site');
     const bio = page.getByRole('switch', { name: 'Biología celular' });
-    const anatomy = page.getByRole('switch', { name: 'Anatomía I' });
+    const anatomy = page.getByRole('switch', { name: 'Anatomía I', exact: true });
     const save = page.getByRole('button', { name: 'Guardar' });
     await expect(bio).toBeChecked();
     await expect(save).toBeDisabled();
@@ -80,10 +80,10 @@ test.describe('a course turned off', () => {
     await forgetCache(page);
     await menu.getByRole('link', { name: 'Inicio' }).click();
     await expect(page).toHaveURL(/\/home$/);
-    await expect(main.getByRole('link', { name: /Anatomía I/ })).toHaveCount(0);
-    await expect(menu.getByText(/Anatomía I|Biología celular/)).toHaveCount(0);
+    await expect(main.getByRole('link', { name: /Anatomía I\b/ })).toHaveCount(0);
+    await expect(menu.getByText(/Anatomía I\b|Biología celular/)).toHaveCount(0);
     await page.goto('/courses');
-    await expect(main.getByText(/Biología celular|Anatomía I/)).toHaveCount(0);
+    await expect(main.getByText(/Biología celular|Anatomía I\b/)).toHaveCount(0);
 
     for (const url of [ARTICLE, QUIZ, COURSE, DECK_URL]) {
       await page.goto(url);

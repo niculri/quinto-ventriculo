@@ -137,6 +137,21 @@ describe('planAnki', () => {
     expect(plan.anki.ankiPresets.map((p) => p.name)).toEqual(['P']);
   });
 
+  it('keeps the gymkana of a deck that stays, takes the new one of a deck brought again and drops one whose deck left', () => {
+    const gym = (deckId: string, label: string) => ({
+      deckId,
+      regions: [{ tag: 'r', label }],
+      sources: [],
+    });
+    const plan = planAnki(
+      { ...before, ankiGymkanas: [gym('2', 'vieja'), gym('3', 'otra'), gym('9', 'sin mazo')] },
+      { ...brought, ankiGymkanas: [gym('2', 'nueva')] },
+      scope,
+    );
+    expect(plan.anki.ankiGymkanas.map((g) => g.regions[0]!.label)).toEqual(['otra', 'nueva']);
+    expect(planAnki(before, brought, scope).anki.ankiGymkanas).toEqual([]);
+  });
+
   it('a type or preset of the previous import that the notes and decks left still use is kept next to the new ones', () => {
     const plan = planAnki(before, brought, scope);
     expect(plan.anki.ankiNoteTypes.map((t) => t.id)).toEqual(['u', 't']);

@@ -2,6 +2,7 @@
 // store and the API serves behind the session, so opening the browser asks nothing of the content database.
 import { z } from 'zod';
 import { BrowseNote, NoteTypeSummary } from './flashcards';
+import { GymkanaMeta } from './gymkana';
 
 /** Bumped when the shape of the file changes: a web that does not know it asks for it again after a reload. */
 export const CARD_INDEX_VERSION = 1;
@@ -30,6 +31,8 @@ export const CardIndex = z.object({
   assessmentId: z.string(),
   noteTypes: z.array(NoteTypeSummary),
   notes: z.array(CardIndexNote),
+  /** An older file has none. */
+  gymkanas: z.array(GymkanaMeta).optional(),
 });
 export type CardIndex = z.infer<typeof CardIndex>;
 

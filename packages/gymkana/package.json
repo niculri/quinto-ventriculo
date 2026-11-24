@@ -1,0 +1,14 @@
+{
+  "name": "@qv/gymkana",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The gymkana's writing mode: checking a written name against a station's, the stations' filters and a round, without React or network",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  }
+}

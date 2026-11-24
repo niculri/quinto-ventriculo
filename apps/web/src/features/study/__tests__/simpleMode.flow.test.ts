@@ -492,9 +492,11 @@ describe('a page with nothing to show still says what to do', () => {
     );
   });
 
-  it('a course without decks says it has no material, and its Anki page does not exist', async () => {
+  it('a course without material does not exist, nor its Anki page', async () => {
     const page = renderApp('/semesters/2/courses/fisica', { study: student() });
-    expect(await screen.findByText('Todavía no hay material de este ramo.')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Esta página no aparece ni en el Netter' }),
+    ).toBeInTheDocument();
     page.unmount();
     renderApp('/semesters/2/courses/fisica/anki', { study: student() });
     expect((await screen.findAllByRole('link', { name: /Inicio/ })).length).toBeGreaterThan(0);

@@ -1,6 +1,12 @@
 // Tests for hiding the semesters without material from the catalog.
 import { describe, expect, it } from 'vitest';
-import { SiteSettingsUpdate, semesterHasMaterial, withoutEmptySemesters } from '../api';
+import {
+  SiteSettingsUpdate,
+  assessmentHasMaterial,
+  courseHasMaterial,
+  semesterHasMaterial,
+  withoutEmptySemesters,
+} from '../api';
 import type { Catalog } from '../api';
 
 const course = (id: string, semester: number, material: 'note' | 'quiz' | null) => ({
@@ -87,6 +93,29 @@ describe('the semesters without material', () => {
       true,
       false,
     ]);
+  });
+
+  it('a course or an assessment has material with an article, a test or a deck with cards of its own', () => {
+    const courses = catalog.semesters.map((s) => s.courses[0]);
+    const decks = [
+      { ...deck('d-c', 3, 4), courseId: 'c', assessmentId: 'c/certamen-1' },
+      { ...deck('d-d', 4, 0), courseId: 'd', assessmentId: null },
+    ];
+    const withDecks = { ...catalog, anki: { ...catalog.anki, decks } };
+    expect(courses.slice(0, 4).map((c) => courseHasMaterial(withDecks, c!))).toEqual([
+      true,
+      true,
+      true,
+      false,
+    ]);
+    expect(
+      courses.slice(0, 4).map((c) => assessmentHasMaterial(withDecks, c!.assessments[0]!)),
+    ).toEqual([true, true, true, false]);
+    const onlyTheCourse = { ...withDecks.anki, decks: [{ ...decks[0]!, assessmentId: null }] };
+    expect(courseHasMaterial({ ...catalog, anki: onlyTheCourse }, courses[2]!)).toBe(true);
+    expect(
+      assessmentHasMaterial({ ...catalog, anki: onlyTheCourse }, courses[2]!.assessments[0]!),
+    ).toBe(false);
   });
 
   it('takes them out with their empty decks and says how many', () => {

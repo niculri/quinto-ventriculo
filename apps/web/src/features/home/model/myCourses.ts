@@ -1,7 +1,7 @@
 // «Tus ramos» on the home page: which courses the student sees, and adding or taking out a course.
 
 import type { Catalog, CourseWithAssessments } from '@qv/schema';
-import { countDecks, countNotes, materialLabel } from '../../catalog/model/catalog';
+import { courseHasMaterial } from '@qv/schema/http';
 import type { StudyPreferences } from '@qv/schema/user';
 import { myCoursesStrings } from './strings/myCourses.strings';
 
@@ -14,10 +14,6 @@ export interface MyCourses {
   cards: CourseWithAssessments[];
   soon: CourseWithAssessments[];
   addable: CourseWithAssessments[];
-}
-
-function hasMaterial(catalog: Catalog, course: CourseWithAssessments): boolean {
-  return materialLabel(countNotes(course), countDecks(catalog, course.id)) !== '';
 }
 
 /**
@@ -35,7 +31,7 @@ export function myCourses(
   const byId = new Map(all.map((c) => [c.id, c]));
   const out: MyCourses = { cards: [], soon: [], addable: [] };
   const put = (course: CourseWithAssessments) =>
-    (hasMaterial(catalog, course) ? out.cards : out.soon).push(course);
+    (courseHasMaterial(catalog, course) ? out.cards : out.soon).push(course);
   for (const course of all) {
     if (removed.has(course.id) || added.has(course.id)) continue;
     if (course.semester === choice.semester || active.has(course.id)) put(course);
@@ -45,7 +41,7 @@ export function myCourses(
     if (course && !removed.has(id)) put(course);
   }
   const mine = new Set([...out.cards, ...out.soon].map((c) => c.id));
-  out.addable = all.filter((c) => !mine.has(c.id) && hasMaterial(catalog, c));
+  out.addable = all.filter((c) => !mine.has(c.id) && courseHasMaterial(catalog, c));
   return out;
 }
 

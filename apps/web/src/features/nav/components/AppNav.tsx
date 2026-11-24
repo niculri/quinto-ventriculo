@@ -10,7 +10,8 @@ import { appNavStrings } from './strings/AppNav.strings';
 import { catalogStrings } from '../../../shared/strings/catalog.strings';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
 import type { AnkiTree } from '../../catalog/model/tree';
-import { hasMaterial, locate } from '../model/where';
+import { semesterHasMaterial } from '@qv/schema/http';
+import { locate } from '../model/where';
 import type { Where } from '../model/where';
 import { useActiveInSight } from '../hooks/useActiveInSight';
 import { NavLink, icon } from './NavLink';
@@ -52,9 +53,7 @@ function NavTree({
   pathname: string;
   onNavigate?: (() => void) | undefined;
 }) {
-  const semesters = (catalog?.semesters ?? []).filter((s) =>
-    s.courses.some((c) => hasMaterial(c, tree)),
-  );
+  const semesters = catalog ? catalog.semesters.filter((s) => semesterHasMaterial(catalog, s)) : [];
   const semester = semesters.find((s) => s.number === where.semester) ?? null;
   const link = { onNavigate };
   return (
@@ -73,8 +72,9 @@ function NavTree({
         <SettingsBranch pathname={pathname} onNavigate={onNavigate} />
       ) : where.admin ? (
         <AdminBranch pathname={pathname} onNavigate={onNavigate} />
-      ) : semester && tree ? (
+      ) : catalog && semester && tree ? (
         <SemesterBranch
+          catalog={catalog}
           semester={semester}
           where={where}
           tree={tree}

@@ -15,7 +15,7 @@ export function AssessmentNotesPage() {
   if (catalog.isError)
     return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
   if (!catalog.data) return <Loading />;
-  if (!found || !assessment) return <NotFoundPage />;
+  if (!found || !assessment?.notes.length) return <NotFoundPage />;
   const { semester, course } = found;
   if (String(semester.number) !== number) {
     return <Canonical path={paths.assessmentNotes(course, assessment.id)} />;

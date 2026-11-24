@@ -1,6 +1,7 @@
-// A semester's page: its courses, linked when they have material.
+// A semester's page, if some course of it has material: its courses, linked when they have it.
 import { ArrowRight } from 'lucide-react';
 import { Link, useParams } from 'react-router';
+import { courseHasMaterial, semesterHasMaterial } from '@qv/schema/http';
 import { paths } from '../../../shared/lib/paths';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { Loading } from '../../../shared/ui/Loading';
@@ -18,7 +19,7 @@ export function SemesterPage() {
     return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
   if (!catalog.data) return <Loading />;
   const semester = catalog.data.semesters.find((s) => String(s.number) === number);
-  if (!semester) return <NotFoundPage />;
+  if (!semester || !semesterHasMaterial(catalog.data, semester)) return <NotFoundPage />;
 
   return (
     <div className={page}>
@@ -27,48 +28,47 @@ export function SemesterPage() {
         items={[{ label: s.home, to: paths.home }, { label: semester.name }]}
       />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{semester.name}</h1>
-      {semester.courses.length === 0 ? (
-        <p className="mt-6 text-muted">{s.empty}</p>
-      ) : (
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-          {semester.courses.map((c) => {
-            const n = countNotes(c);
-            const decks = countDecks(catalog.data, c.id);
-            const material = materialLabel(n, decks);
-            const body = (
-              <>
-                <span className="text-3xl" aria-hidden="true">
-                  {c.emoji}
-                </span>
-                <span className="mt-3 block text-lg font-semibold">
-                  {c.name}
-                  <ListMark thing={['course', c.id]} holder={['semester', semester.number]} />
-                </span>
-                <span className="mt-1 block text-sm text-muted">
-                  {material
-                    ? `${material} · ${c.assessments.map((a) => a.name).join(', ')}`
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+        {semester.courses.map((c) => {
+          const n = countNotes(c);
+          const decks = countDecks(catalog.data, c.id);
+          const material = materialLabel(n, decks);
+          const names = c.assessments.map((a) => a.name).join(', ');
+          const body = (
+            <>
+              <span className="text-3xl" aria-hidden="true">
+                {c.emoji}
+              </span>
+              <span className="mt-3 block text-lg font-semibold">
+                {c.name}
+                <ListMark thing={['course', c.id]} holder={['semester', semester.number]} />
+              </span>
+              <span className="mt-1 block text-sm text-muted">
+                {material
+                  ? `${material} · ${names}`
+                  : courseHasMaterial(catalog.data, c)
+                    ? names
                     : s.soon}
-                </span>
-              </>
-            );
-            return (
-              <li key={c.id}>
-                {material ? (
-                  <Link to={paths.course(c)} className={`${linkCard} group relative p-5`}>
-                    {body}
-                    <ArrowRight
-                      className="absolute top-5 right-5 size-4 text-muted transition group-hover:translate-x-0.5"
-                      aria-hidden="true"
-                    />
-                  </Link>
-                ) : (
-                  <div className={`${card} p-5 text-muted shadow-none`}>{body}</div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+              </span>
+            </>
+          );
+          return (
+            <li key={c.id}>
+              {courseHasMaterial(catalog.data, c) ? (
+                <Link to={paths.course(c)} className={`${linkCard} group relative p-5`}>
+                  {body}
+                  <ArrowRight
+                    className="absolute top-5 right-5 size-4 text-muted transition group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </Link>
+              ) : (
+                <div className={`${card} p-5 text-muted shadow-none`}>{body}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

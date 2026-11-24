@@ -148,11 +148,29 @@ export const UnpublishedLog = z.object({
 });
 export type UnpublishedLog = z.infer<typeof UnpublishedLog>;
 
+/**
+ * What is published and shown, the one rule of the site (the menu, the pages and their URLs, the empty semesters): an
+ * article, a test or a deck with cards. A deck's count holds its subdecks'.
+ */
+export function assessmentHasMaterial(catalog: Catalog, assessment: AssessmentWithNotes): boolean {
+  return (
+    assessment.notes.length > 0 ||
+    assessment.quizzes.length > 0 ||
+    catalog.anki.decks.some((d) => d.assessmentId === assessment.id && d.cardCount > 0)
+  );
+}
+
+export function courseHasMaterial(catalog: Catalog, course: CourseWithAssessments): boolean {
+  return (
+    course.assessments.some((a) => assessmentHasMaterial(catalog, a)) ||
+    catalog.anki.decks.some((d) => d.courseId === course.id && d.cardCount > 0)
+  );
+}
+
 export function semesterHasMaterial(catalog: Catalog, semester: SemesterWithCourses): boolean {
   return (
-    semester.courses.some((c) =>
-      c.assessments.some((a) => a.notes.length > 0 || a.quizzes.length > 0),
-    ) || catalog.anki.decks.some((d) => d.semester === semester.number && d.cardCount > 0)
+    semester.courses.some((c) => courseHasMaterial(catalog, c)) ||
+    catalog.anki.decks.some((d) => d.semester === semester.number && d.cardCount > 0)
   );
 }
 

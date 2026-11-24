@@ -1,8 +1,8 @@
 // Where in the site a path is, for the menu: the semester, the course, the assessment and the part of it open.
-import type { Catalog, CourseWithAssessments } from '@qv/schema';
+import type { Catalog } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { locateNote } from '../../catalog/model/catalog';
-import { courseDeck, hasPage } from '../../catalog/model/tree';
+import { hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
 
 export interface Where {
@@ -88,11 +88,4 @@ function deckAt(pathname: string, courseId: string, tree: AnkiTree | null): Cour
     }
   }
   return best;
-}
-
-export function hasMaterial(course: CourseWithAssessments, tree: AnkiTree | null): boolean {
-  return (
-    course.assessments.some((a) => a.notes.length || a.quizzes.length) ||
-    (tree !== null && courseDeck(tree, course.id) !== null)
-  );
 }

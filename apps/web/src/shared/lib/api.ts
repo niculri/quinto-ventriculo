@@ -36,6 +36,8 @@ import type {
   SiteSettingsUpdate,
   UsageOpenRequest,
 } from '@qv/schema';
+import { keptAnswers } from './keptAnswers';
+import type { KeptAnswer, KeptAnswers } from './keptAnswers';
 import { apiStrings } from './strings/api.strings';
 
 export class ApiRequestError extends Error {
@@ -63,26 +65,33 @@ interface RequestOptions {
   keepalive?: boolean;
 }
 
+/** How a read uses the copies: the one this client kept (its validator), none at all, or the browser's. */
+type CopyUse = { validator: string } | 'none' | 'browser';
+
 /** What `fetch` gets: the headers of the mode, the token, the body and how the browser's cache is used. */
 function fetchInit(
   headers: Record<string, string>,
   token: string | null,
   init: RequestOptions,
+  copy: CopyUse,
   signal?: AbortSignal,
 ): RequestInit {
   const preview = Object.keys(headers).length > 0;
+  const validator = typeof copy === 'object' ? copy.validator : null;
   return {
     headers: {
       ...headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(validator ? { 'If-None-Match': validator } : {}),
     },
     ...(init.method ? { method: init.method } : {}),
     ...(init.body !== undefined ? { body: JSON.stringify(init.body) } : {}),
-    ...(preview
+    // With its own validator the browser's copy is not used: a 304 has to reach this client.
+    ...(preview || validator
       ? { cache: 'no-store' as const }
-      : init.fresh
-        ? { cache: 'no-cache' as const }
+      : copy === 'none'
+        ? { cache: 'reload' as const }
         : {}),
     ...(signal ? { signal } : {}),
     ...(init.keepalive ? { keepalive: true } : {}),
@@ -94,7 +103,33 @@ function retryAfterSeconds(header: string | null): number | null {
   return header && /^\d{1,6}$/.test(header) ? Number(header) : null;
 }
 
-function requester(getToken: GetToken, base: string, headers: Record<string, string>) {
+function requestError(r: Response, body: unknown): ApiRequestError {
+  const e = ApiError.safeParse(body);
+  return new ApiRequestError(
+    r.status,
+    e.success ? e.data.error : 'unknown',
+    e.success ? e.data.message : apiStrings.errors.server,
+    r.status === 429 ? retryAfterSeconds(r.headers.get('Retry-After')) : null,
+  );
+}
+
+function copyUse(
+  kept: KeptAnswers | null,
+  path: string,
+  init: RequestOptions,
+): { copy: CopyUse; previous: KeptAnswer | undefined } {
+  if (!kept || init.method) return { copy: 'browser', previous: undefined };
+  if (init.fresh || kept.mustReload(path)) return { copy: 'none', previous: undefined };
+  const previous = kept.get(path);
+  return { copy: previous ? { validator: previous.tag } : 'browser', previous };
+}
+
+function requester(
+  getToken: GetToken,
+  base: string,
+  headers: Record<string, string>,
+  kept: KeptAnswers | null,
+) {
   return async function request<T>(
     path: string,
     schema: z.ZodType<T>,
@@ -102,24 +137,25 @@ function requester(getToken: GetToken, base: string, headers: Record<string, str
     init: RequestOptions = {},
   ): Promise<T> {
     const token = await getToken();
+    const { copy, previous } = copyUse(kept, path, init);
+    // The kept answer is the one parsed with this same schema for this path.
+    const reuse = () => previous!.data as T;
     let r: Response;
     try {
-      r = await fetch(`${base}${path}`, fetchInit(headers, token, init, signal));
+      r = await fetch(`${base}${path}`, fetchInit(headers, token, init, copy, signal));
     } catch (e) {
       if ((e as Error).name === 'AbortError') throw e;
+      // Checking again an answer already shown: without a connection it stays, as before checking.
+      if (previous) return reuse();
       throw new ApiRequestError(0, 'offline', apiStrings.errors.offline);
     }
+    // Unchanged, or the API could not check it now (too many requests in a row, or down): what was shown stays.
+    if (previous && (r.status === 304 || r.status === 429 || r.status >= 500)) return reuse();
     const body: unknown = await r.json().catch(() => null);
-    if (!r.ok) {
-      const e = ApiError.safeParse(body);
-      throw new ApiRequestError(
-        r.status,
-        e.success ? e.data.error : 'unknown',
-        e.success ? e.data.message : apiStrings.errors.server,
-        r.status === 429 ? retryAfterSeconds(r.headers.get('Retry-After')) : null,
-      );
-    }
-    return schema.parse(body);
+    if (!r.ok) throw requestError(r, body);
+    const data = schema.parse(body);
+    if (kept && !init.method) kept.keep(path, r.headers.get('ETag'), data);
+    return data;
   };
 }
 
@@ -129,11 +165,13 @@ export function createApiClient(
   base = '',
   headers: Record<string, string> = {},
 ) {
-  const request = requester(getToken, base, headers);
+  // The admin mode's answers are never kept: the draft has no validator.
+  const kept = Object.keys(headers).length > 0 ? null : keptAnswers();
+  const request = requester(getToken, base, headers, kept);
 
-  return {
+  const client = {
     /**
-     * `fresh`: not the copy the browser keeps (a minute), e.g. right after changing the site's settings. `published`:
+     * `fresh`: from the API, past every copy, e.g. right after changing the site's settings. `published`:
      * only in the admin mode, the catalog as the students have it.
      */
     catalog: (signal?: AbortSignal, options: { fresh?: boolean; published?: boolean } = {}) =>
@@ -219,6 +257,16 @@ export function createApiClient(
     search: (query: string, limit = 20, signal?: AbortSignal) =>
       request(apiPaths.search(query, limit), SearchResponse, signal),
   };
+  if (kept) keptOf.set(client, kept);
+  return client;
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;
+
+/** Each client's kept answers, apart from its methods: every one of those is a request. */
+const keptOf = new WeakMap<ApiClient, KeptAnswers>();
+
+/** After publishing or undoing: every read of `api` comes again from the API, past every copy, once. */
+export function forgetKeptAnswers(api: ApiClient) {
+  keptOf.get(api)?.forget();
+}

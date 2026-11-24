@@ -5,6 +5,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
 import { cardKey } from '@qv/study';
 import type { ApiClient } from '../../../shared/lib/api';
+import { CONTENT_QUERY } from '../../../shared/lib/contentQuery';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
 import { studyKeys } from '../../progress/queries';
 import { heatmapKeys } from '../../stats/api/queries';
@@ -129,6 +130,7 @@ export const legacyCardQuery = (
   queryOptions({
     queryKey: deckKeys.card(note, ord),
     queryFn: ({ signal }) => api.card(note!, ord, signal),
+    meta: CONTENT_QUERY,
     enabled,
     retry: false,
   });

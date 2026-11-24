@@ -16,6 +16,7 @@ import { supabaseAccessChecker } from './adapters/supabase/access';
 import { supabaseAdminChecker } from './adapters/supabase/admin';
 import { contentClient } from './adapters/supabase/client';
 import { supabaseRepository } from './adapters/supabase/content';
+import { supabaseContentVersion } from './adapters/supabase/contentVersion';
 import {
   authCheck,
   contentDatabaseCheck,
@@ -123,6 +124,7 @@ function getApp(env: Env, origin: string) {
       env.CONTENT_SERVICE_ROLE_KEY,
       content(),
     ),
+    contentVersion: supabaseContentVersion(content()),
     settings: supabaseSiteSettingsRepository(
       env.CONTENT_SUPABASE_URL,
       env.CONTENT_SERVICE_ROLE_KEY,

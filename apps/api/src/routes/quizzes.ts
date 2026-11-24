@@ -11,7 +11,7 @@ import { readRepository } from '../middleware/preview';
 export function quizzesRoutes({ deps, mw }: AppContext) {
   const routes = new Hono<AppEnv>();
 
-  routes.get(R.quizzes.pattern, mw.session, mw.visibleContent, async (c) => {
+  routes.get(R.quizzes.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
     const { course, assessment } = QuizzesQuery.parse({
       course: c.req.query('course'),
       assessment: c.req.query('assessment'),
@@ -24,7 +24,7 @@ export function quizzesRoutes({ deps, mw }: AppContext) {
     return c.json({ quizzes } satisfies QuizIndex);
   });
 
-  routes.get(R.quiz.pattern, mw.session, mw.visibleContent, async (c) => {
+  routes.get(R.quiz.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_quiz', 'Ese test no existe.'), 400);
     const quiz = await readRepository(deps, c).quiz(id.data);
@@ -33,7 +33,7 @@ export function quizzesRoutes({ deps, mw }: AppContext) {
   });
 
   // Not parsed (about a megabyte with its SVG figures): the photos are signed on the text.
-  routes.get(R.quizSection.pattern, mw.session, mw.visibleContent, async (c) => {
+  routes.get(R.quizSection.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
     const id = QuizId.safeParse(c.req.param('id'));
     const section = QuizSectionId.safeParse(c.req.param('sectionId'));
     if (!id.success || !section.success) {

@@ -1,10 +1,11 @@
 // What «Publicaciones» changes: a mark by hand (shown at once), publishing and undoing; then the overview and the
-// record are read again.
+// record are read again, and after publishing or undoing every read of the material.
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { releaseTitle, reviewChecks } from '@qv/release-review';
 import type { ReviewList } from '@qv/release-review';
 import type { ReleaseMark, ReleaseMarkId, ReleaseOverview } from '@qv/schema';
 import { useApi } from '../../../shared/hooks/useApi';
+import { useRefreshContent } from '../../../shared/hooks/useRefreshContent';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { releaseKeys } from '../api/releases';
 
@@ -49,6 +50,7 @@ export function useSetReleaseMark(fingerprint: string, by: string) {
 export function usePublishRelease() {
   const api = useApi();
   const client = useQueryClient();
+  const refreshContent = useRefreshContent();
   return useMutation({
     mutationFn: ({ overview, review }: { overview: ReleaseOverview; review: ReviewList }) =>
       api.publishRelease({
@@ -56,6 +58,7 @@ export function usePublishRelease() {
         title: releaseTitle(overview.summary),
         checks: reviewChecks(review),
       }),
+    onSuccess: refreshContent,
     onSettled: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: releaseKeys.overview }),
@@ -67,8 +70,10 @@ export function usePublishRelease() {
 export function useRevertRelease() {
   const api = useApi();
   const client = useQueryClient();
+  const refreshContent = useRefreshContent();
   return useMutation({
     mutationFn: (id: number) => api.revertRelease(id),
+    onSuccess: refreshContent,
     onSettled: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: releaseKeys.overview }),

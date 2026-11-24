@@ -12,6 +12,7 @@ import { isAnswerScreen } from '../shared/ui/answerScreen';
 import { appShellStrings } from './strings/AppShell.strings';
 import { TopBar } from './shell/TopBar';
 import { PhoneMenu } from './shell/PhoneMenu';
+import { useRevalidateOnNavigation } from './shell/useRevalidateOnNavigation';
 import { useSearchShortcut } from './shell/useSearchShortcut';
 
 export function AppShell() {
@@ -27,6 +28,7 @@ export function AppShell() {
   const hideNav = focus || studying;
 
   useSearchShortcut(setSearching);
+  useRevalidateOnNavigation(pathname, adminMode.active);
 
   return (
     <div className="flex min-h-dvh flex-col">

@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { ContentBundle } from '@qv/schema';
 import { memoryClientErrors } from '../adapters/memory/clientErrors';
 import { memoryRepository } from '../adapters/memory/content';
+import { publishingSite } from '../adapters/memory/publishing';
 import { folderReleaseRepository } from '../adapters/memory/releases';
 import { memorySiteSettings } from '../adapters/memory/settings';
 import { folderUnpublishedRepository } from '../adapters/memory/unpublished';
@@ -62,14 +63,20 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
   const media = folderMedia(outputFolder);
   const usageEvents = demoUsageEvents(bundle);
   const clientErrors = memoryClientErrors();
-  const repository = memoryRepository(bundle);
+  const preview = memoryRepository(draft);
+  const { repository, releases, contentVersion } = publishingSite({
+    published: memoryRepository(bundle),
+    draft: preview,
+    releases: await folderReleaseRepository(outputFolder),
+  });
   return createApp({
     verifier,
     repository,
     media,
     signer: new MediaSigner('secreto-solo-para-desarrollo-local-0123456789'),
-    preview: memoryRepository(draft),
-    releases: await folderReleaseRepository(outputFolder),
+    preview,
+    releases,
+    contentVersion,
     settings: memorySiteSettings(),
     unpublished: await folderUnpublishedRepository(outputFolder),
     admins: {

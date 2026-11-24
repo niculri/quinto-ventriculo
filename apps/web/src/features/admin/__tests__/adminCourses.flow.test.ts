@@ -105,7 +105,7 @@ describe('«Sitio»: the courses', () => {
     await userEvent.click(save);
     expect(await screen.findByText('Guardado')).toBeInTheDocument();
     expect(sent).toEqual([{ hiddenCourses: ['anatomia-1'] }]);
-    expect(catalogCalls.at(-1)).toEqual({ fresh: true });
+    expect(catalogCalls).toContainEqual({ fresh: true });
     expect(screen.getByRole('switch', { name: 'Anatomía I' })).not.toBeChecked();
     expect(screen.getByRole('button', { name: 'Guardar' })).toBeDisabled();
   });

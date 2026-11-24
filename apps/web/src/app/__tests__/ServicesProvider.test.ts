@@ -72,6 +72,7 @@ afterEach(() => {
 describe('with the users database', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_DEMO', '');
+    vi.stubEnv('VITE_GOOGLE_CLIENT_ID', '');
     vi.stubEnv('VITE_USERS_SUPABASE_URL', 'https://users.example.test');
     vi.stubEnv('VITE_USERS_SUPABASE_PUBLISHABLE_KEY', 'publishable-test-key');
   });

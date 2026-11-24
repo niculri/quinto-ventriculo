@@ -5,7 +5,7 @@ CREATE OR REPLACE FUNCTION public.storage_health()
  LANGUAGE sql
  SET search_path TO ''
 AS $function$
-  select pg_catalog.pg_database_size(pg_catalog.current_database()) < 300000000
+  select sum(pg_catalog.pg_database_size(d.oid)) < 300000000 from pg_catalog.pg_database d
 $function$;
 
 grant execute on function public.storage_health() to anon;

@@ -1,5 +1,5 @@
-// storage_health(), what /api/health/deep asks the users' database with the public key: whether it is under 60 % of
-// the free plan's 500 MB, as a yes or no that never gives the size away.
+// storage_health(), what /api/health/deep asks the users' database with the public key: whether the cluster is under
+// 60 % of the free plan's 500 MB, as a yes or no that never gives the size away.
 import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { asUser, createDatabase } from '../pglite';
@@ -13,9 +13,9 @@ beforeAll(async () => {
 });
 
 describe('storage_health()', () => {
-  it('says whether the database is under 300 MB, without a session and with one', async () => {
+  it('says whether every database of the cluster together is under 300 MB, without a session and with one', async () => {
     const { rows: size } = await db.query<{ bytes: string }>(
-      'select pg_database_size(current_database())::text as bytes',
+      'select sum(pg_database_size(oid))::text as bytes from pg_database',
     );
     const expected = Number(size[0]!.bytes) < LIMIT_BYTES;
     expect(expected).toBe(true);
@@ -58,15 +58,17 @@ describe('storage_health()', () => {
     expect(rows[0]!.body).toContain(`< ${LIMIT_BYTES}`);
   });
 
-  it('its body answers false for a database at the limit or over it', async () => {
+  it('its body counts every database and answers false for a cluster at the limit or over it', async () => {
     const { rows } = await db.query<{ body: string }>(
       `select prosrc as body from pg_proc where oid = 'public.storage_health()'::regprocedure`,
     );
-    const size = 'pg_catalog.pg_database_size(pg_catalog.current_database())';
-    expect(rows[0]!.body).toContain(size);
+    const size = 'sum(pg_catalog.pg_database_size(d.oid))';
+    expect(rows[0]!.body).toContain(`${size} < ${LIMIT_BYTES} from pg_catalog.pg_database d`);
     for (const extra of [LIMIT_BYTES, LIMIT_BYTES * 2]) {
       const grown = rows[0]!.body.replace(size, `(${size} + ${extra})`);
-      const { rows: answer } = await db.query<{ ok: boolean }>(`select (${grown.trim()}) as ok`);
+      const { rows: answer } = await db.query<{ ok: boolean }>(
+        `select t.ok from (${grown.trim()}) as t(ok)`,
+      );
       expect(answer).toEqual([{ ok: false }]);
     }
   });

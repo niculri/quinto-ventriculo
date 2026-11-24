@@ -47,6 +47,20 @@ function siteCollection(pkg: AnkiPackage, newest: NewestNoteTypes, warn: (m: str
   };
 }
 
+/** Anki's `lapse.leechAction` for «tag only» (0 suspends the card). */
+const LEECH_TAG_ONLY = 1;
+
+/**
+ * On the site a card failed many times is only marked, whatever the author's Anki does: no student loses a card
+ * before an exam without having asked for it. Whoever wants them suspended says so in a configuration of their own.
+ */
+function markingLeeches(config: Record<string, unknown>): Record<string, unknown> {
+  const lapse = config.lapse;
+  return typeof lapse === 'object' && lapse !== null
+    ? { ...config, lapse: { ...lapse, leechAction: LEECH_TAG_ONLY } }
+    : config;
+}
+
 /** Checks each deck of the package against the expected names and records it with its preset. */
 function registerDecks(ctx: PackageContext, tree: DeckNode[]): void {
   const { state, place, label, warn } = ctx;
@@ -72,11 +86,12 @@ function registerDecks(ctx: PackageContext, tree: DeckNode[]): void {
     state.deckIds.add(deck.id);
     const preset = deck.presetId ? presetById.get(deck.presetId) : undefined;
     if (preset) {
+      const config = markingLeeches(preset.config);
       const before = state.presets.get(preset.name);
-      if (before && !sameConfig(before.config, preset.config)) {
+      if (before && !sameConfig(before.config, config)) {
         warn(`el preset «${preset.name}» trae otra configuración que en otro mazo; queda esta.`);
       }
-      state.presets.set(preset.name, { name: preset.name, config: preset.config });
+      state.presets.set(preset.name, { name: preset.name, config });
     }
     state.decks.set(deck.name, {
       id: deck.id,

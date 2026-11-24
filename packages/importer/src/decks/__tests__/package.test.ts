@@ -585,6 +585,23 @@ describe('decks: the packages that do not fit', () => {
     ).rejects.toThrow(/b\.apkg: la nota A-Or&8~\[!Z2< está repetida/);
   });
 
+  it('a preset that suspends the cards failed many times only marks them on the site; one without that part stays as it is', async () => {
+    const lapseOf = (bundle: { ankiPresets: { name: string; config: unknown }[] }, name: string) =>
+      (bundle.ankiPresets.find((p) => p.name === name)!.config as { lapse?: unknown }).lapse;
+    const { bundle } = await run({
+      'a.apkg': () =>
+        renamed('A', (c) => {
+          const [first, second] = c.presets;
+          first!.config = { ...first!.config, lapse: { leechAction: 0, leechFails: 8 } };
+          const { lapse: _lapse, ...rest } = second!.config;
+          second!.config = rest;
+        }),
+    });
+    const names = bundle.ankiPresets.map((p) => p.name);
+    expect(lapseOf(bundle, names[0]!)).toEqual({ leechAction: 1, leechFails: 8 });
+    expect(lapseOf(bundle, names[1]!)).toBeUndefined();
+  });
+
   it('a preset that two packages configure differently warns and keeps the last; the same one does not warn', async () => {
     const extras = (perDay: number) => (c: AnkiPackage['collection']) => {
       const p = c.presets.find((x) => x.name === 'Extras')!;

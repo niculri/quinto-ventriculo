@@ -4,6 +4,7 @@ import { paths } from '../shared/lib/paths';
 import { Loading } from '../shared/ui/Loading';
 import { AppShell } from './AppShell';
 import { AccountGate } from './AccountGate';
+import { WeekMemoryProvider } from '../features/nav/components/WeekMemoryProvider';
 import { useSession } from '../features/session/context';
 
 export function ProtectedRoute() {
@@ -16,7 +17,9 @@ export function ProtectedRoute() {
   }
   return (
     <AccountGate>
-      <AppShell />
+      <WeekMemoryProvider>
+        <AppShell />
+      </WeekMemoryProvider>
     </AccountGate>
   );
 }

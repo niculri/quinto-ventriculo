@@ -2,7 +2,7 @@
 // is forgotten on going to another page.
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Catalog } from '@qv/schema';
 import { fakeApi } from '../../../test/fakes/api';
 import { CATALOG } from '../../../test/fixtures/catalog';
@@ -131,6 +131,90 @@ describe('the parts of an open assessment', () => {
     expect(menu().getByRole('link', { name: 'Otro test' })).not.toHaveAttribute('aria-current');
     await user.click(tests);
     expect(menu().queryByRole('link', { name: 'Otro test' })).toBeNull();
+  });
+});
+
+/** Two assessments, the first one with its notes in two weeks (the second week with two notes). */
+function inWeeks(): Catalog {
+  const c = twoAssessments();
+  const a = c.semesters[1]!.courses[0]!.assessments[0]!;
+  const [nucleus, translation] = a.notes;
+  a.notes = [
+    { ...nucleus!, group: 'Semana 1' },
+    { ...translation!, group: 'Semana 2' },
+    { ...translation!, id: 'AP-PR-12', slug: '12-extra', title: 'Clase extra', group: 'Semana 2' },
+  ];
+  return c;
+}
+
+describe('the weeks of an assessment in the menu', () => {
+  const weeks = () => fakeApi({ catalog: async () => inWeeks() });
+  const link = (name: string) => menu().queryByRole('link', { name });
+
+  it('on a note only its week is open, and the others show their name and nothing more', async () => {
+    renderApp(`${COURSE}/notes/11-traduccion`, { api: weeks() });
+    await ready();
+    open('Semana 2');
+    closed('Semana 1');
+    expect(link('Traducción')).toHaveAttribute('aria-current', 'page');
+    expect(link('Clase extra')).toBeInTheDocument();
+    expect(link('Núcleo celular')).toBeNull();
+  });
+
+  it('in the list of notes, all of them are closed', async () => {
+    renderApp(`${COURSE}/assessments/certamen-2/notes`, { api: weeks() });
+    await ready();
+    open('Apuntes');
+    closed('Semana 1');
+    closed('Semana 2');
+  });
+
+  it('what is opened or closed by hand stays in the same assessment and is forgotten in another one', async () => {
+    const user = userEvent.setup();
+    const { router } = renderApp(`${COURSE}/notes/11-traduccion`, { api: weeks() });
+    await ready();
+    await user.click(toggle('Semana 1'));
+    open('Semana 1');
+    await user.click(toggle('Semana 2'));
+    closed('Semana 2');
+    expect(link('Traducción')).toBeNull();
+    await act(() => router.navigate(`${COURSE}/assessments/certamen-2/notes`));
+    open('Semana 1');
+    closed('Semana 2');
+    await act(() => router.navigate(`${COURSE}/notes/12-extra`));
+    open('Semana 1');
+    open('Semana 2');
+    expect(link('Clase extra')).toHaveAttribute('aria-current', 'page');
+    await act(() => router.navigate(`${COURSE}/notes/otra-clase`));
+    await act(() => router.navigate(`${COURSE}/notes/11-traduccion`));
+    closed('Semana 1');
+    open('Semana 2');
+  });
+
+  it('opens and closes with the keyboard', async () => {
+    const user = userEvent.setup();
+    renderApp(`${COURSE}/notes/11-traduccion`, { api: weeks() });
+    await ready();
+    toggle('Semana 1').focus();
+    await user.keyboard('{Enter}');
+    open('Semana 1');
+    await user.keyboard(' ');
+    closed('Semana 1');
+  });
+
+  it('scrolls the menu, and only the menu, to bring the page open into sight', async () => {
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element,
+    ) {
+      const row = this.getAttribute('aria-current') === 'page';
+      return DOMRect.fromRect(row ? { y: 900, height: 30 } : { y: 64, height: 600 });
+    });
+    const { container } = renderApp(`${COURSE}/notes/12-extra`, { api: weeks() });
+    await ready();
+    const box = screen.getAllByRole('navigation', { name: 'Menú del sitio' })[0]!.parentElement!;
+    await waitFor(() => expect(box.scrollTop).toBe(266));
+    expect(container.ownerDocument.documentElement.scrollTop).toBe(0);
+    rect.mockRestore();
   });
 });
 

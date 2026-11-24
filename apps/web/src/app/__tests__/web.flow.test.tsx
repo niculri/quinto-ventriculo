@@ -865,8 +865,12 @@ describe('weeks in the list of notes', () => {
           .map((h) => h.textContent),
       ).toEqual(['Semana 9', 'Seminarios']),
     );
-    const menu = screen.getByRole('navigation', { name: 'Menú del sitio' });
-    const items = within(menu).getByText('Semana 9').closest('ul')!.querySelectorAll(':scope > li');
+    const menu = within(screen.getByRole('navigation', { name: 'Menú del sitio' }));
+    const week = menu.getByRole('button', { name: 'Semana 9' });
+    const items = week.closest('ul')!.querySelectorAll(':scope > li');
+    expect([...items].map((li) => li.textContent)).toEqual(['Semana 9', 'Seminarios']);
+    await userEvent.click(week);
+    await userEvent.click(menu.getByRole('button', { name: 'Seminarios' }));
     expect([...items].map((li) => li.textContent)).toEqual([
       'Semana 9Núcleo celular',
       'SeminariosSeminario sin semana',

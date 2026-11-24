@@ -1,5 +1,9 @@
-// An image's thumbnail in the cards page's list, or its icon while there is none.
+// An image's thumbnail in the cards page's list, or its icon while there is none or it could not be loaded.
+import { useQueryClient } from '@tanstack/react-query';
 import { ImageIcon } from 'lucide-react';
+import { useApi } from '../../../shared/hooks/useApi';
+import { useSignedImage } from '../../../shared/hooks/useSignedImage';
+import { renewThumbs } from '../api/queries';
 import { thumbUrl } from '../model/thumbs';
 
 export function Thumb({
@@ -13,18 +17,25 @@ export function Thumb({
   blur: boolean;
   className?: string;
 }) {
+  // An expired signature is asked for again; a thumbnail that still fails keeps the icon: it is decorative, inside the
+  // row's own button, where a «Reintentar» could not go.
+  const image = useSignedImage(
+    thumb && thumbs ? thumbUrl(thumb, thumbs) : undefined,
+    renewThumbs(useQueryClient(), useApi()),
+  );
   return (
     <span
       className={`flex items-center justify-center overflow-hidden rounded-md bg-surface-2 ${className}`}
       aria-hidden="true"
     >
-      {thumb && thumbs ? (
+      {image.src && !image.failure ? (
         <img
-          src={thumbUrl(thumb, thumbs)}
+          src={image.src}
           alt=""
           loading="lazy"
           decoding="async"
           draggable={false}
+          onError={image.onError}
           className={`size-full object-contain ${blur ? 'blur-[6px]' : ''}`}
         />
       ) : (

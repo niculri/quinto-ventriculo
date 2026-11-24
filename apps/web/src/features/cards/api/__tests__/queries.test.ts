@@ -1,11 +1,13 @@
-// Tests what the cards pages read: nothing of the student's rows without a scope, and only the failed answers.
+// Tests what the cards pages read: nothing of the student's rows without a scope, only the failed answers, and the
+// thumbnails signed again.
 import type { RatedAnswer } from '@qv/schema/user';
 import { QueryClient } from '@tanstack/react-query';
 import { cardKey } from '@qv/study';
 import { describe, expect, it, vi } from 'vitest';
 import type { StudyRepository } from '../../../progress/api/repository';
 import type { CardsScope } from '../../../catalog/model/scope';
-import { failedQuery, scopeRowsQuery } from '../queries';
+import { fakeApi } from '../../../../test/fakes/api';
+import { failedQuery, renewThumbs, scopeRowsQuery } from '../queries';
 
 describe('the rows of a scope', () => {
   it('are not read without a scope', () => {
@@ -43,5 +45,20 @@ describe('the failed cards', () => {
     const failed = await new QueryClient().query(options);
     expect(failed).toEqual(new Set([cardKey({ noteGuid: 'a', ord: 0 })]));
     expect(ratedSince).toHaveBeenCalledWith(new Date(1_800_000_000_000));
+  });
+});
+
+describe('the thumbnails signed again', () => {
+  it('one signature for all of them, asked for once while it is new; another image is not one', async () => {
+    const api = fakeApi();
+    const thumbSignature = vi.spyOn(api, 'thumbSignature');
+    const renew = renewThumbs(new QueryClient(), api);
+    const fresh = await renew('/api/media/cards/thumb/a.webp', 0);
+    await renew('/api/media/cards/thumb/b.webp', 0);
+    expect(thumbSignature).toHaveBeenCalledTimes(1);
+    expect(fresh('/api/media/cards/thumb/b.webp')).toBe(
+      '/api/media/cards/thumb/b.webp?e=4102444800&p=cards%2Fthumb%2F&s=prueba',
+    );
+    expect(fresh('/api/media/cards/a.webp')).toBeNull();
   });
 });

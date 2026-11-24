@@ -1,20 +1,24 @@
 // Tests which images of a card are asked for ahead: the back's while the front is up, both sides of the next cards,
 // none of them with the data saver.
 import { describe, expect, it } from 'vitest';
-import { backImagesOf, mediaUrlsIn, upcomingImagesOf } from '../imagePreload';
+import { backImagesOf, upcomingImagesOf } from '../imagePreload';
 
 const signed = (key: string) => `/api/media/cards/${key}.webp?e=7200&s=sig${key}`;
 const img = (key: string) => `<img src="${signed(key).replace('&', '&amp;')}" alt="">`;
 
-describe('mediaUrlsIn', () => {
+describe('the images of a side', () => {
   it('gives each signed image once, with the query the browser will ask for', () => {
     const html = `<p>Una</p>${img('a')}<div>${img('b')}</div>${img('a')}`;
-    expect(mediaUrlsIn(html)).toEqual([signed('a'), signed('b')]);
+    expect(backImagesOf({ front: '', back: html })).toEqual([signed('a'), signed('b')]);
+    expect(upcomingImagesOf({ front: html, back: html }, false)).toEqual([
+      signed('a'),
+      signed('b'),
+    ]);
   });
 
   it('leaves out what is not a private image of the site', () => {
     const html = `<img src="data:image/png;base64,AAAA"><img data-src="/api/media/x.webp"><img data-media-invalid=""><a href="/api/media/y">y</a>`;
-    expect(mediaUrlsIn(html)).toEqual([]);
+    expect(backImagesOf({ front: '', back: html })).toEqual([]);
   });
 });
 

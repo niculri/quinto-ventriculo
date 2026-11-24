@@ -40,6 +40,17 @@ export const PRACTICE_DAY_MAX = 5000;
 /** The database refused a batch of practice (day's cap, too large, no longer invited): retrying would fail the same. */
 export class PracticeRefusedError extends Error {}
 
+/**
+ * The request got no answer (no connection, out of time, or a server that says «later»): it can be made again, and
+ * what it asked for may have been done.
+ */
+export class ConnectionError extends Error {
+  constructor(what: string) {
+    super(`No se pudo ${what}: no hay conexión.`);
+    this.name = 'ConnectionError';
+  }
+}
+
 export class CardChangedError extends Error {
   constructor() {
     super('Esta tarjeta cambió en otra pestaña o dispositivo.');

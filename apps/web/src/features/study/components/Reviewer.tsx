@@ -28,6 +28,7 @@ import {
 } from '../hooks/useStudySession';
 import { useStudyShortcuts } from '../hooks/useStudyShortcuts';
 import { useCardReport } from '../hooks/useCardReport';
+import { useConnectionMessage } from '../hooks/useConnectionMessage';
 import { useOpeningLoad } from '../hooks/useOpeningLoad';
 import { failureText, toastText } from '../model/messages';
 import { ReportEntry } from './ReportEntry';
@@ -50,7 +51,7 @@ export function Reviewer({
   initial: StudyData;
 }) {
   const night = useDarkMode();
-  const { state, act, saves } = useStudySession(initial, rootId);
+  const { state, act, saves, unsaved, held } = useStudySession(initial, rootId);
 
   const rootName = deckTitle(node);
   const [scopeDecks] = useState(() => new Set(descendants(node).map((n) => n.id)));
@@ -61,7 +62,8 @@ export function Reviewer({
   const load = useOpeningLoad(countsOf(state), full, initial.plan.medianAnswerMs);
   const report = useCardReport();
   const toast = state.toast ? toastText(state.toast, full) : null;
-  const message = toast ?? (report.sent ? sharedStrings.reportThanks : null);
+  const connection = useConnectionMessage(unsaved, held);
+  const message = connection ?? toast ?? (report.sent ? sharedStrings.reportThanks : null);
 
   useTitle(reviewerStrings.studyTitle(rootName));
   useSessionLifecycle(act, saves);
@@ -83,7 +85,7 @@ export function Reviewer({
         counts={countsOf(state)}
         shown={shown}
         flag={flagOf(state)}
-        canUndo={canUndo(state)}
+        canUndo={canUndo(state) && !held}
         act={act}
         node={node}
         deckPath={deckPath}
@@ -92,6 +94,8 @@ export function Reviewer({
         onReport={reportShown}
         revealed={revealed}
         answered={state.answeredInSession}
+        unsaved={unsaved}
+        held={held}
       />
 
       {load.heavy && shown ? (
@@ -110,7 +114,7 @@ export function Reviewer({
           act={act}
           shown={shown}
           revealed={revealed}
-          failed={!!failure}
+          failed={!!failure || held}
           night={night}
           full={full}
           fourButtons={fourButtons}

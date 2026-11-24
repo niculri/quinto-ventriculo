@@ -1,6 +1,6 @@
 // The note's page around its article: its canonical address, retrying, what a report carries, the image viewer, arriving
-// at a missing section, and «Ponte a prueba» and the neighbors when the assessment lacks a test, a deck or other notes.
-import { screen, waitFor, within } from '@testing-library/react';
+// at a missing section, «Ponte a prueba» and the neighbors when missing, and an image signed again in place.
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Catalog, Note } from '@qv/schema';
@@ -214,5 +214,51 @@ describe('the neighbors', () => {
       '/semesters/2/courses/biologia-celular/notes/10-nucleo-celular',
     );
     expect(within(nav).queryByRole('link', { name: /Siguiente/ })).toBeNull();
+  });
+});
+
+describe('an image whose link expired', () => {
+  const expired = '/api/media/a.webp?e=1&amp;s=vieja';
+  const html = NOTE.html.replace('/api/media/a.webp', expired);
+
+  it('signed again: the article stays, with only the image’s src changed', async () => {
+    let reads = 0;
+    const api = fakeApi({
+      note: async () => {
+        reads++;
+        const e = reads === 1 ? '1&amp;s=vieja' : '4102444800&amp;s=nueva';
+        return {
+          ...NOTE,
+          html: NOTE.html.replace('/api/media/a.webp', `/api/media/a.webp?e=${e}`),
+        };
+      },
+    });
+    renderApp(PATH, { api });
+    const image = await screen.findByRole('button', { name: /Ribosoma/ });
+    const article = image.closest('.note-body')!.firstElementChild;
+    await waitFor(() => expect(reads).toBe(2));
+    await waitFor(() =>
+      expect(image).toHaveAttribute('src', '/api/media/a.webp?e=4102444800&s=nueva'),
+    );
+    expect(image.closest('.note-body')!.firstElementChild).toBe(article);
+  });
+
+  it('a copy that fails or was taken off the site leaves the article, and the image says so', async () => {
+    let reads = 0;
+    const api = fakeApi({
+      note: async () => {
+        reads++;
+        if (reads > 1) throw new ApiRequestError(404, 'not_found', 'No existe ese apunte.');
+        return { ...NOTE, html };
+      },
+    });
+    renderApp(PATH, { api });
+    const image = await screen.findByRole('button', { name: /Ribosoma/ });
+    await waitFor(() => expect(reads).toBe(2));
+    fireEvent.error(image);
+    expect(await screen.findByText('No se pudo cargar la imagen')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Traducción' })).toBeInTheDocument();
+    expect(screen.queryByText('No existe ese apunte.')).toBeNull();
+    expect(reads).toBe(2);
   });
 });

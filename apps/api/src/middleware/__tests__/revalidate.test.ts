@@ -1,5 +1,5 @@
 // Tests for the validator of the material: a 304 that reads nothing while nothing changed, the whole answer as soon as
-// a publication, a course turned off, the build or the hour change it, and never in the admin mode.
+// a publication, a course turned off, the build or the signing day change it, and never in the admin mode.
 import { describe, expect, it, vi } from 'vitest';
 import { PREVIEW_HEADER } from '@qv/schema/http';
 import { memoryRepository } from '../../adapters/memory/content';
@@ -67,7 +67,7 @@ function setup(options: Partial<AppOptions> = {}, withVersion = true) {
 }
 
 describe('the validator of the material', () => {
-  it('is weak, and changes with the version, the courses turned off, the build and the hour', () => {
+  it('is weak, and changes with the version, the courses turned off, the build and the signing day', () => {
     const base = {
       version: 'r1.u0',
       settings: {
@@ -92,11 +92,13 @@ describe('the validator of the material', () => {
       { ...base, settings: null },
       { ...base, build: 'b2' },
       { ...base, build: null },
-      { ...base, nowSec: NOW + 3600 },
+      { ...base, nowSec: NOW + 86_400 },
     ]) {
       expect(validatorOf(other)).not.toBe(tag);
     }
+    // Within the same UTC day the image links do not change, nor does the validator.
     expect(validatorOf({ ...base, nowSec: NOW + 1 })).toBe(tag);
+    expect(validatorOf({ ...base, nowSec: NOW + 3600 })).toBe(tag);
     expect(validatorOf({ ...base, build: null })).toContain('.dev.');
   });
 
@@ -140,10 +142,12 @@ describe('the routes of the material, revalidated', () => {
     expect(reads.note).toBe(2);
   });
 
-  it('so does a course turned off, and the next hour (the image links are signed for it)', async () => {
+  it('so does a course turned off, and the next day (the image links are signed for it)', async () => {
     const { app, get, setNow } = setup();
     const tag = (await get('/api/catalog')).headers.get('ETag')!;
     setNow(NOW + 3600);
+    expect((await get('/api/catalog', { 'If-None-Match': tag })).status).toBe(304);
+    setNow(NOW + 86_400);
     expect((await get('/api/catalog', { 'If-None-Match': tag })).status).toBe(200);
     const next = (await get('/api/catalog')).headers.get('ETag')!;
     const off = await app.request('/api/admin/site-settings', {

@@ -3,7 +3,7 @@ import { databaseError } from '@qv/schema/database';
 import { AnswerTodayRow, CardLogRow, RatedInDeckRow, RatedRow, STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../../shared/lib/json';
 import type { StudyRepository } from './port';
-import { chunks, fromRow } from './supabaseContext';
+import { chunks, fromRow, inTime } from './supabaseContext';
 import type { StudyContext } from './supabaseContext';
 
 export const CARDS_OF_DECKS_MAX = 5000;
@@ -33,17 +33,20 @@ export function cardReads({ client, fail, all }: StudyContext): CardReads {
               .in('deck_id', ids)
               .order('note_guid')
               .order('ord')
-              .range(from, to),
+              .range(from, to)
+              .abortSignal(inTime()),
           ),
         );
       const parts = await Promise.all(
         chunks(deckIds, CARDS_OF_DECKS_MAX).map(async (ids) => {
-          const { data, error } = await client.rpc('card_states_of_decks', { p_deck_ids: ids });
+          const { data, error, status } = await client
+            .rpc('card_states_of_decks', { p_deck_ids: ids })
+            .abortSignal(inTime());
           if (!error) return fromDatabase('card_states_of_decks', CardStateRows, data ?? []);
           if (databaseError(error).hasCode('PGRST202')) {
             return (await Promise.all(chunks(ids).map(paged))).flat();
           }
-          return fail('leer tu avance en el mazo', error);
+          return fail('leer tu avance en el mazo', error, status);
         }),
       );
       return parts.flat().map(fromRow);

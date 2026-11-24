@@ -5,11 +5,27 @@ import type { Database } from '@qv/db-types/users';
 import { databaseError } from '@qv/schema/database';
 import type { DbErrorLike } from '@qv/schema/database';
 import type { CardStateRow } from '@qv/schema/user';
+import { ConnectionError } from './model';
 import type { CardRef, StoredCard } from './model';
 
 type Functions = Database['public']['Functions'];
 
 const PAGE = 1000;
+
+/** A request that takes longer got lost on the way: the slowest write, over tens of thousands of cards, takes seconds. */
+const REQUEST_TIMEOUT_MS = 20_000;
+
+/** For the requests a study session makes while it saves: none of them waits forever for its reply. */
+export const inTime = () => AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+
+/**
+ * No reply (0, also a request out of time), one that says «later» (also Cloudflare's 520 to 524, for a database it
+ * cannot reach), or a 401: the token ran out with no connection to renew it and the request went without a session.
+ * None tells anything of what was asked. A session that is really over takes the student to the sign-in page.
+ */
+const NO_ANSWER: ReadonlySet<number> = new Set([
+  0, 401, 408, 429, 502, 503, 504, 520, 521, 522, 523, 524,
+]);
 
 export const iso = (t: string | null) => (t === null ? null : new Date(t).toISOString());
 
@@ -55,12 +71,15 @@ export const chunks = <T>(list: T[], size = 60) =>
 type Page<T> = (
   from: number,
   to: number,
-) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+) => PromiseLike<{ data: T[] | null; error: { message: string } | null; status?: number }>;
 
 export interface StudyContext {
   client: SupabaseClient<Database>;
-  /** Typed as a property, so that a call narrows what follows it (TypeScript only does it then). */
-  fail: (what: string, e: DbErrorLike) => never;
+  /**
+   * Typed as a property, so that a call narrows what follows it (TypeScript only does it then). With the reply's
+   * `status`, a request that got no answer is a `ConnectionError`.
+   */
+  fail: (what: string, e: DbErrorLike, status?: number) => never;
   all: <T>(what: string, page: Page<T>) => Promise<T[]>;
   write: ReturnType<typeof writerOf>;
   /** Up to which content change this page has its cards' decks; null until it read it. */
@@ -68,16 +87,17 @@ export interface StudyContext {
 }
 
 // Each write sends up to which content change this page has its cards' decks (x-card-sync): if another tab is ahead,
-// the database marks the rows it creates to be reconciled again.
+// the database marks the rows it creates to be reconciled again. None waits forever for its reply.
 function writerOf(client: SupabaseClient<Database>, sync: { seenTo: number | null }) {
   return <F extends keyof Functions>(fn: F, args?: Functions[F]['Args']) => {
-    const call = client.rpc(fn, args);
+    const call = client.rpc(fn, args).abortSignal(inTime());
     return sync.seenTo === null ? call : call.setHeader('x-card-sync', String(sync.seenTo));
   };
 }
 
 export function studyContext(client: SupabaseClient<Database>): StudyContext {
-  const fail: StudyContext['fail'] = (what, e) => {
+  const fail: StudyContext['fail'] = (what, e, status) => {
+    if (status !== undefined && NO_ANSWER.has(status)) throw new ConnectionError(what);
     const error = databaseError(e);
     if (error.says('quota_exceeded')) {
       throw new Error(
@@ -92,8 +112,8 @@ export function studyContext(client: SupabaseClient<Database>): StudyContext {
   async function all<T>(what: string, page: Page<T>): Promise<T[]> {
     const out: T[] = [];
     for (let from = 0; ; from += PAGE) {
-      const { data, error } = await page(from, from + PAGE - 1);
-      if (error) fail(what, error);
+      const { data, error, status } = await page(from, from + PAGE - 1);
+      if (error) fail(what, error, status);
       const rows = data ?? [];
       out.push(...rows);
       if (rows.length < PAGE) return out;

@@ -383,6 +383,7 @@ describe('a page that was behind (the users’ database)', () => {
             ? { applied: true, syncedTo: args.p!.upTo, changed: 0 }
             : { updatedAt: '2026-11-06T12:00:00Z' };
         const builder = {
+          abortSignal: () => builder,
           setHeader(name: string, value: string) {
             if (name === 'x-card-sync') call.header = value;
             return builder;

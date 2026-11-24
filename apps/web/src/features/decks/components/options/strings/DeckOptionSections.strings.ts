@@ -23,7 +23,7 @@ export const deckOptionSectionsStrings = {
     relearnSteps: 'Pasos de reaprendizaje',
     leechThreshold: 'Umbral para olvidadas',
     leechThresholdHelp:
-      'Cuántas veces hay que presionar «Otra vez» en una tarjeta de repaso para que quede marcada como sanguijuela.',
+      'Cuántas veces hay que presionar «Otra vez» en una tarjeta de repaso para que quede marcada como difícil.',
     leechAction: 'Acción para olvidadas',
     order: 'Orden de visualización',
     gather: 'Nuevo orden de recolección de tarjetas',

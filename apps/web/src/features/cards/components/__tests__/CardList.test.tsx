@@ -1,6 +1,7 @@
 // Tests the cards page's virtual list: the photos of a lecture drawn as a grid, and the lecture and topic pinned
 // under the site's bar only once the list goes under it.
 
+import { QueriesWrapper } from '../../../../test/QueriesWrapper';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -39,6 +40,7 @@ function list(lectures = groupNotes([photo('p1'), photo('p2'), photo('p3')])) {
       onOpen={onOpen}
       reveal={null}
     />,
+    { wrapper: QueriesWrapper },
   );
   const section = screen.getByRole('region', { name: /Tarjetas|Lista/ });
   const pinned = section.querySelector<HTMLElement>('.sticky > div')!;

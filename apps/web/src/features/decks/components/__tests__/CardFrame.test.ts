@@ -1,9 +1,10 @@
 // Tests a card side in the browser: its sanitizing (case by case and on the shared HTML corpus of packages/html/test),
-// its Shadow DOM and what a click inside it does.
+// its Shadow DOM, what a click inside it does and its signed images (signed again in place, a notice that fits).
+import { QueriesWrapper } from '../../../../test/QueriesWrapper';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createElement } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { CardFrame, cardShadowRoot, sanitizeCardInBrowser } from '../CardFrame';
@@ -63,6 +64,7 @@ describe('the extras buttons of a card', () => {
         occlusion: false,
         label: 'Reverso',
       }),
+      { wrapper: QueriesWrapper },
     );
     const root = cardShadowRoot(container.querySelector('[role="region"]')!)!;
     const bt = (k: string) => root.querySelector<HTMLElement>(`.bt[data-k="${k}"]`)!;
@@ -113,7 +115,7 @@ describe('the extras buttons of a card', () => {
 describe('clicks inside a card', () => {
   const frame = (html: string, occlusion = false) => {
     const props = { css: '', ord: 0, night: false, occlusion, label: 'Anverso' };
-    const r = render(createElement(CardFrame, { ...props, html }));
+    const r = render(createElement(CardFrame, { ...props, html }), { wrapper: QueriesWrapper });
     const root = () => cardShadowRoot(r.container.querySelector('[role="region"]')!)!;
     const rerender = (next: string) =>
       r.rerender(createElement(CardFrame, { ...props, html: next }));
@@ -214,6 +216,7 @@ describe('how a side is shown', () => {
         label: 'Reverso',
         ...props,
       }),
+      { wrapper: QueriesWrapper },
     );
   const cardOf = (r: ReturnType<typeof show>) =>
     cardShadowRoot(r.container.querySelector('[role="region"]')!)!.querySelector('.card')!;
@@ -259,5 +262,47 @@ describe('how a side is shown', () => {
   it('without focusOnShow never takes the focus', () => {
     show();
     expect(document.activeElement).toBe(document.body);
+  });
+});
+
+describe('the signed images of a card', () => {
+  const signed = (e: number) => `/api/media/cards/aaaa.webp?e=${e}&amp;s=s${e}`;
+  const side = (e: number) =>
+    `<p><a class="hint" href="#">Pista</a><span class="hint" style="display: none">Lo que ayuda</span></p>` +
+    `<img src="${signed(e)}">`;
+  const frame = (html: string) => {
+    const props = { css: '', ord: 0, night: false, occlusion: false, label: 'Reverso' };
+    const r = render(createElement(CardFrame, { ...props, html }), { wrapper: QueriesWrapper });
+    const root = cardShadowRoot(r.container.querySelector('[role="region"]')!)!;
+    return {
+      root,
+      rerender: (next: string) => r.rerender(createElement(CardFrame, { ...props, html: next })),
+    };
+  };
+
+  it('new signatures do not build the card again: the hint stays open and the image is the same one', () => {
+    const { root, rerender } = frame(side(4_102_444_800));
+    fireEvent.click(root.querySelector('a.hint')!);
+    const card = root.querySelector('.card');
+    const img = root.querySelector('img')!;
+    rerender(side(4_102_444_900));
+    expect(root.querySelector('.card')).toBe(card);
+    expect(root.querySelector('img')).toBe(img);
+    expect(img.getAttribute('src')).toBe('/api/media/cards/aaaa.webp?e=4102444900&s=s4102444900');
+    expect(root.querySelector<HTMLElement>('span.hint')!.style.display).toBe('block');
+  });
+
+  it('an image without alt nor size that fails leaves a notice as wide as the card, not as its broken icon', async () => {
+    const { root } = frame(side(4_102_444_800));
+    const img = root.querySelector('img')!;
+    img.getBoundingClientRect = () => ({ width: 16 }) as DOMRect;
+    await act(async () => {
+      img.dispatchEvent(new Event('error'));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const notice = root.querySelector<HTMLElement>('[role="group"]')!;
+    expect(notice).toHaveAccessibleName('Imagen');
+    expect(notice.style.width).toBe('100%');
+    expect(notice.style.maxWidth).toBe('');
   });
 });

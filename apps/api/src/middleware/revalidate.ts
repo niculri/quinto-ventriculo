@@ -1,12 +1,11 @@
 // On the routes of the material: every answer is checked again by the browser, and an unchanged one is a 304 that reads
-// nothing of the material (its validator is the content version, the courses turned off, the build and the hour).
+// nothing of the material (its validator is the content version, the courses turned off, the build and the day).
 import { createMiddleware } from 'hono/factory';
 import type { SiteSettings } from '@qv/schema';
 import type { Dependencies } from '../dependencies';
 import type { AppEnv } from '../env';
 import type { ContentVersionReader } from '../services/contentVersion';
-
-const HOUR = 3600;
+import { signingDay } from '../services/mediaSigner';
 
 /** FNV-1a, 32 bits: short, and enough to tell two lists of courses turned off apart. */
 function fnv1a(text: string): string {
@@ -22,8 +21,8 @@ const settingsMark = (s: SiteSettings) =>
   fnv1a(JSON.stringify([s.hideEmptySemesters, [...s.hiddenCourses].sort()]));
 
 /**
- * The hour is in it because the image URLs inside a note, a card or a section are signed for the hour: an answer
- * kept from another hour would bring links that expire.
+ * The signing day is in it because the image URLs inside a note, a card or a section all expire at the end of the
+ * next day: an answer kept from an earlier day would bring links that expire sooner.
  */
 export function validatorOf(parts: {
   version: string;
@@ -32,8 +31,8 @@ export function validatorOf(parts: {
   nowSec: number;
 }): string {
   const settings = parts.settings ? settingsMark(parts.settings) : '-';
-  const hour = Math.floor(parts.nowSec / HOUR).toString(36);
-  return `W/"${parts.version}.${settings}.${parts.build ?? 'dev'}.${hour}"`;
+  const day = signingDay(parts.nowSec).toString(36);
+  return `W/"${parts.version}.${settings}.${parts.build ?? 'dev'}.${day}"`;
 }
 
 /** Weak comparison (RFC 9110, 13.1.2), over the list `If-None-Match` may bring. */

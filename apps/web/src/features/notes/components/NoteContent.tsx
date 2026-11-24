@@ -1,10 +1,13 @@
-// The body of an article: its HTML sanitized, laid out, and with each image opening the viewer.
+// The body of an article: its HTML sanitized, laid out, with each image opening the viewer, and kept in place while
+// only its images are signed again.
 
 import { useImperativeHandle, useRef } from 'react';
 import type { CSSProperties, KeyboardEvent, MouseEvent, Ref } from 'react';
 import { useLocation } from 'react-router';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { SafeHtml } from '../../../shared/ui/SafeHtml';
+import { useMediaRecovery } from '../../../shared/hooks/useMediaRecovery';
+import { useSignedHtml } from '../../../shared/hooks/useSignedHtml';
 import { sectionAt } from '../model/selection';
 import { useScrollableTables } from '../hooks/useScrollableTables';
 import { prepareArticle } from '../model/articleHtml';
@@ -23,7 +26,9 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
   const clean = prepareArticle(sanitizeInBrowser(html), measure);
   const style: CSSProperties & Record<'--measure', string> = { '--measure': toRem(measure) };
   const ownRef = useRef<HTMLDivElement>(null);
-  useScrollableTables(ownRef, clean);
+  const shown = useSignedHtml(clean, ownRef);
+  useMediaRecovery(ownRef, shown);
+  useScrollableTables(ownRef, shown);
   useImperativeHandle(ref, () => ownRef.current!, []);
 
   const open = (e: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
@@ -42,7 +47,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
   return (
     <SafeHtml
       as="div"
-      html={clean}
+      html={shown}
       ref={ownRef}
       className="note-body"
       style={style}

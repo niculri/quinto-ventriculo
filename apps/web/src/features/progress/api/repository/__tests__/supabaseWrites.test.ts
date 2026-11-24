@@ -1,10 +1,11 @@
-// Tests the study adapter's writes: which refusals are the answer and not the network, what each one says, and how the
-// card sync moves with what the database reconciled.
+// Tests the study adapter's writes: which refusals are the answer and which the connection, what each one says, and
+// how the card sync moves with what the database reconciled.
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@qv/db-types/users';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CardChangedError,
+  ConnectionError,
   PracticeRefusedError,
   supabaseStudyRepository,
   UndoRefusedError,
@@ -65,6 +66,89 @@ describe('a refused write', () => {
   it('an answer to a card somebody changed is a CardChangedError, to read the card again', async () => {
     const { study } = repo(() => refusal('P0001', 'record_review: card_changed'));
     await expect(study.recordReview(REVIEW)).rejects.toBeInstanceOf(CardChangedError);
+  });
+});
+
+describe('a request that got no answer', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  const WRITES = REFUSED.filter(
+    ([what]) => what !== 'leer tu avance' && what !== 'poner al día tus tarjetas',
+  );
+
+  it.each(WRITES)('«No se pudo %s: no hay conexión», a ConnectionError', async (what, call) => {
+    const { study } = repo(() => {
+      throw new TypeError('Failed to fetch');
+    });
+    const e: unknown = await call(study).catch((x: unknown) => x);
+    expect(e).toBeInstanceOf(ConnectionError);
+    expect((e as Error).message).toBe(`No se pudo ${what}: no hay conexión.`);
+  });
+
+  it.each([401, 408, 429, 502, 503, 504, 520, 524])(
+    'a reply %i says «later» or comes of a request sent without the session, not «no»: a ConnectionError too',
+    async (status) => {
+      const { study } = repo(() => ({ status, body: { message: 'later' } }));
+      await expect(study.recordReview(REVIEW)).rejects.toBeInstanceOf(ConnectionError);
+    },
+  );
+
+  it('a 500 is the database saying no: the usual error, which is not asked again', async () => {
+    const { study } = repo(() => ({ status: 500, body: { code: 'XX000', message: 'internal' } }));
+    const e: unknown = await study.recordReview(REVIEW).catch((x: unknown) => x);
+    expect(e).not.toBeInstanceOf(ConnectionError);
+    expect((e as Error).message).toBe('No se pudo guardar tu respuesta: internal');
+  });
+
+  it('an undo of a database from before undo_last_review(expected) that gets no answer is one too', async () => {
+    let asked = 0;
+    const { study } = repo(() =>
+      asked++ === 0
+        ? refusal('PGRST202', 'no function')
+        : { status: 504, body: { message: 'later' } },
+    );
+    await expect(study.undo({ ...REF, action: 'answer' })).rejects.toBeInstanceOf(ConnectionError);
+  });
+
+  it('the cards of some decks, read in one call or a page at a time', async () => {
+    const down = repo(() => ({ status: 504, body: { message: 'later' } }));
+    await expect(down.study.cards(['d1'])).rejects.toBeInstanceOf(ConnectionError);
+    const paged = repo((c) =>
+      c.rpc ? refusal('PGRST202', 'no function') : { status: 504, body: { message: 'later' } },
+    );
+    await expect(paged.study.cards(['d1'])).rejects.toThrow(
+      'No se pudo leer tu avance en el mazo: no hay conexión.',
+    );
+  });
+
+  it('reading up to where the cards are synced and reconciling them, as well', async () => {
+    const { study } = repo(() => ({ status: 504, body: { message: 'later' } }));
+    await expect(study.cardsSyncedTo()).rejects.toThrow(
+      'No se pudo leer tu avance: no hay conexión.',
+    );
+    await expect(study.reconcileCards({ since: 0, upTo: 1, changes: [] })).rejects.toBeInstanceOf(
+      ConnectionError,
+    );
+  });
+
+  it('no write, nor the reading of the cards, waits more than 20 s: out of time is no answer', async () => {
+    const late = new AbortController();
+    const timeout = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(late.signal);
+    const signals: (AbortSignal | null | undefined)[] = [];
+    const client = createClient<Database>(USERS_DB_URL, USERS_DB_KEY, {
+      ...NO_AUTH,
+      global: {
+        fetch: (_input, init) => {
+          signals.push(init?.signal);
+          return Promise.reject(new DOMException('The operation timed out.', 'TimeoutError'));
+        },
+      },
+    });
+    const study = supabaseStudyRepository(client);
+    await expect(study.setFlag(REF, 1)).rejects.toBeInstanceOf(ConnectionError);
+    await expect(study.cards(['d1'])).rejects.toBeInstanceOf(ConnectionError);
+    expect(timeout).toHaveBeenCalledWith(20_000);
+    expect(signals).toEqual([late.signal, late.signal]);
   });
 });
 

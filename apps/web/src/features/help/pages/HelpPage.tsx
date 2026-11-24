@@ -250,6 +250,11 @@ function TroubleSection() {
           se está guardando todavía, el navegador te pregunta antes de salir.
         </li>
         <li>
+          Si se corta la conexión mientras estudias, puedes seguir: arriba dice «Sin conexión» y
+          cuánto falta por guardar, y se guarda solo cuando vuelve. No cierres la pestaña hasta
+          entonces.
+        </li>
+        <li>
           Si dice que una tarjeta cambió en otra pestaña o dispositivo, o que no se pudo guardar tu
           avance, revisa tu conexión y vuelve a cargar: sigues desde lo último que quedó guardado.
         </li>

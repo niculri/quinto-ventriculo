@@ -22,10 +22,12 @@ describe('the words of a toast', () => {
     );
   });
 
-  it('names the leech, and what was undone as the mode calls it', () => {
-    expect(toastText(toast({ kind: 'leech' }), true)).toBe('La tarjeta era una sanguijuela.');
+  it('says what happened to a card failed many times, and what was undone as the mode calls it', () => {
+    expect(toastText(toast({ kind: 'leech' }), true)).toBe(
+      'Fallaste esta tarjeta muchas veces: quedó marcada como difícil.',
+    );
     expect(toastText(toast({ kind: 'leechSuspended' }), true)).toBe(
-      'La tarjeta era una sanguijuela. Ha sido suspendida.',
+      'Fallaste esta tarjeta muchas veces y quedó suspendida. Puedes quitarle la suspensión en el explorador.',
     );
     expect(toastText(toast({ kind: 'nothingToUndo' }), true)).toBe('No hay nada que deshacer');
     expect(toastText(toast({ kind: 'undone', action: 'flag' }), true)).toMatch(/^Deshecho: /);

@@ -1,0 +1,27 @@
+# Known vulnerabilities in what ships (the Worker and the web). Apart from the CI, which `npm run deploy` needs green:
+# an advisory published overnight must not hold back a fix. `npm audit` alone also lists the tools'.
+name: Audit
+
+on:
+  push:
+    branches: [main]
+    paths: ['package.json', 'package-lock.json', '**/package.json', '.github/workflows/audit.yml']
+  pull_request:
+    paths: ['package.json', 'package-lock.json', '**/package.json', '.github/workflows/audit.yml']
+  schedule:
+    - cron: '45 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: npm audit (what ships)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm audit --omit=dev --audit-level=moderate

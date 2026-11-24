@@ -87,8 +87,14 @@ export class StudyDriver {
   hasSeen(assessmentId: string) {
     return hasSeen(this.state, assessmentId);
   }
+  get unsaved() {
+    return this.saves.unsaved;
+  }
   saved() {
     return this.saves.saved();
+  }
+  retryNow() {
+    this.saves.retryNow();
   }
 
   showNext() {

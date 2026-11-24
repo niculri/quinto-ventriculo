@@ -25,7 +25,7 @@ export const quizDetailQuery = (api: ApiClient, id: string | null, published = f
     staleTime: 5 * 60_000,
   });
 
-// Refetched before the signed photo URLs (at least one hour) expire, since a round can last longer.
+// Its signed photos are signed again by the page itself when they are about to expire (shared/hooks/useSignedImage).
 export const quizSectionQuery = (
   api: ApiClient,
   id: string | null,
@@ -39,8 +39,6 @@ export const quizSectionQuery = (
     enabled: !!id && !!sectionId,
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,
-    refetchInterval: 45 * 60_000,
-    refetchOnWindowFocus: true,
   });
 
 // Read once: the page keeps the cache current as it saves.

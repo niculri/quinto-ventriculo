@@ -1,5 +1,6 @@
 // Tests a photo's cell in the list's grid: its answer, hidden or missing, and its picture's least height.
 
+import { QueriesWrapper } from '../../../../test/QueriesWrapper';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -20,6 +21,7 @@ function cell(note: object, hideAnswers: boolean, imageHeight = 120) {
       onOpen={onOpen}
       imageHeight={imageHeight}
     />,
+    { wrapper: QueriesWrapper },
   );
   return { button: screen.getByRole('button'), onOpen, m };
 }

@@ -51,6 +51,26 @@ describe('the assessments of the menu', () => {
     open('Certamen 3');
   });
 
+  it('a course whose only material is a deck outside its assessments opens with none', async () => {
+    const c = structuredClone(CATALOG);
+    const deck = { ...c.anki.decks[0]!, semester: 2, noteCount: 1, cardCount: 1 };
+    c.anki.decks.push(
+      { ...deck, id: '30', name: '() Medicina UCH::2° Semestre', parentId: '1' },
+      {
+        ...deck,
+        id: '31',
+        name: '() Medicina UCH::2° Semestre::🧲 Física',
+        parentId: '30',
+        courseId: 'fisica',
+      },
+    );
+    renderApp('/semesters/2/courses/fisica', { api: fakeApi({ catalog: async () => c }) });
+    await waitFor(() =>
+      expect(menu().getByRole('link', { name: /Física/ })).toHaveAttribute('aria-current', 'page'),
+    );
+    expect(menu().queryAllByRole('button')).toEqual([]);
+  });
+
   it('on a note, the assessment being read is open and the other is closed', async () => {
     renderApp(`${COURSE}/notes/11-traduccion`, { api: api() });
     await ready();

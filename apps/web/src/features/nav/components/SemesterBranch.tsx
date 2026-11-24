@@ -114,7 +114,6 @@ function CourseAssessments({
   const assessments = course.assessments.filter((a) => assessmentHasMaterial(catalog, a));
   // On the course's page every assessment is open; deeper, the one being read.
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
-  if (!assessments.length) return null;
   return (
     <>
       {assessments.map((a) => {

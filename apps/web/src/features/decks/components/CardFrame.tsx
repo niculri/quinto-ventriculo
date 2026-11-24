@@ -3,12 +3,14 @@
 // AGPL-3.0-or-later. Modified for El Quinto Ventrículo in 2026.
 
 // A side of a card as Anki's reviewer shows it: sanitized, in a Shadow DOM with the note type's CSS on Anki's base
-// styles, with occlusions, hint links and tap to zoom.
+// styles, with occlusions, hint links and tap to zoom; an answer that only signs its images again changes only them.
 import { useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { initExtras, toggleExtraPanel } from './extras';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
+import { useMediaRecovery } from '../../../shared/hooks/useMediaRecovery';
+import { useSignedHtml } from '../../../shared/hooks/useSignedHtml';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { cardFrameStrings as s } from './strings/CardFrame.strings';
 
@@ -67,6 +69,8 @@ interface Props {
 export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow = false }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState<OpenImage | null>(null);
+  const shown = useSignedHtml(html, hostRef, true);
+  useMediaRecovery(hostRef, shown, true);
 
   useLayoutEffect(() => {
     const el = hostRef.current;
@@ -84,7 +88,7 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
     card.className = ['card', `card${ord + 1}`, ...(night ? ['nightMode', 'night_mode'] : [])].join(
       ' ',
     );
-    card.innerHTML = sanitizeCardInBrowser(html);
+    card.innerHTML = sanitizeCardInBrowser(shown);
     body.append(card);
     root.replaceChildren(base, own, body);
     initExtras(card);
@@ -123,7 +127,7 @@ export function CardFrame({ html, css, ord, night, occlusion, label, focusOnShow
       root.removeEventListener('click', onClick);
       cleanup();
     };
-  }, [html, css, ord, night, occlusion, focusOnShow]);
+  }, [shown, css, ord, night, occlusion, focusOnShow]);
 
   // `.qv-frame` plays Anki's window: it does not scroll and contains the card's `position: fixed` footer, while the
   // card scrolls inside `.qv-scroll`.

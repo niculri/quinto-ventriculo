@@ -218,7 +218,7 @@ export function PrivacyPage() {
           <li>La base de datos misma deja a cada estudiante leer y cambiar solo lo suyo.</li>
           <li>Todo viaja cifrado (HTTPS).</li>
           <li>
-            Las imágenes del material se piden con enlaces firmados que vencen en pocas horas.
+            Las imágenes del material se piden con enlaces firmados que vencen en uno o dos días.
           </li>
           <li>
             Al cerrar sesión en un dispositivo se cierran todas tus sesiones, y al eliminar tu

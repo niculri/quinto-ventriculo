@@ -1,5 +1,5 @@
 // Tests of the practice test pages: the course's lists, the cover, rounds, reloads and not found.
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { focusManager } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
@@ -8,6 +8,7 @@ import { fakeApi } from '../../../test/fakes/api';
 import { renderApp } from '../../../test/render';
 import { localQuizRepository } from '../api/repository';
 import type { QuizRepository, QuizStep } from '../api/repository';
+import type { QuizSectionDetail } from '@qv/schema';
 import { memoryStorage } from '../../../test/storage';
 
 const BASE = '/semesters/2/courses/biologia-celular/tests/certamen-2/practica';
@@ -273,7 +274,7 @@ describe('a practice test', () => {
     expect(await screen.findByText('0%')).toBeInTheDocument();
   });
 
-  it('after half an hour the section comes again (new photo URLs); if that fails, the round goes on', async () => {
+  it('a round left open: coming back asks for nothing; an expired photo asks for a copy, and if that fails the round goes on', async () => {
     const user = userEvent.setup();
     const base = fakeApi();
     let calls = 0;
@@ -281,32 +282,42 @@ describe('a practice test', () => {
       quizSection: async (id, section, signal) => {
         calls++;
         if (calls > 1) throw new ApiRequestError(500, 'internal', 'Algo falló.');
-        return base.quizSection(id, section, signal);
+        const read = JSON.stringify(await base.quizSection(id, section, signal));
+        // Signed for three hours more: nothing is asked for ahead, until its link expires.
+        const expires = Math.floor(Date.now() / 1000) + 3 * 3600;
+        return JSON.parse(
+          read.replaceAll(
+            '/api/media/tests/x.webp',
+            `/api/media/tests/x.webp?e=${expires}&s=vieja`,
+          ),
+        ) as QuizSectionDetail;
       },
     });
     renderApp(`${BASE}/pautas`, { api });
-    await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
-    await user.click(await screen.findByRole('button', { name: /Splicing alternativo/ }));
+    await user.click(await screen.findByRole('switch', { name: /Transcripción/ }));
+    await user.click(screen.getByRole('button', { name: 'Comenzar' }));
+    const photo = await screen.findByRole('img', { name: 'Micrografía' });
     expect(calls).toBe(1);
-    const later = Date.now() + 31 * 60_000;
-    const now = vi.spyOn(Date, 'now').mockReturnValue(later);
+    const start = Date.now();
+    const now = vi.spyOn(Date, 'now');
     try {
+      // A day later the section is not asked for again: what is on screen stays as it is.
+      now.mockReturnValue(start + 24 * 3_600_000);
       act(() => {
         focusManager.setFocused(false);
         focusManager.setFocused(true);
       });
+      expect(calls).toBe(1);
+      fireEvent.error(photo);
       await waitFor(() => expect(calls).toBe(2));
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 20));
-      });
+      expect(await screen.findByText('No se pudo cargar la imagen')).toBeInTheDocument();
     } finally {
       now.mockRestore();
       focusManager.setFocused(undefined);
     }
     expect(
-      screen.getByRole('heading', { level: 2, name: '¿Qué muestra el gel?' }),
+      screen.getByRole('heading', { level: 2, name: '¿Qué es la lámina?' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Correcta')).toBeInTheDocument();
     expect(screen.queryByText('Algo falló.')).toBeNull();
   });
 

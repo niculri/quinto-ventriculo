@@ -2,10 +2,14 @@
 // progress their rows, the answers a search or a day needs, the failed cards and a card's history.
 
 import { queryOptions } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
+import { apiPaths } from '@qv/schema/http';
 import { dayStartsAt } from '@qv/srs';
 import { cardKey } from '@qv/study';
 import type { ApiClient } from '../../../shared/lib/api';
 import { CONTENT_QUERY } from '../../../shared/lib/contentQuery';
+import type { RenewMedia } from '../../../shared/lib/signedMedia';
+import { thumbUrl } from '../model/thumbs';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
 import { studyKeys } from '../../progress/queries';
 import { heatmapKeys } from '../../stats/api/queries';
@@ -35,6 +39,22 @@ export const thumbsQuery = (api: ApiClient) =>
     queryFn: ({ signal }) => api.thumbSignature(signal),
     staleTime: 10 * 60_000,
   });
+
+/** A signature asked for this recently serves every thumbnail that fails with the one before it. */
+const RENEWED_MS = 30_000;
+
+/** A thumbnail whose signature expired: the one signature of them all, asked for again once for all that fail. */
+export function renewThumbs(client: QueryClient, api: ApiClient): RenewMedia {
+  return async () => {
+    const { prefix, query } = await client.query({
+      ...thumbsQuery(api),
+      staleTime: RENEWED_MS,
+    });
+    const thumbs = apiPaths.media(prefix);
+    return (path) =>
+      path.startsWith(thumbs) ? thumbUrl(path.slice(apiPaths.media('').length), query) : null;
+  };
+}
 
 export const scopeRowsQuery = (study: StudyRepository, scope: CardsScope | null) =>
   queryOptions({

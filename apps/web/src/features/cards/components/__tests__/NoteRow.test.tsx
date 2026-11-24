@@ -1,5 +1,6 @@
 // Tests a note's row in the cards page's list: what each kind of note shows, with the answers in view or hidden.
 
+import { QueriesWrapper } from '../../../../test/QueriesWrapper';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -18,6 +19,7 @@ function row(m: Matched, { hideAnswers = false, wide = true, thumbs = 'q=1' } = 
       onOpen={onOpen}
       wide={wide}
     />,
+    { wrapper: QueriesWrapper },
   );
   return { button: screen.getByRole('button'), onOpen };
 }

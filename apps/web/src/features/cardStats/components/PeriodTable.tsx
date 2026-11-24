@@ -20,7 +20,7 @@ export function PeriodTable({
   return (
     <div>
       <div className="-mx-2 overflow-x-auto">
-        <table className="w-full min-w-[20rem] text-sm">
+        <table className="w-full text-sm">
           <caption className="sr-only">{s.caption}</caption>
           <thead className="text-xs text-muted">
             <tr className="border-b border-border">
@@ -55,7 +55,7 @@ export function PeriodTable({
                 r ? text : <Skeleton className="ml-auto h-4 w-10" />;
               return (
                 <tr key={period} className="h-12 border-b border-border last:border-0">
-                  <th scope="row" className="px-2 py-2 text-left font-medium">
+                  <th scope="row" className="px-2 py-2 text-left font-medium whitespace-nowrap">
                     {s.period(period)}
                   </th>
                   <td className={cell}>{value(r ? s.count(r.answers) : '')}</td>

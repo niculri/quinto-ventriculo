@@ -10,13 +10,22 @@ export const cardStatesStrings = {
     learning: 'Aprendiendo',
     young: 'Jóvenes',
     mature: 'Maduras',
-    hidden: 'Suspendidas',
+    hidden: 'Ocultas',
   },
   /** Advanced mode: how the learning and the hidden ones split. */
   learningSplit: (learning: number, relearning: number) =>
-    `${count(learning)} por primera vez · ${count(relearning)} reaprendiendo`,
+    [`${count(learning)} por primera vez`, `${count(relearning)} reaprendiendo`] as const,
   hiddenSplit: (suspended: number, buried: number) =>
-    `${count(suspended)} suspendidas · ${count(buried)} enterradas`,
-  hint: 'Maduras: las que no vas a ver en 21 días o más. Suspendidas incluye las enterradas por hoy.',
+    [
+      `${count(suspended)} ${suspended === 1 ? 'suspendida' : 'suspendidas'}`,
+      `${count(buried)} ${buried === 1 ? 'enterrada' : 'enterradas'}`,
+    ] as const,
+  /** Each mode with its own words for what hides a card («No mostrar más», «Saltar por hoy»; suspend, bury). */
+  hint: (advanced: boolean) =>
+    `Jóvenes y maduras ya las aprendiste: las maduras vuelven cada 21 días o más. ${
+      advanced
+        ? 'Ocultas: las suspendidas y las enterradas.'
+        : 'Ocultas: las de «No mostrar más» y las que quedaron para mañana.'
+    }`,
   count,
 } as const;

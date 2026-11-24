@@ -41,7 +41,7 @@ export function StatsBody({
   const labels = new Map(descendants(node).map((n) => [n.id, n.label]));
   return (
     <>
-      <p className="mt-3 h-5 truncate text-sm text-muted tabular-nums">
+      <p className="mt-3 line-clamp-2 h-10 text-sm text-muted tabular-nums sm:line-clamp-1 sm:h-5">
         {data
           ? s.total(data.total.answers, periodTableStrings.time(data.total.ms), data.total.days)
           : null}

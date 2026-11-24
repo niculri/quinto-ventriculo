@@ -9,7 +9,15 @@ export const activityChartStrings = {
   today: 'Hoy',
   after: 'En 30 días',
   legend: { past: 'Respondidas', due: 'Por repasar' },
-  dueToday: (due: number, overdue: number) =>
-    `Hoy te tocan ${count(due)} por repasar${overdue ? ` y ${count(overdue)} atrasadas` : ''}.`,
+  /** As the rest of the site: «atrasadas» are cards due before today. */
+  dueToday: (due: number, overdue: number) => {
+    const late = `${count(overdue)} ${overdue === 1 ? 'atrasada' : 'atrasadas'}`;
+    if (!due)
+      return overdue
+        ? `Hoy tienes ${late} por repasar.`
+        : 'Hoy no te toca repasar ninguna tarjeta.';
+    const cards = `${count(due)} ${due === 1 ? 'tarjeta' : 'tarjetas'}`;
+    return `Hoy te toca repasar ${cards}${overdue ? `, más ${late}` : ''}.`;
+  },
   max: (n: number) => `máx. ${count(n)}`,
 } as const;

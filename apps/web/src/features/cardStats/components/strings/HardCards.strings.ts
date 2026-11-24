@@ -3,7 +3,7 @@
 const count = (n: number) => n.toLocaleString('es-CL');
 
 export const hardCardsStrings = {
-  none: 'Todavía no olvidas ninguna tarjeta de aquí.',
+  none: 'Todavía no has olvidado ninguna de estas tarjetas.',
   lapses: (n: number) => `${count(n)} ${n === 1 ? 'olvido' : 'olvidos'}`,
   reps: (n: number) => `${count(n)} ${n === 1 ? 'repaso' : 'repasos'}`,
   noText: 'Tarjeta sin texto',

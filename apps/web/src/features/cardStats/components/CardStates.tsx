@@ -25,7 +25,7 @@ export function CardStates({
         ORDER.reduce((t, k) => t + b[k], 0),
       )
     : 1;
-  const extras: Partial<Record<(typeof ORDER)[number], string>> = cards
+  const extras: Partial<Record<(typeof ORDER)[number], readonly [string, string]>> = cards
     ? {
         learning: s.learningSplit(cards.learning, cards.relearning),
         hidden: s.hiddenSplit(cards.suspended, cards.buried),
@@ -67,12 +67,18 @@ export function CardStates({
               {b ? s.count(b[k]) : <Skeleton className="h-5 w-12" />}
             </dd>
             {advanced ? (
-              <dd className="h-4 truncate text-xs text-muted tabular-nums">{extras[k]}</dd>
+              <dd className="h-8 text-xs leading-4 text-muted tabular-nums">
+                {extras[k]?.map((line) => (
+                  <span key={line} className="block truncate">
+                    {line}
+                  </span>
+                ))}
+              </dd>
             ) : null}
           </div>
         ))}
       </dl>
-      <p className="mt-2 text-xs text-muted">{s.hint}</p>
+      <p className="mt-2 text-xs text-muted">{s.hint(advanced)}</p>
     </div>
   );
 }

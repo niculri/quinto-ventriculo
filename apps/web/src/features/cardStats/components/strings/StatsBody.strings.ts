@@ -11,7 +11,8 @@ export const statsBodyStrings = {
   },
   total: (answers: number, time: string, days: number) =>
     answers
-      ? `Desde tu primer día aquí: ${count(answers)} ${answers === 1 ? 'respuesta' : 'respuestas'} en ${time}, ${count(days)} ${days === 1 ? 'día' : 'días'} con estudio.`
-      : 'Todavía no respondes tarjetas de aquí.',
-  advanced: 'En «Modo avanzado» ves además los estados, jóvenes y maduras por separado.',
+      ? `En total: ${count(answers)} ${answers === 1 ? 'respuesta' : 'respuestas'} (${time}) en ${count(days)} ${days === 1 ? 'día' : 'días'}.`
+      : 'Todavía no has respondido ninguna de estas tarjetas.',
+  advanced:
+    'En «Modo avanzado» ves además el acierto de jóvenes y maduras por separado, y cuántas están reaprendiendo, suspendidas o enterradas.',
 } as const;

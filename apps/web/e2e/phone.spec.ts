@@ -4,6 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { DECK_URL, openModeRow, setAdminMode, signIn } from './helpers';
+import { ACCEPTED_ACCOUNT, PORT } from './accepted';
 
 test.skip(({ isMobile }) => !isMobile, 'phone only');
 test.use({ viewport: { width: 375, height: 667 } });
@@ -288,6 +289,44 @@ test('studying takes the whole screen: no top bar, the answers at the bottom, no
   if (browserName === 'chromium') expect(await shifts(page)).toBe(0);
   await page.getByRole('link', { name: /^Volver a/ }).click();
   await expect(page.getByRole('banner')).toBeVisible();
+});
+
+test.describe('the simple mode', () => {
+  test.use({
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: `http://localhost:${PORT}`,
+          localStorage: [
+            {
+              name: 'qv-demo-study',
+              value: JSON.stringify({
+                preferences: { fullAnki: false, welcomeSeen: true },
+                activations: [{ deckId: '1006809718735317183', active: true }],
+              }),
+            },
+            ACCEPTED_ACCOUNT,
+          ],
+        },
+      ],
+    },
+  });
+
+  test('nothing under the answers takes room from the card: the material is in «Más»', async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(`${DECK_URL}/study`);
+    const reveal = page.getByRole('button', { name: 'Mostrar respuesta' });
+    const box = (await reveal.boundingBox())!;
+    expect(667 - (box.y + box.height)).toBeLessThan(24);
+    await reveal.click();
+    const answers = (await page.getByRole('group', { name: 'Responder' }).boundingBox())!;
+    expect(667 - (answers.y + answers.height)).toBeLessThan(12);
+    await page.getByRole('button', { name: 'Más' }).click();
+    await expect(page.getByRole('menuitem', { name: /^Saltar por hoy/ })).toBeVisible();
+  });
 });
 
 test('a long note: the index is always at hand, takes to the section below its bar and closes', async ({

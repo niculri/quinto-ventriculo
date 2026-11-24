@@ -41,6 +41,7 @@ export function PracticeRound({ cards, back }: { cards: CardRef[]; back: string 
           {current ? (
             <ReviewMenu
               current={current}
+              revealed={round.revealed}
               flag={0}
               // Without «markable» the menu never marks, so it never calls this.
               onMarked={/* v8 ignore next */ () => undefined}

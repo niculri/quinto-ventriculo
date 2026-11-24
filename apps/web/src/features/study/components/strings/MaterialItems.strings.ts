@@ -1,6 +1,6 @@
-// The texts of MaterialRow.
+// The texts of MaterialItems.
 
-export const materialRowStrings = {
+export const materialItemsStrings = {
   material: {
     note: 'Ver apunte',
     quiz: 'Preguntas',

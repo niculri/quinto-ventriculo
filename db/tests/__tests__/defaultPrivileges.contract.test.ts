@@ -13,8 +13,10 @@ const NEXT = readdirSync(join(import.meta.dirname, '../../users/supabase/migrati
   .find((f) => f > MIGRATION);
 /** The functions the later migrations made that a signed-in student calls: each granted on purpose. */
 const GRANTED_LATER = [
+  'my_card_stats(text[])',
   'save_study_preferences(jsonb)',
   'storage_health()',
+  'study_heatmap(text[],text[])',
   'undo_last_review(jsonb)',
 ];
 /** Answers only yes or no, for the health check, which calls it without a session like `health()`. */

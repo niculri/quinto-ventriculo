@@ -5,7 +5,7 @@ import type { CardStatsData } from '@qv/study';
 
 export const CHART_DAYS = 30;
 
-export interface ChartBar {
+interface ChartBar {
   /** Days from today: negative before, 0 today, positive after. */
   offset: number;
   value: number;

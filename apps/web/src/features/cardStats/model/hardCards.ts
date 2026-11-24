@@ -12,7 +12,7 @@ export interface HardCardRow extends HardCard {
 
 const HOLE = /\{\{c\d+::(?:[^}]|\}(?!\}))*?\}\}/g;
 
-export const withoutAnswers = (front: string) => front.replace(HOLE, '[…]').trim();
+const withoutAnswers = (front: string) => front.replace(HOLE, '[…]').trim();
 
 export function hardCardRows(
   hardest: readonly HardCard[],

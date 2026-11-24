@@ -8,6 +8,8 @@ import { dayNumber } from '@qv/study';
 import { renderApp } from '../../../test/render';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import { localStudyRepository } from '../../progress/api/repository';
+import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
 import type { StudyRepository } from '../../progress/api/repository';
 
 const NOW = new Date(2026, 10, 10, 12);
@@ -31,7 +33,21 @@ const day = (offset: number, extra: Partial<CardStatsData['days'][number]> = {})
 const DATA: CardStatsData = {
   today: TODAY,
   cards: { learning: 1, relearning: 1, young: 3, mature: 2, suspended: 1, buried: 1 },
-  days: [day(-40), day(-3, { ms: 20_000 }), day(0, { ms: 30 * 60_000 })],
+  days: [
+    day(-40, { ms: 30 * 60_000 }),
+    day(-20),
+    day(-3, { ms: 20_000 }),
+    day(0, {
+      answers: 0,
+      newCards: 0,
+      learning: 0,
+      ms: 0,
+      youngPassed: 0,
+      youngFailed: 0,
+      maturePassed: 0,
+      matureFailed: 0,
+    }),
+  ],
   due: [
     { day: TODAY, cards: 4 },
     { day: TODAY + 2, cards: 6 },
@@ -42,7 +58,7 @@ const DATA: CardStatsData = {
     { noteGuid: 'oclusion-1', ord: 0, deckId: '20', lapses: 1, reps: 1 },
     { noteGuid: 'gone', ord: 0, deckId: '99', lapses: 1, reps: 3 },
   ],
-  total: { answers: 1234, ms: 3 * 3_600_000, days: 1 },
+  total: { answers: 1234, ms: 3 * 3_600_000, days: 3 },
 };
 
 function study(data: CardStatsData | Error, base: StudyRepository = localStudyRepository(null)) {
@@ -68,18 +84,19 @@ describe('a deck’s statistics', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Tus estadísticas' }),
     ).toBeInTheDocument();
-    await screen.findByText('Viste 7 de 4 tarjetas');
+    await screen.findByText('Viste 7 de 4');
     expect(calls[0]).toEqual(['4', '5', '20', '21']);
     expect(
-      screen.getByText(/Desde tu primer día aquí: 1.234 respuestas en 3 h, 1 día con estudio\./),
+      screen.getByText(/Desde tu primer día aquí: 1.234 respuestas en 3 h, 3 días con estudio\./),
     ).toBeInTheDocument();
 
     const table = screen.getByRole('table', { name: /Tus respuestas, tu tiempo/ });
     const rows = within(table)
       .getAllByRole('row')
       .map((r) => r.textContent);
-    expect(rows[1]).toBe('Hoy1030 min88 %8 repasos');
-    expect(rows[2]).toBe('7 días2030 min88 %16 repasos');
+    expect(rows[1]).toBe('Hoy00 min—0 repasos');
+    expect(rows[2]).toBe('7 días10menos de 1 min88 %8 repasos');
+    expect(rows[3]).toBe('30 días201 h 30 min88 %16 repasos');
     expect(rows[4]).toBe('Último año302 h88 %24 repasos');
     expect(within(table).queryByText('Jóvenes')).toBeNull();
 
@@ -108,14 +125,24 @@ describe('a deck’s statistics', () => {
   });
 
   it('in the advanced mode, young and mature apart and how learning and hidden split', async () => {
-    const { study: s } = study(DATA, fullAnkiStudy());
-    renderApp(PAGE, { study: s });
+    const { study: s } = study(
+      { ...DATA, total: { answers: 1, ms: 60_000, days: 1 } },
+      fullAnkiStudy(),
+    );
+    const catalog = structuredClone(CATALOG);
+    delete catalog.semesters[0]!.courses[0]!.assessments[0]!.cardIndex;
+    renderApp(PAGE, { study: s, api: fakeApi({ catalog: async () => catalog }) });
     const table = await screen.findByRole('table', { name: /Tus respuestas, tu tiempo/ });
     await waitFor(() =>
-      expect(within(table).getAllByRole('row')[1]).toHaveTextContent(
-        'Hoy1030 min88 %8 repasos75 %100 %',
+      expect(within(table).getAllByRole('row')[2]).toHaveTextContent(
+        '7 días10menos de 1 min88 %8 repasos75 %100 %',
       ),
     );
+    expect(within(table).getAllByRole('row')[1]).toHaveTextContent('Hoy00 min—0 repasos——');
+    expect(screen.getByText(/1 respuesta en 1 min, 1 día con estudio/)).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('link', { name: 'Abrir «Tarjeta sin texto» en el explorador' }),
+    ).toHaveLength(3);
     expect(screen.getByText('1 por primera vez · 1 reaprendiendo')).toBeInTheDocument();
     expect(screen.getByText('1 suspendidas · 1 enterradas')).toBeInTheDocument();
     expect(screen.queryByText(/En «Modo avanzado» ves además/)).toBeNull();
@@ -142,11 +169,22 @@ describe('a deck’s statistics', () => {
     });
     renderApp(PAGE, { study: s });
     await screen.findByText('Todavía no olvidas ninguna tarjeta de aquí.');
+    expect(screen.getByText('Viste 0 de 4')).toBeInTheDocument();
     expect(screen.getByText('Todavía no respondes tarjetas de aquí.')).toBeInTheDocument();
     const table = screen.getByRole('table', { name: /Tus respuestas, tu tiempo/ });
     expect(within(table).getAllByRole('row')[1]).toHaveTextContent('Hoy1menos de 1 min—0 repasos');
     expect(screen.getByText('Hoy te tocan 0 por repasar.')).toBeInTheDocument();
-    expect(screen.getByText('Viste 0 de 4 tarjetas')).toBeInTheDocument();
+  });
+
+  it('while loading, every section is in its place, also in the advanced mode', async () => {
+    const base = fullAnkiStudy();
+    base.cardStats = () => new Promise(() => undefined);
+    renderApp(PAGE, { study: base });
+    const table = await screen.findByRole('table', { name: /Tus respuestas, tu tiempo/ });
+    await waitFor(() => expect(within(table).getByText('Maduras')).toBeInTheDocument());
+    expect(screen.queryByRole('img', { name: /Últimos 30 días/ })).toBeNull();
+    expect(screen.getByRole('region', { name: 'Las que más te cuestan' })).toBeInTheDocument();
+    expect(screen.queryByText(/Desde tu primer día/)).toBeNull();
   });
 
   it('says why it could not read them, and tries again', async () => {

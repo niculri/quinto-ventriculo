@@ -9,7 +9,7 @@ import { Loading } from '../../../shared/ui/Loading';
 import { button, page } from '../../../shared/ui/styles';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
-import { countDecks, countNotes, findCourse } from '../../catalog/model/catalog';
+import { countDecks, countNotes, findCourse, quizIdsOf } from '../../catalog/model/catalog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { Heatmap } from '../../stats/components/Heatmap';
 import { useCourseDecks } from '../hooks/useCourseDecks';
@@ -71,7 +71,7 @@ function CourseView({
         <Heatmap
           scope={`course:${course.id}`}
           deckIds={catalog.anki.decks.filter((d) => d.courseId === course.id).map((d) => d.id)}
-          quizIds={course.assessments.flatMap((a) => a.quizzes.map((q) => q.id))}
+          quizIds={quizIdsOf(course)}
           catalog={catalog}
           groupBy="assessment"
           courseId={course.id}

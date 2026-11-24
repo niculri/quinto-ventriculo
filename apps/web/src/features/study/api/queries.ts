@@ -4,10 +4,11 @@ import type { QueryClient } from '@tanstack/react-query';
 import { dayStartsAt } from '@qv/srs';
 import { daySummary, timingFor } from '@qv/study';
 import { ancestry, descendants } from '../../catalog/model/tree';
-import type { CourseDeckNode } from '../../catalog/model/tree';
+import type { CourseDeckNode, DeckNode } from '../../catalog/model/tree';
 import type { StudyPreferences, StudyRepository } from '../../progress/api/repository';
 import { studyKeys } from '../../progress/queries';
 import { heatmapKeys } from '../../stats/api/queries';
+import { quizIdsOf } from '../../catalog/model/catalog';
 
 const studyScreenKeys = {
   daySummary: (deckId: string, visit: number) =>
@@ -49,14 +50,17 @@ export function daySummaryQuery({
       const decks = new Set(descendants(node).map((n) => n.id));
       const course = ancestry(node).find((n) => n.depth === 2) ?? null;
       const courseScope = course
-        ? {
-            decks: new Set(descendants(course).map((n) => n.id)),
-            quizzes: new Set(course.course?.assessments.flatMap((a) => a.quizzes.map((q) => q.id))),
-          }
+        ? { decks: new Set(descendants(course).map((n) => n.id)), quizzes: courseQuizzes(course) }
         : null;
       return { today, summary: daySummary(answers, decks, heat, today, courseScope) };
     },
     gcTime: 0,
     staleTime: Infinity,
   });
+}
+
+// A course's deck always has its course in the catalog: the fallback only satisfies the types.
+function courseQuizzes(node: DeckNode): Set<string> {
+  /* v8 ignore next -- @preserve */
+  return new Set(node.course ? quizIdsOf(node.course) : []);
 }

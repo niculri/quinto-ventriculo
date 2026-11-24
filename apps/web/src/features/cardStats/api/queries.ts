@@ -3,7 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { studyKeys } from '../../progress/api/queries';
 import type { StudyRepository } from '../../progress/api/repository';
 
-export const cardStatsKeys = {
+const cardStatsKeys = {
   scope: (nodeId: string) => [...studyKeys.all, 'card-stats', nodeId] as const,
 };
 

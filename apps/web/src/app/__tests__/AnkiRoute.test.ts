@@ -45,6 +45,7 @@ describe('the canonical place of a screen', () => {
     [WRONG, ASSESSMENT],
     [`${WRONG}/cards?q=hueso`, `${ASSESSMENT}/cards?q=hueso`],
     [`${WRONG}/cards/practice`, `${ASSESSMENT}/cards/practice`],
+    [`${WRONG}/stats`, `${ASSESSMENT}/stats`],
   ])('in another semester, %s goes to %s', async (from, to) => {
     const r = renderApp(from);
     await waitFor(() => expect(where(r)).toBe(to));

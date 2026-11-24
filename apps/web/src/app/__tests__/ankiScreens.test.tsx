@@ -28,6 +28,7 @@ describe('screenOfPath', () => {
     expect(screenOfPath(`${DECK}/review`)).toBe('review');
     expect(screenOfPath(`${DECK}/cards`)).toBe('cards');
     expect(screenOfPath(`${DECK}/cards/practice`)).toBe('practice');
+    expect(screenOfPath(`${DECK}/stats`)).toBe('stats');
     expect(screenOfPath(DECK)).toBe('page');
     expect(screenOfPath(`${DECK}/s1-semana`)).toBe('page');
   });
@@ -81,12 +82,12 @@ describe('WarmScreens', () => {
     await waitFor(() => expect(idle).toHaveLength(1));
     expect(preloads.every((p) => p.mock.calls.length === 0)).toBe(true);
     idle.forEach((cb) => cb());
-    expect(preloads.map((p) => p.mock.calls.length)).toEqual([1, 1, 1, 1, 1]);
+    expect(preloads.map((p) => p.mock.calls.length)).toEqual([1, 1, 1, 1, 1, 1]);
 
     first.unmount();
     render(warm());
     expect(idle).toHaveLength(1);
-    expect(preloads.map((p) => p.mock.calls.length)).toEqual([1, 1, 1, 1, 1]);
+    expect(preloads.map((p) => p.mock.calls.length)).toEqual([1, 1, 1, 1, 1, 1]);
   });
 });
 

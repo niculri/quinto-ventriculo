@@ -17,8 +17,8 @@ export function ActivityChart({
   data: Pick<CardStatsData, 'days' | 'due' | 'today' | 'overdue'> | null;
 }) {
   const chart = data ? activityChart(data) : null;
-  const answered = chart?.bars.filter((b) => b.kind === 'past').reduce((t, b) => t + b.value, 0);
-  const due = chart?.bars.filter((b) => b.kind === 'due').reduce((t, b) => t + b.value, 0);
+  const sum = (kind: 'past' | 'due') =>
+    (chart?.bars ?? []).filter((b) => b.kind === kind).reduce((t, b) => t + b.value, 0);
   const dueToday = data?.due.find((d) => d.day === data.today)?.cards ?? 0;
   return (
     <div>
@@ -45,7 +45,7 @@ export function ActivityChart({
         {chart ? (
           <svg
             role="img"
-            aria-label={s.summary(answered ?? 0, due ?? 0)}
+            aria-label={s.summary(sum('past'), sum('due'))}
             viewBox={`0 0 ${String(WIDTH)} ${String(HEIGHT)}`}
             preserveAspectRatio="none"
             className="size-full"

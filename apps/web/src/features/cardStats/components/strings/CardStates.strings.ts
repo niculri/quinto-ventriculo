@@ -3,8 +3,7 @@
 const count = (n: number) => n.toLocaleString('es-CL');
 
 export const cardStatesStrings = {
-  seen: (seen: number, total: number) =>
-    `Viste ${count(seen)} de ${count(total)} ${total === 1 ? 'tarjeta' : 'tarjetas'}`,
+  seen: (seen: number, total: number) => `Viste ${count(seen)} de ${count(total)}`,
   bar: 'Tus tarjetas por estado',
   states: {
     new: 'Nuevas',

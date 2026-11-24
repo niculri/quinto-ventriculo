@@ -110,6 +110,58 @@ test('the assessment’s page: new cards a day and «Incluir extras», and its E
   await expect(number).toHaveValue('2');
 });
 
+test('the deck list ends with its last row, and a row’s breakdown leaves the loads below in view', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
+  const panel = page.getByRole('region', { name: 'Estudiar' });
+  const rows = page.getByRole('list', { name: 'Submazos' }).getByRole('listitem');
+  await expect(rows.last()).toContainText('para hoy');
+  const last = (await rows.last().boundingBox())!;
+  const bottom = (await panel.boundingBox())!;
+  const padding = await panel.evaluate((e) => parseFloat(getComputedStyle(e).paddingBottom));
+  expect(bottom.y + bottom.height - (last.y + last.height)).toBeLessThanOrEqual(padding + 2);
+
+  if (isMobile) return;
+  const load = rows.first().getByRole('button', { name: /para hoy/ });
+  await load.hover();
+  const breakdown = rows.first().getByRole('status');
+  await expect(breakdown).toBeVisible();
+  const box = (await breakdown.boundingBox())!;
+  const text = (await load.boundingBox())!;
+  expect(box.x + box.width).toBeLessThanOrEqual(text.x);
+  // Over the box the mouse is out of the text: it closes, and the row below can be read.
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height - 2);
+  await expect(breakdown).toBeHidden();
+});
+
+test('the course’s decks: the new cards a day of each assessment, in the box of the assessment’s page', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  const options = page.getByRole('region', { name: 'Opciones de Certamen 1' });
+  await expect(options).toBeVisible();
+  const there = (await options.boundingBox())!;
+
+  await page.goto(`${COURSE_URL}/anki`);
+  const box = page.getByRole('region', { name: 'Tarjetas nuevas por día en Anatomía I' });
+  await expect(box).toContainText('Sin fecha de prueba');
+  const here = (await box.boundingBox())!;
+  expect([here.x, here.y, here.width].map(Math.round)).toEqual(
+    [there.x, there.y, there.width].map(Math.round),
+  );
+  const number = box.getByRole('spinbutton', { name: 'Tarjetas nuevas por día en Certamen 1' });
+  await expect(number).toHaveValue('20');
+  await number.fill('7');
+  await number.press('Enter');
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  await expect(page.getByRole('spinbutton', { name: 'Tarjetas nuevas por día' })).toHaveValue('7');
+});
+
 test('«Modo avanzado» adds options, and the four buttons are a choice of their own', async ({
   page,
 }) => {

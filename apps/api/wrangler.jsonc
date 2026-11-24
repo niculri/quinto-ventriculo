@@ -30,13 +30,15 @@
   // Per Cloudflare location and approximate. The window (10 s) is RATE_LIMIT_PERIOD of src/ports/rateLimit.ts; the
   // namespace ids only have to be unique in the account.
   "ratelimits": [
-    // Per student: 60 in 10 s is six requests a second, many times what studying as fast as one can asks.
+    // Per student: 300 in 10 s. Holding an arrow key in the card viewer asks for a card at the key's repeat rate, up
+    // to 30 a second; a loop of the web or a script goes past it in seconds.
     {
       "name": "STUDENT_RATE_LIMIT",
       "namespace_id": "1001",
-      "simple": { "limit": 60, "period": 10 },
+      "simple": { "limit": 300, "period": 10 },
     },
-    // Per address, only without a session (above all the images): a classroom behind one address fits; a flood does not.
+    // Per address, only without a session and never for the images (src/middleware/rateLimit.ts): what is left is
+    // health, the browsers' error reports and refusals, which no classroom asks for by the thousand.
     {
       "name": "ADDRESS_RATE_LIMIT",
       "namespace_id": "1002",

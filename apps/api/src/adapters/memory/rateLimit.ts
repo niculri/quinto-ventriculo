@@ -1,4 +1,4 @@
-// A rate limiter in memory, a fixed window per key: what the Workers binding does, for the tests and the demo.
+// A rate limiter in memory, a fixed window per key: what the Workers binding does, for the tests.
 import type { RateLimiter } from '../../ports/rateLimit';
 
 /** `now` in seconds; a refused request does not count, as with the binding. */

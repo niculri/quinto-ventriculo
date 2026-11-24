@@ -1,5 +1,5 @@
-// Tests for the limits on requests: by student with a session, by address without one, the 429 they answer, and how
-// they sit with the client-error route's own budget.
+// Tests for the limits on requests: by student with a session, by address without one (an IPv6 one by its /64), the
+// signed images under neither, the 429 they answer, and how they sit with the client-error route's own budget.
 import { describe, expect, it } from 'vitest';
 import { memoryClientErrors } from '../../adapters/memory/clientErrors';
 import { memoryRateLimiter } from '../../adapters/memory/rateLimit';
@@ -101,8 +101,38 @@ describe('the limit by address', () => {
     const app = appWith();
     for (let i = 0; i < 3; i++) await app.get('/api/health', from('200.89.1.1'));
     expect((await app.get('/api/health', from('200.89.1.1'))).status).toBe(429);
-    expect((await app.get('/api/media/x.png', from('200.89.1.1'))).status).toBe(429);
     expect((await app.get('/api/health', from('200.89.1.2'))).status).toBe(200);
+  });
+
+  it('an IPv6 address counts by its /64, however it is written, and another /64 apart', async () => {
+    const app = appWith();
+    for (const ip of [
+      '2800:300:6c42:1a0::1',
+      '2800:0300:6C42:01A0:abcd::9',
+      '2800:300:6c42:1a0:1:2:3:4',
+    ]) {
+      expect((await app.get('/api/health', from(ip))).status).toBe(200);
+    }
+    expect((await app.get('/api/health', from('2800:300:6c42:1a0:ffff::'))).status).toBe(429);
+    expect((await app.get('/api/health', from('2800:300:6c42:1a1::1'))).status).toBe(200);
+    expect((await app.get('/api/health', from('::1'))).status).toBe(200);
+    for (let i = 0; i < 3; i++) await app.get('/api/health', from('::ffff:200.89.1.9'));
+    expect((await app.get('/api/health', from('::ffff:200.89.1.9'))).status).toBe(429);
+    expect((await app.get('/api/health', from('::ffff:200.89.1.10'))).status).toBe(200);
+  });
+
+  it('a signed image is never refused, nor uses up its address, with a token or without one', async () => {
+    const app = appWith();
+    for (let i = 0; i < 10; i++) {
+      expect((await app.get('/api/media/x.png', from('200.89.1.8'))).status).not.toBe(429);
+      expect((await app.get('/api/media/x.png', as('inventado', '200.89.1.8'))).status).not.toBe(
+        429,
+      );
+    }
+    for (let i = 0; i < 3; i++)
+      expect((await app.get('/api/health', from('200.89.1.8'))).status).toBe(200);
+    expect((await app.get('/api/health', from('200.89.1.8'))).status).toBe(429);
+    expect((await app.get('/api/media/x.png', from('200.89.1.8'))).status).not.toBe(429);
   });
 
   it('a route that needs a session, asked without one, is a 401 until the address is used up', async () => {
@@ -123,11 +153,11 @@ describe('the limit by address', () => {
 
   it('a made-up token on a route without a session still pays its address', async () => {
     const app = appWith();
-    for (const path of ['/api/health', '/api/media/x.png', '/api/health']) {
+    for (const path of ['/api/health', '/api/nada', '/api/health']) {
       expect((await app.get(path, as('inventado', '200.89.1.6'))).status).not.toBe(429);
     }
     expect((await app.get('/api/health', as('inventado', '200.89.1.6'))).status).toBe(429);
-    expect((await app.get('/api/media/x.png', as('inventado', '200.89.1.6'))).status).toBe(429);
+    expect((await app.get('/api/nada', as('inventado', '200.89.1.6'))).status).toBe(429);
     const report = '{"kind":"boot","page":"/x","message":"m","version":"v"}';
     expect(
       (await app.post('/api/client-error', report, as('inventado', '200.89.1.6'))).status,

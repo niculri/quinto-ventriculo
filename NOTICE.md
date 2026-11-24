@@ -64,6 +64,9 @@ siguen las reglas del complemento «Review Heatmap» de Anki (https://github.com
 
 ## El Rincón de la Gymkana
 
-La corrección del modo de escribir el nombre de la gymkana (`packages/gymkana/src/answer.ts`) está portada de El
-Rincón de la Gymkana (su `app.js`), del mismo autor que este proyecto, y se publica aquí con esta licencia. Se agregó
-una regla: el nombre completo, tal como lo escribe la tarjeta (con sus paréntesis o separadores), también vale.
+La corrección del modo de escribir el nombre de la gymkana (`packages/gymkana/src/answer.ts` y `words.ts`) está
+portada de El Rincón de la Gymkana (su `app.js`), del mismo autor que este proyecto, y se publica aquí con esta
+licencia. Se agregaron reglas: el nombre completo, tal como lo escribe la tarjeta, también vale; las palabras a cada
+lado de «de» o «del» no se mezclan; lo que una coma dice de la disección («reclinada»), su origen o el número de un
+nervio craneal se puede omitir; las palabras genéricas escritas tienen que estar en el nombre; y una respuesta que
+nombra mejor otra estación de la gymkana es mala.

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Counts } from '@qv/srs';
 import { breakdownText, loadText, totalCards } from '@qv/study';
 import { tapArea } from '../../../shared/ui/styles';
+import { useHoverOpen } from '../hooks/useHoverOpen';
 import { useOutsideClose } from '../hooks/useOutsideClose';
 import { deckCountsStrings as s } from './strings/DeckCounts.strings';
 
@@ -44,25 +45,31 @@ function LoadWithBreakdown({
 }) {
   const [open, setOpen] = useState(false);
   const boxRef = useOutsideClose(open, setOpen);
+  const hover = useHoverOpen(setOpen);
   const row = (label: string, value: number, color: string) => (
     <span className="flex justify-between gap-4">
       <span className={color}>{label}</span>
       <span className="font-semibold tabular-nums">{value}</span>
     </span>
   );
+  // From `sm` up the box goes to the left of the text, over the name, so the loads of the rows below stay in view.
   return (
-    <span ref={boxRef} className="group relative inline-flex">
+    <span ref={boxRef} className="relative inline-flex">
       <button
         type="button"
         aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        {...hover}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') setOpen(false);
+        }}
+        onBlur={() => setOpen(false)}
         className={`${tapArea} cursor-pointer rounded tabular-nums underline decoration-border-strong decoration-dotted underline-offset-4 hover:decoration-current ${className}`}
       >
         {text}
       </button>
       <span
         role="status"
-        className={`absolute top-full right-0 z-30 mt-1 w-44 flex-col gap-1 rounded-lg border border-border bg-surface p-2.5 text-left text-xs font-normal text-ink shadow-soft group-hover:flex ${open ? 'flex' : 'hidden'}`}
+        className={`pointer-events-none absolute top-full left-0 z-30 mt-1 w-44 flex-col gap-1 rounded-lg border border-border bg-surface p-2.5 text-left text-xs font-normal text-ink shadow-soft sm:top-1/2 sm:right-full sm:left-auto sm:mt-0 sm:mr-2 sm:-translate-y-1/2 ${open ? 'flex' : 'hidden'}`}
       >
         {row(s.new, counts.new, 'text-state-new')}
         {row(s.learning, counts.learning, 'text-state-learn')}

@@ -40,10 +40,13 @@ describe('a deck’s page, what it says', () => {
         'Activa lo que estás viendo en clases: cada semana o clase parte desactivada.',
       ),
     ).toBeInTheDocument();
-    const heavy = within(panel).getByText(
-      'Es bastante para un día. Puedes parar cuando quieras: lo que no alcances sale mañana.',
+    expect(
+      within(panel).queryByText(/^Es bastante para un día/, { ignore: '[aria-hidden]' }),
+    ).toBeNull();
+    // Nothing waits under the last row: the list is the last thing of the panel.
+    expect(within(panel).getByRole('list', { name: 'Submazos' }).parentElement).toBe(
+      panel.lastElementChild,
     );
-    expect(heavy).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('the options of an assessment and the rows of its decks, with their texts', async () => {
@@ -196,7 +199,9 @@ it('with a large backlog, «Estudiar» gives the plan to catch up instead of wha
       'Llevas 60 atrasadas. Con ~15 al día, además de lo de hoy, te pones al día en 5 días.',
     ),
   ).toHaveAttribute('role', 'status');
-  expect(within(panel).queryByText(/^Activa lo que estás viendo/)).toBeNull();
+  expect(
+    within(panel).queryByText(/^Activa lo que estás viendo/, { ignore: '[aria-hidden]' }),
+  ).toBeNull();
 });
 
 it('an assessment without weeks yet has no list of subdecks', async () => {
@@ -254,12 +259,16 @@ it('a week the catalog has but the deck read does not yet is listed at 0 % of ma
   expect(row.querySelector('[data-mastery]')!.textContent).toContain('0 % de dominio');
 });
 
-it('a long day ahead says it is a lot, under «Estudiar»', async () => {
+it('a long day ahead says it is a lot, under «Estudiar», in the place of what to turn on', async () => {
   const study = await student();
   study.medianAnswerMs = async () => 30 * 60_000;
   renderApp(ASSESSMENT_PATH, { study });
   const panel = await screen.findByRole('region', { name: 'Estudiar' });
-  const heavy = within(panel).getByText(/^Es bastante para un día/);
-  await waitFor(() => expect(heavy).toHaveAttribute('aria-hidden', 'false'));
-  expect(heavy).not.toHaveClass('invisible');
+  const heavy = await within(panel).findByText(/^Es bastante para un día/, {
+    ignore: '[aria-hidden]',
+  });
+  expect(heavy.tagName).toBe('P');
+  expect(
+    within(panel).queryByText(/^Activa lo que estás viendo/, { ignore: '[aria-hidden]' }),
+  ).toBeNull();
 });

@@ -1,10 +1,10 @@
-// Tests for the made-up «Uso» figures and opens of the demo: valid, repeatable and never showing a small count.
+// Tests for the made-up «Uso» figures and opens of the demo: valid, repeatable and exact.
 import { describe, expect, it } from 'vitest';
-import { AdminUsageRow, FEW } from '@qv/schema';
+import { AdminUsageRow } from '@qv/schema';
 import type { ContentBundle } from '@qv/schema';
 import type { UsageGroups } from '../../../ports/usage';
 import { bundle } from '../../../test/draftApp';
-import { demoUsageEvents, demoUsageStats, orFew } from '../usage';
+import { demoUsageEvents, demoUsageStats } from '../usage';
 
 const NOW = Date.UTC(2026, 10, 19, 15, 0, 0);
 
@@ -52,12 +52,30 @@ describe('demoUsageStats', () => {
     expect(r.weeks.at(-1)!.week <= r.today).toBe(true);
   });
 
-  it('no figure shows a count of one to four students as a number', async () => {
+  it('every figure is a number, from 0 up, and nothing is done on a day nobody was active', async () => {
     const r = await row();
     for (const f of [r.totals.today, r.totals.last_7, r.totals.last_30, ...r.days, ...r.weeks]) {
-      if (typeof f.active_students === 'number') expect(f.active_students).not.toBeLessThan(5);
-      if (f.active_students === FEW) expect(f.anki_answers).toBe(FEW);
+      const {
+        active_students,
+        new_students,
+        anki_answers,
+        new_cards,
+        rounds_started,
+        rounds_finished,
+      } = f;
+      for (const v of [
+        active_students,
+        new_students,
+        anki_answers,
+        new_cards,
+        rounds_started,
+        rounds_finished,
+      ]) {
+        expect(typeof v).toBe('number');
+      }
+      if (f.active_students === 0) expect([f.anki_answers, f.rounds_started]).toEqual([0, 0]);
     }
+    expect(r.activation.percent).toBe(79);
   });
 
   it('the lists come from the groups: distinct names, no empty ones, and capped', async () => {
@@ -79,26 +97,6 @@ describe('demoUsageStats', () => {
     const r = await row({ decks: {}, quizzes: {} });
     expect([r.decks, r.quizzes, r.courses, r.assessments]).toEqual([[], [], [], []]);
     expect(r.days).toHaveLength(30);
-  });
-
-  it('the fifth deck of a short list is shown as few, so is the last quiz and course', async () => {
-    const r = await row();
-    expect(r.decks[5]!.new_cards).toBe(FEW);
-    expect(r.quizzes[4]!.rounds_finished).toBe(FEW);
-    expect(r.courses[3]!.rounds_finished).toBe(FEW);
-  });
-});
-
-describe('orFew', () => {
-  it('under the minimum it shows few when there was any activity and nothing when there was none', () => {
-    expect(orFew(0, 5, 99)).toBe(0);
-    expect(orFew(1, 5, 99)).toBe(FEW);
-    expect(orFew(4, 5, 99)).toBe(FEW);
-  });
-
-  it('from the minimum on it shows the figure', () => {
-    expect(orFew(5, 5, 99)).toBe(99);
-    expect(orFew(6, 6, 0)).toBe(0);
   });
 });
 

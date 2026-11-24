@@ -1,4 +1,4 @@
-// «Uso» without React: how a figure is written (never below 5 students), the rows and periods of the summary, the
+// «Uso» without React: how a figure is written, the rows and periods of the summary, the
 // points of the chart, and the name and link of a deck, a test or a note.
 import { FEW } from '@qv/schema';
 import type { Catalog, UsageCount, UsageFigures, UsageOpenFigures, UsageReport } from '@qv/schema';
@@ -17,8 +17,8 @@ const SHORT_DAY = new Intl.DateTimeFormat('es-CL', {
 export const shortDay = (day: string) => SHORT_DAY.format(new Date(`${day}T12:00:00Z`));
 
 /**
- * 1 to 4 students is «menos de 5»; any other figure not shown exact (1 to 4 opens, or one that subtraction would
- * reveal: null) is «—».
+ * Every figure is exact; a «<5» or a null comes only from an older admin_usage() (`FEW`): «menos de 5» for students,
+ * «—» for the rest.
  */
 export function figure(v: UsageCount | null, students = false): string {
   if (v === null) return s.none;

@@ -97,7 +97,6 @@ describe('«Administración», the texts of each section', () => {
       generatedAt: '2026-11-09T15:00:00.000Z',
       today: '2026-11-09',
       timeZone: 'America/Santiago',
-      minStudents: 5,
       totals: { today: f(FEW), last7: f(0), last30: f(1234567) },
       days: Array.from({ length: 3 }, (_, i) => ({ day: day(i), ...f(i === 1 ? 0 : 9) })),
       weeks: Array.from({ length: 2 }, (_, i) => ({ week: day(i * 7), ...f(i ? FEW : 30) })),

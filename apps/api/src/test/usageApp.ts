@@ -1,6 +1,5 @@
 // The app of the tests of the usage counts and figures: a catalog with a deck tree, a users' database double that
 // records what it was asked, and helpers to read and to open.
-import { FEW } from '@qv/schema';
 import type { AdminUsageRow, Catalog, Note, QuizDetail } from '@qv/schema';
 import { createApp } from '../app';
 import type { AppOptions } from '../dependencies';
@@ -99,11 +98,11 @@ export const content = (): ContentRepository =>
 
 export function row(groups?: UsageGroups): AdminUsageRow {
   const today = siteDay(Date.now());
-  const f = (active: number | typeof FEW) => ({
+  const f = (active: number) => ({
     active_students: active,
     new_students: 0,
-    anki_answers: active === FEW ? FEW : 120,
-    new_cards: FEW,
+    anki_answers: 20 * active,
+    new_cards: 4,
     rounds_started: 6,
     rounds_finished: 5,
   });
@@ -112,15 +111,14 @@ export function row(groups?: UsageGroups): AdminUsageRow {
     generated_at: new Date().toISOString(),
     today,
     time_zone: 'America/Santiago',
-    min_students: 5,
     totals: { today: f(6), last_7: f(8), last_30: f(9) },
-    days: Array.from({ length: 30 }, (_, i) => ({ day: day(29 - i), ...f(i === 29 ? 6 : FEW) })),
-    weeks: Array.from({ length: 12 }, (_, i) => ({ week: day(7 * (11 - i)), ...f(FEW) })),
-    decks: groups ? [{ deck_id: '5', students: 6, answers: 120, new_cards: FEW }] : [],
+    days: Array.from({ length: 30 }, (_, i) => ({ day: day(29 - i), ...f(i === 29 ? 6 : 2) })),
+    weeks: Array.from({ length: 12 }, (_, i) => ({ week: day(7 * (11 - i)), ...f(3) })),
+    decks: groups ? [{ deck_id: '5', students: 6, answers: 120, new_cards: 4 }] : [],
     quizzes: [],
     courses: [],
     assessments: [],
-    invited: { signed_in: 7, never: FEW },
+    invited: { signed_in: 7, never: 2 },
     activation: { eligible: 6, activated: 6, not_activated: 0, percent: 100 },
   };
 }

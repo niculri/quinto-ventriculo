@@ -57,7 +57,6 @@ export {
   FEW,
   SEARCH_CONTEXTS,
   USAGE_EVENT_KINDS,
-  USAGE_MIN_STUDENTS,
   UsageCount,
   UsageFigures,
   UsageOpenAck,

@@ -23,19 +23,19 @@ describe('the usage report', () => {
     expect(Object.keys(usageGroups(catalog).decks)).toEqual(['3', '4', '5', '6']);
   });
 
-  it('with fewer than 5 students active in the 30 days, no list of the most opened', () => {
+  it('with 1 student active in the 30 days, the most opened and the searches are listed', () => {
     const r = row();
-    r.totals.last_30.active_students = FEW;
+    r.totals.last_30.active_students = 1;
     const opens = opensFigures(
       {
         hourly: [],
-        items: [{ kind: 'note', path: '/api/notes/apunte', count: 50 }],
-        searches: [{ context: 'note', count: 9 }],
+        items: [{ kind: 'note', path: '/api/notes/apunte', count: 1 }],
+        searches: [{ context: 'note', count: 2 }],
       },
       r,
     );
-    expect(opens.top).toEqual([]);
-    expect(opens.searches).toEqual([]);
+    expect(opens.top).toEqual([{ kind: 'note', id: 'apunte', opens: 1 }]);
+    expect(opens.searches).toEqual([{ context: 'note', count: 2 }]);
   });
 });
 
@@ -92,7 +92,7 @@ describe('the unit of a deck', () => {
 describe('what the opens list shows', () => {
   const raw = () => row();
 
-  it('only what was opened 5 times or more, most opened first, ties by id, at most 15', () => {
+  it('whatever was opened once or more, most opened first, ties by id, at most 15', () => {
     const items = [
       item('note', '/api/notes/zeta', 7),
       item('note', '/api/notes/alfa', 7),
@@ -105,6 +105,7 @@ describe('what the opens list shows', () => {
       { kind: 'note', id: 'alfa', opens: 7 },
       { kind: 'note', id: 'zeta', opens: 7 },
       { kind: 'quiz', id: 'un-test', opens: 5 },
+      { kind: 'note', id: 'pocas', opens: 4 },
     ]);
     const many = Array.from({ length: 20 }, (_, i) => item('note', `/api/notes/n${i}`, 10 + i));
     const top = opensFigures(withItems(...many), raw()).top;
@@ -148,52 +149,27 @@ describe('what the opens list shows', () => {
   });
 });
 
-describe('the minimum of students', () => {
-  const counts: OpenCounts = {
-    hourly: [],
-    items: [{ kind: 'note', path: '/api/notes/apunte', count: 9 }],
-    searches: [{ context: 'home', count: 9 }],
-  };
-
-  it('5 students in the 30 days are enough to show the lists, 4 are not', () => {
-    const r = row();
-    r.totals.last_30.active_students = 5;
-    expect(opensFigures(counts, r).top).toHaveLength(1);
-    expect(opensFigures(counts, r).searches).toHaveLength(1);
-    r.totals.last_30.active_students = 4;
-    expect(opensFigures(counts, r).top).toEqual([]);
-  });
-
-  it('5 students in a day are enough to show its opens, 4 are hidden', () => {
-    const r = row();
-    const day = r.days.at(-1)!;
-    const hourly: OpenCounts['hourly'] = [{ hour: `${day.day}T15:00:00Z`, kind: 'note', count: 9 }];
-    day.active_students = 5;
-    expect(opensFigures({ ...counts, hourly }, r).days.at(-1)!.notes).toBe(9);
-    day.active_students = 4;
-    expect(opensFigures({ ...counts, hourly }, r).days.at(-1)!.notes).toBe(FEW);
-  });
-});
-
 describe('the opens of each day', () => {
   const at = (r: AdminUsageRow, back: number) => `${r.days.at(-1 - back)!.day}T15:00:00Z`;
 
-  it('a day with enough students shows its counts, with 1 to 4 as «few» and none as zero', () => {
+  it('a day shows its counts exact, whoever was active, and none as zero', () => {
     const r = row();
+    r.days.at(-1)!.active_students = 1;
     const hourly: OpenCounts['hourly'] = [
       { hour: at(r, 0), kind: 'note', count: 6 },
       { hour: at(r, 0), kind: 'deck', count: 2 },
       { hour: at(r, 0), kind: 'quiz', count: 5 },
     ];
     const today = opensFigures({ ...EMPTY_COUNTS, hourly }, r).days.at(-1)!;
-    expect(today).toMatchObject({ notes: 6, decks: FEW, quizzes: 5, searches: 0 });
+    expect(today).toMatchObject({ notes: 6, decks: 2, quizzes: 5, searches: 0 });
   });
 
-  it('a day with opens and fewer than 5 students hides all four; without opens it shows zeros', () => {
+  it('a day with opens and a «<5» of an older database still shows them; without opens, zeros', () => {
     const r = row();
-    const hourly: OpenCounts['hourly'] = [{ hour: at(r, 1), kind: 'note', count: 40 }];
+    r.days.at(-2)!.active_students = FEW;
+    const hourly: OpenCounts['hourly'] = [{ hour: at(r, 1), kind: 'note', count: 3 }];
     const { days } = opensFigures({ ...EMPTY_COUNTS, hourly }, r);
-    expect(days.at(-2)).toMatchObject({ notes: FEW, decks: FEW, quizzes: FEW, searches: FEW });
+    expect(days.at(-2)).toMatchObject({ notes: 3, decks: 0, quizzes: 0, searches: 0 });
     expect(days.at(-3)).toMatchObject({ notes: 0, decks: 0, quizzes: 0, searches: 0 });
   });
 
@@ -236,7 +212,7 @@ describe('usageReport', () => {
     ],
   });
 
-  it('renames each figure of the database, keeping what each group is about', () => {
+  it('renames each figure of the database, keeping what each group is about (a «<5» of an older one too)', () => {
     const r = usageReport(stats(), { status: 'not_configured' });
     expect(r.quizzes).toEqual([
       { quizId: 'q', students: 6, roundsStarted: 7, roundsFinished: FEW },
@@ -248,7 +224,7 @@ describe('usageReport', () => {
       roundsStarted: 1,
     });
     expect(r.totals.today.activeStudents).toBe(6);
-    expect(r.invited).toEqual({ signedIn: 7, never: FEW });
+    expect(r.invited).toEqual({ signedIn: 7, never: 2 });
   });
 
   it('the opens are there only when they could be read, and the status says why not', () => {
@@ -282,6 +258,20 @@ describe('usageReport', () => {
     expect(
       usageReport(stats(), { status: 'unavailable' }, { workerRequests: days }).workerRequests,
     ).toEqual(days);
+  });
+
+  it('exact figures of 1 to 4 students and lists of 1 student go as they are', () => {
+    const exact: AdminUsageRow = {
+      ...stats(),
+      quizzes: [{ quiz_id: 'q', students: 1, rounds_started: 1, rounds_finished: 0 }],
+      invited: { signed_in: 3, never: 1 },
+      activation: { eligible: 2, activated: 1, not_activated: 1, percent: 50 },
+    };
+    const r = usageReport(exact, { status: 'not_configured' });
+    expect(r.quizzes).toEqual([{ quizId: 'q', students: 1, roundsStarted: 1, roundsFinished: 0 }]);
+    expect(r.invited).toEqual({ signedIn: 3, never: 1 });
+    expect(r.activation).toEqual({ eligible: 2, activated: 1, notActivated: 1, percent: 50 });
+    expect(r).not.toHaveProperty('minStudents');
   });
 
   it('an answer of the database that is not a usage row is an error, not a report with holes', () => {

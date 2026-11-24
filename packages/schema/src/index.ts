@@ -41,7 +41,6 @@ export {
   ClientErrorGroup,
   ClientErrorReport,
   USAGE_EVENT_KINDS,
-  USAGE_MIN_STUDENTS,
   UsageCount,
   UsageFigures,
   UsageOpenAck,

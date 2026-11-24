@@ -20,7 +20,7 @@ exports[`«Administración», the texts of each section > «Uso»: the whole pag
 
 exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Invitados 1`] = `"InvitadosEntraron alguna vez30Nunca entraronmenos de 5Quiénes son está en Acceso."`;
 
-exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Lo más usado en 30 días 1`] = `"Lo más usado en 30 díasSolo lo que usaron 5 alumnos o más (en las aperturas, lo que se abrió 5 veces o más).MazosMazosNombreAlumnosRespuestasTarjetas nuevasMazo 9996403TestsTestsNombreAlumnosRondasTerminadasno-existe69—Lo más abiertoLo más abiertoNombreQué esAperturasno-existeApunte25Mazo 999Mazo9no-existeTest7Búsquedas, según desde dónde se buscóBúsquedas, según desde dónde se buscóNombreBúsquedasInicio14Otras páginas—"`;
+exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Lo más usado en 30 días 1`] = `"Lo más usado en 30 díasLo que usó al menos un alumno, de más a menos.MazosMazosNombreAlumnosRespuestasTarjetas nuevasMazo 9996403TestsTestsNombreAlumnosRondasTerminadasno-existe69—Lo más abiertoLo más abiertoNombreQué esAperturasno-existeApunte25Mazo 999Mazo9no-existeTest7Búsquedas, según desde dónde se buscóBúsquedas, según desde dónde se buscóNombreBúsquedasInicio14Otras páginas—"`;
 
 exports[`«Administración», the texts of each section > «Uso»: the whole page with the opens, unknown pieces and the chart by week > Por ramo y certamen en 30 días 1`] = `"Por ramo y certamen en 30 díasRamos y certámenesNombreAlumnosRespuestasRondasotro-ramo129009otro-ramo/certamen-1129009"`;
 

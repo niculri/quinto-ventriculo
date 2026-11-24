@@ -1,6 +1,6 @@
 // Tests for GET /api/admin/usage: the figures only an administrator reads.
 import { describe, expect, it } from 'vitest';
-import { FEW, UsageReport } from '@qv/schema';
+import { UsageReport } from '@qv/schema';
 import { memoryClientErrors } from '../../../adapters/memory/clientErrors';
 import { memoryUsageEvents } from '../../../adapters/memory/usageEvents';
 import { ADMIN, STUDENT, appWith, get, open, row } from '../../../test/usageApp';
@@ -62,8 +62,8 @@ describe('GET /api/admin/usage', () => {
     expect(body.opensStatus).toBe('not_configured');
     expect(body.opens).toBeNull();
     expect(body.totals.today.activeStudents).toBe(6);
-    expect(body.invited).toEqual({ signedIn: 7, never: FEW });
-    expect(body.decks).toEqual([{ deckId: '5', students: 6, answers: 120, newCards: FEW }]);
+    expect(body.invited).toEqual({ signedIn: 7, never: 2 });
+    expect(body.decks).toEqual([{ deckId: '5', students: 6, answers: 120, newCards: 4 }]);
     expect(asked).toHaveLength(1);
     expect(asked[0]!.token).toBe(ADMIN);
     expect(asked[0]!.groups).toEqual({
@@ -117,7 +117,7 @@ describe('GET /api/admin/usage', () => {
     expect((await get(app, '/api/admin/usage', ADMIN)).status).toBe(200);
   });
 
-  it('with the opens: by the site’s day, hidden where fewer than 5 students were active', async () => {
+  it('with the opens: by the site’s day, all exact', async () => {
     const events = memoryUsageEvents();
     const { app } = appWith({ usageEvents: events, usageOpens: events });
     for (let i = 0; i < 6; i++) await open(app, { kind: 'note', id: 'apunte' });
@@ -129,21 +129,25 @@ describe('GET /api/admin/usage', () => {
     });
     const body = UsageReport.parse(await (await get(app, '/api/admin/usage', ADMIN)).json());
     expect(body.opensStatus).toBe('ok');
-    expect(body.opens!.totals.today).toEqual({ notes: 6, decks: FEW, quizzes: 0, searches: 0 });
+    expect(body.opens!.totals.today).toEqual({ notes: 6, decks: 3, quizzes: 0, searches: 0 });
     expect(body.opens!.days.at(-1)).toEqual({
       day: body.today,
       notes: 6,
-      decks: FEW,
+      decks: 3,
       quizzes: 0,
       searches: 0,
     });
     expect(body.opens!.days.at(-3)).toEqual({
       day: body.days.at(-3)!.day,
-      notes: FEW,
-      decks: FEW,
-      quizzes: FEW,
-      searches: FEW,
+      notes: 0,
+      decks: 0,
+      quizzes: 1,
+      searches: 0,
     });
-    expect(body.opens!.top).toEqual([{ kind: 'note', id: 'apunte', opens: 6 }]);
+    expect(body.opens!.top).toEqual([
+      { kind: 'note', id: 'apunte', opens: 6 },
+      { kind: 'deck', id: '5', opens: 3 },
+      { kind: 'quiz', id: 'test-de-prueba', opens: 1 },
+    ]);
   });
 });

@@ -4,10 +4,10 @@ import { z } from 'zod';
 import { Slug } from '../content/content';
 import { DeckId } from '../anki/flashcards';
 
-/** Below this many students a figure is not shown exact. */
-export const USAGE_MIN_STUDENTS = 5;
-
-/** A figure that counts, or comes from, 1 to 4 students or opens. */
+/**
+ * A figure of 1 to 4 students as an admin_usage() older than migration 20261128000000 still sends it; the Worker and
+ * the panel take it until that migration is applied everywhere.
+ */
 export const FEW = '<5' as const;
 
 export const UsageCount = z.union([z.number().int().nonnegative(), z.literal(FEW)]);
@@ -104,7 +104,7 @@ export type WorkerRequestDay = z.infer<typeof WorkerRequestDay>;
 const PeriodTotals = <T extends z.ZodType>(f: T) => z.object({ today: f, last7: f, last30: f });
 
 const GroupFigures = z.object({
-  students: z.number().int().min(USAGE_MIN_STUDENTS),
+  students: z.number().int().positive(),
   ankiAnswers: UsageCount,
   newCards: UsageCount,
   roundsStarted: UsageCount,
@@ -118,7 +118,7 @@ export const UsageOpens = z.object({
     z.object({
       kind: z.enum(['note', 'deck', 'quiz']),
       id: z.string(),
-      opens: z.number().int().min(USAGE_MIN_STUDENTS),
+      opens: z.number().int().positive(),
     }),
   ),
   searches: z.array(z.object({ context: z.enum(SEARCH_CONTEXTS), count: UsageCount })),
@@ -130,14 +130,13 @@ export const UsageReport = z.object({
   /** In Santiago, from 4:00 to 4:00, like Anki's day. */
   today: Day,
   timeZone: z.string(),
-  minStudents: z.number().int().positive(),
   totals: PeriodTotals(UsageFigures),
   days: z.array(UsageFigures.extend({ day: Day })),
   weeks: z.array(UsageFigures.extend({ week: Day })),
   decks: z.array(
     z.object({
       deckId: z.string(),
-      students: z.number().int().min(USAGE_MIN_STUDENTS),
+      students: z.number().int().positive(),
       answers: z.number().int().nonnegative(),
       newCards: UsageCount,
     }),
@@ -145,7 +144,7 @@ export const UsageReport = z.object({
   quizzes: z.array(
     z.object({
       quizId: z.string(),
-      students: z.number().int().min(USAGE_MIN_STUDENTS),
+      students: z.number().int().positive(),
       roundsStarted: UsageCount,
       roundsFinished: UsageCount,
     }),
@@ -153,7 +152,7 @@ export const UsageReport = z.object({
   courses: z.array(GroupFigures.extend({ courseId: z.string() })),
   assessments: z.array(GroupFigures.extend({ assessmentId: z.string(), courseId: z.string() })),
   invited: z.object({ signedIn: UsageCount, never: UsageCount }),
-  // Null when one part is 1 to 4 students: with `eligible` exact, subtraction would give it away.
+  // `percent` is null with nobody eligible; the parts, only from an older admin_usage() (see FEW).
   activation: z.object({
     eligible: UsageCount,
     activated: UsageCount.nullable(),
@@ -188,7 +187,6 @@ export const AdminUsageRow = z.object({
   generated_at: z.string(),
   today: z.iso.date(),
   time_zone: z.string(),
-  min_students: z.number().int(),
   totals: z.object({
     today: AdminUsageFiguresRow,
     last_7: AdminUsageFiguresRow,

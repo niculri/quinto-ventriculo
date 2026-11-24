@@ -1,4 +1,4 @@
-// Tests «Uso» in the administration panel: figures of 5 students or more, the most used, activation and invited.
+// Tests «Uso» in the administration panel: exact figures from 0 up, the most used, activation and invited.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -17,7 +17,7 @@ const f = (active: UsageFigures['activeStudents'], answers: UsageFigures['ankiAn
   activeStudents: active,
   newStudents: 0,
   ankiAnswers: answers,
-  newCards: FEW,
+  newCards: 2,
   roundsStarted: 7,
   roundsFinished: 5,
 });
@@ -27,12 +27,11 @@ const REPORT: UsageReport = {
   generatedAt: '2026-11-09T15:00:00.000Z',
   today: '2026-11-09',
   timeZone: 'America/Santiago',
-  minStudents: 5,
-  totals: { today: f(FEW, FEW), last7: f(8, 412), last30: f(23, 3210) },
-  days: Array.from({ length: 30 }, (_, i) => ({ day: day(i), ...f(i % 2 ? 6 : FEW, 50) })),
+  totals: { today: f(3, 4), last7: f(8, 412), last30: f(23, 3210) },
+  days: Array.from({ length: 30 }, (_, i) => ({ day: day(i), ...f(i % 2 ? 6 : 1, 50) })),
   weeks: Array.from({ length: 12 }, (_, i) => ({ week: day(i), ...f(9, 300) })),
   decks: [],
-  quizzes: [{ quizId: 'practica-biocel', students: 6, roundsStarted: 9, roundsFinished: FEW }],
+  quizzes: [{ quizId: 'practica-biocel', students: 6, roundsStarted: 9, roundsFinished: 1 }],
   courses: [
     {
       courseId: 'biologia-celular',
@@ -54,7 +53,7 @@ const REPORT: UsageReport = {
       roundsFinished: 4,
     },
   ],
-  invited: { signedIn: 30, never: FEW },
+  invited: { signedIn: 30, never: 2 },
   activation: { eligible: 20, activated: 15, notActivated: 5, percent: 75 },
   opens: null,
   opensStatus: 'not_configured',
@@ -63,7 +62,7 @@ const REPORT: UsageReport = {
 };
 
 describe('«Uso»', () => {
-  it('the totals, «menos de 5» and «—», and that the opens are not configured', async () => {
+  it('the totals, exact also from 1 to 4, and that the opens are not configured', async () => {
     renderApp('/admin/usage', { admin: admin(), api: fakeApi({ usage: async () => REPORT }) });
     expect(await screen.findByRole('heading', { level: 2, name: 'Uso' })).toBeInTheDocument();
     await screen.findByText('3.210');
@@ -72,13 +71,13 @@ describe('«Uso»', () => {
       within(active)
         .getAllByRole('cell')
         .map((c) => c.textContent),
-    ).toEqual(['menos de 5', '8', '23']);
+    ).toEqual(['3', '8', '23']);
     const answers = screen.getByRole('row', { name: /Respuestas de Anki/ });
     expect(
       within(answers)
         .getAllByRole('cell')
         .map((c) => c.textContent),
-    ).toEqual(['—', '412', '3.210']);
+    ).toEqual(['4', '412', '3.210']);
     expect(
       screen.getByText('Las aperturas y las búsquedas no están configuradas en este sitio.'),
     ).toBeInTheDocument();
@@ -97,7 +96,7 @@ describe('«Uso»', () => {
       'href',
       '/semesters/2/courses/biologia-celular/tests/certamen-2/practica',
     );
-    expect(screen.getByText('Ningún mazo con 5 alumnos o más.')).toBeInTheDocument();
+    expect(screen.getByText('Ningún mazo estudiado.')).toBeInTheDocument();
     const courses = screen.getByRole('table', { name: 'Ramos y certámenes' });
     expect(within(courses).getByRole('link', { name: 'Biología celular' })).toBeInTheDocument();
     expect(within(courses).getByRole('link', { name: 'Certamen 2' })).toHaveAttribute(
@@ -107,15 +106,16 @@ describe('«Uso»', () => {
     expect(screen.getByText('75 %')).toBeInTheDocument();
     const invited = screen.getByRole('region', { name: 'Invitados' });
     expect(invited).toHaveTextContent('Entraron alguna vez30');
-    expect(invited).toHaveTextContent('Nunca entraronmenos de 5');
+    expect(invited).toHaveTextContent('Nunca entraron2');
   });
 
-  it('an activation with a part of 1 to 4 students: both parts and the percent are «—»', async () => {
+  it('a report of an older database: «menos de 5» for students, «—» for the rest and the activation', async () => {
     renderApp('/admin/usage', {
       admin: admin(),
       api: fakeApi({
         usage: async () => ({
           ...REPORT,
+          totals: { ...REPORT.totals, today: f(FEW, FEW) },
           activation: { eligible: 7, activated: null, notActivated: null, percent: null },
         }),
       }),
@@ -125,6 +125,11 @@ describe('«Uso»', () => {
     expect(activation).toHaveTextContent('Respondieron a tiempo—');
     expect(activation).toHaveTextContent('No respondieron a tiempo—');
     expect(within(activation).queryByText(/%/)).toBeNull();
+    const active = screen.getByRole('row', { name: /Alumnos activos/ });
+    expect(within(active).getAllByRole('cell')[0]).toHaveTextContent('menos de 5');
+    expect(
+      within(screen.getByRole('row', { name: /Respuestas de Anki/ })).getAllByRole('cell')[0],
+    ).toHaveTextContent('—');
   });
 
   it('the chart: by day or by week, and the opens when there are', async () => {
@@ -144,7 +149,7 @@ describe('«Uso»', () => {
     });
     const chart = await screen.findByRole('list', { name: 'Alumnos activos, por día' });
     expect(await within(chart).findAllByRole('listitem')).toHaveLength(30);
-    expect(within(chart).getAllByRole('listitem')[0]).toHaveTextContent('menos de 5');
+    expect(within(chart).getAllByRole('listitem')[0]).toHaveTextContent(/: 1$/);
     await userEvent.click(screen.getByRole('button', { name: 'Periodo: Últimos 30 días' }));
     await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Últimas 12 semanas' }));
     expect(

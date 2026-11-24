@@ -1,5 +1,4 @@
 // Made-up «Uso» figures and opens for the local demo, over the demo catalog's units, tests and courses.
-import { FEW } from '@qv/schema';
 import type { AdminUsageRow, ContentBundle } from '@qv/schema';
 import type { UsageEvent, UsageGroups, UsageStatsSource } from '../../ports/usage';
 import { siteDay } from '../../services/usageReport';
@@ -16,19 +15,15 @@ const DAY_MS = 86_400_000;
 const wave = (i: number, base: number, swing: number) =>
   Math.max(0, Math.round(base + swing * Math.sin(i / 2.3) + (i % 3)));
 
-/** What a count shows: «few» when it is under the minimum and there was any activity, the figure otherwise. */
-export const orFew = (active: number, minimum: number, figure: number) =>
-  active < minimum ? (active ? FEW : 0) : figure;
-
 function figures(i: number, scale = 1) {
   const active = wave(i, 9 * scale, 5 * scale);
   return {
-    active_students: orFew(active, 5, active),
-    new_students: i % 6 === 0 ? 5 : i % 4 === 0 ? FEW : 0,
-    anki_answers: orFew(active, 5, active * 37),
-    new_cards: orFew(active, 5, active * 8),
-    rounds_started: orFew(active, 5, Math.round(active / 2) + 3),
-    rounds_finished: orFew(active, 6, Math.round(active / 3) + 2),
+    active_students: active,
+    new_students: i % 6 === 0 ? 5 : i % 4 === 0 ? 2 : 0,
+    anki_answers: active * 37,
+    new_cards: active * 8,
+    rounds_started: active ? Math.round(active / 2) + 3 : 0,
+    rounds_finished: active ? Math.round(active / 3) + 2 : 0,
   };
 }
 
@@ -54,7 +49,6 @@ function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
     generated_at: new Date(nowMs).toISOString(),
     today,
     time_zone: 'America/Santiago',
-    min_students: 5,
     totals: {
       today: figures(29),
       last_7: { ...figures(40, 3), new_students: 9 },
@@ -66,13 +60,13 @@ function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
       deck_id,
       students: 18 - 2 * i,
       answers: 900 - 120 * i,
-      new_cards: i === 5 ? FEW : 140 - 20 * i,
+      new_cards: 140 - 20 * i,
     })),
     quizzes: quizzes.slice(0, 5).map((quiz_id, i) => ({
       quiz_id,
       students: 12 - i,
       rounds_started: 30 - 4 * i,
-      rounds_finished: i === 4 ? FEW : 20 - 3 * i,
+      rounds_finished: 20 - 3 * i,
     })),
     courses: courses.slice(0, 4).map((course_id, i) => ({
       course_id,
@@ -80,7 +74,7 @@ function demoUsageRow(groups: UsageGroups, nowMs: number): AdminUsageRow {
       anki_answers: 1400 - 200 * i,
       new_cards: 300 - 40 * i,
       rounds_started: 40 - 5 * i,
-      rounds_finished: i === 3 ? FEW : 25 - 4 * i,
+      rounds_finished: 25 - 4 * i,
     })),
     assessments: assessments.slice(0, 6).map(([assessment_id, course_id], i) => ({
       assessment_id,

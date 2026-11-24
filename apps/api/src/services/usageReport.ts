@@ -1,11 +1,10 @@
-// Builds the «Uso» report: the users' database figures with the opens, hidden where too few students were active.
-import { AdminUsageRow, FEW, SEARCH_CONTEXTS, USAGE_MIN_STUDENTS, UsageReport } from '@qv/schema';
+// Builds the «Uso» report: the users' database figures with the opens counted in Workers Analytics Engine, all exact.
+import { AdminUsageRow, SEARCH_CONTEXTS, UsageReport } from '@qv/schema';
 import type {
   AdminUsageFigures,
   AdminUsageGroup,
   Catalog,
   ClientErrorGroup,
-  UsageCount,
   UsageEventKind,
   UsageFigures,
   UsageOpenFigures,
@@ -79,9 +78,6 @@ export function siteDay(ms: number): string {
   }).format(new Date(ms - 4 * HOUR_MS));
 }
 
-const atLeast = (n: number): UsageCount => (n >= 1 && n < USAGE_MIN_STUDENTS ? FEW : n);
-const enough = (c: UsageCount) => typeof c === 'number' && c >= USAGE_MIN_STUDENTS;
-const HIDDEN: UsageOpenFigures = { notes: FEW, decks: FEW, quizzes: FEW, searches: FEW };
 type OpenSums = Record<keyof UsageOpenFigures, number>;
 const EMPTY_OPENS: OpenSums = { notes: 0, decks: 0, quizzes: 0, searches: 0 };
 const OPEN_KEYS = ['notes', 'decks', 'quizzes', 'searches'] as const;
@@ -103,10 +99,7 @@ function contentId(kind: 'note' | 'deck' | 'quiz', path: string): string | null 
   }
 }
 
-/**
- * The opens of a period show only when 5 students or more were active then, so that a few students cannot be told
- * apart; a count of 1 to 4 is «<5», and the lists only have what was opened 5 times or more.
- */
+/** The opens by site day and by period, the most opened and the searches by where they started. */
 export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens {
   const byDay = new Map<string, OpenSums>();
   for (const h of counts.hourly) {
@@ -115,16 +108,6 @@ export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens
     f[OPEN_KEY[h.kind]] += h.count;
     byDay.set(day, f);
   }
-  const shown = (active: UsageCount, f: OpenSums): UsageOpenFigures => {
-    const all = f.notes + f.decks + f.quizzes + f.searches;
-    if (all > 0 && !enough(active)) return HIDDEN;
-    return {
-      notes: atLeast(f.notes),
-      decks: atLeast(f.decks),
-      quizzes: atLeast(f.quizzes),
-      searches: atLeast(f.searches),
-    };
-  };
   const sum = (days: string[]): OpenSums => {
     const f = { ...EMPTY_OPENS };
     for (const d of days) {
@@ -135,33 +118,26 @@ export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens
     return f;
   };
   const days = raw.days.map((d) => d.day);
-  const last30Shown = enough(raw.totals.last_30.active_students);
   return {
     totals: {
-      today: shown(raw.totals.today.active_students, sum([raw.today])),
-      last7: shown(raw.totals.last_7.active_students, sum(days.slice(-7))),
-      last30: shown(raw.totals.last_30.active_students, sum(days)),
+      today: sum([raw.today]),
+      last7: sum(days.slice(-7)),
+      last30: sum(days),
     },
-    days: raw.days.map((d) => ({ day: d.day, ...shown(d.active_students, sum([d.day])) })),
-    top: last30Shown
-      ? counts.items
-          .flatMap((i) => {
-            const id = contentId(i.kind, i.path);
-            return id && i.count >= USAGE_MIN_STUDENTS
-              ? [{ kind: i.kind, id, opens: i.count }]
-              : [];
-          })
-          .sort((a, b) => b.opens - a.opens || a.id.localeCompare(b.id))
-          .slice(0, 15)
-      : [],
-    searches: last30Shown
-      ? SEARCH_CONTEXTS.flatMap((context) => {
-          const count = counts.searches
-            .filter((s) => (s.context || 'other') === context)
-            .reduce((a, s) => a + s.count, 0);
-          return count ? [{ context, count: atLeast(count) }] : [];
-        })
-      : [],
+    days: days.map((day) => ({ day, ...sum([day]) })),
+    top: counts.items
+      .flatMap((i) => {
+        const id = contentId(i.kind, i.path);
+        return id && i.count > 0 ? [{ kind: i.kind, id, opens: i.count }] : [];
+      })
+      .sort((a, b) => b.opens - a.opens || a.id.localeCompare(b.id))
+      .slice(0, 15),
+    searches: SEARCH_CONTEXTS.flatMap((context) => {
+      const count = counts.searches
+        .filter((s) => (s.context || 'other') === context)
+        .reduce((a, s) => a + s.count, 0);
+      return count ? [{ context, count }] : [];
+    }),
   };
 }
 
@@ -178,7 +154,6 @@ export function usageReport(
     generatedAt: new Date(raw.generated_at).toISOString(),
     today: raw.today,
     timeZone: raw.time_zone,
-    minStudents: raw.min_students,
     totals: {
       today: figures(raw.totals.today),
       last7: figures(raw.totals.last_7),

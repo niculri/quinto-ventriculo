@@ -18,7 +18,7 @@ export function NotePage() {
   // Only this page counts as opening a note.
   useCountOpen('note', note.data ? slug : null);
   const catalog = useCatalog();
-  const fonts = useReadingFonts();
+  const fonts = useReadingFonts('article');
   const location = catalog.data ? locateNote(catalog.data, 'slug', slug) : null;
 
   if (note.isError) {

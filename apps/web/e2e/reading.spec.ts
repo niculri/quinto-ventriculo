@@ -7,30 +7,34 @@ import { signIn } from './helpers';
 /** The article's column on a computer: the whole page (53rem). */
 const COLUMN = 848;
 
+/** The fonts of a test, and an article's (its text is QV Sans). */
+const TEST_FACES = [
+  '400 16px "Inter Variable"',
+  'italic 400 16px "Inter Variable"',
+  '600 16px "Source Serif 4 Variable"',
+];
+const ARTICLE_FACES = [...TEST_FACES, '400 16px "QV Sans"', 'italic 400 16px "QV Sans"'];
+
 /** The fonts at the moment `selector` first appears: an article or a test is never drawn with another font. */
-function fontsAtFirstDraw(selector: string) {
+function fontsAtFirstDraw({ selector, faces }: { selector: string; faces: string[] }) {
   const w = window as unknown as { fontsAtFirstDraw: boolean[] | null };
   w.fontsAtFirstDraw = null;
   new MutationObserver((_, observer) => {
     if (!document.querySelector(selector)) return;
-    w.fontsAtFirstDraw = [
-      '400 16px "Inter Variable"',
-      'italic 400 16px "Inter Variable"',
-      '600 16px "Source Serif 4 Variable"',
-    ].map((f) => document.fonts.check(f));
+    w.fontsAtFirstDraw = faces.map((f) => document.fonts.check(f));
     observer.disconnect();
   }).observe(document, { childList: true, subtree: true });
 }
 
-/** The italic arrives late, so that a page that does not wait for it would be drawn without it. */
+/** The italics arrive late, so that a page that does not wait for them would be drawn without them. */
 async function lateItalic(page: Page) {
-  await page.route(/inter-italic[^/]*\.woff2/, async (route) => {
+  await page.route(/(inter|qv-sans)-italic[^/]*\.woff2/, async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 600));
     await route.continue();
   });
 }
 
-test('an article: Inter in its column, thumbnails on the right, and its late images keep their room', async ({
+test('an article: QV Sans in its column, thumbnails on the right, and its late images keep their room', async ({
   page,
   isMobile,
 }) => {
@@ -40,7 +44,7 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
     await route.continue();
   });
   await lateItalic(page);
-  await page.addInitScript(fontsAtFirstDraw, '.note-body');
+  await page.addInitScript(fontsAtFirstDraw, { selector: '.note-body', faces: ARTICLE_FACES });
   await page.addInitScript(() => {
     const w = window as unknown as { cls: number };
     w.cls = 0;
@@ -67,16 +71,19 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
       atFirstDraw: (window as unknown as { fontsAtFirstDraw: boolean[] | null }).fontsAtFirstDraw,
     };
   });
-  expect(text.size).toBe(isMobile ? '16px' : '17px');
-  expect(text.family).toMatch(/^"?Inter Variable"?,/);
-  expect(text.atFirstDraw).toEqual([true, true, true]);
+  expect(text.size).toBe('17px');
+  expect(text.family).toMatch(/^"?QV Sans"?,/);
+  expect(text.atFirstDraw).toEqual(ARTICLE_FACES.map(() => true));
 
   const places = () =>
     page.evaluate(() =>
-      [...document.querySelectorAll('.note-body > *, .note-body figure')].map((e) => {
-        const r = e.getBoundingClientRect();
-        return [Math.round(r.left), Math.round(r.top + window.scrollY), Math.round(r.height)];
-      }),
+      // A gallery's slides have no box of their own (their image and caption go in its grid).
+      [...document.querySelectorAll('.note-body > *, .note-body figure:not(.gallery-slide)')].map(
+        (e) => {
+          const r = e.getBoundingClientRect();
+          return [Math.round(r.left), Math.round(r.top + window.scrollY), Math.round(r.height)];
+        },
+      ),
     );
   const before = await places();
   expect(await page.evaluate(() => [...document.images].some((i) => !i.complete))).toBe(true);
@@ -128,8 +135,20 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
       strips.push(f.bottom - last);
     }
     const wide = [
-      ...document.querySelectorAll('.note-body figure.is-wide, .note-body .table-scroll'),
+      ...document.querySelectorAll(
+        '.note-body figure.is-wide, .note-body .table-scroll:not(.is-beside)',
+      ),
     ].map((e) => off(e.getBoundingClientRect()));
+    // A short table beside a thumbnail ends before it.
+    const beside = [...document.querySelectorAll('.note-body .table-scroll.is-beside')].map(
+      (table) => {
+        const t = table.getBoundingClientRect();
+        return pageThumbs.some((f) => {
+          const r = f.getBoundingClientRect();
+          return r.top < t.bottom && r.bottom > t.top && t.right <= r.left;
+        });
+      },
+    );
     const rows = [...document.querySelectorAll('.note-body .figure-row')].map((row) => {
       const parts = [...row.children].map((c) => c.getBoundingClientRect());
       return off({
@@ -146,6 +165,13 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
       thumbWidths: pageThumbs.map((f) => f.getBoundingClientRect().width),
       over,
       strips,
+      beside,
+      // The sign that a tap enlarges a thumbnail is in its caption, never over its image.
+      icons: pageThumbs.map(
+        (f) =>
+          getComputedStyle(f, '::after').content === 'none' &&
+          getComputedStyle(f.querySelector('figcaption')!, '::after').content !== 'none',
+      ),
       centered: [...wide, ...rows],
       widest:
         Math.max(
@@ -163,7 +189,8 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   expect(layout.width).toBeLessThanOrEqual(COLUMN + 1);
   expect(Math.abs(layout.header - layout.width)).toBeLessThanOrEqual(1);
   for (const edge of layout.edges) expect(edge).toBeLessThanOrEqual(1);
-  expect(layout.widest).toBeLessThanOrEqual(1);
+  // On a phone the figures take the screen's width, past the text's 16 px margin.
+  expect(layout.widest).toBeLessThanOrEqual(isMobile ? 17 : 1);
   expect(layout.sideways).toBeLessThanOrEqual(0);
   expect(layout.centered.length).toBeGreaterThanOrEqual(4);
   for (const offset of layout.centered) expect(offset).toBeLessThanOrEqual(1);
@@ -173,11 +200,15 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
   } else {
     expect(layout.floats.every((f) => f === 'right')).toBe(true);
     for (const edge of layout.rightEdges) expect(edge).toBeLessThanOrEqual(1);
-    for (const width of layout.thumbWidths) expect(width).toBeLessThanOrEqual(COLUMN / 2 + 1);
+    for (const width of layout.thumbWidths) expect(width).toBeLessThanOrEqual(COLUMN * 0.4 + 1);
     expect(layout.over).toEqual([]);
     for (const strip of layout.strips) expect(strip).toBeLessThanOrEqual(100);
+    expect(layout.beside).toEqual([true]);
+    expect(layout.icons.every(Boolean)).toBe(true);
   }
 
+  // Where the letter is Inter (a caption), its own glyphs draw <sup>/<sub> as wide as the Unicode ones; in QV Sans
+  // text they shrink as the others do. Neither changes a line's height.
   const scripts = await page.evaluate(() => {
     const pairs: [string, string][] = [
       ['Ca²⁺', 'Ca<sup class="own-glyphs">2+</sup>'],
@@ -186,21 +217,24 @@ test('an article: Inter in its column, thumbnails on the right, and its late ima
       ['IP₃', 'IP<sub class="own-glyphs">3</sub>'],
       ['X⁽³⁾', 'X<sup class="own-glyphs">(3)</sup>'],
     ];
+    const caption = document.createElement('figcaption');
     const probe = document.createElement('p');
-    document.querySelector('.note-body')!.append(probe);
+    document.querySelector('.note-body')!.append(caption, probe);
     const result = pairs.map(([unicode, html]) => {
-      probe.innerHTML = `<span>${unicode}</span> <span>${html}</span>`;
-      const [a, b] = [...probe.children].map((s) => s.getBoundingClientRect().width);
+      caption.innerHTML = `<span>${unicode}</span> <span>${html}</span>`;
+      const [a, b] = [...caption.children].map((s) => s.getBoundingClientRect().width);
       return Math.abs(a! - b!);
     });
-    probe.innerHTML = 'V<sub>máx</sub> K<sub>M</sub> Ca<sup class="own-glyphs">2+</sup>';
-    const line = parseFloat(getComputedStyle(probe).lineHeight);
-    const tall = probe.getBoundingClientRect().height - line;
+    const tall = [caption, probe].map((el) => {
+      el.innerHTML = 'V<sub>máx</sub> K<sub>M</sub> Ca<sup class="own-glyphs">2+</sup>';
+      return el.getBoundingClientRect().height - parseFloat(getComputedStyle(el).lineHeight);
+    });
+    caption.remove();
     probe.remove();
     return { result, tall };
   });
   for (const difference of scripts.result) expect(difference).toBeLessThanOrEqual(0.5);
-  expect(Math.abs(scripts.tall)).toBeLessThanOrEqual(0.5);
+  for (const tall of scripts.tall) expect(Math.abs(tall)).toBeLessThanOrEqual(0.5);
 });
 
 test('an article page: drawn with its fonts, and its loading state keeps the breadcrumbs and the title in place', async ({
@@ -208,7 +242,7 @@ test('an article page: drawn with its fonts, and its loading state keeps the bre
 }) => {
   await signIn(page);
   await lateItalic(page);
-  await page.addInitScript(fontsAtFirstDraw, '.note-body');
+  await page.addInitScript(fontsAtFirstDraw, { selector: '.note-body', faces: ARTICLE_FACES });
   let release = () => {};
   const held = new Promise<void>((resolve) => (release = resolve));
   await page.route(/\/api\/notes\//, async (route) => {
@@ -235,13 +269,13 @@ test('an article page: drawn with its fonts, and its loading state keeps the bre
     await page.evaluate(
       () => (window as unknown as { fontsAtFirstDraw: boolean[] | null }).fontsAtFirstDraw,
     ),
-  ).toEqual([true, true, true]);
+  ).toEqual(ARTICLE_FACES.map(() => true));
 });
 
 test('a test: its questions are first drawn with Inter, the italic too', async ({ page }) => {
   await signIn(page);
   await lateItalic(page);
-  await page.addInitScript(fontsAtFirstDraw, '.quiz');
+  await page.addInitScript(fontsAtFirstDraw, { selector: '.quiz', faces: TEST_FACES });
   await page.goto(
     '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica/pautas',
   );
@@ -268,7 +302,11 @@ async function figureFit(page: Page) {
     const bars = bar && height ? parseFloat(getComputedStyle(bar).top) + height : header;
     return [...document.querySelectorAll<HTMLElement>('.note-body figure')].map((f) => {
       const img = f.querySelector('img')!;
-      const shape = Number(img.getAttribute('width')) / Number(img.getAttribute('height'));
+      // A gallery's images share the box of its tallest one, and each is drawn whole inside it.
+      const gallery = f.closest<HTMLElement>('.gallery');
+      const shape = gallery
+        ? Number(gallery.style.getPropertyValue('--ar'))
+        : Number(img.getAttribute('width')) / Number(img.getAttribute('height'));
       const box = img.getBoundingClientRect();
       return {
         room: window.innerHeight - bars,
@@ -313,14 +351,14 @@ test('in a very short window a tall plate does not become a stamp: it keeps 20re
   for (const f of tallest) expect(f.imageTall).toBeGreaterThanOrEqual(319);
 });
 
-test('the text stops at its measure on the column’s left edge, the wide figures and the tables use the whole column', async ({
+test('the text, the wide figures and the tables fill the column, as on Wikipedia', async ({
   page,
   isMobile,
 }) => {
-  test.skip(isMobile, 'on a phone the column is narrower than any measure');
+  test.skip(isMobile, 'on a phone the figures take the screen’s width, past the text’s margin');
   await signIn(page);
-  const widths = async (measure: string) => {
-    await page.goto(`/dev/reading${measure ? `?measure=${measure}` : ''}`);
+  const widths = async () => {
+    await page.goto('/dev/reading');
     await expect(
       page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
     ).toBeVisible();
@@ -341,12 +379,51 @@ test('the text stops at its measure on the column’s left edge, the wide figure
       };
     });
   };
-  const standard = await widths('');
-  expect(standard.text).toBeLessThanOrEqual(596.5);
-  expect(standard.text).toBeGreaterThan(590);
+  const standard = await widths();
+  expect(standard.text).toBeCloseTo(standard.column, 0);
   expect(standard.wide).toBeCloseTo(standard.column, 0);
   for (const left of standard.lefts) expect(Math.abs(left)).toBeLessThanOrEqual(1);
-  expect((await widths('65')).text).toBeLessThanOrEqual(552.5);
-  expect((await widths('75')).text).toBeLessThanOrEqual(640.5);
-  expect((await widths('full')).text).toBeCloseTo(standard.column, 0);
+});
+
+test('a gallery: its arrows right under the image, its slides of one height, and nothing moves when stepping', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/dev/reading');
+  const gallery = page.locator('.note-body .gallery');
+  await expect(gallery).toHaveCount(1);
+  await gallery.scrollIntoViewIfNeeded();
+  const state = () =>
+    page.evaluate(() => {
+      const g = document.querySelector('.note-body .gallery')!;
+      const images = [...g.querySelectorAll('.gallery-slide > img')].map((i) =>
+        i.getBoundingClientRect(),
+      );
+      const nav = g.querySelector('.gallery-nav')!.getBoundingClientRect();
+      const visible = [...g.querySelectorAll('.gallery-slide')].map(
+        (s) => getComputedStyle(s.querySelector('img')!).visibility,
+      );
+      const places = [...document.querySelectorAll('.note-body > *')].map((e) => {
+        const r = e.getBoundingClientRect();
+        return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)];
+      });
+      return {
+        heights: images.map((r) => Math.round(r.height)),
+        gap: nav.top - images[0]!.bottom,
+        visible,
+        count: g.querySelector('.gallery-count')!.textContent,
+        places,
+      };
+    });
+  const first = await state();
+  expect(new Set(first.heights).size).toBe(1);
+  expect(first.gap).toBeLessThanOrEqual(12);
+  expect(first.visible).toEqual(['visible', 'hidden']);
+  expect(first.count).toBe('1 de 2');
+  await gallery.getByRole('button', { name: 'Imagen siguiente' }).click();
+  const second = await state();
+  expect(second.visible).toEqual(['hidden', 'visible']);
+  expect(second.count).toBe('2 de 2');
+  expect(second.places).toEqual(first.places);
+  expect(second.heights).toEqual(first.heights);
 });

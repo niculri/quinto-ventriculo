@@ -141,15 +141,40 @@ export function readNotices(): string {
   return existsSync(file) ? readFileSync(file, 'utf8').trim() : '';
 }
 
-export function licensesText(packages: ThirdPartyPackage[], notices = ''): string {
+/** The fonts cut for the site, which are files of the code and not packages, with the text of their licenses. */
+const OWN_FONTS = [
+  { name: 'Inter (recorte propio, apps/web/src/fonts/inter-*.woff2)', file: 'inter-OFL.txt' },
+  {
+    name: 'QV Sans (recorte de Source Sans 3, apps/web/src/fonts/qv-sans-*.woff2)',
+    file: 'source-sans-OFL.txt',
+  },
+];
+
+export function readFontLicenses(): string {
+  return OWN_FONTS.map(
+    ({ name, file }) =>
+      `${name}\n\n${readFileSync(join(ROOT, 'apps/web/src/fonts', file), 'utf8').trim()}`,
+  ).join(`\n\n${'-'.repeat(78)}\n`);
+}
+
+export function licensesText(packages: ThirdPartyPackage[], notices = '', fonts = ''): string {
   const head = [
     'El Quinto Ventrículo: licencias de los paquetes de terceros que usan la web y el servidor.',
     'El código del sitio: AGPL-3.0-or-later (ver /licenses).',
     '',
   ];
-  const tail = notices
-    ? ['='.repeat(78), 'Código adaptado de otros proyectos (NOTICE.md del código)', '', notices, '']
-    : [];
+  const tail = [
+    ...(notices
+      ? [
+          '='.repeat(78),
+          'Código adaptado de otros proyectos (NOTICE.md del código)',
+          '',
+          notices,
+          '',
+        ]
+      : []),
+    ...(fonts ? ['='.repeat(78), 'Letras recortadas para el sitio', '', fonts, ''] : []),
+  ];
   return (
     head
       .concat(
@@ -213,7 +238,7 @@ export function thirdPartyLicenses(): Plugin {
       this.emitFile({
         type: 'asset',
         fileName: 'third-party-licenses.txt',
-        source: licensesText(packages, readNotices()),
+        source: licensesText(packages, readNotices(), readFontLicenses()),
       });
     },
     configureServer(server) {
@@ -226,7 +251,7 @@ export function thirdPartyLicenses(): Plugin {
           res.end(summary(packages()));
         } else if (req.url === '/third-party-licenses.txt') {
           res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          res.end(licensesText(packages(), readNotices()));
+          res.end(licensesText(packages(), readNotices(), readFontLicenses()));
         } else next();
       });
     },

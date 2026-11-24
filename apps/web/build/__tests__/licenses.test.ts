@@ -6,6 +6,7 @@ import {
   describePackages,
   licensesText,
   packageFolderOf,
+  readFontLicenses,
   readNotices,
   serverPackages,
   webPackagesByDependencies,
@@ -56,6 +57,16 @@ describe('the third-party licenses, from node_modules', () => {
     expect(withNotices).toMatch(/Ankitects Pty Ltd/);
     expect(withNotices).toMatch(/Copyright \(c\) 2023, Open Spaced Repetition/);
     expect(withNotices.indexOf('fsrs-rs')).toBeGreaterThan(withNotices.indexOf('honojs/hono'));
+  });
+
+  it('the fonts cut for the site go last, each with the whole text of its license', () => {
+    const text = licensesText(packages, readNotices(), readFontLicenses());
+    const fonts = text.slice(text.indexOf('Letras recortadas para el sitio'));
+    expect(fonts).toMatch(/QV Sans \(recorte de Source Sans 3/);
+    expect(fonts).toMatch(/with Reserved Font Name 'Source'/);
+    expect(fonts).toMatch(/Inter \(recorte propio/);
+    expect(fonts.match(/SIL OPEN FONT LICENSE Version 1\.1/g)).toHaveLength(2);
+    expect(licensesText(packages)).not.toMatch(/Letras recortadas/);
   });
 
   it('walks the workspace’s packages without listing them', () => {

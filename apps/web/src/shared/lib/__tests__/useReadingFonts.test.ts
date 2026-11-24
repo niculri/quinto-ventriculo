@@ -1,4 +1,5 @@
-// Tests waiting for the reading fonts: ready when they load or fail, or after three seconds, asked once for the whole page.
+// Tests waiting for the reading fonts: ready when they load or fail, or after three seconds, asked once for the whole
+// page, and an article's with its own letter.
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -45,6 +46,20 @@ describe('the reading fonts', () => {
     ]);
     await act(async () => loaded());
     expect(result.current).toBe(true);
+  });
+
+  it('of an article are those and QV Sans, its text’s, asked apart from a test’s', async () => {
+    const loaded = loadOnCall();
+    const useReadingFonts = await freshHook();
+    const { result } = renderHook(() => useReadingFonts('article'));
+    expect(load.mock.calls.map(([face]) => face).slice(3)).toEqual([
+      '400 1em "QV Sans"',
+      'italic 400 1em "QV Sans"',
+    ]);
+    await act(async () => loaded());
+    expect(result.current).toBe(true);
+    renderHook(() => useReadingFonts('test'));
+    expect(load).toHaveBeenCalledTimes(8);
   });
 
   it('that fail to load do not stop the page', async () => {

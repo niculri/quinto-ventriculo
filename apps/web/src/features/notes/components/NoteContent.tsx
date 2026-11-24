@@ -2,8 +2,7 @@
 // only its images are signed again.
 
 import { useImperativeHandle, useRef } from 'react';
-import type { CSSProperties, KeyboardEvent, MouseEvent, Ref } from 'react';
-import { useLocation } from 'react-router';
+import type { KeyboardEvent, MouseEvent, Ref } from 'react';
 import type { OpenImage } from '../../../shared/ui/ImageViewer';
 import { SafeHtml } from '../../../shared/ui/SafeHtml';
 import { useMediaRecovery } from '../../../shared/hooks/useMediaRecovery';
@@ -12,8 +11,7 @@ import { sectionAt } from '../model/selection';
 import { useScrollableTables } from '../hooks/useScrollableTables';
 import { prepareArticle } from '../model/articleHtml';
 import { sanitizeInBrowser } from '../model/sanitize';
-import { MEASURES, measureOf } from '../model/measure';
-import { toRem } from '../model/figures';
+import { stepGallery } from '../model/gallery';
 
 interface Props {
   html: string;
@@ -22,9 +20,7 @@ interface Props {
 }
 
 export function NoteContent({ html, onOpenImage, ref }: Props) {
-  const measure = MEASURES[measureOf(useLocation().search)];
-  const clean = prepareArticle(sanitizeInBrowser(html), measure);
-  const style: CSSProperties & Record<'--measure', string> = { '--measure': toRem(measure) };
+  const clean = prepareArticle(sanitizeInBrowser(html));
   const ownRef = useRef<HTMLDivElement>(null);
   const shown = useSignedHtml(clean, ownRef);
   useMediaRecovery(ownRef, shown);
@@ -32,6 +28,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
   useImperativeHandle(ref, () => ownRef.current!, []);
 
   const open = (e: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
+    if (e.type === 'click' && stepGallery(e.target)) return true;
     const img = (e.target as HTMLElement).closest('figure img');
     if (!(img instanceof HTMLImageElement)) return false;
     onOpenImage({
@@ -49,8 +46,7 @@ export function NoteContent({ html, onOpenImage, ref }: Props) {
       as="div"
       html={shown}
       ref={ownRef}
-      className="note-body"
-      style={style}
+      className="note-body note-article"
       onClick={open}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && open(e)) e.preventDefault();

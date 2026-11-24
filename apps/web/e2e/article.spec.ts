@@ -123,6 +123,8 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
   const where = async () => {
     const main = page.getByRole('main');
     const crumbs = main.getByRole('navigation', { name: 'Ruta' });
+    // The page itself, not its loading state (an article waits for its fonts), which has its breadcrumbs too.
+    await expect(main.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(crumbs.getByRole('listitem').first()).toHaveText('Inicio');
     const a = (await crumbs.boundingBox())!;
     const b = (await main.getByRole('heading', { level: 1 }).boundingBox())!;

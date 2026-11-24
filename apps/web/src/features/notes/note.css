@@ -19,18 +19,21 @@
     font-size: 1rem;
   }
 }
-
 /*
- * The measure (`--measure`, set by the article: about 70 letters): the text, its lists and its callouts stop there,
- * on the column's left edge, as the title does. The column stays whole for the figures: the thumbnails float to its
- * right edge (the text beside them is narrower still), and the wide figures, the rows and the tables use all of it,
- * also inside a callout that has one. Without `--measure` (the help pages) nothing changes.
+ * An article's text (`NoteContent`, not the help pages): QV Sans, Source Sans 3 cut to the articles' characters, 17 px
+ * with lines of 1.6, and 1.5 on a phone. Until it arrives the text is drawn in Arial sized to take its room (QV Sans
+ * Fallback, fonts.css); Inter only draws the glyphs it lacks (ᵢ), and the letters where there is no Arial (Android).
+ * Headings, captions, tables, callout labels and sources keep Inter.
  */
-.note-body :is(p, ul, ol, blockquote, .callout, .note-summary) {
-  max-width: var(--measure, none);
+.note-body.note-article {
+  font-family: 'QV Sans', 'QV Sans Fallback', 'Inter Variable', sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
 }
-.note-body .callout:has(> .is-wide, > .figure-row, > .table-scroll) {
-  max-width: none;
+@media (max-width: 639.98px) {
+  .note-body.note-article {
+    line-height: 1.5;
+  }
 }
 
 .note-body h2,
@@ -137,16 +140,20 @@
 .note-body sub {
   vertical-align: -0.28em;
 }
-.note-body :is(sup, sub).own-glyphs {
+/* Only where the letter is Inter: QV Sans has no superscripts for a–z, so in an article's text they shrink as well. */
+.note-body:not(.note-article) :is(sup, sub).own-glyphs,
+.note-body :is(h2, h3, h4, figcaption, table, .source) :is(sup, sub).own-glyphs {
   font-size: 1em;
   vertical-align: baseline;
 }
-.note-body sup.own-glyphs {
+.note-body:not(.note-article) sup.own-glyphs,
+.note-body :is(h2, h3, h4, figcaption, table, .source) sup.own-glyphs {
   font-feature-settings:
     'sups' 1,
     'calt' 0;
 }
-.note-body sub.own-glyphs {
+.note-body:not(.note-article) sub.own-glyphs,
+.note-body :is(h2, h3, h4, figcaption, table, .source) sub.own-glyphs {
   font-feature-settings:
     'subs' 1,
     'calt' 0;
@@ -181,9 +188,9 @@
 }
 
 /*
- * Figures (notes/figures.ts): a thumbnail on the right with the text around it, like Wikipedia's, or wide across the
- * column (a large plate, a panorama, a row), centered and below every float. Where the column is too narrow for text
- * beside a thumbnail (under 45rem: the phone and narrow windows), nothing floats and every figure goes centered. The
+ * Figures (notes/figures.ts, model/balance.ts): a thumbnail on the right with the text around it, or wide across the
+ * column (a plate that does not read small, a panorama, a row), centered and below every float. Where the column is
+ * too narrow for text beside a thumbnail (under 45rem: the phone and narrow windows), nothing floats. The
  * <img> keeps its width and height attributes, so its height is known before it loads in every browser.
  *
  * No image is taller than the window under the site's bars, with room for a few lines of caption (`--fit-h`): its
@@ -229,7 +236,9 @@
 .dark .note-body figcaption {
   margin-top: 0.85rem;
 }
+/* Its frame (5 px of padding and a border on each side) does not come out of the image's height. */
 .note-body .figure.is-thumb {
+  --fit-w: calc(var(--fit-h) * var(--ar, 100) + 12px);
   padding: 5px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -250,19 +259,188 @@
 .dark .note-body .is-thumb figcaption {
   margin-top: 0.6rem;
 }
+/* At the side, 40 % of the column (or of its callout) at most, with a sign that a tap enlarges it (model/balance.ts). */
 @container (min-width: 45rem) {
   .note-body .figure.is-thumb {
     float: right;
     clear: right;
-    width: min(50%, var(--fig, 100%), var(--fit-w));
+    width: min(40%, var(--fig, 100%), var(--fit-w));
     margin: 0.35em 0 1.1em 1.6em;
   }
-  .note-body .callout .figure.is-thumb {
-    width: min(40%, var(--fig, 100%), var(--fit-w));
+}
+.note-body .figure.is-thumb {
+  position: relative;
+}
+/*
+ * The sign that a tap enlarges it goes at the end of its caption's first line, in the room the caption leaves for it,
+ * so it never covers the image. A figure without a caption has it in the image's corner, small and see-through, shown
+ * with the mouse over it (always where there is no mouse); it fades in, so nothing moves.
+ */
+.note-body .is-thumb figcaption {
+  --enlarge-inset: 0.2rem;
+  position: relative;
+  padding-right: calc(var(--enlarge-inset) + 1.4rem);
+}
+.note-body .is-thumb figcaption::after,
+.note-body .figure.is-thumb:not(:has(figcaption))::after {
+  content: '';
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  pointer-events: none;
+}
+.note-body .is-thumb figcaption::after {
+  top: 0.15rem;
+  right: var(--enlarge-inset);
+  opacity: 0.75;
+}
+.note-body .figure.is-thumb:not(:has(figcaption))::after {
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  mask: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E")
+    center / 0.7rem no-repeat,
+    rgb(16 24 32 / 0.45);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+@media (hover: none) {
+  .note-body .figure.is-thumb:not(:has(figcaption))::after {
+    opacity: 1;
   }
+}
+.note-body .figure.is-thumb:not(:has(figcaption)):hover::after {
+  opacity: 1;
+}
+/* Where nothing floats, every figure takes the column; on a phone, the screen's width, without its frame. */
+@container (max-width: 44.99rem) {
+  .note-body .figure:not(.gallery-slide) {
+    width: min(100%, var(--fit-w));
+  }
+}
+@media (max-width: 639.98px) {
+  .note-body > :is(.figure.is-thumb, .figure.is-wide),
+  .note-body > .side > :is(.figure.is-thumb, .figure.is-wide) {
+    --fit-w: calc(var(--fit-h) * var(--ar, 100));
+    --full: min(calc(100% + 2rem), var(--fit-w));
+    width: var(--full);
+    margin-left: calc((100% - var(--full)) / 2);
+    margin-right: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .note-body > .figure img,
+  .note-body > .side > .figure img {
+    border-radius: 0;
+  }
+  .note-body > .figure figcaption,
+  .note-body > .figure .gallery-nav,
+  .note-body > .side > .figure figcaption {
+    padding: 0 1rem;
+  }
+  .note-body > .is-thumb figcaption,
+  .note-body > .side > .is-thumb figcaption {
+    --enlarge-inset: 1rem;
+    padding-right: calc(var(--enlarge-inset) + 1.4rem);
+  }
+}
+
+/*
+ * A gallery (model/gallery.ts): its slides' images share the first row, the arrows the second, right under them, and
+ * the captions the third, so stepping through them moves nothing. The slides are alike in shape (model/balance.ts):
+ * every image takes the shape of the tallest (the gallery's `--ar`), and a shorter one is drawn whole, centered on
+ * the same white.
+ */
+.note-body .gallery-track {
+  display: grid;
+  grid-template-columns: 100%;
+}
+.note-body .figure.gallery-slide {
+  display: contents;
+  visibility: hidden;
+}
+.note-body .figure.gallery-slide.is-current {
+  visibility: visible;
+}
+.note-body .gallery-slide > img {
+  grid-area: 1 / 1;
+  aspect-ratio: var(--ar);
+  object-fit: contain;
+}
+.note-body .gallery-slide > :not(img) {
+  grid-area: 3 / 1;
+}
+/* A slide's source line (model/balance.ts) shares a fourth row, under the captions. */
+.note-body .gallery-slide > .source {
+  grid-area: 4 / 1;
+  margin: 0.3rem 0 0;
+}
+.note-body .gallery-nav {
+  grid-area: 2 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.dark .note-body .gallery-nav {
+  margin-top: 0.65rem;
+}
+.note-body .gallery-step {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.note-body .gallery-step::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+    center / 1rem no-repeat;
+}
+.note-body .gallery-step[data-step='-1']::before {
+  transform: scaleX(-1);
+}
+.note-body .gallery-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.note-body .gallery-step:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+/* A finger reaches 44 px without the button growing. */
+.note-body .gallery-step::after {
+  content: '';
+  position: absolute;
+  inset: -0.375rem;
 }
 .note-body :is(h2, hr, .table-scroll, .figure-row, .is-wide, .note-summary) {
   clear: both;
+}
+/* A short table that fills the room beside a thumbnail (model/besideTables.ts): it narrows to the rest of the column. */
+.note-body .table-scroll.is-beside {
+  clear: none;
 }
 .note-body .figure-row {
   display: flex;

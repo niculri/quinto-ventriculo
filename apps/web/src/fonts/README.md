@@ -18,3 +18,40 @@ The same with `Inter-Italic[opsz,wght].ttf` gives `inter-italic.woff2`. The list
 superscripts and subscripts (⁰–⁹ ⁺ ⁻ ₀–₉ ᵢ), arrows, ± × ≈ ≠ ≤ ≥ √ ∞ − and ✓ ✗: everything the articles use. A
 character added to the articles has to be in this list (and in the `unicode-range` of `fonts.css`), or it falls back
 to another font. Inter has no ✕ (the converter writes ×) nor ⇌.
+
+# QV Sans, the articles' text
+
+`qv-sans-roman.woff2` and `qv-sans-italic.woff2` are **Source Sans 3** 3.052R (SIL Open Font License 1.1,
+`source-sans-OFL.txt`), downloaded from its official release on GitHub (`adobe-fonts/source-sans`,
+`VF-source-sans-3.052R.zip`, `SourceSans3VF-Upright.ttf` and `-Italic.ttf`) and cut with fontTools to the same
+characters as Inter (the list above), the weight axis kept. «Source» is a Reserved Font Name, so the cut is renamed
+**QV Sans** (name table): its family and full names (IDs 1, 4, 16), its PostScript names (6, 25) and those of the
+weight axis's instances (301–312, «QVSans-Bold»…), while the copyright, the trademark and the license (0, 7, 13, 14)
+stay Adobe's. It lacks ᵢ, which the articles take from Inter.
+
+```python
+from fontTools.ttLib import TTFont
+from fontTools import subset
+font = TTFont(src)
+options = subset.Options()
+options.flavor = 'woff2'
+options.layout_features = ['kern', 'mark', 'mkmk', 'ccmp', 'locl', 'liga', 'case', 'frac', 'numr', 'dnom', 'pnum',
+                           'tnum', 'lnum', 'sups', 'subs']
+options.name_IDs = ['*']
+subsetter = subset.Subsetter(options)
+subsetter.populate(unicodes=subset.parse_unicodes(UNICODES))  # Inter's list
+subsetter.subset(font)
+font.save(dst)  # and its name table renamed to QV Sans
+```
+
+The instances' PostScript names were renamed after the cut, on both files:
+
+```python
+for record in font['name'].names:
+    record.string = record.toUnicode().replace('SourceSans3VF', 'QVSans')
+```
+
+Its fallback (`QV Sans Fallback` in `fonts.css`), which draws the text until QV Sans arrives, is Arial measured in the
+browser the way Inter's was: the width of the articles' running text drawn with each font, and the ascent and descent
+of QV Sans over that ratio. Inter comes after it only for ᵢ (and for the letters where there is no Arial nor
+Helvetica, as on Android). The license's text goes in `/third-party-licenses.txt` too (`build/licenses.ts`).

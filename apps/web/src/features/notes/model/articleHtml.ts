@@ -1,28 +1,27 @@
-// Prepares a sanitized article's HTML before the first paint: figure sizes, scrolling tables, the font's own
-// superscript glyphs and images that open the viewer.
+// Prepares a sanitized article's HTML before the first paint: the figures' balance and sizes, scrolling tables, Inter's
+// own superscript glyphs and images that open the viewer.
 
 import { markSanitized } from '../../../shared/lib/sanitizedHtml';
 import type { SanitizedHtml } from '../../../shared/lib/sanitizedHtml';
 import { figureLayout, rowWidths, toRem } from './figures';
 import type { FigureSize } from './figures';
-import { MEASURES, DEFAULT_MEASURE } from './measure';
+import { sizeOf } from './figureSize';
 import { placeThumbs } from './placeThumbs';
+import { balanceFigures } from './balance';
+import { ARTICLE_TYPE } from './reading';
 import { articleHtmlStrings } from './strings/articleHtml.strings';
 
 /** What Inter's superscripts and subscripts (`sups`, `subs`) cover: the glyphs of ⁰–⁹ ⁺ ⁻ ₀–₉ ᵢ and more. */
 const OWN_GLYPHS = /^[a-z0-9()[\]=+−]+$/;
 
-/** `textPx`: how long a line of text can be (the measure), which decides how much text goes beside a thumbnail. */
-export function prepareArticle(
-  html: SanitizedHtml,
-  textPx: number = MEASURES[DEFAULT_MEASURE],
-): SanitizedHtml {
+export function prepareArticle(html: SanitizedHtml): SanitizedHtml {
   const template = document.createElement('template');
   template.innerHTML = html;
   const root = template.content;
+  const widen = balanceFigures(root);
   sizeFigures(root);
   wrapTables(root);
-  placeThumbs(root, textPx);
+  placeThumbs(root, ARTICLE_TYPE, widen);
   markOwnGlyphs(root);
   labelImages(root);
   return markSanitized(template.innerHTML);
@@ -38,7 +37,8 @@ function sizeFigures(root: DocumentFragment) {
     });
   }
   for (const figure of root.querySelectorAll<HTMLElement>('figure')) {
-    if (figure.closest('.figure-row')) continue;
+    // In a row, or already laid out by the balance (a gallery and its slides too).
+    if (figure.closest('.figure-row, .gallery') || figure.matches('.is-thumb, .is-wide')) continue;
     // In a callout the source already says which ones fill it (55 % or more).
     const size = sizeOf(figure);
     const layout = figureLayout({
@@ -75,21 +75,6 @@ function labelImages(root: DocumentFragment) {
     img.setAttribute('tabindex', '0');
     img.setAttribute('aria-label', articleHtmlStrings.enlarge(img.getAttribute('alt')));
   }
-}
-
-function sizeOf(figure: HTMLElement): FigureSize {
-  const img = figure.querySelector('img');
-  const number = (name: string) => Number(img?.getAttribute(name)) || undefined;
-  const width = number('width');
-  const height = number('height');
-  const plate = figure.classList.contains('figure-plate');
-  const percent = plate ? Number.parseFloat(figure.style.width) || undefined : undefined;
-  return {
-    ...(plate ? { plate: true } : {}),
-    ...(percent ? { percent } : {}),
-    ...(width ? { width } : {}),
-    ...(height ? { height } : {}),
-  };
 }
 
 /** Its width over its height, for the CSS that keeps it within the window's height. */

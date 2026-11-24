@@ -161,10 +161,14 @@ test('a tall plate opens at least as big as in the article, from its top, and st
   const opened = (await stageImage(page).boundingBox())!;
   const stage = (await page.getByTestId('image-stage').boundingBox())!;
   expect(opened.width).toBeGreaterThanOrEqual(Math.floor(inArticle.width));
-  expect(Math.round(opened.y)).toBe(Math.round(stage.y));
+  // Taller than the stage it opens from its top; at the article's side it may fit, and then it is centered.
+  const taller = opened.height >= stage.height - 1;
+  if (taller) expect(Math.round(opened.y)).toBe(Math.round(stage.y));
+  else expect(opened.y).toBeGreaterThanOrEqual(stage.y);
   expect(opened.x + opened.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
   // On a phone the article's column is narrower than what fits: it opens fitted, as before.
-  if (!isMobile) await viewer(page).getByRole('button', { name: 'Ajustar a la pantalla' }).click();
+  if (!isMobile && taller)
+    await viewer(page).getByRole('button', { name: 'Ajustar a la pantalla' }).click();
   await expect
     .poll(async () => (await imageBox(page))[3])
     .toBeLessThanOrEqual(Math.ceil(stage.height));

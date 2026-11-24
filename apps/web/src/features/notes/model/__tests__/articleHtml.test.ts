@@ -19,7 +19,11 @@ const prepareArticle = (html: string) => prepareSanitized(markSanitized(html));
 const fig = (attrs: string, w = 1600, h = 1200, classes = 'figure') =>
   `<figure class="${classes}"${attrs}><img data-media="k" alt="Una lámina" width="${w}" height="${h}"></figure>`;
 const para = (words: number) => `<p>${'palabra '.repeat(words)}</p>`;
-const table = '<table><tbody><tr><td>1</td></tr></tbody></table>';
+/** Four columns: it needs the whole column, never beside a thumbnail. */
+const table = '<table><tbody><tr><td>1</td><td>2</td><td>3</td><td>4</td></tr></tbody></table>';
+/** A short table, which may go beside one. */
+const shortTable = (rows: number, cell = 'celda') =>
+  `<table><tbody>${`<tr><td>${cell}</td><td>${cell}</td></tr>`.repeat(rows)}</tbody></table>`;
 
 describe('the layout of an article’s figures', () => {
   it('a thumbnail of about the same area whatever its shape: 300px for a 4:3 image', () => {
@@ -100,11 +104,11 @@ describe('prepareArticle', () => {
     expect(html).toContain('aria-label="Ampliar la imagen: Una lámina"');
   });
 
-  it('a plate keeps the width its percentage gives, and the percentage leaves the style', () => {
-    const html = prepareArticle(fig(' style="width:50%"', 1600, 1200, 'figure figure-plate'));
-    expect(html).toContain(`--fig: ${(COLUMN_PX * 0.5) / 16}rem`);
+  it('a plate that does not read small keeps the width its percentage gives, and the percentage leaves the style', () => {
+    const html = prepareArticle(fig(' style="width:85%"', 1600, 1200, 'figure figure-plate'));
+    expect(html).toContain(`--fig: ${Math.round((COLUMN_PX * 0.85 * 100) / 16) / 100}rem`);
     expect(html).toContain('is-wide');
-    expect(html).not.toContain('50%');
+    expect(html).not.toContain('85%');
   });
 
   it('gives each figure its shape, so the CSS keeps it within the window; without its size, none', () => {
@@ -113,6 +117,10 @@ describe('prepareArticle', () => {
     );
     expect(html).toContain('--ar: 0.562;');
     expect(html.match(/--ar/g)).toHaveLength(1);
+    const inCallout = prepareArticle(
+      '<aside class="callout"><figure class="figure"><img></figure></aside>',
+    );
+    expect(inCallout).not.toContain('--ar');
     const row = prepareArticle(
       `<div class="figure-row">${fig('', 800, 400)}${fig('', 400, 400)}</div>`,
     );
@@ -137,7 +145,9 @@ describe('prepareArticle', () => {
   });
 
   const order = (html: string) =>
-    [...prepareArticle(html).matchAll(/<(figure|p|div class="table-scroll"|h3)/g)].map((m) => m[1]);
+    [...prepareArticle(html).matchAll(/<(figure|p|div class="table-scroll[^"]*"|h3)/g)].map(
+      (m) => m[1],
+    );
 
   it('moves a thumbnail down below a table, beside the text after it, when its own is too short', () => {
     expect(order('<h3>Título</h3>' + para(5) + fig('') + table + para(200))).toEqual([
@@ -164,16 +174,9 @@ describe('prepareArticle', () => {
     ]);
   });
 
-  it('counts the text beside a thumbnail with the measure: shorter lines, more of them', () => {
-    const html = para(5) + fig('', 400, 1200) + para(175) + table + para(400);
-    const at = (textPx: number) =>
-      [
-        ...prepareSanitized(markSanitized(html), textPx).matchAll(
-          /<(figure|p|div class="table-scroll")/g,
-        ),
-      ].map((m) => m[1]);
-    expect(at(596)).toEqual(['p', 'figure', 'p', 'div class="table-scroll"', 'p']);
-    expect(at(COLUMN_PX)).toEqual(['figure', 'p', 'p', 'div class="table-scroll"', 'p']);
+  it('counts the text beside a thumbnail in the rest of the column: just short, it goes up a paragraph', () => {
+    const html = para(5) + fig('', 400, 1200) + para(215) + table + para(400);
+    expect(order(html)).toEqual(['figure', 'p', 'p', 'div class="table-scroll"', 'p']);
   });
 
   it('without enough text anywhere in its section, it stays a thumbnail where the strip is smallest', () => {
@@ -221,21 +224,21 @@ describe('prepareArticle', () => {
   });
 
   it('two thumbnails in a row need the text of both: together they move to where it is', () => {
-    expect(order(fig('') + fig('') + para(5) + table + para(400))).toEqual([
+    expect(order(fig('') + fig('', 1200, 1600) + para(5) + table + para(400))).toEqual([
       'p',
       'div class="table-scroll"',
       'figure',
       'figure',
       'p',
     ]);
-    expect(order(fig('') + fig('') + para(70) + table + para(400))).toEqual([
+    expect(order(fig('') + fig('', 1200, 1600) + para(120) + table + para(400))).toEqual([
       'figure',
       'p',
       'div class="table-scroll"',
       'figure',
       'p',
     ]);
-    expect(order(fig('') + fig('') + para(400) + table)).toEqual([
+    expect(order(fig('') + fig('', 1200, 1600) + para(400) + table)).toEqual([
       'figure',
       'figure',
       'p',
@@ -270,6 +273,95 @@ describe('prepareArticle', () => {
       'div class="table-scroll"',
       'h3',
     ]);
+  });
+
+  it('without text enough in its section, a short table goes beside it if that fills the strip', () => {
+    const html = (rows: number) =>
+      '<h3>A</h3>' + para(5) + fig('') + shortTable(rows) + para(5) + '<h2>B</h2>' + para(300);
+    const filled = prepareArticle(html(6));
+    expect(filled).toContain('class="table-scroll is-beside"');
+    expect(order(html(6))).toEqual([
+      'h3',
+      'p',
+      'figure',
+      'div class="table-scroll is-beside"',
+      'p',
+      'p',
+    ]);
+    expect(prepareArticle(html(1))).not.toContain('is-beside');
+    const long = '<h3>A</h3>' + fig('') + shortTable(7) + '<h3>B</h3>';
+    expect(prepareArticle(long)).not.toContain('is-beside');
+    const tall = '<h3>A</h3>' + fig('') + shortTable(2, 'palabra '.repeat(60)) + '<h3>B</h3>';
+    expect(prepareArticle(tall)).toContain('is-beside');
+  });
+
+  const kinds = (html: string) =>
+    [...prepareArticle(html).matchAll(/<figure class="([^"]*)"/g)].map((m) =>
+      m[1]!.includes('is-wide') ? 'wide' : 'side',
+    );
+
+  it('too many figures for the text of their section: the last of a stack goes wide, the rest stay', () => {
+    const html =
+      '<h3>A</h3>' + fig('') + para(120) + fig('', 1200, 1600) + '<h2>B</h2>' + para(400);
+    expect(kinds(html)).toEqual(['side', 'wide']);
+    expect(order(html)).toEqual(['h3', 'figure', 'p', 'figure', 'p']);
+  });
+
+  it('a figure that goes wide takes its own share of the column, never more than its pixels', () => {
+    const stack = (last: string) =>
+      prepareArticle('<h3>A</h3>' + fig('') + para(120) + last + '<h2>B</h2>' + para(400));
+    const widths = (html: string) =>
+      [...html.matchAll(/--fig: ([\d.]+)rem/g)].map((m) => Number(m[1]) * 16);
+    expect(widths(stack(fig(' style="width:50%"', 1200, 1600)))[1]).toBeCloseTo(COLUMN_PX / 2, 0);
+    expect(widths(stack(fig('', 400, 530)))[1]).toBeCloseTo(400, 0);
+    const unsized = stack('<figure class="figure" style="width:60%"><img alt="x"></figure>');
+    expect(unsized).toContain('class="figure is-wide"');
+    expect(widths(unsized)[1]).toBeCloseTo(COLUMN_PX * 0.6, 0);
+  });
+
+  it('places them all again after one goes wide: a short table keeps its place beside a thumbnail', () => {
+    const html =
+      '<h3>A</h3>' +
+      para(5) +
+      fig('') +
+      shortTable(6) +
+      para(5) +
+      '<h2>B</h2>' +
+      '<h3>C</h3>' +
+      fig('') +
+      para(120) +
+      fig('', 1200, 1600) +
+      '<h2>D</h2>' +
+      para(400);
+    expect(kinds(html)).toEqual(['side', 'side', 'wide']);
+    expect(prepareArticle(html)).toContain('class="table-scroll is-beside"');
+  });
+
+  it('a thumbnail of a side column never goes wide', () => {
+    const html =
+      '<h3>A</h3><div class="side side-right">' +
+      fig('') +
+      para(5) +
+      '</div>' +
+      fig('') +
+      para(5) +
+      '<h2>B</h2>' +
+      para(400);
+    expect(kinds(html)).toEqual(['side', 'wide']);
+  });
+
+  it('a strip of a few lines does not make one wide, nor does a thumbnail alone in its section', () => {
+    expect(kinds('<h3>A</h3>' + fig('') + para(100) + fig('') + para(20) + '<h2>B</h2>')).toEqual([
+      'side',
+      'side',
+    ]);
+    expect(kinds('<h3>A</h3>' + fig('') + para(5) + '<h2>B</h2>' + para(400))).toEqual(['side']);
+  });
+
+  it('a thumbnail under the foot of the one above starts there: it does not go up into its text', () => {
+    const html = '<h3>A</h3>' + fig('', 1200, 1600) + para(10) + para(110) + fig('') + '<h2>B</h2>';
+    expect(order(html)).toEqual(['h3', 'figure', 'p', 'p', 'figure']);
+    expect(kinds(html)).toEqual(['side', 'wide']);
   });
 
   it('when two places miss the same text, the nearest one wins: it stays', () => {

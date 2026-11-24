@@ -1,5 +1,5 @@
 // Characterizes each part of a note's page: the header, the phone's index bar, the report line, the search tip,
-// «Ponte a prueba», the neighbors and the loading state, with their texts and text nodes.
+// «Ponte a prueba», the neighbors, a gallery and the loading state, with their texts and text nodes.
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -393,5 +393,26 @@ describe('reporting what is selected', () => {
       () => expect(screen.queryByText('Gracias: tu reporte le llegó al autor.')).toBeNull(),
       { timeout: 6000 },
     );
+  });
+});
+
+describe('a gallery', () => {
+  const figure = (alt: string) =>
+    `<figure class="figure"><img data-media="k" alt="${alt}" width="800" height="600"><figcaption>${alt}</figcaption></figure>`;
+
+  it('its arrows step through the figures without opening the viewer; a figure still opens it', async () => {
+    renderApp(PATH, {
+      api: withNote({
+        html: `<h2 id="a">A</h2>${figure('Primera')}${figure('Segunda')}<p>Texto.</p>`,
+      }),
+    });
+    const next = await screen.findByRole('button', { name: 'Imagen siguiente' });
+    expect(screen.getByText('1 de 2')).toBeInTheDocument();
+    await userEvent.click(next);
+    expect(screen.getByText('2 de 2')).toBeInTheDocument();
+    expect(next).toBeDisabled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Ampliar la imagen: Segunda' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 });

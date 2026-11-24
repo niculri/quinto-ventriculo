@@ -99,6 +99,15 @@ export function LicensesPage() {
           </a>
           .
         </p>
+        <p>
+          El texto de los artículos usa QV Sans, un recorte de Source Sans 3 (© Adobe, con el nombre
+          reservado «Source»), y el resto del sitio, un recorte de Inter; las dos tienen la SIL Open
+          Font License 1.1, cuyo texto completo está al final de{' '}
+          <a href="/third-party-licenses.txt" className={link}>
+            third-party-licenses.txt
+          </a>
+          .
+        </p>
         <PackageList />
       </Part>
     </LegalPage>

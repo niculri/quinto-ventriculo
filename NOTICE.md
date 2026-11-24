@@ -70,3 +70,12 @@ licencia. Se agregaron reglas: el nombre completo, tal como lo escribe la tarjet
 lado de «de» o «del» no se mezclan; lo que una coma dice de la disección («reclinada»), su origen o el número de un
 nervio craneal se puede omitir; las palabras genéricas escritas tienen que estar en el nombre; y una respuesta que
 nombra mejor otra estación de la gymkana es mala.
+
+## Source Sans 3 (QV Sans)
+
+El texto de los artículos usa un recorte de Source Sans 3 3.052R (https://github.com/adobe-fonts/source-sans), © 2023
+Adobe (así lo dice la fuente; el archivo de licencia de la versión publicada dice 2010–2022), con el nombre reservado
+«Source», bajo la SIL Open Font License 1.1. Como la licencia no deja usar ese nombre en una versión modificada, el
+recorte se llama QV Sans (`apps/web/src/fonts/qv-sans-*.woff2`). El texto completo de la licencia va al final de
+`/third-party-licenses.txt` del sitio (y en `apps/web/src/fonts/source-sans-OFL.txt` del código); cómo se hizo, en
+`apps/web/src/fonts/README.md`.

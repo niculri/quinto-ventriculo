@@ -30,7 +30,11 @@ test.describe('without a session', () => {
     );
     const text = await page.request.get('/third-party-licenses.txt');
     expect(text.ok()).toBe(true);
-    expect(await text.text()).toMatch(/^El Quinto Ventrículo: licencias/);
+    const body = await text.text();
+    expect(body).toMatch(/^El Quinto Ventrículo: licencias/);
+    // QV Sans's license, which the page names, is in the file.
+    await expect(main).toContainText('QV Sans');
+    expect(body).toMatch(/QV Sans \(recorte de Source Sans 3[^]*Reserved Font Name 'Source'/);
   });
 
   test('the landing page links to the licenses and the source code', async ({ page }) => {

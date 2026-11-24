@@ -62,15 +62,17 @@ begin
                  (count(*) filter (where r.queue_before = 'new'))::integer as new,
                  (count(*) filter (where r.queue_before in ('learn', 'day_learn')))::integer as learning,
                  coalesce(sum(r.duration_ms), 0)::bigint as ms,
-                 (count(*) filter (where r.queue_before = 'review' and coalesce(r.last_interval, 0) < 21
+                 (count(*) filter (where k.reviewed and coalesce(r.last_interval, 0) < 21
                                      and r.rating > 1))::integer as young_passed,
-                 (count(*) filter (where r.queue_before = 'review' and coalesce(r.last_interval, 0) < 21
+                 (count(*) filter (where k.reviewed and coalesce(r.last_interval, 0) < 21
                                      and r.rating = 1))::integer as young_failed,
-                 (count(*) filter (where r.queue_before = 'review' and r.last_interval >= 21
+                 (count(*) filter (where k.reviewed and r.last_interval >= 21
                                      and r.rating > 1))::integer as mature_passed,
-                 (count(*) filter (where r.queue_before = 'review' and r.last_interval >= 21
+                 (count(*) filter (where k.reviewed and r.last_interval >= 21
                                      and r.rating = 1))::integer as mature_failed
-            from public.review_log r
+            from public.review_log r,
+                 lateral (select r.queue_before = 'review' or coalesce(r.last_interval, 0) >= 1
+                                 or coalesce(r.last_interval, 0) <= -86400 as reviewed) k
            where r.user_id = me
              and r.reviewed_at >= now() - interval '367 days'
              and r.study_day > today - 365 and r.study_day <= today

@@ -128,6 +128,32 @@ describe('the statistics of the cards', () => {
   });
 });
 
+describe('the reviews of the retention', () => {
+  it('count the (re)learning steps of a day or more, as Anki’s «True retention»', async () => {
+    const { sql, memory } = await pair();
+    const at = Date.now();
+    const step =
+      (guid: string, queueBefore: 'learn' | 'day_learn', lastInterval: number, rating: 1 | 3) =>
+      (r: StudyRepository) =>
+        r.recordReview(answer(card(guid), null, at, { queueBefore, lastInterval, rating }));
+    const got = await onBoth(
+      sql,
+      memory,
+      [
+        step('d1', 'day_learn', 1, 3),
+        step('d2', 'learn', -86_400, 1),
+        step('d3', 'learn', -600, 1),
+        (r) => r.cardStats(null),
+      ],
+      inShape,
+    );
+    expect(got.memory).toEqual(got.sql);
+    expect((got.raw.sql[3] as { days: unknown[] }).days).toEqual([
+      expect.objectContaining({ answers: 3, learning: 3, youngPassed: 1, youngFailed: 1 }),
+    ]);
+  });
+});
+
 describe('the questions of tests in the heatmap', () => {
   it('each on its study day, by test, only those asked for', async () => {
     const { sql, memory, client, storage } = await pair();

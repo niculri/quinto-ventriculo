@@ -27,6 +27,8 @@ export interface LogRow extends CardRef {
   after: StoredCard;
   /** What an answer sends (null for the other changes); absent in what was kept before. */
   interval?: number | null;
+  /** As Anki's revlog `lastIvl`: days, or seconds when negative; absent in what was kept before. */
+  lastInterval?: number | null;
   durationMs?: number | null;
   /** When it was written, for the 48 hours of undo, and its study day then (as review_log.study_day). */
   loggedAt?: string;

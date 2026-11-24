@@ -7,6 +7,7 @@ import { dayRule, studyDay } from './localStore';
 import type { StoredCard } from './model';
 
 const MATURE = 21;
+const DAY_SECONDS = 86_400;
 
 type State = keyof CardStatsData['cards'] | null;
 
@@ -27,13 +28,16 @@ function countCards(cards: StoredCard[], nowMs: number): CardStatsData['cards'] 
   return out;
 }
 
+/** As my_card_stats(): Anki's «True retention» counts a review, or a (re)learning step of a day or more. */
 function addAnswer(row: CardStatsDay, l: LogRow) {
   row.answers++;
   row.ms += l.durationMs ?? 0;
   if (l.queueBefore === 'new') row.newCards++;
   if (l.queueBefore === 'learn' || l.queueBefore === 'day_learn') row.learning++;
-  if (l.queueBefore !== 'review') return;
-  const mature = (l.before?.interval ?? 0) >= MATURE;
+  const review = l.queueBefore === 'review';
+  const last = l.lastInterval ?? (review ? (l.before?.interval ?? 0) : 0);
+  if (!review && last < 1 && last > -DAY_SECONDS) return;
+  const mature = last >= MATURE;
   const passed = l.rating !== 1;
   if (mature) row[passed ? 'maturePassed' : 'matureFailed']++;
   else row[passed ? 'youngPassed' : 'youngFailed']++;

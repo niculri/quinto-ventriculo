@@ -2,7 +2,8 @@
 --
 --   * study_heatmap() gains p_quiz_ids and a third list, `tests`: the questions answered in tests on each day, read
 --     from quiz_answers (nothing new is stored, and the history of before counts). A web of before calls it with
---     p_deck_ids alone and does not read `tests`, so applying this before deploying is enough.
+--     p_deck_ids alone and does not read `tests`; a web of after, on a database without this migration, asks again
+--     without p_quiz_ids (PGRST202) and shows the days of Anki only. my_card_stats() needs this migration.
 --   * my_card_stats(p_deck_ids) reads, for the caller only, what the statistics page shows: the cards by state, the
 --     answers of each day of the last year with the reviews passed and failed (young and mature), what is due in the
 --     next 30 days, the cards forgotten most often and the totals. All of it is computed here, a small json.
@@ -91,8 +92,10 @@ $$;
 --   * `cards`: the cards not taken out of the site, by state, as Anki's «Card counts»: a suspended or buried card counts
 --     only there. Mature is an interval of 21 days or more. The new ones are the deck's cards minus these: the web
 --     knows how many cards each deck has.
---   * `days`: the last 365 days with answers, by study day. A review (queue `review` before the answer) passes with any
---     rating but «Otra vez», and is young or mature by its interval before the answer, as Anki's «True retention».
+--   * `days`: the last 365 days with answers, by study day. The reviews are counted as Anki's «True retention»: an
+--     answer of the review queue, or of a card in (re)learning that waited a day or more (last_interval of 1 day or
+--     more: positive days, or -86400 seconds or less); it passes with any rating but «Otra vez», and is mature when its
+--     last_interval is 21 or more (a negative one, seconds, is young).
 --   * `due`: from today to 30 days ahead, as study_heatmap(); `overdue`, what was due before today.
 --   * `hardest`: the 10 cards forgotten most often (at least once), not taken out of the site.
 --   * `total`: every answer and its time since the first day, and the days with answers, from study_days.
@@ -159,15 +162,17 @@ begin
                  (count(*) filter (where r.queue_before = 'new'))::integer as new,
                  (count(*) filter (where r.queue_before in ('learn', 'day_learn')))::integer as learning,
                  coalesce(sum(r.duration_ms), 0)::bigint as ms,
-                 (count(*) filter (where r.queue_before = 'review' and coalesce(r.last_interval, 0) < 21
+                 (count(*) filter (where k.reviewed and coalesce(r.last_interval, 0) < 21
                                      and r.rating > 1))::integer as young_passed,
-                 (count(*) filter (where r.queue_before = 'review' and coalesce(r.last_interval, 0) < 21
+                 (count(*) filter (where k.reviewed and coalesce(r.last_interval, 0) < 21
                                      and r.rating = 1))::integer as young_failed,
-                 (count(*) filter (where r.queue_before = 'review' and r.last_interval >= 21
+                 (count(*) filter (where k.reviewed and r.last_interval >= 21
                                      and r.rating > 1))::integer as mature_passed,
-                 (count(*) filter (where r.queue_before = 'review' and r.last_interval >= 21
+                 (count(*) filter (where k.reviewed and r.last_interval >= 21
                                      and r.rating = 1))::integer as mature_failed
-            from public.review_log r
+            from public.review_log r,
+                 lateral (select r.queue_before = 'review' or coalesce(r.last_interval, 0) >= 1
+                                 or coalesce(r.last_interval, 0) <= -86400 as reviewed) k
            where r.user_id = me
              and r.reviewed_at >= now() - interval '367 days'
              and r.study_day > today - 365 and r.study_day <= today

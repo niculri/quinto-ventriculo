@@ -156,6 +156,18 @@ describe('my_card_stats()', () => {
     expect(r.total).toEqual([7, 10000, 3]);
   });
 
+  it('counts as reviews, as Anki’s «True retention», the (re)learning steps of a day or more', async () => {
+    const fresh = await usersDatabaseWith([ANA]);
+    await answer(fresh, ANA, { guid: 'd1', queue: 'day_learn', rating: 3, last: 1 });
+    await answer(fresh, ANA, { guid: 'd2', queue: 'learn', rating: 1, last: -86400 });
+    await answer(fresh, ANA, { guid: 'd3', queue: 'learn', rating: 1, last: -600 });
+    await answer(fresh, ANA, { guid: 'd4', queue: 'day_learn', rating: 4, last: 30 });
+    await answer(fresh, ANA, { guid: 'd5', queue: 'new', rating: 3, last: 0 });
+    const r = await asUser(fresh, ANA, (tx) => stats(tx));
+    // [day, answers, new, learning, ms, young passed, young failed, mature passed, mature failed]
+    expect(r.days).toEqual([[r.today, 5, 1, 4, 5000, 1, 1, 1, 0]]);
+  });
+
   it('gives what is due in the next 30 days and what is overdue', async () => {
     const r = await asUser(db, ANA, (tx) => stats(tx, [DECK]));
     const inThree = (

@@ -150,6 +150,16 @@ describe('a semester', () => {
     expect(main().queryByRole('link', { name: /Física/ })).toBeNull();
     expect(main().getByText('Física').nextSibling).toHaveTextContent('Próximamente');
   });
+
+  it('links a course with tests only, with its assessments', async () => {
+    const c = structuredClone(CATALOG);
+    for (const a of c.semesters[1]!.courses[0]!.assessments) a.notes = [];
+    renderApp('/semesters/2', { api: fakeApi({ catalog: async () => c }) });
+    const link = await within(await screen.findByRole('main')).findByRole('link', {
+      name: /Biología celular/,
+    });
+    expect(within(link).getByText('Certamen 2')).toBeInTheDocument();
+  });
 });
 
 describe('a course', () => {

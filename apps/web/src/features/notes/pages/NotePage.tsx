@@ -25,7 +25,8 @@ export function NotePage() {
     if (note.error instanceof ApiRequestError && note.error.status === 404) return <NotFoundPage />;
     return <ErrorWithRetry error={note.error} onRetry={() => void note.refetch()} />;
   }
-  if (!note.data || !fonts) return <NoteSkeleton location={location} />;
+  // Without the catalog the path is not known yet: drawn later, it would push the article down a line or two.
+  if (!note.data || !fonts || catalog.isPending) return <NoteSkeleton location={location} />;
   if (
     location &&
     (String(location.semester.number) !== number || location.course.id !== courseId)

@@ -29,7 +29,7 @@ test('the statistics of a deck: in their places while they come, and they follow
   await expect(page).toHaveURL(new RegExp(`${STATS_URL}$`));
   await expect(page.getByRole('heading', { level: 1, name: 'Tus estadísticas' })).toBeVisible();
   await expect(page.getByText(/^Viste 0 de \d+$/)).toBeVisible();
-  await expect(page.getByText('Todavía no olvidas ninguna tarjeta de aquí.')).toBeVisible();
+  await expect(page.getByText('Todavía no has olvidado ninguna de estas tarjetas.')).toBeVisible();
   const empty = await places(page);
   expect(await noSideScroll(page)).toBeLessThanOrEqual(0);
 
@@ -38,7 +38,7 @@ test('the statistics of a deck: in their places while they come, and they follow
   await page.getByRole('button', { name: /^Bien/ }).click();
   await page.goto(STATS_URL);
   await expect(page.getByText(/^Viste 1 de \d+$/)).toBeVisible();
-  await expect(page.getByText(/Desde tu primer día aquí: 1 respuesta en/)).toBeVisible();
+  await expect(page.getByText(/^En total: 1 respuesta \(/)).toBeVisible();
   const table = page.getByRole('table', { name: /Tus respuestas, tu tiempo/ });
   await expect(table.getByRole('row').nth(1)).toContainText(/^Hoy1/);
   await expect(page.getByRole('img', { name: /Últimos 30 días: 1 respuesta\./ })).toBeVisible();
@@ -67,9 +67,7 @@ test('a question answered in a test counts in today’s «Días de estudio», ap
   await region.scrollIntoViewIfNeeded();
   await today.click();
   const day = page.getByRole('dialog');
-  await expect(day).toContainText('1 respuesta de tests');
+  await expect(day).toContainText('1 respuesta en tests');
   await expect(day.getByRole('listitem')).toHaveText(/Biología celular.*1 en tests$/);
-  await expect(
-    region.getByText('En la racha actual: 0 respuestas de Anki y 1 pregunta de tests'),
-  ).toBeVisible();
+  await expect(region.getByText('En la racha actual: 1 respuesta en tests')).toBeVisible();
 });

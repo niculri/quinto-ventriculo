@@ -219,12 +219,10 @@ describe('the questions of tests in the heatmap', () => {
     expect(quizCalls[0]).toBeNull();
     const figure = (label: string) => within(region).getByText(label).nextElementSibling;
     expect(figure('Racha actual')).toHaveTextContent('3 días');
-    expect(region).toHaveTextContent(
-      'En la racha actual: 44 respuestas de Anki y 11 preguntas de tests',
-    );
+    expect(region).toHaveTextContent('En la racha actual: 55 respuestas, 44 en Anki y 11 en tests');
     await userEvent.click(cell(/^8 de noviembre de 2026/));
     const box = await screen.findByRole('dialog', { name: /Domingo 8 de noviembre de 2026/i });
-    expect(box).toHaveTextContent('38 respuestas: 32 de Anki y 6 de tests');
+    expect(box).toHaveTextContent('38 respuestas: 32 en Anki y 6 en tests');
     expect(
       within(box)
         .getAllByRole('listitem')
@@ -233,7 +231,7 @@ describe('the questions of tests in the heatmap', () => {
     await userEvent.keyboard('{Escape}');
     await userEvent.click(cell(/^10 de noviembre de 2026/));
     const today = await screen.findByRole('dialog');
-    expect(today).toHaveTextContent('5 respuestas de tests');
+    expect(today).toHaveTextContent('5 respuestas en tests');
     expect(
       within(today)
         .getAllByRole('listitem')
@@ -266,7 +264,7 @@ describe('the questions of tests in the heatmap', () => {
     await grid();
     const region = screen.getByRole('region', { name: 'Días de estudio' });
     await waitFor(() =>
-      expect(region).toHaveTextContent('En total: 3 respuestas de Anki y 1 pregunta de tests'),
+      expect(region).toHaveTextContent('En total: 4 respuestas, 3 en Anki y 1 en tests'),
     );
   });
 
@@ -280,6 +278,9 @@ describe('the questions of tests in the heatmap', () => {
     await grid();
     expect(quizCalls[0]).toEqual(['practica-biocel']);
     await waitFor(() => expect(cell(/^8 de noviembre de 2026: 1 respuesta$/)).toBeInTheDocument());
+    expect(screen.getByRole('region', { name: 'Días de estudio' })).toHaveTextContent(
+      'En total: 1 respuesta en tests',
+    );
     await userEvent.click(cell(/^8 de noviembre de 2026/));
     const box = await screen.findByRole('dialog');
     expect(
@@ -311,7 +312,7 @@ describe('a group with cards and tests', () => {
     await waitFor(() => expect(cell(/^8 de noviembre de 2026: 1.203/)).toBeInTheDocument());
     await userEvent.click(cell(/^8 de noviembre de 2026/));
     const box = await screen.findByRole('dialog');
-    expect(box).toHaveTextContent('1.203 respuestas: 1.200 de Anki y 3 de tests');
+    expect(box).toHaveTextContent('1.203 respuestas: 1.200 en Anki y 3 en tests');
     expect(within(box).getByRole('listitem')).toHaveTextContent('🦴 Anatomía I1.200 + 3 en tests');
     expect(within(box).getAllByRole('link')).toHaveLength(2);
   });

@@ -27,8 +27,8 @@ export function Figures({
             </div>
           ))}
         </dl>
-        {/* Always one line of the same height, so the split arriving moves nothing. */}
-        <p className="mt-2 h-5 truncate text-xs text-muted tabular-nums">
+        {/* Always the same height (two lines on a phone), so the split arriving moves nothing. */}
+        <p className="mt-2 line-clamp-2 h-8 text-xs leading-4 text-muted tabular-nums sm:line-clamp-1 sm:h-4">
           {split ? s.figures.split(split) : null}
         </p>
       </div>

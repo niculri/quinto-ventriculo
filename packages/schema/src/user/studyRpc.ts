@@ -41,10 +41,27 @@ const HomeCountsRow = z.object({
   truncated: z.boolean().optional(),
 });
 
-/** Days as `YYYY-MM-DD`: [day, deck, answers, practice] and [day, cards due]. */
+/** Days as `YYYY-MM-DD`: [day, deck, answers, practice], [day, cards due] and [day, test, questions answered]. */
 const HeatmapRow = z.object({
   days: z.array(z.tuple([z.string(), z.string(), z.number(), z.number()])).optional(),
   due: z.array(z.tuple([z.string(), z.number()])).optional(),
+  tests: z.array(z.tuple([z.string(), z.string(), z.number()])).optional(),
+});
+
+/**
+ * `my_card_stats()`: cards [learning, relearning, young, mature, suspended, buried]; days [day, answers, new, learning,
+ * ms, young passed, young failed, mature passed, mature failed]; hardest [guid, ord, deck, lapses, reps]; total
+ * [answers, ms, days].
+ */
+const n = z.number();
+const CardStatsRow = z.object({
+  today: z.string(),
+  cards: z.tuple([n, n, n, n, n, n]),
+  days: z.array(z.tuple([z.string(), n, n, n, n, n, n, n, n])),
+  due: z.array(z.tuple([z.string(), n])),
+  overdue: n,
+  hardest: z.array(z.tuple([z.string(), n, z.string(), n, n])),
+  total: z.tuple([n, n, n]),
 });
 
 const ReviewPayload = CardRef.extend({
@@ -74,7 +91,17 @@ export const STUDY_RPC = {
     }),
     HomeCountsRow,
   ),
-  study_heatmap: rpcContract(z.object({ p_deck_ids: z.array(z.string()).optional() }), HeatmapRow),
+  study_heatmap: rpcContract(
+    z.object({
+      p_deck_ids: z.array(z.string()).optional(),
+      p_quiz_ids: z.array(z.string()).optional(),
+    }),
+    HeatmapRow,
+  ),
+  my_card_stats: rpcContract(
+    z.object({ p_deck_ids: z.array(z.string()).optional() }),
+    CardStatsRow,
+  ),
   record_practice: rpcContract(
     z.object({ p: z.object({ decks: z.array(PracticeCount) }) }),
     z.object({ day: z.string().nullable(), practice: z.number(), capped: z.boolean() }),

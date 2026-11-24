@@ -492,3 +492,93 @@ describe('the days of the heatmap', () => {
     ).rejects.toThrow(/permission denied/);
   });
 });
+
+describe('the questions of tests in the heatmap', () => {
+  type WithTests = Heatmap & { tests: [string, string, number][] };
+  const read = async (tx: Q, quizzes: string[] | null = null) =>
+    (
+      await tx.query<{ r: WithTests }>(
+        quizzes === null
+          ? 'select public.study_heatmap() as r'
+          : 'select public.study_heatmap(p_quiz_ids => $1) as r',
+        quizzes === null ? [] : [quizzes],
+      )
+    ).rows[0]!.r;
+  const ROUND = '00000000-0000-4000-8000-00000000b001';
+  async function answers(
+    db: PGlite,
+    who: { sub: string },
+    quiz: string,
+    at: string[],
+    round = ROUND,
+  ) {
+    await db.query(
+      `insert into public.quiz_rounds (id, user_id, quiz_id, section_id, origin, question_count, shuffled,
+         shuffle_options, started_at)
+       values ($1, $2, $3, 's1', 'cover', 50, false, false, now()) on conflict do nothing`,
+      [round, who.sub, quiz],
+    );
+    for (const [i, t] of at.entries()) {
+      await db.query(
+        `insert into public.quiz_answers (user_id, round_id, quiz_id, section_id, question_id, position, chosen,
+           correct, answered_at)
+         values ($1, $2, $3, 's1', $4, $5, 1, true, $6)`,
+        [who.sub, round, quiz, `q${i}`, i, t],
+      );
+    }
+  }
+
+  it('counts each question answered on its study day, by test, and only the caller’s', async () => {
+    const db = await newDatabase();
+    // Santiago, 4:00: 3:59 of 3-11-2026 is still the 2nd.
+    await answers(db, ANA, 'quiz-a', [
+      '2026-11-03T06:59:00Z',
+      '2026-11-03T07:01:00Z',
+      '2026-11-03T20:00:00Z',
+    ]);
+    await answers(
+      db,
+      ANA,
+      'quiz-b',
+      ['2026-11-03T12:00:00Z'],
+      '00000000-0000-4000-8000-00000000b002',
+    );
+    await answers(
+      db,
+      BETO,
+      'quiz-a',
+      ['2026-11-03T12:00:00Z'],
+      '00000000-0000-4000-8000-00000000b003',
+    );
+    const all = await asUser(db, ANA, (tx) => read(tx));
+    expect(all.tests).toEqual([
+      ['2026-11-02', 'quiz-a', 1],
+      ['2026-11-03', 'quiz-a', 2],
+      ['2026-11-03', 'quiz-b', 1],
+    ]);
+    expect(all.days).toEqual([]);
+    const one = await asUser(db, ANA, (tx) => read(tx, ['quiz-b']));
+    expect(one.tests).toEqual([['2026-11-03', 'quiz-b', 1]]);
+    const beto = await asUser(db, BETO, (tx) => read(tx));
+    expect(beto.tests).toEqual([['2026-11-03', 'quiz-a', 1]]);
+  });
+
+  it('a question whose browser clock was ahead counts today, never on a day to come', async () => {
+    const db = await newDatabase();
+    await answers(db, ANA, 'quiz-a', [new Date(Date.now() + 5 * 86_400_000).toISOString()]);
+    const r = await asUser(db, ANA, (tx) => read(tx));
+    expect(r.tests).toEqual([[await today(db, ANA), 'quiz-a', 1]]);
+  });
+
+  it('refuses too many tests', async () => {
+    const db = await newDatabase();
+    await expect(
+      asUser(db, ANA, (tx) =>
+        read(
+          tx,
+          Array.from({ length: 5001 }, (_, i) => `q${i}`),
+        ),
+      ),
+    ).rejects.toThrow(/too_large/);
+  });
+});

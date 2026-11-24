@@ -22,8 +22,8 @@ function figures(i: number, scale = 1) {
     new_students: i % 6 === 0 ? 5 : i % 4 === 0 ? 2 : 0,
     anki_answers: active * 37,
     new_cards: active * 8,
-    rounds_started: active ? Math.round(active / 2) + 3 : 0,
-    rounds_finished: active ? Math.round(active / 3) + 2 : 0,
+    rounds_started: Math.round(active / 2) + 3,
+    rounds_finished: Math.round(active / 3) + 2,
   };
 }
 

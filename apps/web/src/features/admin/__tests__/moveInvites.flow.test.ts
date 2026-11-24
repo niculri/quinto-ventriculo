@@ -130,6 +130,30 @@ describe('«Mover a otra lista»', () => {
     expect(within(bar).getByRole('button', { name: 'Deshacer' })).toBeDisabled();
   });
 
+  it('while it moves, the button says so and the boxes wait', async () => {
+    const repo = admin();
+    let finish: () => void = () => undefined;
+    renderApp('/admin/access', {
+      admin: {
+        ...repo,
+        moveInvites: async (moves) => {
+          await new Promise<void>((resolve) => {
+            finish = resolve;
+          });
+          return repo.moveInvites(moves);
+        },
+      },
+    });
+    const box = await screen.findByRole('checkbox', { name: 'Elegir a alumno4@ug.uchile.cl' });
+    await userEvent.click(box);
+    const bar = screen.getByRole('region', { name: 'Mover a otra lista' });
+    await userEvent.click(within(bar).getByRole('button', { name: 'Mover' }));
+    expect(await within(bar).findByRole('button', { name: 'Moviendo…' })).toBeDisabled();
+    expect(box).toBeDisabled();
+    finish();
+    expect(await screen.findByText('Ya estaban en «Curso».')).toBeInTheDocument();
+  });
+
   it('moving whoever was already there says so, and leaves nothing to undo', async () => {
     renderApp('/admin/access', { admin: admin() });
     await userEvent.click(

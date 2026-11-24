@@ -227,6 +227,43 @@ test('«Acceso»: invite into a new list, see what it did, and remove a person w
   expect(browserDialogs).toEqual([]);
 });
 
+test('«Acceso»: move people to a new list and undo it, without anything moving on the page', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/admin/access');
+  const bar = page.getByRole('region', { name: 'Mover a otra lista' });
+  const move = bar.getByRole('button', { name: 'Mover', exact: true });
+  await expect(move).toBeDisabled();
+  const boxes = await boxesWhile(page, ['main h4', 'main article'], async () => {
+    await page.getByRole('checkbox', { name: 'Elegir a todos en Curso de prueba' }).check();
+    await expect(bar).toContainText('2 personas elegidas');
+    await page.getByRole('checkbox', { name: 'Elegir a luis.soto@ug.uchile.cl' }).uncheck();
+    await expect(bar).toContainText('1 persona elegida');
+    await bar.getByRole('button', { name: /^Lista de destino/ }).click();
+    await page.getByRole('menuitemradio', { name: 'Lista nueva' }).click();
+    await bar.getByLabel('Nombre de la nueva lista de destino').fill('Ayudantes');
+  });
+  expect(boxes['main h4']).toHaveLength(1);
+  expect(boxes['main article']).toHaveLength(1);
+  await move.click();
+  await expect(page.getByText('1 persona pasó a «Ayudantes».')).toBeVisible();
+  const helpers = page.getByRole('article', { name: 'Lista Ayudantes' });
+  await expect(helpers).toContainText('ana.perez@ug.uchile.cl');
+  await expect(page.getByRole('article', { name: 'Lista Curso de prueba' })).toContainText(
+    '1 invitado',
+  );
+  await bar.getByRole('button', { name: 'Deshacer' }).click();
+  await expect(page.getByText('Deshecho: 1 persona volvió a su lista.')).toBeVisible();
+  await expect(helpers).toHaveCount(0);
+  await expect(page.getByRole('article', { name: 'Lista Curso de prueba' })).toContainText(
+    '2 invitados',
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});
+
 test('«Acceso»: the site owner names an administrator and removes them, with popups of their own', async ({
   page,
 }) => {

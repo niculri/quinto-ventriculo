@@ -131,7 +131,8 @@ const NERVE_NUMBER = /^nc (?:[ivx]+|v[1-3])$/;
 
 /** «Nervio óptico, NC II, porción intracraneal» → «Nervio óptico, porción intracraneal» and «NC II, porción intracraneal». */
 function withoutQualifiers(part: string): string[] {
-  const [head = '', ...tails] = part.split(',');
+  const tails = part.split(',');
+  const head = tails.shift()!;
   const kept: string[] = [];
   const names = [head];
   for (const tail of tails) {

@@ -1,5 +1,5 @@
-// The writing mode's checking: the cases El Rincón de la Gymkana gives (the same score, case by case) and the one
-// rule added here, the whole name as the card writes it.
+// The writing mode's checking: El Rincón de la Gymkana's cases, score by score, and the rules added here (the whole
+// name, its parts, the generic words written, what a comma adds and the other stations).
 import { describe, expect, it } from 'vitest';
 import {
   CORRECT_SCORE,
@@ -221,6 +221,122 @@ describe('checkAnswer', () => {
   });
 });
 
+describe('the parts of a name', () => {
+  it('keeps each part together, so the words of two structures cannot trade places', () => {
+    const name = 'Proceso temporal del hueso cigomático';
+    expect(checkAnswer('proceso temporal del hueso cigomatico', name)).toBe(1);
+    expect(checkAnswer('temporal proceso del cigomatico hueso', name)).toBe(1);
+    expect(checkAnswer('hueso cigomático, proceso temporal', name)).toBe(1);
+    expect(checkAnswer('proceso temporal del cigomático', name)).toBe(1);
+    expect(checkAnswer('proceso cigomático del hueso temporal', name)).toBe(0);
+    expect(checkAnswer('hueso temporal, proceso cigomático', name)).toBe(0);
+    expect(checkAnswer('proceso cigomatico temporal', name)).toBe(0);
+  });
+});
+
+describe('generic words', () => {
+  it('may leave out «ramo», «nervio»…, but the ones written have to be in the name', () => {
+    const name = 'Ramo marginal mandibular del nervio facial';
+    expect(checkAnswer('ramo marginal mandibular del facial', name)).toBe(1);
+    expect(checkAnswer('marginal mandibular del nervio facial', name)).toBe(1);
+    expect(checkAnswer('nervio marginal mandibular facial', name)).toBe(0);
+    expect(checkAnswer('arteria marginal mandibular', name)).toBe(0);
+    expect(checkAnswer('ramo facial', name)).toBe(0);
+  });
+});
+
+describe('what a comma adds', () => {
+  it.each([
+    ['vena yugular interna', 'Vena yugular interna, reclinada'],
+    ['yugular interna', 'Vena yugular interna, reclinada'],
+    ['recto lateral', 'Músculo recto lateral, seccionado'],
+    ['esplenio de la cabeza', 'Músculo esplenio de la cabeza, cortado y reclinado'],
+    ['canal semicircular anterior', 'Canal semicircular anterior, abierto'],
+    ['canino permanente inferior', 'Canino permanente inferior, en desarrollo'],
+    ['trapecio', 'Músculo trapecio, borde cortado'],
+    ['lengua', 'Lengua, vista desde la faringe'],
+    [
+      'ganglio cervical superior y tronco simpático',
+      'Tronco simpático y ganglio cervical superior, desplazados hacia medial',
+    ],
+    ['cornete medio', 'Cornete medio, del etmoides'],
+    ['foramen yugular', 'Foramen yugular, con los nervios glosofaríngeo, vago y accesorio'],
+    ['nervio óptico', 'Nervio óptico, NC II'],
+    ['NC II', 'Nervio óptico, NC II'],
+    ['oftalmico', 'Nervio oftálmico, NC V1, seccionado y reclinado'],
+    ['nervio suboccipital', 'Nervio suboccipital, C1'],
+    ['nervio óptico, porción intracraneal', 'Nervio óptico, NC II, porción intracraneal'],
+    ['nc ii porcion intracraneal', 'Nervio óptico, NC II, porción intracraneal'],
+  ])('accepts «%s» for «%s»', (written, name) => {
+    expect(checkAnswer(written, name)).toBe(1);
+  });
+
+  it.each([
+    ['yugular externa', 'Vena yugular interna, reclinada'],
+    ['recto medial', 'Músculo recto lateral, seccionado'],
+    ['NC III', 'Nervio óptico, NC II'],
+    ['C1', 'Nervio suboccipital, C1'],
+    ['nervio óptico', 'Nervio óptico, NC II, porción intracraneal'],
+    ['nervio óptico, porción intraorbitaria', 'Nervio óptico, NC II, porción intracraneal'],
+    ['esternocleidomastoideo', 'Músculo esternocleidomastoideo, cabeza clavicular'],
+    ['nervio supraorbitario', 'Nervio supraorbitario, ramo lateral'],
+    ['párpado superior', 'Párpado superior, tarso superior'],
+    ['vago y accesorio', 'Foramen yugular, con los nervios glosofaríngeo, vago y accesorio'],
+  ])(
+    'turns down «%s» for «%s»: what is left after the comma is part of the structure',
+    (written, name) => {
+      expect(checkAnswer(written, name)).toBe(0);
+    },
+  );
+});
+
+describe('the other stations', () => {
+  const others = [
+    'Músculo esternohioideo',
+    'Músculo esternotiroideo',
+    'Glándula tiroides',
+    'Coroides',
+    'Maxilar',
+    'Seno maxilar',
+    'Arteria maxilar',
+    'Mandíbula',
+    'Rama de la mandíbula',
+    'Arteria facial',
+    'Nervio facial',
+    'Hueso nasal',
+    'Huesos nasales',
+    'Músculo recto lateral',
+    'Músculo recto lateral, seccionado',
+  ];
+
+  it.each([
+    ['esternotiroideo', 'Músculo esternohioideo'],
+    ['músculo esternotiroideo', 'Músculo esternohioideo'],
+    ['coroides', 'Glándula tiroides'],
+    ['maxilar', 'Seno maxilar'],
+    ['maxilar', 'Arteria maxilar'],
+    ['mandíbula', 'Rama de la mandíbula'],
+  ])('«%s» names another station better than «%s»', (written, name) => {
+    expect(checkAnswer(written, name)).toBeGreaterThanOrEqual(CORRECT_SCORE);
+    expect(checkAnswer(written, name, others)).toBe(0);
+  });
+
+  it.each([
+    ['esternohiodeo', 'Músculo esternohioideo', 0.95],
+    ['tiroides', 'Glándula tiroides', 1],
+    ['seno maxilar', 'Seno maxilar', 1],
+    ['a. maxilar', 'Arteria maxilar', 1],
+    ['a maxilar', 'Arteria maxilar', 1],
+    ['rama mandibula', 'Rama de la mandíbula', 1],
+    ['facial', 'Arteria facial', 1],
+    ['facial', 'Nervio facial', 1],
+    ['huesos nasales', 'Hueso nasal', 1],
+    ['recto lateral', 'Músculo recto lateral, seccionado', 1],
+  ])('still takes «%s» for «%s», which no other station names better', (written, name, score) => {
+    expect(checkAnswer(written, name, others)).toBe(score);
+  });
+});
+
 describe('normalize', () => {
   it('spells out the abbreviations, drops accents and the little words', () => {
     expect(normalize('M. Recto  lateral')).toEqual(['musculo', 'recto', 'lateral']);
@@ -254,6 +370,21 @@ describe('alternatives', () => {
     ]);
     expect(alternatives('Blanco o gris')).toEqual([['blanco', 'o', 'gris'], ['blanco'], ['gris']]);
     expect(alternatives('()')).toEqual([]);
+  });
+
+  it('adds the name without what a comma says of the dissection, and a cranial nerve by its number', () => {
+    expect(alternatives('Glándula tiroides, reclinada')).toEqual([
+      ['glandula', 'tiroides', 'reclinada'],
+      ['glandula', 'tiroides'],
+    ]);
+    expect(alternatives('Nervio troclear, NC IV, porción intracraneal')).toEqual([
+      ['nervio', 'troclear', 'nc', 'iv', 'porcion', 'intracraneal'],
+      ['nervio', 'troclear', 'porcion', 'intracraneal'],
+      ['nc', 'iv', 'porcion', 'intracraneal'],
+    ]);
+    expect(alternatives('Bulbo ocular, esclera y retina')).toEqual([
+      ['bulbo', 'ocular', 'esclera', 'retina'],
+    ]);
   });
 });
 

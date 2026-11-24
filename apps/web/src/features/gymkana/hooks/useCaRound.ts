@@ -35,6 +35,7 @@ export function useCaRound({
   const queryClient = useQueryClient();
   const { saver, status } = useStepSaver(repository);
   const byKey = new Map(data.stations.map((s) => [s.key, s]));
+  const names = [...new Set(data.stations.map((s) => s.name))];
   const [state, setState] = useState(() => ({
     preferences: restorePreferences(saved?.preferences, data.places, data.stations),
     round: restoreRound(saved?.round, new Set(byKey.keys())),
@@ -98,7 +99,7 @@ export function useCaRound({
     // The screens that call these show a round (and a station, to answer it).
     repeatWrong: () => begin(wrongStations(round!), 'repeat_wrong', preferences),
     submit: (text: string, timedOut = false) => {
-      const score = checkAnswer(text, current!.name);
+      const score = checkAnswer(text, current!.name, names);
       const now = new Date();
       const updated = answer(round!, { text, score, correct: isCorrect(score), timedOut, now });
       commit(updated, { answer: answerInfo(updated, round!.index, current!) });

@@ -8,6 +8,6 @@ export const gymkanaPageStrings = {
   ofPriority: (n: number, p: number) => `${pluralGrouped(n, 'es', 'son')} de prioridad ${p}`,
   write: 'Escribir el nombre',
   intro:
-    'Como en la gymkana del certamen: ves la foto y escribes qué estructura es. Acepta tildes, mayúsculas, «m.», «a.», «n.» y faltas chicas, pero nunca «interna» por «externa», «medial» por «lateral» ni «arteria» por «vena». No cambia las fechas de tus tarjetas.',
+    'Como en la gymkana del certamen: ves la foto y escribes qué estructura es. Acepta tildes, mayúsculas, «m.», «a.», «n.» y faltas chicas, pero nunca «interna» por «externa», «medial» por «lateral», «arteria» por «vena» ni el nombre de otra estación. No cambia las fechas de tus tarjetas.',
   preparing: 'Preparando las estaciones…',
 } as const;

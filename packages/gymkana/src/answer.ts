@@ -3,146 +3,27 @@
 // corregir), by this project's author.
 /**
  * Checks a written name against a station's: no accents, «m.», another order, synonyms and small mistakes pass; a
- * word that names another structure never does (interna for externa, medial for lateral, arteria for vena).
+ * word that names another structure (interna for externa, arteria for vena) or another station's name never does.
  */
-
-const ABBREVIATIONS = new Map([
-  ['m', 'musculo'],
-  ['mm', 'musculos'],
-  ['a', 'arteria'],
-  ['aa', 'arterias'],
-  ['n', 'nervio'],
-  ['nn', 'nervios'],
-  ['v', 'vena'],
-  ['vv', 'venas'],
-  ['lig', 'ligamento'],
-  ['gl', 'glandula'],
-  ['art', 'articulacion'],
-  ['r', 'ramo'],
-]);
-const STOP_WORDS = new Set([
-  'de',
-  'del',
-  'la',
-  'el',
-  'los',
-  'las',
-  'y',
-  'e',
-  'en',
-  'al',
-  'a',
-  'su',
-  'sus',
-]);
-const GENERIC = new Set([
-  'musculo',
-  'musculos',
-  'arteria',
-  'arterias',
-  'nervio',
-  'nervios',
-  'vena',
-  'venas',
-  'ligamento',
-  'ligamentos',
-  'glandula',
-  'hueso',
-  'ramo',
-  'ramos',
-  'rama',
-  'tendon',
-  'fascia',
-  'conducto',
-  'seno',
-  'nucleo',
-]);
-/** Words that tell a structure from its neighbour: they must be there as they are (gender aside). */
-const KEY_WORDS = new Set([
-  'intern',
-  'extern',
-  'superior',
-  'inferior',
-  'anterior',
-  'posterior',
-  'medial',
-  'lateral',
-  'mayor',
-  'menor',
-  'superficial',
-  'profund',
-  'derech',
-  'izquierd',
-  'ascendent',
-  'descendent',
-  'transvers',
-  'oblicu',
-  'rect',
-  'proximal',
-  'distal',
-  'comun',
-  'medi',
-  'central',
-  'principal',
-  'accesori',
-  'primer',
-  'segund',
-  'tercer',
-  'cuart',
-  'median',
-  'propi',
-  'larg',
-  'cort',
-  'grand',
-  'pequen',
-  'alt',
-  'baj',
-  'vertical',
-  'horizontal',
-  'supraorbitari',
-  'infraorbitari',
-  'supratroclear',
-  'infratroclear',
-  // Embryology: pairs one letter apart (mesonefros and metanefros, ectodermo and endodermo…).
-  'pronefr',
-  'mesonefr',
-  'metanefr',
-  'paramesonefr',
-  'mesonefric',
-  'paramesonefric',
-  'ectoderm',
-  'endoderm',
-  'mesoderm',
-  'somatic',
-  'esplacnic',
-  'citotrofoblast',
-  'sinciciotrofoblast',
-  'basal',
-  'capsular',
-  'parietal',
-  'dorsal',
-  'ventral',
-  'craneal',
-  'caudal',
-  'primari',
-  'secundari',
-  'terciari',
-  'masculin',
-  'femenin',
-]);
+import { ABBREVIATIONS, GENERIC, KEY_WORDS, STOP_WORDS } from './words';
 
 /** From this score up, the answer counts as right. */
 export const CORRECT_SCORE = 0.9;
 
+/** A word of a name and the part of it it belongs to: «Proceso temporal | del hueso cigomático». */
+interface Token {
+  word: string;
+  part: number;
+}
+
+const CONNECTORS = new Set(['de', 'del']);
+
 const stem = (w: string) => w.replace(/(os|as|o|a|es|e)$/, '');
 const isKey = (w: string) => KEY_WORDS.has(w) || KEY_WORDS.has(stem(w));
+const plain = (text: string) => text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-/** The words of a name: lower case, without accents, abbreviations spelled out and without «de», «la»… */
-export function normalize(text: string): string[] {
-  const words = text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+function tokens(text: string): Token[] {
+  const words = plain(text)
     .replace(
       /\b(mm|aa|nn|vv|lig|gl|art|m|a|n|v|r)\.\s*/g,
       (_, x: string) => `${ABBREVIATIONS.get(x)!} `,
@@ -154,7 +35,18 @@ export function normalize(text: string): string[] {
   // «m recto lateral», «n facial»: an abbreviation without its dot at the start; not «a» («a nivel renal»).
   const first = ABBREVIATIONS.get(words[0] ?? '');
   if (words.length > 1 && first && words[0] !== 'a') words[0] = first;
-  return words.filter((w) => !STOP_WORDS.has(w));
+  const out: Token[] = [];
+  let part = 0;
+  for (const word of words) {
+    if (CONNECTORS.has(word)) part++;
+    else if (!STOP_WORDS.has(word)) out.push({ word, part });
+  }
+  return out;
+}
+
+/** The words of a name: lower case, without accents, abbreviations spelled out and without «de», «la»… */
+export function normalize(text: string): string[] {
+  return tokens(text).map((t) => t.word);
 }
 
 export function levenshtein(a: string, b: string): number {
@@ -185,39 +77,78 @@ function wordScore(x: string, y: string): number {
   return levenshtein(x, y) <= tolerance ? 1 : 0;
 }
 
-/** 1: the same words in any order; 0.95: with a small spelling mistake; 0: something else. */
-function compareWords(written: readonly string[], expected: readonly string[]): number {
-  if (written.length !== expected.length) return 0;
-  const free = [...expected];
-  let score = 1;
-  for (const w of written) {
-    let best = -1;
-    let found = 0;
-    for (let j = 0; j < free.length; j++) {
-      const v = wordScore(w, free[j]!);
-      if (v > found) {
-        found = v;
-        best = j;
-        if (v === 2) break;
-      }
-    }
-    if (best < 0) return 0;
-    if (found === 1) score = 0.95;
-    free.splice(best, 1);
-  }
-  return score;
+/** Each part of the name together, in any order: «hueso cigomático proceso temporal», not «proceso cigomático hueso temporal». */
+function partsTogether(parts: readonly number[]): boolean {
+  const seen = new Set<number>();
+  return parts.every((p, i) => {
+    if (i > 0 && parts[i - 1] === p) return true;
+    if (seen.has(p)) return false;
+    seen.add(p);
+    return true;
+  });
 }
 
-/**
- * The names a station accepts: each one between «/», «;» or «:», each side of an «o» («Mesodermo somítico o
- * paraxial»), and the synonyms in parentheses, but not a figure's letters («Notocorda (N)»): one word of up to four
- * letters is not an answer anyone writes.
- */
-export function alternatives(name: string): string[][] {
+/** The first free word that matches best, and how well (as `wordScore`); none: -1. */
+function bestMatch(w: string, free: readonly Token[]): { at: number; score: number } {
+  let at = -1;
+  let score = 0;
+  for (let j = 0; j < free.length; j++) {
+    const v = wordScore(w, free[j]!.word);
+    if (v > score) {
+      score = v;
+      at = j;
+      if (v === 2) break;
+    }
+  }
+  return { at, score };
+}
+
+/** 1: the same words in any order (each part of the name together); 0.95: with a small spelling mistake; 0: something else. */
+function compareWords(written: readonly string[], expected: readonly Token[]): number {
+  if (written.length !== expected.length) return 0;
+  const free = [...expected];
+  const parts: number[] = [];
+  let score = 1;
+  for (const w of written) {
+    const match = bestMatch(w, free);
+    if (match.at < 0) return 0;
+    if (match.score === 1) score = 0.95;
+    parts.push(free[match.at]!.part);
+    free.splice(match.at, 1);
+  }
+  return partsTogether(parts) ? score : 0;
+}
+
+/** After a comma, what does not change the structure: how it was dissected, a view, the spinal nerve's number. */
+const DROPPABLE = [
+  /^(?:(?:seccionad|reclinad|cortad|rebatid|abiert|desplazad)[a-z]*(?: hacia [a-z]+)?(?: y |$))+$/,
+  /^(?:en desarrollo|borde cortado|superficie de corte|vista desde .+|c[1-8])$/,
+];
+/** After a comma, its origin or what goes with it («del etmoides», «con los nervios…»), up to the end. */
+const DESCRIPTION = /^(?:con|del?) /;
+/** A cranial nerve's number after its name («Nervio óptico, NC II»): it names the nerve by itself. */
+const NERVE_NUMBER = /^nc (?:[ivx]+|v[1-3])$/;
+
+/** «Nervio óptico, NC II, porción intracraneal» → «Nervio óptico, porción intracraneal» and «NC II, porción intracraneal». */
+function withoutQualifiers(part: string): string[] {
+  const [head = '', ...tails] = part.split(',');
+  const kept: string[] = [];
+  const names = [head];
+  for (const tail of tails) {
+    const t = plain(tail).trim().replace(/\s+/g, ' ');
+    if (DESCRIPTION.test(t)) break;
+    if (NERVE_NUMBER.test(t)) names.push(tail);
+    else if (!DROPPABLE.some((r) => r.test(t))) kept.push(tail);
+  }
+  if (kept.length === tails.length) return [];
+  return names.map((n) => [n, ...kept].join(','));
+}
+
+function alternativeTokens(name: string): Token[][] {
   const out: string[] = [];
   const outside = name.replace(/\([^)]*\)/g, ' ');
   for (const part of outside.split(/\s\/\s|;|:/)) {
-    out.push(part);
+    out.push(part, ...withoutQualifiers(part));
     const either = /^(.*\s)?(\S+)\so\s(\S+)\s*$/.exec(part);
     if (either) out.push((either[1] ?? '') + either[2]!, (either[1] ?? '') + either[3]!);
     const sides = part.split(/\so\s/);
@@ -226,25 +157,57 @@ export function alternatives(name: string): string[][] {
   for (const m of name.matchAll(/\(([^)]*)\)/g)) {
     out.push(...m[1]!.split(/,|\so\s/).filter((s) => /\s/.test(s.trim()) || s.trim().length > 4));
   }
-  return out.map(normalize).filter((a) => a.length);
+  return out.map(tokens).filter((a) => a.length);
 }
 
 /**
- * How well a written answer names the station, from 0 to 1. Without «músculo», «arteria»… it still counts, but if
- * the answer says «arteria», it has to be one. The whole name as written on the card, parentheses included, counts
- * too.
+ * The names a station accepts: each one between «/», «;» or «:», each side of an «o» («Mesodermo somítico o
+ * paraxial»), without what a comma adds about the dissection («Vena yugular interna, reclinada»), and the synonyms in
+ * parentheses, but not a figure's letters («Notocorda (N)»): one word of up to four letters is not an answer anyone
+ * writes.
  */
-export function checkAnswer(written: string, name: string): number {
+export function alternatives(name: string): string[][] {
+  return alternativeTokens(name).map((a) => a.map((t) => t.word));
+}
+
+/**
+ * How well the words name a station, and whether they name it whole. «Músculo», «arteria»… may be left out, but the
+ * ones written have to be in the name: «ramo marginal mandibular del facial» is the nerve's branch, «arteria facial»
+ * is not the nerve.
+ */
+function grade(words: readonly string[], name: string): { score: number; whole: boolean } {
+  const all = [tokens(name), ...alternativeTokens(name)];
+  let best = 0;
+  for (const alt of all) best = Math.max(best, compareWords(words, alt));
+  if (best === 1) return { score: 1, whole: true };
+  const written = new Set(words.map(stem));
+  for (const alt of all) {
+    const shorter = alt.filter((t) => !GENERIC.has(t.word) || written.has(stem(t.word)));
+    best = Math.max(best, compareWords(words, shorter));
+  }
+  return { score: best, whole: false };
+}
+
+const rank = (g: { score: number; whole: boolean }) => g.score + (g.whole ? 0.01 : 0);
+
+/**
+ * How well a written answer names the station, from 0 to 1. The whole name as written on the card, parentheses
+ * included, counts too. An answer that names one of `others` (the gymkana's other stations) better is wrong: «esternotiroideo» is not
+ * a slip for «esternohioideo», nor «maxilar» for «Seno maxilar» when the maxilla is a station.
+ */
+export function checkAnswer(written: string, name: string, others: readonly string[] = []): number {
   const words = normalize(written);
   if (!words.length) return 0;
-  const generic = words.some((w) => GENERIC.has(w));
-  let best = compareWords(words, normalize(name)) === 1 ? 1 : 0;
-  for (const alt of alternatives(name)) {
-    best = Math.max(best, compareWords(words, alt));
-    const specific = alt.filter((w) => !GENERIC.has(w));
-    if (!generic && specific.length) best = Math.max(best, compareWords(words, specific));
-  }
-  return best;
+  // A leading «a» without its dot may be «arteria» («a maxilar») or not («a nivel renal»): the reading that fits best.
+  const readings = /^\s*a\s/i.test(written) ? [words, ['arteria', ...words]] : [words];
+  return Math.max(...readings.map((r) => scoreOf(r, name, others)));
+}
+
+function scoreOf(words: readonly string[], name: string, others: readonly string[]): number {
+  const mine = grade(words, name);
+  if (mine.whole || mine.score < CORRECT_SCORE) return mine.score;
+  const mark = rank(mine);
+  return others.some((o) => o !== name && rank(grade(words, o)) > mark) ? 0 : mine.score;
 }
 
 export const isCorrect = (score: number) => score >= CORRECT_SCORE;

@@ -63,6 +63,30 @@ test('each address of what is not published is the page of one made up', async (
   }
 });
 
+test('the menu of an address of a course without material is the one of a course made up', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  const menuAt = async (url: string) => {
+    await shown(page, url);
+    if (isMobile) await page.getByRole('button', { name: 'Abrir el menú' }).click();
+    const menu = page.getByRole('navigation', { name: 'Menú del sitio' }).last();
+    await expect(menu.getByRole('link', { name: '2° Semestre' })).toBeVisible();
+    const text = await menu.innerText();
+    if (isMobile) await page.keyboard.press('Escape');
+    return text;
+  };
+  const madeUp = await menuAt(MADE_UP);
+  expect(madeUp).toContain('Biología celular');
+  for (const url of [PHYSICS, `${PHYSICS}/anki`, `${PHYSICS}/notes/10-nucleo-celular-de-fisica`]) {
+    expect(await menuAt(url), url).toBe(madeUp);
+  }
+  // Its old address stays where it is, as one made up.
+  await shown(page, '/courses/fisica');
+  await expect(page).toHaveURL(/\/courses\/fisica$/);
+});
+
 test('the API answers 404 for what is not published, as for something made up', async ({
   page,
 }) => {

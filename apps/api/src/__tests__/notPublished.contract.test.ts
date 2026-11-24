@@ -190,10 +190,15 @@ async function notThere(path: string, never: string) {
   const student = await call(app, path);
   const madeUp = await call(app, never);
   expect(student.status, path).toBe(404);
-  expect(await student.json()).toEqual(await madeUp.json());
-  expect((await call(app, path, ADMIN)).status, `${path} (administrator)`).toBe(404);
+  const madeUpBody: unknown = await madeUp.json();
+  expect(await student.json()).toEqual(madeUpBody);
+  const admin = await call(app, path, ADMIN);
+  expect(admin.status, `${path} (administrator)`).toBe(404);
+  expect(await admin.json()).toEqual(madeUpBody);
   const header = { headers: ADMIN_MODE };
-  expect((await call(app, path, STUDENT, header)).status, `${path} (student, header)`).toBe(404);
+  const withHeader = await call(app, path, STUDENT, header);
+  expect(withHeader.status, `${path} (student, header)`).toBe(404);
+  expect(await withHeader.json()).toEqual(madeUpBody);
   expect((await call(app, path, ADMIN, header)).status, `${path} (admin mode)`).toBe(200);
 }
 

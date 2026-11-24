@@ -265,6 +265,24 @@ it('an undo of another card of the same note is refused: the one that came befor
   expect(await local.cards(['20', '21'])).toEqual([expect.objectContaining({ flag: 2 })]);
 });
 
+it('an undo the database takes for a command this queue did not write leaves the marks as they are', async () => {
+  const local = localStudyRepository(null);
+  const card = { noteGuid: DECK.cards[0]!.noteGuid, ord: 0, deckId: '20' };
+  await local.setFlag(card, 2);
+  const queue = new SaveQueue(
+    local,
+    new Map(),
+    [0, 0],
+    () => {},
+    () => {},
+    () => {},
+  );
+  queue.handle({ kind: 'undo', id: '1.2', undoes: '1.1', action: 'flag', card });
+  await queue.saved();
+  expect(queue.failure).toBeNull();
+  expect(await local.cards(['20', '21'])).toEqual([]);
+});
+
 it('a failed undo for another reason stops the session', async () => {
   const failures: SaveFailure[] = [];
   const queue = new SaveQueue(

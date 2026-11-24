@@ -1,6 +1,7 @@
 // The study adapter's counts: progress per deck, the decks studied, the time per card, the days of study, what is due
 // on the home page and the statistics of the student's cards.
 import type { Database } from '@qv/db-types/users';
+import { databaseError } from '@qv/schema/database';
 import { STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../../shared/lib/json';
 import { dayNumber } from '@qv/study';
@@ -94,10 +95,15 @@ export function progressReads({ client, fail, all }: StudyContext): ProgressRead
       return data ?? null;
     },
     async heatmap(deckIds, quizIds = null) {
-      const { data, error } = await client.rpc('study_heatmap', {
-        ...(deckIds === null ? {} : { p_deck_ids: deckIds }),
+      const decks = deckIds === null ? {} : { p_deck_ids: deckIds };
+      let { data, error } = await client.rpc('study_heatmap', {
+        ...decks,
         ...(quizIds === null ? {} : { p_quiz_ids: quizIds }),
       });
+      // A users' database from before the tests in the heatmap: the days of Anki alone.
+      if (error && quizIds !== null && databaseError(error).hasCode('PGRST202')) {
+        ({ data, error } = await client.rpc('study_heatmap', decks));
+      }
       if (error) fail('leer tus días de estudio', error);
       const raw = fromDatabase('study_heatmap', STUDY_RPC.study_heatmap.returns, data ?? {});
       return {
@@ -120,6 +126,11 @@ export function progressReads({ client, fail, all }: StudyContext): ProgressRead
         'my_card_stats',
         deckIds === null ? {} : { p_deck_ids: deckIds },
       );
+      if (error && databaseError(error).hasCode('PGRST202')) {
+        throw new Error(
+          'Tus estadísticas todavía no están disponibles. Vuelve a intentarlo más tarde.',
+        );
+      }
       if (error) fail('leer tus estadísticas', error);
       return cardStatsFromJson(data);
     },

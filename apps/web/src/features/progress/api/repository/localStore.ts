@@ -113,7 +113,18 @@ export function createLocalStore(
     lastStamp = Math.max(Date.now(), lastStamp + 1);
     return new Date(lastStamp).toISOString();
   };
-  return { read, write, stamp };
+  // The demo's tests keep their answers in their own key (the quiz feature's browser copy), read here for the heatmap.
+  const quizAnswers = (): { quizId: string; answeredAt: string }[] => {
+    try {
+      const raw = JSON.parse(storage?.getItem(storageKeys.demo.quiz) ?? 'null') as {
+        answers?: { quizId: string; answeredAt: string }[];
+      } | null;
+      return raw?.answers ?? [];
+    } catch {
+      return [];
+    }
+  };
+  return { read, write, stamp, quizAnswers };
 }
 
 export type LocalStore = ReturnType<typeof createLocalStore>;

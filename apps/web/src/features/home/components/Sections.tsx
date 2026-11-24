@@ -49,6 +49,7 @@ export function Sections({
         <Heatmap
           scope="all"
           deckIds={null}
+          quizIds={null}
           catalog={catalog}
           groupBy="course"
           className="mt-6 sm:mt-8"

@@ -131,12 +131,19 @@ describe('with the real history', () => {
     const alone = await invented.heatmap(null);
     const { repository, heatmap } = demo();
     const merged = await repository.heatmap(['a', 'b']);
-    expect(heatmap).toHaveBeenCalledWith(['a', 'b']);
+    expect(heatmap).toHaveBeenCalledWith(['a', 'b'], null);
     expect(merged.days).toEqual([...alone.days, ...REAL.days].sort((x, y) => x.day - y.day));
     expect(merged.days[0]).toEqual(REAL.days[1]);
     const dueOn = (h: HeatmapData, day: number) => h.due.find((d) => d.day === day)?.cards;
     expect(dueOn(merged, TODAY + 1)).toBe(dueOn(alone, TODAY + 1)! + 5);
     expect(dueOn(merged, TODAY + 2)).toBe(dueOn(alone, TODAY + 2));
+  });
+
+  it('passes the real questions of tests through, with the tests asked for', async () => {
+    const tests = [{ day: TODAY, quizId: 'q1', answers: 3 }];
+    const { repository, heatmap } = demo({ real: { ...REAL, tests } });
+    expect((await repository.heatmap(null, ['q1'])).tests).toEqual(tests);
+    expect(heatmap).toHaveBeenCalledWith(null, ['q1']);
   });
 
   it('shows only the real history when the catalog fails, and tries the catalog again the next time', async () => {

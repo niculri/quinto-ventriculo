@@ -30,8 +30,12 @@ export function medianOf(log: LogRow[]): number | null {
 }
 
 /** The checks of home_counts() and study_heatmap() on what they are asked. */
-export function checkDecks(deckIds: string[] | null, decay: Record<string, number> = {}) {
-  if ((deckIds?.length ?? 0) > MAX_DECKS) return 'too_large';
+export function checkDecks(
+  deckIds: string[] | null,
+  decay: Record<string, number> = {},
+  quizIds: string[] | null = null,
+) {
+  if ((deckIds?.length ?? 0) > MAX_DECKS || (quizIds?.length ?? 0) > MAX_DECKS) return 'too_large';
   const bad = Object.values(decay).some((v) => typeof v !== 'number' || !(v >= 0.01 && v <= 2));
   return bad ? 'invalid_decay' : null;
 }
@@ -111,11 +115,38 @@ function dueDays(d: LocalData, only: Set<string> | null, today: number): Heatmap
   return [...due].sort((a, b) => a[0] - b[0]).map(([day, cards]) => ({ day, cards }));
 }
 
-export function heatmapOf(d: LocalData, deckIds: string[] | null): HeatmapData {
+/** As study_heatmap()'s `tests`: each question on its study day, never after now. */
+function testDays(
+  d: LocalData,
+  answers: { quizId: string; answeredAt: string }[],
+  only: Set<string> | null,
+): NonNullable<HeatmapData['tests']> {
+  const by = new Map<string, { day: number; quizId: string; answers: number }>();
+  for (const a of answers) {
+    if (only && !only.has(a.quizId)) continue;
+    const day = studyDay(d, Math.min(Date.parse(a.answeredAt), Date.now()));
+    const key = `${day}:${a.quizId}`;
+    const row = by.get(key) ?? { day, quizId: a.quizId, answers: 0 };
+    row.answers++;
+    by.set(key, row);
+  }
+  return [...by.values()].sort((a, b) => a.day - b.day || a.quizId.localeCompare(b.quizId));
+}
+
+export function heatmapOf(
+  d: LocalData,
+  deckIds: string[] | null,
+  quizIds: string[] | null,
+  quizAnswers: { quizId: string; answeredAt: string }[],
+): HeatmapData {
   const prefs = dayRule(d);
   const only = deckIds === null ? null : new Set(deckIds);
   const today = dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt);
-  return { days: studiedDays(d, only), due: dueDays(d, only, today) };
+  return {
+    days: studiedDays(d, only),
+    due: dueDays(d, only, today),
+    tests: testDays(d, quizAnswers, quizIds === null ? null : new Set(quizIds)),
+  };
 }
 
 type DeckCounts = HomeDeckCounts & { notes: Set<string> };

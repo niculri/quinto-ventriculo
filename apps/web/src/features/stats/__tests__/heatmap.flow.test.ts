@@ -10,6 +10,8 @@ import { studyKeys } from '../../progress/queries';
 import { dayNumber } from '@qv/study';
 import type { HeatmapData } from '@qv/study';
 import { heatmapKeys } from '../api/queries';
+import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
 
 const D = dayNumber;
 // A Tuesday of November, at noon wherever the test runs: its study day is 10-11-2026 in any time zone.
@@ -33,11 +35,13 @@ const DATA: HeatmapData = {
 function withHeatmap(heatmap: StudyRepository['heatmap']) {
   const study = fullAnkiStudy();
   const calls: (string[] | null)[] = [];
-  study.heatmap = (ids) => {
+  const quizCalls: (string[] | null | undefined)[] = [];
+  study.heatmap = (ids, quizIds) => {
     calls.push(ids);
-    return heatmap(ids);
+    quizCalls.push(quizIds);
+    return heatmap(ids, quizIds);
   };
-  return { study, calls };
+  return { study, calls, quizCalls };
 }
 
 const grid = () => screen.findByRole('grid', { name: /^Días de estudio de/ });
@@ -189,6 +193,113 @@ describe('the heatmap on a course’s page', () => {
         .getAllByRole('listitem')
         .map((li) => li.textContent),
     ).toEqual(['Certamen 125']);
+  });
+});
+
+describe('the questions of tests in the heatmap', () => {
+  const WITH_TESTS: HeatmapData = {
+    ...DATA,
+    tests: [
+      { day: D('2026-11-08'), quizId: 'practica-biocel', answers: 6 },
+      { day: D('2026-11-10'), quizId: 'practica-biocel', answers: 4 },
+      { day: D('2026-11-10'), quizId: 'otro-test', answers: 1 },
+    ],
+  };
+
+  it('count in the day, in the streak and in its split, and the box says how much was each', async () => {
+    const { study, quizCalls } = withHeatmap(async () => WITH_TESTS);
+    renderApp('/home', { study });
+    await grid();
+    const region = screen.getByRole('region', { name: 'Días de estudio' });
+    await waitFor(() =>
+      expect(cell(/^8 de noviembre de 2026/)).toHaveAccessibleName(
+        '8 de noviembre de 2026: 38 respuestas',
+      ),
+    );
+    expect(quizCalls[0]).toBeNull();
+    const figure = (label: string) => within(region).getByText(label).nextElementSibling;
+    expect(figure('Racha actual')).toHaveTextContent('3 días');
+    expect(region).toHaveTextContent(
+      'En la racha actual: 44 respuestas de Anki y 11 preguntas de tests',
+    );
+    await userEvent.click(cell(/^8 de noviembre de 2026/));
+    const box = await screen.findByRole('dialog', { name: /Domingo 8 de noviembre de 2026/i });
+    expect(box).toHaveTextContent('38 respuestas: 32 de Anki y 6 de tests');
+    expect(
+      within(box)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual(['🦴 Anatomía I25', 'Otros mazos7', '🧬 Biología celular6 en tests']);
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(cell(/^10 de noviembre de 2026/));
+    const today = await screen.findByRole('dialog');
+    expect(today).toHaveTextContent('5 respuestas de tests');
+    expect(
+      within(today)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual(['🧬 Biología celular4 en tests', 'Otros tests1 en tests']);
+    expect(within(today).queryByRole('link')).toBeNull();
+  });
+
+  it('without a streak, the split is of every day', async () => {
+    const { study } = withHeatmap(async () => ({
+      days: [{ day: D('2026-11-01'), deckId: '20', answers: 3, practice: 0 }],
+      due: [],
+      tests: [{ day: D('2026-11-01'), quizId: 'practica-biocel', answers: 1 }],
+    }));
+    renderApp('/home', { study });
+    await grid();
+    const region = screen.getByRole('region', { name: 'Días de estudio' });
+    await waitFor(() =>
+      expect(region).toHaveTextContent('En total: 3 respuestas de Anki y 1 pregunta de tests'),
+    );
+  });
+
+  it('a course’s page with tests and no decks shows it, and asks for its own tests', async () => {
+    const { study, quizCalls } = withHeatmap(async () => ({
+      days: [],
+      due: [],
+      tests: [{ day: D('2026-11-08'), quizId: 'practica-biocel', answers: 1 }],
+    }));
+    renderApp('/semesters/2/courses/biologia-celular', { study });
+    await grid();
+    expect(quizCalls[0]).toEqual(['practica-biocel']);
+    await waitFor(() => expect(cell(/^8 de noviembre de 2026: 1 respuesta$/)).toBeInTheDocument());
+    await userEvent.click(cell(/^8 de noviembre de 2026/));
+    const box = await screen.findByRole('dialog');
+    expect(
+      within(box)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual(['Certamen 21 en tests']);
+  });
+});
+
+describe('a group with cards and tests', () => {
+  it('says both counts, and still takes to the cards', async () => {
+    const anatomy = CATALOG.semesters[0]!.courses[0]!;
+    const quiz = {
+      ...CATALOG.semesters[1]!.courses[0]!.assessments[0]!.quizzes[0]!,
+      id: 'anato-test',
+    };
+    const catalog = structuredClone(CATALOG);
+    catalog.semesters[0]!.courses[0]!.assessments[0]!.quizzes = [
+      { ...quiz, courseId: anatomy.id, assessmentId: anatomy.assessments[0]!.id },
+    ];
+    const { study } = withHeatmap(async () => ({
+      days: [{ day: D('2026-11-08'), deckId: '20', answers: 1200, practice: 0 }],
+      due: [],
+      tests: [{ day: D('2026-11-08'), quizId: 'anato-test', answers: 3 }],
+    }));
+    renderApp('/home', { study, api: fakeApi({ catalog: async () => catalog }) });
+    await grid();
+    await waitFor(() => expect(cell(/^8 de noviembre de 2026: 1.203/)).toBeInTheDocument());
+    await userEvent.click(cell(/^8 de noviembre de 2026/));
+    const box = await screen.findByRole('dialog');
+    expect(box).toHaveTextContent('1.203 respuestas: 1.200 de Anki y 3 de tests');
+    expect(within(box).getByRole('listitem')).toHaveTextContent('🦴 Anatomía I1.200 + 3 en tests');
+    expect(within(box).getAllByRole('link')).toHaveLength(2);
   });
 });
 

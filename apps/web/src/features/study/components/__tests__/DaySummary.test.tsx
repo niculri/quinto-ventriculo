@@ -58,8 +58,12 @@ describe('the summary, without React', () => {
     };
     const s = daySummary(answers, SCOPE, heat, 100);
     expect(s).toEqual({ answers: 5, correct: 3, failedCards: 1, streak: 3, courseStreak: null });
-    expect(daySummary(answers, SCOPE, heat, 100, new Set(['20', '21'])).courseStreak).toBe(1);
-    expect(daySummary(answers, SCOPE, heat, 100, new Set(['20', '99'])).courseStreak).toBe(3);
+    expect(
+      daySummary(answers, SCOPE, heat, 100, { decks: new Set(['20', '21']) }).courseStreak,
+    ).toBe(1);
+    expect(
+      daySummary(answers, SCOPE, heat, 100, { decks: new Set(['20', '99']) }).courseStreak,
+    ).toBe(3);
     expect(correctPercent(s)).toBe(60);
     expect(s.streak).toBe(heatmapStats(countsByDay(heat.days, 100), 100).currentStreak);
     expect(correctPercent({ answers: 0, correct: 0 })).toBeNull();

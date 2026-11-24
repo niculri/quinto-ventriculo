@@ -67,10 +67,11 @@ function CourseView({
       </h1>
       {material ? <p className="mt-2 text-muted">{material}</p> : null}
 
-      {decks.decks ? (
+      {decks.decks || quizzes > 0 ? (
         <Heatmap
           scope={`course:${course.id}`}
           deckIds={catalog.anki.decks.filter((d) => d.courseId === course.id).map((d) => d.id)}
+          quizIds={course.assessments.flatMap((a) => a.quizzes.map((q) => q.id))}
           catalog={catalog}
           groupBy="assessment"
           courseId={course.id}

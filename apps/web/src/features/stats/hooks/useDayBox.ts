@@ -4,6 +4,7 @@
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import type { CellValue, HeatmapData } from '@qv/study';
 import { dayParts } from '../model/dayParts';
+import type { HeatmapGroups } from '../model/groups';
 import { boxTop } from '../model/layout';
 import type { OpenDay } from './useHeatmapGrid';
 
@@ -11,14 +12,14 @@ export function useDayBox({
   open,
   cell,
   data,
-  groupOf,
+  groups,
   onClose,
   onOutside,
 }: {
   open: OpenDay;
   cell: CellValue;
   data: HeatmapData;
-  groupOf: (deckId: string) => string;
+  groups: Pick<HeatmapGroups, 'groupOf' | 'groupOfQuiz'>;
   onClose: () => void;
   onOutside: () => void;
 }) {
@@ -56,6 +57,6 @@ export function useDayBox({
     };
   }, [open.pinned, onClose, onOutside]);
 
-  const parts = dayParts(cell, data.days, groupOf, open.day);
+  const parts = dayParts(cell, data, groups, open.day);
   return { boxRef, titleId, bodyId, parts };
 }

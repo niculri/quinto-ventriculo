@@ -29,6 +29,7 @@ const REFUSED: [string, (s: StudyRepository) => Promise<unknown>][] = [
   ['leer tu avance', (s) => s.deckProgress(UNTIL)],
   ['leer tu tiempo por tarjeta', (s) => s.medianAnswerMs()],
   ['leer tus días de estudio', (s) => s.heatmap(null)],
+  ['leer tus estadísticas', (s) => s.cardStats(['d1'])],
   ['leer tu avance', (s) => s.homeCounts(['d1'], UNTIL, {})],
 ];
 
@@ -46,10 +47,19 @@ describe('the counts', () => {
 
   it('the days of all decks ask for none; of some, for those', async () => {
     const { study, calls } = repo(() => ({ body: {} }));
-    expect(await study.heatmap(null)).toEqual({ days: [], due: [] });
+    expect(await study.heatmap(null)).toEqual({ days: [], due: [], tests: [] });
     await study.heatmap(['d1', 'd2']);
-    expect(calls.map((c) => c.body)).toEqual([{}, { p_deck_ids: ['d1', 'd2'] }]);
-    expect(await repo(() => ({ body: null })).study.heatmap(null)).toEqual({ days: [], due: [] });
+    await study.heatmap(null, ['q1']);
+    expect(calls.map((c) => c.body)).toEqual([
+      {},
+      { p_deck_ids: ['d1', 'd2'] },
+      { p_quiz_ids: ['q1'] },
+    ]);
+    expect(await repo(() => ({ body: null })).study.heatmap(null)).toEqual({
+      days: [],
+      due: [],
+      tests: [],
+    });
   });
 
   it('the home page’s counts: nothing to ask for no decks; a missing list reads as empty', async () => {

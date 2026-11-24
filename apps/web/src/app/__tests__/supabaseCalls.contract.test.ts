@@ -123,7 +123,24 @@ describe('users database: the calls of each adapter', () => {
         return { body: [CARD_ROW] };
       }
       if (fn === 'median_answer_ms') return { body: 1234 };
-      if (fn === 'study_heatmap') return { body: { days: [['2026-11-09', 'd1', 3, 1]], due: [] } };
+      if (fn === 'study_heatmap') {
+        return {
+          body: { days: [['2026-11-09', 'd1', 3, 1]], due: [], tests: [['2026-11-09', 'q1', 2]] },
+        };
+      }
+      if (fn === 'my_card_stats') {
+        return {
+          body: {
+            today: '2026-11-10',
+            cards: [1, 0, 2, 3, 0, 0],
+            days: [['2026-11-09', 4, 1, 1, 9000, 1, 0, 1, 0]],
+            due: [['2026-11-12', 2]],
+            overdue: 1,
+            hardest: [['g1', 0, 'd1', 3, 7]],
+            total: [4, 9000, 1],
+          },
+        };
+      }
       if (fn === 'home_counts') {
         return { body: { decks: [['d1', 1, 0, 1, 0, 0.9, [['g1', 0, 'review', 'x']]]] } };
       }
@@ -228,6 +245,9 @@ describe('users database: the calls of each adapter', () => {
       ['undo', () => repo.undo()],
       ['heatmap of all', () => repo.heatmap(null)],
       ['heatmap', () => repo.heatmap(['d1'])],
+      ['heatmap with its tests', () => repo.heatmap(['d1'], ['q1'])],
+      ['cardStats of all', () => repo.cardStats(null)],
+      ['cardStats', () => repo.cardStats(['d1'])],
       [
         'recordPractice',
         () =>

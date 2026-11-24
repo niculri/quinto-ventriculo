@@ -1403,6 +1403,13 @@ exports[`users database: the calls of each adapter > study 1`] = `
         },
       ],
       "due": [],
+      "tests": [
+        {
+          "answers": 2,
+          "day": 20766,
+          "quizId": "q1",
+        },
+      ],
     },
     "step": "heatmap of all",
   },
@@ -1434,8 +1441,182 @@ exports[`users database: the calls of each adapter > study 1`] = `
         },
       ],
       "due": [],
+      "tests": [
+        {
+          "answers": 2,
+          "day": 20766,
+          "quizId": "q1",
+        },
+      ],
     },
     "step": "heatmap",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p_deck_ids": [
+            "d1",
+          ],
+          "p_quiz_ids": [
+            "q1",
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/study_heatmap",
+      },
+    ],
+    "result": {
+      "days": [
+        {
+          "answers": 3,
+          "day": 20766,
+          "deckId": "d1",
+          "practice": 1,
+        },
+      ],
+      "due": [],
+      "tests": [
+        {
+          "answers": 2,
+          "day": 20766,
+          "quizId": "q1",
+        },
+      ],
+    },
+    "step": "heatmap with its tests",
+  },
+  {
+    "calls": [
+      {
+        "body": {},
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/my_card_stats",
+      },
+    ],
+    "result": {
+      "cards": {
+        "buried": 0,
+        "learning": 1,
+        "mature": 3,
+        "relearning": 0,
+        "suspended": 0,
+        "young": 2,
+      },
+      "days": [
+        {
+          "answers": 4,
+          "day": 20766,
+          "learning": 1,
+          "matureFailed": 0,
+          "maturePassed": 1,
+          "ms": 9000,
+          "newCards": 1,
+          "youngFailed": 0,
+          "youngPassed": 1,
+        },
+      ],
+      "due": [
+        {
+          "cards": 2,
+          "day": 20769,
+        },
+      ],
+      "hardest": [
+        {
+          "deckId": "d1",
+          "lapses": 3,
+          "noteGuid": "g1",
+          "ord": 0,
+          "reps": 7,
+        },
+      ],
+      "overdue": 1,
+      "today": 20767,
+      "total": {
+        "answers": 4,
+        "days": 1,
+        "ms": 9000,
+      },
+    },
+    "step": "cardStats of all",
+  },
+  {
+    "calls": [
+      {
+        "body": {
+          "p_deck_ids": [
+            "d1",
+          ],
+        },
+        "headers": {
+          "apikey": "publishable-test-key",
+          "authorization": "Bearer publishable-test-key",
+          "content-profile": "public",
+          "content-type": "application/json",
+        },
+        "method": "POST",
+        "path": "/rest/v1/rpc/my_card_stats",
+      },
+    ],
+    "result": {
+      "cards": {
+        "buried": 0,
+        "learning": 1,
+        "mature": 3,
+        "relearning": 0,
+        "suspended": 0,
+        "young": 2,
+      },
+      "days": [
+        {
+          "answers": 4,
+          "day": 20766,
+          "learning": 1,
+          "matureFailed": 0,
+          "maturePassed": 1,
+          "ms": 9000,
+          "newCards": 1,
+          "youngFailed": 0,
+          "youngPassed": 1,
+        },
+      ],
+      "due": [
+        {
+          "cards": 2,
+          "day": 20769,
+        },
+      ],
+      "hardest": [
+        {
+          "deckId": "d1",
+          "lapses": 3,
+          "noteGuid": "g1",
+          "ord": 0,
+          "reps": 7,
+        },
+      ],
+      "overdue": 1,
+      "today": 20767,
+      "total": {
+        "answers": 4,
+        "days": 1,
+        "ms": 9000,
+      },
+    },
+    "step": "cardStats",
   },
   {
     "calls": [

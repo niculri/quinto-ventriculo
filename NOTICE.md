@@ -61,3 +61,9 @@ Los cálculos de «Días de estudio» (los tonos de cada día, el promedio diari
 hay por repasar cada día; en `packages/study/src/heatmap.ts` y en `study_heatmap()` de la base de usuarios)
 siguen las reglas del complemento «Review Heatmap» de Anki (https://github.com/glutanimate/review-heatmap,
 © glutanimate, AGPL-3.0), sin copiar su código.
+
+## El Rincón de la Gymkana
+
+La corrección del modo de escribir el nombre de la gymkana (`packages/gymkana/src/answer.ts`) está portada de El
+Rincón de la Gymkana (su `app.js`), del mismo autor que este proyecto, y se publica aquí con esta licencia. Se agregó
+una regla: el nombre completo, tal como lo escribe la tarjeta (con sus paréntesis o separadores), también vale.

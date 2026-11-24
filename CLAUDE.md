@@ -35,7 +35,7 @@ contenido) está en un repositorio privado aparte; si existe `CLAUDE.local.md` (
   lo que debe cambiar la respuesta cuando falta una parte (el 404 del panel, `/health/deep`, no contar una apertura)
   lo decide `deps.configured`, no la identidad del objeto. Una ruta usa un puerto, nunca un adaptador; un adaptador
   no importa una ruta (ESLint lo impone en los `import`, no en un `import()`).
-- **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `anki-search`, `anki-render`,
+- **Paquetes:** ninguno importa de `apps/*`; los paquetes hoja (`srs`, `quiz`, `gymkana`, `anki-search`, `anki-render`,
   `anki-format`) no importan otro `@qv/*`.
 - **Frontera de datos:** `@supabase/*` (también con `import()`) y un `fetch` a `/rest/v1` solo en los adaptadores: los
   `api/repository/supabase*.ts` de las features (no los `types`, `port`, `memory` ni `index` de esa carpeta),

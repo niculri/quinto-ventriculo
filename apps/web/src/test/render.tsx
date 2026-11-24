@@ -34,6 +34,8 @@ export function renderApp(
     account?: AccountRepository;
     adminApi?: ApiClient;
     google?: GoogleIdentityLoader;
+    /** Instead of one that never retries. */
+    queryClient?: QueryClient;
   } = {},
 ) {
   const session = fakeSession(op.session === undefined ? SESSION_ANA : op.session);
@@ -53,6 +55,7 @@ export function renderApp(
     <Providers
       services={services}
       queryClient={
+        op.queryClient ??
         new QueryClient({
           defaultOptions: { queries: { retry: false }, mutations: WRITE_DEFAULTS },
         })

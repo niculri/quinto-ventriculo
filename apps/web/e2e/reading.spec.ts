@@ -252,3 +252,40 @@ test('a test: its questions are first drawn with Inter, the italic too', async (
     ),
   ).toEqual([true, true, true]);
 });
+
+test('no figure is taller than the window under the site’s bars, caption included, and each keeps its shape', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: page.viewportSize()!.width, height: 720 });
+  await signIn(page);
+  await page.goto('/dev/reading');
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'La bomba de sodio y potasio' }),
+  ).toBeVisible();
+  const figures = await page.evaluate(() => {
+    // The site's bar, and below lg the index's bar that sticks under it.
+    const header = document.querySelector('header')!.getBoundingClientRect().height;
+    const index = [...document.querySelectorAll('button')].find((b) =>
+      b.textContent.startsWith('Índice'),
+    );
+    const bar = index?.closest('.sticky');
+    const height = bar?.getBoundingClientRect().height ?? 0;
+    const bars = bar && height ? parseFloat(getComputedStyle(bar).top) + height : header;
+    return [...document.querySelectorAll<HTMLElement>('.note-body figure')].map((f) => {
+      const img = f.querySelector('img')!;
+      const shape = Number(img.getAttribute('width')) / Number(img.getAttribute('height'));
+      const box = img.getBoundingClientRect();
+      return {
+        room: window.innerHeight - bars,
+        tall: f.getBoundingClientRect().height,
+        drawn: box.width / box.height,
+        shape,
+      };
+    });
+  });
+  expect(figures.some((f) => f.shape < 0.6)).toBe(true);
+  for (const f of figures) {
+    expect(f.tall).toBeLessThanOrEqual(f.room);
+    expect(Math.abs(f.drawn - f.shape) / f.shape).toBeLessThan(0.02);
+  }
+});

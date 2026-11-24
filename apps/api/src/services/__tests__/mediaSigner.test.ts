@@ -1,6 +1,6 @@
 // Tests for the signature of the private images: what a signature opens, until when, and what it never opens.
 import { describe, expect, it } from 'vitest';
-import { MediaSigner, isValidKey, signingDay } from '../mediaSigner';
+import { MediaSigner, isValidKey } from '../mediaSigner';
 
 const SECRET = 'secreto-de-prueba-0123456789-0123456789';
 const NOW = 1_800_000_000;
@@ -36,25 +36,13 @@ describe('the secret and the keys', () => {
 });
 
 describe('the signature of an image', () => {
-  it('the link lasts until the end of the next UTC day, so that it repeats for a whole day', async () => {
-    const DAY = 86_400;
+  it('the link lasts until the second hour after the current one, so that it repeats for an hour', async () => {
     const a = parts(await signer().url(KEY, NOW));
-    const b = parts(await signer().url(KEY, NOW + DAY - 1 - (NOW % DAY)));
-    expect(a.e).toBe((Math.floor(NOW / DAY) + 2) * DAY);
-    expect(a.e).toBeGreaterThan(NOW + DAY);
-    expect(a.e).toBeLessThanOrEqual(NOW + 2 * DAY);
+    const b = parts(await signer().url(KEY, NOW + 3599 - (NOW % 3600)));
+    expect(a.e).toBe((Math.floor(NOW / 3600) + 2) * 3600);
+    expect(a.e).toBeGreaterThan(NOW + 3600);
     expect(b).toEqual(a);
-    expect(parts(await signer().url(KEY, NOW + DAY)).e).toBe(a.e + DAY);
-    // Signed at the very start of a day, it lasts the whole 48 hours; at its last second, just over 24.
-    const start = Math.floor(NOW / DAY) * DAY;
-    expect(parts(await signer().url(KEY, start)).e - start).toBe(2 * DAY);
-    expect(parts(await signer().url(KEY, start + DAY - 1)).e - (start + DAY - 1)).toBe(DAY + 1);
-  });
-
-  it('the signing day is the UTC day, the same for every link signed in it', () => {
-    expect(signingDay(NOW)).toBe(Math.floor(NOW / 86_400));
-    expect(signingDay(NOW - (NOW % 86_400))).toBe(signingDay(NOW));
-    expect(signingDay(NOW - (NOW % 86_400) - 1)).toBe(signingDay(NOW) - 1);
+    expect(parts(await signer().url(KEY, NOW + 3600)).e).toBe(a.e + 3600);
   });
 
   it('opens its own image until it expires, and not an instant later', async () => {

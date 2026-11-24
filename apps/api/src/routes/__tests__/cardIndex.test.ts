@@ -277,7 +277,7 @@ describe('the thumbnails', () => {
     expect((await get('/api/anki/thumbs')).status).toBe(401);
     const s = await signature();
     expect(s.prefix).toBe('cards/thumb/');
-    expect(s.expires).toBe((Math.floor(NOW / 86_400) + 2) * 86_400);
+    expect(s.expires).toBe((Math.floor(NOW / 3600) + 2) * 3600);
     const r = await get(`/api/media/${THUMB}?${s.query}`);
     expect(r.status).toBe(200);
     expect(r.headers.get('Cache-Control')).toBe('private, max-age=600, immutable');

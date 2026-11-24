@@ -83,10 +83,10 @@ describe('the same image', () => {
     expect(secondsNow()).toBe(1_800_000_000);
   });
 
-  it('a link is renewed from two hours before it expires: the wait until then, none if it passed, never more than a timer can', () => {
+  it('a link is renewed from ten minutes before it expires: the wait until then, none if it passed, never more than a timer can', () => {
     vi.useFakeTimers({ now: 1_800_000_000_000 });
-    expect(untilRenewal(1_800_000_000 + 5 * 3600)).toBe((3 * 3600 + 1) * 1000);
-    expect(untilRenewal(1_800_000_000 + 3600)).toBe(0);
+    expect(untilRenewal(1_800_000_000 + 3600)).toBe((50 * 60 + 1) * 1000);
+    expect(untilRenewal(1_800_000_000 + 5 * 60)).toBe(0);
     expect(untilRenewal(1_800_000_000 + 400 * 86_400)).toBe(2 ** 31 - 1);
   });
 });

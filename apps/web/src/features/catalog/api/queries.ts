@@ -23,7 +23,7 @@ export const noteQuery = (api: ApiClient, slug: string) =>
     queryKey: catalogKeys.note(slug),
     queryFn: ({ signal }) => api.note(slug, signal),
     meta: CONTENT_QUERY,
-    // 10 minutes so that a piece taken off the site stops showing soon; its image URLs last at least a day, and the
+    // 10 minutes so that a piece taken off the site stops showing soon; its image URLs last at least an hour, and the
     // page signs them again itself while it stays open (shared/hooks/useMediaRecovery).
     staleTime: 10 * 60_000,
     gcTime: 45 * 60_000,

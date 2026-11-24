@@ -18,7 +18,8 @@ export function Thumb({
   className?: string;
 }) {
   // An expired signature is asked for again; a thumbnail that still fails keeps the icon: it is decorative, inside the
-  // row's own button, where a «Reintentar» could not go.
+  // row's own button, where a «Reintentar» could not go. A drawn one keeps its URL, so that a list of hundreds is not
+  // signed again nor downloaded again every hour.
   const image = useSignedImage(
     thumb && thumbs ? thumbUrl(thumb, thumbs) : undefined,
     renewThumbs(useQueryClient(), useApi()),
@@ -36,6 +37,7 @@ export function Thumb({
           decoding="async"
           draggable={false}
           onError={image.onError}
+          onLoad={image.onLoad}
           className={`size-full object-contain ${blur ? 'blur-[6px]' : ''}`}
         />
       ) : (

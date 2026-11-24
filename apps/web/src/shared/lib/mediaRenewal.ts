@@ -18,8 +18,19 @@ const copies = new WeakMap<Query, Copy>();
 /** Reads the API refused (a piece taken off the site, a session that ended): they are not asked for again. */
 const refused = new WeakSet<Query>();
 
-const textOf = (query: Query) =>
-  query.state.data === undefined ? '' : JSON.stringify(query.state.data);
+/** Each answer is turned into text once: every image that fails, or is about to expire, looks through all of them. */
+const texts = new WeakMap<object, string>();
+
+function textOf(query: Query): string {
+  const data = query.state.data;
+  if (data === undefined) return '';
+  if (typeof data !== 'object' || data === null) return JSON.stringify(data);
+  const known = texts.get(data);
+  if (known !== undefined) return known;
+  const text = JSON.stringify(data);
+  texts.set(data, text);
+  return text;
+}
 
 const refuses = (error: unknown) =>
   error instanceof ApiRequestError &&

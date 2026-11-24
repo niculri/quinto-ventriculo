@@ -1,5 +1,5 @@
-// Tests a list image's thumbnail: the signed picture once its key and the signature are there, the icon before, an
-// expired signature asked for again and the icon for one that still fails.
+// Tests a list image's thumbnail: the signed picture once its key and signature are there (kept once drawn), the icon
+// before, an expired signature asked for again and the icon for one that still fails.
 
 import { QueriesWrapper } from '../../../../test/QueriesWrapper';
 import { act, fireEvent, render } from '@testing-library/react';
@@ -42,5 +42,17 @@ describe('Thumb', () => {
     await act(() => new Promise((r) => setTimeout(r, 0)));
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('.lucide-image')).not.toBeNull();
+  });
+
+  it('a drawn thumbnail keeps its URL when the signature changes: it is not downloaded again', () => {
+    const { container, rerender } = render(
+      <Thumb thumb="cards/thumb/a.webp" thumbs="e=4102444800&s=una" blur={false} />,
+      { wrapper: QueriesWrapper },
+    );
+    const img = container.querySelector('img')!;
+    fireEvent.load(img);
+    rerender(<Thumb thumb="cards/thumb/a.webp" thumbs="e=4102448400&s=otra" blur={false} />);
+    expect(container.querySelector('img')).toBe(img);
+    expect(img.getAttribute('src')).toBe('/api/media/cards/thumb/a.webp?e=4102444800&s=una');
   });
 });

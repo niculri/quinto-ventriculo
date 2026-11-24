@@ -233,8 +233,16 @@ function planRenewals(root: Element | ShadowRoot, renew: RenewMedia) {
     const before = secondsNow() + RENEW_BEFORE_SEC;
     const due = waiting(root).filter((w) => w.e < before && !asked.has(w.src));
     for (const w of due) asked.add(w.src);
-    const paths = [...new Set(due.map((w) => w.path))];
-    const found = await Promise.all(paths.map((p) => renew(p, before).catch(() => none)));
+    // Every image of a read expires at the same moment: one renewal brings them all, and only an image it did not bring
+    // (from another read) asks for another.
+    const found: FreshMedia[] = [];
+    for (const path of new Set(due.map((w) => w.path))) {
+      const brought = found.some((fresh) => {
+        const url = fresh(path);
+        return url !== null && !isExpired(url, before);
+      });
+      if (!brought) found.push(await renew(path, before).catch(() => none));
+    }
     for (const fresh of found) patchMedia(root, fresh);
     plan();
   };

@@ -15,8 +15,11 @@ export type FreshMedia = (path: string) => string | null;
 /** Signs again the images of the read that brought `path` whose links expire before `beforeSec`; says where each is. */
 export type RenewMedia = (path: string, beforeSec: number) => Promise<FreshMedia>;
 
-/** An image not loaded yet is signed again this long before its link expires (a link lasts at least 24 hours). */
-export const RENEW_BEFORE_SEC = 2 * 3600;
+/**
+ * An image not loaded yet is signed again this long before its link expires. A link lasts at least an hour, so a page
+ * left open asks for one copy of its read about once an hour, for all its images.
+ */
+export const RENEW_BEFORE_SEC = 10 * 60;
 
 export const secondsNow = () => Math.floor(Date.now() / 1000);
 

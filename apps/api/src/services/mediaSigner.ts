@@ -1,7 +1,7 @@
 // Signs the URLs of the private images so that a copied link expires: an <img> tag cannot send the session token.
 import { MediaKey, apiPaths } from '@qv/schema/http';
 
-const DAY = 86_400;
+const HOUR = 3600;
 
 /** The only prefixes one signature may open: the card browser's thumbnails, hundreds in a list. */
 const SIGNED_PREFIXES: readonly string[] = ['cards/thumb/'];
@@ -10,17 +10,9 @@ export function isValidKey(key: string): boolean {
   return MediaKey.safeParse(key).success;
 }
 
-/**
- * The UTC day a signature is made in: every link signed in it expires at the same moment, so that for a whole day an
- * image keeps its URL and the browser reuses its cache.
- */
-export function signingDay(nowSec: number): number {
-  return Math.floor(nowSec / DAY);
-}
-
-/** The end of the day after the current one: a link lasts between 24 and 48 hours. */
+/** Rounded to the next hour plus one, so that for an hour an image keeps its URL and the browser reuses its cache. */
 function expiry(nowSec: number): number {
-  return (signingDay(nowSec) + 2) * DAY;
+  return (Math.floor(nowSec / HOUR) + 2) * HOUR;
 }
 
 export class MediaSigner {

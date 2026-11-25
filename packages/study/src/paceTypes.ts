@@ -8,7 +8,7 @@ export interface AssessmentFacts {
   overdue: number;
   anyOn: boolean;
   unitsOff: number;
-  offKind: 'video' | 'week' | 'lecture';
+  offKind: 'topic' | 'week' | 'lecture';
 }
 
 type PaceKind = 'none' | 'past' | 'nothing-on' | 'final-review' | 'finished' | 'computed';

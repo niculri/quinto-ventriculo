@@ -6,7 +6,7 @@ export {
   switchesUnder,
   unitRows,
   unitState,
-  VIDEO_DEPTH,
+  TOPIC_DEPTH,
 } from './activation';
 export type { Activation } from './activation';
 export {

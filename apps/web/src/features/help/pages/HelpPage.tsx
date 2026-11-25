@@ -187,8 +187,8 @@ function StudySection() {
           <dt className="font-semibold">Tú eliges qué estudiar</dt>
           <dd className="text-muted">
             Todo parte desactivado. En la página de Anki de cada certamen, enciende lo que estás
-            viendo en clases y empezarán a salir sus tarjetas nuevas: cada video tiene su
-            interruptor, y el de la semana enciende o apaga todos sus videos. Tocar ▶ en algo
+            viendo en clases y empezarán a salir sus tarjetas nuevas: cada tema de una semana tiene
+            su interruptor, y el de la semana enciende o apaga todos sus temas. Tocar ▶ en algo
             desactivado lo activa y lo abre para estudiar (y puedes deshacerlo al volver). Ahí mismo
             eliges cuántas tarjetas nuevas por día quieres, y cada fila dice cuántas tarjetas ya
             viste y qué te toca hoy.

@@ -4,7 +4,7 @@ exports[`a deck’s page, what it says > the options of an assessment and the ro
 
 exports[`a deck’s page, what it says > the options of an assessment and the rows of its decks, with their texts 2`] = `
 [
-  "S1 - Semana de prueba3 tarjetas1 de 1 video activado1 de 1 video activadoHoy: 3 nuevas · ~2 minHoy: 99 nuevas · 99 repasos · ~99 minHoy: 3 nuevas · ~2 min",
+  "S1 - Semana de prueba3 tarjetas1 de 1 tema activado1 de 1 tema activadoHoy: 3 nuevas · ~2 minHoy: 99 nuevas · 99 repasos · ~99 minHoy: 3 nuevas · ~2 min",
   "Mazo de prueba3 tarjetasHoy: 3 nuevas · ~2 minHoy: 99 nuevas · 99 repasos · ~99 minHoy: 3 nuevas · ~2 min",
 ]
 `;

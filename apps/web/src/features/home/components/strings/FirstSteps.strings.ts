@@ -13,7 +13,7 @@ export const firstStepsStrings = {
     },
     unit: {
       title: 'Activa lo que estás viendo en clases',
-      text: 'Un video, una semana o una clase: así empiezan a salir sus tarjetas nuevas.',
+      text: 'Un tema, una semana o una clase: así empiezan a salir sus tarjetas nuevas.',
       action: 'Ir a tu ramo',
     },
     card: {

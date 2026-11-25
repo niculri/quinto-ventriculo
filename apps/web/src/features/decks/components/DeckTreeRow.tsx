@@ -1,4 +1,4 @@
-// A row of the simple deck list: fold, name, the cards seen, what is left today, the switch of a video, lecture or week,
+// A row of the simple deck list: fold, name, the cards seen, what is left today, the switch of a topic, lecture or week,
 // «Estudiar» and, in «Modo avanzado», its configuration.
 
 import { useId } from 'react';
@@ -41,7 +41,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
   const d = p.deck;
   // What only the draft has is looked at, not turned on: nothing would be saved of it.
   const draftOnly = useDraftOnly(['deck', d.id]);
-  const videosId = useId();
+  const topicsId = useId();
   const off = p.ready && isOff(p.row);
   const today = (
     <RowToday
@@ -73,8 +73,8 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
                 ? (p.seen?.get(d.id) ?? { seen: 0, total: d.cardCount })
                 : undefined
             }
-            videos={p.row.kind === 'unit' ? p.row : null}
-            videosId={videosId}
+            topics={p.row.kind === 'unit' ? p.row : null}
+            topicsId={topicsId}
           />
         </span>
       </div>
@@ -85,7 +85,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
           ready={p.ready}
           label={d.label}
           disabled={draftOnly}
-          videosId={videosId}
+          topicsId={topicsId}
           onSwitch={p.onSwitch}
         />
       </span>
@@ -108,20 +108,20 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
   );
 }
 
-/** A video or lecture has its switch; a week's is all its videos, half on while only some are. */
+/** A topic or lecture has its switch; a week's is all its topics, half on while only some are. */
 function RowSwitchControl({
   row,
   ready,
   label,
   disabled,
-  videosId,
+  topicsId,
   onSwitch,
 }: {
   row: RowSwitch;
   ready: boolean;
   label: string;
   disabled: boolean;
-  videosId: string;
+  topicsId: string;
   onSwitch: (on: boolean) => void;
 }) {
   if (row.kind !== 'switch' && row.kind !== 'unit') return null;
@@ -142,7 +142,7 @@ function RowSwitchControl({
       label={s.tree.turnOn(label)}
       checked={row.on === row.total}
       mixed={row.on > 0}
-      describedBy={videosId}
+      describedBy={topicsId}
       disabled={disabled}
       onChange={onSwitch}
     />

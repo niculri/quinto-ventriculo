@@ -119,7 +119,7 @@ describe('the switch of a row', () => {
       activations: rows.map(([deckId, active]) => ({ deckId, active })),
     });
 
-  it('a video has its own; a week of videos is all of them, «en parte» while only some are', () => {
+  it('a topic has its own; a week of topics is all of them, «en parte» while only some are', () => {
     const a = on(['l1', true]);
     expect(rowSwitch(lecture, nodes, a)).toEqual({ kind: 'switch', on: true });
     expect(rowSwitch(week1, nodes, a)).toEqual({ kind: 'unit', on: 1, total: 1 });
@@ -128,13 +128,13 @@ describe('the switch of a row', () => {
     expect(isOff(rowSwitch(week1, nodes, a))).toBe(false);
   });
 
-  it('an Extras is on with its video, and the assessment with anything below it', () => {
+  it('an Extras is on with its topic, and the assessment with anything below it', () => {
     expect(rowSwitch(extras, nodes, on(['l1', true]))).toEqual({ kind: 'inside', on: true });
     expect(rowSwitch(assessment, nodes, on(['l2', true]))).toEqual({ kind: 'above', on: true });
     expect(rowSwitch(assessment, nodes, on())).toEqual({ kind: 'above', on: false });
   });
 
-  it('saves a video alone and a week with its videos', () => {
+  it('saves a topic alone and a week with its topics', () => {
     const a = on();
     expect(switchRows(lecture, a, true)).toEqual([{ deckId: 'l1', active: true }]);
     expect(switchRows(week2, a, false)).toEqual([

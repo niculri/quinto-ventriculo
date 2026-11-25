@@ -129,7 +129,7 @@ describe('the first steps', () => {
     );
     await within(steps).findByRole('link', { name: 'Ir a tu ramo' });
     expect(text(steps)).toMatchInlineSnapshot(
-      `"Primeros pasosOcultarElige tus ramos (hecho)2Activa lo que estás viendo en clases (pendiente)Un video, una semana o una clase: así empiezan a salir sus tarjetas nuevas.Ir a tu ramo3Responde tu primera tarjeta (pendiente)"`,
+      `"Primeros pasosOcultarElige tus ramos (hecho)2Activa lo que estás viendo en clases (pendiente)Un tema, una semana o una clase: así empiezan a salir sus tarjetas nuevas.Ir a tu ramo3Responde tu primera tarjeta (pendiente)"`,
     );
     expect(within(steps).getByRole('link', { name: 'Ir a tu ramo' })).toHaveAttribute(
       'href',

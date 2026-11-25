@@ -1,4 +1,4 @@
-// E2e tests of the deck list: a switch per video, «Estudiar» on something off turns it on and offers to undo it back on
+// E2e tests of the deck list: a switch per topic, «Estudiar» on something off turns it on and offers to undo it back on
 // the list, each row says what it has today and the cards seen, and nothing in a row moves when it turns on.
 import { expect, test } from './test';
 import { ONLY_ACCEPTED } from './accepted';
@@ -8,14 +8,14 @@ test.use({ storageState: ONLY_ACCEPTED });
 
 const ASSESSMENT_URL = '/semesters/1/courses/anatomia-1/anki/certamen-1';
 
-test('«Estudiar» on a video off turns it on and opens it; back on the list, «Deshacer»', async ({
+test('«Estudiar» on a topic off turns it on and opens it; back on the list, «Deshacer»', async ({
   page,
 }) => {
   await signIn(page);
   await page.goto(ASSESSMENT_URL);
   const list = page.getByRole('list', { name: 'Submazos' });
-  const video = list.getByRole('switch', { name: 'Activar Mazo de prueba' });
-  await expect(video).not.toBeChecked();
+  const topic = list.getByRole('switch', { name: 'Activar Mazo de prueba' });
+  await expect(topic).not.toBeChecked();
   await expect(list.getByRole('listitem').last()).toContainText('Sin activar');
   await expect(list.getByRole('listitem').last()).toContainText(/\d+ tarjetas/);
 
@@ -31,27 +31,27 @@ test('«Estudiar» on a video off turns it on and opens it; back on the list, «
   await expect(page).toHaveURL(new RegExp(`${ASSESSMENT_URL}$`));
   const notice = page.getByRole('status').filter({ hasText: 'Se activó «Mazo de prueba»' });
   await expect(notice).toBeVisible();
-  await expect(video).toBeChecked();
+  await expect(topic).toBeChecked();
   await expect(list.getByRole('listitem').last()).toContainText(/Vistas 1 de \d+/);
 
   await notice.getByRole('button', { name: 'Deshacer' }).click();
   await expect(notice).toHaveCount(0);
-  await expect(video).not.toBeChecked();
+  await expect(topic).not.toBeChecked();
   // What was seen stays seen, even turned off.
   await expect(list.getByRole('listitem').last()).toContainText(/Vistas 1 de \d+/);
 });
 
-test('turning a video on moves nothing in its row nor the rows below', async ({ page }) => {
+test('turning a topic on moves nothing in its row nor the rows below', async ({ page }) => {
   await signIn(page);
   await page.goto(ASSESSMENT_URL);
   const list = page.getByRole('list', { name: 'Submazos' });
   const rows = list.getByRole('listitem');
-  const video = list.getByRole('switch', { name: 'Activar Mazo de prueba' });
+  const topic = list.getByRole('switch', { name: 'Activar Mazo de prueba' });
   await expect(rows.last()).toContainText('Sin activar');
   const boxes = async () =>
-    Promise.all([rows.first(), rows.last(), video].map(async (l) => (await l.boundingBox())!));
+    Promise.all([rows.first(), rows.last(), topic].map(async (l) => (await l.boundingBox())!));
   const before = await boxes();
-  await video.click();
+  await topic.click();
   await expect(rows.last()).toContainText(/Hoy: \d+ nuevas/);
   const after = await boxes();
   for (const [i, b] of before.entries()) {

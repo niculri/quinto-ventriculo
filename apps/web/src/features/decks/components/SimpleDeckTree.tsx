@@ -1,5 +1,5 @@
-// The simple deck list: the cards seen and what is left today of each deck, a switch for each video or lecture (a
-// week's turns all its videos), «Estudiar» that turns on what is off, and the notice to undo that.
+// The simple deck list: the cards seen and what is left today of each deck, a switch for each topic or lecture (a
+// week's turns all its topics), «Estudiar» that turns on what is off, and the notice to undo that.
 
 import type { Counts } from '@qv/srs';
 import { activation, EMPTY_PLAN } from '@qv/study';

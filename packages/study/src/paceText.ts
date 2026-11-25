@@ -12,7 +12,7 @@ export function onTrackText(pace: Pace, facts: AssessmentFacts, rose: boolean): 
 }
 
 const OFF_WORDS = {
-  video: ['video', 'videos'],
+  topic: ['tema', 'temas'],
   week: ['semana', 'semanas'],
   lecture: ['clase', 'clases'],
 } as const;
@@ -78,7 +78,7 @@ export function paceStatus(
     case 'past':
       return 'Esa fecha ya pasó: salen las nuevas por día que elijas. Pon la fecha de la próxima prueba o saca esta.';
     case 'nothing-on':
-      return `${daysLeftText(pace.daysLeft!)}. Activa un video, una semana o una clase para calcular las nuevas por día.`;
+      return `${daysLeftText(pace.daysLeft!)}. Activa un tema, una semana o una clase para calcular las nuevas por día.`;
     case 'final-review':
       return finalReviewStatus(pace, facts, options, finalDays, left);
     case 'finished':

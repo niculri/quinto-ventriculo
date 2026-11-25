@@ -34,7 +34,7 @@ export function notesLine(a: AssessmentWithNotes): string {
   ]);
 }
 
-/** A week counts as on with any of its videos on. */
+/** A week counts as on with any of its topics on. */
 export function unitsOf(node: CourseDeckNode, plan: StudyPlan) {
   const a = activation(descendants(node), plan);
   // Each deck under an assessment is a week or a lecture, so it has a state.

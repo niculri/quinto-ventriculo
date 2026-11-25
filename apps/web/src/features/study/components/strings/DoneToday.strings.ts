@@ -9,7 +9,7 @@ export const doneTodayStrings = {
     goTo: (label: string) => `Ir a ${label}`,
     inactiveTitle: 'Todavía no activas esta materia',
     inactiveText:
-      'Todo parte desactivado. Activa lo que estás viendo en clases (un video, una semana o una clase) y empezarán a salir sus tarjetas nuevas.',
+      'Todo parte desactivado. Activa lo que estás viendo en clases (un tema, una semana o una clase) y empezarán a salir sus tarjetas nuevas.',
     choose: 'Elegir qué estudiar',
     title: 'Listo por hoy',
     review: (label: string | null) =>

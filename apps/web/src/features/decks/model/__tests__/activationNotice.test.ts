@@ -8,7 +8,7 @@ describe('the notice of what was turned on', () => {
   it('is armed only by a list of the same deck, once, and says it to who listens until they stop', () => {
     const listener = vi.fn();
     const stop = activationNotice.subscribe(listener);
-    activationNotice.show('a', 'Video', [{ deckId: '1', active: false }]);
+    activationNotice.show('a', 'Topic', [{ deckId: '1', active: false }]);
     expect(activationNotice.get()).toMatchObject({ rootId: 'a', armed: false });
     activationNotice.arm('b');
     expect(activationNotice.get()?.armed).toBe(false);

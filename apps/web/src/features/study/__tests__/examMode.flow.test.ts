@@ -174,7 +174,7 @@ describe('the date of a test, on the assessment’s page', () => {
     const box = await options();
     await waitFor(() =>
       expect(within(box).getByRole('status')).toHaveTextContent(
-        /Activa un video, una semana o una clase/,
+        /Activa un tema, una semana o una clase/,
       ),
     );
     expect(numberField(box)).toBeDisabled();

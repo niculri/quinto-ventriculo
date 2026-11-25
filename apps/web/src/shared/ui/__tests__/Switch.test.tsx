@@ -41,12 +41,12 @@ describe('the switch', () => {
     const onChange = vi.fn();
     const { container, rerender } = render(
       <>
-        <span id="how-many">2 de 5 videos activados</span>
+        <span id="how-many">2 de 5 temas activados</span>
         <Switch label="Semana" checked={false} mixed describedBy="how-many" onChange={onChange} />
       </>,
     );
     const input = screen.getByRole('switch', { name: 'Semana' });
-    expect(input).toHaveAccessibleDescription('2 de 5 videos activados');
+    expect(input).toHaveAccessibleDescription('2 de 5 temas activados');
     expect(input).not.toBeChecked();
     expect(container.innerHTML).toMatch(/translate-x-2/);
     await userEvent.click(input);

@@ -1,4 +1,4 @@
-// Tests the switches of the deck list: one per video, a week's that turns all of them and shows «en parte», and
+// Tests the switches of the deck list: one per topic, a week's that turns all of them and shows «en parte», and
 // «Estudiar» on something off, which turns it on, opens it and, back on the list, offers to undo that.
 
 import { act, screen, waitFor, within } from '@testing-library/react';
@@ -17,13 +17,13 @@ const WEEK_NAME = 'S1 - Semana de prueba';
 
 afterEach(() => act(() => activationNotice.clear()));
 
-/** The test week with a second video, «Otro video» (id 22), of two cards. */
-function twoVideos() {
+/** The test week with a second topic, «Otro tema» (id 22), of two cards. */
+function twoTopics() {
   const catalog = structuredClone(CATALOG);
   const week = catalog.anki.decks.find((d) => d.id === '5')!;
-  const video = catalog.anki.decks.find((d) => d.id === '20')!;
+  const topic = catalog.anki.decks.find((d) => d.id === '20')!;
   week.cardCount += 2;
-  catalog.anki.decks.push({ ...video, id: '22', name: `${WEEK}::Otro video`, cardCount: 2 });
+  catalog.anki.decks.push({ ...topic, id: '22', name: `${WEEK}::Otro tema`, cardCount: 2 });
   return fakeApi({ catalog: async () => catalog });
 }
 
@@ -32,22 +32,22 @@ const list = () => screen.findByRole('list', { name: 'Submazos' });
 const saved = async (study: StudyRepository) =>
   Object.fromEntries((await study.deckActivations()).map((a) => [a.deckId, a.active]));
 
-describe('a week of videos', () => {
+describe('a week of topics', () => {
   it('is «en parte» while some are on, says how many, and its switch turns all of them', async () => {
     const study = student();
     await study.setDeckActivations([{ deckId: '20', active: true }]);
-    renderApp(ASSESSMENT_PATH, { study, api: twoVideos() });
+    renderApp(ASSESSMENT_PATH, { study, api: twoTopics() });
     const tree = await list();
     const week = await within(tree).findByRole('switch', { name: `Activar ${WEEK_NAME}` });
-    await waitFor(() => expect(week).toHaveAccessibleDescription('1 de 2 videos activados'));
+    await waitFor(() => expect(week).toHaveAccessibleDescription('1 de 2 temas activados'));
     expect(week).not.toBeChecked();
     expect(within(tree).getByRole('switch', { name: 'Activar Mazo de prueba' })).toBeChecked();
-    expect(within(tree).getByRole('switch', { name: 'Activar Otro video' })).not.toBeChecked();
-    expect(week.closest('li')!.textContent).toContain('1 de 2 videos activados');
+    expect(within(tree).getByRole('switch', { name: 'Activar Otro tema' })).not.toBeChecked();
+    expect(week.closest('li')!.textContent).toContain('1 de 2 temas activados');
 
     await userEvent.click(week);
     await waitFor(() => expect(week).toBeChecked());
-    expect(within(tree).getByRole('switch', { name: 'Activar Otro video' })).toBeChecked();
+    expect(within(tree).getByRole('switch', { name: 'Activar Otro tema' })).toBeChecked();
     await waitFor(async () => expect(await saved(study)).toEqual({ 5: true, 20: true, 22: true }));
 
     await userEvent.click(week);
@@ -57,11 +57,11 @@ describe('a week of videos', () => {
     expect(within(tree).getByRole('switch', { name: 'Activar Mazo de prueba' })).not.toBeChecked();
   });
 
-  it('a video alone turns on and off without touching the others', async () => {
+  it('a topic alone turns on and off without touching the others', async () => {
     const study = student();
-    renderApp(ASSESSMENT_PATH, { study, api: twoVideos() });
+    renderApp(ASSESSMENT_PATH, { study, api: twoTopics() });
     const tree = await list();
-    const other = await within(tree).findByRole('switch', { name: 'Activar Otro video' });
+    const other = await within(tree).findByRole('switch', { name: 'Activar Otro tema' });
     await waitFor(() => expect(other).toBeEnabled());
     await userEvent.click(other);
     await waitFor(async () => expect(await saved(study)).toEqual({ 22: true }));
@@ -70,7 +70,7 @@ describe('a week of videos', () => {
 });
 
 describe('«Estudiar» on something off', () => {
-  it('turns the video on and opens it; back on the list, «Deshacer» turns it off again', async () => {
+  it('turns the topic on and opens it; back on the list, «Deshacer» turns it off again', async () => {
     const study = student();
     renderApp(ASSESSMENT_PATH, { study });
     const tree = await list();
@@ -90,9 +90,9 @@ describe('«Estudiar» on something off', () => {
     expect(screen.queryByText('Se activó «Mazo de prueba»')).toBeNull();
   });
 
-  it('on a week off, turns all its videos on; the ✕ closes the notice and keeps them on', async () => {
+  it('on a week off, turns all its topics on; the ✕ closes the notice and keeps them on', async () => {
     const study = student();
-    renderApp(ASSESSMENT_PATH, { study, api: twoVideos() });
+    renderApp(ASSESSMENT_PATH, { study, api: twoTopics() });
     await userEvent.click(
       await within(await list()).findByRole('button', {
         name: `Activar y estudiar ${WEEK_NAME}`,

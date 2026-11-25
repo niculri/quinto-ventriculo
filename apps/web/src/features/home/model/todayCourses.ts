@@ -1,4 +1,4 @@
-// The courses «Hoy» lists on the home page: those with a video, week or lecture on, or with an answer.
+// The courses «Hoy» lists on the home page: those with a topic, week or lecture on, or with an answer.
 
 import type { Catalog } from '@qv/schema';
 import { buildAnkiTree, courseDeck, descendants } from '../../catalog/model/tree';

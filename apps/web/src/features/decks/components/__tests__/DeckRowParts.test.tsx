@@ -1,4 +1,4 @@
-// Tests the parts of a row of the deck list: today's load in words and the cards seen with a week's videos on.
+// Tests the parts of a row of the deck list: today's load in words and the cards seen with a week's topics on.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { RowSeen, RowToday } from '../DeckRowParts';
@@ -39,27 +39,27 @@ describe('the cards seen of a row', () => {
   const seen = (props: Parameters<typeof RowSeen>[0]) => render(<RowSeen {...props} />).container;
 
   it('counts the cards until one is seen, then «Vistas X de Y», with a bar as long', () => {
-    const before = seen({ seen: { seen: 0, total: 1 }, videos: null, videosId: 'v' });
+    const before = seen({ seen: { seen: 0, total: 1 }, topics: null, topicsId: 'v' });
     expect(before.textContent).toContain('1 tarjeta');
-    const after = seen({ seen: { seen: 1200, total: 4800 }, videos: null, videosId: 'w' });
+    const after = seen({ seen: { seen: 1200, total: 4800 }, topics: null, topicsId: 'w' });
     expect(after.textContent).toContain('Vistas 1.200 de 4.800');
     expect(after.querySelector('[style]')).toHaveStyle({ width: '25%' });
     expect(
-      seen({ seen: undefined, videos: null, videosId: 'x' }).querySelector('.animate-pulse'),
+      seen({ seen: undefined, topics: null, topicsId: 'x' }).querySelector('.animate-pulse'),
     ).not.toBeNull();
   });
 
-  it('a week says how many of its videos are on: beside, only while some are; on a phone, always', () => {
+  it('a week says how many of its topics are on: beside, only while some are; on a phone, always', () => {
     const part = seen({
       seen: { seen: 0, total: 9 },
-      videos: { on: 1, total: 3 },
-      videosId: 'part',
+      topics: { on: 1, total: 3 },
+      topicsId: 'part',
     });
-    expect(document.getElementById('part')).toHaveTextContent('1 de 3 videos activados');
-    expect(part.querySelector('.sm\\:inline')).toHaveTextContent('· 1 de 3 videos activados');
-    expect(part.querySelector('.sm\\:hidden')).toHaveTextContent('1 de 3 videos activados');
-    const all = seen({ seen: { seen: 0, total: 9 }, videos: { on: 1, total: 1 }, videosId: 'all' });
-    expect(document.getElementById('all')).toHaveTextContent('1 de 1 video activado');
+    expect(document.getElementById('part')).toHaveTextContent('1 de 3 temas activados');
+    expect(part.querySelector('.sm\\:inline')).toHaveTextContent('· 1 de 3 temas activados');
+    expect(part.querySelector('.sm\\:hidden')).toHaveTextContent('1 de 3 temas activados');
+    const all = seen({ seen: { seen: 0, total: 9 }, topics: { on: 1, total: 1 }, topicsId: 'all' });
+    expect(document.getElementById('all')).toHaveTextContent('1 de 1 tema activado');
     expect(all.querySelector('.sm\\:inline')).toBeNull();
     expect(screen.getAllByText(/tarjetas/).length).toBeGreaterThan(0);
   });

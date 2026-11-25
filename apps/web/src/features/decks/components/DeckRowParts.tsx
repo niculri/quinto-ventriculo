@@ -60,20 +60,20 @@ export function RowToday({
 
 /**
  * «Vistas X de Y» (or «Y tarjetas» before the first) on one line that never wraps, and a thin bar. A week says «N de M
- * videos activados»: beside it while only some are on, and on a phone on a line of its own, always, so that nothing
- * moves when a video turns on.
+ * temas activados»: beside it while only some are on, and on a phone on a line of its own, always, so that nothing
+ * moves when a topic turns on.
  */
 export function RowSeen({
   seen,
-  videos,
-  videosId,
+  topics,
+  topicsId,
 }: {
   seen: { seen: number; total: number } | undefined;
-  videos: { on: number; total: number } | null;
-  videosId: string;
+  topics: { on: number; total: number } | null;
+  topicsId: string;
 }) {
-  const partial = !!videos && videos.on > 0 && videos.on < videos.total;
-  const videosText = videos ? s.tree.videosOn(videos.on, videos.total) : '';
+  const partial = !!topics && topics.on > 0 && topics.on < topics.total;
+  const topicsText = topics ? s.tree.topicsOn(topics.on, topics.total) : '';
   const percent = seen && seen.total > 0 ? (100 * seen.seen) / seen.total : 0;
   return (
     <>
@@ -84,7 +84,7 @@ export function RowSeen({
             {partial ? (
               <span aria-hidden="true" className="hidden sm:inline">
                 {s.tree.sep}
-                {videosText}
+                {topicsText}
               </span>
             ) : null}
           </>
@@ -92,14 +92,14 @@ export function RowSeen({
           <Skeleton className="inline-block h-3 w-28 align-middle" />
         )}
       </span>
-      {videos ? (
+      {topics ? (
         <>
           <span aria-hidden="true" className="block h-4 truncate text-xs text-muted sm:hidden">
-            {videosText}
+            {topicsText}
           </span>
           {/* What the week's switch is described by. */}
-          <span id={videosId} hidden>
-            {videosText}
+          <span id={topicsId} hidden>
+            {topicsText}
           </span>
         </>
       ) : null}

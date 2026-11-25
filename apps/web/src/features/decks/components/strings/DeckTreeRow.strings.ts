@@ -19,8 +19,8 @@ export const deckTreeRowStrings = {
     longestToday: 'Hoy: 99 nuevas · 99 repasos · ~99 min',
     seen: (seen: number, total: number) => `Vistas ${n(seen)} de ${n(total)}`,
     cards: (total: number) => `${n(total)} ${total === 1 ? 'tarjeta' : 'tarjetas'}`,
-    videosOn: (on: number, total: number) =>
-      `${n(on)} de ${n(total)} ${total === 1 ? 'video activado' : 'videos activados'}`,
+    topicsOn: (on: number, total: number) =>
+      `${n(on)} de ${n(total)} ${total === 1 ? 'tema activado' : 'temas activados'}`,
     sep: ' · ',
   },
 } as const;

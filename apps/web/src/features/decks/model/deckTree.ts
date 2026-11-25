@@ -1,5 +1,5 @@
 // The simple deck list as a list of rows: which subdecks show (an Extras only when its assessment includes them),
-// which are folded, and what each row's switch is: a video or lecture, a week of videos, or none.
+// which are folded, and what each row's switch is: a topic or lecture, a week of topics, or none.
 
 import {
   includesExtras,
@@ -52,7 +52,7 @@ export function allNodes(node: DeckNode): DeckNode[] {
 }
 
 /**
- * `switch`: a video or a lecture; `unit`: a week of videos, on when all are; `inside`: under a switch (Extras), on with
+ * `switch`: a topic or a lecture; `unit`: a week of topics, on when all are; `inside`: under a switch (Extras), on with
  * it; `above`: an assessment or course, on when anything below is.
  */
 export type RowSwitch =
@@ -70,7 +70,7 @@ export function rowSwitch(node: DeckNode, decks: readonly DeckNode[], a: Activat
 
 export const isOff = (row: RowSwitch) => (row.kind === 'unit' ? row.on === 0 : !row.on);
 
-/** What its switch saves: a video or lecture alone, a week with all its videos. */
+/** What its switch saves: a topic or lecture alone, a week with all its topics. */
 export function switchRows(node: DeckNode, a: Activation, active: boolean): DeckActivation[] {
   return a.switches.has(node.id) ? [{ deckId: node.id, active }] : unitRows(a, node.id, active);
 }

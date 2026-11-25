@@ -18,9 +18,14 @@ function middayOfToday(): Date {
   return d;
 }
 
-export const test = base.extend({
-  context: async ({ context }, run) => {
-    await context.clock.install({ time: middayOfToday() });
+/**
+ * `realClock` (with `test.use`): the page keeps the real time. For what the server dates with its own clock, as the
+ * expiry of a signed image: from 4:00 to midday the page's midday is hours ahead, and every link would look expired.
+ */
+export const test = base.extend<{ realClock: boolean }>({
+  realClock: [false, { option: true }],
+  context: async ({ context, realClock }, run) => {
+    if (!realClock) await context.clock.install({ time: middayOfToday() });
     await run(context);
   },
 });

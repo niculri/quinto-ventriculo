@@ -9,6 +9,9 @@ const IMAGE = 'notes/0123456789abcdef0123456789abcdef.webp';
 /** The back of the deck's first card. */
 const CARD_IMAGE = 'cards/8f99a81cb163e77e829f2ad43f4ee7c4.webp';
 
+// The API signs each link with the real time, and the page compares its expiry with its own clock.
+test.use({ realClock: true });
+
 const figure = (page: Page) => page.locator('.note-body figure').first();
 const picture = (page: Page) => figure(page).locator('img');
 

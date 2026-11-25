@@ -43,6 +43,8 @@ async function shown(page: Page, url: string) {
 }
 
 test('each address of what is not published is the page of one made up', async ({ page }) => {
+  // Over twenty pages loaded from scratch: on the CI's runner that alone passes the 30 s of a test.
+  test.slow();
   await signIn(page);
   const madeUp = await shown(page, MADE_UP);
   expect(madeUp).toContain('Esta página no aparece ni en el Netter');

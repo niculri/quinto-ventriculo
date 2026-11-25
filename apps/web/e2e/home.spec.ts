@@ -86,7 +86,7 @@ test.describe('a student who just arrived', () => {
     await signIn(page);
     const steps = page.getByRole('region', { name: 'Primeros pasos' });
     await expect(steps.getByText('(pendiente)')).toHaveCount(3);
-    await expect(today(page)).toContainText('Todavía no activas ninguna semana o clase');
+    await expect(today(page)).toContainText('Todavía no activas nada de lo que estás viendo');
 
     await steps.getByRole('link', { name: 'Elegir ramos' }).click();
     await page.getByRole('button', { name: /¿En qué semestre estás\?/ }).click();
@@ -102,9 +102,7 @@ test.describe('a student who just arrived', () => {
     await week.click();
     await expect(week).toBeChecked();
     await page.goto('/home');
-    await expect(
-      steps.getByText(/Activa la semana o clase que estás viendo \(hecho\)/),
-    ).toBeVisible();
+    await expect(steps.getByText(/Activa lo que estás viendo en clases \(hecho\)/)).toBeVisible();
     await expect(load(page)).toBeVisible();
 
     await steps.getByRole('link', { name: 'Estudiar' }).click();

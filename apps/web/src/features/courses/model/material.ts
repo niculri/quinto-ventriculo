@@ -37,6 +37,7 @@ export function notesLine(a: AssessmentWithNotes): string {
 /** A week counts as on with any of its videos on. */
 export function unitsOf(node: CourseDeckNode, plan: StudyPlan) {
   const a = activation(descendants(node), plan);
-  const on = node.children.filter((u) => (unitState(a, u.id)?.on ?? 0) > 0).length;
+  // Each deck under an assessment is a week or a lecture, so it has a state.
+  const on = node.children.filter((u) => unitState(a, u.id)!.on > 0).length;
   return { total: node.children.length, on };
 }

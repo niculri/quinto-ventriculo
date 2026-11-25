@@ -52,11 +52,11 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
     />
   );
   return (
-    <li className="flex items-center gap-2 py-2">
-      <div
-        className="flex min-w-0 flex-1 items-start gap-1 pl-[calc(var(--level)*0.6rem)] sm:pl-[calc(var(--level)*1.1rem)]"
-        style={{ '--level': d.depth - p.root.depth - 1 } as CSSProperties}
-      >
+    <li
+      className="flex flex-wrap items-center gap-x-2 py-2"
+      style={{ '--level': d.depth - p.root.depth - 1 } as CSSProperties}
+    >
+      <div className="flex min-w-0 flex-1 items-start gap-1 pl-[calc(var(--level)*0.6rem)] sm:pl-[calc(var(--level)*1.1rem)]">
         {p.foldable ? (
           <FoldButton label={d.label} open={p.open} onToggle={p.onToggle} />
         ) : (
@@ -76,9 +76,6 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
             videos={p.row.kind === 'unit' ? p.row : null}
             videosId={videosId}
           />
-          <Reserved longest={s.tree.longestToday} className="mt-1 text-xs sm:hidden">
-            {today}
-          </Reserved>
         </span>
       </div>
       <span className="hidden w-[16.5rem] flex-none text-right text-sm sm:block">{today}</span>
@@ -100,6 +97,13 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
         onStudy={p.onStudy}
       />
       {p.fullAnki ? <DeckPresetButton node={d} /> : null}
+      {/* On a phone, under the row, as wide as it (from the name on), so that it fits on one line. */}
+      <Reserved
+        longest={s.tree.longestToday}
+        className="mt-1 basis-full pl-[calc(var(--level)*0.6rem+1.75rem)] text-xs sm:hidden"
+      >
+        {today}
+      </Reserved>
     </li>
   );
 }

@@ -49,13 +49,18 @@ describe('the cards seen of a row', () => {
     ).not.toBeNull();
   });
 
-  it('a week says how many of its videos are on only while some are', () => {
-    seen({ seen: { seen: 0, total: 9 }, videos: { on: 1, total: 3 }, videosId: 'part' });
+  it('a week says how many of its videos are on: beside, only while some are; on a phone, always', () => {
+    const part = seen({
+      seen: { seen: 0, total: 9 },
+      videos: { on: 1, total: 3 },
+      videosId: 'part',
+    });
     expect(document.getElementById('part')).toHaveTextContent('1 de 3 videos activados');
-    expect(document.getElementById('part')).toBeVisible();
-    seen({ seen: { seen: 0, total: 9 }, videos: { on: 1, total: 1 }, videosId: 'all' });
+    expect(part.querySelector('.sm\\:inline')).toHaveTextContent('· 1 de 3 videos activados');
+    expect(part.querySelector('.sm\\:hidden')).toHaveTextContent('1 de 3 videos activados');
+    const all = seen({ seen: { seen: 0, total: 9 }, videos: { on: 1, total: 1 }, videosId: 'all' });
     expect(document.getElementById('all')).toHaveTextContent('1 de 1 video activado');
-    expect(document.getElementById('all')).toHaveClass('hidden');
+    expect(all.querySelector('.sm\\:inline')).toBeNull();
     expect(screen.getAllByText(/tarjetas/).length).toBeGreaterThan(0);
   });
 });

@@ -8,23 +8,18 @@ import { masteryMeterStrings as s } from './strings/MasteryMeter.strings';
 
 export function MasteryMeter({
   value,
-  align = 'right',
+  align = 'left',
   className = '',
 }: {
   /** Null while nothing was seen. */
   value: number | null;
-  align?: 'left' | 'right' | 'above';
+  align?: 'left' | 'above';
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const boxRef = useOutsideClose(open, setOpen);
   const percent = value === null ? 0 : masteryPercent(value);
-  const place =
-    align === 'above'
-      ? 'bottom-full left-0 mb-1'
-      : align === 'left'
-        ? 'top-full left-0 mt-1'
-        : 'top-full right-0 mt-1';
+  const place = align === 'above' ? 'bottom-full left-0 mb-1' : 'top-full left-0 mt-1';
   return (
     <span
       ref={boxRef}

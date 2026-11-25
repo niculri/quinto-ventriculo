@@ -17,7 +17,7 @@ test('a new student: enters the course, turns a lecture on and studies with two 
 }) => {
   await signIn(page);
   const home = page.getByRole('region', { name: 'Hoy' });
-  await expect(home).toContainText('Todavía no activas ninguna semana o clase');
+  await expect(home).toContainText('Todavía no activas nada de lo que estás viendo');
   await page.getByRole('button', { name: /¿En qué semestre estás\?/ }).click();
   await page.getByRole('menuitemradio', { name: '1° Semestre' }).click();
   await home.getByRole('link', { name: 'Elegir qué estudiar' }).click();
@@ -110,7 +110,7 @@ test('the assessment’s page: new cards a day and «Incluir extras», and its E
   await expect(number).toHaveValue('2');
 });
 
-test('the deck list ends with its last row, and a row’s breakdown leaves the loads below in view', async ({
+test('the deck list ends with its last row, and the breakdown beside «Estudiar» leaves it in view', async ({
   page,
   isMobile,
 }) => {
@@ -119,23 +119,15 @@ test('the deck list ends with its last row, and a row’s breakdown leaves the l
   await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   const panel = page.getByRole('region', { name: 'Estudiar' });
   const rows = page.getByRole('list', { name: 'Submazos' }).getByRole('listitem');
-  await expect(rows.last()).toContainText('para hoy');
+  await expect(rows.last()).toContainText(/Hoy: \d+ nuevas/);
   const last = (await rows.last().boundingBox())!;
   const bottom = (await panel.boundingBox())!;
   const padding = await panel.evaluate((e) => parseFloat(getComputedStyle(e).paddingBottom));
   expect(bottom.y + bottom.height - (last.y + last.height)).toBeLessThanOrEqual(padding + 2);
 
   if (isMobile) return;
-  const load = rows.first().getByRole('button', { name: /para hoy/ });
-  await load.hover();
-  const breakdown = rows.first().getByRole('status');
-  await expect(breakdown).toBeVisible();
-  const box = (await breakdown.boundingBox())!;
-  const text = (await load.boundingBox())!;
-  expect(box.x + box.width).toBeLessThanOrEqual(text.x);
-  // Over the box the mouse is out of the text: it closes, and the row below can be read.
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height - 2);
-  await expect(breakdown).toBeHidden();
+  // The rows say new cards and reviews apart: the breakdown is only beside «Estudiar».
+  await expect(rows.first().getByRole('button', { name: /para hoy/ })).toHaveCount(0);
 
   // Beside «Estudiar» it opens to the right: the button stays in view.
   const today = panel.getByRole('group', { name: 'Para hoy' });

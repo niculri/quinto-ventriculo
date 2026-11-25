@@ -9,7 +9,6 @@ import { paths } from '../../../shared/lib/paths';
 import type { DeckRef } from '../../../shared/lib/paths';
 import { preloadOnIntent } from '../../../shared/lib/preload';
 import { Skeleton } from '../../../shared/ui/Loading';
-import { Reserved } from '../../../shared/ui/Reserved';
 import { button } from '../../../shared/ui/styles';
 import { deckTreeRowStrings as s } from './strings/DeckTreeRow.strings';
 
@@ -39,25 +38,31 @@ export function RowToday({
     <span className="tabular-nums">
       {s.tree.today}
       {counts.new > 0 ? (
-        <>
+        <span className="whitespace-nowrap">
           {number(counts.new, 'text-state-new')}
           {s.tree.news(counts.new)}
           {s.tree.sep}
-        </>
+        </span>
       ) : null}
       {reviews > 0 ? (
-        <>
+        <span className="whitespace-nowrap">
           {number(reviews, 'text-state-review')}
           {s.tree.reviews(reviews)}
           {s.tree.sep}
-        </>
+        </span>
       ) : null}
-      {minutesText(estimateMinutes(counts, medianAnswerMs))}
+      <span className="whitespace-nowrap">
+        {minutesText(estimateMinutes(counts, medianAnswerMs))}
+      </span>
     </span>
   );
 }
 
-/** «Vistas X de Y» (or «Y tarjetas» before the first), a week's «N de M videos activados», and a thin bar. */
+/**
+ * «Vistas X de Y» (or «Y tarjetas» before the first) on one line that never wraps, and a thin bar. A week says «N de M
+ * videos activados»: beside it while only some are on, and on a phone on a line of its own, always, so that nothing
+ * moves when a video turns on.
+ */
 export function RowSeen({
   seen,
   videos,
@@ -67,27 +72,37 @@ export function RowSeen({
   videos: { on: number; total: number } | null;
   videosId: string;
 }) {
-  const partial = videos && videos.on > 0 && videos.on < videos.total;
-  const longest = `${s.tree.seen(seen?.total ?? 0, seen?.total ?? 0)}${
-    videos ? `${s.tree.sep}${s.tree.videosOn(videos.total, videos.total)}` : ''
-  }`;
+  const partial = !!videos && videos.on > 0 && videos.on < videos.total;
+  const videosText = videos ? s.tree.videosOn(videos.on, videos.total) : '';
   const percent = seen && seen.total > 0 ? (100 * seen.seen) / seen.total : 0;
   return (
     <>
-      <Reserved longest={longest} className="text-xs text-muted">
+      <span className="block h-4 truncate text-xs text-muted tabular-nums">
         {seen ? (
-          <span className="tabular-nums">
+          <>
             {seen.seen > 0 ? s.tree.seen(seen.seen, seen.total) : s.tree.cards(seen.total)}
-            {partial ? s.tree.sep : null}
-            {/* Always in the page, so the week's switch can be described by it. */}
-            <span id={videosId} className={partial ? '' : 'hidden'}>
-              {videos ? s.tree.videosOn(videos.on, videos.total) : null}
-            </span>
-          </span>
+            {partial ? (
+              <span aria-hidden="true" className="hidden sm:inline">
+                {s.tree.sep}
+                {videosText}
+              </span>
+            ) : null}
+          </>
         ) : (
           <Skeleton className="inline-block h-3 w-28 align-middle" />
         )}
-      </Reserved>
+      </span>
+      {videos ? (
+        <>
+          <span aria-hidden="true" className="block h-4 truncate text-xs text-muted sm:hidden">
+            {videosText}
+          </span>
+          {/* What the week's switch is described by. */}
+          <span id={videosId} hidden>
+            {videosText}
+          </span>
+        </>
+      ) : null}
       <span aria-hidden="true" className="mt-1 block h-1 w-full max-w-56 rounded-full bg-border">
         <span className="block h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
       </span>

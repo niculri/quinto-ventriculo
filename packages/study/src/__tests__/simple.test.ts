@@ -341,9 +341,7 @@ describe('the load in minutes', () => {
     );
     expect(todayText({ new: 1, learning: 0, review: 0 }, null)).toBe('1 nueva · ~1 min');
     expect(todayText({ new: 0, learning: 1, review: 0 }, null)).toBe('1 repaso · ~1 min');
-    expect(todayText({ new: 1200, learning: 0, review: 0 }, 1000)).toBe(
-      '1.200 nuevas · ~40 min',
-    );
+    expect(todayText({ new: 1200, learning: 0, review: 0 }, 1000)).toBe('1.200 nuevas · ~40 min');
   });
 });
 

@@ -1,7 +1,14 @@
 // What a student turned on: each topic of a week has its own switch, and a unit with nothing (but Extras) under it is
 // one; the saved rows of a week, from before topics had switches, still count for the topics without a row of their own.
 
-import { ASSESSMENT_DEPTH, EMPTY_PLAN, UNIT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';
+import {
+  ASSESSMENT_DEPTH,
+  EMPTY_PLAN,
+  UNIT_DEPTH,
+  ancestorName,
+  includesExtras,
+  isExtras,
+} from './simple';
 import type { StudyPlan } from './simple';
 
 export const TOPIC_DEPTH = UNIT_DEPTH + 1;

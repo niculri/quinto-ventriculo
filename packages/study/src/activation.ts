@@ -1,7 +1,7 @@
 // What a student turned on: each topic of a week has its own switch, and a unit with nothing (but Extras) under it is
 // one; the saved rows of a week, from before topics had switches, still count for the topics without a row of their own.
 
-import { ASSESSMENT_DEPTH, UNIT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';
+import { ASSESSMENT_DEPTH, EMPTY_PLAN, UNIT_DEPTH, ancestorName, includesExtras, isExtras } from './simple';
 import type { StudyPlan } from './simple';
 
 export const TOPIC_DEPTH = UNIT_DEPTH + 1;
@@ -78,6 +78,18 @@ export function activation(decks: readonly NamedDeck[], plan: StudyPlan): Activa
 
 export const anyOn = (decks: readonly NamedDeck[], plan: StudyPlan) =>
   activation(decks, plan).on.size > 0;
+
+export type SwitchKind = 'topic' | 'week' | 'lecture';
+
+/** What the switches of a group of decks are called: its topics if it has weeks with topics, else weeks or lectures. */
+export function switchKind(
+  decks: readonly NamedDeck[],
+  a: Activation = activation(decks, EMPTY_PLAN),
+): SwitchKind {
+  const named = decks.filter((d) => a.switches.has(d.id)).map((d) => d.name.split('::'));
+  if (named.some((parts) => parts.length === TOPIC_DEPTH + 1)) return 'topic';
+  return named.some((parts) => /^S\d/.test(parts.at(-1)!)) ? 'week' : 'lecture';
+}
 
 /** How many of a week's topics are on, or of a lecture (one switch) whether it is; null above them. */
 export function unitState(a: Activation, unitId: string): { on: number; total: number } | null {

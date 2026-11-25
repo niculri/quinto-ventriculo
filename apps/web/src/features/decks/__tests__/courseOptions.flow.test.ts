@@ -53,6 +53,10 @@ describe('the new cards a day of a course', () => {
       '/semesters/1/courses/anatomia-1/anki/certamen-1',
     );
     expect(within(second).getByText('Sin fecha de prueba')).toBeInTheDocument();
+    // One number for the whole assessment, shared by its topics, not one each.
+    expect(await screen.findByRole('region', BOX)).toHaveTextContent(
+      'Cada certamen tiene un solo número, no uno por tema: sus nuevas salen de lo que tengas activado en él, en orden.',
+    );
     await waitFor(() => expect(numberOf('Certamen 2')).toBeEnabled());
     expect(numberOf('Certamen 1')).toHaveValue(20);
 

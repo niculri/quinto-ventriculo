@@ -10,6 +10,7 @@ import {
   isExamDate,
   longDate,
   LONGEST_STATUS,
+  switchKind,
 } from '@qv/study';
 import type { AssessmentView, StudyPlan } from '@qv/study';
 import { roughToday } from '../../progress/queries';
@@ -17,6 +18,7 @@ import { Skeleton } from '../../../shared/ui/Loading';
 import { Reserved } from '../../../shared/ui/Reserved';
 import { card } from '../../../shared/ui/styles';
 import { Switch } from '../../../shared/ui/Switch';
+import { descendants } from '../../catalog/model/tree';
 import type { DeckNode } from '../../catalog/model/tree';
 import { useAssessmentOptions } from '../hooks/useAssessmentOptions';
 import { MAX_NEW_PER_DAY } from '../model/assessmentOptions';
@@ -38,7 +40,7 @@ export function AssessmentOptions({
   return (
     <section aria-label={s.assessment.label(node.label)} className={`${card} mt-6 p-4 sm:p-6`}>
       <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:gap-8">
-        <NewPerDayField o={o} label={node.label} />
+        <NewPerDayField o={o} node={node} />
         <ExamDateField o={o} plan={plan} />
       </div>
 
@@ -54,33 +56,43 @@ export function AssessmentOptions({
   );
 }
 
-function NewPerDayField({ o, label }: { o: Options; label: string }) {
+/** The number, and right under it that it is one for the whole assessment, shared by all that is turned on. */
+function NewPerDayField({ o, node }: { o: Options; node: DeckNode }) {
   const { kind, computed, locked, shownNumber } = o.pace;
-  const manualHelp = s.assessment.manualHelp(label, DEFAULT_NEW_PER_DAY);
+  const manualHelp = s.assessment.manualHelp(DEFAULT_NEW_PER_DAY);
+  const computedHelp = s.assessment.computedHelp(o.value);
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="min-w-0">
-        <label htmlFor={o.numberId} className="text-sm font-medium">
-          {s.assessment.newPerDay}
-        </label>
-        <Reserved longest={manualHelp} className="mt-0.5 text-xs text-muted">
-          {computed || kind === 'nothing-on' ? s.assessment.computedHelp(o.value) : manualHelp}
-        </Reserved>
+    <div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <label htmlFor={o.numberId} className="text-sm font-medium">
+            {s.assessment.newPerDay}
+          </label>
+          <Reserved
+            longest={[manualHelp, s.assessment.computedHelp(MAX_NEW_PER_DAY)]}
+            className="mt-0.5 text-xs text-muted"
+          >
+            {computed || kind === 'nothing-on' ? computedHelp : manualHelp}
+          </Reserved>
+        </div>
+        <input
+          id={o.numberId}
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={MAX_NEW_PER_DAY}
+          disabled={locked}
+          placeholder="—"
+          value={shownNumber}
+          onChange={(e) => o.setText(e.target.value)}
+          onBlur={() => !locked && o.commit()}
+          onKeyDown={(e) => e.key === 'Enter' && !locked && o.commit()}
+          className="w-20 flex-none rounded-lg border border-border bg-surface px-3 py-2 text-right text-sm tabular-nums disabled:bg-surface-2 disabled:text-muted"
+        />
       </div>
-      <input
-        id={o.numberId}
-        type="number"
-        inputMode="numeric"
-        min={0}
-        max={MAX_NEW_PER_DAY}
-        disabled={locked}
-        placeholder="—"
-        value={shownNumber}
-        onChange={(e) => o.setText(e.target.value)}
-        onBlur={() => !locked && o.commit()}
-        onKeyDown={(e) => e.key === 'Enter' && !locked && o.commit()}
-        className="w-20 flex-none rounded-lg border border-border bg-surface px-3 py-2 text-right text-sm tabular-nums disabled:bg-surface-2 disabled:text-muted"
-      />
+      <p className="mt-2 text-xs text-muted">
+        {s.assessment.shared(node.label, switchKind(descendants(node)))}
+      </p>
     </div>
   );
 }

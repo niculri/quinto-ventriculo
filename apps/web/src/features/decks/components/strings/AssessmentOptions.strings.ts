@@ -1,13 +1,25 @@
 // The texts of AssessmentOptions.
 
+import type { SwitchKind } from '@qv/study';
+
 const savedFailed = 'No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.';
+
+/** Each kind of switch: one of them, and studying one alone. */
+const WORDS = {
+  topic: ['tema', 'un tema solo'],
+  week: ['semana', 'una semana sola'],
+  lecture: ['clase', 'una clase sola'],
+} as const;
+
+const shared = (deck: string, kind: SwitchKind) =>
+  `Es un solo número para todo ${deck}, no uno por ${WORDS[kind][0]}: las nuevas salen de lo que tengas activado, en orden, y si estudias ${WORDS[kind][1]}, también cuentan en ese número.`;
 
 export const assessmentOptionsStrings = {
   assessment: {
     label: (deck: string) => `Opciones de ${deck}`,
     newPerDay: 'Tarjetas nuevas por día',
-    manualHelp: (deck: string, fallback: number) =>
-      `En todo ${deck}, sumando lo que tengas activado. Si no lo cambias, son ${fallback}.`,
+    manualHelp: (fallback: number) => `Si no lo cambias, son ${fallback}.`,
+    shared,
     computedHelp: (value: number) =>
       `Lo calcula el sitio con tu fecha. Si la sacas, vuelve a ser ${value}.`,
     examDate: 'Fecha de la prueba',

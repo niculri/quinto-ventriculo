@@ -59,6 +59,10 @@ describe('a deck’s page, what it says', () => {
       ).toBeEnabled(),
     );
     expect(box.textContent).toMatchSnapshot();
+    // Beside the number: it is one for the whole assessment, which a topic studied alone also counts in.
+    expect(box).toHaveTextContent(
+      'Es un solo número para todo Certamen 1, no uno por tema: las nuevas salen de lo que tengas activado, en orden, y si estudias un tema solo, también cuentan en ese número.',
+    );
     const tree = await screen.findByRole('list', { name: 'Submazos' });
     expect(await within(tree).findAllByRole('switch')).not.toHaveLength(0);
     await waitFor(() => expect(tree.textContent).toContain('Hoy: solo nuevas'));

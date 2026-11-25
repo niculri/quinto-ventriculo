@@ -2,7 +2,7 @@
 // the assessment's own page, with the test's date only read (it is chosen there).
 
 import { Link } from 'react-router';
-import { longDate } from '@qv/study';
+import { longDate, switchKind } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
 import { Skeleton } from '../../../shared/ui/Loading';
@@ -10,7 +10,7 @@ import { Reserved } from '../../../shared/ui/Reserved';
 import { card } from '../../../shared/ui/styles';
 import { useAssessmentView } from '../../progress/queries';
 import { useDraftOnly } from '../../catalog/hooks/useDraftOnly';
-import { deckTitle, hasPage } from '../../catalog/model/tree';
+import { deckTitle, descendants, hasPage } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { useAssessmentOptions } from '../hooks/useAssessmentOptions';
 import { MAX_NEW_PER_DAY } from '../model/assessmentOptions';
@@ -29,7 +29,7 @@ export function CourseOptions({
   return (
     <section aria-label={s.label(deckTitle(node))} className={`${card} mt-6 p-4 sm:p-6`}>
       <p className="text-sm font-medium">{s.newPerDay}</p>
-      <p className="mt-0.5 text-xs text-muted">{s.help}</p>
+      <p className="mt-0.5 text-xs text-muted">{s.help(switchKind(descendants(node)))}</p>
       <ul className="mt-3 divide-y divide-border">
         {assessments.map((a) => (
           <AssessmentRow key={a.id} node={a} plan={plan} />

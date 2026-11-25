@@ -6,6 +6,7 @@ import {
   anyOn,
   decksGivingNew,
   switchesUnder,
+  switchKind,
   topicRows,
   unitRows,
   unitState,
@@ -40,6 +41,12 @@ describe('the switches', () => {
     expect(a.topicsOf).toEqual(new Map([['w', ['v1', 'v2']]]));
     expect(a.on.size).toBe(0);
     expect(anyOn(DECKS, EMPTY_PLAN)).toBe(false);
+  });
+
+  it('are called topics where weeks have them, else weeks or lectures', () => {
+    expect(switchKind(DECKS)).toBe('topic');
+    expect(switchKind([{ id: 'l', name: 'R::S::C::A::08 - Clase' }])).toBe('lecture');
+    expect(switchKind([{ id: 's', name: 'R::S::C::A::S1 - Semana' }])).toBe('week');
   });
 
   it('a week turned on before topics had switches turns all its topics on', () => {

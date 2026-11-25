@@ -3,7 +3,7 @@
 
 import { dayOf } from '@qv/srs';
 import type { AssessmentSetting, DeckProgress, StudyPreferences } from '@qv/schema/user';
-import { activation, decksGivingNew, TOPIC_DEPTH } from './activation';
+import { activation, decksGivingNew, switchKind } from './activation';
 import { ANSWERS_PER_NEW_CARD, DEFAULT_ANSWER_MS, newPerDayOf } from './simple';
 import type { StudyPlan } from './simple';
 import { catchUpPlan } from './catchUp';
@@ -75,7 +75,7 @@ export function assessmentFacts(
       if ((d.ownCards ?? 0) > 0) facts.anyOn = true;
     }
   }
-  facts.offKind = offKindOf(own, a.switches);
+  facts.offKind = switchKind(own, a);
   for (const unit of own.filter((d) => a.switches.has(d.id))) {
     if (a.on.has(unit.id)) continue;
     // Extras do not count: they are not what turning it on would add by default.
@@ -85,16 +85,6 @@ export function assessmentFacts(
     if (left > 0) facts.unitsOff++;
   }
   return facts;
-}
-
-/** What the switches of an assessment are called: its topics if it has weeks with topics, else weeks or lectures. */
-function offKindOf(
-  decks: readonly CountedDeck[],
-  switches: ReadonlySet<string>,
-): AssessmentFacts['offKind'] {
-  const named = decks.filter((d) => switches.has(d.id)).map((d) => d.name.split('::'));
-  if (named.some((parts) => parts.length === TOPIC_DEPTH + 1)) return 'topic';
-  return named.some((parts) => /^S\d/.test(parts.at(-1)!)) ? 'week' : 'lecture';
 }
 
 // Constant while one studies (answering moves a card from left to answered today); turning a lecture on changes it.

@@ -4,12 +4,13 @@ export {
   activation,
   anyOn,
   switchesUnder,
+  switchKind,
   topicRows,
   unitRows,
   unitState,
   TOPIC_DEPTH,
 } from './activation';
-export type { Activation } from './activation';
+export type { Activation, SwitchKind } from './activation';
 export {
   ancestorName,
   ASSESSMENT_DEPTH,

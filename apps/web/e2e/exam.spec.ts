@@ -198,7 +198,7 @@ for (const width of [null, 320]) {
     await same('turning it off');
 
     await field.fill(inDays(30));
-    await expect(options.getByRole('status')).toContainText('Activa una semana');
+    await expect(options.getByRole('status')).toContainText('Activa un tema, una semana');
     const withDate = await positions(page);
     await page.getByRole('switch', { name: WEEK }).click();
     await expect(options.getByRole('status')).toContainText('Faltan 30 días');

@@ -20,6 +20,10 @@ test('«Estudiar» on a topic off turns it on and opens it; back on the list, «
   await expect(list.getByRole('listitem').last()).toContainText(/\d+ tarjetas/);
 
   await list.getByRole('button', { name: 'Activar y estudiar Mazo de prueba' }).click();
+  await page
+    .getByRole('dialog', { name: 'Cómo se estudia aquí' })
+    .getByRole('button', { name: 'Entendido' })
+    .click();
   await expect(page.getByRole('button', { name: 'Mostrar respuesta' })).toBeVisible();
   await page.getByRole('button', { name: 'Mostrar respuesta' }).click();
   await page
@@ -48,8 +52,16 @@ test('turning a topic on moves nothing in its row nor the rows below', async ({ 
   const rows = list.getByRole('listitem');
   const topic = list.getByRole('switch', { name: 'Activar Mazo de prueba' });
   await expect(rows.last()).toContainText('Sin activar');
+  // On the page, not on the screen: a click can scroll a phone's screen.
   const boxes = async () =>
-    Promise.all([rows.first(), rows.last(), topic].map(async (l) => (await l.boundingBox())!));
+    Promise.all(
+      [rows.first(), rows.last(), topic].map((l) =>
+        l.evaluate((e) => {
+          const r = e.getBoundingClientRect();
+          return { y: Math.round(r.top + window.scrollY), height: Math.round(r.height) };
+        }),
+      ),
+    );
   const before = await boxes();
   await topic.click();
   await expect(rows.last()).toContainText(/Hoy: \d+ nuevas/);

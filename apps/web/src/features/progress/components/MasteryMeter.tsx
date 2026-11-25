@@ -37,7 +37,7 @@ export function MasteryMeter({
       >
         <span className="block h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
       </span>
-      <span className="w-9 flex-none text-left text-xs font-normal text-muted tabular-nums">
+      <span className="w-10 flex-none text-left text-xs font-normal whitespace-nowrap text-muted tabular-nums">
         {value === null ? (
           <>
             <span aria-hidden="true">{s.mastery.none}</span>

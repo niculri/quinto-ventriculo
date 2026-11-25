@@ -37,6 +37,10 @@ test('«Estudiar» on a topic off turns it on and opens it; back on the list, «
   await expect(notice).toBeVisible();
   await expect(topic).toBeChecked();
   await expect(list.getByRole('listitem').last()).toContainText(/Vistas 1 de \d+/);
+  // One card seen and remembered is «100 %» of dominio, on one line.
+  const meter = page.locator('[data-mastery]').first();
+  await expect(meter).toContainText('100 %');
+  expect((await meter.boundingBox())!.height).toBeLessThanOrEqual(20);
 
   await notice.getByRole('button', { name: 'Deshacer' }).click();
   await expect(notice).toHaveCount(0);

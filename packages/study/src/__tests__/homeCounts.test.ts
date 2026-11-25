@@ -334,36 +334,44 @@ describe('the cards due today', () => {
 });
 
 describe('the mastery of a course', () => {
-  it('is the recall of its decks over their own cards', () => {
-    const home = homeOf(deckCounts(UNIT1, { recall: 15 }), deckCounts(UNIT2, { recall: 5 }));
-    expect(counts(base(), home).mastery).toBeCloseTo(20 / 40, 10);
-  });
-
-  it('does not count suspended cards among the cards', () => {
+  it('is the recall of its decks over the cards seen', () => {
     const home = homeOf(
-      deckCounts(UNIT1, { recall: 15, suspended: 10 }),
-      deckCounts(UNIT2, { recall: 5 }),
+      deckCounts(UNIT1, { seen: 20, recall: 15 }),
+      deckCounts(UNIT2, { seen: 10, recall: 5 }),
     );
     expect(counts(base(), home).mastery).toBeCloseTo(20 / 30, 10);
   });
 
-  it('leaves Extras out unless the assessment includes them', () => {
-    const home = homeOf(deckCounts(UNIT1, { recall: 15 }), deckCounts(EXTRAS, { recall: 4 }));
-    expect(counts(base(), home).mastery).toBeCloseTo(15 / 40, 10);
-    expect(counts(base({ includeExtras: true }), home).mastery).toBeCloseTo(19 / 45, 10);
-  });
-
-  it('is 0 for a course with no cards, and a deck with no figures counts as not remembered', () => {
-    expect(counts(base({ own: {} })).mastery).toBe(0);
-    expect(counts(base()).mastery).toBe(0);
-  });
-
-  it('never counts more suspended cards than a deck has', () => {
+  it('does not count the seen cards that are suspended: all suspended but the new ones of deck_progress()', () => {
     const home = homeOf(
-      deckCounts(UNIT2, { recall: 0, suspended: 99 }),
-      deckCounts(UNIT1, { recall: 6 }),
+      deckCounts(UNIT1, { seen: 20, recall: 15, suspended: 10 }),
+      deckCounts(UNIT2, { seen: 4, recall: 3, suspended: 2 }),
     );
-    expect(counts(base(), home).mastery).toBeCloseTo(6 / 30, 10);
+    const progress = [UNIT1, UNIT2].map((deckId) => ({
+      deckId,
+      seen: 0,
+      newSuspended: 6,
+      overdue: 0,
+      newToday: 0,
+      newYesterday: 0,
+    }));
+    expect(counts({ ...base(), progress }, home).mastery).toBeCloseTo(18 / 20, 10);
+  });
+
+  it('leaves Extras out unless the assessment includes them', () => {
+    const home = homeOf(
+      deckCounts(UNIT1, { seen: 20, recall: 15 }),
+      deckCounts(EXTRAS, { seen: 5, recall: 4 }),
+    );
+    expect(counts(base(), home).mastery).toBeCloseTo(15 / 20, 10);
+    expect(counts(base({ includeExtras: true }), home).mastery).toBeCloseTo(19 / 25, 10);
+  });
+
+  it('is null while nothing was seen', () => {
+    expect(counts(base({ own: {} })).mastery).toBeNull();
+    expect(
+      counts(base(), homeOf(deckCounts(UNIT1, { suspended: 3, hiddenNew: 3 }))).mastery,
+    ).toBeNull();
   });
 });
 
@@ -433,13 +441,13 @@ describe('what the home page has not been told', () => {
     );
   });
 
-  it('a deck without its own count of cards gives no new ones and weighs nothing in the mastery', () => {
+  it('a deck without its own count of cards gives no new ones, and with nothing seen there is no mastery', () => {
     const b = base({ own: {} });
     const home = homeOf(deckCounts(UNIT1, { recall: 9 }));
     expect(counts(b, home).counts).toEqual({ new: 0, learning: 0, review: 0 });
-    expect(counts(b, home).mastery).toBe(0);
+    expect(counts(b, home).mastery).toBeNull();
     const noCount = { ...base(), decks: base().decks.map(({ ownCards: _own, ...d }) => d) };
-    expect(counts(noCount).mastery).toBe(0);
+    expect(counts(noCount).mastery).toBeNull();
   });
 
   it('a card due after today is not counted today, whether it is a review or a day-learning card', () => {
@@ -463,9 +471,12 @@ describe('what the home page has not been told', () => {
   it('an Extras deck whose assessment is missing from the tree is left out of the mastery', () => {
     const b = base();
     const noAssessment = { ...b, decks: b.decks.filter((d) => d.id !== ASSESSMENT) };
-    const home = homeOf(deckCounts(EXTRAS, { recall: 5 }), deckCounts(UNIT1, { recall: 15 }));
+    const home = homeOf(
+      deckCounts(EXTRAS, { seen: 5, recall: 5 }),
+      deckCounts(UNIT1, { seen: 20, recall: 15 }),
+    );
     expect(homeCourseCounts(noAssessment, COURSE, catalog(), home, NOON).mastery).toBeCloseTo(
-      15 / 40,
+      15 / 20,
       10,
     );
   });

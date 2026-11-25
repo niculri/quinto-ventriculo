@@ -36,7 +36,8 @@ import type {
   UserPreset,
 } from '@qv/schema/user';
 import { assessmentPaces, assessmentsWithDeadline } from './pace';
-import { decksGivingNew, simpleConfigs } from './simple';
+import { decksGivingNew } from './activation';
+import { simpleConfigs } from './simple';
 import type { StudyPlan } from './simple';
 
 export const cardKey = (c: { noteGuid: string; ord: number }) => `${c.noteGuid}\u001f${c.ord}`;

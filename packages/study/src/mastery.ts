@@ -1,5 +1,5 @@
-// Dominio: how much of a deck one would remember today, the average of FSRS's retrievability over its cards with the
-// ones never seen as 0; it goes up by moving forward and down with time.
+// Dominio: how much of what one already saw of a deck one would remember today, the average of FSRS's retrievability
+// over its seen cards; and how many of a deck's cards one has seen.
 
 import type { StoredCard } from '@qv/schema/user';
 import { retrievability } from '@qv/srs';
@@ -17,12 +17,8 @@ function decksLeftOut(data: StudyData): Map<string, boolean> {
   return leftOut;
 }
 
-function cardRetrievability(
-  row: StoredCard | undefined,
-  fsrsParams: readonly number[],
-  nowMs: number,
-): number {
-  if (!row || row.phase === 'new' || row.stability === null || row.lastReview === null) return 0;
+function cardRetrievability(row: StoredCard, fsrsParams: readonly number[], nowMs: number): number {
+  if (row.stability === null || row.lastReview === null) return 0;
   const days = Math.max(0, nowMs - Date.parse(row.lastReview)) / 86_400_000;
   return retrievability(
     fsrsParams,
@@ -31,9 +27,13 @@ function cardRetrievability(
   );
 }
 
-/** Cards under «No mostrar más» do not count, nor Extras if the assessment does not include them. */
-export function masteryByDeck(data: StudyData, nowMs = Date.now()): Map<string, number> {
-  const configs = configsFor(data, nowMs);
+const seenRow = (row: StoredCard | undefined): row is StoredCard => !!row && row.phase !== 'new';
+
+/** Adds each card's value to its deck and the decks above it that were asked for. */
+function sumUp(
+  data: StudyData,
+  valueOf: (row: StoredCard | undefined, deckId: string) => number | null,
+) {
   const parents = new Map(data.decks.map((d) => [d.id, d.parentId]));
   const leftOut = decksLeftOut(data);
   const wanted = new Set(deckIds(data.deck));
@@ -41,20 +41,39 @@ export function masteryByDeck(data: StudyData, nowMs = Date.now()): Map<string, 
   const count = new Map<string, number>();
   for (const c of data.deck.cards) {
     if (leftOut.get(c.deckId)) continue;
-    const row = data.rows.get(cardKey(c));
-    if (row?.suspended) continue;
-    const r = cardRetrievability(row, configs.get(c.deckId)?.fsrsParams ?? [], nowMs);
+    const v = valueOf(data.rows.get(cardKey(c)), c.deckId);
+    if (v === null) continue;
     for (let id: string | null | undefined = c.deckId; id; id = parents.get(id)) {
       if (!wanted.has(id)) continue;
-      sum.set(id, (sum.get(id) ?? 0) + r);
+      sum.set(id, (sum.get(id) ?? 0) + v);
       count.set(id, (count.get(id) ?? 0) + 1);
     }
   }
+  return { wanted, sum, count };
+}
+
+/**
+ * Only over the cards already seen, so it does not start at 0: a deck with none seen is left out. Cards under «No
+ * mostrar más» do not count, nor Extras if the assessment does not include them.
+ */
+export function masteryByDeck(data: StudyData, nowMs = Date.now()): Map<string, number> {
+  const configs = configsFor(data, nowMs);
+  const { sum, count } = sumUp(data, (row, deckId) => {
+    if (!seenRow(row) || row.suspended) return null;
+    return cardRetrievability(row, configs.get(deckId)?.fsrsParams ?? [], nowMs);
+  });
   const out = new Map<string, number>();
-  for (const id of wanted) {
-    const n = count.get(id) ?? 0;
-    out.set(id, n === 0 ? 0 : sum.get(id)! / n);
-  }
+  for (const [id, n] of count) out.set(id, sum.get(id)! / n);
+  return out;
+}
+
+export type SeenCounts = Map<string, { seen: number; total: number }>;
+
+/** «Vistas X de Y»: the cards of each deck answered at least once, over all of them (Extras left out if off). */
+export function seenByDeck(data: StudyData): SeenCounts {
+  const { wanted, sum, count } = sumUp(data, (row) => (seenRow(row) ? 1 : 0));
+  const out = new Map<string, { seen: number; total: number }>();
+  for (const id of wanted) out.set(id, { seen: sum.get(id) ?? 0, total: count.get(id) ?? 0 });
   return out;
 }
 

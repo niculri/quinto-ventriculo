@@ -1,11 +1,18 @@
 // The study domain on top of @qv/srs: simple and assessment mode, the queue of a deck, sessions, the final review,
 // mastery, counts and the heatmap.
 export {
-  activeUnits,
+  activation,
+  anyOn,
+  switchesUnder,
+  unitRows,
+  unitState,
+  VIDEO_DEPTH,
+} from './activation';
+export type { Activation } from './activation';
+export {
   ancestorName,
   ASSESSMENT_DEPTH,
   breakdownText,
-  decksGivingNew,
   DEFAULT_NEW_PER_DAY,
   EMPTY_PLAN,
   estimateMinutes,
@@ -59,7 +66,8 @@ export { actionLabel, asNew, blankRow } from './session';
 export type { CongratsInfo, ExamNotes, HideAction, Shown } from './session';
 export { answeredTodayIn, congratsInfo, hasSeenAssessment } from './congrats';
 export { deckCounts, nextCountChange } from './deckCounts';
-export { masteryByDeck, masteryPercent } from './mastery';
+export { masteryByDeck, masteryPercent, seenByDeck } from './mastery';
+export type { SeenCounts } from './mastery';
 export {
   answerRound,
   apartSiblings,

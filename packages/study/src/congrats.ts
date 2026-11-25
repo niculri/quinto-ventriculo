@@ -9,7 +9,8 @@ import { assessmentView } from './pace';
 import { cardKey, isHidden, subtree, timingFor, toRecord } from './scheduler';
 import type { StudyData } from './scheduler';
 import type { CongratsInfo, ExamNotes } from './session';
-import { ancestorName, ASSESSMENT_DEPTH, decksGivingNew, extrasOff, isExtras } from './simple';
+import { decksGivingNew } from './activation';
+import { ancestorName, ASSESSMENT_DEPTH, extrasOff, isExtras } from './simple';
 
 interface Scan {
   info: Pick<

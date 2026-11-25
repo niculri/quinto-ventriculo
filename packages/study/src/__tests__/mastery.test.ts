@@ -1,7 +1,8 @@
-// Dominio: the average of what one would remember today over a deck’s cards, which cards leave it out and how it reads.
+// Dominio: the average of what one would remember today over a deck’s seen cards, which leave it out, how it reads, and
+// how many cards of each deck were seen.
 import { describe, expect, it } from 'vitest';
 import { retrievability } from '@qv/srs';
-import { masteryByDeck, masteryPercent } from '../mastery';
+import { masteryByDeck, masteryPercent, seenByDeck } from '../mastery';
 import {
   ASSESSMENT,
   CARDS,
@@ -28,19 +29,19 @@ const atNinety = (c: typeof n1o0, over = {}) =>
   reviewRow(c, { stability: 10, lastDaysAgo: 10, ...over });
 
 describe('masteryByDeck', () => {
-  it('a card seen as long ago as its stability is 90 % remembered; one never seen counts as 0', () => {
+  it('a card seen as long ago as its stability is 90 % remembered; one never seen does not count', () => {
     const data = makeData({ rows: [atNinety(n1o0)] });
     const m = masteryByDeck(data, NOON);
-    expect(m.get(UNIT1)).toBeCloseTo((0.9 + 0 + 0) / 3, 6);
-    expect(m.get(UNIT2)).toBe(0);
+    expect(m.get(UNIT1)).toBeCloseTo(0.9, 6);
+    expect(m.has(UNIT2)).toBe(false);
   });
 
   it('every deck of the tree gets the average of the cards below it', () => {
     const data = makeData({ rows: [atNinety(n1o0), atNinety(n3o0)] });
     const m = masteryByDeck(data, NOON);
-    expect(m.get(UNIT1)).toBeCloseTo(0.9 / 3, 6);
+    expect(m.get(UNIT1)).toBeCloseTo(0.9, 6);
     expect(m.get(UNIT2)).toBeCloseTo(0.9, 6);
-    expect(m.get(ASSESSMENT)).toBeCloseTo((0.9 + 0.9) / 4, 6);
+    expect(m.get(ASSESSMENT)).toBeCloseTo(0.9, 6);
     expect(m.get(ROOT)).toBe(m.get(ASSESSMENT));
   });
 
@@ -55,11 +56,13 @@ describe('masteryByDeck', () => {
   });
 
   it('a suspended card is not part of the average', () => {
-    const data = makeData({ rows: [atNinety(n1o0), atNinety(n1o1, { suspended: true })] });
-    expect(masteryByDeck(data, NOON).get(UNIT1)).toBeCloseTo(0.9 / 2, 6);
+    const data = makeData({
+      rows: [atNinety(n1o0), atNinety(n1o1, { suspended: true, lastDaysAgo: 0 })],
+    });
+    expect(masteryByDeck(data, NOON).get(UNIT1)).toBeCloseTo(0.9, 6);
   });
 
-  it('a forgotten card (new again, with a memory still stored) counts as 0, and so does one without a last review', () => {
+  it('a forgotten card (new again, with a memory still stored) does not count, and one without a last review counts 0', () => {
     const forgotten = rowFor(n1o0, {
       stability: 10,
       difficulty: 5,
@@ -67,7 +70,7 @@ describe('masteryByDeck', () => {
     });
     const noLast = atNinety(n1o1, { lastReview: null });
     const m = masteryByDeck(makeData({ rows: [forgotten, noLast, atNinety(n2o0)] }), NOON);
-    expect(m.get(UNIT1)).toBeCloseTo(0.9 / 3, 6);
+    expect(m.get(UNIT1)).toBeCloseTo(0.9 / 2, 6);
   });
 
   it('a card with stability but no difficulty is read as medium difficulty', () => {
@@ -81,8 +84,8 @@ describe('masteryByDeck', () => {
   it('Extras count only when the assessment includes them', () => {
     const rows = [atNinety(n4o0)];
     const without = masteryByDeck(makeData({ rows }), NOON);
-    expect(without.get(EXTRAS)).toBe(0);
-    expect(without.get(ASSESSMENT)).toBe(0);
+    expect(without.has(EXTRAS)).toBe(false);
+    expect(without.has(ASSESSMENT)).toBe(false);
     const plan = {
       activations: [],
       answeredDecks: [],
@@ -91,12 +94,12 @@ describe('masteryByDeck', () => {
     };
     const included = masteryByDeck(makeData({ rows, over: { plan } }), NOON);
     expect(included.get(EXTRAS)).toBeCloseTo(0.9, 6);
-    expect(included.get(ASSESSMENT)).toBeCloseTo(0.9 / 5, 6);
+    expect(included.get(ASSESSMENT)).toBeCloseTo(0.9, 6);
   });
 
-  it('a deck with no cards is 0, not a division by zero', () => {
+  it('a deck with nothing seen has no value, not a division by zero', () => {
     const m = masteryByDeck(makeData({ cards: [n3o0] }), NOON);
-    expect(m.get(UNIT1)).toBe(0);
+    expect(m.has(UNIT1)).toBe(false);
   });
 
   it('uses the preset’s own FSRS parameters: another decay remembers another share after as many days', () => {
@@ -136,8 +139,8 @@ describe('masteryByDeck at the edges of the tree', () => {
   it('studying one unit measures it and what is below it, not the decks above', () => {
     const data = makeData({ rootId: UNIT1, rows: [atNinety(n1o0)] });
     const m = masteryByDeck(data, NOON);
-    expect([...m.keys()].sort()).toEqual([UNIT1, EXTRAS].sort());
-    expect(m.get(UNIT1)).toBeCloseTo(0.9 / 3, 6);
+    expect([...m.keys()]).toEqual([UNIT1]);
+    expect(m.get(UNIT1)).toBeCloseTo(0.9, 6);
   });
 
   it('a card of a deck missing from the list is measured with the default parameters, and no deck of the tree counts it', () => {
@@ -145,13 +148,31 @@ describe('masteryByDeck at the edges of the tree', () => {
     const base = makeData({ rows: [atNinety(lost)] });
     const data = { ...base, deck: { ...base.deck, cards: [lost] } };
     const m = masteryByDeck(data, NOON);
-    expect(m.get(ROOT)).toBe(0);
-    expect(m.get(UNIT1)).toBe(0);
+    expect(m.size).toBe(0);
+    expect(seenByDeck(data).get(ROOT)).toEqual({ seen: 0, total: 0 });
   });
 
   it('an Extras deck whose assessment is not in the list counts as left out', () => {
     const data = makeData({ rows: [atNinety(n4o0)] });
     const decks = data.decks.filter((d) => d.id !== ASSESSMENT);
-    expect(masteryByDeck({ ...data, decks }, NOON).get(EXTRAS)).toBe(0);
+    expect(masteryByDeck({ ...data, decks }, NOON).has(EXTRAS)).toBe(false);
+  });
+});
+
+describe('seenByDeck', () => {
+  it('counts the cards answered at least once over all of them, up the tree; a forgotten one is new again', () => {
+    const forgotten = rowFor(n1o1, { stability: 10, difficulty: 5 });
+    const seen = seenByDeck(
+      makeData({ rows: [atNinety(n1o0), forgotten, atNinety(n3o0, { suspended: true })] }),
+    );
+    expect(seen.get(UNIT1)).toEqual({ seen: 1, total: 3 });
+    expect(seen.get(UNIT2)).toEqual({ seen: 1, total: 1 });
+    expect(seen.get(ASSESSMENT)).toEqual({ seen: 2, total: 4 });
+  });
+
+  it('leaves out the Extras of an assessment that does not include them', () => {
+    const seen = seenByDeck(makeData({ rows: [atNinety(n4o0)] }));
+    expect(seen.get(EXTRAS)).toEqual({ seen: 0, total: 0 });
+    expect(seen.get(ROOT)).toEqual({ seen: 0, total: 4 });
   });
 });

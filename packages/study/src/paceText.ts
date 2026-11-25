@@ -11,9 +11,16 @@ export function onTrackText(pace: Pace, facts: AssessmentFacts, rose: boolean): 
   return 'vas al día';
 }
 
+const OFF_WORDS = {
+  video: ['video', 'videos'],
+  week: ['semana', 'semanas'],
+  lecture: ['clase', 'clases'],
+} as const;
+
 const unitsOffText = (facts: AssessmentFacts) => {
   const n = facts.unitsOff;
-  const word = facts.unitIsWeek ? (n === 1 ? 'semana' : 'semanas') : n === 1 ? 'clase' : 'clases';
+  const [one, many] = OFF_WORDS[facts.offKind];
+  const word = n === 1 ? one : many;
   return `${n} ${word} sin activar no ${n === 1 ? 'cuenta' : 'cuentan'}`;
 };
 
@@ -71,7 +78,7 @@ export function paceStatus(
     case 'past':
       return 'Esa fecha ya pasó: salen las nuevas por día que elijas. Pon la fecha de la próxima prueba o saca esta.';
     case 'nothing-on':
-      return `${daysLeftText(pace.daysLeft!)}. Activa una semana o clase para calcular las nuevas por día.`;
+      return `${daysLeftText(pace.daysLeft!)}. Activa un video, una semana o una clase para calcular las nuevas por día.`;
     case 'final-review':
       return finalReviewStatus(pace, facts, options, finalDays, left);
     case 'finished':

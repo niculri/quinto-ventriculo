@@ -18,7 +18,7 @@ import {
   paceRose,
   planMinutes,
 } from '../pace';
-import { LONGEST_CATCH_UP, LONGEST_STATUS } from '../paceText';
+import { LONGEST_CATCH_UP, LONGEST_STATUS, paceStatus } from '../paceText';
 import type { AssessmentFacts } from '../paceTypes';
 import { catchUpText } from '../catchUp';
 import { dateOfDay, dayOfDate, daysLeftText, isExamDate, longDate, shortDate } from '../examDate';
@@ -74,7 +74,7 @@ const facts = (over: Partial<AssessmentFacts> = {}): AssessmentFacts => ({
   overdue: 0,
   anyOn: true,
   unitsOff: 0,
-  unitIsWeek: false,
+  offKind: 'lecture',
   ...over,
 });
 
@@ -155,12 +155,21 @@ describe('what is in an assessment', () => {
     expect(assessmentFacts(DECKS, plan(), [row(L1, { seen: 999 })], ASSESSMENT).newLeft).toBe(0);
   });
 
-  it('a course that goes by weeks says so', () => {
+  it('a course that goes by weeks says so, and by videos when its weeks have them', () => {
     const weeks = [
       { id: ASSESSMENT, name: 'R::S::C::A', ownCards: 0 },
       { id: L1, name: 'R::S::C::A::S3 - Columna', ownCards: 10 },
     ];
-    expect(assessmentFacts(weeks, plan(), [], ASSESSMENT).unitIsWeek).toBe(true);
+    expect(assessmentFacts(weeks, plan(), [], ASSESSMENT).offKind).toBe('week');
+    const videos = [
+      ...weeks,
+      { id: L2, name: 'R::S::C::A::S3 - Columna::01 - Vértebras', ownCards: 5 },
+    ];
+    const f = assessmentFacts(videos, plan({ activations: [] }), [], ASSESSMENT);
+    expect(f).toMatchObject({ offKind: 'video', unitsOff: 1 });
+    expect(
+      paceStatus({ kind: 'finished', newPerDay: 0, daysLeft: 3 }, f, [], 3, false, false),
+    ).toBe('Faltan 3 días · ya viste todo lo activado · 1 video sin activar no cuenta.');
   });
 });
 
@@ -446,7 +455,7 @@ describe('what the student reads', () => {
 
   it('nothing turned on: it says to turn something on', () => {
     expect(view(plan({ activations: [], assessments: [dated(12)] })).status).toMatch(
-      /Activa una semana o clase/,
+      /Activa un video, una semana o una clase/,
     );
   });
 

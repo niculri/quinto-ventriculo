@@ -17,8 +17,12 @@ export const deckTreeRowStrings = {
     news: (x: number) => (x === 1 ? ' nueva' : ' nuevas'),
     reviews: (x: number) => (x === 1 ? ' repaso' : ' repasos'),
     longestToday: 'Hoy: 99 nuevas · 99 repasos · ~99 min',
-    seen: (seen: number, total: number) => `Vistas ${n(seen)} de ${n(total)}`,
-    cards: (total: number) => `${n(total)} ${total === 1 ? 'tarjeta' : 'tarjetas'}`,
+    unseen: (seen: number, total: number) => {
+      if (total === 0) return 'Sin tarjetas';
+      if (seen === 0) return `${n(total)} sin ver`;
+      if (seen < total) return `${n(total - seen)} sin ver de ${n(total)}`;
+      return total === 1 ? 'Vista (1)' : `Todas vistas (${n(total)})`;
+    },
     topicsOn: (on: number, total: number) =>
       `${n(on)} de ${n(total)} ${total === 1 ? 'tema activado' : 'temas activados'}`,
     sep: ' · ',

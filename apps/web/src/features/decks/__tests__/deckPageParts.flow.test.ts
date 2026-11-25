@@ -259,7 +259,7 @@ it('a week the catalog has but the deck read does not yet is listed with nothing
   });
   const tree = await screen.findByRole('list', { name: 'Submazos' });
   const row = (await within(tree).findByText('S2 - Semana nueva')).closest('li')!;
-  await waitFor(() => expect(row.textContent).toContain('4 tarjetas'));
+  await waitFor(() => expect(row.textContent).toContain('4 sin ver'));
   expect(row.querySelector('[data-mastery]')).toBeNull();
 });
 

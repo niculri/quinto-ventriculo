@@ -1,4 +1,4 @@
-// Tests the parts of a row of the deck list: today's load in words and the cards seen with a week's topics on.
+// Tests the parts of a row of the deck list: today's load in words and what is left to see, with a week's topics on.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { RowSeen, RowToday } from '../DeckRowParts';
@@ -38,11 +38,16 @@ describe('today in a row', () => {
 describe('the cards seen of a row', () => {
   const seen = (props: Parameters<typeof RowSeen>[0]) => render(<RowSeen {...props} />).container;
 
-  it('counts the cards until one is seen, then «Vistas X de Y», with a bar as long', () => {
-    const before = seen({ seen: { seen: 0, total: 1 }, topics: null, topicsId: 'v' });
-    expect(before.textContent).toContain('1 tarjeta');
+  it('says what is left to see, of how many, or that all were seen, with a bar of what was seen', () => {
+    const text = (seenCards: number, total: number) =>
+      seen({ seen: { seen: seenCards, total }, topics: null, topicsId: 't' }).textContent;
+    expect(text(0, 377)).toBe('377 sin ver');
+    expect(text(64, 377)).toBe('313 sin ver de 377');
+    expect(text(377, 377)).toBe('Todas vistas (377)');
+    expect(text(1, 1)).toBe('Vista (1)');
+    expect(text(0, 0)).toBe('Sin tarjetas');
     const after = seen({ seen: { seen: 1200, total: 4800 }, topics: null, topicsId: 'w' });
-    expect(after.textContent).toContain('Vistas 1.200 de 4.800');
+    expect(after.textContent).toContain('3.600 sin ver de 4.800');
     expect(after.querySelector('[style]')).toHaveStyle({ width: '25%' });
     expect(
       seen({ seen: undefined, topics: null, topicsId: 'x' }).querySelector('.animate-pulse'),
@@ -61,6 +66,6 @@ describe('the cards seen of a row', () => {
     const all = seen({ seen: { seen: 0, total: 9 }, topics: { on: 1, total: 1 }, topicsId: 'all' });
     expect(document.getElementById('all')).toHaveTextContent('1 de 1 tema activado');
     expect(all.querySelector('.sm\\:inline')).toBeNull();
-    expect(screen.getAllByText(/tarjetas/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/9 sin ver/).length).toBeGreaterThan(0);
   });
 });

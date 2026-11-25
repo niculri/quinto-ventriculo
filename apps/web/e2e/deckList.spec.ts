@@ -17,7 +17,7 @@ test('«Estudiar» on a topic off turns it on and opens it; back on the list, «
   const topic = list.getByRole('switch', { name: 'Activar Mazo de prueba' });
   await expect(topic).not.toBeChecked();
   await expect(list.getByRole('listitem').last()).toContainText('Sin activar');
-  await expect(list.getByRole('listitem').last()).toContainText(/\d+ tarjetas/);
+  await expect(list.getByRole('listitem').last()).toContainText(/^\D*\d+ sin ver(?! de)/);
 
   await list.getByRole('button', { name: 'Activar y estudiar Mazo de prueba' }).click();
   await page
@@ -36,7 +36,7 @@ test('«Estudiar» on a topic off turns it on and opens it; back on the list, «
   const notice = page.getByRole('status').filter({ hasText: 'Se activó «Mazo de prueba»' });
   await expect(notice).toBeVisible();
   await expect(topic).toBeChecked();
-  await expect(list.getByRole('listitem').last()).toContainText(/Vistas 1 de \d+/);
+  await expect(list.getByRole('listitem').last()).toContainText(/\d+ sin ver de \d+/);
   // One card seen and remembered is «100 %» of dominio, on one line.
   const meter = page.locator('[data-mastery]').first();
   await expect(meter).toContainText('100 %');
@@ -46,7 +46,7 @@ test('«Estudiar» on a topic off turns it on and opens it; back on the list, «
   await expect(notice).toHaveCount(0);
   await expect(topic).not.toBeChecked();
   // What was seen stays seen, even turned off.
-  await expect(list.getByRole('listitem').last()).toContainText(/Vistas 1 de \d+/);
+  await expect(list.getByRole('listitem').last()).toContainText(/\d+ sin ver de \d+/);
 });
 
 test('turning a topic on moves nothing in its row nor the rows below', async ({ page }) => {

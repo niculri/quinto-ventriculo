@@ -59,9 +59,9 @@ export function RowToday({
 }
 
 /**
- * «Vistas X de Y» (or «Y tarjetas» before the first) on one line that never wraps, and a thin bar. A week says «N de M
- * temas activados»: beside it while only some are on, and on a phone on a line of its own, always, so that nothing
- * moves when a topic turns on.
+ * What is left to see («377 sin ver», «313 sin ver de 377», «Todas vistas (377)») on one line that never wraps, and a
+ * thin bar of what was seen. A week says «N de M temas activados»: beside it while only some are on, and on a phone on
+ * a line of its own, always, so that nothing moves when a topic turns on.
  */
 export function RowSeen({
   seen,
@@ -80,7 +80,7 @@ export function RowSeen({
       <span className="block h-4 truncate text-xs text-muted tabular-nums">
         {seen ? (
           <>
-            {seen.seen > 0 ? s.tree.seen(seen.seen, seen.total) : s.tree.cards(seen.total)}
+            {s.tree.unseen(seen.seen, seen.total)}
             {partial ? (
               <span aria-hidden="true" className="hidden sm:inline">
                 {s.tree.sep}

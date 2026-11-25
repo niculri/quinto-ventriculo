@@ -41,7 +41,7 @@ export function HeaderLines({ note, ghost = false }: { note: NoteSummary; ghost?
           <Run ghost={ghost} text={kindStrings[note.kind]} />
         </p>
       )}
-      <Title className="font-serif text-[1.7rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
+      <Title className="font-serif text-[1.875rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
         <Run ghost={ghost} text={note.title} />
       </Title>
       {note.subtitle ? (

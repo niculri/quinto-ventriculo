@@ -84,7 +84,13 @@ async function load(
 describe('npm run deploy, its arguments', () => {
   it('hands deploy the options it read, with the default site, and leaves the code deploy returns', async () => {
     const r = await load(['--dry-run', '--wait=5'], { deployCode: 1 });
-    expect(r.options).toEqual({ dryRun: true, skipCiCheck: false, waitMinutes: 5, smokeUrl: SITE });
+    expect(r.options).toEqual({
+      dryRun: true,
+      skipCiCheck: false,
+      skipSchemaCheck: false,
+      waitMinutes: 5,
+      smokeUrl: SITE,
+    });
     expect(r.code).toBe(1);
   });
 
@@ -175,6 +181,18 @@ describe('the tools it hands to deploy', () => {
     vi.stubEnv('QV_PRESENT', '');
     expect(r.environment!.hasVariable('QV_PRESENT')).toBe(true);
     expect(r.environment!.hasVariable('QV_ABSENT_VARIABLE')).toBe(false);
+  });
+
+  it('variable reads the terminal’s, and capture gives its extra variables to that one process only', async () => {
+    const r = await load([], { script: (child) => child.emit('close', 0) });
+    vi.stubEnv('QV_PRESENT', 'here');
+    expect(r.environment!.variable('QV_PRESENT')).toBe('here');
+    expect(r.environment!.variable('QV_ABSENT_VARIABLE')).toBeUndefined();
+    await r.environment!.capture('npm', ['run', 'x'], { QV_ONLY_THIS: 'secret' });
+    await r.environment!.capture('git', ['status']);
+    expect(r.spawned[0]!.options.env).toMatchObject({ QV_ONLY_THIS: 'secret' });
+    expect(r.spawned[1]!.options.env).not.toHaveProperty('QV_ONLY_THIS');
+    expect(process.env.QV_ONLY_THIS).toBeUndefined();
   });
 
   it('sleep waits that long, now is the wall clock, log prints a line', async () => {

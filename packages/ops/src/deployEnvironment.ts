@@ -7,10 +7,16 @@ export interface CommandResult {
 }
 
 export interface DeployEnvironment {
-  capture(command: string, args: readonly string[]): Promise<CommandResult>;
+  /** `extra`: variables only this command gets (a connection string for the one process that connects). */
+  capture(
+    command: string,
+    args: readonly string[],
+    extra?: Readonly<Record<string, string>>,
+  ): Promise<CommandResult>;
   stream(command: string, args: readonly string[], cwd?: string): Promise<number>;
   readFile(path: string): Promise<string | null>;
   hasVariable(name: string): boolean;
+  variable(name: string): string | undefined;
   sleep(ms: number): Promise<void>;
   now(): number;
   log(line: string): void;

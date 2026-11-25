@@ -46,9 +46,18 @@ interface World {
   buildCode: number;
   wranglerCode: number;
   smokeOk: boolean;
+  // `.env.cloud` and what `npm run db:schema:compare` answers for each database.
+  cloudEnv: string | null;
+  schema: Record<string, CommandResult>;
   // Answers of git by its exact arguments, instead of the usual ones; `crash` makes the call throw.
   gitAnswers?: Record<string, CommandResult | 'crash'>;
 }
+
+const SAME: CommandResult = {
+  code: 0,
+  stdout: 'the schema of the database is the snapshot\n',
+  stderr: '',
+};
 
 const good = (over: Partial<World> = {}): World => ({
   status: ['?? docs/plan/notes.md\0?? .claude/specs/in-progress/task.md\0'],
@@ -63,6 +72,8 @@ const good = (over: Partial<World> = {}): World => ({
   buildCode: 0,
   wranglerCode: 0,
   smokeOk: true,
+  cloudEnv: 'USERS_DATABASE_URL=postgresql://u\nCONTENT_DATABASE_URL=postgresql://c\n',
+  schema: { users: SAME, content: SAME },
   ...over,
 });
 
@@ -74,6 +85,7 @@ function fake(world: World) {
   let statusCalls = 0;
   let headCalls = 0;
   const ghArgs: (readonly string[])[] = [];
+  const compared: string[] = [];
   const ok = (stdout: string): CommandResult => ({ code: 0, stdout, stderr: '' });
   const env: DeployEnvironment = {
     capture: async (command, args) => {
@@ -126,15 +138,22 @@ function fake(world: World) {
         if (!Array.isArray(answer)) return answer;
         return ok(JSON.stringify(answer));
       }
+      if (command === 'npm') {
+        compared.push(args[4]!);
+        return world.schema[args[4]!]!;
+      }
       throw new Error(`unexpected command: ${command} ${a}`);
     },
     stream: async (command, args, cwd) => {
       streamed.push({ command, args, ...(cwd ? { cwd } : {}) });
       return command === 'npm' ? world.buildCode : world.wranglerCode;
     },
-    readFile: async (path) =>
-      path === 'apps/web/.env.local' ? world.envFile : (world.files?.[path] ?? null),
+    readFile: async (path) => {
+      if (path === '.env.cloud') return world.cloudEnv;
+      return path === 'apps/web/.env.local' ? world.envFile : (world.files?.[path] ?? null);
+    },
     hasVariable: (name) => world.shell?.includes(name) ?? false,
+    variable: () => undefined,
     sleep: async (ms) => {
       clock += ms;
     },
@@ -142,12 +161,13 @@ function fake(world: World) {
     log: (line) => logs.push(line),
     smoke: async () => world.smokeOk,
   };
-  return { env, logs, streamed, ghArgs, ghCalls: () => ghCalls };
+  return { env, logs, streamed, ghArgs, compared, ghCalls: () => ghCalls };
 }
 
 const options = (over: Partial<DeployOptions> = {}): DeployOptions => ({
   dryRun: false,
   skipCiCheck: false,
+  skipSchemaCheck: false,
   waitMinutes: null,
   smokeUrl: 'https://www.quintoventriculo.cl',
   ...over,
@@ -379,6 +399,29 @@ describe('npm run deploy, with everything in order', () => {
     expect(f.streamed[1]!.args).toContain('[sin CI] d27b0b3 Cierra el paso 1.8');
   });
 
+  it('a production database without a migration of this commit: nothing is built, and it does not wait for the CI', async () => {
+    const differs: CommandResult = {
+      code: 1,
+      stdout:
+        'users: the database differs from the snapshot (1 lines)\nMissing in the database: study/functions/my_card_stats.sql\n',
+      stderr: '',
+    };
+    const f = fake(good({ schema: { users: differs, content: SAME } }));
+    expect(await deploy(f.env, options())).toBe(1);
+    expect(text(f.logs)).toContain('study/functions/my_card_stats.sql');
+    expect(f.compared).toEqual(['users', 'content']);
+    expect(f.ghCalls()).toBe(0);
+    expect(f.streamed).toEqual([]);
+  });
+
+  it('--skip-schema-check does not compare the databases, says so and writes it in the version', async () => {
+    const f = fake(good({ cloudEnv: null }));
+    expect(await deploy(f.env, options({ skipSchemaCheck: true }))).toBe(0);
+    expect(f.compared).toEqual([]);
+    expect(text(f.logs)).toContain('BASES SIN COMPARAR CON LAS MIGRACIONES');
+    expect(f.streamed[1]!.args).toContain('[sin esquema] d27b0b3 Cierra el paso 1.8');
+  });
+
   it('--skip-ci-check still refuses a commit that is not pushed', async () => {
     const f = fake(good({ remote: OTHER }));
     expect(await deploy(f.env, options({ skipCiCheck: true }))).toBe(1);
@@ -390,15 +433,27 @@ describe('parseArgs and helpers', () => {
   it('reads the options', () => {
     expect(parseArgs([], 'https://s')).toEqual({
       kind: 'options',
-      options: { dryRun: false, skipCiCheck: false, waitMinutes: null, smokeUrl: 'https://s' },
+      options: {
+        dryRun: false,
+        skipCiCheck: false,
+        skipSchemaCheck: false,
+        waitMinutes: null,
+        smokeUrl: 'https://s',
+      },
     });
     const all = parseArgs(
-      ['--dry-run', '--wait=10', '--skip-ci-check', '--smoke-url=https://t'],
+      ['--dry-run', '--wait=10', '--skip-ci-check', '--skip-schema-check', '--smoke-url=https://t'],
       'x',
     );
     expect(all).toEqual({
       kind: 'options',
-      options: { dryRun: true, skipCiCheck: true, waitMinutes: 10, smokeUrl: 'https://t' },
+      options: {
+        dryRun: true,
+        skipCiCheck: true,
+        skipSchemaCheck: true,
+        waitMinutes: 10,
+        smokeUrl: 'https://t',
+      },
     });
     expect(parseArgs(['--wait'], 'x')).toMatchObject({ options: { waitMinutes: 30 } });
     expect(parseArgs(['--wait=0'], 'x').kind).toBe('error');

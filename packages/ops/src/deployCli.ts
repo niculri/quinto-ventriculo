@@ -14,6 +14,7 @@ function run(
   args: readonly string[],
   cwd: string,
   quiet: boolean,
+  extra: Readonly<Record<string, string>> = {},
 ): Promise<CommandResult> {
   return new Promise((resolve) => {
     const child = spawn(command, args, {
@@ -21,7 +22,7 @@ function run(
       stdio: quiet ? ['ignore', 'pipe', 'pipe'] : 'inherit',
       // Quiet commands (git, gh) fail instead of waiting for a password on the terminal that nobody sees.
       env: quiet
-        ? { ...process.env, GIT_TERMINAL_PROMPT: '0', GH_PROMPT_DISABLED: '1' }
+        ? { ...process.env, ...extra, GIT_TERMINAL_PROMPT: '0', GH_PROMPT_DISABLED: '1' }
         : process.env,
     });
     let stdout = '';
@@ -34,7 +35,7 @@ function run(
 }
 
 const environment: DeployEnvironment = {
-  capture: (command, args) => run(command, args, root, true),
+  capture: (command, args, extra) => run(command, args, root, true, extra),
   stream: async (command, args, cwd) =>
     (await run(command, args, cwd ? join(root, cwd) : root, false)).code,
   readFile: async (path) => {
@@ -45,6 +46,7 @@ const environment: DeployEnvironment = {
     }
   },
   hasVariable: (name) => process.env[name] !== undefined,
+  variable: (name) => process.env[name],
   sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
   now: () => Date.now(),
   log: (line) => console.log(line),

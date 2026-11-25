@@ -3,6 +3,7 @@
 import { checkCi, DEFAULT_WAIT_MINUTES } from './deployCi';
 import { Refusal, git } from './deployEnvironment';
 import type { Commit, DeployEnvironment } from './deployEnvironment';
+import { checkSchemas } from './deploySchema';
 import { normalizeBase } from './smoke';
 
 /** Wrangler cuts the message of a version at 100 characters. */
@@ -18,6 +19,7 @@ const WEB_ENV_OVERRIDES = ['apps/web/.env.production', 'apps/web/.env.production
 export interface DeployOptions {
   dryRun: boolean;
   skipCiCheck: boolean;
+  skipSchemaCheck: boolean;
   waitMinutes: number | null;
   smokeUrl: string;
 }
@@ -29,26 +31,34 @@ export type ParsedArgs =
 
 export const USAGE = `Uso: npm run deploy -- [opciones]
 
-Publica el Worker (web + API) solo si el commit actual ya está en origin/main y su CI en GitHub terminó bien.
-Después corre la prueba de humo.
+Publica el Worker (web + API) solo si el commit actual ya está en origin/main, las dos bases de producción tienen
+las migraciones de ese commit y su CI en GitHub terminó bien. Después corre la prueba de humo.
 
   --dry-run         hace todas las comprobaciones y se detiene antes de construir y desplegar
   --wait[=MIN]      si la CI todavía corre, la espera (por defecto ${DEFAULT_WAIT_MINUTES} min; tope ${MAX_WAIT_MINUTES})
   --smoke-url=URL   dónde correr la prueba de humo (por defecto https://www.quintoventriculo.cl)
   --skip-ci-check   SOLO EMERGENCIAS: despliega sin mirar la CI (queda escrito en la versión)
+  --skip-schema-check  SOLO EMERGENCIAS: despliega sin comparar las bases con las migraciones (queda escrito)
   --help            esta ayuda`;
+
+const FLAGS: Record<string, 'dryRun' | 'skipCiCheck' | 'skipSchemaCheck' | undefined> = {
+  '--dry-run': 'dryRun',
+  '--skip-ci-check': 'skipCiCheck',
+  '--skip-schema-check': 'skipSchemaCheck',
+};
 
 export function parseArgs(argv: readonly string[], defaultSmokeUrl: string): ParsedArgs {
   const options: DeployOptions = {
     dryRun: false,
     skipCiCheck: false,
+    skipSchemaCheck: false,
     waitMinutes: null,
     smokeUrl: defaultSmokeUrl,
   };
   for (const arg of argv) {
+    const flag = FLAGS[arg];
     if (arg === '--help' || arg === '-h') return { kind: 'help' };
-    else if (arg === '--dry-run') options.dryRun = true;
-    else if (arg === '--skip-ci-check') options.skipCiCheck = true;
+    else if (flag) options[flag] = true;
     else if (arg === '--wait') options.waitMinutes = DEFAULT_WAIT_MINUTES;
     else if (arg.startsWith('--wait=')) {
       const minutes = Number(arg.slice('--wait='.length));
@@ -75,6 +85,7 @@ export function parseArgs(argv: readonly string[], defaultSmokeUrl: string): Par
 const NPM_CONFIG_FLAGS: Record<string, string> = {
   npm_config_dry_run: '--dry-run',
   npm_config_skip_ci_check: '--skip-ci-check',
+  npm_config_skip_schema_check: '--skip-schema-check',
   npm_config_wait: '--wait',
   npm_config_smoke_url: '--smoke-url',
 };
@@ -94,8 +105,14 @@ export function npmFlagsMessage(flags: readonly string[]): string {
   );
 }
 
-export function versionMessage(sha: string, subject: string, skippedCi: boolean): string {
-  const text = `${skippedCi ? '[sin CI] ' : ''}${sha.slice(0, 7)} ${subject}`.replace(/\s+/g, ' ');
+export function versionMessage(
+  sha: string,
+  subject: string,
+  skippedCi: boolean,
+  skippedSchema = false,
+): string {
+  const marks = `${skippedCi ? '[sin CI] ' : ''}${skippedSchema ? '[sin esquema] ' : ''}`;
+  const text = `${marks}${sha.slice(0, 7)} ${subject}`.replace(/\s+/g, ' ');
   return text.length <= MESSAGE_MAX ? text : `${text.slice(0, MESSAGE_MAX - 1)}…`;
 }
 
@@ -241,6 +258,11 @@ export async function deploy(env: DeployEnvironment, options: DeployOptions): Pr
     env.log(
       `✓ Árbol limpio y ${commit.sha.slice(0, 7)} está en origin/main («${commit.subject}»).`,
     );
+    if (options.skipSchemaCheck) {
+      env.log('⚠ BASES SIN COMPARAR CON LAS MIGRACIONES (--skip-schema-check): solo emergencias.');
+    } else {
+      await checkSchemas(env);
+    }
     if (options.skipCiCheck) {
       env.log('⚠ CI SIN COMPROBAR (--skip-ci-check).');
     } else {
@@ -250,7 +272,12 @@ export async function deploy(env: DeployEnvironment, options: DeployOptions): Pr
     await checkWebEnv(env);
     env.log(`✓ ${WEB_ENV_FILE} está.`);
 
-    const message = versionMessage(commit.sha, commit.subject, options.skipCiCheck);
+    const message = versionMessage(
+      commit.sha,
+      commit.subject,
+      options.skipCiCheck,
+      options.skipSchemaCheck,
+    );
     if (options.dryRun) {
       env.log('--dry-run: todo en orden; no construyo ni despliego. Se haría:');
       env.log('    npm run build');

@@ -129,6 +129,28 @@ describe('«Estudiar» on something off', () => {
     expect(within(tree).queryByRole('button', { name: /^Activar y estudiar/ })).toBeNull();
   });
 
+  it('whoever leaves the list while it saves is not taken to study; the notice waits for the way back', async () => {
+    const study = student();
+    const real = study.setDeckActivations.bind(study);
+    let finish = () => {};
+    study.setDeckActivations = (rows) =>
+      new Promise<void>((resolve) => {
+        finish = () => void real(rows).then(resolve);
+      });
+    renderApp(ASSESSMENT_PATH, { study });
+    await userEvent.click(
+      await within(await list()).findByRole('button', {
+        name: 'Activar y estudiar Mazo de prueba',
+      }),
+    );
+    await userEvent.click(screen.getAllByRole('link', { name: 'Inicio' })[0]!);
+    await screen.findByRole('heading', { name: /^Hola/ });
+    await act(async () => finish());
+    await waitFor(() => expect(activationNotice.get()?.armed).toBe(true));
+    expect(screen.queryByRole('button', { name: 'Mostrar respuesta' })).toBeNull();
+    expect(screen.getByRole('heading', { name: /^Hola/ })).toBeInTheDocument();
+  });
+
   it('if it cannot turn it on, it stays on the list and says so', async () => {
     const study = student();
     study.setDeckActivations = () => Promise.reject(new Error('sin conexión'));

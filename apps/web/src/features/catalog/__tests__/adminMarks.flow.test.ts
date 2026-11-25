@@ -57,18 +57,23 @@ const body = () =>
     .map((e) => e.innerHTML.replace(/_r_[a-z0-9]+_|:r[a-z0-9]+:/g, 'id'))
     .join('\n');
 
-/** The page, with what it reads: no loading placeholder, and the same twice in a row. */
-const loaded = async () => {
+/**
+ * The page, with what it reads: no loading placeholder, and the same twice in a row. Not the page before it, which
+ * stays on screen, just as steady, while a page's code loads for the first time.
+ */
+const loaded = async (before?: string) => {
   let last = '';
   await waitFor(
     () => {
       const now = body();
-      const steady = now === last && !document.querySelector('main .animate-pulse');
+      const steady =
+        now === last && now !== before && !document.querySelector('main .animate-pulse');
       last = now;
       expect(steady).toBe(true);
     },
     { interval: 150 },
   );
+  return last;
 };
 
 describe('the admin mode in the pages', () => {
@@ -135,11 +140,11 @@ describe('the admin mode in the pages', () => {
   it('an administrator in the student mode sees the pages and the menu a student sees', async () => {
     const seen: Record<string, string> = {};
     const first = renderApp('/home', { admin: localAdminRepository({ admin: false }) });
+    let before: string | undefined;
     for (const page of PAGES) {
       await first.router.navigate(page);
       await screen.findByRole('navigation', { name: 'Menú del sitio' });
-      await loaded();
-      seen[page] = body();
+      before = seen[page] = await loaded(before);
     }
     first.unmount();
 
@@ -148,10 +153,11 @@ describe('the admin mode in the pages', () => {
       adminApi: fakeApi({ catalog: async () => ADMIN_CATALOG }),
     });
     expect(await adminModeIsOn()).toBe(false);
+    before = undefined;
     for (const page of PAGES) {
       await admin.router.navigate(page);
-      await loaded();
-      expect(body()).toBe(seen[page]);
+      before = await loaded(before);
+      expect(before).toBe(seen[page]);
     }
   });
 

@@ -4,6 +4,7 @@
 import { useId } from 'react';
 import type { CSSProperties } from 'react';
 import type { Counts } from '@qv/srs';
+import { ASSESSMENT_DEPTH } from '@qv/study';
 import type { SeenCounts } from '@qv/study';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { Reserved } from '../../../shared/ui/Reserved';
@@ -49,6 +50,7 @@ export function DeckTreeRow(p: DeckTreeRowProps) {
       medianAnswerMs={p.medianAnswerMs}
       off={off}
       lookOnly={draftOnly}
+      withNew={d.depth <= ASSESSMENT_DEPTH}
     />
   );
   return (

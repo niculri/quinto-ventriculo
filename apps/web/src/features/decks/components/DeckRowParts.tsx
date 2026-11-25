@@ -12,35 +12,43 @@ import { Skeleton } from '../../../shared/ui/Loading';
 import { button } from '../../../shared/ui/styles';
 import { deckTreeRowStrings as s } from './strings/DeckTreeRow.strings';
 
-/** «Hoy: 12 nuevas · 15 repasos · ~8 min» (repasos are learning and due ones), «Listo por hoy» or «Sin activar». */
+/**
+ * «Hoy: 12 nuevas · 15 repasos · ~8 min» (repasos are learning and due ones), «Listo por hoy» or «Sin activar». The new
+ * cards a day are the assessment's, shared by everything in it: they are said only from the assessment up, and a row
+ * below says its reviews, or «Hoy: solo nuevas» when it has new ones to give and nothing to review.
+ */
 export function RowToday({
   counts,
   medianAnswerMs,
   off,
   lookOnly,
+  withNew,
 }: {
   counts: Counts | undefined;
   medianAnswerMs: number | null;
   off: boolean;
   /** Only the draft has it: there is nothing to study, so no load is waited for. */
   lookOnly: boolean;
+  withNew: boolean;
 }) {
   if (lookOnly) return <span className="text-muted">{s.tree.lookOnly}</span>;
   if (!counts) return <Skeleton className="inline-block h-4 w-40 align-middle" />;
-  if (totalCards(counts) === 0) {
+  const shown = withNew ? counts : { ...counts, new: 0 };
+  if (totalCards(shown) === 0) {
+    if (counts.new > 0) return <span>{s.tree.onlyNew}</span>;
     return <span className="text-muted">{off ? s.tree.nothingOn : s.tree.done}</span>;
   }
-  const reviews = counts.learning + counts.review;
+  const reviews = shown.learning + shown.review;
   const number = (x: number, color: string) => (
     <strong className={`font-semibold ${color}`}>{x.toLocaleString('es-CL')}</strong>
   );
   return (
     <span className="tabular-nums">
       {s.tree.today}
-      {counts.new > 0 ? (
+      {shown.new > 0 ? (
         <span className="whitespace-nowrap">
-          {number(counts.new, 'text-state-new')}
-          {s.tree.news(counts.new)}
+          {number(shown.new, 'text-state-new')}
+          {s.tree.news(shown.new)}
           {s.tree.sep}
         </span>
       ) : null}
@@ -52,7 +60,7 @@ export function RowToday({
         </span>
       ) : null}
       <span className="whitespace-nowrap">
-        {minutesText(estimateMinutes(counts, medianAnswerMs))}
+        {minutesText(estimateMinutes(shown, medianAnswerMs))}
       </span>
     </span>
   );

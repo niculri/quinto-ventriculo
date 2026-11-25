@@ -2,7 +2,7 @@
 
 import { useId, useState } from 'react';
 import type { Counts } from '@qv/srs';
-import { breakdownText, loadText, totalCards } from '@qv/study';
+import { breakdownText, loadText, todayText, totalCards } from '@qv/study';
 import { tapArea } from '../../../shared/ui/styles';
 import { useHoverOpen } from '../hooks/useHoverOpen';
 import { useOutsideClose } from '../hooks/useOutsideClose';
@@ -15,10 +15,12 @@ const SIDE = {
   right: 'sm:left-full sm:ml-2',
 } as const;
 
+/** With `split`, new cards and reviews apart («20 nuevas · 15 repasos · ~12 min»), as the deck list says them. */
 export function DayLoad({
   counts,
   medianAnswerMs,
   detail = false,
+  split = false,
   side = 'left',
   empty = s.nothingToday,
   className = '',
@@ -26,11 +28,13 @@ export function DayLoad({
   counts: Counts;
   medianAnswerMs: number | null;
   detail?: boolean;
+  split?: boolean;
   side?: keyof typeof SIDE;
   empty?: string;
   className?: string;
 }) {
-  const text = totalCards(counts) === 0 ? empty : loadText(counts, medianAnswerMs);
+  const load = split ? todayText : loadText;
+  const text = totalCards(counts) === 0 ? empty : load(counts, medianAnswerMs);
   const breakdown = breakdownText(counts);
   if (!detail || totalCards(counts) === 0) {
     return (

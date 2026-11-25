@@ -22,6 +22,7 @@ export {
   includesExtras,
   isExtras,
   loadText,
+  todayText,
   minutesText,
   totalCards,
   UNIT_DEPTH,

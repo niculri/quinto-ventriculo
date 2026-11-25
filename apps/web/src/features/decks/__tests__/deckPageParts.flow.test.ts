@@ -61,7 +61,7 @@ describe('a deck’s page, what it says', () => {
     expect(box.textContent).toMatchSnapshot();
     const tree = await screen.findByRole('list', { name: 'Submazos' });
     expect(await within(tree).findAllByRole('switch')).not.toHaveLength(0);
-    await waitFor(() => expect(tree.textContent).toContain('Hoy: 3 nuevas'));
+    await waitFor(() => expect(tree.textContent).toContain('Hoy: solo nuevas'));
     expect(tree.textContent).not.toContain('dominio');
     expect(
       within(tree)

@@ -19,6 +19,7 @@ import {
   extrasOff,
   loadText,
   minutesText,
+  todayText,
   simpleConfigs,
   totalCards,
 } from '../simple';
@@ -332,6 +333,17 @@ describe('the load in minutes', () => {
     expect(minutesText(45)).toBe('~45 min');
     expect(minutesText(60)).toBe('~1 h');
     expect(minutesText(80)).toBe('~1 h 20 min');
+  });
+
+  it('new ones and reviews apart, without a part that is 0', () => {
+    expect(todayText({ new: 20, learning: 3, review: 12 }, null)).toBe(
+      '20 nuevas · 15 repasos · ~14 min',
+    );
+    expect(todayText({ new: 1, learning: 0, review: 0 }, null)).toBe('1 nueva · ~1 min');
+    expect(todayText({ new: 0, learning: 1, review: 0 }, null)).toBe('1 repaso · ~1 min');
+    expect(todayText({ new: 1200, learning: 0, review: 0 }, 1000)).toBe(
+      '1.200 nuevas · ~40 min',
+    );
   });
 });
 

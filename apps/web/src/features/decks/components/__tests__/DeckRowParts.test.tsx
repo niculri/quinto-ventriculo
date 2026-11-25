@@ -10,6 +10,7 @@ const today = (over: Partial<Parameters<typeof RowToday>[0]> = {}) =>
       medianAnswerMs={null}
       off={false}
       lookOnly={false}
+      withNew
       {...over}
     />,
   ).container;
@@ -25,6 +26,14 @@ describe('today in a row', () => {
     expect(today({ counts: { new: 1, learning: 0, review: 0 } }).textContent).toBe(
       'Hoy: 1 nueva · ~1 min',
     );
+  });
+
+  it('below the assessment, only its reviews: the new ones a day are shared by the whole assessment', () => {
+    const below = (counts: { new: number; learning: number; review: number }) =>
+      today({ counts, withNew: false }).textContent;
+    expect(below({ new: 12, learning: 3, review: 20 })).toBe('Hoy: 23 repasos · ~6 min');
+    expect(below({ new: 12, learning: 0, review: 0 })).toBe('Hoy: solo nuevas');
+    expect(below({ new: 0, learning: 0, review: 0 })).toBe('Listo por hoy');
   });
 
   it('with nothing: «Listo por hoy», or «Sin activar» when off; only the draft, «Solo para mirar»', () => {

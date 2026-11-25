@@ -127,6 +127,20 @@ export function loadText(counts: Counts, medianAnswerMs: number | null): string 
   return `${total.toLocaleString('es-CL')} para hoy · ${minutesText(estimateMinutes(counts, medianAnswerMs))}`;
 }
 
+const howMany = (n: number, one: string, many: string) =>
+  `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
+
+/** «20 nuevas · 15 repasos · ~12 min» (learning ones are reviews too), without a part that is 0. */
+export function todayText(counts: Counts, medianAnswerMs: number | null): string {
+  const reviews = counts.learning + counts.review;
+  const parts = [
+    ...(counts.new > 0 ? [howMany(counts.new, 'nueva', 'nuevas')] : []),
+    ...(reviews > 0 ? [howMany(reviews, 'repaso', 'repasos')] : []),
+    minutesText(estimateMinutes(counts, medianAnswerMs)),
+  ];
+  return parts.join(' · ');
+}
+
 export function breakdownText(counts: Counts): string {
   return `Nuevas: ${counts.new} · Aprendiendo: ${counts.learning} · A repasar: ${counts.review}`;
 }

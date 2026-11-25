@@ -68,7 +68,7 @@ test('turning a topic on moves nothing in its row nor the rows below', async ({ 
     );
   const before = await boxes();
   await topic.click();
-  await expect(rows.last()).toContainText(/Hoy: \d+ nuevas/);
+  await expect(rows.last()).toContainText('Hoy: solo nuevas');
   const after = await boxes();
   for (const [i, b] of before.entries()) {
     expect([i, after[i]!.y, after[i]!.height]).toEqual([i, b.y, b.height]);

@@ -2,7 +2,7 @@
 // options, reporting an error, a card taken out mid-session and a deck that does not load.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
-import { DECK_URL, fetchWhole, scrollCard, signIn } from './helpers';
+import { DECK_URL, fetchWhole, loadCards, scrollCard, signIn } from './helpers';
 
 async function openDeck(page: Page) {
   await page.goto('/');
@@ -14,7 +14,7 @@ async function openDeck(page: Page) {
 
 const today = async (page: Page) => {
   const text = await page.getByRole('group', { name: 'Para hoy' }).first().innerText();
-  return Number(/(\d+) para hoy/.exec(text)?.[1] ?? 0);
+  return loadCards(text);
 };
 
 /** «4+0+0»: new, learning and to review. */

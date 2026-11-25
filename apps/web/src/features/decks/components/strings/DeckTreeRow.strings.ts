@@ -14,6 +14,7 @@ export const deckTreeRowStrings = {
     done: 'Listo por hoy',
     lookOnly: 'Solo para mirar',
     today: 'Hoy: ',
+    onlyNew: 'Hoy: solo nuevas',
     news: (x: number) => (x === 1 ? ' nueva' : ' nuevas'),
     reviews: (x: number) => (x === 1 ? ' repaso' : ' repasos'),
     longestToday: 'Hoy: 99 nuevas · 99 repasos · ~99 min',

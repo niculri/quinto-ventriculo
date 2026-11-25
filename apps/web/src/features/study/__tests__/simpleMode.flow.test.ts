@@ -75,10 +75,12 @@ describe('a student who just arrived', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('the deck page says the load in minutes, with its breakdown on opening it, and no preset', async () => {
+  it('the deck page says the new cards and reviews in minutes, with its breakdown on opening it, and no preset', async () => {
     renderApp(ASSESSMENT_PATH, { study: await withWeekOn() });
     const panel = await screen.findByRole('region', { name: 'Estudiar' });
-    const load = (await within(panel).findAllByRole('button', { name: /para hoy · ~\d+ min/ }))[0]!;
+    const load = (
+      await within(panel).findAllByRole('button', { name: /^\d+ nuevas · ~\d+ min/ })
+    )[0]!;
     const today = within(panel).getAllByRole('group', { name: 'Para hoy' })[0]!;
     expect(load).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(load);
@@ -107,7 +109,7 @@ describe('a student who just arrived', () => {
     );
     expect(
       await within(screen.getByRole('group', { name: 'Para hoy' })).findByRole('button', {
-        name: /para hoy/,
+        name: /nuevas/,
       }),
     ).toBeInTheDocument();
   });

@@ -1,4 +1,5 @@
-// The panel «Estudiar» of a deck's page: the button, the load of today, dominio, the final review and what is below.
+// The panel «Estudiar» of a deck's page: the button, the load of today (the only place that says the new cards, which
+// the whole assessment shares), dominio, the final review and what is below.
 
 import { Link } from 'react-router';
 import { Play } from 'lucide-react';
@@ -48,7 +49,7 @@ export function DeckStudyPanel({
             <div
               aria-label={s.panel.today}
               role="group"
-              className="order-3 flex items-center gap-2 font-medium max-sm:basis-full sm:order-2 sm:min-w-[13.5rem]"
+              className="order-3 flex items-center gap-2 font-medium max-sm:basis-full sm:order-2 sm:min-w-64"
             >
               {!own ? (
                 <Skeleton className="h-6 w-36" />
@@ -57,6 +58,7 @@ export function DeckStudyPanel({
                   counts={own}
                   medianAnswerMs={plan.data?.medianAnswerMs ?? null}
                   detail
+                  split
                   side="right"
                 />
               )}

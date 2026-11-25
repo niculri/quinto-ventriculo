@@ -115,7 +115,7 @@ describe('the date of a test, on the assessment’s page', () => {
     );
     expect(within(box).getByRole('status')).toHaveTextContent(/^Faltan 4 días · quedan 3 nuevas/);
     const load = await screen.findByRole('group', { name: 'Para hoy' });
-    await waitFor(() => expect(load).toHaveTextContent(/^3 para hoy/));
+    await waitFor(() => expect(load).toHaveTextContent(/^3 nuevas/));
 
     const saved = (await study.assessmentSettings())[0]!;
     expect(saved).toMatchObject({ examDate: inDays(4), newPerDay: 35 });

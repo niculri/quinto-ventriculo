@@ -93,7 +93,7 @@ test('the assessment’s page: new cards a day and «Incluir extras», and its E
   await expect(list.getByText('Extras', { exact: true })).toHaveCount(0);
 
   const load = page.getByRole('group', { name: 'Para hoy' }).getByRole('button');
-  await expect(load).toHaveText(/^4 para hoy/);
+  await expect(load).toHaveText(/^4 nuevas/);
   await load.click();
   await expect(page.getByRole('group', { name: 'Para hoy' })).toContainText('Aprendiendo');
 
@@ -101,7 +101,7 @@ test('the assessment’s page: new cards a day and «Incluir extras», and its E
   await expect(number).toHaveValue('20');
   await number.fill('2');
   await number.press('Enter');
-  await expect(load).toHaveText(/^2 para hoy/);
+  await expect(load).toHaveText(/^2 nuevas/);
 
   await page.getByRole('switch', { name: 'Incluir extras' }).click();
   await expect(list.getByText('Extras', { exact: true })).toBeVisible();
@@ -119,7 +119,7 @@ test('the deck list ends with its last row, and the breakdown beside «Estudiar�
   await page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   const panel = page.getByRole('region', { name: 'Estudiar' });
   const rows = page.getByRole('list', { name: 'Submazos' }).getByRole('listitem');
-  await expect(rows.last()).toContainText(/Hoy: \d+ nuevas/);
+  await expect(rows.last()).toContainText('Hoy: solo nuevas');
   const last = (await rows.last().boundingBox())!;
   const bottom = (await panel.boundingBox())!;
   const padding = await panel.evaluate((e) => parseFloat(getComputedStyle(e).paddingBottom));
@@ -325,7 +325,7 @@ test('nothing moves while a slow deck arrives', async ({ page }) => {
   await expect(page.getByRole('table')).toHaveCount(0);
   const before = (await list.boundingBox())!;
   const load = page.getByRole('group', { name: 'Para hoy' }).getByRole('button');
-  await expect(load).toHaveText(/para hoy/);
+  await expect(load).toHaveText(/nuevas/);
   await expect(page.getByRole('table')).toHaveCount(0);
   expect((await list.boundingBox())!.y).toBe(before.y);
 

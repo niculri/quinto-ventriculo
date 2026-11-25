@@ -147,6 +147,40 @@ describe('preferences and presets', () => {
   });
 });
 
+describe('a week and its topics, saved in one request', () => {
+  it('inserts and updates several rows at once', async () => {
+    const { sql, memory } = await pair();
+    const got = await onBoth(sql, memory, [
+      (r) => r.setDeckActivations([{ deckId: DECK, active: true }]),
+      (r) =>
+        r.setDeckActivations([
+          { deckId: DECK, active: false },
+          { deckId: OTHER_DECK, active: true },
+        ]),
+      async (r) => sorted(await r.deckActivations()),
+    ]);
+    expect(got.memory).toEqual(got.sql);
+    expect(got.raw.sql[2]).toEqual(
+      sorted([
+        { deckId: DECK, active: false },
+        { deckId: OTHER_DECK, active: true },
+      ]),
+    );
+  });
+
+  it('saves none of them when the database refuses one', async () => {
+    const { sql } = await pair();
+    await sql.setDeckActivations([{ deckId: DECK, active: true }]);
+    await expect(
+      sql.setDeckActivations([
+        { deckId: DECK, active: false },
+        { deckId: 'not a deck', active: true },
+      ]),
+    ).rejects.toThrow(/^No se pudo guardar qué tienes activado/);
+    expect(await sql.deckActivations()).toEqual([{ deckId: DECK, active: true }]);
+  });
+});
+
 /** An assessment without a date, with every field: what the database fills in when one is missing, see below. */
 const noDate = (deckId: string) => ({
   deckId,

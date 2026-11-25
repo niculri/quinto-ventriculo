@@ -1,6 +1,5 @@
-// E2e tests of the deck list: a switch per topic, «Estudiar» on something off turns it on and offers to undo it back on
-// the list, each row says its reviews today and what is left to see, the new cards a day are the assessment's (said
-// once, beside «Estudiar»), and nothing in a row moves when it turns on.
+// E2e tests of the deck list: «Estudiar» on a topic off turns it on and offers to undo it, rows say reviews and what is
+// left to see, the new cards a day are the assessment's (said once), and nothing in a row moves when it turns on.
 import { expect, test } from './test';
 import { ONLY_ACCEPTED } from './accepted';
 import { signIn } from './helpers';

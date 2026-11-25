@@ -12,8 +12,8 @@ export const firstStepsStrings = {
       action: 'Elegir ramos',
     },
     unit: {
-      title: 'Activa la semana o clase que estás viendo',
-      text: 'Así empiezan a salir sus tarjetas nuevas.',
+      title: 'Activa lo que estás viendo en clases',
+      text: 'Un video, una semana o una clase: así empiezan a salir sus tarjetas nuevas.',
       action: 'Ir a tu ramo',
     },
     card: {

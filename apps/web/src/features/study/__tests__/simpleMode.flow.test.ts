@@ -34,7 +34,7 @@ const ASSESSMENT_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1';
 const COURSE_PATH = '/semesters/1/courses/anatomia-1';
 
 async function withWeekOn(study = student()) {
-  await study.setDeckActivation(WEEK_ID, true);
+  await study.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
   return study;
 }
 
@@ -52,7 +52,7 @@ describe('a student who just arrived', () => {
 
   it('Escape also closes the welcome, and that is remembered too', async () => {
     const study = localStudyRepository(null);
-    await study.setDeckActivation(WEEK_ID, true);
+    await study.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
     renderApp(`${DECK_PATH}/study`, { study });
     await screen.findByRole('dialog', { name: 'Cómo se estudia aquí' });
     await userEvent.keyboard('{Escape}');
@@ -62,7 +62,7 @@ describe('a student who just arrived', () => {
 
   it('the welcome shows once: closing it is remembered', async () => {
     const study = localStudyRepository(null);
-    await study.setDeckActivation(WEEK_ID, true);
+    await study.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
     const first = renderApp(`${DECK_PATH}/study`, { study });
     const dialog = await screen.findByRole('dialog', { name: 'Cómo se estudia aquí' });
     expect(within(dialog).getByText(/Intenta acordarte/)).toBeInTheDocument();
@@ -100,7 +100,10 @@ describe('a student who just arrived', () => {
     await userEvent.click(toggle);
     await waitFor(() => expect(toggle).toBeChecked());
     await waitFor(async () =>
-      expect(await study.deckActivations()).toEqual([{ deckId: WEEK_ID, active: true }]),
+      expect(await study.deckActivations()).toEqual([
+        { deckId: WEEK_ID, active: true },
+        { deckId: '20', active: true },
+      ]),
     );
     expect(
       await within(screen.getByRole('group', { name: 'Para hoy' })).findByRole('button', {
@@ -178,7 +181,10 @@ describe('a student who just arrived', () => {
     expect(toggle).toBeChecked();
     await userEvent.click(toggle);
     await waitFor(async () =>
-      expect(await study.deckActivations()).toEqual([{ deckId: WEEK_ID, active: false }]),
+      expect(await study.deckActivations()).toEqual([
+        { deckId: WEEK_ID, active: false },
+        { deckId: '20', active: false },
+      ]),
     );
     await waitFor(() => expect(toggle).not.toBeChecked());
   });
@@ -374,7 +380,7 @@ describe('while the data arrives, nothing that will have to change', () => {
     renderApp('/home', { study: student() });
     const today = await screen.findByRole('region', { name: 'Hoy' });
     expect(
-      within(today).getByText(/Todavía no activas ninguna semana o clase/),
+      within(today).getByText(/Todavía no activas nada de lo que estás viendo/),
     ).toBeInTheDocument();
     expect(within(today).getByRole('link', { name: 'Elegir qué estudiar' })).toBeInTheDocument();
     const steps = screen.getByRole('region', { name: 'Primeros pasos' });
@@ -410,12 +416,12 @@ describe('when the data does not arrive', () => {
 describe('two changes in a row', () => {
   it('saving the first one does not undo the second on the screen', async () => {
     const study = await withWeekOn();
-    const save = study.setDeckActivation.bind(study);
+    const save = study.setDeckActivations.bind(study);
     let release = () => {};
-    study.setDeckActivation = (id, active) =>
+    study.setDeckActivations = (rows) =>
       new Promise<void>((resolve) => {
         release = resolve;
-      }).then(() => save(id, active));
+      }).then(() => save(rows));
     const saveSetting = study.assessmentSettings.bind(study);
     let reads = 0;
     study.assessmentSettings = () => {
@@ -458,7 +464,7 @@ describe('two changes in a row', () => {
 
   it('a change that fails goes back, and says so', async () => {
     const study = student();
-    study.setDeckActivation = () => Promise.reject(new Error('sin conexión'));
+    study.setDeckActivations = () => Promise.reject(new Error('sin conexión'));
     renderApp(DECK_PATH, { study });
     const toggle = await screen.findByRole('switch', { name: /Activar S1/ });
     await userEvent.click(toggle);
@@ -646,7 +652,7 @@ describe('the keyboard in the study screen', () => {
 
   it('with the welcome open, the keys do nothing behind it; closed, they work', async () => {
     const study = localStudyRepository(null);
-    await study.setDeckActivation(WEEK_ID, true);
+    await study.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
     renderApp(`${DECK_PATH}/study`, { study });
     const dialog = await screen.findByRole('dialog', { name: 'Cómo se estudia aquí' });
     const close = within(dialog).getByRole('button', { name: 'Entendido' });

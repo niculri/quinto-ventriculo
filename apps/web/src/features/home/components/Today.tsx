@@ -32,7 +32,7 @@ export function Today({ courses, choose }: { courses: CourseDeckNode[]; choose: 
           {courses.map((n) => {
             const r = results?.get(n.id);
             return r === undefined || !study.base ? (
-              <TodayRow key={n.id} node={n} base={null} counts={null} mastery={null} />
+              <TodayRow key={n.id} node={n} base={null} counts={null} mastery={undefined} />
             ) : r?.counts ? (
               <TodayRow
                 key={n.id}

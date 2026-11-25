@@ -1,4 +1,5 @@
-// Dominio as a small bar and «62 %», always as wide, with what it means on hover or touch (also inside a link).
+// Dominio as a small bar and «62 %» («—» while nothing was seen), always as wide, with what it means on hover or touch
+// (also inside a link).
 
 import { useState } from 'react';
 import { masteryPercent } from '@qv/study';
@@ -10,13 +11,14 @@ export function MasteryMeter({
   align = 'right',
   className = '',
 }: {
-  value: number;
+  /** Null while nothing was seen. */
+  value: number | null;
   align?: 'left' | 'right' | 'above';
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const boxRef = useOutsideClose(open, setOpen);
-  const percent = masteryPercent(value);
+  const percent = value === null ? 0 : masteryPercent(value);
   const place =
     align === 'above'
       ? 'bottom-full left-0 mb-1'
@@ -41,9 +43,18 @@ export function MasteryMeter({
         <span className="block h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
       </span>
       <span className="w-9 flex-none text-left text-xs font-normal text-muted tabular-nums">
-        {percent}
-        {s.mastery.percent}
-        <span className="sr-only">{s.mastery.of}</span>
+        {value === null ? (
+          <>
+            <span aria-hidden="true">{s.mastery.none}</span>
+            <span className="sr-only">{s.mastery.noneRead}</span>
+          </>
+        ) : (
+          <>
+            {percent}
+            {s.mastery.percent}
+            <span className="sr-only">{s.mastery.of}</span>
+          </>
+        )}
       </span>
       <span
         role="tooltip"

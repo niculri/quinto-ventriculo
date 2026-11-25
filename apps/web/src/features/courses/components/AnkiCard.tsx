@@ -58,7 +58,7 @@ export function AnkiCard({
               <span className="block h-4 truncate text-xs text-muted">{summary}</span>
               <span className="flex h-4 items-center">
                 {mastery ? (
-                  <MasteryMeter value={mastery.get(node.id) ?? 0} align="above" />
+                  <MasteryMeter value={mastery.get(node.id) ?? null} align="above" />
                 ) : (
                   <Skeleton className="h-4 w-[5.5rem]" />
                 )}

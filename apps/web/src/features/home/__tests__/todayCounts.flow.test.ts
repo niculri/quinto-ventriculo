@@ -157,6 +157,12 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+/** Null while nothing was seen, as masteryByDeck() leaves the deck out. */
+function expectSameMastery(home: number | null, deck: number | undefined) {
+  if (deck === undefined) expect(home).toBeNull();
+  else expect(home).toBeCloseTo(deck, 9);
+}
+
 describe('«Hoy» without the deck', () => {
   it('when it gives a number, it is the study screen’s; the dominio is always the same', async () => {
     vi.useFakeTimers({ now: NOW, toFake: ['Date'] });
@@ -171,7 +177,9 @@ describe('«Hoy» without the deck', () => {
       } as unknown as Storage;
       storage.setItem('qv-demo-study', JSON.stringify({ cards: [...data.rows.values()] }));
       const repo = localStudyRepository(storage);
-      const { deck: _deck, rows: _rows, ...base } = data;
+      // Both pages have deck_progress(), which also says each deck's new cards under «No mostrar más».
+      const withProgress = { ...data, progress: await repo.deckProgress(new Date(NOW)) };
+      const { deck: _deck, rows: _rows, ...base } = withProgress;
       const ids = data.decks.map((d) => d.id);
       const today = timingFor(data.prefs, NOW).today;
       const until = new Date(dayStartsAt(today + 1, 'America/Santiago', 4) * 1000);
@@ -183,8 +191,8 @@ describe('«Hoy» without the deck', () => {
         new Map(home.decks.map((d) => [d.deckId, d])),
         NOW,
       );
-      const real = deckCounts(data, NOW).get(COURSE)!;
-      expect(result.mastery).toBeCloseTo(masteryByDeck(data, NOW).get(COURSE)!, 9);
+      const real = deckCounts(withProgress, NOW).get(COURSE)!;
+      expectSameMastery(result.mastery, masteryByDeck(withProgress, NOW).get(COURSE));
       if (result.counts) {
         exact++;
         expect([seed, result.counts]).toEqual([seed, real]);
@@ -202,7 +210,7 @@ describe('«Hoy» without the deck', () => {
       const fresh: StudyData = { ...data, rows: new Map(), answers: [] };
       const { deck: _deck, rows: _rows, ...base } = fresh;
       const result = homeCourseCounts(base, COURSE, catalogOf(fresh, cards), new Map(), NOW);
-      expect(result.mastery).toBe(0);
+      expect(result.mastery).toBeNull();
       if (!result.counts) continue;
       exact++;
       expect([seed, result.counts]).toEqual([seed, deckCounts(fresh, NOW).get(COURSE)!]);

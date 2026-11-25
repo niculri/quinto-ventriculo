@@ -14,7 +14,7 @@ const REVIEW_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1/review';
 
 async function seen(): Promise<StudyRepository> {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   const refs: CardRef[] = DECK.cards
     .filter((c) => c.deckId === '20')
     .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));

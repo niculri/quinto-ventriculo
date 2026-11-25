@@ -14,7 +14,7 @@ export function DeckTodayRow({ node, base }: { node: CourseDeckNode; base: HomeS
       node={node}
       base={base}
       counts={counts?.get(node.id) ?? null}
-      mastery={mastery?.get(node.id) ?? null}
+      mastery={mastery ? (mastery.get(node.id) ?? null) : undefined}
       failed={!!deck.error || !!error}
     />
   );

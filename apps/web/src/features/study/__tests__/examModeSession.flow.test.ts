@@ -596,31 +596,31 @@ describe('what is said about a card is what the scheduler does', () => {
 describe('dominio', () => {
   const plan = { activations: on(L1) };
 
-  it('with nothing seen, 0', () => {
+  it('with nothing seen, none', () => {
     const m = masteryByDeck(study(plan));
-    expect(m.get(L1)).toBe(0);
-    expect(m.get(ASSESSMENT)).toBe(0);
+    expect(m.has(L1)).toBe(false);
+    expect(m.has(ASSESSMENT)).toBe(false);
     expect(masteryPercent(0)).toBe(0);
   });
 
-  it('the average over every card, with the ones not seen as 0', () => {
+  it('the average over the cards seen only, so it does not start at 0', () => {
     const rows = Array.from({ length: 15 }, (_, i) =>
       review(card(L1, i), { lastReview: new Date(NOW).toISOString() }),
     );
     const m = masteryByDeck(study(plan, rows));
-    expect(m.get(L1)).toBeCloseTo(0.5, 5);
-    expect(m.get(ASSESSMENT)).toBeCloseTo(0.3, 5);
-    expect(masteryPercent(m.get(L1)!)).toBe(50);
+    expect(m.get(L1)).toBeCloseTo(1, 5);
+    expect(m.get(ASSESSMENT)).toBeCloseTo(1, 5);
+    expect(masteryPercent(m.get(L1)!)).toBe(100);
   });
 
-  it('it goes up by moving forward and down with time', () => {
-    const rows = (n: number) => Array.from({ length: n }, (_, i) => review(card(L1, i)));
-    const few = masteryByDeck(study(plan, rows(10))).get(L1)!;
-    const more = masteryByDeck(study(plan, rows(20))).get(L1)!;
-    expect(more).toBeGreaterThan(few);
-    const data = study(plan, rows(20));
+  it('it goes down with time', () => {
+    const data = study(
+      plan,
+      Array.from({ length: 20 }, (_, i) => review(card(L1, i))),
+    );
+    const now = masteryByDeck(data).get(L1)!;
     const later = masteryByDeck(data, NOW + 30 * DAY).get(L1)!;
-    expect(later).toBeLessThan(more);
+    expect(later).toBeLessThan(now);
     expect(later).toBeGreaterThan(0);
   });
 
@@ -629,7 +629,7 @@ describe('dominio', () => {
       review(card(L1_EXTRAS, i), { lastReview: new Date(NOW).toISOString() }),
     );
     const off = masteryByDeck(study(plan, rows));
-    expect(off.get(L1)).toBe(0);
+    expect(off.has(L1)).toBe(false);
     const inc = masteryByDeck(
       study(
         {
@@ -639,17 +639,17 @@ describe('dominio', () => {
         rows,
       ),
     );
-    expect(inc.get(L1)).toBeCloseTo(6 / 36, 5);
+    expect(inc.get(L1)).toBeCloseTo(1, 5);
   });
 
   it('a card under «No mostrar más» does not count', () => {
     const rows = [
       review(card(L1, 0), { suspended: true, lastReview: new Date(NOW).toISOString() }),
     ];
-    expect(masteryByDeck(study(plan, rows)).get(L1)).toBe(0);
+    expect(masteryByDeck(study(plan, rows)).has(L1)).toBe(false);
     const row = blankRow(card(L1, 1));
     const only = masteryByDeck(study(plan, [{ ...row, suspended: true }]));
-    expect(only.get(L1)).toBe(0);
+    expect(only.has(L1)).toBe(false);
   });
 
   it('miles of cards, in little time', () => {

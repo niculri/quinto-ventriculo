@@ -88,7 +88,7 @@ describe('the gymkana’s page', () => {
   it('says when it could not turn the deck on', async () => {
     const user = userEvent.setup();
     const study = fullAnkiStudy();
-    study.setDeckActivation = async () => {
+    study.setDeckActivations = async () => {
       throw new Error('red');
     };
     renderApp(GYM_PAGE, { api: gymkanaApi(), study });

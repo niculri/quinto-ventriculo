@@ -1,8 +1,8 @@
-// What is left today in each deck of a tree, as Anki's deck list counts it, and its mastery, computed again when a
-// card comes due.
+// What is left today in each deck of a tree, as Anki's deck list counts it, its mastery and how many of its cards were
+// seen, computed again when a card comes due.
 import { useEffect, useState } from 'react';
 import type { DeckDetail } from '@qv/schema';
-import { deckCounts, masteryByDeck, nextCountChange } from '@qv/study';
+import { deckCounts, masteryByDeck, nextCountChange, seenByDeck } from '@qv/study';
 import { readClock } from '../../../shared/lib/clock';
 import { useStudyData } from '../queries';
 
@@ -21,5 +21,6 @@ export function useDeckCounts(deck: DeckDetail | undefined) {
   const now = readClock(study.data, tick);
   const counts = study.data ? deckCounts(study.data, now) : undefined;
   const mastery = study.data ? masteryByDeck(study.data, now) : undefined;
-  return { ...study, counts, mastery };
+  const seen = study.data ? seenByDeck(study.data) : undefined;
+  return { ...study, counts, mastery, seen };
 }

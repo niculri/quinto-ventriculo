@@ -141,7 +141,9 @@ describe('the Anki card in the admin mode', () => {
     });
     const card = await (await inMain()).findByRole('link', { name: /^Anki/ });
     await waitFor(() =>
-      expect(within(card).getByText(/de dominio/).parentElement).toHaveTextContent(/^0 %/),
+      expect(
+        within(card).getByText('Sin dominio todavía: no has visto tarjetas'),
+      ).toBeInTheDocument(),
     );
     expect(within(card).queryByRole('group', { name: 'Hoy en Certamen 1' })).toBeNull();
   });

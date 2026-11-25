@@ -1,7 +1,8 @@
-// What a course's page counts: the assessments with material, what each one has, and an assessment's turned-on units.
+// What a course's page counts: the assessments with material, what each one has, and an assessment's units with
+// something on.
 import type { AssessmentWithNotes, Catalog, CourseWithAssessments } from '@qv/schema';
 import { assessmentHasMaterial } from '@qv/schema/http';
-import { activeUnits } from '@qv/study';
+import { activation, unitState } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import { descendants, hasPage } from '../../catalog/model/tree';
 import type { AnkiTree, CourseDeckNode } from '../../catalog/model/tree';
@@ -33,6 +34,9 @@ export function notesLine(a: AssessmentWithNotes): string {
   ]);
 }
 
+/** A week counts as on with any of its videos on. */
 export function unitsOf(node: CourseDeckNode, plan: StudyPlan) {
-  return { total: node.children.length, on: activeUnits(descendants(node), plan).size };
+  const a = activation(descendants(node), plan);
+  const on = node.children.filter((u) => (unitState(a, u.id)?.on ?? 0) > 0).length;
+  return { total: node.children.length, on };
 }

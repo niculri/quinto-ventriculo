@@ -1,6 +1,6 @@
 // The gymkana as an Anki deck: its switch (a unit of the assessment, like a week), studying it and its cards.
 import { Link } from 'react-router';
-import { activeUnits } from '@qv/study';
+import { activation } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
 import { Switch } from '../../../shared/ui/Switch';
 import { button, card } from '../../../shared/ui/styles';
@@ -11,7 +11,7 @@ import { ankiBlockStrings as s } from './strings/AnkiBlock.strings';
 export function AnkiBlock({ node }: { node: CourseDeckNode }) {
   const plan = useStudyPlan();
   const activate = useSetActivation();
-  const on = plan.data ? activeUnits([node], plan.data).has(node.id) : false;
+  const on = plan.data ? activation([node], plan.data).on.has(node.id) : false;
   return (
     <section className={`${card} mt-4 p-4 sm:p-6`} aria-labelledby="gymkana-anki">
       <h2 id="gymkana-anki" className="text-lg font-semibold">
@@ -24,7 +24,7 @@ export function AnkiBlock({ node }: { node: CourseDeckNode }) {
           label={s.on}
           checked={on}
           disabled={!plan.data}
-          onChange={(active) => activate.mutate({ deckId: node.id, active })}
+          onChange={(active) => activate.mutate([{ deckId: node.id, active }])}
         />
       </label>
       {activate.isError ? (

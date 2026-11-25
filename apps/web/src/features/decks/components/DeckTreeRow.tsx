@@ -1,4 +1,4 @@
-// A row of the simple deck list: fold, name, the cards seen, what is left today, the switch of a topic, lecture or week,
+// A row of the simple deck list: fold, name, what is left to see, today, the switch of a topic, lecture or week,
 // «Estudiar» and, in «Modo avanzado», its configuration.
 
 import { useId } from 'react';

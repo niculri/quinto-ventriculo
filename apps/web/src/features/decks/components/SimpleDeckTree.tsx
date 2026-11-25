@@ -1,4 +1,4 @@
-// The simple deck list: the cards seen and what is left today of each deck, a switch for each topic or lecture (a
+// The simple deck list: what is left to see and today of each deck, a switch for each topic or lecture (a
 // week's turns all its topics), «Estudiar» that turns on what is off, and the notice to undo that.
 
 import type { Counts } from '@qv/srs';

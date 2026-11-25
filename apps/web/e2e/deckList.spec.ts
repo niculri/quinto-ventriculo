@@ -1,5 +1,6 @@
 // E2e tests of the deck list: a switch per topic, «Estudiar» on something off turns it on and offers to undo it back on
-// the list, each row says what it has today and the cards seen, and nothing in a row moves when it turns on.
+// the list, each row says its reviews today and what is left to see, the new cards a day are the assessment's (said
+// once, beside «Estudiar»), and nothing in a row moves when it turns on.
 import { expect, test } from './test';
 import { ONLY_ACCEPTED } from './accepted';
 import { signIn } from './helpers';
@@ -74,4 +75,20 @@ test('turning a topic on moves nothing in its row nor the rows below', async ({ 
     expect([i, after[i]!.y, after[i]!.height]).toEqual([i, b.y, b.height]);
   }
   await expect(rows.first().getByRole('switch')).toBeChecked();
+});
+
+test('the new cards a day are the assessment’s: said beside its number and once, beside «Estudiar»', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto(ASSESSMENT_URL);
+  await expect(
+    page.getByText(/^Es un solo número para todo Certamen 1, no uno por tema: /),
+  ).toBeVisible();
+  const list = page.getByRole('list', { name: 'Submazos' });
+  await list.getByRole('switch', { name: 'Activar Mazo de prueba' }).click();
+  await expect(page.getByRole('group', { name: 'Para hoy' }).getByRole('button')).toHaveText(
+    /^\d+ nuevas · ~\d+ min$/,
+  );
+  await expect(list.getByRole('listitem').last()).toContainText('Hoy: solo nuevas');
 });

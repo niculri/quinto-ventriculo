@@ -1,4 +1,4 @@
-// The parts of a row of the deck list: what is left today, the cards seen with their bar, the fold and «Estudiar»
+// The parts of a row of the deck list: what is left today, what is left to see with its bar, the fold and «Estudiar»
 // (which, on something off, turns it on first).
 
 import { Link } from 'react-router';

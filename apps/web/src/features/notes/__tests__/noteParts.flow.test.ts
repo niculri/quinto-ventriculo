@@ -192,6 +192,14 @@ describe('«Ponte a prueba»', () => {
   });
 });
 
+/** For each text node under `el`, whether it is inside an element hidden with `invisible`. */
+const unseen = (el: Element) => {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const out: boolean[] = [];
+  while (walker.nextNode()) out.push(!!walker.currentNode.parentElement?.closest('.invisible'));
+  return out;
+};
+
 describe('while the note loads', () => {
   it('a status with what it is, and the breadcrumbs once the catalog is in', async () => {
     renderApp(PATH, { api: fakeApi({ note: () => new Promise(() => {}) }) });
@@ -211,7 +219,7 @@ describe('while the note loads', () => {
     expect(ghost).toHaveAttribute('aria-hidden', 'true');
     expect(textNodes(ghost)).toEqual(['Clase', 'Traducción', 'Clase N.º 11']);
     expect(ghost.querySelector('h1')).toBeNull();
-    for (const line of ghost.querySelectorAll('p')) expect(line).toHaveClass('text-transparent');
+    expect(unseen(ghost)).toEqual([true, true, true]);
     expect(ghost.nextElementSibling).toHaveClass('xl:hidden');
   });
 
@@ -237,9 +245,7 @@ describe('while the note loads', () => {
         'ICBM, Universidad de Chile',
       ],
     ]);
-    const dots = [...lines[2]!.querySelectorAll('span')].filter((s) => s.textContent === '·');
-    expect(dots).toHaveLength(3);
-    for (const dot of dots) expect(dot).not.toHaveClass('text-muted');
+    expect(unseen(lines[2]!)).toEqual(Array.from({ length: 7 }, () => true));
   });
 });
 

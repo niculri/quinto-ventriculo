@@ -51,6 +51,14 @@ export class ConnectionError extends Error {
   }
 }
 
+/** The users' database has no my_card_stats() yet: the web was deployed before its migration. */
+export class StatsUnavailableError extends Error {
+  constructor() {
+    super('Tus estadísticas todavía no están disponibles. Vuelve a intentarlo más tarde.');
+    this.name = 'StatsUnavailableError';
+  }
+}
+
 export class CardChangedError extends Error {
   constructor() {
     super('Esta tarjeta cambió en otra pestaña o dispositivo.');

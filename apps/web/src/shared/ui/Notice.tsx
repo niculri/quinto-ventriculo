@@ -42,11 +42,20 @@ export function Notice({
   );
 }
 
-export function ErrorWithRetry({ error, onRetry }: { error: unknown; onRetry: () => void }) {
+/** `message`: what the caller knows to say about this error, instead of the text errorMessage() gives it. */
+export function ErrorWithRetry({
+  error,
+  onRetry,
+  message,
+}: {
+  error: unknown;
+  onRetry: () => void;
+  message?: string | undefined;
+}) {
   return (
     <div className="mx-auto max-w-lg py-16">
       <Notice title={noticeStrings.loadError.title}>
-        <p>{withContactLink(errorMessage(error))}</p>
+        <p>{withContactLink(message ?? errorMessage(error))}</p>
         <button
           type="button"
           onClick={onRetry}

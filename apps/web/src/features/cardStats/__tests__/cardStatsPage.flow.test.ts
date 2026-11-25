@@ -9,7 +9,7 @@ import type { CardStatsData } from '@qv/study';
 import { dayNumber } from '@qv/study';
 import { renderApp } from '../../../test/render';
 import { fullAnkiStudy } from '../../../test/fakes/repositories';
-import { localStudyRepository } from '../../progress/api/repository';
+import { localStudyRepository, StatsUnavailableError } from '../../progress/api/repository';
 import { fakeApi } from '../../../test/fakes/api';
 import { CATALOG } from '../../../test/fixtures/catalog';
 import type { StudyRepository } from '../../progress/api/repository';
@@ -229,6 +229,17 @@ describe('a deck’s statistics', () => {
     const before = tries;
     await userEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
     await waitFor(() => expect(tries).toBe(before + 1));
+  });
+
+  it('a users’ database without the statistics yet: the page says so instead of «error inesperado»', async () => {
+    const { study: s } = study(new StatsUnavailableError());
+    renderApp(PAGE, { study: s });
+    expect(
+      await screen.findByText(
+        'Tus estadísticas todavía no están disponibles. Vuelve a intentarlo más tarde.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
   });
 
   it('the course’s page and every deck’s page lead to it', async () => {

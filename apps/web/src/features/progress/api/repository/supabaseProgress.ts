@@ -6,6 +6,7 @@ import { STUDY_RPC } from '@qv/schema/user';
 import { fromDatabase } from '../../../../shared/lib/json';
 import { dayNumber } from '@qv/study';
 import type { CardStatsData } from '@qv/study';
+import { StatsUnavailableError } from './model';
 import type { HomeCounts } from './model';
 import type { StudyRepository } from './port';
 import { listOf } from './supabaseContext';
@@ -126,11 +127,7 @@ export function progressReads({ client, fail, all }: StudyContext): ProgressRead
         'my_card_stats',
         deckIds === null ? {} : { p_deck_ids: deckIds },
       );
-      if (error && databaseError(error).hasCode('PGRST202')) {
-        throw new Error(
-          'Tus estadísticas todavía no están disponibles. Vuelve a intentarlo más tarde.',
-        );
-      }
+      if (error && databaseError(error).hasCode('PGRST202')) throw new StatsUnavailableError();
       if (error) fail('leer tus estadísticas', error);
       return cardStatsFromJson(data);
     },

@@ -5,6 +5,7 @@ import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { page } from '../../../shared/ui/styles';
 import { useTitle } from '../../../shared/hooks/useTitle';
+import { StatsUnavailableError } from '../../progress/api/repository';
 import { deckCrumbs } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { StatsBody } from '../components/StatsBody';
@@ -21,7 +22,11 @@ export function CardStatsPage({ node }: { node: CourseDeckNode }) {
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{s.heading}</h1>
       <p className="mt-2 text-muted">{s.scope(title)}</p>
       {query.isError && !query.data ? (
-        <ErrorWithRetry error={query.error} onRetry={() => void query.refetch()} />
+        <ErrorWithRetry
+          error={query.error}
+          message={query.error instanceof StatsUnavailableError ? query.error.message : undefined}
+          onRetry={() => void query.refetch()}
+        />
       ) : advanced === null ? null : (
         <StatsBody node={node} data={query.data ?? null} advanced={advanced} hard={hard} />
       )}

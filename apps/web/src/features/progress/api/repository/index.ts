@@ -8,6 +8,7 @@ export {
   PRACTICE_BATCH_MAX,
   PRACTICE_DAY_MAX,
   PracticeRefusedError,
+  StatsUnavailableError,
   UndoRefusedError,
 } from './model';
 export type {

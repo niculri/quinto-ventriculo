@@ -1,13 +1,17 @@
-// The loading state of a note's page, as tall as the note's header, with the real breadcrumbs: before they are known
-// it draws nothing, since anything drawn would move when they come.
+// The loading state of a note's page, as tall as the note's header and index bar, with the real breadcrumbs: before
+// they are known it draws nothing, since anything drawn would move when they come.
 import { Skeleton } from '../../../shared/ui/Loading';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { page } from '../../../shared/ui/styles';
 import type { NoteLocation } from '../../catalog/model/catalog';
 import { noteCrumbs } from '../model/noteCrumbs';
+import { HEADER_BOX, HeaderLines } from './HeaderLines';
 import { noteSkeletonStrings } from './strings/NoteSkeleton.strings';
 
-/** On a phone the breadcrumbs wrap, so their height is known only with them: a stand-in would move the title. */
+/**
+ * On a phone the breadcrumbs wrap, so their height is known only with them: a stand-in would move the title. The
+ * header's lines come from the catalog and wrap as the article's; under `xl`, the room of the index bar (`TocBar`).
+ */
 export function NoteSkeleton({ location }: { location: NoteLocation | null }) {
   if (!location) {
     return (
@@ -20,15 +24,14 @@ export function NoteSkeleton({ location }: { location: NoteLocation | null }) {
     <div className={page}>
       <Breadcrumbs items={noteCrumbs(location, location.note.title)} />
       <div role="status" aria-label={noteSkeletonStrings.loading}>
-        <div className="mb-10 border-b border-border pb-8">
-          <div className="flex h-[2.625rem] items-center sm:h-[3.25rem]">
-            <Skeleton className="h-9 w-3/4 sm:h-11" />
+        <div className={HEADER_BOX} aria-hidden="true">
+          <HeaderLines note={location.note} ghost />
+          <div className="mt-1.5 flex h-5 items-center">
+            <Skeleton className="h-4 w-44 max-w-full" />
           </div>
-          <div className="mt-4 flex h-[1.5625rem] items-center">
-            <Skeleton className="h-5 w-1/2" />
-          </div>
-          <Skeleton className="mt-4 h-5 w-64 max-w-full" />
-          <Skeleton className="mt-4 h-5 w-36" />
+        </div>
+        <div className="mb-6 h-[2.375rem] xl:hidden">
+          <Skeleton className="size-full" />
         </div>
         <div className="space-y-3">
           {Array.from({ length: 10 }, (_, i) => (

@@ -22,13 +22,13 @@ afterEach(() => {
 const withNote = (over: Partial<Note>) => fakeApi({ note: async () => ({ ...NOTE, ...over }) });
 
 describe('the header', () => {
-  it('the line under the title with its separators, the code with its title and the sources', async () => {
+  it('the line under the title with its separators and, folded under it, the code with its title, the dates and the sources', async () => {
     const { container } = renderApp(PATH, {
       api: withNote({ sources: ['Diapositivas de la clase', 'Un libro de prueba'] }),
     });
     await screen.findByRole('heading', { level: 1, name: 'Traducción' });
     const header = container.querySelector<HTMLElement>('article header')!;
-    const line = header.querySelector<HTMLElement>('p.mt-4')!;
+    const line = header.querySelector<HTMLElement>('p.text-ink')!;
     expect(textNodes(line)).toEqual([
       'Clase 11',
       '·',
@@ -42,10 +42,14 @@ describe('the header', () => {
       'title',
       'Código y versión de este artículo',
     );
-    const sources = within(header).getByText('Fuentes del apunte');
-    expect(sources.tagName).toBe('SUMMARY');
+    const summary = within(header).getByText('Código, fechas y fuentes');
+    expect(summary.tagName).toBe('SUMMARY');
+    const details = summary.parentElement!;
+    expect(details).not.toHaveAttribute('open');
+    expect(details).toContainElement(within(header).getByText('QV-BC-C2-11.2'));
+    expect(details).toContainElement(within(header).getByText(/^Creado el /));
     expect(
-      within(sources.parentElement!)
+      within(details)
         .getAllByRole('listitem')
         .map((li) => li.textContent),
     ).toEqual(['Diapositivas de la clase', 'Un libro de prueba']);
@@ -59,7 +63,8 @@ describe('the header', () => {
     const header = container.querySelector<HTMLElement>('article header')!;
     expect(header.firstElementChild).toHaveTextContent(/^Clase$/);
     expect(within(header).getByText('AP-BC-C2-11')).not.toHaveAttribute('title');
-    expect(within(header).queryByText('Fuentes del apunte')).toBeNull();
+    expect(within(header).getByText('Código y fechas').tagName).toBe('SUMMARY');
+    expect(within(header).queryByRole('listitem')).toBeNull();
   });
 });
 
@@ -187,6 +192,14 @@ describe('«Ponte a prueba»', () => {
   });
 });
 
+/** For each text node under `el`, whether it is inside an element hidden with `invisible`. */
+const unseen = (el: Element) => {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const out: boolean[] = [];
+  while (walker.nextNode()) out.push(!!walker.currentNode.parentElement?.closest('.invisible'));
+  return out;
+};
+
 describe('while the note loads', () => {
   it('a status with what it is, and the breadcrumbs once the catalog is in', async () => {
     renderApp(PATH, { api: fakeApi({ note: () => new Promise(() => {}) }) });
@@ -196,6 +209,43 @@ describe('while the note loads', () => {
       'href',
       '/semesters/2/courses/biologia-celular/assessments/certamen-2/notes',
     );
+  });
+
+  it('the header the catalog knows, as unseen lines that take its room, with no heading, and the index bar’s room', async () => {
+    renderApp(PATH, { api: fakeApi({ note: () => new Promise(() => {}) }) });
+    await screen.findByRole('navigation', { name: 'Ruta' });
+    const status = screen.getByRole('status', { name: 'Cargando el apunte' });
+    const ghost = status.firstElementChild!;
+    expect(ghost).toHaveAttribute('aria-hidden', 'true');
+    expect(textNodes(ghost)).toEqual(['Clase', 'Traducción', 'Clase N.º 11']);
+    expect(ghost.querySelector('h1')).toBeNull();
+    expect(unseen(ghost)).toEqual([true, true, true]);
+    expect(ghost.nextElementSibling).toHaveClass('xl:hidden');
+  });
+
+  it('the line under the title, unseen too, with its separators', async () => {
+    const catalog = structuredClone(CATALOG);
+    catalog.semesters[1]!.courses[0]!.assessments[0]!.notes[1]!.header = NOTE.header!;
+    renderApp(PATH, {
+      api: fakeApi({ note: () => new Promise(() => {}), catalog: async () => catalog }),
+    });
+    await screen.findByRole('navigation', { name: 'Ruta' });
+    const status = screen.getByRole('status', { name: 'Cargando el apunte' });
+    const lines = status.firstElementChild!.querySelectorAll('p');
+    expect([...lines].map((p) => textNodes(p))).toEqual([
+      ['Traducción'],
+      ['Clase N.º 11'],
+      [
+        'Clase 11',
+        '·',
+        'Prof. Luis Ejemplo A.',
+        '·',
+        'Semestre de primavera 2026',
+        '·',
+        'ICBM, Universidad de Chile',
+      ],
+    ]);
+    expect(unseen(lines[2]!)).toEqual(Array.from({ length: 7 }, () => true));
   });
 });
 

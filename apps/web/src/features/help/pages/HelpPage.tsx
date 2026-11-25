@@ -90,10 +90,11 @@ export function HelpPage() {
         </h2>
         <p className="mt-2 text-muted">
           Cada clase y cada seminario es un artículo: arriba, el número de la clase, quién la dio,
-          el semestre y el año, y un código con su versión (por ejemplo, QV-BC-C2-08.2: la versión
-          sube cada vez que el artículo se corrige). En «Fuentes del apunte» está de dónde sale
-          todo. Al final vienen el resumen y «Ponte a prueba», con las preguntas de práctica de esa
-          materia. En el texto, cada color de recuadro dice qué tipo de información es.
+          el semestre y el año. Debajo, «Código, fechas y fuentes» abre el código del artículo con
+          su versión (por ejemplo, QV-BC-C2-08.2: la versión sube cada vez que el artículo se
+          corrige), cuándo se creó y se actualizó, y de dónde sale todo. Al final vienen el resumen
+          y «Ponte a prueba», con las preguntas de práctica de esa materia. En el texto, cada color
+          de recuadro dice qué tipo de información es.
         </p>
         <div className="note-body mt-6 grid gap-x-6 sm:grid-cols-2">
           {CALLOUTS.map((c) => (

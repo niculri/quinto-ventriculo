@@ -20,10 +20,11 @@ test('an article: header, key facts, the TOC to «Ponte a prueba» and the test 
   await expect(header).toContainText(
     'Clase 11·Prof. de prueba·Semestre de primavera 2026·ICBM, Universidad de Chile',
   );
+  await expect(header.getByText('QV-BC-C2-11.2')).toBeHidden();
+  await header.getByText('Código, fechas y fuentes').click();
   await expect(header.getByText('QV-BC-C2-11.2')).toBeVisible();
   await expect(header.getByText('Creado el 1 de noviembre de 2026')).toBeVisible();
   await expect(header.getByText('Actualizado el 2 de noviembre de 2026')).toBeVisible();
-  await header.getByText('Fuentes del apunte').click();
   await expect(header.getByText(/Clase 11 de prueba, semestre de primavera 2026/)).toBeVisible();
   await expect(page.locator('.callout-datos')).toContainText('Datos clave');
   await expect(page.locator('.callout-clinica .callout-label')).toHaveText('Relevancia clínica');

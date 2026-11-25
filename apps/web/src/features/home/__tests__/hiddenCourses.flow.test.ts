@@ -23,7 +23,7 @@ afterEach(() => {
 
 async function student() {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   await study.saveAssessmentSetting({
     deckId: '4',
     includeExtras: false,

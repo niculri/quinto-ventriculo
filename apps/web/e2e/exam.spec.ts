@@ -87,11 +87,11 @@ test('a student turns on a week, puts a date, sees the pace, studies and reviews
 
   await expect(number).toHaveValue('1');
   const load = page.getByRole('group', { name: 'Para hoy' }).getByRole('button');
-  await expect(load).toHaveText(/^1 para hoy/);
+  await expect(load).toHaveText(/^1 nueva\b/);
 
   await options.getByRole('radio', { name: '7 días solo para repasar' }).click();
   await expect(number).toHaveValue('2');
-  await expect(load).toHaveText(/^2 para hoy/);
+  await expect(load).toHaveText(/^2 nuevas/);
 
   await options.getByLabel('Fecha de la prueba').fill(inDays(5));
   await expect(options.getByRole('status')).toContainText('días de repaso final');
@@ -191,14 +191,14 @@ for (const width of [null, 320]) {
     };
 
     await page.getByRole('switch', { name: WEEK }).click();
-    await expect(page.getByRole('group', { name: 'Para hoy' })).toContainText('para hoy');
+    await expect(page.getByRole('group', { name: 'Para hoy' })).toContainText('nuevas');
     await same('turning a week on');
 
     await page.getByRole('switch', { name: WEEK }).click();
     await same('turning it off');
 
     await field.fill(inDays(30));
-    await expect(options.getByRole('status')).toContainText('Activa una semana');
+    await expect(options.getByRole('status')).toContainText('Activa un tema, una semana');
     const withDate = await positions(page);
     await page.getByRole('switch', { name: WEEK }).click();
     await expect(options.getByRole('status')).toContainText('Faltan 30 días');

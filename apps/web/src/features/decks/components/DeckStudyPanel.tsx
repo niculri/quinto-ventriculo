@@ -1,4 +1,5 @@
-// The panel «Estudiar» of a deck's page: the button, the load of today, dominio, the final review and what is below.
+// The panel «Estudiar» of a deck's page: the button, the load of today (the only place that says the new cards, which
+// the whole assessment shares), dominio, the final review and what is below.
 
 import { Link } from 'react-router';
 import { Play } from 'lucide-react';
@@ -27,7 +28,7 @@ export function DeckStudyPanel({
   study: ReturnType<typeof useDeckCounts>;
   view: AssessmentView | null;
 }) {
-  const { counts, mastery, error, retry } = study;
+  const { counts, mastery, seen, error, retry } = study;
   const { prefs } = usePreferences();
   const plan = useStudyPlan();
   const own = counts?.get(node.id);
@@ -48,7 +49,7 @@ export function DeckStudyPanel({
             <div
               aria-label={s.panel.today}
               role="group"
-              className="order-3 flex items-center gap-2 font-medium max-sm:basis-full sm:order-2 sm:min-w-[13.5rem]"
+              className="order-3 flex items-center gap-2 font-medium max-sm:basis-full sm:order-2 sm:min-w-64"
             >
               {!own ? (
                 <Skeleton className="h-6 w-36" />
@@ -57,13 +58,14 @@ export function DeckStudyPanel({
                   counts={own}
                   medianAnswerMs={plan.data?.medianAnswerMs ?? null}
                   detail
+                  split
                   side="right"
                 />
               )}
             </div>
             <div className="order-4 flex h-5 items-center max-sm:basis-full sm:order-3">
               {mastery ? (
-                <MasteryMeter value={ownMastery(mastery, node.id)} align="left" />
+                <MasteryMeter value={mastery.get(node.id) ?? null} align="left" />
               ) : (
                 <Skeleton className="h-4 w-[5.5rem]" />
               )}
@@ -73,7 +75,7 @@ export function DeckStudyPanel({
           <SimpleDetails
             node={node}
             counts={counts}
-            mastery={mastery}
+            seen={seen}
             plan={prefs ? plan.data : undefined}
             catchUp={view?.catchUp ?? null}
           />
@@ -81,10 +83,4 @@ export function DeckStudyPanel({
       )}
     </section>
   );
-}
-
-// The mastery is computed over this deck's own detail, so it always has the deck itself.
-function ownMastery(mastery: Map<string, number>, id: string): number {
-  /* v8 ignore next */
-  return mastery.get(id) ?? 0;
 }

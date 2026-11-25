@@ -1,4 +1,5 @@
-// Dominio as a small bar and «62 %», always as wide, with what it means on hover or touch (also inside a link).
+// Dominio as a small bar and «62 %» («—» while nothing was seen), always as wide, with what it means on hover or touch
+// (also inside a link).
 
 import { useState } from 'react';
 import { masteryPercent } from '@qv/study';
@@ -7,22 +8,18 @@ import { masteryMeterStrings as s } from './strings/MasteryMeter.strings';
 
 export function MasteryMeter({
   value,
-  align = 'right',
+  align = 'left',
   className = '',
 }: {
-  value: number;
-  align?: 'left' | 'right' | 'above';
+  /** Null while nothing was seen. */
+  value: number | null;
+  align?: 'left' | 'above';
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const boxRef = useOutsideClose(open, setOpen);
-  const percent = masteryPercent(value);
-  const place =
-    align === 'above'
-      ? 'bottom-full left-0 mb-1'
-      : align === 'left'
-        ? 'top-full left-0 mt-1'
-        : 'top-full right-0 mt-1';
+  const percent = value === null ? 0 : masteryPercent(value);
+  const place = align === 'above' ? 'bottom-full left-0 mb-1' : 'top-full left-0 mt-1';
   return (
     <span
       ref={boxRef}
@@ -40,10 +37,19 @@ export function MasteryMeter({
       >
         <span className="block h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
       </span>
-      <span className="w-9 flex-none text-left text-xs font-normal text-muted tabular-nums">
-        {percent}
-        {s.mastery.percent}
-        <span className="sr-only">{s.mastery.of}</span>
+      <span className="w-10 flex-none text-left text-xs font-normal whitespace-nowrap text-muted tabular-nums">
+        {value === null ? (
+          <>
+            <span aria-hidden="true">{s.mastery.none}</span>
+            <span className="sr-only">{s.mastery.noneRead}</span>
+          </>
+        ) : (
+          <>
+            {percent}
+            {s.mastery.percent}
+            <span className="sr-only">{s.mastery.of}</span>
+          </>
+        )}
       </span>
       <span
         role="tooltip"

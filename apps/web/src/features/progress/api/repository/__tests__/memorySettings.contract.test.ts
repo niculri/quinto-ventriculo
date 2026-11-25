@@ -119,9 +119,9 @@ describe('preferences and presets', () => {
       sql,
       memory,
       [
-        (r) => r.setDeckActivation(DECK, true),
-        (r) => r.setDeckActivation(OTHER_DECK, true),
-        (r) => r.setDeckActivation(DECK, false),
+        (r) => r.setDeckActivations([{ deckId: DECK, active: true }]),
+        (r) => r.setDeckActivations([{ deckId: OTHER_DECK, active: true }]),
+        (r) => r.setDeckActivations([{ deckId: DECK, active: false }]),
         async (r) => sorted(await r.deckActivations()),
         (r) => r.saveAssessmentSetting({ ...noDate(DECK), includeExtras: true, newPerDay: 20 }),
         (r) =>
@@ -144,6 +144,40 @@ describe('preferences and presets', () => {
       expect(DeckActivation.array().parse(side[3])).toBeTruthy();
       expect(AssessmentSetting.array().parse(side[7])).toBeTruthy();
     }
+  });
+});
+
+describe('a week and its topics, saved in one request', () => {
+  it('inserts and updates several rows at once', async () => {
+    const { sql, memory } = await pair();
+    const got = await onBoth(sql, memory, [
+      (r) => r.setDeckActivations([{ deckId: DECK, active: true }]),
+      (r) =>
+        r.setDeckActivations([
+          { deckId: DECK, active: false },
+          { deckId: OTHER_DECK, active: true },
+        ]),
+      async (r) => sorted(await r.deckActivations()),
+    ]);
+    expect(got.memory).toEqual(got.sql);
+    expect(got.raw.sql[2]).toEqual(
+      sorted([
+        { deckId: DECK, active: false },
+        { deckId: OTHER_DECK, active: true },
+      ]),
+    );
+  });
+
+  it('saves none of them when the database refuses one', async () => {
+    const { sql } = await pair();
+    await sql.setDeckActivations([{ deckId: DECK, active: true }]);
+    await expect(
+      sql.setDeckActivations([
+        { deckId: DECK, active: false },
+        { deckId: 'not a deck', active: true },
+      ]),
+    ).rejects.toThrow(/^No se pudo guardar qué tienes activado/);
+    expect(await sql.deckActivations()).toEqual([{ deckId: DECK, active: true }]);
   });
 });
 

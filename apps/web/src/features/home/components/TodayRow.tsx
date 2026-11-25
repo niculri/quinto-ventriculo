@@ -3,7 +3,7 @@
 import { Play } from 'lucide-react';
 import { Link } from 'react-router';
 import type { Counts } from '@qv/srs';
-import { activeUnits, totalCards } from '@qv/study';
+import { anyOn, totalCards } from '@qv/study';
 import type { HomeStudyBase } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
 import { Skeleton } from '../../../shared/ui/Loading';
@@ -38,7 +38,7 @@ function Load({ base, counts, failed, left }: RowState) {
 function Action({ node, base, counts, failed, left }: RowState) {
   if (!counts && !failed) return <Skeleton className="h-10 w-28 max-sm:ml-auto" />;
   if (counts && left === 0) {
-    const nothingActive = !!base && activeUnits(descendants(node), base.plan).size === 0;
+    const nothingActive = !!base && !anyOn(descendants(node), base.plan);
     return nothingActive ? (
       <Link
         to={paths.course(node.ref.course)}
@@ -71,7 +71,8 @@ export function TodayRow({
   node: CourseDeckNode;
   base: HomeStudyBase | null;
   counts: Counts | null;
-  mastery: number | null;
+  /** Null while nothing was seen; undefined while it loads. */
+  mastery: number | null | undefined;
   failed?: boolean;
 }) {
   const course = node.course;
@@ -92,7 +93,7 @@ export function TodayRow({
         </Link>
         <span className="mt-0.5 flex items-center gap-x-2 gap-y-0.5 text-xs text-muted max-sm:flex-col max-sm:items-start sm:h-4">
           <span className="flex h-4 flex-none items-center">
-            {mastery !== null ? (
+            {mastery !== undefined ? (
               <MasteryMeter value={mastery} align="left" />
             ) : (
               <Skeleton className="h-4 w-[5.5rem]" />

@@ -48,7 +48,7 @@ const REFUSED: [string, (s: StudyRepository) => Promise<unknown>][] = [
   ['leer las opciones de tus mazos', (s) => s.deckSettings()],
   ['cambiar la configuración del mazo', (s) => s.setDeckPreset('d1', null)],
   ['leer qué tienes activado', (s) => s.deckActivations()],
-  ['guardar qué tienes activado', (s) => s.setDeckActivation('d1', true)],
+  ['guardar qué tienes activado', (s) => s.setDeckActivations([{ deckId: 'd1', active: true }])],
   ['leer las opciones de tus certámenes', (s) => s.assessmentSettings()],
   [
     'guardar las opciones del certamen',

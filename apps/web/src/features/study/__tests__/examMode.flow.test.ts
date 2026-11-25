@@ -26,7 +26,7 @@ const inDays = (n: number) => dateOfDay(roughToday() + n);
 
 async function student() {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation(WEEK_ID, true);
+  await study.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
   return study;
 }
 
@@ -115,7 +115,7 @@ describe('the date of a test, on the assessment’s page', () => {
     );
     expect(within(box).getByRole('status')).toHaveTextContent(/^Faltan 4 días · quedan 3 nuevas/);
     const load = await screen.findByRole('group', { name: 'Para hoy' });
-    await waitFor(() => expect(load).toHaveTextContent(/^3 para hoy/));
+    await waitFor(() => expect(load).toHaveTextContent(/^3 nuevas/));
 
     const saved = (await study.assessmentSettings())[0]!;
     expect(saved).toMatchObject({ examDate: inDays(4), newPerDay: 35 });
@@ -173,7 +173,9 @@ describe('the date of a test, on the assessment’s page', () => {
     renderApp(ASSESSMENT_PATH, { study });
     const box = await options();
     await waitFor(() =>
-      expect(within(box).getByRole('status')).toHaveTextContent(/Activa una semana o clase/),
+      expect(within(box).getByRole('status')).toHaveTextContent(
+        /Activa un tema, una semana o una clase/,
+      ),
     );
     expect(numberField(box)).toBeDisabled();
     expect(numberField(box)).toHaveValue(null);
@@ -366,10 +368,10 @@ describe('dominio and the summary', () => {
     );
   });
 
-  it('without a date there is no summary, and with nothing seen, 0 %', async () => {
+  it('without a date there is no summary, and with nothing seen, no mastery yet', async () => {
     renderApp(COURSE_PATH, { study: await student() });
     await waitFor(() => expect(document.querySelector('[data-mastery]')).toBeTruthy());
-    expect(document.querySelector('[data-mastery]')).toHaveTextContent('0 %');
+    expect(document.querySelector('[data-mastery]')).toHaveTextContent('Sin dominio todavía');
     expect(screen.queryByText(/Faltan \d+ días/)).toBeNull();
   });
 
@@ -442,7 +444,7 @@ describe('the final review', () => {
       'forget',
       'undo',
       'saveAssessmentSetting',
-      'setDeckActivation',
+      'setDeckActivations',
       'savePreferences',
     ] as const) {
       const real = study[name] as (...a: unknown[]) => Promise<unknown>;
@@ -506,7 +508,7 @@ describe('the final review', () => {
         .filter((c) => c.deckId === '20')
         .map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId }));
       const yesterday = localStudyRepository(null, { welcomeSeen: true });
-      await yesterday.setDeckActivation(WEEK_ID, true);
+      await yesterday.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
       const day = 86_400_000;
       for (const card of refs) {
         await yesterday.recordReview({

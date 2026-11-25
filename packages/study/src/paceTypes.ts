@@ -1,5 +1,7 @@
 // The shapes the assessment mode's pure functions pass around: what an assessment holds, the pace and its options.
 
+import type { SwitchKind } from './activation';
+
 export interface AssessmentFacts {
   newLeft: number;
   newToday: number;
@@ -8,7 +10,7 @@ export interface AssessmentFacts {
   overdue: number;
   anyOn: boolean;
   unitsOff: number;
-  unitIsWeek: boolean;
+  offKind: SwitchKind;
 }
 
 type PaceKind = 'none' | 'past' | 'nothing-on' | 'final-review' | 'finished' | 'computed';

@@ -13,6 +13,7 @@ const fns = vi.hoisted(() => ({
   deckCounts: vi.fn(),
   masteryByDeck: vi.fn(),
   nextCountChange: vi.fn(),
+  seenByDeck: vi.fn(),
 }));
 
 vi.mock('../../queries', () => ({
@@ -30,6 +31,7 @@ beforeEach(() => {
     .mockReset()
     .mockImplementation((_data: object, now: number = Date.now()) => new Map([['d', now]]));
   fns.masteryByDeck.mockReset().mockReturnValue(new Map());
+  fns.seenByDeck.mockReset().mockReturnValue(new Map());
   fns.nextCountChange.mockReset().mockImplementation(() => Date.now() + DUE_IN_MS);
 });
 afterEach(() => vi.useRealTimers());

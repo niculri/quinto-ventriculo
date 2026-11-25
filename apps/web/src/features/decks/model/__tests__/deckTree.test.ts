@@ -1,17 +1,26 @@
-// Tests the simple deck list: which subdecks show, which rows a fold or a depth hides, and which units are on.
+// Tests the simple deck list: which subdecks show, which rows a fold or a depth hides, what each row's switch is and
+// what «Estudiar» turns on.
 
 import { describe, expect, it } from 'vitest';
-import { EMPTY_PLAN } from '@qv/study';
+import { activation, EMPTY_PLAN } from '@qv/study';
 import type { StudyPlan } from '@qv/study';
 import type { CourseDeckNode, DeckNode } from '../../../catalog/model/tree';
-import { allNodes, isOn, treeRows, visibleChildren } from '../deckTree';
+import {
+  allNodes,
+  isOff,
+  rowsToTurnOn,
+  rowSwitch,
+  switchRows,
+  treeRows,
+  visibleChildren,
+} from '../deckTree';
 import { deckNode as deck } from '../../../../test/decksFakes';
 
 // () Raíz › Semestre › Ramo › Certamen › Semana 1 › Clase (› Extras) and Semana 2 › Clase B; the ramo has its own Extras.
 const root = deck('root', '() Raíz', null);
 const semester = deck('sem', 'Semestre', root);
 const course = deck('course', 'Ramo', semester);
-const courseExtras = deck('course-x', 'Extras', course);
+deck('course-x', 'Extras', course);
 const assessment = deck('cert', 'Certamen', course);
 const week1 = deck('w1', 'Semana 1', assessment);
 const lecture = deck('l1', 'Clase', week1);
@@ -102,19 +111,53 @@ describe('all the decks of an assessment', () => {
   });
 });
 
-describe('whether a deck is on', () => {
-  it('a deck inside a unit is on when its unit is', () => {
-    expect(isOn(extras, new Set(['w1']))).toBe(true);
-    expect(isOn(extras, new Set(['w2']))).toBe(false);
-    expect(isOn(week2, new Set(['w2']))).toBe(true);
+describe('the switch of a row', () => {
+  const nodes = allNodes(assessment);
+  const on = (...rows: [string, boolean][]) =>
+    activation(nodes, {
+      ...EMPTY_PLAN,
+      activations: rows.map(([deckId, active]) => ({ deckId, active })),
+    });
+
+  it('a topic has its own; a week of topics is all of them, «en parte» while only some are', () => {
+    const a = on(['l1', true]);
+    expect(rowSwitch(lecture, nodes, a)).toEqual({ kind: 'switch', on: true });
+    expect(rowSwitch(week1, nodes, a)).toEqual({ kind: 'unit', on: 1, total: 1 });
+    expect(rowSwitch(week2, nodes, a)).toEqual({ kind: 'unit', on: 0, total: 1 });
+    expect(isOff(rowSwitch(week2, nodes, a))).toBe(true);
+    expect(isOff(rowSwitch(week1, nodes, a))).toBe(false);
   });
 
-  it('a deck above the units is always on', () => {
-    expect(isOn(assessment, new Set())).toBe(true);
-    expect(isOn(courseExtras, new Set())).toBe(true);
+  it('an Extras is on with its topic, and the assessment with anything below it', () => {
+    expect(rowSwitch(extras, nodes, on(['l1', true]))).toEqual({ kind: 'inside', on: true });
+    expect(rowSwitch(assessment, nodes, on(['l2', true]))).toEqual({ kind: 'above', on: true });
+    expect(rowSwitch(assessment, nodes, on())).toEqual({ kind: 'above', on: false });
   });
 
-  it('tells apart two units with the same lectures', () => {
-    expect([lectureB, lecture].map((n) => isOn(n, new Set(['w2'])))).toEqual([true, false]);
+  it('saves a topic alone and a week with its topics', () => {
+    const a = on();
+    expect(switchRows(lecture, a, true)).toEqual([{ deckId: 'l1', active: true }]);
+    expect(switchRows(week2, a, false)).toEqual([
+      { deckId: 'w2', active: false },
+      { deckId: 'l2', active: false },
+    ]);
+  });
+
+  it('«Estudiar» turns on what is off, never what is already on, nor a whole assessment', () => {
+    const a = on(['l1', true]);
+    const turnOn = (n: DeckNode) => rowsToTurnOn(n, nodes, a, rowSwitch(n, nodes, a));
+    expect(turnOn(lectureB)).toEqual([{ deckId: 'l2', active: true }]);
+    expect(turnOn(week2)).toEqual([
+      { deckId: 'w2', active: true },
+      { deckId: 'l2', active: true },
+    ]);
+    expect(turnOn(lecture)).toEqual([]);
+    expect(turnOn(week1)).toEqual([]);
+    expect(turnOn(assessment)).toEqual([]);
+    const off = on();
+    expect(rowsToTurnOn(extras, nodes, off, rowSwitch(extras, nodes, off))).toEqual([
+      { deckId: 'l1', active: true },
+    ]);
+    expect(rowsToTurnOn(assessment, nodes, off, rowSwitch(assessment, nodes, off))).toEqual([]);
   });
 });

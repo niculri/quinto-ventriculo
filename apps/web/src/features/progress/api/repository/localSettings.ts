@@ -17,7 +17,7 @@ type SettingsMethods = Pick<
   | 'deckSettings'
   | 'setDeckPreset'
   | 'deckActivations'
-  | 'setDeckActivation'
+  | 'setDeckActivations'
   | 'assessmentSettings'
   | 'saveAssessmentSetting'
 >;
@@ -85,13 +85,11 @@ export function localSettings({ read, write, stamp }: LocalStore): SettingsMetho
         });
       }),
     deckActivations: () => settle(() => read().activations),
-    setDeckActivation: (deckId, active) =>
+    setDeckActivations: (rows) =>
       settle(() => {
         const d = read();
-        write({
-          ...d,
-          activations: [...d.activations.filter((a) => a.deckId !== deckId), { deckId, active }],
-        });
+        const ids = new Set(rows.map((r) => r.deckId));
+        write({ ...d, activations: [...d.activations.filter((a) => !ids.has(a.deckId)), ...rows] });
       }),
     assessmentSettings: () => settle(() => read().assessments),
     saveAssessmentSetting: (setting) =>

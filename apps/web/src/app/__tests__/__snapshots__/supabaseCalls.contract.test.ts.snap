@@ -956,11 +956,13 @@ exports[`users database: the calls of each adapter > study 1`] = `
   {
     "calls": [
       {
-        "body": {
-          "active": true,
-          "deck_id": "d1",
-          "updated_at": "2026-11-10T07:00:00.000Z",
-        },
+        "body": [
+          {
+            "active": true,
+            "deck_id": "d1",
+            "updated_at": "2026-11-10T07:00:00.000Z",
+          },
+        ],
         "headers": {
           "apikey": "publishable-test-key",
           "authorization": "Bearer publishable-test-key",
@@ -969,11 +971,11 @@ exports[`users database: the calls of each adapter > study 1`] = `
           "prefer": "resolution=merge-duplicates",
         },
         "method": "POST",
-        "path": "/rest/v1/deck_activations?on_conflict=user_id,deck_id",
+        "path": "/rest/v1/deck_activations?on_conflict=user_id,deck_id&columns="deck_id","active","updated_at"",
       },
     ],
     "result": undefined,
-    "step": "setDeckActivation",
+    "step": "setDeckActivations",
   },
   {
     "calls": [

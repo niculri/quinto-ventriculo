@@ -223,7 +223,7 @@ describe('users database: the calls of each adapter', () => {
       ['setDeckPreset, author', () => repo.setDeckPreset('d1', { authorPreset: 'Autor' })],
       ['setDeckPreset, none', () => repo.setDeckPreset('d1', null)],
       ['deckActivations', () => repo.deckActivations()],
-      ['setDeckActivation', () => repo.setDeckActivation('d1', true)],
+      ['setDeckActivations', () => repo.setDeckActivations([{ deckId: 'd1', active: true }])],
       ['assessmentSettings', () => repo.assessmentSettings()],
       [
         'saveAssessmentSetting',

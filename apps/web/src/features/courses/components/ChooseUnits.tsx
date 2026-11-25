@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import type { Counts } from '@qv/srs';
-import type { StudyPlan } from '@qv/study';
+import type { SeenCounts, StudyPlan } from '@qv/study';
 import { UNIT_DEPTH } from '@qv/study';
 import { card, tapArea } from '../../../shared/ui/styles';
 import type { CourseDeckNode } from '../../catalog/model/tree';
@@ -13,12 +13,12 @@ import { chooseUnitsStrings as s } from './strings/ChooseUnits.strings';
 export function ChooseUnits({
   node,
   counts,
-  mastery,
+  seen,
   plan,
 }: {
   node: CourseDeckNode;
   counts: Map<string, Counts> | undefined;
-  mastery: Map<string, number> | undefined;
+  seen: SeenCounts | undefined;
   plan: StudyPlan;
 }) {
   const { total, on } = unitsOf(node, plan);
@@ -48,7 +48,7 @@ export function ChooseUnits({
             root={node}
             counts={counts}
             plan={plan}
-            mastery={mastery}
+            seen={seen}
             label={s.units.list(node.label)}
             upTo={UNIT_DEPTH}
           />

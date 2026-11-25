@@ -116,7 +116,7 @@ describe('the first steps', () => {
     renderApp('/home', { study });
     const steps = await screen.findByRole('region', { name: 'Primeros pasos' });
     expect(text(steps)).toMatchInlineSnapshot(
-      `"Primeros pasosOcultar1Elige tus ramos (pendiente)Di en qué semestre estás o agrega un ramo, y aparecen más abajo.Elegir ramos2Activa la semana o clase que estás viendo (pendiente)3Responde tu primera tarjeta (pendiente)"`,
+      `"Primeros pasosOcultar1Elige tus ramos (pendiente)Di en qué semestre estás o agrega un ramo, y aparecen más abajo.Elegir ramos2Activa lo que estás viendo en clases (pendiente)3Responde tu primera tarjeta (pendiente)"`,
     );
     expect(within(steps).getByRole('link', { name: 'Elegir ramos' })).toHaveAttribute(
       'href',
@@ -129,7 +129,7 @@ describe('the first steps', () => {
     );
     await within(steps).findByRole('link', { name: 'Ir a tu ramo' });
     expect(text(steps)).toMatchInlineSnapshot(
-      `"Primeros pasosOcultarElige tus ramos (hecho)2Activa la semana o clase que estás viendo (pendiente)Así empiezan a salir sus tarjetas nuevas.Ir a tu ramo3Responde tu primera tarjeta (pendiente)"`,
+      `"Primeros pasosOcultarElige tus ramos (hecho)2Activa lo que estás viendo en clases (pendiente)Un tema, una semana o una clase: así empiezan a salir sus tarjetas nuevas.Ir a tu ramo3Responde tu primera tarjeta (pendiente)"`,
     );
     expect(within(steps).getByRole('link', { name: 'Ir a tu ramo' })).toHaveAttribute(
       'href',
@@ -146,11 +146,11 @@ describe('the first steps', () => {
 
   it('with a week on, the third one takes to study it', async () => {
     const study = student();
-    await study.setDeckActivation('5', true);
+    await study.setDeckActivations([{ deckId: '5', active: true }]);
     renderApp('/home', { study });
     const steps = await screen.findByRole('region', { name: 'Primeros pasos' });
     expect(text(steps)).toMatchInlineSnapshot(
-      `"Primeros pasosOcultarElige tus ramos (hecho)Activa la semana o clase que estás viendo (hecho)3Responde tu primera tarjeta (pendiente)Muestra la respuesta y di si te la sabías. Estudiar"`,
+      `"Primeros pasosOcultarElige tus ramos (hecho)Activa lo que estás viendo en clases (hecho)3Responde tu primera tarjeta (pendiente)Muestra la respuesta y di si te la sabías. Estudiar"`,
     );
     expect(within(steps).getByRole('link', { name: 'Estudiar' })).toHaveAttribute(
       'href',
@@ -164,7 +164,7 @@ describe('«Hoy»', () => {
     renderApp('/home', { study: student() });
     const today = await screen.findByRole('region', { name: 'Hoy' });
     expect(text(today)).toMatchInlineSnapshot(
-      `"HoyTodavía no activas ninguna semana o clase. Cuando lo hagas, aquí verás lo que te toca cada día.Elegir qué estudiar"`,
+      `"HoyTodavía no activas nada de lo que estás viendo en clases. Cuando lo hagas, aquí verás lo que te toca cada día.Elegir qué estudiar"`,
     );
     expect(within(today).getByRole('link', { name: 'Elegir qué estudiar' })).toHaveAttribute(
       'href',
@@ -203,7 +203,7 @@ describe('«Hoy»', () => {
     expect(await within(today).findByText('Listo por hoy')).toBeInTheDocument();
     expect(within(today).queryByRole('link', { name: /Estudiar/ })).toBeNull();
     expect(text(within(today).getByRole('listitem'))).toMatchInlineSnapshot(
-      `"🦴 Anatomía I0 % de dominioDominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.Listo por hoy"`,
+      `"🦴 Anatomía I0 % de dominioDominio: cuánto recordarías hoy de lo que ya viste de esta materia, según tus repasos. Lo que todavía no ves no cuenta.Listo por hoy"`,
     );
   });
 

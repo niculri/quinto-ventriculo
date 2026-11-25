@@ -1,5 +1,5 @@
-// Simple Anki: the options the web gives the scheduler from what the student chose (units turned on, an
-// assessment's new cards a day and date), and the load texts; @qv/srs only sees ordinary limits.
+// Simple Anki: the options the web gives the scheduler from what the student chose (an assessment's new cards a day,
+// its date and Extras), and the load texts; @qv/srs only sees ordinary limits.
 
 import type { Counts, DeckConfig } from '@qv/srs';
 import type { AssessmentSetting, DeckActivation } from '@qv/schema/user';
@@ -42,25 +42,6 @@ export function isExtras(name: string): boolean {
   return name.split('::').slice(UNIT_DEPTH).includes('Extras');
 }
 
-// Untouched, a unit counts as on if the student already answered a card in it, so nobody who studied loses anything.
-export function activeUnits(decks: readonly NamedDeck[], plan: StudyPlan): Set<string> {
-  const idOf = new Map(decks.map((d) => [d.name, d.id]));
-  const nameOf = new Map(decks.map((d) => [d.id, d.name]));
-  const studied = new Set<string>();
-  for (const id of plan.answeredDecks) {
-    const unit = ancestorName(nameOf.get(id) ?? '', UNIT_DEPTH);
-    const unitId = unit === null ? undefined : idOf.get(unit);
-    if (unitId) studied.add(unitId);
-  }
-  const manual = new Map(plan.activations.map((a) => [a.deckId, a.active]));
-  const out = new Set<string>();
-  for (const d of decks) {
-    if (d.name.split('::').length !== UNIT_DEPTH + 1) continue;
-    if (manual.get(d.id) ?? studied.has(d.id)) out.add(d.id);
-  }
-  return out;
-}
-
 const settingOf = (plan: StudyPlan, assessmentDeckId: string | undefined) =>
   plan.assessments.find((a) => a.deckId === assessmentDeckId);
 
@@ -77,25 +58,6 @@ export function extrasOff(decks: readonly NamedDeck[], plan: StudyPlan, deckId: 
   if (name === undefined || !isExtras(name)) return false;
   const assessment = ancestorName(name, ASSESSMENT_DEPTH);
   return !includesExtras(plan, decks.find((d) => d.name === assessment)?.id ?? '');
-}
-
-// A deck above weeks and lectures has no switch, so it counts as on.
-export function decksGivingNew(decks: readonly NamedDeck[], plan: StudyPlan): Set<string> {
-  const active = activeUnits(decks, plan);
-  const idOf = new Map(decks.map((d) => [d.name, d.id]));
-  const out = new Set<string>();
-  for (const d of decks) {
-    const unit = ancestorName(d.name, UNIT_DEPTH);
-    if (unit === null) {
-      out.add(d.id);
-      continue;
-    }
-    if (!active.has(idOf.get(unit) ?? '')) continue;
-    const assessment = ancestorName(d.name, ASSESSMENT_DEPTH)!;
-    if (isExtras(d.name) && !includesExtras(plan, idOf.get(assessment) ?? '')) continue;
-    out.add(d.id);
-  }
-  return out;
 }
 
 // The assessment's number goes on every deck of it and the decks above have no limit (limits add up through the tree);
@@ -163,6 +125,20 @@ export function minutesText(minutes: number): string {
 export function loadText(counts: Counts, medianAnswerMs: number | null): string {
   const total = totalCards(counts);
   return `${total.toLocaleString('es-CL')} para hoy · ${minutesText(estimateMinutes(counts, medianAnswerMs))}`;
+}
+
+const howMany = (n: number, one: string, many: string) =>
+  `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
+
+/** «20 nuevas · 15 repasos · ~12 min» (learning ones are reviews too), without a part that is 0. */
+export function todayText(counts: Counts, medianAnswerMs: number | null): string {
+  const reviews = counts.learning + counts.review;
+  const parts = [
+    ...(counts.new > 0 ? [howMany(counts.new, 'nueva', 'nuevas')] : []),
+    ...(reviews > 0 ? [howMany(reviews, 'repaso', 'repasos')] : []),
+    minutesText(estimateMinutes(counts, medianAnswerMs)),
+  ];
+  return parts.join(' · ');
 }
 
 export function breakdownText(counts: Counts): string {

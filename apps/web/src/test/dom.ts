@@ -17,10 +17,17 @@ export async function cardText(label: RegExp) {
   return cardShadowRoot(region)!.querySelector('.card')!.textContent;
 }
 
+/** The cards for today in a load: «19 nuevas · 1 repaso · ~10 min» is 20, and «Nada para hoy» is 0. */
+const loadCards = (text: string) =>
+  [...text.matchAll(/([\d.]+) (?:nuevas?|repasos?)\b/g)].reduce(
+    (t, m) => t + Number(m[1]!.replaceAll('.', '')),
+    0,
+  );
+
 export async function pageLoad() {
   const group = await screen.findByRole('group', { name: 'Para hoy' });
   const button = await within(group).findByRole('button');
-  return Number(/(\d+) para hoy/.exec(button.textContent)?.[1] ?? 0);
+  return loadCards(button.textContent);
 }
 
 export async function chooseIn(trigger: HTMLElement, option: string | RegExp) {

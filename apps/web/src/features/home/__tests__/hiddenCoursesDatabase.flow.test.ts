@@ -44,7 +44,7 @@ async function student() {
   await study.savePreferences(
     preferencesPatch(null, { ...defaultPreferences(zone), welcomeSeen: true }),
   );
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   await study.saveAssessmentSetting({
     deckId: '4',
     includeExtras: false,

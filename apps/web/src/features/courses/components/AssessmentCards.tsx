@@ -24,7 +24,7 @@ export function AssessmentCards({
   assessment: AssessmentWithNotes;
   decks: CourseDecks;
 }) {
-  const { counts, mastery, failed, plan } = decks;
+  const { counts, seen, failed, plan } = decks;
   const node = assessmentDeck(decks.tree, a);
   const gymkana = gymkanaDeck(decks.tree, a.id);
   const questions = a.quizzes.reduce((t, q) => t + q.questionCount, 0);
@@ -75,9 +75,7 @@ export function AssessmentCards({
           </SectionCard>
         ) : null}
       </div>
-      {plan && node ? (
-        <ChooseUnits node={node} counts={counts} mastery={mastery} plan={plan} />
-      ) : null}
+      {plan && node ? <ChooseUnits node={node} counts={counts} seen={seen} plan={plan} /> : null}
       {!plan && node && !failed ? <Skeleton className="mt-3 h-5 w-56" /> : null}
     </section>
   );

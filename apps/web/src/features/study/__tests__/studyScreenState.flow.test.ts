@@ -13,7 +13,7 @@ import type { StudyRepository } from '../../progress/api/repository';
 
 async function simpleStudent(): Promise<StudyRepository> {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   return study;
 }
 

@@ -59,7 +59,7 @@ async function student(email: string) {
       welcomeSeen: true,
     }),
   );
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   return { study, quiz: supabaseQuizRepository(client) };
 }
 

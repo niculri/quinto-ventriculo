@@ -3,7 +3,9 @@
 export const masteryMeterStrings = {
   mastery: {
     explained:
-      'Dominio: cuánto recordarías hoy de esta materia, según tus repasos. Lo que no has visto cuenta como 0.',
+      'Dominio: cuánto recordarías hoy de lo que ya viste de esta materia, según tus repasos. Lo que todavía no ves no cuenta.',
+    none: '—',
+    noneRead: 'Sin dominio todavía: no has visto tarjetas',
     percent: ' %',
     of: ' de dominio',
   },

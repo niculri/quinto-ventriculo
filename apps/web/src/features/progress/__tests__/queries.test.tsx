@@ -166,7 +166,7 @@ describe('a change of the plan', () => {
     const client = new QueryClient();
     client.setQueryData(studyKeys.plan, PLAN);
     const { result } = planHook(study, client);
-    act(() => result.current.mutate({ deckId: 'a', active: true }));
+    act(() => result.current.mutate([{ deckId: 'a', active: true }]));
     await waitFor(() =>
       expect(client.getQueryData(studyKeys.plan)).toMatchObject({
         activations: [{ deckId: 'a', active: true }],
@@ -180,7 +180,7 @@ describe('a change of the plan', () => {
     const study = localStudyRepository(null);
     const client = new QueryClient();
     const { result } = planHook(study, client);
-    act(() => result.current.mutate({ deckId: 'a', active: true }));
+    act(() => result.current.mutate([{ deckId: 'a', active: true }]));
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(client.getQueryData(studyKeys.plan)).toBeUndefined();
     expect(await study.deckActivations()).toEqual([{ deckId: 'a', active: true }]);
@@ -190,10 +190,10 @@ describe('a change of the plan', () => {
     const study = localStudyRepository(null);
     const fail: (() => void)[] = [];
     const finish: (() => void)[] = [];
-    vi.spyOn(study, 'setDeckActivation').mockImplementation(
-      (deckId) =>
+    vi.spyOn(study, 'setDeckActivations').mockImplementation(
+      (rows) =>
         new Promise<void>((resolve, reject) => {
-          if (deckId === 'a') fail.push(() => reject(new Error('x')));
+          if (rows[0]?.deckId === 'a') fail.push(() => reject(new Error('x')));
           else finish.push(resolve);
         }),
     );
@@ -201,8 +201,8 @@ describe('a change of the plan', () => {
     client.setQueryData(studyKeys.plan, PLAN);
     const first = planHook(study, client).result;
     const second = planHook(study, client).result;
-    act(() => first.current.mutate({ deckId: 'a', active: true }));
-    act(() => second.current.mutate({ deckId: 'b', active: true }));
+    act(() => first.current.mutate([{ deckId: 'a', active: true }]));
+    act(() => second.current.mutate([{ deckId: 'b', active: true }]));
     await waitFor(() => expect(fail).toHaveLength(1));
     await waitFor(() => expect(finish).toHaveLength(1));
     await act(async () => fail[0]!());
@@ -217,7 +217,7 @@ describe('a change of the plan', () => {
     await waitFor(() => expect(second.current.isSuccess).toBe(true));
 
     client.setQueryData(studyKeys.plan, PLAN);
-    act(() => first.current.mutate({ deckId: 'a', active: true }));
+    act(() => first.current.mutate([{ deckId: 'a', active: true }]));
     await waitFor(() => expect(fail).toHaveLength(2));
     await act(async () => fail[1]!());
     await waitFor(() => expect(first.current.isError).toBe(true));

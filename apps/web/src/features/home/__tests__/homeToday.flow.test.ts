@@ -75,7 +75,7 @@ describe('«Hoy» with a course answered but nothing on', () => {
       bury: [],
       buriedUntil: null,
     });
-    await study.setDeckActivation('5', false);
+    await study.setDeckActivations([{ deckId: '5', active: false }]);
     renderApp('/home', { study });
     const today = await screen.findByRole('region', { name: 'Hoy' });
     const choose = await within(today).findByRole('link', { name: 'Elegir qué estudiar' });

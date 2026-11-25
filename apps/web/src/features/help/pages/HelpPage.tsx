@@ -186,9 +186,21 @@ function StudySection() {
         <div>
           <dt className="font-semibold">Tú eliges qué estudiar</dt>
           <dd className="text-muted">
-            Cada semana o clase parte desactivada. En la página del ramo, en «Qué estás estudiando»,
-            enciende lo que estás viendo en clases y empezarán a salir sus tarjetas nuevas. En la
-            página de Anki de cada certamen eliges cuántas tarjetas nuevas por día quieres.
+            Todo parte desactivado. En la página de Anki de cada certamen, enciende lo que estás
+            viendo en clases y empezarán a salir sus tarjetas nuevas: cada tema de una semana tiene
+            su interruptor, y el de la semana enciende o apaga todos sus temas. Tocar ▶ en algo
+            desactivado lo activa y lo abre para estudiar (y puedes deshacerlo al volver). Cada fila
+            dice cuántas tarjetas te quedan por ver y sus repasos de hoy.
+          </dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Las tarjetas nuevas por día son de todo el certamen</dt>
+          <dd className="text-muted">
+            «Tarjetas nuevas por día» es un solo número para todo el certamen, no uno por tema o
+            clase. Si pones 20, salen 20 nuevas al día en total, de lo que tengas activado y en
+            orden. Si estudias un tema solo, sus nuevas también cuentan dentro de esas 20. Por eso
+            las nuevas de hoy aparecen una sola vez, junto a «Estudiar», y cada tema muestra solo
+            sus repasos.
           </dd>
         </div>
         <div>

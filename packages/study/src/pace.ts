@@ -3,14 +3,8 @@
 
 import { dayOf } from '@qv/srs';
 import type { AssessmentSetting, DeckProgress, StudyPreferences } from '@qv/schema/user';
-import {
-  ANSWERS_PER_NEW_CARD,
-  DEFAULT_ANSWER_MS,
-  UNIT_DEPTH,
-  activeUnits,
-  decksGivingNew,
-  newPerDayOf,
-} from './simple';
+import { activation, decksGivingNew, switchKind } from './activation';
+import { ANSWERS_PER_NEW_CARD, DEFAULT_ANSWER_MS, newPerDayOf } from './simple';
 import type { StudyPlan } from './simple';
 import { catchUpPlan } from './catchUp';
 import type { CatchUp } from './catchUp';
@@ -57,13 +51,13 @@ export function assessmentFacts(
     overdue: 0,
     anyOn: false,
     unitsOff: 0,
-    unitIsWeek: false,
+    offKind: 'lecture',
   };
   const root = decks.find((d) => d.id === assessmentId);
   if (!root) return facts;
   const own = decks.filter((d) => inside(root, d));
   const giving = decksGivingNew(decks, plan);
-  const active = activeUnits(own, plan);
+  const a = activation(own, plan);
   const byDeck = new Map(progress.map((p) => [p.deckId, p]));
   const newOf = (d: CountedDeck) => {
     const p = byDeck.get(d.id);
@@ -81,9 +75,9 @@ export function assessmentFacts(
       if ((d.ownCards ?? 0) > 0) facts.anyOn = true;
     }
   }
-  for (const unit of own.filter((d) => d.name.split('::').length === UNIT_DEPTH + 1)) {
-    if (/^S\d/.test(unit.name.split('::').at(-1)!)) facts.unitIsWeek = true;
-    if (active.has(unit.id)) continue;
+  facts.offKind = switchKind(own, a);
+  for (const unit of own.filter((d) => a.switches.has(d.id))) {
+    if (a.on.has(unit.id)) continue;
     // Extras do not count: they are not what turning it on would add by default.
     const left = own
       .filter((d) => inside(unit, d) && !d.name.split('::').includes('Extras'))

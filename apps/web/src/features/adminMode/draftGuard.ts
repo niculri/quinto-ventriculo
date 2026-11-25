@@ -56,8 +56,10 @@ export function guardStudy(real: StudyRepository, draft: DraftOnly): StudyReposi
     setFlags: (cards, flag) => cardsWrite((c) => real.setFlags(c, flag))(cards),
     forget: (cards, reset) => cardsWrite((c) => real.forget(c, reset))(cards),
     setFlag: (card, flag) => cardWrite((c) => real.setFlag(c, flag))(card),
-    setDeckActivation: async (deckId, active) => {
-      if (!(await draft.is('deck', deckId))) await real.setDeckActivation(deckId, active);
+    setDeckActivations: async (rows) => {
+      const drafted = await Promise.all(rows.map((r) => draft.is('deck', r.deckId)));
+      const saved = rows.filter((_, i) => !drafted[i]);
+      if (saved.length) await real.setDeckActivations(saved);
     },
     setDeckPreset: async (deckId, choice) => {
       if (!(await draft.is('deck', deckId))) await real.setDeckPreset(deckId, choice);

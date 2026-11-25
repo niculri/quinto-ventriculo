@@ -19,6 +19,7 @@ export type {
   CardLogEntry,
   CardRef,
   CardStateFields,
+  DeckActivation,
   DeckProgress,
   DeckSetting,
   HomeDeckCounts,

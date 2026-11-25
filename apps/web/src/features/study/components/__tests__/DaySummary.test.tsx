@@ -93,7 +93,7 @@ describe('the summary, without React', () => {
 
 async function student(): Promise<StudyRepository> {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation(WEEK_ID, true);
+  await study.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
   return study;
 }
 
@@ -234,7 +234,7 @@ describe('«Listo por hoy»', () => {
       timeZone: browserTimeZone(),
       dayStartsAt: 7,
     });
-    await base.setDeckActivation(WEEK_ID, true);
+    await base.setDeckActivations([{ deckId: WEEK_ID, active: true }]);
     const prefs = await prefsOf(base);
     const today = dayOf(Date.now() / 1000, prefs.timeZone, prefs.dayStartsAt);
     const start = dayStartsAt(today, prefs.timeZone, prefs.dayStartsAt) * 1000;

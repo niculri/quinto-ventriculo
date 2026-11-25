@@ -247,6 +247,12 @@ function scenario(seed: number, mode: 'any' | 'simple' | 'advanced' = 'any') {
 
 afterEach(() => vi.useRealTimers());
 
+/** Null while nothing was seen, as masteryByDeck() leaves the deck out. */
+function expectSameMastery(home: number | null, deck: number | undefined) {
+  if (deck === undefined) expect(home).toBeNull();
+  else expect(home).toBeCloseTo(deck, 9);
+}
+
 describe('«Hoy» without the deck, harder courses', () => {
   for (const mode of ['simple', 'advanced'] as const) {
     it(`never a number different from the study screen (${mode})`, async () => {
@@ -264,7 +270,9 @@ describe('«Hoy» without the deck, harder courses', () => {
         } as unknown as Storage;
         storage.setItem('qv-demo-study', JSON.stringify({ cards: [...data.rows.values()] }));
         const repo = localStudyRepository(storage);
-        const { deck: _deck, rows: _rows, ...base } = data;
+        // Both pages have deck_progress(), which also says each deck's new cards under «No mostrar más».
+        const withProgress = { ...data, progress: await repo.deckProgress(new Date(NOW)) };
+        const { deck: _deck, rows: _rows, ...base } = withProgress;
         const ids = data.decks.map((d) => d.id);
         const today = timingFor(data.prefs, NOW).today;
         const until = new Date(dayStartsAt(today + 1, TZ, 4) * 1000);
@@ -276,8 +284,8 @@ describe('«Hoy» without the deck, harder courses', () => {
           new Map(home.decks.map((d) => [d.deckId, d])),
           NOW,
         );
-        const real = deckCounts(data, NOW).get(COURSE)!;
-        expect(result.mastery).toBeCloseTo(masteryByDeck(data, NOW).get(COURSE)!, 9);
+        const real = deckCounts(withProgress, NOW).get(COURSE)!;
+        expectSameMastery(result.mastery, masteryByDeck(withProgress, NOW).get(COURSE));
         if (result.counts) {
           exact++;
           if (JSON.stringify(result.counts) !== JSON.stringify(real))

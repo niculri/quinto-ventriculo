@@ -21,7 +21,8 @@ const MAX_NEW_PER_DECK = 20_000;
 
 export interface HomeCourseResult {
   counts: Counts | null;
-  mastery: number;
+  /** Null while nothing was seen. */
+  mastery: number | null;
 }
 
 export type HomeStudyBase = Omit<StudyData, 'deck' | 'rows'>;
@@ -299,22 +300,26 @@ function summary(noteGuid: string, ord: number, deckId: string): CardSummary {
   return { noteGuid, ord, deckId, code: null, version: null, kind: 'basic', text: '' };
 }
 
+// Over the seen cards that are not suspended, as masteryByDeck(): the suspended among them are all the suspended ones
+// but the new ones, which deck_progress() counts.
 function courseMastery(
   base: HomeStudyBase,
   decks: readonly TreeDeck[],
   home: ReadonlyMap<string, HomeDeckCounts>,
-): number {
+): number | null {
   const idOf = new Map(base.decks.map((d) => [d.name, d.id]));
+  const newSuspended = new Map((base.progress ?? []).map((p) => [p.deckId, p.newSuspended]));
   let sum = 0;
   let count = 0;
   for (const d of decks) {
     const assessment = ancestorName(d.name, ASSESSMENT_DEPTH);
     if (isExtras(d.name) && !includesExtras(base.plan, idOf.get(assessment!) ?? '')) continue;
     const h = home.get(d.id);
-    count += Math.max(0, (d.ownCards ?? 0) - (h?.suspended ?? 0));
-    sum += h?.recall ?? 0;
+    if (!h) continue;
+    count += Math.max(0, h.seen - Math.max(0, h.suspended - (newSuspended.get(d.id) ?? 0)));
+    sum += h.recall;
   }
-  return count === 0 ? 0 : sum / count;
+  return count === 0 ? null : sum / count;
 }
 
 /** When a learning step of today comes within the learn-ahead limit and the counts change by themselves. */

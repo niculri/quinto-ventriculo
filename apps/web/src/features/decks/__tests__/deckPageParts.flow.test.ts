@@ -17,7 +17,7 @@ const ASSESSMENT_PATH = '/semesters/1/courses/anatomia-1/anki/certamen-1';
 
 async function student() {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   return study;
 }
 
@@ -37,7 +37,8 @@ describe('a deck’s page, what it says', () => {
     const panel = screen.getByRole('region', { name: 'Estudiar' });
     expect(
       within(panel).getByText(
-        'Activa lo que estás viendo en clases: cada semana o clase parte desactivada.',
+        'Activa lo que estás viendo en clases; ▶ en algo sin activar lo activa y lo abre.',
+        { ignore: '[aria-hidden]' },
       ),
     ).toBeInTheDocument();
     expect(
@@ -58,10 +59,14 @@ describe('a deck’s page, what it says', () => {
       ).toBeEnabled(),
     );
     expect(box.textContent).toMatchSnapshot();
+    // Beside the number: it is one for the whole assessment, which a topic studied alone also counts in.
+    expect(box).toHaveTextContent(
+      'Es un solo número para todo Certamen 1, no uno por tema: las nuevas salen de lo que tengas activado, en orden, y si estudias un tema solo, también cuentan en ese número.',
+    );
     const tree = await screen.findByRole('list', { name: 'Submazos' });
     expect(await within(tree).findAllByRole('switch')).not.toHaveLength(0);
-    await waitFor(() => expect(within(tree).queryAllByText(/para hoy/).length).toBeGreaterThan(0));
-    await waitFor(() => expect(tree.textContent).toContain('% de dominio'));
+    await waitFor(() => expect(tree.textContent).toContain('Hoy: solo nuevas'));
+    expect(tree.textContent).not.toContain('dominio');
     expect(
       within(tree)
         .getAllByRole('listitem')
@@ -172,7 +177,7 @@ describe('a deck’s page when something is missing', () => {
   });
 });
 
-it('with every card suspended, the deck and its week are at 0 % of mastery', async () => {
+it('with every card suspended, the deck has no mastery yet, and the list none at all', async () => {
   const study = await student();
   await study.suspend(
     DECK.cards.map((c) => ({ noteGuid: c.noteGuid, ord: c.ord, deckId: c.deckId })),
@@ -180,9 +185,10 @@ it('with every card suspended, the deck and its week are at 0 % of mastery', asy
   );
   renderApp(ASSESSMENT_PATH, { study });
   const panel = await screen.findByRole('region', { name: 'Estudiar' });
-  await waitFor(() => expect(panel.querySelectorAll('[data-mastery]').length).toBeGreaterThan(1));
+  await waitFor(() => expect(panel.querySelector('[data-mastery]')).not.toBeNull());
   const meters = [...panel.querySelectorAll('[data-mastery]')].map((m) => m.textContent);
-  expect(meters.every((t) => t.includes('0 % de dominio'))).toBe(true);
+  expect(meters).toHaveLength(1);
+  expect(meters[0]).toContain('Sin dominio todavía');
 });
 
 it('with a large backlog, «Estudiar» gives the plan to catch up instead of what to turn on', async () => {
@@ -243,7 +249,7 @@ it('an assessment without weeks yet has no list of subdecks', async () => {
   expect(screen.queryByRole('list', { name: 'Submazos' })).toBeNull();
 });
 
-it('a week the catalog has but the deck read does not yet is listed at 0 % of mastery', async () => {
+it('a week the catalog has but the deck read does not yet is listed with nothing seen', async () => {
   const catalog = structuredClone(CATALOG);
   const week = catalog.anki.decks.find((d) => d.id === '5')!;
   catalog.anki.decks.push({
@@ -257,8 +263,8 @@ it('a week the catalog has but the deck read does not yet is listed at 0 % of ma
   });
   const tree = await screen.findByRole('list', { name: 'Submazos' });
   const row = (await within(tree).findByText('S2 - Semana nueva')).closest('li')!;
-  await waitFor(() => expect(row.querySelector('[data-mastery]')).not.toBeNull());
-  expect(row.querySelector('[data-mastery]')!.textContent).toContain('0 % de dominio');
+  await waitFor(() => expect(row.textContent).toContain('4 sin ver'));
+  expect(row.querySelector('[data-mastery]')).toBeNull();
 });
 
 it('a long day ahead says it is a lot, under «Estudiar», in the place of what to turn on', async () => {

@@ -47,7 +47,8 @@ export interface StudyRepository {
     choice: { presetId: string } | { authorPreset: string } | null,
   ) => Promise<void>;
   deckActivations: () => Promise<DeckActivation[]>;
-  setDeckActivation: (deckId: string, active: boolean) => Promise<void>;
+  /** Saved together: a week and its topics turn on or off at once. */
+  setDeckActivations: (rows: DeckActivation[]) => Promise<void>;
   assessmentSettings: () => Promise<AssessmentSetting[]>;
   saveAssessmentSetting: (setting: AssessmentSetting) => Promise<void>;
   answeredDecks: () => Promise<string[]>;

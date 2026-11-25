@@ -2,11 +2,11 @@
 // cards' table with Anki's search and «Opciones».
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
-import { DECK_URL, signIn } from './helpers';
+import { DECK_URL, loadCards, signIn } from './helpers';
 
 const today = async (page: Page) => {
   const text = await page.getByRole('group', { name: 'Para hoy' }).first().innerText();
-  return Number(/(\d+) para hoy/.exec(text)?.[1] ?? 0);
+  return loadCards(text);
 };
 
 test('course → Certamen 1 → study → browse → options', async ({ page, isMobile }) => {

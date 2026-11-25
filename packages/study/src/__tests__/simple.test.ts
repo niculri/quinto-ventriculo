@@ -14,13 +14,12 @@ import {
   DEFAULT_NEW_PER_DAY,
   EMPTY_PLAN,
   NO_LIMIT,
-  activeUnits,
   breakdownText,
-  decksGivingNew,
   estimateMinutes,
   extrasOff,
   loadText,
   minutesText,
+  todayText,
   simpleConfigs,
   totalCards,
 } from '../simple';
@@ -145,44 +144,6 @@ function study(
 
 const counts = (data: StudyData, root: string) => countsOf(buildQueue(data, root, NOW));
 const on = (...ids: string[]) => ids.map((deckId) => ({ deckId, active: true }));
-
-describe('what is turned on', () => {
-  it('nothing, for somebody who just arrived', () => {
-    expect(activeUnits(decks(), EMPTY_PLAN).size).toBe(0);
-  });
-
-  it('by hand, or because a card of it was answered, also in a deck below it', () => {
-    const plan = { ...EMPTY_PLAN, activations: on(L1), answeredDecks: [WEEK_EXTRAS] };
-    expect([...activeUnits(decks(), plan)].sort()).toEqual([L1, WEEK].sort());
-  });
-
-  it('turned off by hand stays off, even if it was studied', () => {
-    const plan: StudyPlan = {
-      ...EMPTY_PLAN,
-      activations: [{ deckId: L1, active: false }],
-      answeredDecks: [L1],
-    };
-    expect(activeUnits(decks(), plan).size).toBe(0);
-  });
-
-  it('an assessment or a course are not switches: only the level under the assessment', () => {
-    const plan = { ...EMPTY_PLAN, activations: on(ASSESSMENT, COURSE) };
-    expect(activeUnits(decks(), plan).size).toBe(0);
-  });
-
-  it('the Extras of what is on give new cards only if its assessment includes them', () => {
-    const plan = { ...EMPTY_PLAN, activations: on(L1, OTHER_L) };
-    const off = decksGivingNew(decks(), plan);
-    expect(off.has(L1)).toBe(true);
-    expect(off.has(L1_EXTRAS)).toBe(false);
-    const with_ = decksGivingNew(decks(), {
-      ...plan,
-      assessments: [{ deckId: ASSESSMENT, includeExtras: true, newPerDay: null }],
-    });
-    expect(with_.has(L1_EXTRAS)).toBe(true);
-    expect(with_.has(WEEK_EXTRAS)).toBe(false);
-  });
-});
 
 describe('what the scheduler gets in simple mode', () => {
   it('what is not turned on gives no new cards', () => {
@@ -373,54 +334,14 @@ describe('the load in minutes', () => {
     expect(minutesText(60)).toBe('~1 h');
     expect(minutesText(80)).toBe('~1 h 20 min');
   });
-});
 
-describe('the units a student studied without turning them on', () => {
-  const names = [
-    { id: 'a', name: 'R::S::C::A' },
-    { id: 'u', name: 'R::S::C::A::U' },
-    { id: 'u-sub', name: 'R::S::C::A::U::Sub' },
-    { id: 'v', name: 'R::S::C::A::V' },
-  ];
-
-  it('count as on only if the unit itself is in the list, and decks that are not under a unit say nothing', () => {
-    const plan = (answeredDecks: string[]): StudyPlan => ({ ...EMPTY_PLAN, answeredDecks });
-    expect([...activeUnits(names, plan(['u-sub']))]).toEqual(['u']);
-    expect([...activeUnits(names, plan(['a', 'nobody']))]).toEqual([]);
-    expect([
-      ...activeUnits(
-        names.filter((d) => d.id !== 'u'),
-        plan(['u-sub']),
-      ),
-    ]).toEqual([]);
-  });
-
-  it('a switch made by hand beats what was studied, in both directions', () => {
-    const off: StudyPlan = {
-      ...EMPTY_PLAN,
-      answeredDecks: ['u-sub'],
-      activations: [{ deckId: 'u', active: false }],
-    };
-    const on: StudyPlan = { ...EMPTY_PLAN, activations: [{ deckId: 'v', active: true }] };
-    expect([...activeUnits(names, off)]).toEqual([]);
-    expect([...activeUnits(names, on)]).toEqual(['v']);
-  });
-});
-
-describe('who gives new cards when the tree is incomplete', () => {
-  const onPlan: StudyPlan = { ...EMPTY_PLAN, activations: [{ deckId: 'u', active: true }] };
-
-  it('a deck under a unit missing from the list gives none, since nothing turns it on', () => {
-    const decks = [{ id: 'x', name: 'R::S::C::A::U::Sub' }];
-    expect([...decksGivingNew(decks, onPlan)]).toEqual([]);
-  });
-
-  it('an Extras whose assessment is missing from the list is left out', () => {
-    const decks = [
-      { id: 'u', name: 'R::S::C::A::U' },
-      { id: 'e', name: 'R::S::C::A::U::Extras' },
-    ];
-    expect([...decksGivingNew(decks, onPlan)]).toEqual(['u']);
+  it('new ones and reviews apart, without a part that is 0', () => {
+    expect(todayText({ new: 20, learning: 3, review: 12 }, null)).toBe(
+      '20 nuevas · 15 repasos · ~14 min',
+    );
+    expect(todayText({ new: 1, learning: 0, review: 0 }, null)).toBe('1 nueva · ~1 min');
+    expect(todayText({ new: 0, learning: 1, review: 0 }, null)).toBe('1 repaso · ~1 min');
+    expect(todayText({ new: 1200, learning: 0, review: 0 }, 1000)).toBe('1.200 nuevas · ~40 min');
   });
 });
 

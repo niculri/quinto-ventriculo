@@ -1,6 +1,9 @@
 // The site's on/off switch; `label` is its name for screen readers (the text beside it, or the row it is in), and
 // `mixed` draws it half on, for a group with some of its parts on (`describedBy` names the text that says how many).
 
+// Half of the track on and half off, in full colors: a faded track was hard to tell from off in the dark theme.
+const HALF_TRACK = 'bg-linear-to-r from-brand from-50% to-border-strong to-50%';
+
 /**
  * With `wholeRow` the switch's (invisible) input covers its row, the nearest ancestor with `relative isolate`: a click
  * anywhere on the row turns it, with the same focus and the same name. Another control on that row goes above it
@@ -43,7 +46,7 @@ export function Switch({
       />
       <span aria-hidden="true" className="relative inline-flex h-6 w-10 items-center">
         <span
-          className={`absolute inset-0 rounded-full transition-colors ${half ? 'bg-brand/50' : 'bg-border-strong'} group-has-checked/switch:bg-brand group-has-focus-visible/switch:ring-2 group-has-focus-visible/switch:ring-brand group-has-focus-visible/switch:ring-offset-2 group-has-focus-visible/switch:ring-offset-surface group-has-disabled/switch:opacity-50`}
+          className={`absolute inset-0 rounded-full transition-colors ${half ? HALF_TRACK : 'bg-border-strong'} group-has-checked/switch:bg-brand group-has-checked/switch:bg-none group-has-focus-visible/switch:ring-2 group-has-focus-visible/switch:ring-brand group-has-focus-visible/switch:ring-offset-2 group-has-focus-visible/switch:ring-offset-surface group-has-disabled/switch:opacity-50`}
         />
         <span
           className={`absolute left-0.5 size-5 rounded-full bg-white shadow-sm transition-transform group-has-checked/switch:translate-x-4 ${half ? 'translate-x-2' : ''}`}

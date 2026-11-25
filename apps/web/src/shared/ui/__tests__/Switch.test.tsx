@@ -49,9 +49,11 @@ describe('the switch', () => {
     expect(input).toHaveAccessibleDescription('2 de 5 temas activados');
     expect(input).not.toBeChecked();
     expect(container.innerHTML).toMatch(/translate-x-2/);
+    // Half the track in full color, half off: a faded track could not be told from off in the dark theme.
+    expect(container.innerHTML).toMatch(/from-brand from-50% to-border-strong to-50%/);
     await userEvent.click(input);
     expect(onChange).toHaveBeenCalledWith(true);
     rerender(<Switch label="Semana" checked mixed onChange={onChange} />);
-    expect(container.innerHTML).not.toMatch(/translate-x-2/);
+    expect(container.innerHTML).not.toMatch(/translate-x-2|from-brand/);
   });
 });

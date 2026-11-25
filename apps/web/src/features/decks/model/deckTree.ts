@@ -1,8 +1,16 @@
 // The simple deck list as a list of rows: which subdecks show (an Extras only when its assessment includes them),
-// which are folded, and which weeks or lectures are on.
+// which are folded, and what each row's switch is: a video or lecture, a week of videos, or none.
 
-import { includesExtras, isExtras, UNIT_DEPTH } from '@qv/study';
-import type { StudyPlan } from '@qv/study';
+import {
+  includesExtras,
+  isExtras,
+  switchesUnder,
+  unitRows,
+  unitState,
+  UNIT_DEPTH,
+} from '@qv/study';
+import type { Activation, StudyPlan } from '@qv/study';
+import type { DeckActivation } from '@qv/schema/user';
 import { ancestry, hasPage } from '../../catalog/model/tree';
 import type { CourseDeckNode, DeckNode } from '../../catalog/model/tree';
 
@@ -43,7 +51,40 @@ export function allNodes(node: DeckNode): DeckNode[] {
   return out;
 }
 
-export function isOn(node: DeckNode, active: Set<string>): boolean {
-  const unit = ancestry(node).find((n) => n.depth === UNIT_DEPTH);
-  return !unit || active.has(unit.id);
+/**
+ * `switch`: a video or a lecture; `unit`: a week of videos, on when all are; `inside`: under a switch (Extras), on with
+ * it; `above`: an assessment or course, on when anything below is.
+ */
+export type RowSwitch =
+  | { kind: 'switch'; on: boolean }
+  | { kind: 'unit'; on: number; total: number }
+  | { kind: 'inside' | 'above'; on: boolean };
+
+export function rowSwitch(node: DeckNode, decks: readonly DeckNode[], a: Activation): RowSwitch {
+  if (a.switches.has(node.id)) return { kind: 'switch', on: a.on.has(node.id) };
+  const unit = unitState(a, node.id);
+  if (unit) return { kind: 'unit', ...unit };
+  const on = switchesUnder(decks, a, node.id).some((id) => a.on.has(id));
+  return { kind: node.depth > UNIT_DEPTH ? 'inside' : 'above', on };
+}
+
+export const isOff = (row: RowSwitch) => (row.kind === 'unit' ? row.on === 0 : !row.on);
+
+/** What its switch saves: a video or lecture alone, a week with all its videos. */
+export function switchRows(node: DeckNode, a: Activation, active: boolean): DeckActivation[] {
+  return a.switches.has(node.id) ? [{ deckId: node.id, active }] : unitRows(a, node.id, active);
+}
+
+/** What «Estudiar» turns on first: nothing if something of it is on, else what it depends on (never a whole course). */
+export function rowsToTurnOn(
+  node: DeckNode,
+  decks: readonly DeckNode[],
+  a: Activation,
+  row: RowSwitch,
+): DeckActivation[] {
+  if (!isOff(row) || row.kind === 'above') return [];
+  if (row.kind === 'inside') {
+    return switchesUnder(decks, a, node.id).map((deckId) => ({ deckId, active: true }));
+  }
+  return switchRows(node, a, true);
 }

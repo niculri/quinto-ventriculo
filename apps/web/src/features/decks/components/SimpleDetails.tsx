@@ -10,7 +10,7 @@ import {
   HEAVY_LOAD_MINUTES,
   LONGEST_CATCH_UP,
 } from '@qv/study';
-import type { CatchUp, StudyPlan } from '@qv/study';
+import type { CatchUp, SeenCounts, StudyPlan } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
 import { visibleChildren } from '../model/deckTree';
 import { SimpleDeckTree } from './SimpleDeckTree';
@@ -19,13 +19,13 @@ import { simpleDetailsStrings as s } from './strings/SimpleDetails.strings';
 export function SimpleDetails({
   node,
   counts,
-  mastery,
+  seen,
   plan,
   catchUp,
 }: {
   node: CourseDeckNode;
   counts: Map<string, Counts> | undefined;
-  mastery: Map<string, number> | undefined;
+  seen: SeenCounts | undefined;
   plan: StudyPlan | undefined;
   catchUp: CatchUp | null;
 }) {
@@ -34,7 +34,10 @@ export function SimpleDetails({
   const minutes = own ? estimateMinutes(own, known.medianAnswerMs) : 0;
   return (
     <>
-      <Reserved longest={[LONGEST_CATCH_UP, s.panel.heavy]} className="mt-3 text-sm text-muted">
+      <Reserved
+        longest={[LONGEST_CATCH_UP, s.panel.heavy, s.panel.turnOn]}
+        className="mt-3 text-sm text-muted"
+      >
         {catchUp ? (
           <p role="status" className="font-medium text-state-learn">
             {catchUpText(catchUp)}
@@ -49,7 +52,7 @@ export function SimpleDetails({
             root={node}
             counts={counts}
             plan={plan}
-            mastery={mastery}
+            seen={seen}
             label={s.panel.subdecks}
           />
         </div>

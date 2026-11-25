@@ -31,7 +31,7 @@ function twoAssessments() {
 
 async function student() {
   const study = localStudyRepository(null, { welcomeSeen: true });
-  await study.setDeckActivation('5', true);
+  await study.setDeckActivations([{ deckId: '5', active: true }]);
   return study;
 }
 

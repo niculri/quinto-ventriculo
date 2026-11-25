@@ -27,7 +27,7 @@ export function DeckStudyPanel({
   study: ReturnType<typeof useDeckCounts>;
   view: AssessmentView | null;
 }) {
-  const { counts, mastery, error, retry } = study;
+  const { counts, mastery, seen, error, retry } = study;
   const { prefs } = usePreferences();
   const plan = useStudyPlan();
   const own = counts?.get(node.id);
@@ -63,7 +63,7 @@ export function DeckStudyPanel({
             </div>
             <div className="order-4 flex h-5 items-center max-sm:basis-full sm:order-3">
               {mastery ? (
-                <MasteryMeter value={ownMastery(mastery, node.id)} align="left" />
+                <MasteryMeter value={mastery.get(node.id) ?? null} align="left" />
               ) : (
                 <Skeleton className="h-4 w-[5.5rem]" />
               )}
@@ -73,7 +73,7 @@ export function DeckStudyPanel({
           <SimpleDetails
             node={node}
             counts={counts}
-            mastery={mastery}
+            seen={seen}
             plan={prefs ? plan.data : undefined}
             catchUp={view?.catchUp ?? null}
           />
@@ -81,10 +81,4 @@ export function DeckStudyPanel({
       )}
     </section>
   );
-}
-
-// The mastery is computed over this deck's own detail, so it always has the deck itself.
-function ownMastery(mastery: Map<string, number>, id: string): number {
-  /* v8 ignore next */
-  return mastery.get(id) ?? 0;
 }

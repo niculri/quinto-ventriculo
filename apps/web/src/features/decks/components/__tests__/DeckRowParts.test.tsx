@@ -1,0 +1,61 @@
+// Tests the parts of a row of the deck list: today's load in words and the cards seen with a week's videos on.
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { RowSeen, RowToday } from '../DeckRowParts';
+
+const today = (over: Partial<Parameters<typeof RowToday>[0]> = {}) =>
+  render(
+    <RowToday
+      counts={{ new: 0, learning: 0, review: 0 }}
+      medianAnswerMs={null}
+      off={false}
+      lookOnly={false}
+      {...over}
+    />,
+  ).container;
+
+describe('today in a row', () => {
+  it('new and reviews apart (learning ones are reviews), leaving out what is 0, and the minutes', () => {
+    expect(today({ counts: { new: 12, learning: 3, review: 12 } }).textContent).toBe(
+      'Hoy: 12 nuevas · 15 repasos · ~10 min',
+    );
+    expect(today({ counts: { new: 0, learning: 0, review: 1 } }).textContent).toBe(
+      'Hoy: 1 repaso · ~1 min',
+    );
+    expect(today({ counts: { new: 1, learning: 0, review: 0 } }).textContent).toBe(
+      'Hoy: 1 nueva · ~1 min',
+    );
+  });
+
+  it('with nothing: «Listo por hoy», or «Sin activar» when off; only the draft, «Solo para mirar»', () => {
+    expect(today().textContent).toBe('Listo por hoy');
+    expect(today({ off: true }).textContent).toBe('Sin activar');
+    expect(today({ lookOnly: true }).textContent).toBe('Solo para mirar');
+    expect(today({ counts: undefined }).querySelector('.animate-pulse')).not.toBeNull();
+  });
+});
+
+describe('the cards seen of a row', () => {
+  const seen = (props: Parameters<typeof RowSeen>[0]) => render(<RowSeen {...props} />).container;
+
+  it('counts the cards until one is seen, then «Vistas X de Y», with a bar as long', () => {
+    const before = seen({ seen: { seen: 0, total: 1 }, videos: null, videosId: 'v' });
+    expect(before.textContent).toContain('1 tarjeta');
+    const after = seen({ seen: { seen: 1200, total: 4800 }, videos: null, videosId: 'w' });
+    expect(after.textContent).toContain('Vistas 1.200 de 4.800');
+    expect(after.querySelector('[style]')).toHaveStyle({ width: '25%' });
+    expect(
+      seen({ seen: undefined, videos: null, videosId: 'x' }).querySelector('.animate-pulse'),
+    ).not.toBeNull();
+  });
+
+  it('a week says how many of its videos are on only while some are', () => {
+    seen({ seen: { seen: 0, total: 9 }, videos: { on: 1, total: 3 }, videosId: 'part' });
+    expect(document.getElementById('part')).toHaveTextContent('1 de 3 videos activados');
+    expect(document.getElementById('part')).toBeVisible();
+    seen({ seen: { seen: 0, total: 9 }, videos: { on: 1, total: 1 }, videosId: 'all' });
+    expect(document.getElementById('all')).toHaveTextContent('1 de 1 video activado');
+    expect(document.getElementById('all')).toHaveClass('hidden');
+    expect(screen.getAllByText(/tarjetas/).length).toBeGreaterThan(0);
+  });
+});

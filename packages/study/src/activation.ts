@@ -17,6 +17,8 @@ export interface Activation {
   on: Set<string>;
   /** Each week with topics, and its topics. */
   topicsOf: Map<string, string[]>;
+  /** The rows saved, by deck. */
+  saved: Map<string, boolean>;
 }
 
 const depthOf = (name: string) => name.split('::').length - 1;
@@ -71,7 +73,7 @@ export function activation(decks: readonly NamedDeck[], plan: StudyPlan): Activa
     const saved = manual.get(id) ?? (unit === undefined ? undefined : manual.get(unit));
     if (saved ?? studied.has(id)) on.add(id);
   }
-  return { switches, on, topicsOf };
+  return { switches, on, topicsOf, saved: manual };
 }
 
 export const anyOn = (decks: readonly NamedDeck[], plan: StudyPlan) =>
@@ -91,6 +93,19 @@ export function unitState(a: Activation, unitId: string): { on: number; total: n
 export function unitRows(a: Activation, unitId: string, active: boolean) {
   const topics = a.topicsOf.get(unitId) ?? [];
   return [unitId, ...topics].map((deckId) => ({ deckId, active }));
+}
+
+/**
+ * A topic's row; when turning it off leaves its whole week off and the week's own row says on, that row too, or a topic
+ * the author adds later would follow it and turn on in a week the student sees off.
+ */
+export function topicRows(a: Activation, topicId: string, active: boolean) {
+  const rows = [{ deckId: topicId, active }];
+  if (active) return rows;
+  const unit = [...a.topicsOf].find(([, topics]) => topics.includes(topicId));
+  if (!unit || a.saved.get(unit[0]) !== true) return rows;
+  const allOff = unit[1].every((t) => t === topicId || !a.on.has(t));
+  return allOff ? [...rows, { deckId: unit[0], active: false }] : rows;
 }
 
 // A deck above weeks and lectures has no switch, so it counts as on; a week's own cards, if any of its topics is.

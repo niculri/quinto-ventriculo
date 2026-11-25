@@ -5,6 +5,7 @@ import {
   includesExtras,
   isExtras,
   switchesUnder,
+  topicRows,
   unitRows,
   unitState,
   UNIT_DEPTH,
@@ -70,9 +71,9 @@ export function rowSwitch(node: DeckNode, decks: readonly DeckNode[], a: Activat
 
 export const isOff = (row: RowSwitch) => (row.kind === 'unit' ? row.on === 0 : !row.on);
 
-/** What its switch saves: a topic or lecture alone, a week with all its topics. */
+/** What its switch saves: a topic or lecture (with its week, when that leaves the week off), a week with all its topics. */
 export function switchRows(node: DeckNode, a: Activation, active: boolean): DeckActivation[] {
-  return a.switches.has(node.id) ? [{ deckId: node.id, active }] : unitRows(a, node.id, active);
+  return a.switches.has(node.id) ? topicRows(a, node.id, active) : unitRows(a, node.id, active);
 }
 
 /** What «Estudiar» turns on first: nothing if something of it is on, else what it depends on (never a whole course). */

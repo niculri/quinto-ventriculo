@@ -6,6 +6,7 @@ import {
   anyOn,
   decksGivingNew,
   switchesUnder,
+  topicRows,
   unitRows,
   unitState,
 } from '../activation';
@@ -82,6 +83,26 @@ describe('a week or a lecture as a whole', () => {
     const a = activation(DECKS, EMPTY_PLAN);
     expect(unitRows(a, 'w', true)).toEqual(rows(['w', true], ['v1', true], ['v2', true]));
     expect(unitRows(a, 'l', false)).toEqual(rows(['l', false]));
+  });
+
+  it('turning off the last topic of a week saved on saves the week off too, so a topic added later stays off', () => {
+    const weekOn = plan({ activations: rows(['w', true], ['v2', false]) });
+    const a = activation(DECKS, weekOn);
+    expect(topicRows(a, 'v1', false)).toEqual(rows(['v1', false], ['w', false]));
+    const later = [...DECKS, { id: 'v3', name: 'R::S::C::A::W::V3' }];
+    const after = plan({ activations: rows(['w', false], ['v1', false], ['v2', false]) });
+    expect(activation(later, after).on.has('v3')).toBe(false);
+  });
+
+  it('a topic’s row alone otherwise: turning on, others still on, the week without its own row, a lecture', () => {
+    const weekOn = activation(DECKS, plan({ activations: rows(['w', true]) }));
+    expect(topicRows(weekOn, 'v1', false)).toEqual(rows(['v1', false]));
+    expect(topicRows(weekOn, 'v1', true)).toEqual(rows(['v1', true]));
+    const noWeekRow = activation(DECKS, plan({ activations: rows(['v1', true]) }));
+    expect(topicRows(noWeekRow, 'v1', false)).toEqual(rows(['v1', false]));
+    const weekOff = activation(DECKS, plan({ activations: rows(['w', false], ['v1', true]) }));
+    expect(topicRows(weekOff, 'v1', false)).toEqual(rows(['v1', false]));
+    expect(topicRows(activation(DECKS, EMPTY_PLAN), 'l', false)).toEqual(rows(['l', false]));
   });
 
   it('the switches under a deck: its own, its topic’s, all its topics, or all of them below', () => {

@@ -4,6 +4,7 @@ export {
   activation,
   anyOn,
   switchesUnder,
+  topicRows,
   unitRows,
   unitState,
   TOPIC_DEPTH,

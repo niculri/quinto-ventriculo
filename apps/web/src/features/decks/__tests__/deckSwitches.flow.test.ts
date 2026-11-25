@@ -57,6 +57,18 @@ describe('a week of topics', () => {
     expect(within(tree).getByRole('switch', { name: 'Activar Mazo de prueba' })).not.toBeChecked();
   });
 
+  it('turning off the last topic of a week saved on turns the week off too', async () => {
+    const study = student();
+    await study.setDeckActivations([{ deckId: '5', active: true }]);
+    renderApp(ASSESSMENT_PATH, { study });
+    const topic = await within(await list()).findByRole('switch', {
+      name: 'Activar Mazo de prueba',
+    });
+    await waitFor(() => expect(topic).toBeChecked());
+    await userEvent.click(topic);
+    await waitFor(async () => expect(await saved(study)).toEqual({ 5: false, 20: false }));
+  });
+
   it('a topic alone turns on and off without touching the others', async () => {
     const study = student();
     renderApp(ASSESSMENT_PATH, { study, api: twoTopics() });

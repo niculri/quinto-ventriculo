@@ -12,7 +12,7 @@ export function fullAnkiStudy(): StudyRepository {
     fourButtons: true,
     welcomeSeen: true,
   });
-  void study.setDeckActivation('5', true);
+  void study.setDeckActivations([{ deckId: '5', active: true }]);
   return study;
 }
 

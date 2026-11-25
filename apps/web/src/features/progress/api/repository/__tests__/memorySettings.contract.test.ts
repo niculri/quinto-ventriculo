@@ -119,9 +119,9 @@ describe('preferences and presets', () => {
       sql,
       memory,
       [
-        (r) => r.setDeckActivation(DECK, true),
-        (r) => r.setDeckActivation(OTHER_DECK, true),
-        (r) => r.setDeckActivation(DECK, false),
+        (r) => r.setDeckActivations([{ deckId: DECK, active: true }]),
+        (r) => r.setDeckActivations([{ deckId: OTHER_DECK, active: true }]),
+        (r) => r.setDeckActivations([{ deckId: DECK, active: false }]),
         async (r) => sorted(await r.deckActivations()),
         (r) => r.saveAssessmentSetting({ ...noDate(DECK), includeExtras: true, newPerDay: 20 }),
         (r) =>

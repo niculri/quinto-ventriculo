@@ -80,7 +80,7 @@ type DeckSettings = Pick<
   | 'deckSettings'
   | 'setDeckPreset'
   | 'deckActivations'
-  | 'setDeckActivation'
+  | 'setDeckActivations'
   | 'assessmentSettings'
   | 'saveAssessmentSetting'
 >;
@@ -121,13 +121,12 @@ export function deckSettings(ctx: StudyContext): DeckSettings {
         active: r.active,
       }));
     },
-    async setDeckActivation(deckId, active) {
-      const { error } = await client
-        .from('deck_activations')
-        .upsert(
-          { deck_id: deckId, active, updated_at: new Date().toISOString() },
-          { onConflict: 'user_id,deck_id' },
-        );
+    async setDeckActivations(rows) {
+      const at = new Date().toISOString();
+      const { error } = await client.from('deck_activations').upsert(
+        rows.map((r) => ({ deck_id: r.deckId, active: r.active, updated_at: at })),
+        { onConflict: 'user_id,deck_id' },
+      );
       if (error) ctx.fail('guardar qué tienes activado', error);
     },
     async assessmentSettings() {

@@ -17,7 +17,7 @@ import {
   userPresetsQuery,
 } from './api/queries';
 import { browserTimeZone, defaultPreferences } from './api/repository';
-import type { AssessmentSetting, StudyPreferences } from './api/repository';
+import type { AssessmentSetting, DeckActivation, StudyPreferences } from './api/repository';
 import { useStudentCatalog, useStudentDeck } from '../catalog/hooks/useStudentView';
 import {
   assessmentView,
@@ -124,12 +124,15 @@ function usePlanChange<T>(
 
 export function useSetActivation() {
   const study = useStudyRepository();
-  return usePlanChange<{ deckId: string; active: boolean }>(
-    ({ deckId, active }) => study.setDeckActivation(deckId, active),
-    (plan, a) => ({
-      ...plan,
-      activations: [...plan.activations.filter((x) => x.deckId !== a.deckId), a],
-    }),
+  return usePlanChange<DeckActivation[]>(
+    (rows) => study.setDeckActivations(rows),
+    (plan, rows) => {
+      const ids = new Set(rows.map((r) => r.deckId));
+      return {
+        ...plan,
+        activations: [...plan.activations.filter((x) => !ids.has(x.deckId)), ...rows],
+      };
+    },
   );
 }
 

@@ -48,7 +48,7 @@ describe('the guard of the study repository', () => {
     const { proxy, calls } = spied(fullAnkiStudy());
     const study = guardStudy(proxy, lookup);
     await study.recordReview(review(real)).catch(() => undefined);
-    await study.setDeckActivation('20', true);
+    await study.setDeckActivations([{ deckId: '20', active: true }]);
     await study.bury([real], new Date(), false);
     await study.suspend([real], false);
     await study.setFlag(real, 1);
@@ -61,7 +61,7 @@ describe('the guard of the study repository', () => {
     await study.saveAssessmentSetting({ deckId: '20', includeExtras: false, newPerDay: 5 });
     expect(calls).toEqual([
       'recordReview',
-      'setDeckActivation',
+      'setDeckActivations',
       'bury',
       'suspend',
       'setFlag',
@@ -79,7 +79,7 @@ describe('the guard of the study repository', () => {
     const { proxy, calls } = spied(fullAnkiStudy());
     const study = guardStudy(proxy, lookup);
     expect(await study.recordReview(review(draft))).toHaveProperty('updatedAt');
-    await study.setDeckActivation(DRAFT.deck, true);
+    await study.setDeckActivations([{ deckId: DRAFT.deck, active: true }]);
     await study.setDeckPreset(DRAFT.deck, null);
     await study.saveAssessmentSetting({ deckId: DRAFT.deck, includeExtras: false, newPerDay: 5 });
     await study.bury([draft], new Date(), false);
@@ -91,6 +91,18 @@ describe('the guard of the study repository', () => {
     await study.forget([draft], true);
     await study.recordPractice([{ deckId: DRAFT.deck, n: 4 }]);
     expect(calls).toEqual([]);
+  });
+
+  it('of several switches saved together, only the ones of the students’ decks go through', async () => {
+    const base = fullAnkiStudy();
+    const study = guardStudy(base, lookup);
+    await study.setDeckActivations([
+      { deckId: DRAFT.deck, active: true },
+      { deckId: '20', active: true },
+    ]);
+    const saved = await base.deckActivations();
+    expect(saved).toContainEqual({ deckId: '20', active: true });
+    expect(saved.map((a) => a.deckId)).not.toContain(DRAFT.deck);
   });
 
   it('undoing an answer of the draft touches nothing; one of the students’ or the last action goes through', async () => {

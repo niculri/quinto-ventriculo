@@ -202,6 +202,45 @@ describe('while the note loads', () => {
       '/semesters/2/courses/biologia-celular/assessments/certamen-2/notes',
     );
   });
+
+  it('the header the catalog knows, as unseen lines that take its room, with no heading, and the index bar’s room', async () => {
+    renderApp(PATH, { api: fakeApi({ note: () => new Promise(() => {}) }) });
+    await screen.findByRole('navigation', { name: 'Ruta' });
+    const status = screen.getByRole('status', { name: 'Cargando el apunte' });
+    const ghost = status.firstElementChild!;
+    expect(ghost).toHaveAttribute('aria-hidden', 'true');
+    expect(textNodes(ghost)).toEqual(['Clase', 'Traducción', 'Clase N.º 11']);
+    expect(ghost.querySelector('h1')).toBeNull();
+    for (const line of ghost.querySelectorAll('p')) expect(line).toHaveClass('text-transparent');
+    expect(ghost.nextElementSibling).toHaveClass('xl:hidden');
+  });
+
+  it('the line under the title, unseen too, with its separators', async () => {
+    const catalog = structuredClone(CATALOG);
+    catalog.semesters[1]!.courses[0]!.assessments[0]!.notes[1]!.header = NOTE.header!;
+    renderApp(PATH, {
+      api: fakeApi({ note: () => new Promise(() => {}), catalog: async () => catalog }),
+    });
+    await screen.findByRole('navigation', { name: 'Ruta' });
+    const status = screen.getByRole('status', { name: 'Cargando el apunte' });
+    const lines = status.firstElementChild!.querySelectorAll('p');
+    expect([...lines].map((p) => textNodes(p))).toEqual([
+      ['Traducción'],
+      ['Clase N.º 11'],
+      [
+        'Clase 11',
+        '·',
+        'Prof. Luis Ejemplo A.',
+        '·',
+        'Semestre de primavera 2026',
+        '·',
+        'ICBM, Universidad de Chile',
+      ],
+    ]);
+    const dots = [...lines[2]!.querySelectorAll('span')].filter((s) => s.textContent === '·');
+    expect(dots).toHaveLength(3);
+    for (const dot of dots) expect(dot).not.toHaveClass('text-muted');
+  });
 });
 
 describe('arriving at a section', () => {

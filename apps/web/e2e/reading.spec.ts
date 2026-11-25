@@ -237,7 +237,7 @@ test('an article: QV Sans in its column, thumbnails on the right, and its late i
   for (const tall of scripts.tall) expect(Math.abs(tall)).toBeLessThanOrEqual(0.5);
 });
 
-test('an article page: drawn with its fonts, and its loading state keeps the breadcrumbs and the title in place', async ({
+test('an article page: drawn with its fonts, and its loading state keeps the breadcrumbs, the title, the header and the text in place', async ({
   page,
 }) => {
   await signIn(page);
@@ -260,11 +260,21 @@ test('an article page: drawn with its fonts, and its loading state keeps the bre
       return [r.left, r.top, r.width, r.height].map(Math.round);
     }, selector);
   const crumbs = await box('main nav[aria-label="Ruta"]');
-  const title = await box('[aria-label="Cargando el apunte"] > div > div');
+  const title = await box('[aria-label="Cargando el apunte"] > div > .font-serif');
+  const edge = (selector: string, side: 'top' | 'bottom') =>
+    page.evaluate(({ s, side }) => document.querySelector(s)!.getBoundingClientRect()[side], {
+      s: selector,
+      side,
+    });
+  const rule = await edge('[aria-label="Cargando el apunte"] > div', 'bottom');
+  const text = await edge('[aria-label="Cargando el apunte"] > .space-y-3', 'top');
   release();
   await expect(page.getByRole('heading', { level: 1, name: 'Traducción' })).toBeVisible();
   expect(await box('main nav[aria-label="Ruta"]')).toEqual(crumbs);
   expect((await box('article h1')).slice(0, 2)).toEqual(title.slice(0, 2));
+  // The header's lines wrap as their loading state's did, and on a narrow screen the index bar had its room.
+  expect(Math.abs((await edge('article header', 'bottom')) - rule)).toBeLessThan(1);
+  expect(Math.abs((await edge('.note-body > :first-child', 'top')) - text)).toBeLessThan(1);
   expect(
     await page.evaluate(
       () => (window as unknown as { fontsAtFirstDraw: boolean[] | null }).fontsAtFirstDraw,

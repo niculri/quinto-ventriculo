@@ -20,15 +20,16 @@ export function NoteSkeleton({ location }: { location: NoteLocation | null }) {
     <div className={page}>
       <Breadcrumbs items={noteCrumbs(location, location.note.title)} />
       <div role="status" aria-label={noteSkeletonStrings.loading}>
-        <div className="mb-10 border-b border-border pb-8">
-          <div className="flex h-[2.625rem] items-center sm:h-[3.25rem]">
-            <Skeleton className="h-9 w-3/4 sm:h-11" />
+        <div className="mb-6 border-b border-border pb-3.5">
+          <div className="flex h-[2.125rem] items-center sm:h-10">
+            <Skeleton className="h-7 w-3/4 sm:h-8" />
           </div>
-          <div className="mt-4 flex h-[1.5625rem] items-center">
-            <Skeleton className="h-5 w-1/2" />
+          <div className="mt-2 flex h-[1.421875rem] items-center">
+            <Skeleton className="h-4 w-1/2" />
           </div>
-          <Skeleton className="mt-4 h-5 w-64 max-w-full" />
-          <Skeleton className="mt-4 h-5 w-36" />
+          <div className="mt-1.5 flex h-5 items-center">
+            <Skeleton className="h-4 w-44 max-w-full" />
+          </div>
         </div>
         <div className="space-y-3">
           {Array.from({ length: 10 }, (_, i) => (

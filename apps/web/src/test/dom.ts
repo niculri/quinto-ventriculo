@@ -18,7 +18,7 @@ export async function cardText(label: RegExp) {
 }
 
 /** The cards for today in a load: «19 nuevas · 1 repaso · ~10 min» is 20, and «Nada para hoy» is 0. */
-export const loadCards = (text: string) =>
+const loadCards = (text: string) =>
   [...text.matchAll(/([\d.]+) (?:nuevas?|repasos?)\b/g)].reduce(
     (t, m) => t + Number(m[1]!.replaceAll('.', '')),
     0,

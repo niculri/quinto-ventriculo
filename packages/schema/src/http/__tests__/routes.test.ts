@@ -17,6 +17,9 @@ describe('apiPaths', () => {
       apiPaths.releaseMarks(),
       apiPaths.publishRelease(),
       apiPaths.revertRelease(),
+      apiPaths.news(),
+      apiPaths.announcements(),
+      apiPaths.withdrawAnnouncement(),
     ]) {
       expect(path.startsWith(`${API_PREFIX}/`)).toBe(true);
     }

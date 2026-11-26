@@ -37,6 +37,10 @@ export const API_ROUTES = {
   publishRelease: route('POST', '/admin/release/publish'),
   revertRelease: route('POST', '/admin/release/revert'),
   releaseLog: route('GET', '/admin/releases'),
+  news: route('GET', '/news'),
+  announcements: route('GET', '/admin/announcements'),
+  saveAnnouncement: route('POST', '/admin/announcements'),
+  withdrawAnnouncement: route('POST', '/admin/announcements/withdraw'),
   media: route('GET', '/media/:key{.+}'),
 } as const;
 
@@ -100,6 +104,9 @@ export const apiPaths = {
   publishRelease: () => fill(R.publishRelease.pattern),
   revertRelease: () => fill(R.revertRelease.pattern),
   releaseLog: () => fill(R.releaseLog.pattern),
+  news: () => fill(R.news.pattern),
+  announcements: () => fill(R.announcements.pattern),
+  withdrawAnnouncement: () => fill(R.withdrawAnnouncement.pattern),
   /** Without the signature: the Worker adds `?e=…&s=…`, or the browser's thumbnail signature. */
   media: (key: string) => fill(R.media.pattern, { key }),
 };

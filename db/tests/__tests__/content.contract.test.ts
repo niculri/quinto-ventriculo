@@ -133,6 +133,20 @@ describe('the content database', () => {
     });
     const log = await rpc('release_log', { max_rows: 50 });
     expect(log.releases).toHaveLength(1);
+    const items = [{ courseId: 'biologia-celular', assessmentId: BC }];
+    const by = 'dueno@ug.uchile.cl';
+    const saved = await rpc('save_announcement', {
+      p: { releaseId: done.id, kind: 'new', title: 'Clase nueva', body: 'b', items, by },
+    });
+    await rpc('save_announcement', {
+      p: { releaseId: null, kind: 'site', title: 'Sitio', body: '', items: [], by },
+    });
+    const later = new Date(Date.now() + 31 * 60_000).toISOString();
+    expect(await rpc('announcements_feed', { at: later, max_rows: 10 })).toHaveLength(2);
+    await rpc('announcements_feed', { at: later });
+    await rpc('withdraw_announcement', { p: { id: saved.id, by } });
+    expect(await rpc('admin_announcements', { max_rows: 10 })).toHaveLength(2);
+    await rpc('admin_announcements', {});
     await rpc('revert_release', { p: { id: done.id, by: 'dueno@ug.uchile.cl' } });
     await rpc('release_log', {});
   });

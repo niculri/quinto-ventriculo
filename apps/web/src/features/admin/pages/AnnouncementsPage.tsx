@@ -153,7 +153,7 @@ function Row({ a }: { a: AdminAnnouncement }) {
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap gap-x-2 text-xs text-muted">
           <span
-            className={`font-medium ${a.status === 'out' ? 'text-state-review' : a.status === 'waiting' ? 'text-accent' : ''}`}
+            className={`font-medium ${a.status === 'out' ? 'text-state-review' : a.status === 'waiting' ? 'text-brand' : ''}`}
           >
             {statusText(a)}
           </span>

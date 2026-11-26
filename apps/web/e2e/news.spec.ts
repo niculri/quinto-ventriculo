@@ -47,7 +47,7 @@ test('the home page’s line: nothing moves while it loads, and it says the newe
 }) => {
   await watchShifts(page);
   await signIn(page);
-  const line = page.getByRole('link', { name: `Novedades: Nuevo: ${NEWEST}` });
+  const line = page.getByRole('link', { name: new RegExp(`^Novedades: Nuevo: ${NEWEST}`) });
   await expect(line).toBeVisible();
   await expect(line).toHaveAttribute('href', '/news');
   const height = (await line.boundingBox())!.height;
@@ -78,11 +78,11 @@ test('the bell: a dot while something is unread, between the search and the name
   await expect(bell(page)).toHaveAccessibleName('Novedades');
   await expect(page.getByTestId('news-dot')).toBeHidden();
   expect(await bar(page)).toEqual(before);
-  await expect(page.getByRole('link', { name: 'Novedades: Al día en tus ramos' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Novedades: Al día en tus ramos/ })).toBeVisible();
 
   // What was seen stays seen after a reload.
   await page.reload();
-  await expect(page.getByRole('link', { name: 'Novedades: Al día en tus ramos' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Novedades: Al día en tus ramos/ })).toBeVisible();
   await expect(bell(page)).toHaveAccessibleName('Novedades');
 });
 

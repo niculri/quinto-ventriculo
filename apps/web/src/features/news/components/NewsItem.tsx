@@ -23,9 +23,7 @@ export function NewsItem({
         <span aria-hidden="true">·</span>
         <time dateTime={a.publishedAt}>{formatDateTime(a.publishedAt)}</time>
         {unread ? (
-          <span className="rounded-full bg-accent/15 px-1.5 font-medium text-accent">
-            {s.isNew}
-          </span>
+          <span className="rounded-full bg-brand/10 px-1.5 font-medium text-brand">{s.isNew}</span>
         ) : null}
       </p>
       <h3 className="mt-1.5 font-semibold text-ink">{a.title}</h3>

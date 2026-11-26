@@ -72,7 +72,7 @@ export function AnnouncementFields({
         </p>
       </div>
       <Reserved longest={s.noPhrases} className="text-xs">
-        <p className={phrases.length ? 'text-accent' : 'text-muted'}>
+        <p className={phrases.length ? 'text-ink' : 'text-muted'}>
           {phrases.length
             ? phrases.map((p) => s.phrase(p.label, p.snippet)).join(' ')
             : s.noPhrases}

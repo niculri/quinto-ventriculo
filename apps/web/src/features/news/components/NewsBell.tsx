@@ -76,11 +76,11 @@ function BellItems({
   return news.announcements.slice(0, SHOWN).map((a) => (
     <Menu.Item key={a.id} asChild className={item}>
       <Link to={paths.news}>
-        <span className="line-clamp-2 font-medium">{a.title}</span>
+        <span className="line-clamp-2 font-medium">{a.title}</span>{' '}
         <span className="mt-0.5 flex items-center gap-2 text-xs text-muted">
-          {formatDate(a.publishedAt)}
+          {formatDate(a.publishedAt)}{' '}
           {isUnread(a, openedWith) ? (
-            <span className="rounded-full bg-accent/15 px-1.5 font-medium text-accent">
+            <span className="rounded-full bg-brand/10 px-1.5 font-medium text-brand">
               {s.isNew}
             </span>
           ) : null}

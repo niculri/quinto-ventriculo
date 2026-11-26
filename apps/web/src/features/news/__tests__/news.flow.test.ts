@@ -54,9 +54,9 @@ describe('the bell', () => {
     const menu = await screen.findByRole('menu');
     const items = within(menu).getAllByRole('menuitem');
     expect(items.map((i) => i.textContent)).toEqual([
-      expect.stringMatching(/^Aviso 3.*Nuevo$/),
-      expect.stringMatching(/^Aviso 2.*Nuevo$/),
-      expect.stringMatching(/^Aviso 1\d/),
+      expect.stringMatching(/^Aviso 3 .* Nuevo$/),
+      expect.stringMatching(/^Aviso 2 .* Nuevo$/),
+      expect.stringMatching(/^Aviso 1 \d+ de noviembre de 2026 $/),
       'Ver todas',
     ]);
     await waitFor(async () => expect(await repo.seenUntil()).toBe('2026-11-25T15:00:00.000Z'));
@@ -99,8 +99,8 @@ describe('the bell', () => {
 describe('the line of the home page', () => {
   it('says the newest unread and how many more', async () => {
     renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-21T00:00:00.000Z') });
-    const line = await screen.findByRole('link', { name: 'Novedades: Nuevo: Aviso 3' });
-    expect(line).toHaveTextContent('Nuevo:Aviso 3y 1 más');
+    const line = await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ });
+    expect(line).toHaveTextContent('Nuevo: Aviso 3 y 1 más');
     expect(line).toHaveAttribute('href', '/news');
   });
 
@@ -110,12 +110,12 @@ describe('the line of the home page', () => {
       news: await seenAt('2026-11-24T20:00:00.000Z'),
     });
     expect(
-      await screen.findByRole('link', { name: 'Novedades: Nuevo: Aviso 3' }),
+      await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ }),
     ).not.toHaveTextContent('más');
     one.unmount();
     renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-25T15:00:00.000Z') });
     expect(
-      await screen.findByRole('link', { name: 'Novedades: Al día en tus ramos' }),
+      await screen.findByRole('link', { name: /^Novedades: Al día en tus ramos/ }),
     ).toBeInTheDocument();
   });
 
@@ -126,13 +126,13 @@ describe('the line of the home page', () => {
     };
     renderApp('/home', { api: apiWith(FEED), news: failing });
     expect(
-      await screen.findByRole('link', { name: 'Novedades: Nuevo: Aviso 3' }),
+      await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ }),
     ).toHaveTextContent('y 2 más');
     await userEvent.click(await bell());
     await screen.findByRole('menu');
     await userEvent.keyboard('{Escape}');
     expect(
-      await screen.findByRole('link', { name: 'Novedades: Al día en tus ramos' }),
+      await screen.findByRole('link', { name: /^Novedades: Al día en tus ramos/ }),
     ).toBeInTheDocument();
   });
 });

@@ -14,20 +14,20 @@ export function NewsLine() {
   return (
     <Link
       to={paths.news}
-      aria-label={newest ? `${s.label}: ${s.isNew} ${newest.title}` : `${s.label}: ${s.upToDate}`}
       className="mt-6 flex h-12 min-w-0 items-center gap-3 rounded-xl border border-border bg-surface px-4 text-sm shadow-soft transition hover:border-border-strong sm:mt-8"
     >
       <Bell
-        className={`size-4 flex-none ${newest ? 'text-accent' : 'text-muted'}`}
+        className={`size-4 flex-none ${newest ? 'text-brand' : 'text-muted'}`}
         aria-hidden="true"
       />
+      <span className="sr-only">{s.label}:</span>{' '}
       <span className="flex min-w-0 flex-1 items-center gap-1.5">
         {!news.ready && !news.feed.isError ? (
           <Skeleton className="h-4 w-48 max-w-full" />
         ) : newest ? (
           <>
-            <span className="flex-none font-semibold text-accent">{s.isNew}</span>
-            <span className="min-w-0 truncate text-ink">{newest.title}</span>
+            <span className="flex-none font-semibold text-brand">{s.isNew}</span>{' '}
+            <span className="min-w-0 truncate text-ink">{newest.title}</span>{' '}
             {unread.length > 1 ? (
               <span className="flex-none text-muted max-sm:hidden">
                 {s.more(unread.length - 1)}
@@ -37,7 +37,7 @@ export function NewsLine() {
         ) : (
           <span className="truncate text-muted">{s.upToDate}</span>
         )}
-      </span>
+      </span>{' '}
       <span className="flex-none font-medium text-brand max-sm:hidden">{s.see}</span>
     </Link>
   );

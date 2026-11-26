@@ -4,6 +4,7 @@ import { API_ROUTES as R, MediaKey, MediaQuery } from '@qv/schema/http';
 import type { AppContext } from '../context';
 import type { AppEnv } from '../env';
 import { MEDIA_MAX_AGE, apiError } from '../http';
+import { matchesValidator } from '../middleware/revalidate';
 
 export function mediaRoutes({ deps }: AppContext) {
   return new Hono<AppEnv>().get(R.media.pattern, async (c) => {
@@ -34,6 +35,12 @@ export function mediaRoutes({ deps }: AppContext) {
       'Cross-Origin-Resource-Policy': 'same-origin',
     });
     if (object.etag) headers.set('ETag', object.etag);
+    // The browser checks again an image it already has once its time ends: the same file goes back without its bytes.
+    // It is still read from the store, so an image taken off the site stops opening as before.
+    if (object.etag && matchesValidator(c.req.header('If-None-Match'), object.etag)) {
+      if (object.body instanceof ReadableStream) await object.body.cancel();
+      return new Response(null, { status: 304, headers });
+    }
     return new Response(object.body as BodyInit, { headers });
   });
 }

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { Announcement } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { fakeApi } from '../../../test/fakes/api';
+import { SESSION_ANA } from '../../../test/fixtures/session';
 import { renderApp } from '../../../test/render';
 import { localNewsRepository } from '../api/repository';
 import type { NewsRepository } from '../api/repository';
@@ -119,7 +120,7 @@ describe('the line of the home page', () => {
     ).toBeInTheDocument();
   });
 
-  it('what was read cannot be known nor kept: everything counts as unread, and opening the bell keeps showing it', async () => {
+  it('what was read cannot be known nor kept: what came out since the account counts as unread, and opening the bell keeps showing it', async () => {
     const failing: NewsRepository = {
       seenUntil: () => Promise.reject(new Error('caído')),
       markSeen: () => Promise.resolve(null),
@@ -134,6 +135,17 @@ describe('the line of the home page', () => {
     expect(
       await screen.findByRole('link', { name: /^Novedades: Al día en tus ramos/ }),
     ).toBeInTheDocument();
+  });
+
+  it('a new student: only what came out after the account was made is new', async () => {
+    const session = {
+      ...SESSION_ANA,
+      user: { ...SESSION_ANA.user, createdAt: '2026-11-24T20:00:00.000Z' },
+    };
+    renderApp('/home', { api: apiWith(FEED), news: await seenAt(null), session });
+    expect(
+      await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ }),
+    ).not.toHaveTextContent('más');
   });
 });
 

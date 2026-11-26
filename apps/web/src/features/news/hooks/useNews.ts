@@ -2,6 +2,7 @@
 // once; what the database keeps comes back after).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
+import { useUser } from '../../session/context';
 import { useNewsRepository } from '../api/context';
 import { newsKeys, newsQuery, newsSeenQuery } from '../api/queries';
 import { isUnread } from '../model/news';
@@ -10,6 +11,7 @@ export function useNews() {
   const api = useApi();
   const repository = useNewsRepository();
   const client = useQueryClient();
+  const user = useUser();
   const feed = useQuery(newsQuery(api));
   const seen = useQuery(newsSeenQuery(repository));
   const mark = useMutation({
@@ -21,8 +23,9 @@ export function useNews() {
     },
   });
   const announcements = feed.data?.announcements;
-  const seenUntil = seen.data ?? null;
-  // Without what was read (a failure), everything counts as unread rather than the line waiting forever.
+  // Never opened (or a failure): only what came out after the account was made is new to its owner, rather than every
+  // announcement of other years; the line does not wait forever for what was read.
+  const seenUntil = seen.data ?? user.createdAt;
   const ready = announcements !== undefined && (seen.isSuccess || seen.isError);
   const unread = ready ? announcements.filter((a) => isUnread(a, seenUntil)) : [];
   return {

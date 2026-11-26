@@ -187,6 +187,8 @@ const NEWS = [
       { courseId: OFF, assessmentId: null },
     ]),
     kind: 'update' as const,
+    title: 'Anatomía II y Física',
+    body: 'Anatomía II: 1 apunte nuevo.\nFísica: 1 test nuevo.',
     releaseId: 1,
     releaseStatus: 'published' as const,
   },
@@ -375,9 +377,10 @@ const CHECKS = {
       [2, [OFF]],
       [1, [SHOWN, OFF]],
     ]);
-    expect((await news([OFF])).map((a) => [a.id, a.items.map((i) => i.courseId)])).toEqual([
-      [1, [SHOWN]],
-    ]);
+    const off = await news([OFF]);
+    expect(off.map((a) => [a.id, a.items.map((i) => i.courseId)])).toEqual([[1, [SHOWN]]]);
+    expect(off[0]).toMatchObject({ title: 'Anatomía II', body: 'Anatomía II: 1 apunte nuevo.' });
+    expect(JSON.stringify(off)).not.toContain('Física');
   },
   announcements: 'only for administrators, who see every announcement as it was written',
   saveAnnouncement: 'only for administrators',

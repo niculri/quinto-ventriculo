@@ -137,6 +137,20 @@ describe('the line of the home page', () => {
     ).toBeInTheDocument();
   });
 
+  it('news that cannot be read are not «Al día»', async () => {
+    renderApp('/home', {
+      api: fakeApi({
+        news: async () => {
+          throw new ApiRequestError(503, 'internal', 'caído');
+        },
+      }),
+    });
+    expect(
+      await screen.findByRole('link', { name: /^Novedades: No se pudieron cargar las novedades/ }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Al día en tus ramos')).toBeNull();
+  });
+
   it('a new student: only what came out after the account was made is new', async () => {
     const session = {
       ...SESSION_ANA,

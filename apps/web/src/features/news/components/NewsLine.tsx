@@ -1,5 +1,5 @@
-// The line of «Novedades» on the home page: one line of fixed height, always there, with the newest unread announcement
-// or «Al día en tus ramos», and a link to all of them.
+// The line of «Novedades» on the home page: one line of fixed height, always there, with the newest unread announcement,
+// «Al día en tus ramos» or that they could not be read, and a link to all of them.
 import { Bell } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
@@ -24,6 +24,8 @@ export function NewsLine() {
       <span className="flex min-w-0 flex-1 items-center gap-1.5">
         {!news.ready && !news.feed.isError ? (
           <Skeleton className="h-4 w-48 max-w-full" />
+        ) : news.feed.isError ? (
+          <span className="truncate text-muted">{s.failed}</span>
         ) : newest ? (
           <>
             <span className="flex-none font-semibold text-brand">{s.isNew}</span>{' '}

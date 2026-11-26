@@ -21,5 +21,3 @@ AS $function$
     'withdrawnAt', a.withdrawn_at,
     'withdrawnBy', a.withdrawn_by);
 $function$;
-
-grant execute on function public.announcement_json(a public.announcements) to service_role;

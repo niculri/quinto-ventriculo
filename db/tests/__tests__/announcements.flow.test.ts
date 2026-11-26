@@ -19,8 +19,8 @@ const { q, service } = queriesOn(() => db);
 const BY = 'dueno@ug.uchile.cl';
 const ITEMS = [{ courseId: 'biologia-celular', assessmentId: BC }];
 
-async function publish() {
-  await saveParts(draft, only(everything(), BC));
+async function publish(parts = only(everything(), BC)) {
+  await saveParts(draft, parts);
   const fp = (await service<{ r: string }>('select public.release_fingerprint() as r'))[0]!.r;
   for (const mark of ['phone', 'answers']) {
     await service('select public.set_release_mark($1, $2, true, $3)', [fp, mark, 'dueño']);
@@ -169,6 +169,25 @@ describe('taking it away', () => {
     });
   });
 
+  it('two publications in a row: each waits its own 30 minutes, and undoing the last takes only its own', async () => {
+    const first = await publish();
+    const a = await save({ releaseId: first, kind: 'new', title: 'Uno', body: '', items: ITEMS });
+    await db.query(
+      `update public.announcements set publish_at = publish_at - interval '20 minutes'`,
+    );
+    const second = await publish(everything());
+    const b = await save({ releaseId: second, kind: 'new', title: 'Dos', body: '', items: ITEMS });
+    expect(Date.parse(b.publishAt) - Date.parse(b.createdAt)).toBe(30 * 60 * 1000);
+    expect((await feed(10)).map((x) => x.title)).toEqual(['Uno']);
+    expect((await feed(31)).map((x) => x.title)).toEqual(['Dos', 'Uno']);
+    await revert(second);
+    expect((await feed(31)).map((x) => x.title)).toEqual(['Uno']);
+    expect((await adminList()).map((x) => [x.id, x.releaseStatus])).toEqual([
+      [b.id, 'reverted'],
+      [a.id, 'published'],
+    ]);
+  });
+
   it('withdrawing it by hand keeps the first time; a new save brings it back', async () => {
     const site = await save({ kind: 'site', title: 'Sitio', body: '', items: [] });
     const out = await withdraw(site.id);
@@ -220,6 +239,9 @@ describe('who can', () => {
     await expect(
       service(`select public.announcement_json(a) from public.announcements a`),
     ).rejects.toThrow(/permission denied/);
+    await expect(
+      service(`select public.announcement_json(null::public.announcements)`),
+    ).rejects.toThrow(/permission denied for function/);
   });
 
   it('is outside the draft: publishing never writes or takes them away', async () => {

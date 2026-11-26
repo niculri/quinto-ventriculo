@@ -219,6 +219,7 @@ begin
   if exists (select from pg_roles where rolname = 'service_role') then
     -- Only through the functions.
     revoke all on public.announcements from service_role;
+    revoke all on function public.announcement_json(public.announcements) from service_role;
     grant execute on function public.save_announcement(jsonb) to service_role;
     grant execute on function public.withdraw_announcement(jsonb) to service_role;
     grant execute on function public.announcements_feed(timestamptz, integer) to service_role;

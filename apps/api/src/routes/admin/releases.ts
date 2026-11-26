@@ -56,8 +56,8 @@ function publishWith(releases: ReleaseRepository, announcements: AnnouncementRep
     const r = await releases.publish({
       ...release,
       schemaVersion: CONTENT_SCHEMA_VERSION,
-      // «Leí el anuncio» has to be checked for this draft when it goes out with one.
-      marks: announcement ? ['announcement'] : [],
+      // The announcement is read and edited in the popup that publishes: no mark of its own.
+      marks: [],
       by,
     });
     if (!r.ok) {

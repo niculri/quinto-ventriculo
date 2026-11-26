@@ -1,6 +1,8 @@
 // The client of the site's `/api`: it sends the session token and validates every response with its schema.
 import type { z } from 'zod';
 import {
+  AdminAnnouncement,
+  AdminAnnouncements,
   ApiError,
   CardChanges,
   CardIndex,
@@ -11,7 +13,8 @@ import {
   QuizDetail,
   QuizIndex,
   QuizSectionDetail,
-  PublishResult,
+  NewsFeed,
+  PublishResponse,
   ReleaseArticlePage,
   ReleaseCardPage,
   ReleaseLog,
@@ -32,6 +35,7 @@ import {
 import { PREVIEW_HEADER, PREVIEW_VALUE, apiPaths } from '@qv/schema/http';
 import type {
   PublishRequest,
+  SaveAnnouncementRequest,
   ReleaseMarkId,
   SiteSettingsUpdate,
   UsageOpenRequest,
@@ -159,6 +163,21 @@ function requester(
   };
 }
 
+/** The news a student reads, and the panel's announcements. */
+const announcementMethods = (request: ReturnType<typeof requester>) => ({
+  /** The announcements the student may read, newest first. */
+  news: (signal?: AbortSignal) => request(apiPaths.news(), NewsFeed, signal),
+  announcements: (signal?: AbortSignal) =>
+    request(apiPaths.announcements(), AdminAnnouncements, signal),
+  saveAnnouncement: (body: SaveAnnouncementRequest) =>
+    request(apiPaths.announcements(), AdminAnnouncement, undefined, { method: 'POST', body }),
+  withdrawAnnouncement: (id: number) =>
+    request(apiPaths.withdrawAnnouncement(), AdminAnnouncement, undefined, {
+      method: 'POST',
+      body: { id },
+    }),
+});
+
 /** With the admin mode's `headers`, nothing is taken from nor left in the browser's cache. */
 export function createApiClient(
   getToken: GetToken,
@@ -246,7 +265,7 @@ export function createApiClient(
       }),
     /** Publishes the draft the panel showed: 409 if it changed, 422 if something stops it. */
     publishRelease: (body: PublishRequest) =>
-      request(apiPaths.publishRelease(), PublishResult, undefined, { method: 'POST', body }),
+      request(apiPaths.publishRelease(), PublishResponse, undefined, { method: 'POST', body }),
     /** Undoes the last publication (409 if it is not the last one any more, or what is published changed). */
     revertRelease: (id: number) =>
       request(apiPaths.revertRelease(), RevertResult, undefined, {
@@ -254,6 +273,7 @@ export function createApiClient(
         body: { id },
       }),
     releaseLog: (signal?: AbortSignal) => request(apiPaths.releaseLog(), ReleaseLog, signal),
+    ...announcementMethods(request),
     search: (query: string, limit = 20, signal?: AbortSignal) =>
       request(apiPaths.search(query, limit), SearchResponse, signal),
   };

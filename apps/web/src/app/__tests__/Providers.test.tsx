@@ -1,5 +1,6 @@
 // Tests the providers around the site: without a QueryClient of its own, the site's is used (a 404 is not retried), and
 // refreshing the material reads it again and forgets what the API client kept.
+import { localNewsRepository } from '../../features/news/api/repository';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -33,6 +34,7 @@ const services = (api = fakeApi()) => ({
   admin: localAdminRepository(),
   reports: localReportsRepository({ admin: true }),
   account: acceptedAccount(),
+  news: localNewsRepository(),
 });
 
 describe('Providers', () => {

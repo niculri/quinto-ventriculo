@@ -13,7 +13,7 @@ const list = async (call: ReturnType<typeof newsApp>['call']) =>
     .announcements;
 
 describe('publishing with an announcement', () => {
-  it('saves it tied to the release, asks for «Leí el anuncio», and it waits 30 minutes', async () => {
+  it('saves it tied to the release, and it waits 30 minutes', async () => {
     const { call, clock } = newsApp();
     const r = await call('/api/admin/release/publish', NEWS_ADMIN, {
       ...PUBLISH,

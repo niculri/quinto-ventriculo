@@ -229,6 +229,13 @@ export const routes: RouteObject[] = [
                 ),
               },
               {
+                path: 'announcements',
+                lazy: page(
+                  () => import('../features/admin/pages/AnnouncementsPage'),
+                  (m) => m.AnnouncementsPage,
+                ),
+              },
+              {
                 path: 'unpublished',
                 lazy: page(
                   () => import('../features/admin/pages/UnpublishedPage'),
@@ -262,6 +269,13 @@ export const routes: RouteObject[] = [
             lazy: page(
               () => import('../features/help/pages/HelpPage'),
               (m) => m.HelpPage,
+            ),
+          },
+          {
+            path: 'news',
+            lazy: page(
+              () => import('../features/news/pages/NewsPage'),
+              (m) => m.NewsPage,
             ),
           },
           ...(import.meta.env.DEV

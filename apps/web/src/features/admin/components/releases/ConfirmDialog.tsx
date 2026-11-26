@@ -15,6 +15,8 @@ export function ConfirmDialog({
   busyLabel,
   error,
   onConfirm,
+  confirmDisabled = false,
+  form,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,6 +27,9 @@ export function ConfirmDialog({
   busyLabel: string;
   error: string | null;
   onConfirm: () => void;
+  confirmDisabled?: boolean;
+  /** Fields under the description, not part of it. */
+  form?: ReactNode;
 }) {
   return (
     // While busy, «Cancelar» is off and Escape and a click outside are stopped, so nothing asks to close.
@@ -41,6 +46,7 @@ export function ConfirmDialog({
           <Dialog.Description asChild>
             <div className="mt-2 space-y-2 text-sm text-muted">{children}</div>
           </Dialog.Description>
+          {form}
           <div className="mt-3 min-h-[2.5rem]">
             {error ? (
               <p role="alert" className="text-sm text-state-learn">
@@ -55,7 +61,7 @@ export function ConfirmDialog({
             <button
               type="button"
               className={`${button.base} ${button.primary}`}
-              disabled={busy}
+              disabled={busy || confirmDisabled}
               onClick={onConfirm}
             >
               {/* The longest of the two labels keeps the width; both in one cell, the visible one centered. The

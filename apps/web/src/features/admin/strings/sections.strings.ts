@@ -2,6 +2,7 @@
 
 export const sectionsStrings = {
   releases: 'Publicaciones',
+  announcements: 'Anuncios',
   reports: 'Reportes',
   usage: 'Uso',
   access: 'Acceso',

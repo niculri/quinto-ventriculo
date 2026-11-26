@@ -5,6 +5,8 @@ import { RouterProvider, createMemoryRouter } from 'react-router';
 import { Providers } from '../app/Providers';
 import { WRITE_DEFAULTS } from '../app/queryClient';
 import { routes } from '../app/routes';
+import { localNewsRepository } from '../features/news/api/repository';
+import type { NewsRepository } from '../features/news/api/repository';
 import type { Services } from '../app/ServicesProvider';
 import type { AccountRepository } from '../features/account/api/repository';
 import { localAdminRepository } from '../features/admin/api/repository';
@@ -32,6 +34,7 @@ export function renderApp(
     admin?: AdminRepository;
     reports?: ReportsRepository;
     account?: AccountRepository;
+    news?: NewsRepository;
     adminApi?: ApiClient;
     google?: GoogleIdentityLoader;
     /** Instead of one that never retries. */
@@ -47,6 +50,7 @@ export function renderApp(
     admin: op.admin ?? localAdminRepository(),
     reports: op.reports ?? localReportsRepository({ admin: true }),
     account: op.account ?? acceptedAccount(),
+    news: op.news ?? localNewsRepository(),
     ...(op.adminApi ? { adminApi: op.adminApi } : {}),
     ...(op.google ? { google: op.google } : {}),
   };

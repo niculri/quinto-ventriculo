@@ -21,6 +21,7 @@ const PUBLISH: PublishRequest = {
   fingerprint: FP,
   title: 'Título',
   checks: { blocking: 0, pending: 0, ready: true, warnings: [], marks: [] },
+  announcement: null,
 };
 
 /** One call of each method: the type makes a new method of the client fail here until it has its call. */
@@ -50,6 +51,11 @@ const CALLS: { [K in keyof ApiClient]: (api: ApiClient) => Promise<unknown> } = 
   publishRelease: (api) => api.publishRelease(PUBLISH),
   revertRelease: (api) => api.revertRelease(3),
   releaseLog: (api) => api.releaseLog(),
+  news: (api) => api.news(),
+  announcements: (api) => api.announcements(),
+  saveAnnouncement: (api) =>
+    api.saveAnnouncement({ kind: 'site', title: 'Sitio', body: '', items: [], releaseId: null }),
+  withdrawAnnouncement: (api) => api.withdrawAnnouncement(4),
   search: (api) => api.search('ribosoma', 5),
 };
 

@@ -24,6 +24,9 @@ import {
 } from '../features/reports/api/repository';
 import type { ReportsRepository } from '../features/reports/api/repository';
 import type { AccountRepository } from '../features/account/api/repository';
+import { localNewsRepository, supabaseNewsRepository } from '../features/news/api/repository';
+import type { NewsRepository } from '../features/news/api/repository';
+import { NewsRepositoryContext } from '../features/news/api/context';
 import { DEMO_EMAIL, demoSessionService } from '../features/session/api/demo';
 import { supabaseSessionService } from '../features/session/api/service';
 import type { SessionService } from '../features/session/api/service';
@@ -47,6 +50,7 @@ export interface Services {
   admin: AdminRepository;
   reports: ReportsRepository;
   account: AccountRepository;
+  news: NewsRepository;
   adminApi?: ApiClient;
   /** Google's sign-in button; without it the landing page signs in by redirect only. */
   google?: GoogleIdentityLoader;
@@ -86,6 +90,7 @@ export function createServices(): Services {
         email: DEMO_EMAIL,
         exported: demoData,
       }),
+      news: localNewsRepository({ storage: window.localStorage }),
     };
   }
   const url = import.meta.env.VITE_USERS_SUPABASE_URL;
@@ -116,6 +121,7 @@ export function createServices(): Services {
     admin: supabaseAdminRepository(client),
     reports: supabaseReportsRepository(client),
     account: supabaseAccountRepository(client, { url, key }),
+    news: supabaseNewsRepository(client),
   };
 }
 
@@ -159,7 +165,7 @@ export function ServicesProvider({
               <AdminRepositoryContext value={services.admin}>
                 <ReportsRepositoryContext value={services.reports}>
                   <AccountRepositoryContext value={services.account}>
-                    {children}
+                    <NewsRepositoryContext value={services.news}>{children}</NewsRepositoryContext>
                   </AccountRepositoryContext>
                 </ReportsRepositoryContext>
               </AdminRepositoryContext>

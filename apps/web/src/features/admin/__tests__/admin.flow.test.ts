@@ -60,6 +60,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     ).toBeInTheDocument();
     const sections: [string, string][] = [
       ['Publicaciones', '/admin/releases'],
+      ['Anuncios', '/admin/announcements'],
       ['Reportes', '/admin/reports'],
       ['Uso', '/admin/usage'],
       ['Acceso', '/admin/access'],

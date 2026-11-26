@@ -184,7 +184,7 @@ describe('publishing and undoing', () => {
     ]);
   });
 
-  it('with an announcement it asks for «Leí el anuncio»; without the announcements configured it says it failed', async () => {
+  it('with an announcement it asks for no mark of its own; without the announcements configured it says it failed', async () => {
     state.published.length = 0;
     state.refusal = null;
     const r = await post('/api/admin/release/publish', ADMIN, {
@@ -194,7 +194,7 @@ describe('publishing and undoing', () => {
       announcement: { kind: 'update', title: 'Clase 11 reescrita', body: '', items: [] },
     });
     expect(await r.json()).toMatchObject({ id: 7, announcement: 'failed' });
-    expect(state.published.map((p) => p.marks)).toEqual([['announcement']]);
+    expect(state.published.map((p) => p.marks)).toEqual([[]]);
   });
 
   it('says why the database refused: 409 if the draft changed, 422 for the rest', async () => {

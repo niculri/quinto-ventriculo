@@ -155,7 +155,13 @@ describe('publishing and undoing', () => {
     const publishRelease = vi.fn(async (body: { fingerprint: string; title: string }) => {
       log = [record(1)];
       overview = { ...READY, summary: { ...READY.summary, assessments: [], findings: [] } };
-      return { id: 1, title: body.title, publishedAt: '2026-11-07T15:00:00Z', changes: {} };
+      return {
+        id: 1,
+        title: body.title,
+        publishedAt: '2026-11-07T15:00:00Z',
+        changes: {},
+        announcement: 'none' as const,
+      };
     });
     renderApp('/admin/releases', {
       admin: localAdminRepository({ admin: true }),
@@ -180,6 +186,15 @@ describe('publishing and undoing', () => {
       fingerprint: READY.summary.fingerprint,
       title: 'Anatomía I · Certamen 1 y Biología celular · Certamen 2',
       checks: expect.objectContaining({ blocking: 0, pending: 0, ready: true }) as unknown,
+      announcement: {
+        kind: 'new',
+        title: 'Anatomía I · Certamen 1 y Biología celular · Certamen 2',
+        body: expect.stringMatching(/^Anatomía I · Certamen 1: .*tarjeta nueva/) as unknown,
+        items: [
+          { courseId: 'anatomia-1', assessmentId: 'anatomia-1/certamen-1' },
+          { courseId: 'biologia-celular', assessmentId: 'biologia-celular/certamen-2' },
+        ],
+      },
     });
     expect(await screen.findByText(/N\.º 1 · Anatomía I/)).toBeInTheDocument();
     expect(await screen.findByText(/El borrador es igual a lo publicado/)).toBeInTheDocument();

@@ -6,7 +6,7 @@ import { z } from 'zod';
 export const NEWS_WAIT_MINUTES = 30;
 export const NEWS_TITLE_MAX = 160;
 export const NEWS_BODY_MAX = 1000;
-const NEWS_ITEMS_MAX = 30;
+export const NEWS_ITEMS_MAX = 30;
 
 /** At most `n` UTF-16 units, as the database's `length` and `.length` count them. */
 const upTo = (n: number) => z.string().refine((text) => text.length <= n);

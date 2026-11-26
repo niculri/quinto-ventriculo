@@ -187,6 +187,7 @@ export {
   AnnouncementStatus,
   announcementStatus,
   NEWS_BODY_MAX,
+  NEWS_ITEMS_MAX,
   NEWS_TITLE_MAX,
   NEWS_WAIT_MINUTES,
   NewsFeed,

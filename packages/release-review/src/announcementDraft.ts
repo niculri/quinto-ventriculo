@@ -11,7 +11,7 @@ const count = (n: number, one: string, many: string) =>
 
 /** Spanish lists: «a», «a y b», «a, b y c». */
 const list = (parts: string[]) =>
-  parts.length <= 1 ? (parts[0] ?? '') : `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)!}`;
+  parts.length === 1 ? parts[0]! : `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)!}`;
 
 function brings(a: ReleaseAssessment): { added: string[]; changed: string[] } {
   const newQuizzes = a.quizzes.filter((q) => q.op === 'added').length;

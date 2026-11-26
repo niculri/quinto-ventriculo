@@ -28,14 +28,14 @@ export function NewsBell() {
       }}
     >
       <Menu.Trigger
-        aria-label={news.unread ? s.openUnread : s.open}
+        aria-label={news.unread.length ? s.openUnread : s.open}
         className="relative flex size-9 flex-none items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
       >
         <Bell className="size-5" aria-hidden="true" />
         <span
           aria-hidden="true"
           data-testid="news-dot"
-          className={`absolute top-1.5 right-1.5 size-2.5 rounded-full bg-accent ring-2 ring-chrome ${news.unread ? '' : 'hidden'}`}
+          className={`absolute top-1.5 right-1.5 size-2.5 rounded-full bg-accent ring-2 ring-chrome ${news.unread.length ? '' : 'hidden'}`}
         />
       </Menu.Trigger>
       <Menu.Portal>

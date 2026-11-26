@@ -7,5 +7,4 @@ export const newsPageStrings = {
   course: 'Ramo',
   allCourses: 'Todos los ramos',
   empty: 'Al día en tus ramos: no hay novedades.',
-  emptyCourse: 'No hay novedades de este ramo.',
 } as const;

@@ -6,7 +6,7 @@ export const announcementFieldsStrings = {
   title: 'Título',
   body: 'Texto',
   bodyHelp: 'Opcional. Cada línea va en su propia línea.',
-  left: (n: number) => (n === 1 ? 'Queda 1 carácter.' : `Quedan ${String(n)} caracteres.`),
+  left: (n: number) => `Caracteres disponibles: ${String(n)}.`,
   phrase: (label: string, snippet: string) => `Revisa «${snippet}»: ${label}.`,
   noPhrases: 'Sin frases que solo entienda quien hizo el material.',
 } as const;

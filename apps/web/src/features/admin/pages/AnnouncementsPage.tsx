@@ -49,7 +49,7 @@ function FailedOne() {
         disabled={save.isPending}
         onClick={() => save.mutate({ ...failed.draft, releaseId: failed.releaseId })}
       >
-        {save.isPending ? s.saving : s.saveAgain}
+        {s.saveAgain}
       </button>
       {save.isError ? (
         <p role="alert" className="mt-2 text-sm text-state-learn">
@@ -77,7 +77,7 @@ function SiteForm() {
           disabled={save.isPending}
           onChange={(next) => {
             setDraft(next);
-            if (!save.isPending) save.reset();
+            save.reset();
           }}
         />
       </div>
@@ -91,7 +91,7 @@ function SiteForm() {
             save.mutate({ ...valid.data, releaseId: null }, { onSuccess: () => setDraft(EMPTY) })
           }
         >
-          {save.isPending ? s.saving : s.save}
+          {s.save}
         </button>
         <Reserved longest={s.notSaved} className="min-w-0 flex-1 text-sm">
           <p role="status" className={save.isError ? 'text-state-learn' : 'text-muted'}>

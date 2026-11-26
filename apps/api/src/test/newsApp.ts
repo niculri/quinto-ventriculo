@@ -12,7 +12,7 @@ import { releases as panelDouble } from './draftApp';
 export const NEWS_ADMIN = 'dueno@ug.uchile.cl';
 export const NEWS_STUDENT = 'ana@ug.uchile.cl';
 /** 2026-11-25 12:00 UTC, in the seconds of `deps.now`. */
-export const START = Date.parse('2026-11-25T12:00:00Z') / 1000;
+const START = Date.parse('2026-11-25T12:00:00Z') / 1000;
 
 const note = (id: string, courseId: string, assessmentId: string) => ({
   id,
@@ -31,7 +31,7 @@ const note = (id: string, courseId: string, assessmentId: string) => ({
   media: [],
 });
 
-export const NEWS_BUNDLE: ContentBundle = {
+const NEWS_BUNDLE: ContentBundle = {
   semesters: [{ number: 2, name: '2° Semestre' }],
   courses: [
     { id: 'anatomia-2', semester: 2, name: 'Anatomía II', emoji: '🦴', position: 1 },

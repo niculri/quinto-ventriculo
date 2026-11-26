@@ -5,14 +5,11 @@ import { Link } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
 import { Skeleton } from '../../../shared/ui/Loading';
 import { useNews } from '../hooks/useNews';
-import { isUnread } from '../model/news';
 import { newsLineStrings as s } from './strings/NewsLine.strings';
 
 export function NewsLine() {
   const news = useNews();
-  const unread = news.ready
-    ? (news.announcements ?? []).filter((a) => isUnread(a, news.seenUntil))
-    : [];
+  const { unread } = news;
   const newest = unread[0];
   return (
     <Link

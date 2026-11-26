@@ -53,4 +53,15 @@ describe('memoryAnnouncements', () => {
       id: 6,
     });
   });
+
+  it('without the releases, none is published; two at the same time go by id; one withdrawn leaves the others', async () => {
+    const repo = memoryAnnouncements({ now: () => START });
+    expect(await repo.save({ ...text, releaseId: 1, by: 'x' })).toBe('release');
+    await repo.save({ ...text, kind: 'site', title: 'A', releaseId: null, by: 'x' });
+    await repo.save({ ...text, kind: 'site', title: 'B', releaseId: null, by: 'x' });
+    expect((await repo.list()).map((a) => a.title)).toEqual(['B', 'A']);
+    expect((await repo.feed(at(31), 10)).map((a) => a.title)).toEqual(['B', 'A']);
+    await repo.withdraw(1, 'x');
+    expect((await repo.feed(at(31), 10)).map((a) => a.title)).toEqual(['B']);
+  });
 });

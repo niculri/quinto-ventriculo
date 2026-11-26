@@ -58,9 +58,7 @@ export function NewsPage() {
           <Skeleton className="h-28 w-full" />
         </div>
       ) : shown.length === 0 ? (
-        <p className={`${card} mt-6 p-5 text-muted`}>
-          {course === 'all' ? s.empty : s.emptyCourse}
-        </p>
+        <p className={`${card} mt-6 p-5 text-muted`}>{s.empty}</p>
       ) : (
         byDay(shown).map(({ day, items }) => (
           <section key={day} aria-label={formatDate(items[0]!.publishedAt)} className="mt-6">

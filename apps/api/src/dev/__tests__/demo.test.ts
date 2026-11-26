@@ -54,6 +54,40 @@ describe('createDemoApp', () => {
     };
     await writeFile(join(folder, 'announcements.json'), JSON.stringify([row]));
     expect(await news()).toEqual([4]);
+    // The state of a release comes from the demo's record: one that does not exist is refused.
+    const app = await createDemoApp(folder);
+    const saved = await app.request('/api/admin/announcements', {
+      method: 'POST',
+      body: JSON.stringify({ kind: 'new', title: 'T', body: '', items: [], releaseId: 1 }),
+      headers: { Authorization: `Bearer ${DEMO_TOKEN}`, 'Content-Type': 'application/json' },
+    });
+    expect(saved.status).toBe(409);
+  });
+
+  it('publishing in the demo saves its announcement, tied to the release of its record', async () => {
+    await mkdir(join(folder, 'release'));
+    const fingerprint = '0'.repeat(32);
+    await writeFile(
+      join(folder, 'release', 'summary.json'),
+      JSON.stringify({ fingerprint, schemaVersion: 1, marks: [] }),
+    );
+    const app = await createDemoApp(folder);
+    const send = (path: string, method: string, body: unknown) =>
+      app.request(path, {
+        method,
+        body: JSON.stringify(body),
+        headers: { Authorization: `Bearer ${DEMO_TOKEN}`, 'Content-Type': 'application/json' },
+      });
+    for (const mark of ['phone', 'answers']) {
+      await send('/api/admin/release/marks', 'PUT', { fingerprint, mark, checked: true });
+    }
+    const published = await send('/api/admin/release/publish', 'POST', {
+      fingerprint,
+      title: 'Publicación de prueba',
+      checks: { blocking: 0, pending: 0, ready: true, warnings: [], marks: [] },
+      announcement: { kind: 'new', title: 'Material nuevo', body: '', items: [] },
+    });
+    expect(await published.json()).toMatchObject({ id: 1, announcement: 'saved' });
   });
 
   it('only the demo token is a session', async () => {

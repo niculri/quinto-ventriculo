@@ -9,7 +9,7 @@ export const newsKeys = {
 };
 
 /** An announcement comes out at its time with nobody publishing anything: read again every few minutes. */
-export const NEWS_REFRESH_MS = 5 * 60_000;
+const NEWS_REFRESH_MS = 5 * 60_000;
 
 export const newsQuery = (api: ApiClient) =>
   queryOptions({

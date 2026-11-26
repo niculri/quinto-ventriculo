@@ -312,6 +312,7 @@ test('publishing and undoing, each from its own popup, without moving what is ab
         title: record('published').title,
         publishedAt: '2026-11-07T15:00:00Z',
         changes: {},
+        announcement: 'saved',
       },
     });
   });
@@ -367,6 +368,7 @@ test('publishing and undoing, each from its own popup, without moving what is ab
   expect(sent[0]).toMatchObject({
     title: 'Anatomía I · Certamen 1 y Biología celular · Certamen 2',
     checks: { blocking: 0, ready: true },
+    announcement: { kind: 'new', title: 'Anatomía I · Certamen 1 y Biología celular · Certamen 2' },
   });
   await expect(page.getByText(/El borrador es igual a lo publicado/)).toBeVisible();
 

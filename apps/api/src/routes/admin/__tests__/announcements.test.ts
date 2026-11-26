@@ -47,6 +47,16 @@ describe('publishing with an announcement', () => {
     expect(await list(call)).toEqual([]);
   });
 
+  it('a release undone before its announcement was saved says it failed too', async () => {
+    const site = newsApp();
+    site.announcements.save = () => Promise.resolve('release');
+    const r = await site.call('/api/admin/release/publish', NEWS_ADMIN, {
+      ...PUBLISH,
+      announcement: DRAFT,
+    });
+    expect(PublishResponse.parse(await r.json())).toMatchObject({ announcement: 'failed' });
+  });
+
   it('a release that went out without its announcement says so, and saving it again makes one', async () => {
     const site = newsApp();
     site.announcements.save = () => Promise.reject(new Error('the database is down'));
@@ -98,7 +108,15 @@ describe('the panel’s announcements', () => {
   });
 
   it('what is malformed is 400 and what does not exist 404', async () => {
-    const { call } = newsApp();
+    const { call, app } = newsApp();
+    for (const path of ['/api/admin/announcements', '/api/admin/announcements/withdraw']) {
+      const r = await app.request(path, {
+        method: 'POST',
+        body: '{no es json',
+        headers: { Authorization: `Bearer ${NEWS_ADMIN}`, 'Content-Type': 'application/json' },
+      });
+      expect(r.status, path).toBe(400);
+    }
     for (const body of [
       {},
       { ...DRAFT, releaseId: null },

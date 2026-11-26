@@ -55,6 +55,8 @@ describe('«Publicaciones», piece by piece', () => {
     open(adminApi());
     const anatomy = await screen.findByRole('article', { name: 'Anatomía I · Certamen 1' });
     const cellBio = screen.getByRole('article', { name: /Biología celular · Certamen 2/ });
+    // How many saw each deck comes on its own time: the snapshot waits for it, not for the speed of the machine.
+    await waitFor(() => expect(anatomy).not.toHaveTextContent('contando…'));
     expect(text(anatomy)).toMatchSnapshot('anatomy before a tab');
     await userEvent.click(within(anatomy).getByRole('button', { name: /^Tarjetas/ }));
     await loaded(anatomy);

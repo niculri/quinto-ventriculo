@@ -113,6 +113,35 @@ describe('publishing with an announcement', () => {
     expect(toggle).toBeDisabled();
   });
 
+  it('a draft that only changes format starts without one, and can have it', async () => {
+    const zero = { added: 0, removed: 0, answer: 0, noAnswer: 0, format: 0, moved: 0 };
+    const formatOnly = {
+      ...READY,
+      summary: {
+        ...READY.summary,
+        assessments: READY.summary.assessments.map((a) => ({
+          ...a,
+          articles: { added: 0, removed: 0, content: 0, format: 2 },
+          questions: { ...zero, keyChanged: 0, total: a.questions.total },
+          cards: { ...zero, notes: 0 },
+          quizzes: [],
+          decks: [],
+        })),
+      },
+    };
+    const { dialog, publishRelease } = await openPublish('saved', formatOnly);
+    const toggle = within(dialog).getByRole('switch', { name: 'Avisar a los alumnos' });
+    expect(toggle).not.toBeChecked();
+    await userEvent.click(toggle);
+    expect(toggle).toBeChecked();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Publicar' }));
+    await waitFor(() => expect(publishRelease).toHaveBeenCalledOnce());
+    expect(publishRelease.mock.calls[0]![0].announcement).toMatchObject({
+      kind: 'update',
+      body: '',
+    });
+  });
+
   it('one that could not be saved: a notice that leads to «Anuncios», where it is saved again', async () => {
     const { dialog, saveAnnouncement } = await openPublish('failed');
     await userEvent.click(within(dialog).getByRole('button', { name: 'Publicar' }));

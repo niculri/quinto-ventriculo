@@ -14,6 +14,9 @@ import { failure, releaseLines } from '../../model/releases';
 import { publishBarStrings as s } from './strings/PublishBar.strings';
 import { ConfirmDialog } from './ConfirmDialog';
 
+/** It starts on only when it has something to tell (only format changed: no text) and somebody to tell it to. */
+const tellsSomething = (draft: AnnouncementDraft) => draft.items.length > 0 && draft.body !== '';
+
 export function PublishBar({
   review,
   overview,
@@ -23,8 +26,7 @@ export function PublishBar({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(() => announcementDraft(overview.summary));
-  // An announcement about no course would reach nobody: then it starts off.
-  const [announce, setAnnounce] = useState(draft.items.length > 0);
+  const [announce, setAnnounce] = useState(() => tellsSomething(draft));
   const indexLines = useIndexLines(overview);
   const publish = usePublishRelease();
   const warnings = review.checks.filter((c) => c.severity === 'warn' && c.items.length).length;
@@ -33,7 +35,7 @@ export function PublishBar({
     if (o) {
       const proposed = announcementDraft(overview.summary);
       setDraft(proposed);
-      setAnnounce(proposed.items.length > 0);
+      setAnnounce(tellsSomething(proposed));
     } else publish.reset();
   };
   const valid = AnnouncementDraft.safeParse(draft);

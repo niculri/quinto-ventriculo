@@ -125,7 +125,7 @@ describe('visibleNews', () => {
           ],
         },
       ],
-    } as Catalog;
+    } as unknown as Catalog;
     const many = news(3, 'update', [
       ...[1, 2, 3, 4].map(fourOf),
       { courseId: 'b', assessmentId: null },

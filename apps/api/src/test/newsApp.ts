@@ -79,16 +79,15 @@ export function newsApp(
       return { ok: true, result: { id, revertedAt: '2026-11-25T12:05:00.000Z', changes: {} } };
     },
   };
-  const kept = memoryAnnouncements({
+  const announcements = memoryAnnouncements({
     now: () => clock.now * 1000,
     releaseStatus: (id) => Promise.resolve(log.get(id) ?? null),
   });
-  const announcements = {
-    ...kept,
-    feed: (at: string, limit: number) => {
-      reads.feed += 1;
-      return kept.feed(at, limit);
-    },
+  // The tests replace its methods on this same object: counting wraps it in place.
+  const feed = announcements.feed.bind(announcements);
+  announcements.feed = (at, limit) => {
+    reads.feed += 1;
+    return feed(at, limit);
   };
   const repository = memoryRepository(NEWS_BUNDLE);
   const app = createApp({
@@ -124,5 +123,5 @@ export function newsApp(
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       headers: { Authorization: `Bearer ${who}`, 'Content-Type': 'application/json' },
     });
-  return { app, call, clock, announcements: kept, reads };
+  return { app, call, clock, announcements, reads };
 }

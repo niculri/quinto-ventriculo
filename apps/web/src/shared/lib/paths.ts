@@ -43,6 +43,7 @@ export const paths = {
   licenses: '/licenses',
   about: '/about',
   help: '/help',
+  news: '/news',
   search: (query?: string) => withQuery('/search', { q: query?.trim() }),
   semester: (number: number) => `/semesters/${number}`,
   course: (course: CourseRef) => `/semesters/${course.semester}/courses/${seg(course.id)}`,
@@ -105,6 +106,7 @@ export const paths = {
   adminAccess: '/admin/access',
   adminSite: '/admin/site',
   adminUnpublished: '/admin/unpublished',
+  adminAnnouncements: '/admin/announcements',
   deckOptions: (query?: { preset?: string | null; deck?: string | null }) =>
     withQuery('/settings/deck-options', { preset: query?.preset, deck: query?.deck }),
   /** A note's link before the catalog says its course; it redirects to the canonical one. */

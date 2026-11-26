@@ -3,11 +3,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { releaseTitle, reviewChecks } from '@qv/release-review';
 import type { ReviewList } from '@qv/release-review';
-import type { ReleaseMark, ReleaseMarkId, ReleaseOverview } from '@qv/schema';
+import type { AnnouncementDraft, ReleaseMark, ReleaseMarkId, ReleaseOverview } from '@qv/schema';
 import { useApi } from '../../../shared/hooks/useApi';
 import { useRefreshContent } from '../../../shared/hooks/useRefreshContent';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { releaseKeys } from '../api/releases';
+import { announcementKeys } from '../api/announcements';
+import type { FailedAnnouncement } from '../api/announcements';
+import { newsKeys } from '../../news/api/queries';
 
 /** Shows the change at once and undoes it if saving fails; if the draft changed meanwhile, the summary is read again. */
 export function useSetReleaseMark(fingerprint: string, by: string) {
@@ -47,22 +50,41 @@ export function useSetReleaseMark(fingerprint: string, by: string) {
   });
 }
 
+/** With an announcement, it is saved after publishing; if that fails, it is kept for «Guardar el anuncio». */
 export function usePublishRelease() {
   const api = useApi();
   const client = useQueryClient();
   const refreshContent = useRefreshContent();
   return useMutation({
-    mutationFn: ({ overview, review }: { overview: ReleaseOverview; review: ReviewList }) =>
+    mutationFn: ({
+      overview,
+      review,
+      announcement,
+    }: {
+      overview: ReleaseOverview;
+      review: ReviewList;
+      announcement: AnnouncementDraft | null;
+    }) =>
       api.publishRelease({
         fingerprint: overview.summary.fingerprint,
         title: releaseTitle(overview.summary),
         checks: reviewChecks(review),
+        announcement,
       }),
-    onSuccess: refreshContent,
+    onSuccess: (result, { announcement }) => {
+      if (result.announcement === 'failed' && announcement) {
+        client.setQueryData<FailedAnnouncement>(announcementKeys.failed, {
+          releaseId: result.id,
+          draft: announcement,
+        });
+      }
+      refreshContent();
+    },
     onSettled: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: releaseKeys.overview }),
         client.invalidateQueries({ queryKey: releaseKeys.log }),
+        client.invalidateQueries({ queryKey: announcementKeys.list, exact: true }),
       ]),
   });
 }
@@ -78,6 +100,8 @@ export function useRevertRelease() {
       Promise.all([
         client.invalidateQueries({ queryKey: releaseKeys.overview }),
         client.invalidateQueries({ queryKey: releaseKeys.log }),
+        client.invalidateQueries({ queryKey: announcementKeys.list, exact: true }),
+        client.invalidateQueries({ queryKey: newsKeys.feed }),
       ]),
   });
 }

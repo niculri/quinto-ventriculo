@@ -44,7 +44,9 @@ const SIGNED_IN = [
   '/settings/deck-options',
   '/search?q=ribosoma',
   '/help',
+  '/news',
   '/admin/releases',
+  '/admin/announcements',
   '/admin/reports',
   '/admin/usage',
   '/admin/access',
@@ -143,7 +145,7 @@ test.describe('popups', () => {
     await axe(page, 'visor de tarjetas');
   });
 
-  test('a deck’s configuration, the search, the account menu and the phone’s menu', async ({
+  test('a deck’s configuration, the search, the account menu, the bell and the phone’s menu', async ({
     page,
     isMobile,
   }) => {
@@ -166,6 +168,14 @@ test.describe('popups', () => {
     await page.getByRole('button', { name: /tu cuenta$/i }).click();
     await expect(page.getByRole('menu')).toBeVisible();
     await axe(page, 'menú de la cuenta');
+    await page.keyboard.press('Escape');
+
+    await page
+      .getByRole('banner')
+      .getByRole('button', { name: /^Novedades/ })
+      .click();
+    await expect(page.getByRole('menu')).toBeVisible();
+    await axe(page, 'campana de novedades');
     await page.keyboard.press('Escape');
 
     if (isMobile) {

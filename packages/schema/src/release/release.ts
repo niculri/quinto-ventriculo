@@ -1,6 +1,7 @@
 // Zod schemas of a content release: what the draft changes against what is published (as the content database's
 // release functions give it), its review, and publishing and undoing.
 import { z } from 'zod';
+import { AnnouncementDraft } from './announcements';
 
 /**
  * Goes up when a package needs a Worker that reads something new: the review blocks a draft the deployed Worker does
@@ -253,6 +254,10 @@ export const PublishRequest = z.object({
   fingerprint: z.string().regex(/^[0-9a-f]{32}$/),
   title: z.string().trim().min(1).max(300),
   checks: ReleaseChecks,
+  /** Saved after publishing, tied to the release; a page from before sends none. */
+  announcement: AnnouncementDraft.refine((a) => a.kind !== 'site')
+    .nullable()
+    .default(null),
 });
 export type PublishRequest = z.infer<typeof PublishRequest>;
 
@@ -263,6 +268,12 @@ export const PublishResult = z.object({
   changes: ReleaseTableChanges,
 });
 export type PublishResult = z.infer<typeof PublishResult>;
+
+/** What the panel gets: `failed` when the release went out and its announcement could not be saved (it can retry). */
+export const PublishResponse = PublishResult.extend({
+  announcement: z.enum(['none', 'saved', 'failed']),
+});
+export type PublishResponse = z.infer<typeof PublishResponse>;
 
 export const RevertRequest = z.object({ id: z.number().int().positive() });
 export type RevertRequest = z.infer<typeof RevertRequest>;

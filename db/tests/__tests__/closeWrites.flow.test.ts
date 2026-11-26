@@ -136,6 +136,7 @@ describe('writes only through the functions', () => {
       'forget_cards',
       'is_admin',
       'is_allowed_user',
+      'mark_news_seen',
       'my_card_stats',
       'my_reports',
       'reconcile_cards',

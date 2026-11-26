@@ -12,6 +12,8 @@ import { publishedIds } from './services/publishedIds';
 import type { PublishedIds } from './services/publishedIds';
 import { siteSettingsReader } from './services/siteSettings';
 import type { SiteSettingsReader } from './services/siteSettings';
+import { studentNews } from './services/studentNews';
+import type { StudentNews } from './services/studentNews';
 import { usageReader } from './services/usageReader';
 import type { UsageReader } from './services/usageReader';
 
@@ -23,6 +25,7 @@ interface Middlewares {
   /** The same for what does not depend on the courses turned off (the card changes). */
   revalidatePublished: MiddlewareHandler<AppEnv>;
   releasesAdmin: MiddlewareHandler<AppEnv>;
+  announcementsAdmin: MiddlewareHandler<AppEnv>;
   settingsAdmin: MiddlewareHandler<AppEnv>;
   unpublishedAdmin: MiddlewareHandler<AppEnv>;
   usageAdmin: MiddlewareHandler<AppEnv>;
@@ -33,6 +36,7 @@ interface Services {
   contentVersion: ContentVersionReader;
   publishedIds: PublishedIds;
   usage: UsageReader;
+  news: StudentNews;
 }
 
 export interface AppContext {
@@ -53,6 +57,7 @@ export function createContext(deps: Dependencies): AppContext {
       revalidate: revalidate(deps, contentVersion, true),
       revalidatePublished: revalidate(deps, contentVersion, false),
       releasesAdmin: requireAdmin(deps, configured.releases),
+      announcementsAdmin: requireAdmin(deps, configured.announcements),
       settingsAdmin: requireAdmin(deps, configured.settings),
       unpublishedAdmin: requireAdmin(deps, configured.unpublished),
       usageAdmin: requireAdmin(deps, configured.usageStats),
@@ -62,6 +67,7 @@ export function createContext(deps: Dependencies): AppContext {
       contentVersion,
       publishedIds: publishedIds(deps),
       usage: usageReader(deps),
+      news: studentNews(deps),
     },
   };
 }

@@ -3,7 +3,7 @@
 
 /**
  * The SQLSTATEs the SQL raises with (invalid parameter, session closed, not allowed, raised, no data, stale, refused),
- * and PostgREST's own code for a function the database does not have.
+ * and PostgREST's own codes for a function and a table the database does not have.
  */
 export type SqlState =
   | '22023'
@@ -13,7 +13,8 @@ export type SqlState =
   | 'P0002'
   | 'P0409'
   | 'P0422'
-  | 'PGRST202';
+  | 'PGRST202'
+  | 'PGRST205';
 
 /**
  * Each reason the code tells apart, with the text of the message that carries it. The SQL raises

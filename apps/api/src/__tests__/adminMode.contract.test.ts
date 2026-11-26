@@ -612,6 +612,10 @@ describe('who is not an administrator gets nothing of the admin mode', () => {
     publishRelease: ['POST', '/api/admin/release/publish', '{}'],
     revertRelease: ['POST', '/api/admin/release/revert', '{}'],
     releaseLog: ['GET', '/api/admin/releases'],
+    news: ['GET', '/api/news'],
+    announcements: ['GET', '/api/admin/announcements'],
+    saveAnnouncement: ['POST', '/api/admin/announcements', '{}'],
+    withdrawAnnouncement: ['POST', '/api/admin/announcements/withdraw', '{}'],
     media: ['GET', '/api/media/cards/x.webp'],
   };
 

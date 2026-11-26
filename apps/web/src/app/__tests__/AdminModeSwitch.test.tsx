@@ -1,5 +1,6 @@
 // Tests the switch of the admin mode by itself: entering needs the admin API, leaving gives the student's cache back
 // only what it shares and lacks, and who leaves the mode because they are not an administrator.
+import { localNewsRepository } from '../../features/news/api/repository';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -43,6 +44,7 @@ function services(over: Partial<Services> = {}): Services {
     quiz: localQuizRepository(null),
     admin: localAdminRepository({ admin: true }),
     reports: localReportsRepository({ admin: true }),
+    news: localNewsRepository(),
     account: acceptedAccount(),
     ...over,
   };

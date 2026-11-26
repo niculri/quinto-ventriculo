@@ -25,5 +25,6 @@ export const storageKeys = {
     cards: 'qv-demo-cards',
     heatmap: 'qv-demo-heatmap',
     google: 'qv-demo-google',
+    news: 'qv-demo-news',
   },
 } as const;

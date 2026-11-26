@@ -271,6 +271,10 @@ const CHECKS = {
   publishRelease: 'only for administrators',
   revertRelease: 'only for administrators',
   releaseLog: 'only for administrators',
+  news: 'its announcements leave out what is not published (see the tests of /api/news)',
+  announcements: 'only for administrators',
+  saveAnnouncement: 'only for administrators',
+  withdrawAnnouncement: 'only for administrators',
   media: 'its keys are hashes that only what is published, or the admin mode, gives',
 } satisfies Record<ApiRouteName, Check | string>;
 

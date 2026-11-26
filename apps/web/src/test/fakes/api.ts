@@ -107,6 +107,10 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
     setSiteSettings: notAdmin,
     unpublishedLog: notAdmin,
     usage: notAdmin,
+    announcements: notAdmin,
+    saveAnnouncement: notAdmin,
+    withdrawAnnouncement: notAdmin,
+    news: async () => ({ announcements: [] }),
     usageOpen: async () => ({ ok: true as const }),
     ...changes,
   };

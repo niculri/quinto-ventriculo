@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "releaseId": null,
+    "releaseTitle": null,
+    "releaseStatus": null,
+    "kind": "site",
+    "title": "El explorador de tarjetas busca también en las respuestas",
+    "body": "Escribe una palabra en el explorador y aparecen las tarjetas que la tienen en la pregunta o en la respuesta.",
+    "items": [],
+    "createdAt": "2026-11-10T14:00:00.000Z",
+    "createdBy": "demo@ug.uchile.cl",
+    "publishAt": "2026-11-10T14:30:00.000Z",
+    "withdrawnAt": null,
+    "withdrawnBy": null
+  },
+  {
+    "id": 2,
+    "releaseId": null,
+    "releaseTitle": null,
+    "releaseStatus": null,
+    "kind": "site",
+    "title": "Biología celular · Certamen 2: dos clases y un test de práctica",
+    "body": "Las clases 10 y 11 ya están como apuntes, con su mazo y las preguntas del test.",
+    "items": [{ "courseId": "biologia-celular", "assessmentId": "biologia-celular/certamen-2" }],
+    "createdAt": "2026-11-18T13:00:00.000Z",
+    "createdBy": "demo@ug.uchile.cl",
+    "publishAt": "2026-11-18T13:30:00.000Z",
+    "withdrawnAt": null,
+    "withdrawnBy": null
+  }
+]

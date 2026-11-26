@@ -356,6 +356,24 @@ export type Database = {
         }
         Relationships: []
       }
+      news_reads: {
+        Row: {
+          seen_until: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          seen_until: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          seen_until?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -961,6 +979,7 @@ export type Database = {
         }
         Returns: number
       }
+      mark_news_seen: { Args: { until: string }; Returns: string }
       median_answer_ms: { Args: never; Returns: number }
       my_card_stats: { Args: { p_deck_ids?: string[] }; Returns: Json }
       my_reports: { Args: never; Returns: Json }

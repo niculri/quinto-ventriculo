@@ -1,5 +1,5 @@
 // The help page: how to use the site, how studying differs from Anki, the boxes of the articles, shortcuts, search
-// tips, progress and what to do when something fails.
+// tips, the news and its bell, progress and what to do when something fails.
 import { Link } from 'react-router';
 import { CALLOUT_LABELS } from '@qv/schema';
 import { ContactLink } from '../../../shared/ui/ContactLink';
@@ -129,6 +129,21 @@ export function HelpPage() {
           <li>Con varias palabras, aparecen las secciones que tienen todas.</li>
           <li>Haz clic en una figura para verla en grande.</li>
         </ul>
+      </section>
+
+      <section className="mt-12" aria-labelledby="news">
+        <h2 id="news" className="text-xl font-semibold">
+          Novedades y la campana
+        </h2>
+        <p className="mt-3 leading-relaxed text-muted">
+          Cuando se publica material nuevo o cambia algo de tus ramos, aparece un aviso en{' '}
+          <Link to={paths.news} className={link}>
+            Novedades
+          </Link>
+          . La campana de la barra de arriba, junto a tu nombre, muestra un punto mientras haya algo
+          que no has visto, y al abrirla ves los últimos avisos; en Inicio, una línea dice lo más
+          reciente o «Al día en tus ramos». Cada aviso lleva a la clase o al certamen de que habla.
+        </p>
       </section>
 
       <section className="mt-12" aria-labelledby="progress">

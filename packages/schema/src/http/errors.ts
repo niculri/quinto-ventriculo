@@ -39,5 +39,8 @@ export const ErrorCode = z.enum([
   'release_reverted',
   'release_migrated',
   'release_public_changed',
+  'invalid_announcement',
+  'announcement_release',
+  'announcement_missing',
 ]);
 export type ErrorCode = z.infer<typeof ErrorCode>;

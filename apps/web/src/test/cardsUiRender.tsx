@@ -1,4 +1,5 @@
 // renderWithServices(): one piece of the cards page inside the site's providers and a router, with fake services.
+import { localNewsRepository } from '../features/news/api/repository';
 import { render } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { QueryClient } from '@tanstack/react-query';
@@ -38,6 +39,7 @@ export function renderWithServices(
         admin: localAdminRepository(),
         reports: op.reports ?? localReportsRepository({ admin: true }),
         account: acceptedAccount(),
+        news: localNewsRepository(),
       }}
       queryClient={client}
     >

@@ -13,6 +13,7 @@ import {
   ReleaseMarkId,
   RevertResult,
 } from '../release/release';
+import { Announcement, AnnouncementRow } from '../release/announcements';
 import { NoArgs, rpcContract } from '../database/contract';
 import type { RpcContract } from '../database/contract';
 
@@ -82,6 +83,31 @@ export const CONTENT_RPC = {
     RevertResult,
   ),
   release_log: rpcContract(z.object({ max_rows: z.number().optional() }), ReleaseLog),
+  save_announcement: rpcContract(
+    z.object({
+      p: z.object({
+        releaseId: z.number().nullable(),
+        kind: z.string(),
+        title: z.string(),
+        body: z.string(),
+        items: z.array(z.object({ courseId: z.string(), assessmentId: z.string().nullable() })),
+        by: z.string(),
+      }),
+    }),
+    AnnouncementRow,
+  ),
+  withdraw_announcement: rpcContract(
+    z.object({ p: z.object({ id: z.number(), by: z.string() }) }),
+    AnnouncementRow,
+  ),
+  announcements_feed: rpcContract(
+    z.object({ at: z.string(), max_rows: z.number().optional() }),
+    z.array(Announcement),
+  ),
+  admin_announcements: rpcContract(
+    z.object({ max_rows: z.number().optional() }),
+    z.array(AnnouncementRow),
+  ),
 } satisfies ContentContracts;
 
 /** `notes.document`: what an article adds to its columns (a note saved before some of these lacks them). */

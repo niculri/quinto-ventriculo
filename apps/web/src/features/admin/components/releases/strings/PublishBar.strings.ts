@@ -13,4 +13,8 @@ export const publishBarStrings = {
     students:
       'Los alumnos ven todo lo nuevo de una vez, al terminar. Su avance no cambia: las tarjetas que se mueven o salen se ordenan solas cuando entran. Mientras sea la última, la puedes deshacer.',
   },
+  announce: {
+    label: 'Avisar a los alumnos',
+    help: 'Sale en Novedades y en la campana 30 minutos después de publicar. Deshacer la publicación lo retira.',
+  },
 } as const;

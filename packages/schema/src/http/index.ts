@@ -26,6 +26,7 @@ export {
   withoutEmptySemesters,
 } from './api';
 export { siteSemesters, withoutCourses } from './visibility';
+export { visibleNews } from './news';
 export { adminKey, markAdminOnly } from './adminOnly';
 export type { AdminKind } from './adminOnly';
 export { ErrorCode } from './errors';

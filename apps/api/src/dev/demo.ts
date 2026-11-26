@@ -2,7 +2,8 @@
 // The production Worker does not import this file.
 import { access, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { ContentBundle } from '@qv/schema';
+import { AnnouncementRow, ContentBundle } from '@qv/schema';
+import { memoryAnnouncements } from '../adapters/memory/announcements';
 import { memoryClientErrors } from '../adapters/memory/clientErrors';
 import { memoryRepository } from '../adapters/memory/content';
 import { publishingSite } from '../adapters/memory/publishing';
@@ -52,6 +53,12 @@ export function folderMedia(outputFolder: string): MediaStore {
   };
 }
 
+/** `<folder>/announcements.json`, the demo's announcements already out (none if there is no file). */
+async function demoAnnouncements(outputFolder: string): Promise<AnnouncementRow[]> {
+  const text = await readFile(join(outputFolder, 'announcements.json'), 'utf8').catch(() => '[]');
+  return AnnouncementRow.array().parse(JSON.parse(text));
+}
+
 export async function createDemoApp(outputFolder: string, options: DemoOptions = {}) {
   const readBundle = async (path: string) =>
     ContentBundle.parse(JSON.parse(await readFile(path, 'utf8')));
@@ -69,9 +76,15 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     draft: preview,
     releases: await folderReleaseRepository(outputFolder),
   });
+  const announcements = memoryAnnouncements({
+    start: await demoAnnouncements(outputFolder),
+    releaseStatus: async (id) =>
+      (await releases.log()).releases.find((r) => r.id === id)?.status ?? null,
+  });
   return createApp({
     verifier,
     repository,
+    announcements,
     media,
     signer: new MediaSigner('secreto-solo-para-desarrollo-local-0123456789'),
     preview,

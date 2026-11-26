@@ -70,7 +70,7 @@ describe('the bell', () => {
   it('without news it says so; while they come, and if they fail, too', async () => {
     renderApp('/home', { api: apiWith([]), news: await seenAt(null) });
     await userEvent.click(await bell());
-    expect(await screen.findByText('Al día en tus ramos.')).toBeInTheDocument();
+    expect(await screen.findByText('No hay novedades.')).toBeInTheDocument();
   });
 
   it('while they come, and if they cannot be read', async () => {
@@ -105,7 +105,7 @@ describe('the line of the home page', () => {
     expect(line).toHaveAttribute('href', '/news');
   });
 
-  it('one unread is just its title; nothing unread is «Al día en tus ramos»', async () => {
+  it('one unread is just its title; nothing unread is «No hay novedades»', async () => {
     const one = renderApp('/home', {
       api: apiWith(FEED),
       news: await seenAt('2026-11-24T20:00:00.000Z'),
@@ -116,7 +116,7 @@ describe('the line of the home page', () => {
     one.unmount();
     renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-25T15:00:00.000Z') });
     expect(
-      await screen.findByRole('link', { name: /^Novedades: Al día en tus ramos/ }),
+      await screen.findByRole('link', { name: /^Novedades: No hay novedades/ }),
     ).toBeInTheDocument();
   });
 
@@ -133,7 +133,7 @@ describe('the line of the home page', () => {
     await screen.findByRole('menu');
     await userEvent.keyboard('{Escape}');
     expect(
-      await screen.findByRole('link', { name: /^Novedades: Al día en tus ramos/ }),
+      await screen.findByRole('link', { name: /^Novedades: No hay novedades/ }),
     ).toBeInTheDocument();
   });
 
@@ -148,7 +148,7 @@ describe('the line of the home page', () => {
     expect(
       await screen.findByRole('link', { name: /^Novedades: No se pudieron cargar las novedades/ }),
     ).toBeInTheDocument();
-    expect(screen.queryByText('Al día en tus ramos')).toBeNull();
+    expect(screen.queryByText('No hay novedades')).toBeNull();
   });
 
   it('a new student: only what came out after the account was made is new', async () => {

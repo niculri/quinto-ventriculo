@@ -6,7 +6,7 @@ export const newsBellStrings = {
   title: 'Novedades',
   loading: 'Cargando las novedades…',
   failed: 'No se pudieron cargar las novedades.',
-  upToDate: 'Al día en tus ramos.',
+  upToDate: 'No hay novedades.',
   isNew: 'Nuevo',
   all: 'Ver todas',
 } as const;

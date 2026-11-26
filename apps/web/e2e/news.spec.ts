@@ -78,11 +78,11 @@ test('the bell: a dot while something is unread, between the search and the name
   await expect(bell(page)).toHaveAccessibleName('Novedades');
   await expect(page.getByTestId('news-dot')).toBeHidden();
   expect(await bar(page)).toEqual(before);
-  await expect(page.getByRole('link', { name: /^Novedades: Al día en tus ramos/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Novedades: No hay novedades/ })).toBeVisible();
 
   // What was seen stays seen after a reload.
   await page.reload();
-  await expect(page.getByRole('link', { name: /^Novedades: Al día en tus ramos/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Novedades: No hay novedades/ })).toBeVisible();
   await expect(bell(page)).toHaveAccessibleName('Novedades');
 });
 

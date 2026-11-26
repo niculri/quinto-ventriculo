@@ -1,5 +1,5 @@
 // The line of «Novedades» on the home page: one line of fixed height, always there, with the newest unread announcement,
-// «Al día en tus ramos» or that they could not be read, and a link to all of them.
+// «No hay novedades» or that they could not be read, and a link to all of them.
 import { Bell } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../../shared/lib/paths';

@@ -27,6 +27,35 @@ const as = (token: string, headers: Record<string, string> = {}) => ({
 });
 
 describe('createDemoApp', () => {
+  it('the announcements of the folder are out; without the file there are none', async () => {
+    const news = async () =>
+      (
+        await (
+          await (await createDemoApp(folder)).request('/api/news', as(DEMO_TOKEN))
+        ).json<{
+          announcements: { id: number }[];
+        }>()
+      ).announcements.map((a) => a.id);
+    expect(await news()).toEqual([]);
+    const row = {
+      id: 4,
+      releaseId: null,
+      releaseTitle: null,
+      releaseStatus: null,
+      kind: 'site',
+      title: 'Sitio',
+      body: '',
+      items: [],
+      createdAt: '2026-11-10T14:00:00.000Z',
+      createdBy: 'demo@ug.uchile.cl',
+      publishAt: '2026-11-10T14:30:00.000Z',
+      withdrawnAt: null,
+      withdrawnBy: null,
+    };
+    await writeFile(join(folder, 'announcements.json'), JSON.stringify([row]));
+    expect(await news()).toEqual([4]);
+  });
+
   it('only the demo token is a session', async () => {
     const app = await createDemoApp(folder);
     expect((await app.request('/api/catalog', as(DEMO_TOKEN))).status).toBe(200);

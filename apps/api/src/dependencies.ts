@@ -1,6 +1,8 @@
 // What the API is built from: the four parts it cannot work without and the optional ones, which `resolveDependencies`
 // replaces with a null implementation, so that nothing after it asks whether one exists.
 import { ANYONE_INVITED } from './ports/access';
+import { NO_ANNOUNCEMENTS } from './ports/announcements';
+import type { AnnouncementRepository } from './ports/announcements';
 import type { AccessChecker } from './ports/access';
 import { NO_ADMINS } from './ports/admin';
 import type { AdminChecker } from './ports/admin';
@@ -41,6 +43,7 @@ export interface AppOptions {
   access?: AccessChecker;
   admins?: AdminChecker;
   releases?: ReleaseRepository;
+  announcements?: AnnouncementRepository;
   settings?: SiteSettingsRepository;
   unpublished?: UnpublishedRepository;
   version?: string;
@@ -70,6 +73,7 @@ export interface AppOptions {
 /** Which of the optional parts were given: a null implementation stands for the rest. */
 interface Configured {
   releases: boolean;
+  announcements: boolean;
   contentVersion: boolean;
   settings: boolean;
   unpublished: boolean;
@@ -91,6 +95,7 @@ export interface Dependencies {
   access: AccessChecker;
   admins: AdminChecker;
   releases: ReleaseRepository;
+  announcements: AnnouncementRepository;
   settings: SiteSettingsRepository;
   unpublished: UnpublishedRepository;
   version: string | null;
@@ -122,6 +127,7 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     access: options.access ?? ANYONE_INVITED,
     admins: options.admins ?? NO_ADMINS,
     releases: options.releases ?? NO_RELEASES,
+    announcements: options.announcements ?? NO_ANNOUNCEMENTS,
     settings: options.settings ?? NO_SETTINGS_REPOSITORY,
     unpublished: options.unpublished ?? NO_UNPUBLISHED,
     version: options.version ?? null,
@@ -141,6 +147,7 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     mediaRateLimit: options.mediaRateLimit ?? NO_RATE_LIMIT,
     configured: {
       releases: !!options.releases,
+      announcements: !!options.announcements,
       contentVersion: !!options.contentVersion,
       settings: !!options.settings,
       unpublished: !!options.unpublished,

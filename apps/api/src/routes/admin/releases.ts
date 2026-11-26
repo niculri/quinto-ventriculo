@@ -1,8 +1,9 @@
 // The panel's «Publicaciones»: the draft's summary, its items, marks, publishing and undoing.
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import { CONTENT_SCHEMA_VERSION, PublishRequest, RevertRequest } from '@qv/schema';
 import type {
-  PublishResult,
+  PublishResponse,
   ReleaseLog,
   ReleaseMarks,
   ReleaseMediaPage,
@@ -15,6 +16,8 @@ import {
   ReleasePageQuery,
 } from '@qv/schema/http';
 import type { AppContext } from '../../context';
+import type { AnnouncementRepository } from '../../ports/announcements';
+import type { ReleaseRepository } from '../../ports/releases';
 import type { AppEnv } from '../../env';
 import { JSON_TYPE, apiError } from '../../http';
 import { forgettingReleases } from '../../services/contentVersion';
@@ -24,8 +27,49 @@ import { publishRefusal, revertRefusal } from '../../services/releases';
 /** Images asked to the store for each page of the new ones. */
 const MEDIA_PAGE = 40;
 
+/** The release already went out: an announcement that could not be saved is told, not a failed publication. */
+async function saveAnnouncement(
+  repo: AnnouncementRepository,
+  input: Parameters<AnnouncementRepository['save']>[0],
+): Promise<'saved' | 'failed'> {
+  try {
+    return (await repo.save(input)) === 'release' ? 'failed' : 'saved';
+  } catch (error) {
+    console.error(error);
+    return 'failed';
+  }
+}
+
 const text = async (body: string | ReadableStream<Uint8Array>) =>
   typeof body === 'string' ? body : new Response(body).text();
+
+/** Publishes and then saves its announcement, if it brings one: the database checks again the fingerprint, the marks,
+ * the content version and the review list, in one transaction. */
+function publishWith(releases: ReleaseRepository, announcements: AnnouncementRepository) {
+  return async (c: Context<AppEnv>) => {
+    const body = PublishRequest.safeParse(await c.req.json().catch(() => null));
+    if (!body.success) {
+      return c.json(apiError('invalid_release', 'Esa publicación no es válida.'), 400);
+    }
+    const { announcement, ...release } = body.data;
+    const by = c.get('user').email;
+    const r = await releases.publish({
+      ...release,
+      schemaVersion: CONTENT_SCHEMA_VERSION,
+      // «Leí el anuncio» has to be checked for this draft when it goes out with one.
+      marks: announcement ? ['announcement'] : [],
+      by,
+    });
+    if (!r.ok) {
+      const refusal = publishRefusal(r.reason, r.detail);
+      return c.json(refusal.body, refusal.status);
+    }
+    const saved = announcement
+      ? await saveAnnouncement(announcements, { ...announcement, releaseId: r.result.id, by })
+      : 'none';
+    return c.json({ ...r.result, announcement: saved } satisfies PublishResponse);
+  };
+}
 
 export function releasesRoutes({ deps, mw, services }: AppContext) {
   const routes = new Hono<AppEnv>();
@@ -94,23 +138,7 @@ export function releasesRoutes({ deps, mw, services }: AppContext) {
     return c.json({ marks } satisfies ReleaseMarks);
   });
 
-  // The database checks again the fingerprint, the marks, the content version and the review list, in one transaction.
-  routes.post(R.publishRelease.pattern, ...panel, async (c) => {
-    const body = PublishRequest.safeParse(await c.req.json().catch(() => null));
-    if (!body.success) {
-      return c.json(apiError('invalid_release', 'Esa publicación no es válida.'), 400);
-    }
-    const r = await releases.publish({
-      ...body.data,
-      schemaVersion: CONTENT_SCHEMA_VERSION,
-      // The only mark sent here is the announcement's, and there are no announcements yet.
-      marks: [],
-      by: c.get('user').email,
-    });
-    if (r.ok) return c.json(r.result satisfies PublishResult);
-    const refusal = publishRefusal(r.reason, r.detail);
-    return c.json(refusal.body, refusal.status);
-  });
+  routes.post(R.publishRelease.pattern, ...panel, publishWith(releases, deps.announcements));
 
   routes.post(R.revertRelease.pattern, ...panel, async (c) => {
     const body = RevertRequest.safeParse(await c.req.json().catch(() => null));

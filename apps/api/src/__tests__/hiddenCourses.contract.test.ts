@@ -2,7 +2,7 @@
 // turning it on gives everything back. A table by route fails when a route of the contract is not accounted for.
 import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { Catalog, PREVIEW_HEADER, QuizIndex, SearchResponse } from '@qv/schema';
+import { Catalog, NewsFeed, PREVIEW_HEADER, QuizIndex, SearchResponse } from '@qv/schema';
 import type { ContentBundle, ImportedAnkiNote, ImportedQuiz } from '@qv/schema';
 import { API_ROUTES } from '@qv/schema/http';
 import type { ApiRouteName } from '@qv/schema/http';
@@ -11,6 +11,7 @@ import { MediaSigner } from '../services/mediaSigner';
 import type { MediaStore } from '../ports/media';
 import { memoryRepository } from '../adapters/memory/content';
 import { memorySiteSettings } from '../adapters/memory/settings';
+import { memoryAnnouncements } from '../adapters/memory/announcements';
 import type { UsageEvent } from '../ports/usage';
 
 const ADMIN = 'dueno@ug.uchile.cl';
@@ -164,6 +165,39 @@ const media: MediaStore = {
 
 const signer = new MediaSigner('secreto-de-prueba-0123456789-0123456789');
 
+const announcement = (id: number, items: { courseId: string; assessmentId: string | null }[]) => ({
+  id,
+  releaseId: null,
+  releaseTitle: null,
+  releaseStatus: null,
+  kind: 'site' as const,
+  title: `Aviso ${String(id)}`,
+  body: '',
+  items,
+  createdAt: '2026-11-20T12:00:00.000Z',
+  createdBy: ADMIN,
+  publishAt: '2026-11-20T12:30:00.000Z',
+  withdrawnAt: null,
+  withdrawnBy: null,
+});
+const NEWS = [
+  {
+    ...announcement(1, [
+      { courseId: SHOWN, assessmentId: null },
+      { courseId: OFF, assessmentId: null },
+    ]),
+    kind: 'update' as const,
+    releaseId: 1,
+    releaseStatus: 'published' as const,
+  },
+  {
+    ...announcement(2, [{ courseId: OFF, assessmentId: OFF_ASSESSMENT }]),
+    kind: 'new' as const,
+    releaseId: 2,
+    releaseStatus: 'published' as const,
+  },
+];
+
 function appWith(hiddenCourses: string[], options: { settings?: boolean } = {}) {
   const opens: UsageEvent[] = [];
   const settings = memorySiteSettings({ hiddenCourses });
@@ -177,6 +211,10 @@ function appWith(hiddenCourses: string[], options: { settings?: boolean } = {}) 
     ...(options.settings === false ? {} : { settings }),
     settingsTtl: 0,
     usageEvents: { record: (e) => opens.push(e) },
+    announcements: memoryAnnouncements({
+      start: NEWS,
+      releaseStatus: () => Promise.resolve('published'),
+    }),
   });
   return { app, opens, settings };
 }
@@ -330,6 +368,20 @@ const CHECKS = {
   publishRelease: 'only for administrators',
   revertRelease: 'only for administrators',
   releaseLog: 'only for administrators',
+  news: async () => {
+    const news = async (hidden: string[]) =>
+      NewsFeed.parse(await (await call(appWith(hidden).app, '/api/news')).json()).announcements;
+    expect((await news([])).map((a) => [a.id, a.items.map((i) => i.courseId)])).toEqual([
+      [2, [OFF]],
+      [1, [SHOWN, OFF]],
+    ]);
+    expect((await news([OFF])).map((a) => [a.id, a.items.map((i) => i.courseId)])).toEqual([
+      [1, [SHOWN]],
+    ]);
+  },
+  announcements: 'only for administrators, who see every announcement as it was written',
+  saveAnnouncement: 'only for administrators',
+  withdrawAnnouncement: 'only for administrators',
   media: async () => {
     // Its keys are hashes that no route gives anymore, but a link signed before stays valid until it expires.
     const { app } = appWith([OFF]);

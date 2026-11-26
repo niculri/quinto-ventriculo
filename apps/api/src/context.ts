@@ -23,6 +23,7 @@ interface Middlewares {
   /** The same for what does not depend on the courses turned off (the card changes). */
   revalidatePublished: MiddlewareHandler<AppEnv>;
   releasesAdmin: MiddlewareHandler<AppEnv>;
+  announcementsAdmin: MiddlewareHandler<AppEnv>;
   settingsAdmin: MiddlewareHandler<AppEnv>;
   unpublishedAdmin: MiddlewareHandler<AppEnv>;
   usageAdmin: MiddlewareHandler<AppEnv>;
@@ -53,6 +54,7 @@ export function createContext(deps: Dependencies): AppContext {
       revalidate: revalidate(deps, contentVersion, true),
       revalidatePublished: revalidate(deps, contentVersion, false),
       releasesAdmin: requireAdmin(deps, configured.releases),
+      announcementsAdmin: requireAdmin(deps, configured.announcements),
       settingsAdmin: requireAdmin(deps, configured.settings),
       unpublishedAdmin: requireAdmin(deps, configured.unpublished),
       usageAdmin: requireAdmin(deps, configured.usageStats),

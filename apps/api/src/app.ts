@@ -9,6 +9,7 @@ import type { AppOptions } from './dependencies';
 import type { AppEnv } from './env';
 import { apiError } from './http';
 import { limitRequests } from './middleware/rateLimit';
+import { announcementsRoutes } from './routes/admin/announcements';
 import { releasesRoutes } from './routes/admin/releases';
 import { siteSettingsRoutes } from './routes/admin/siteSettings';
 import { unpublishedRoutes } from './routes/admin/unpublished';
@@ -20,6 +21,7 @@ import { clientErrorRoutes } from './routes/clientError';
 import { healthRoutes } from './routes/health';
 import { mediaRoutes } from './routes/media';
 import { meRoutes } from './routes/me';
+import { newsRoutes } from './routes/news';
 import { notesRoutes } from './routes/notes';
 import { quizzesRoutes } from './routes/quizzes';
 import { usageOpenRoutes } from './routes/usageOpen';
@@ -50,6 +52,8 @@ export function createApp(options: AppOptions) {
     usageOpenRoutes,
     usageRoutes,
     releasesRoutes,
+    announcementsRoutes,
+    newsRoutes,
     mediaRoutes,
   ]) {
     app.route('/', routes(ctx));

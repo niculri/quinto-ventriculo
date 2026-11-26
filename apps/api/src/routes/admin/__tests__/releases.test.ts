@@ -184,6 +184,19 @@ describe('publishing and undoing', () => {
     ]);
   });
 
+  it('with an announcement it asks for «Leí el anuncio»; without the announcements configured it says it failed', async () => {
+    state.published.length = 0;
+    state.refusal = null;
+    const r = await post('/api/admin/release/publish', ADMIN, {
+      fingerprint: FP,
+      title: 'Biología celular · Certamen 2',
+      checks: CHECKS,
+      announcement: { kind: 'update', title: 'Clase 11 reescrita', body: '', items: [] },
+    });
+    expect(await r.json()).toMatchObject({ id: 7, announcement: 'failed' });
+    expect(state.published.map((p) => p.marks)).toEqual([['announcement']]);
+  });
+
   it('says why the database refused: 409 if the draft changed, 422 for the rest', async () => {
     for (const [reason, status, code] of [
       ['fingerprint', 409, 'release_changed'],

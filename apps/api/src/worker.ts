@@ -23,6 +23,7 @@ import {
   usersDatabaseCheck,
   usersStorageCheck,
 } from './adapters/supabase/health';
+import { supabaseAnnouncementRepository } from './adapters/supabase/announcements';
 import { supabaseReleaseRepository } from './adapters/supabase/release';
 import { supabaseVerifier } from './adapters/supabase/session';
 import { supabaseSiteSettingsRepository } from './adapters/supabase/settings';
@@ -120,6 +121,11 @@ function getApp(env: Env, origin: string) {
       content(),
     ),
     releases: supabaseReleaseRepository(
+      env.CONTENT_SUPABASE_URL,
+      env.CONTENT_SERVICE_ROLE_KEY,
+      content(),
+    ),
+    announcements: supabaseAnnouncementRepository(
       env.CONTENT_SUPABASE_URL,
       env.CONTENT_SERVICE_ROLE_KEY,
       content(),

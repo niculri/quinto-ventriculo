@@ -1,7 +1,7 @@
 // A cache of the material's answers shared by every student: only what is the same for all of them goes in.
 
 /** An answer as it went out: its body (passed on unread) and its type. */
-export interface CachedAnswer {
+interface CachedAnswer {
   body: ReadableStream<Uint8Array>;
   contentType: string;
 }

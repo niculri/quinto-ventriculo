@@ -15,7 +15,7 @@ export const NOW = 1_793_448_000;
 export const SHOWN = 'anatomia-2';
 export const OFF = 'fisica';
 export const ADMIN = 'admin';
-export const IMAGE = 'notes/0123456789abcdef0123456789abcdef.webp';
+const IMAGE = 'notes/0123456789abcdef0123456789abcdef.webp';
 /** Tokens the access checker refuses, each with its reason. */
 export const REFUSED: Record<string, Access> = {
   'not-invited': 'denied',
@@ -124,7 +124,7 @@ const card = (guid: string, deckId: string, back: string): ImportedAnkiNote => (
 });
 
 /** `text` is in every piece, so a test can tell the published from the draft. */
-export const bundle = (text: string): ContentBundle => ({
+const bundle = (text: string): ContentBundle => ({
   semesters: [{ number: 2, name: '2° Semestre' }],
   courses: [
     { id: SHOWN, semester: 2, name: 'Anatomía II', emoji: '🦴', position: 1 },

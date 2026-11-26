@@ -8,16 +8,25 @@ export const newsKeys = {
   seen: ['news-seen'] as const,
 };
 
-/** An announcement comes out at its time with nobody publishing anything: read again every few minutes. */
-const NEWS_REFRESH_MS = 5 * 60_000;
+/** Read again when a page that shows them opens after this long. */
+const NEWS_STALE_MS = 5 * 60_000;
+/**
+ * An announcement comes out at its time with nobody publishing anything, so an open tab reads again now and then; it
+ * already waited 30 minutes, and every read is a request to the Worker, counted in its daily quota.
+ */
+const NEWS_REFRESH_MS = 15 * 60_000;
 
 export const newsQuery = (api: ApiClient) =>
   queryOptions({
     queryKey: newsKeys.feed,
     queryFn: ({ signal }) => api.news(signal),
-    staleTime: NEWS_REFRESH_MS,
+    staleTime: NEWS_STALE_MS,
     refetchInterval: NEWS_REFRESH_MS,
   });
 
 export const newsSeenQuery = (news: NewsRepository) =>
-  queryOptions({ queryKey: newsKeys.seen, queryFn: () => news.seenUntil() });
+  queryOptions({
+    queryKey: newsKeys.seen,
+    queryFn: () => news.seenUntil(),
+    staleTime: NEWS_STALE_MS,
+  });

@@ -52,8 +52,11 @@ const NEWS_BUNDLE: ContentBundle = {
   quizzes: [],
 };
 
-export function newsApp(options: { hiddenCourses?: string[]; announcements?: boolean } = {}) {
+export function newsApp(
+  options: { hiddenCourses?: string[]; announcements?: boolean; versioned?: boolean } = {},
+) {
   const clock = { now: START };
+  const reads = { catalog: 0, feed: 0 };
   const log = new Map<number, 'published' | 'reverted'>();
   let last = 0;
   const releases: ReleaseRepository = {
@@ -76,13 +79,36 @@ export function newsApp(options: { hiddenCourses?: string[]; announcements?: boo
       return { ok: true, result: { id, revertedAt: '2026-11-25T12:05:00.000Z', changes: {} } };
     },
   };
-  const announcements = memoryAnnouncements({
+  const kept = memoryAnnouncements({
     now: () => clock.now * 1000,
     releaseStatus: (id) => Promise.resolve(log.get(id) ?? null),
   });
+  const announcements = {
+    ...kept,
+    feed: (at: string, limit: number) => {
+      reads.feed += 1;
+      return kept.feed(at, limit);
+    },
+  };
+  const repository = memoryRepository(NEWS_BUNDLE);
   const app = createApp({
     verifier: { verify: async (token) => ({ id: token, email: token }) },
-    repository: memoryRepository(NEWS_BUNDLE),
+    repository: {
+      ...repository,
+      catalog: () => {
+        reads.catalog += 1;
+        return repository.catalog();
+      },
+    },
+    preview: repository,
+    ...(options.versioned
+      ? {
+          contentVersion: {
+            current: async () => `r${String(last)}${log.get(last) === 'reverted' ? 'x' : ''}`,
+          },
+          contentVersionTtl: 0,
+        }
+      : {}),
     media: { get: async () => null },
     signer: new MediaSigner('secreto-de-prueba-0123456789-0123456789'),
     releases,
@@ -98,5 +124,5 @@ export function newsApp(options: { hiddenCourses?: string[]; announcements?: boo
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       headers: { Authorization: `Bearer ${who}`, 'Content-Type': 'application/json' },
     });
-  return { app, call, clock, announcements };
+  return { app, call, clock, announcements: kept, reads };
 }

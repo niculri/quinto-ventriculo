@@ -12,6 +12,8 @@ import { publishedIds } from './services/publishedIds';
 import type { PublishedIds } from './services/publishedIds';
 import { siteSettingsReader } from './services/siteSettings';
 import type { SiteSettingsReader } from './services/siteSettings';
+import { studentNews } from './services/studentNews';
+import type { StudentNews } from './services/studentNews';
 import { usageReader } from './services/usageReader';
 import type { UsageReader } from './services/usageReader';
 
@@ -34,6 +36,7 @@ interface Services {
   contentVersion: ContentVersionReader;
   publishedIds: PublishedIds;
   usage: UsageReader;
+  news: StudentNews;
 }
 
 export interface AppContext {
@@ -64,6 +67,7 @@ export function createContext(deps: Dependencies): AppContext {
       contentVersion,
       publishedIds: publishedIds(deps),
       usage: usageReader(deps),
+      news: studentNews(deps),
     },
   };
 }

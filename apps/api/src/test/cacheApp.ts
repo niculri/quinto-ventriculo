@@ -21,6 +21,8 @@ export const REFUSED: Record<string, Access> = {
   'not-invited': 'denied',
   'signed-out': 'signed_out',
   'no-terms': 'not_accepted',
+  expired: 'expired',
+  'access-down': 'unknown',
 };
 
 const colors = (c: string) =>

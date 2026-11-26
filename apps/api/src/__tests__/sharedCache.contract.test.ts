@@ -113,6 +113,36 @@ describe('the shared cache of the material', () => {
     }
   });
 
+  it('a HEAD goes through the same gates, and the answer it leaves is the whole one', async () => {
+    const { app, get } = cacheApp();
+    for (const [path] of Object.values(CACHED)) {
+      expect((await app.request(path, { method: 'HEAD' })).status, path).toBe(401);
+      const head = await app.request(path, {
+        method: 'HEAD',
+        headers: { Authorization: 'Bearer ana' },
+      });
+      expect(head.status, path).toBe(200);
+      expect(await head.text()).toBe('');
+      const whole = await (await cacheApp().get(path, 'beto')).text();
+      const after = await get(path, 'beto');
+      expect(after.headers.get(CACHE_HEADER), path).toBe('hit');
+      expect(await after.text()).toBe(whole);
+    }
+  });
+
+  it('a student who sends the preview header, or asks for the published, neither gets nor leaves the draft', async () => {
+    const { get } = cacheApp();
+    for (const [path] of Object.values(CACHED)) {
+      const asked = `${path}${path.includes('?') ? '&' : '?'}source=published`;
+      for (const p of [path, asked]) {
+        const r = await get(p, 'ana', PREVIEW);
+        expect(r.headers.get(PREVIEW_HEADER), p).toBeNull();
+        expect(await r.text()).not.toContain('borrador');
+      }
+      expect(await (await get(path, 'beto')).text()).not.toContain('borrador');
+    }
+  });
+
   it('a course turned off gives the same «no existe» as before, even with its answers in the cache', async () => {
     const { get, settings } = cacheApp();
     const off = [

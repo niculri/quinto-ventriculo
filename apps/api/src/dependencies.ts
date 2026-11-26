@@ -9,6 +9,8 @@ import type { AdminChecker } from './ports/admin';
 import { NO_CLIENT_ERRORS, NO_CLIENT_ERRORS_READER } from './ports/clientErrors';
 import type { ClientErrorRecorder, ClientErrorsReader } from './ports/clientErrors';
 import type { ContentRepository } from './ports/content';
+import { NO_CONTENT_CACHE } from './ports/contentCache';
+import type { ContentCache } from './ports/contentCache';
 import { NO_CONTENT_VERSION } from './ports/contentVersion';
 import type { ContentVersionSource } from './ports/contentVersion';
 import { NO_DEEP_HEALTH } from './ports/health';
@@ -58,6 +60,10 @@ export interface AppOptions {
   contentVersion?: ContentVersionSource;
   /** Milliseconds the content version is kept (3000 by default); publishing or undoing here drops it at once. */
   contentVersionTtl?: number;
+  /** The students' answers of the material, shared by all of them (the Cache API in the Worker). */
+  contentCache?: ContentCache;
+  /** Seconds an answer is kept there at most (900 by default), and never past the hour its images were signed for. */
+  contentCacheTtl?: number;
   clientErrors?: ClientErrorRecorder;
   clientErrorsReader?: ClientErrorsReader | null;
   workerRequests?: WorkerRequestsReader | null;
@@ -106,6 +112,8 @@ export interface Dependencies {
   settingsTtl: number;
   contentVersion: ContentVersionSource;
   contentVersionTtl: number;
+  contentCache: ContentCache;
+  contentCacheTtl: number;
   clientErrors: ClientErrorRecorder;
   clientErrorsReader: ClientErrorsReader;
   workerRequests: WorkerRequestsReader;
@@ -138,6 +146,8 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     settingsTtl: options.settingsTtl ?? 3000,
     contentVersion: options.contentVersion ?? NO_CONTENT_VERSION,
     contentVersionTtl: options.contentVersionTtl ?? 3000,
+    contentCache: options.contentCache ?? NO_CONTENT_CACHE,
+    contentCacheTtl: options.contentCacheTtl ?? 900,
     clientErrors: options.clientErrors ?? NO_CLIENT_ERRORS,
     clientErrorsReader: options.clientErrorsReader ?? NO_CLIENT_ERRORS_READER,
     workerRequests: options.workerRequests ?? NO_WORKER_REQUESTS,

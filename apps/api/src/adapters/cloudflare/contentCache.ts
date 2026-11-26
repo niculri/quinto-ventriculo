@@ -1,0 +1,64 @@
+// The shared cache of the material on Cloudflare's Cache API (`caches.default`, the data center's): no binding, no plan.
+// Its keys are URLs outside /api, and the Worker runs before the cache: an entry only comes out through `match` here.
+import type { ContentCache } from '../../ports/contentCache';
+
+const PATH = '/__qv-content-cache/';
+
+/**
+ * An HMAC of the key with the Worker's secret: short, it says nothing of the request, and nobody can compute the URL of
+ * an entry from what a student sees (the validator and the route), should that address ever be served from the cache.
+ */
+function digester(secret: string) {
+  const key = crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  return async (text: string) => {
+    const mac = new Uint8Array(
+      await crypto.subtle.sign(
+        'HMAC',
+        await key,
+        new TextEncoder().encode(`content-cache\n${text}`),
+      ),
+    );
+    return [...mac].map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
+}
+
+export function cloudflareContentCache(cache: Cache, origin: string, secret: string): ContentCache {
+  const base = origin.replace(/\/+$/, '');
+  const digest = digester(secret);
+  const requestOf = async (key: string) => new Request(`${base}${PATH}${await digest(key)}`);
+  return {
+    async match(key) {
+      try {
+        const r = await cache.match(await requestOf(key));
+        if (!r?.body) return null;
+        return {
+          body: r.body,
+          contentType: r.headers.get('Content-Type') ?? 'application/octet-stream',
+        };
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async put(key, answer, ttlSeconds) {
+      try {
+        // Only the type and how long the cache keeps it: none of the answer's own headers (Vary, private) go in.
+        const stored = new Response(answer.body, {
+          headers: {
+            'Content-Type': answer.headers.get('Content-Type') ?? 'application/octet-stream',
+            'Cache-Control': `max-age=${String(Math.max(1, Math.floor(ttlSeconds)))}`,
+          },
+        });
+        await cache.put(await requestOf(key), stored);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+  };
+}

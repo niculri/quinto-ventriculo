@@ -20,5 +20,7 @@ export type AppEnv = {
     hidden: ReadonlySet<string>;
     /** The administrator is in the admin mode: the draft, and what is off for the students. */
     preview: boolean;
+    /** Set by `revalidate` on a student's read with a known content version: what the shared cache keys on. */
+    validator: { tag: string; nowSec: number } | undefined;
   };
 };

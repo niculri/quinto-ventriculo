@@ -34,6 +34,24 @@ describe('contentVersionReader', () => {
     expect(current).toHaveBeenCalledTimes(2);
   });
 
+  it('a slow read is kept for its time counted from when it started, not from when it answered', async () => {
+    vi.useFakeTimers();
+    let answer: (v: string) => void = () => undefined;
+    const current = vi
+      .fn<() => Promise<string>>()
+      .mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)))
+      .mockResolvedValue('nueva');
+    const r = reader({ contentVersion: { current }, contentVersionTtl: 1000 });
+    const slow = r.read();
+    vi.advanceTimersByTime(800);
+    answer('vieja');
+    expect(await slow).toBe('vieja');
+    vi.advanceTimersByTime(199);
+    expect(await r.read()).toBe('vieja');
+    vi.advanceTimersByTime(2);
+    expect(await r.read()).toBe('nueva');
+  });
+
   it('requests that arrive together share one read', async () => {
     const current = vi.fn(() => Promise.resolve('a'));
     const r = reader({ contentVersion: { current } });

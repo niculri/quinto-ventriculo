@@ -41,6 +41,9 @@ import type {
   UsageOpenRequest,
 } from '@qv/schema';
 import { keptAnswers } from './keptAnswers';
+import { secondsNow } from './signedMedia';
+import { stableMedia } from './stableMedia';
+import type { StableMedia } from './stableMedia';
 import type { KeptAnswer, KeptAnswers } from './keptAnswers';
 import { apiStrings } from './strings/api.strings';
 
@@ -128,11 +131,26 @@ function copyUse(
   return { copy: previous ? { validator: previous.tag } : 'browser', previous };
 }
 
+/** The later of this clock and the API's: a clock that runs late here would hand out links the API already refuses. */
+function nowFor(r: Response): number {
+  const api = Date.parse(r.headers.get('Date') ?? '');
+  return Math.max(secondsNow(), Number.isNaN(api) ? 0 : Math.floor(api / 1000));
+}
+
+function jsonOf(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 function requester(
   getToken: GetToken,
   base: string,
   headers: Record<string, string>,
   kept: KeptAnswers | null,
+  links: StableMedia,
 ) {
   return async function request<T>(
     path: string,
@@ -155,10 +173,12 @@ function requester(
     }
     // Unchanged, or the API could not check it now (too many requests in a row, or down): what was shown stays.
     if (previous && (r.status === 304 || r.status === 429 || r.status >= 500)) return reuse();
-    const body: unknown = await r.json().catch(() => null);
-    if (!r.ok) throw requestError(r, body);
-    const data = schema.parse(body);
-    if (kept && !init.method) kept.keep(path, r.headers.get('ETag'), data);
+    const text = await r.text().catch(() => '');
+    if (!r.ok) throw requestError(r, jsonOf(text));
+    const linked = links(text, nowFor(r));
+    const data = schema.parse(jsonOf(linked));
+    // With links of an earlier answer its validator no longer says what it carries: a 304 would keep links that expire.
+    if (kept && !init.method) kept.keep(path, linked === text ? r.headers.get('ETag') : null, data);
     return data;
   };
 }
@@ -186,7 +206,7 @@ export function createApiClient(
 ) {
   // The admin mode's answers are never kept: the draft has no validator.
   const kept = Object.keys(headers).length > 0 ? null : keptAnswers();
-  const request = requester(getToken, base, headers, kept);
+  const request = requester(getToken, base, headers, kept, stableMedia());
 
   const client = {
     /**

@@ -41,4 +41,51 @@ describe('the cache of an image', () => {
     expect(r.headers.get('Cross-Origin-Resource-Policy')).toBe('same-origin');
     expect(r.headers.get('ETag')).toBeNull();
   });
+
+  it('an image the browser already has is a 304 without its bytes, and one taken off the site is still a 404', async () => {
+    let stored: { etag: string } | null = { etag: '"v1"' };
+    const cancelled: string[] = [];
+    const checked = createApp({
+      verifier: { verify: async () => null },
+      repository: memoryRepository(bundle('x')),
+      media: {
+        get: async () =>
+          stored && {
+            body: new ReadableStream({ cancel: () => void cancelled.push('body') }),
+            contentType: 'image/webp',
+            etag: stored.etag,
+          },
+      },
+      signer,
+      now: () => NOW,
+    });
+    const url = `/api/media/${KEY}?e=${NOW + 60}&s=${await signer.sign(KEY, NOW + 60)}`;
+    const again = await checked.request(url, { headers: { 'If-None-Match': '"v1"' } });
+    expect(again.status).toBe(304);
+    expect(await again.text()).toBe('');
+    expect(again.headers.get('ETag')).toBe('"v1"');
+    expect(again.headers.get('Cache-Control')).toBe('private, max-age=60, immutable');
+    expect(cancelled).toEqual(['body']);
+    expect((await checked.request(url, { headers: { 'If-None-Match': '"v0"' } })).status).toBe(200);
+    stored = null;
+    expect((await checked.request(url, { headers: { 'If-None-Match': '"v1"' } })).status).toBe(404);
+    const expired = `/api/media/${KEY}?e=${NOW - 1}&s=${await signer.sign(KEY, NOW - 1)}`;
+    expect((await checked.request(expired, { headers: { 'If-None-Match': '"v1"' } })).status).toBe(
+      403,
+    );
+  });
+
+  it('an image that comes whole (not a stream) is a 304 too', async () => {
+    const whole = createApp({
+      verifier: { verify: async () => null },
+      repository: memoryRepository(bundle('x')),
+      media: {
+        get: async () => ({ body: new Uint8Array([1]), contentType: 'image/webp', etag: '"v1"' }),
+      },
+      signer,
+      now: () => NOW,
+    });
+    const url = `/api/media/${KEY}?e=${NOW + 60}&s=${await signer.sign(KEY, NOW + 60)}`;
+    expect((await whole.request(url, { headers: { 'If-None-Match': 'W/"v1"' } })).status).toBe(304);
+  });
 });

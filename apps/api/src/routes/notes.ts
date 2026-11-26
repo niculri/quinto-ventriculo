@@ -10,7 +10,7 @@ import { apiError } from '../http';
 export function notesRoutes({ deps, mw }: AppContext) {
   const routes = new Hono<AppEnv>();
 
-  routes.get(R.note.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
+  routes.get(R.note.pattern, mw.session, mw.visibleContent, mw.revalidate, mw.shared, async (c) => {
     const slug = Slug.safeParse(c.req.param('slug'));
     if (!slug.success) return c.json(apiError('invalid_slug', 'Ese apunte no existe.'), 400);
     const note = await c.get('repository').note(slug.data);
@@ -19,6 +19,7 @@ export function notesRoutes({ deps, mw }: AppContext) {
     return c.json({ ...note, html } satisfies Note);
   });
 
+  // Not in the shared cache: what is searched is what a student typed, and two seldom type the same.
   routes.get(R.search.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
     const { q: query, limit } = SearchQuery.parse({
       q: c.req.query('q'),

@@ -13,6 +13,7 @@ export function catalogRoutes({ deps, mw }: AppContext) {
     mw.session,
     mw.visibleContent,
     mw.revalidate,
+    mw.shared,
     async (c) => {
       const catalog = await catalogFor({
         repository: c.get('repository'),

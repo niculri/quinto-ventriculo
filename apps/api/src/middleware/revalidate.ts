@@ -61,12 +61,14 @@ export const revalidate = (
       await next();
       return;
     }
+    const nowSec = deps.now();
     const tag = validatorOf({
       version,
       settings: withSettings ? c.get('settings') : null,
       build: deps.version,
-      nowSec: deps.now(),
+      nowSec,
     });
+    c.set('validator', { tag, nowSec });
     if (matchesValidator(c.req.header('If-None-Match'), tag)) {
       c.header('ETag', tag);
       return c.body(null, 304);

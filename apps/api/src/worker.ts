@@ -8,6 +8,7 @@ import {
   analyticsEngineErrorRecorder,
   analyticsEngineErrorsReader,
 } from './adapters/cloudflare/clientErrors';
+import { cloudflareContentCache } from './adapters/cloudflare/contentCache';
 import { cloudflareHealthCache, latestBackupCheck, mediaCheck } from './adapters/cloudflare/health';
 import { bindingRateLimiter } from './adapters/cloudflare/rateLimit';
 import { r2Store } from './adapters/cloudflare/r2';
@@ -58,6 +59,9 @@ export interface Env {
 }
 
 let app: ReturnType<typeof createApp> | null = null;
+
+/** Cloudflare's `caches.default` (the WebWorker lib's CacheStorage type does not have it). */
+const dataCenterCache = () => (caches as unknown as { default: Cache }).default;
 
 /** What «Uso» reads from Cloudflare with the analytics token: the opens, the browsers' errors and the requests. */
 function analyticsReaders(env: Env) {
@@ -170,11 +174,10 @@ function getApp(env: Env, origin: string) {
       : {}),
     ...analyticsReaders(env),
     ...rateLimiters(env),
-    deepHealth: deepHealth(
-      healthChecks(env),
-      // Cloudflare's `caches.default` (the WebWorker lib's CacheStorage type does not have it).
-      { shared: cloudflareHealthCache((caches as unknown as { default: Cache }).default, origin) },
-    ),
+    contentCache: cloudflareContentCache(dataCenterCache(), origin, env.MEDIA_SECRET),
+    deepHealth: deepHealth(healthChecks(env), {
+      shared: cloudflareHealthCache(dataCenterCache(), origin),
+    }),
   });
   return app;
 }

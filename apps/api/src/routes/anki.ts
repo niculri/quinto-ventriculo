@@ -15,7 +15,7 @@ export function ankiRoutes({ deps, mw }: AppContext) {
   const routes = new Hono<AppEnv>();
 
   // Passed through unparsed (the web validates it): from the root it is every card, too big to parse in a Worker.
-  routes.get(R.deck.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
+  routes.get(R.deck.pattern, mw.session, mw.visibleContent, mw.revalidate, mw.shared, async (c) => {
     const id = DeckId.safeParse(c.req.param('id'));
     if (!id.success) return c.json(apiError('invalid_deck', 'Ese mazo no existe.'), 400);
     const deck = await readRepository(deps, c).deckJson(id.data);
@@ -23,7 +23,7 @@ export function ankiRoutes({ deps, mw }: AppContext) {
     return c.body(deck, 200, JSON_TYPE);
   });
 
-  routes.get(R.cardChanges.pattern, mw.session, mw.revalidatePublished, async (c) => {
+  routes.get(R.cardChanges.pattern, mw.session, mw.revalidatePublished, mw.shared, async (c) => {
     const query = CardChangesQuery.safeParse({ since: c.req.query('since') ?? '0' });
     if (!query.success) {
       return c.json(apiError('invalid_since', 'Ese punto de partida no existe.'), 400);
@@ -39,7 +39,7 @@ export function ankiRoutes({ deps, mw }: AppContext) {
   });
 
   // Anki's guid is base91 and may have «/», «%» or «?»: the web sends it with encodeURIComponent.
-  routes.get(R.card.pattern, mw.session, mw.visibleContent, mw.revalidate, async (c) => {
+  routes.get(R.card.pattern, mw.session, mw.visibleContent, mw.revalidate, mw.shared, async (c) => {
     const params = CardParams.safeParse(c.req.param());
     if (!params.success) return c.json(apiError('invalid_card', 'Esa tarjeta no existe.'), 400);
     const card = await readRepository(deps, c).card(params.data.noteGuid, Number(params.data.ord));

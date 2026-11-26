@@ -208,3 +208,67 @@ describe('the answers kept with their validator', () => {
     expect(ifNoneMatch()).toBeUndefined();
   });
 });
+
+describe('the images’ links', () => {
+  const NOW = 1_800_000_000;
+  const found = (e: number) => ({
+    query: 'ribo',
+    results: [
+      {
+        noteId: 'AP-BC-C2-11',
+        noteSlug: 'a-b',
+        noteTitle: 'A',
+        courseName: 'B',
+        anchor: 'x',
+        section: 'X',
+        snippet: `<img src="/api/media/notes/a.webp?e=${String(e)}&amp;s=firma${String(e)}">`,
+        score: 1,
+      },
+    ],
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('an answer with an image already given gets its first link, and is not kept with a validator', async () => {
+    vi.useFakeTimers({ now: NOW * 1000, toFake: ['Date'] });
+    const api = createApiClient(async () => 't');
+    const tagged = (body: unknown) =>
+      Promise.resolve(new Response(JSON.stringify(body), { headers: { ETag: 'W/"v1"' } }));
+    respond = () => tagged(found(NOW + 7200));
+    const first = (await api.search('ribo')).results[0]!.snippet;
+    vi.setSystemTime((NOW + 3600) * 1000);
+    respond = () => tagged(found(NOW + 10_800));
+    expect((await api.search('ribo')).results[0]!.snippet).toBe(first);
+    await api.search('ribo');
+    expect((lastCall()[1].headers as Record<string, string>)['If-None-Match']).toBeUndefined();
+  });
+
+  it('with a clock that runs late, a link the API is about to refuse is not handed out again', async () => {
+    vi.useFakeTimers({ now: NOW * 1000, toFake: ['Date'] });
+    const api = createApiClient(async () => 't');
+    // The API's clock is 50 min ahead: the first link has 10 min left for it, an hour for this one.
+    const dated = (body: unknown) =>
+      Promise.resolve(
+        new Response(JSON.stringify(body), {
+          headers: { Date: new Date((NOW + 3000) * 1000).toUTCString() },
+        }),
+      );
+    respond = () => dated(found(NOW + 3600));
+    await api.search('ribo');
+    respond = () => dated(found(NOW + 7200));
+    expect((await api.search('ribo')).results[0]!.snippet).toContain(`e=${String(NOW + 7200)}`);
+  });
+
+  it('a body that is not JSON is still a failure with the API’s words, or the server’s', async () => {
+    respond = () => Promise.resolve(new Response('<html>', { status: 502 }));
+    await expect(createApiClient(async () => null).search('ribo')).rejects.toMatchObject({
+      status: 502,
+      code: 'unknown',
+    });
+    const cut = new ReadableStream({ start: (c) => c.error(new Error('cortado')) });
+    respond = () => Promise.resolve(new Response(cut, { status: 500 }));
+    await expect(createApiClient(async () => null).search('ribo')).rejects.toMatchObject({
+      status: 500,
+      code: 'unknown',
+    });
+  });
+});

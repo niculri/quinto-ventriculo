@@ -74,6 +74,21 @@ export function lookupIn(urls: readonly string[]): FreshMedia {
   return (path) => byPath.get(path) ?? null;
 }
 
+/** The text with each signed image's URL as `link` gives it, written back escaped as it was (`&amp;` in an HTML). */
+export function replaceMedia(text: string, link: (url: string) => string): string {
+  return text.replace(SIGNED, (found) => {
+    const url = found.replaceAll('&amp;', '&');
+    const next = link(url);
+    if (next === url) return found;
+    return found.includes('&amp;') ? next.replaceAll('&', '&amp;') : next;
+  });
+}
+
+/** Whether a signed URL opens one image only (a thumbnail's opens a whole prefix). */
+export function opensOneImage(url: string): boolean {
+  return parse(url)?.searchParams.has('p') === false;
+}
+
 /** The text without the signatures: two answers equal here differ only in when their images expire. */
 export function unsignedMedia(text: string): string {
   return text.replace(SIGNED, (url) => url.slice(0, url.indexOf('?')));

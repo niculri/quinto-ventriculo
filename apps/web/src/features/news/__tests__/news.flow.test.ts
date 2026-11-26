@@ -200,7 +200,7 @@ describe('«Novedades»', () => {
     expect(await screen.findByRole('button', { name: 'Ramo: Todos los ramos' })).toBeDisabled();
     solo.unmount();
     const empty = renderApp('/news', { api: apiWith([]) });
-    expect(await screen.findByText('Al día en tus ramos: no hay novedades.')).toBeInTheDocument();
+    expect(await screen.findByText('No hay novedades.')).toBeInTheDocument();
     empty.unmount();
     let fail = true;
     renderApp('/news', {

@@ -6,5 +6,5 @@ export const newsPageStrings = {
   subtitle: 'El material nuevo y lo que cambió en tus ramos, del más reciente al más antiguo.',
   course: 'Ramo',
   allCourses: 'Todos los ramos',
-  empty: 'Al día en tus ramos: no hay novedades.',
+  empty: 'No hay novedades.',
 } as const;

@@ -191,6 +191,7 @@ async function useEverything(db: PGlite, claims: Claims, round: string) {
     await tx.query('select public.record_review($1)', [answer(`n-${claims.sub.slice(-2)}`)]);
     await tx.query('select public.record_practice($1)', [{ decks: [{ deckId: DECK, n: 3 }] }]);
     await tx.query('select public.save_quiz_progress($1)', [quizStep(round)]);
+    await tx.query('select public.mark_news_seen($1)', ['2026-11-20T12:00:00Z']);
     await tx.query('select public.report_content($1::jsonb)', [
       JSON.stringify({
         kind: 'card',

@@ -84,7 +84,8 @@ begin
           order by t.created_at)
         from public.content_reports t where t.user_id = v_user), '[]'::json),
       'report_blocks', coalesce((select json_agg(t) from public.report_blocks t where t.user_id = v_user), '[]'::json),
-      'user_quotas', coalesce((select json_agg(t) from public.user_quotas t where t.user_id = v_user), '[]'::json)));
+      'user_quotas', coalesce((select json_agg(t) from public.user_quotas t where t.user_id = v_user), '[]'::json),
+      'news_reads', coalesce((select json_agg(t) from public.news_reads t where t.user_id = v_user), '[]'::json)));
 end;
 $function$;
 

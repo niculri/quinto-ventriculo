@@ -14,6 +14,7 @@ const NEXT = readdirSync(join(import.meta.dirname, '../../users/supabase/migrati
 /** The functions the later migrations made that a signed-in student calls: each granted on purpose. */
 const GRANTED_LATER = [
   'admin_move_invites(jsonb)',
+  'mark_news_seen(timestamp with time zone)',
   'my_card_stats(text[])',
   'save_study_preferences(jsonb)',
   'storage_health()',

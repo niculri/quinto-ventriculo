@@ -35,6 +35,7 @@ const USERS: Record<string, Domain> = {
     function: `admin_reopen_reports admin_report_queue admin_resolve_reports admin_set_report_block
       anonymize_old_reports check_new_report my_reports report_content report_limits`,
   },
+  news: { table: 'news_reads', function: 'mark_news_seen' },
   admin: {
     function: 'admin_deck_impact admin_usage health site_day site_day_start storage_health',
   },
@@ -75,6 +76,11 @@ const CONTENT: Record<string, Domain> = {
       release_neutral_fields release_note_changes release_question_changes release_question_class
       release_rows_digest release_schema_fingerprint release_shape release_summary release_tables release_text
       release_texts revert_release set_release_mark`,
+  },
+  news: {
+    table: 'announcements',
+    function: `admin_announcements announcement_json announcements_feed save_announcement
+      withdraw_announcement`,
   },
   unpublish: {
     table: 'unpublish_log unpublished_note_versions',

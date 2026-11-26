@@ -954,6 +954,62 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          id: number
+          items: Json
+          kind: string
+          publish_at: string
+          release_id: number | null
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+          withdrawn_at: string | null
+          withdrawn_by: string | null
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          created_by: string
+          id?: never
+          items?: Json
+          kind: string
+          publish_at: string
+          release_id?: number | null
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+          withdrawn_at?: string | null
+          withdrawn_by?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: never
+          items?: Json
+          kind?: string
+          publish_at?: string
+          release_id?: number | null
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          withdrawn_at?: string | null
+          withdrawn_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: true
+            referencedRelation: "releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessments: {
         Row: {
           course_id: string
@@ -1497,6 +1553,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_announcements: { Args: { max_rows?: number }; Returns: Json }
       anki_browse_indexes: { Args: never; Returns: Json }
       anki_card: {
         Args: { card_ord: number; note_guid: string }
@@ -1538,6 +1595,14 @@ export type Database = {
         }[]
       }
       anki_plain_text: { Args: { html: string }; Returns: string }
+      announcement_json: {
+        Args: { a: Database["public"]["Tables"]["announcements"]["Row"] }
+        Returns: Json
+      }
+      announcements_feed: {
+        Args: { at: string; max_rows?: number }
+        Returns: Json
+      }
       discard_draft_assessment: { Args: { assessment: string }; Returns: Json }
       discard_draft_assessment_content: {
         Args: { assessment: string }
@@ -1703,6 +1768,7 @@ export type Database = {
       save_anki_catalog: { Args: { c: Json }; Returns: undefined }
       save_anki_note: { Args: { n: Json }; Returns: boolean }
       save_anki_notes: { Args: { items: Json }; Returns: Json }
+      save_announcement: { Args: { p: Json }; Returns: Json }
       save_catalog: { Args: { c: Json }; Returns: undefined }
       save_note: { Args: { n: Json }; Returns: boolean }
       save_notes: { Args: { items: Json }; Returns: Json }
@@ -1759,6 +1825,7 @@ export type Database = {
       unpublish_draft: { Args: { item: string; kind: string }; Returns: Json }
       unpublish_draft_browse_indexes: { Args: { item: string }; Returns: Json }
       unpublish_log_entries: { Args: { max_entries?: number }; Returns: Json }
+      withdraw_announcement: { Args: { p: Json }; Returns: Json }
     }
     Enums: {
       [_ in never]: never

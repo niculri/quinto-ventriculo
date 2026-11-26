@@ -174,7 +174,7 @@ function getApp(env: Env, origin: string) {
       : {}),
     ...analyticsReaders(env),
     ...rateLimiters(env),
-    contentCache: cloudflareContentCache(dataCenterCache(), origin),
+    contentCache: cloudflareContentCache(dataCenterCache(), origin, env.MEDIA_SECRET),
     deepHealth: deepHealth(healthChecks(env), {
       shared: cloudflareHealthCache(dataCenterCache(), origin),
     }),

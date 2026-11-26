@@ -4,16 +4,33 @@ import type { ContentCache } from '../../ports/contentCache';
 
 const PATH = '/__qv-content-cache/';
 
-/** A digest of the key: short, and it says nothing of the request even to someone who could list the cache. */
-async function digest(key: string): Promise<string> {
-  const bytes = new Uint8Array(
-    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key)),
+/**
+ * An HMAC of the key with the Worker's secret: short, it says nothing of the request, and nobody can compute the URL of
+ * an entry from what a student sees (the validator and the route), should that address ever be served from the cache.
+ */
+function digester(secret: string) {
+  const key = crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
   );
-  return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+  return async (text: string) => {
+    const mac = new Uint8Array(
+      await crypto.subtle.sign(
+        'HMAC',
+        await key,
+        new TextEncoder().encode(`content-cache\n${text}`),
+      ),
+    );
+    return [...mac].map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
 }
 
-export function cloudflareContentCache(cache: Cache, origin: string): ContentCache {
+export function cloudflareContentCache(cache: Cache, origin: string, secret: string): ContentCache {
   const base = origin.replace(/\/+$/, '');
+  const digest = digester(secret);
   const requestOf = async (key: string) => new Request(`${base}${PATH}${await digest(key)}`);
   return {
     async match(key) {

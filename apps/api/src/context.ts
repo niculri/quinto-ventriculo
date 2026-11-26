@@ -5,6 +5,7 @@ import type { AppEnv } from './env';
 import { requireAdmin } from './middleware/admin';
 import { revalidate } from './middleware/revalidate';
 import { requireSession } from './middleware/session';
+import { sharedContent } from './middleware/sharedContent';
 import { visibleContent } from './middleware/visibleContent';
 import { contentVersionReader } from './services/contentVersion';
 import type { ContentVersionReader } from './services/contentVersion';
@@ -24,6 +25,8 @@ interface Middlewares {
   revalidate: MiddlewareHandler<AppEnv>;
   /** The same for what does not depend on the courses turned off (the card changes). */
   revalidatePublished: MiddlewareHandler<AppEnv>;
+  /** After either: the same answer for every student, from the cache shared by all of them. */
+  shared: MiddlewareHandler<AppEnv>;
   releasesAdmin: MiddlewareHandler<AppEnv>;
   announcementsAdmin: MiddlewareHandler<AppEnv>;
   settingsAdmin: MiddlewareHandler<AppEnv>;
@@ -56,6 +59,7 @@ export function createContext(deps: Dependencies): AppContext {
       visibleContent: visibleContent(settings),
       revalidate: revalidate(deps, contentVersion, true),
       revalidatePublished: revalidate(deps, contentVersion, false),
+      shared: sharedContent(deps),
       releasesAdmin: requireAdmin(deps, configured.releases),
       announcementsAdmin: requireAdmin(deps, configured.announcements),
       settingsAdmin: requireAdmin(deps, configured.settings),

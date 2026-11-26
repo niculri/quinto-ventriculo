@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { AnnouncementRow, ContentBundle } from '@qv/schema';
 import { memoryAnnouncements } from '../adapters/memory/announcements';
 import { memoryClientErrors } from '../adapters/memory/clientErrors';
+import { memoryContentCache } from '../adapters/memory/contentCache';
 import { memoryRepository } from '../adapters/memory/content';
 import { publishingSite } from '../adapters/memory/publishing';
 import { folderReleaseRepository } from '../adapters/memory/releases';
@@ -90,6 +91,8 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     preview,
     releases,
     contentVersion,
+    // As in the Worker, so that the e2e tests go through the shared cache too.
+    contentCache: memoryContentCache(() => Math.floor(Date.now() / 1000)),
     settings: memorySiteSettings(),
     unpublished: await folderUnpublishedRepository(outputFolder),
     admins: {

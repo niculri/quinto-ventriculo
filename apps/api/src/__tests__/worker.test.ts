@@ -123,12 +123,16 @@ const token = (email: string) =>
     .sign(new TextEncoder().encode(SECRET));
 
 /** A Worker made fresh (the app is built once per module) with the bindings of production, minus `without`. */
-async function workerWith(without: (keyof Env)[] = []) {
+async function workerWith(
+  without: (keyof Env)[] = [],
+  cache: Pick<Cache, 'match' | 'put'> = {
+    match: async () => undefined,
+    put: async () => undefined,
+  },
+) {
   vi.resetModules();
   vi.stubGlobal('fetch', answer);
-  vi.stubGlobal('caches', {
-    default: { match: async () => undefined, put: async () => undefined },
-  });
+  vi.stubGlobal('caches', { default: cache });
   const points: { indexes?: string[]; blobs?: string[] }[] = [];
   const limited = {
     student: [] as string[],
@@ -277,5 +281,32 @@ describe('worker composition', () => {
   it('without the version binding, /api/health does not say a version', async () => {
     const { call } = await workerWith(['CF_VERSION_METADATA']);
     expect(await (await call('/api/health', null)).json()).toEqual({ ok: true });
+  });
+
+  it('keeps the material in the data center’s cache, under a key outside /api that no route answers', async () => {
+    const stored = new Map<string, string>();
+    const cache = {
+      match: async (key: RequestInfo | URL) => {
+        const body = stored.get(new Request(key).url);
+        return body === undefined ? undefined : new Response(body);
+      },
+      put: async (key: RequestInfo | URL, response: Response) => {
+        expect(response.headers.get('Cache-Control')).toMatch(/^max-age=\d+$/);
+        stored.set(new Request(key).url, await response.text());
+      },
+    } as unknown as Pick<Cache, 'match' | 'put'>;
+    const { call } = await workerWith([], cache);
+    const first = await call('/api/catalog', STUDENT);
+    expect(first.headers.get('X-QV-Cache')).toBe('miss');
+    const second = await call('/api/catalog', ADMIN);
+    expect(second.headers.get('X-QV-Cache')).toBe('hit');
+    expect(await second.text()).toBe(await first.text());
+    expect(second.headers.get('Cache-Control')).toBe('private, no-cache');
+    const [key] = [...stored.keys()];
+    expect(key).toMatch(/^https:\/\/site\.test\/__qv-content-cache\/[0-9a-f]{64}$/);
+    const { env, fetch } = envWithAssets();
+    const outside = await worker.fetch(incoming(key!), env, ctx);
+    expect(await outside.text()).toBe('<!doctype html>');
+    expect(fetch).toHaveBeenCalledOnce();
   });
 });

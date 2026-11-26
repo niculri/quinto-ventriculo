@@ -1285,6 +1285,789 @@ exports[`the answer to each input stays the same > search and the list of tests 
 }
 `;
 
+exports[`the answer to each input stays the same > the announcements 1`] = `
+{
+  "body1000": {
+    "body": {
+      "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "createdAt": "2026-11-14T12:00:00.000Z",
+      "createdBy": "admin-token@ug.uchile.cl",
+      "id": 1,
+      "items": [],
+      "kind": "site",
+      "publishAt": "2026-11-14T12:30:00.000Z",
+      "releaseId": null,
+      "releaseTitle": null,
+      "status": "waiting",
+      "title": "Sitio",
+      "withdrawnAt": null,
+      "withdrawnBy": null,
+    },
+    "calls": [
+      [
+        "save",
+        null,
+        "site",
+        "Sitio",
+        1000,
+        [],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "body1001": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "broken": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemEmptyCourse": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemLongCourse": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "itemNoAssessment": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "items30": {
+    "body": {
+      "body": "",
+      "createdAt": "2026-11-14T12:00:00.000Z",
+      "createdBy": "admin-token@ug.uchile.cl",
+      "id": 1,
+      "items": [
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+        {
+          "assessmentId": "curso/certamen-2",
+          "courseId": "curso",
+        },
+      ],
+      "kind": "site",
+      "publishAt": "2026-11-14T12:30:00.000Z",
+      "releaseId": null,
+      "releaseTitle": null,
+      "status": "waiting",
+      "title": "Sitio",
+      "withdrawnAt": null,
+      "withdrawnBy": null,
+    },
+    "calls": [
+      [
+        "save",
+        null,
+        "site",
+        "Sitio",
+        0,
+        [
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+        ],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "items31": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "kind": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "list": {
+    "body": {
+      "announcements": [],
+    },
+    "calls": [
+      [
+        "list",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "news": {
+    "body": {
+      "announcements": [],
+    },
+    "calls": [
+      [
+        "feed",
+        "2026-10-31T12:00:00.000Z",
+        100,
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "newsAnon": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "publishBlank": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no es válida.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "publishNull": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no es válida.",
+    },
+    "calls": [
+      [
+        "publish",
+        "ffffffffffffffffffffffffffffffff",
+        "Curso · Certamen 2",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "publishSite": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no es válida.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "publishWith": {
+    "body": {
+      "error": "invalid_release",
+      "message": "Esa publicación no es válida.",
+    },
+    "calls": [
+      [
+        "publish",
+        "ffffffffffffffffffffffffffffffff",
+        "Curso · Certamen 2",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "releaseAsSite": {
+    "body": {
+      "error": "announcement_release",
+      "message": "Esa publicación ya no está publicada.",
+    },
+    "calls": [
+      [
+        "save",
+        3,
+        "new",
+        "Sitio",
+        0,
+        [
+          {
+            "assessmentId": "curso/certamen-2",
+            "courseId": "curso",
+          },
+        ],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 409,
+  },
+  "releaseText": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "releaseZero": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "site": {
+    "body": {
+      "body": "",
+      "createdAt": "2026-11-14T12:00:00.000Z",
+      "createdBy": "admin-token@ug.uchile.cl",
+      "id": 1,
+      "items": [],
+      "kind": "site",
+      "publishAt": "2026-11-14T12:30:00.000Z",
+      "releaseId": null,
+      "releaseTitle": null,
+      "status": "waiting",
+      "title": "Sitio",
+      "withdrawnAt": null,
+      "withdrawnBy": null,
+    },
+    "calls": [
+      [
+        "save",
+        null,
+        "site",
+        "Sitio",
+        0,
+        [],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "siteBlank": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "siteExtra": {
+    "body": {
+      "body": "",
+      "createdAt": "2026-11-14T12:00:00.000Z",
+      "createdBy": "admin-token@ug.uchile.cl",
+      "id": 1,
+      "items": [],
+      "kind": "site",
+      "publishAt": "2026-11-14T12:30:00.000Z",
+      "releaseId": null,
+      "releaseTitle": null,
+      "status": "waiting",
+      "title": "Sitio",
+      "withdrawnAt": null,
+      "withdrawnBy": null,
+    },
+    "calls": [
+      [
+        "save",
+        null,
+        "site",
+        "Sitio",
+        0,
+        [],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "siteTrimmed": {
+    "body": {
+      "body": "b",
+      "createdAt": "2026-11-14T12:00:00.000Z",
+      "createdBy": "admin-token@ug.uchile.cl",
+      "id": 1,
+      "items": [],
+      "kind": "site",
+      "publishAt": "2026-11-14T12:30:00.000Z",
+      "releaseId": null,
+      "releaseTitle": null,
+      "status": "waiting",
+      "title": "Sitio",
+      "withdrawnAt": null,
+      "withdrawnBy": null,
+    },
+    "calls": [
+      [
+        "save",
+        null,
+        "site",
+        "Sitio",
+        1,
+        [],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "siteWithRelease": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "student": {
+    "body": {
+      "error": "not_found",
+      "message": "No existe esa ruta.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "title160": {
+    "body": {
+      "body": "",
+      "createdAt": "2026-11-14T12:00:00.000Z",
+      "createdBy": "admin-token@ug.uchile.cl",
+      "id": 1,
+      "items": [],
+      "kind": "site",
+      "publishAt": "2026-11-14T12:30:00.000Z",
+      "releaseId": null,
+      "releaseTitle": null,
+      "status": "waiting",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "withdrawnAt": null,
+      "withdrawnBy": null,
+    },
+    "calls": [
+      [
+        "save",
+        null,
+        "site",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        0,
+        [],
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 200,
+  },
+  "title161": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "withdraw": {
+    "body": {
+      "error": "announcement_missing",
+      "message": "Ese anuncio no existe.",
+    },
+    "calls": [
+      [
+        "withdraw",
+        3,
+        "admin-token@ug.uchile.cl",
+      ],
+    ],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "withdrawStudent": {
+    "body": {
+      "error": "not_found",
+      "message": "No existe esa ruta.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "withdrawText": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "withdrawZero": {
+    "body": {
+      "error": "invalid_announcement",
+      "message": "Ese anuncio no es válido.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+}
+`;
+
 exports[`the answer to each input stays the same > the cards: index, changes, a card 1`] = `
 {
   "card": {

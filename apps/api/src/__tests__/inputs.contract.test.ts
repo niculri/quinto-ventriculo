@@ -8,6 +8,7 @@ import { createApp } from '../app';
 import { MediaSigner } from '../services/mediaSigner';
 import { memoryRepository } from '../adapters/memory/content';
 import { memorySiteSettings } from '../adapters/memory/settings';
+import type { AnnouncementRepository } from '../ports/announcements';
 import type { ContentRepository } from '../ports/content';
 import type { ReleaseRepository } from '../ports/releases';
 
@@ -101,6 +102,35 @@ const releases: ReleaseRepository = {
   log: async () => ({ releases: [] }),
 };
 
+const announcements: AnnouncementRepository = {
+  feed: async (at, limit) => seen([], 'feed', at, limit),
+  list: async () => seen([], 'list'),
+  save: async ({ by, ...a }) =>
+    seen(
+      a.releaseId === null
+        ? {
+            ...a,
+            id: 1,
+            releaseTitle: null,
+            releaseStatus: null,
+            createdAt: '2026-11-14T12:00:00.000Z',
+            createdBy: by,
+            publishAt: '2026-11-14T12:30:00.000Z',
+            withdrawnAt: null,
+            withdrawnBy: null,
+          }
+        : ('release' as const),
+      'save',
+      a.releaseId,
+      a.kind,
+      a.title,
+      a.body.length,
+      a.items,
+      by,
+    ),
+  withdraw: async (id, by) => seen('missing' as const, 'withdraw', id, by),
+};
+
 const signer = new MediaSigner('secreto-de-prueba-0123456789-0123456789');
 const INDEX_KEY = cardIndexKey('curso/certamen-2', HASH);
 let app: ReturnType<typeof createApp>;
@@ -124,6 +154,7 @@ beforeAll(() => {
     now: () => NOW,
     admins: { isAdmin: async (token) => token === ADMIN },
     releases,
+    announcements,
     settings: memorySiteSettings({}, () => new Date('2026-11-14T12:00:00.000Z')),
     usageEvents: { record: (event) => seen(null, 'record', event) },
   });
@@ -451,12 +482,74 @@ describe('the answer to each input stays the same', () => {
     ).toMatchSnapshot();
   });
 
+  it('the announcements', async () => {
+    const post = (path: string, body: unknown, token = ADMIN): Case => ({
+      path,
+      method: 'POST',
+      token,
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const site = { releaseId: null, kind: 'site', title: 'Sitio', body: '', items: [] };
+    const save = (o: Record<string, unknown>) =>
+      post('/api/admin/announcements', { ...site, ...o });
+    const item = { courseId: 'curso', assessmentId: 'curso/certamen-2' };
+    const publish = (announcement: unknown) =>
+      post('/api/admin/release/publish', {
+        fingerprint: FP,
+        title: 'Curso · Certamen 2',
+        checks: { blocking: 0, pending: 0, ready: true, warnings: [], marks: [] },
+        announcement,
+      });
+    expect(
+      await run({
+        news: { path: '/api/news' },
+        newsAnon: { path: '/api/news', token: null },
+        student: post('/api/admin/announcements', site, USER),
+        list: { path: '/api/admin/announcements', token: ADMIN },
+        site: save({}),
+        siteTrimmed: save({ title: '  Sitio  ', body: '  b  ' }),
+        siteBlank: save({ title: '   ' }),
+        siteExtra: save({ by: 'otro@ug.uchile.cl', publishAt: '2020-01-01T00:00:00Z' }),
+        siteWithRelease: save({ releaseId: 3 }),
+        releaseAsSite: save({ releaseId: 3, kind: 'new', items: [item] }),
+        releaseZero: save({ releaseId: 0, kind: 'new' }),
+        releaseText: save({ releaseId: '3', kind: 'new' }),
+        kind: save({ kind: 'correction' }),
+        title160: save({ title: long(160) }),
+        title161: save({ title: long(161) }),
+        body1000: save({ body: long(1000) }),
+        body1001: save({ body: long(1001) }),
+        items30: save({ items: Array.from({ length: 30 }, () => item) }),
+        items31: save({ items: Array.from({ length: 31 }, () => item) }),
+        itemNoAssessment: save({ items: [{ courseId: 'curso' }] }),
+        itemEmptyCourse: save({ items: [{ courseId: '', assessmentId: null }] }),
+        itemLongCourse: save({ items: [{ courseId: long(101), assessmentId: null }] }),
+        broken: post('/api/admin/announcements', '{'),
+        withdraw: post('/api/admin/announcements/withdraw', { id: 3 }),
+        withdrawZero: post('/api/admin/announcements/withdraw', { id: 0 }),
+        withdrawText: post('/api/admin/announcements/withdraw', { id: '3' }),
+        withdrawStudent: post('/api/admin/announcements/withdraw', { id: 3 }, USER),
+        publishWith: publish({ kind: 'new', title: 'Curso', body: '', items: [item] }),
+        publishNull: publish(null),
+        publishSite: publish({ kind: 'site', title: 'Curso', body: '', items: [] }),
+        publishBlank: publish({ kind: 'new', title: ' ', body: '', items: [] }),
+      }),
+    ).toMatchSnapshot();
+  });
+
   it('a length limit counts UTF-16 units, as `.length` does: an emoji is two', async () => {
     const emoji = (n: number) => '😀'.repeat(n);
     const admin = (path: string): Case => ({ path, token: ADMIN });
     const items = (after: string) =>
       admin(`/api/admin/release/items?kind=card&assessment=a/b&after=${after}`);
     const open = (body: string): Case => ({ path: '/api/usage/open', method: 'POST', body });
+    const titled = (title: string): Case => ({
+      path: '/api/admin/announcements',
+      method: 'POST',
+      token: ADMIN,
+      body: JSON.stringify({ releaseId: null, kind: 'site', title, body: '', items: [] }),
+    });
     // The last `id` is the one JSON.parse keeps: the first only makes the text long.
     const padded = (n: number) => {
       const body = `{"kind":"note","id":"${emoji(n)}","id":"a-b"}`;
@@ -472,6 +565,8 @@ describe('the answer to each input stays the same', () => {
       media151: admin(`/api/admin/release/media?after=${emoji(151)}`),
       open512: padded(239),
       open514: padded(240),
+      title160: titled(emoji(80)),
+      title162: titled(emoji(81)),
     });
     const status = Object.fromEntries(
       Object.entries(out).map(([k, v]) => [k, (v as { status: number }).status]),
@@ -485,12 +580,20 @@ describe('the answer to each input stays the same', () => {
       media151: 400,
       open512: 200,
       open514: 400,
+      title160: 200,
+      title162: 400,
     });
     expect((out.open514 as { calls: unknown[][] }).calls).toEqual([]);
   });
 
   it('usage counts', async () => {
     const open = (body: string): Case => ({ path: '/api/usage/open', method: 'POST', body });
+    const titled = (title: string): Case => ({
+      path: '/api/admin/announcements',
+      method: 'POST',
+      token: ADMIN,
+      body: JSON.stringify({ releaseId: null, kind: 'site', title, body: '', items: [] }),
+    });
     expect(
       await run({
         note: open('{"kind":"note","id":"a-b"}'),

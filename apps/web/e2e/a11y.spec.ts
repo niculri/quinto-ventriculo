@@ -149,6 +149,8 @@ test.describe('popups', () => {
     page,
     isMobile,
   }) => {
+    // Five popups, each one read by axe: on the CI's runner WebKit passes the 30 s of a test.
+    test.slow();
     await page.goto(`${COURSE}/anki/certamen-1`);
     await settled(page);
     await page

@@ -31,7 +31,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      # The typed lint of the whole repository passes Node's default heap (about 4 GB) on the runner.
       - run: npm run lint
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
       # Compared with the push's or pull request's base; the nightly run and a run by hand compare with themselves.
       - name: Ratchets (lint suppressions and import cycles)
         env:

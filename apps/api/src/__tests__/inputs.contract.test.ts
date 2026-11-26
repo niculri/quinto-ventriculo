@@ -588,12 +588,6 @@ describe('the answer to each input stays the same', () => {
 
   it('usage counts', async () => {
     const open = (body: string): Case => ({ path: '/api/usage/open', method: 'POST', body });
-    const titled = (title: string): Case => ({
-      path: '/api/admin/announcements',
-      method: 'POST',
-      token: ADMIN,
-      body: JSON.stringify({ releaseId: null, kind: 'site', title, body: '', items: [] }),
-    });
     expect(
       await run({
         note: open('{"kind":"note","id":"a-b"}'),

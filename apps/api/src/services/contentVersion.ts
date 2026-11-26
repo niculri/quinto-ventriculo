@@ -16,10 +16,12 @@ export function contentVersionReader(deps: Dependencies): ContentVersionReader {
   // A read that started before `forget` must not keep what it brings.
   let generation = 0;
 
+  // Kept from when the read started: a slow one that began before a publication must not stretch the old version.
   const fetchVersion = async (asked: number) => {
+    const started = Date.now();
     try {
       const version = await deps.contentVersion.current();
-      if (asked === generation) kept = { until: Date.now() + deps.contentVersionTtl, version };
+      if (asked === generation) kept = { until: started + deps.contentVersionTtl, version };
       return version;
     } catch (e) {
       console.error(e);

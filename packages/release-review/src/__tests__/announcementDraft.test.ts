@@ -117,7 +117,7 @@ describe('announcementDraft', () => {
     );
     expect(d.kind).toBe('new');
     expect(d.body).toBe(
-      'Biología celular · Certamen 3: 3 preguntas nuevas, 2 preguntas cambiaron y 1 tarjeta cambió.',
+      'Biología celular · Certamen 3: 3 preguntas nuevas, 2 preguntas actualizadas y 1 tarjeta actualizada.',
     );
     const only = announcementDraft(
       summary([assessment({ articles: { added: 0, removed: 0, content: 2, format: 0 } })]),

@@ -26,8 +26,12 @@ function brings(a: ReleaseAssessment): { added: string[]; changed: string[] } {
     ],
     changed: [
       ...count(a.articles.content, 'apunte actualizado', 'apuntes actualizados'),
-      ...count(a.questions.answer + a.questions.noAnswer, 'pregunta cambió', 'preguntas cambiaron'),
-      ...count(a.cards.answer + a.cards.noAnswer, 'tarjeta cambió', 'tarjetas cambiaron'),
+      ...count(
+        a.questions.answer + a.questions.noAnswer,
+        'pregunta actualizada',
+        'preguntas actualizadas',
+      ),
+      ...count(a.cards.answer + a.cards.noAnswer, 'tarjeta actualizada', 'tarjetas actualizadas'),
     ],
   };
 }

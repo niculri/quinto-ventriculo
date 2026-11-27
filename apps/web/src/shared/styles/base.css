@@ -69,4 +69,15 @@ mark {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+  /* What says that something is loading keeps saying it: a slow fade, nothing that turns or moves. */
+  .animate-spin,
+  .animate-pulse {
+    animation: qv-loading-fade 2s ease-in-out infinite !important;
+  }
+}
+
+@keyframes qv-loading-fade {
+  50% {
+    opacity: 0.4;
+  }
 }

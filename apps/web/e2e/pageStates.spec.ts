@@ -58,3 +58,15 @@ test('a failed load shows its error where the page starts, not centered', async 
   await expect(alert).toContainText('No se pudo cargar', { timeout: 15_000 });
   expect((await top(page, '[role="alert"]')).x).toBe(start.x);
 });
+
+test('with reduced motion, «Cargando…» still says it is loading: a slow fade, not a turn', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await signIn(page);
+  await page.route(API, () => undefined);
+  await page.goto(COURSE);
+  const spinner = page.getByRole('main').getByRole('status').locator('svg');
+  await expect(spinner).toBeVisible();
+  expect(await spinner.evaluate((e) => getComputedStyle(e).animationName)).toBe('qv-loading-fade');
+});

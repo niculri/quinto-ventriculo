@@ -30,6 +30,9 @@ export function Inside() {
           <Feature Icon={ListChecks} title={s.inside.tests.title}>
             {s.inside.tests.text}
           </Feature>
+          <Feature Icon={ChartNoAxesColumn} title={s.inside.stats.title}>
+            {s.inside.stats.text}
+          </Feature>
           <Feature Icon={FolderTree} title={s.inside.career.title}>
             {s.inside.career.text}
           </Feature>
@@ -42,9 +45,6 @@ export function Inside() {
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <Feature Icon={Pin} title={s.coming.gymkana.title} soon>
             {s.coming.gymkana.text}
-          </Feature>
-          <Feature Icon={ChartNoAxesColumn} title={s.coming.stats.title} soon>
-            {s.coming.stats.text}
           </Feature>
           <Feature Icon={ScrollText} title={s.coming.summaries.title} soon>
             {s.coming.summaries.text}

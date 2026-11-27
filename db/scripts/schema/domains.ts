@@ -39,6 +39,11 @@ const USERS: Record<string, Domain> = {
   admin: {
     function: 'admin_deck_impact admin_usage health site_day site_day_start storage_health',
   },
+  quality: {
+    table: 'card_quality card_quality_refresh',
+    function: `admin_card_quality card_quality_limits card_quality_row refresh_card_quality wilson_high
+      wilson_low`,
+  },
 };
 
 const CONTENT: Record<string, Domain> = {

@@ -121,6 +121,7 @@ describe('writes only through the functions', () => {
       'accept_legal',
       'access_status',
       'admin_access_report',
+      'admin_card_quality',
       'admin_deck_impact',
       'admin_invite_emails',
       'admin_move_invites',

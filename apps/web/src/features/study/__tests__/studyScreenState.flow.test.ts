@@ -17,6 +17,17 @@ async function simpleStudent(): Promise<StudyRepository> {
   return study;
 }
 
+describe('the screen’s title', () => {
+  it('is there for a screen reader while a card is shown, as the only one', async () => {
+    renderApp(`${DECK_PATH}/study`, { study: await simpleStudent() });
+    await cardText(/Frente de la tarjeta/);
+    const titles = screen.getAllByRole('heading', { level: 1 });
+    expect(titles).toHaveLength(1);
+    expect(titles[0]).toHaveTextContent(/^Estudiar /);
+    expect(titles[0]).toHaveClass('sr-only');
+  });
+});
+
 describe('«Deshacer», when there is something to undo', () => {
   it('in the simple mode its button is on only after something was done, and off again once undone', async () => {
     renderApp(`${DECK_PATH}/study`, { study: await simpleStudent() });

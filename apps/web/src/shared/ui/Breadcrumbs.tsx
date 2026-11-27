@@ -34,7 +34,8 @@ function CrumbLabel({ crumb }: { crumb: Crumb }) {
 /**
  * The route is always one line, so the title right below is at the same place on every page: it is cut with «…», never
  * wrapped. The page's own name is what gives way first (down to nothing, the others only keep half the row at most): the
- * title right below says it. On a phone, where a long route does not fit, its middle is a «…» (the menu has it whole).
+ * title right below says it; when that is not enough, the others are cut too (each keeps its «›», 1.125rem). On a
+ * phone, where a long route does not fit, its middle is a «…» (the menu has it whole).
  * With `adminReasons` (only the admin mode has them) the tags go on the same row, to the right.
  */
 export function Breadcrumbs({
@@ -61,7 +62,7 @@ export function Breadcrumbs({
               </li>
             ) : null}
             <li
-              className={`flex items-center gap-1 ${i === 0 ? 'flex-none' : `min-w-0 ${i === last ? 'shrink-[10]' : 'max-w-[50%] shrink-0'}`} ${collapsed && i > 0 && i < last - 1 ? 'max-sm:hidden' : ''}`}
+              className={`flex items-center gap-1 ${i === 0 ? 'flex-none' : `min-w-[1.125rem] ${i === last ? 'shrink-[10]' : 'max-w-[50%]'}`} ${collapsed && i > 0 && i < last - 1 ? 'max-sm:hidden' : ''}`}
             >
               {i > 0 ? (
                 <ChevronRight className="size-3.5 flex-none opacity-60" aria-hidden="true" />

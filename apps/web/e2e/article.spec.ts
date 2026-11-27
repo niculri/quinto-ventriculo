@@ -116,6 +116,26 @@ test('the site menu: the way to the note, the other parts of its assessment, and
   await expect(menu).toBeVisible();
 });
 
+test('a long route is cut, never goes past the page’s side, at every width', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'the widths are set here');
+  await signIn(page);
+  for (const width of [640, 768, 1024]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto(
+      '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba/stats',
+    );
+    const crumbs = page.getByRole('main').getByRole('navigation', { name: 'Ruta' });
+    await expect(crumbs.getByRole('listitem').first()).toHaveText('Inicio');
+    expect(await crumbs.evaluate((n) => n.scrollWidth - n.clientWidth)).toBeLessThanOrEqual(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
+    ).toBeLessThanOrEqual(0);
+  }
+});
+
 test('nothing moves between pages: the breadcrumbs (from «Inicio») and the title at the same place', async ({
   page,
 }) => {
@@ -129,8 +149,10 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
     const a = (await crumbs.boundingBox())!;
     const b = (await main.getByRole('heading', { level: 1 }).boundingBox())!;
     const width = await main.evaluate((m) => m.getBoundingClientRect().width);
-    // The breadcrumbs are one line on every screen, however long (a phone cuts their middle): the title never goes down.
+    // The breadcrumbs are one line on every screen, however long (a phone cuts their middle): the title never goes down,
+    // and nothing of them goes past the page's side.
     expect(a.height).toBeLessThan(24);
+    expect(await crumbs.evaluate((n) => n.scrollWidth - n.clientWidth)).toBeLessThanOrEqual(0);
     return [a.x, a.y, b.x, b.y, width].map(Math.round);
   };
   await page.goto('/semesters/2/courses/biologia-celular');
@@ -146,6 +168,11 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
   await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
   expect(await where()).toEqual(course);
   await page.goto('/semesters/1/courses/anatomia-1/anki/cards');
+  expect(await where()).toEqual(course);
+  // The longest route: the statistics of a deck inside a week.
+  await page.goto(
+    '/semesters/1/courses/anatomia-1/anki/certamen-1/s1-semana-de-prueba/mazo-de-prueba/stats',
+  );
   expect(await where()).toEqual(course);
   await page.goto('/semesters/2/courses/inventado');
   expect(await where()).toEqual(course);

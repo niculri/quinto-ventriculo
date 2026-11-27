@@ -8,7 +8,6 @@ import { Reserved } from '../../../shared/ui/Reserved';
 import { button } from '../../../shared/ui/styles';
 import { saveFile } from '../../account/api/download';
 import { useAnkiTree } from '../../catalog/hooks/useAnkiTree';
-import { deckTitle } from '../../catalog/model/tree';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { QualityList } from '../components/cardQuality/QualityList';
 import { ScopePicker } from '../components/cardQuality/ScopePicker';
@@ -33,7 +32,7 @@ export function CardQualityPage() {
   const [wanted, setWanted] = useState<ScopeChoice>({ course: '', assessment: '', unit: '' });
   const [list, setList] = useState<ListKind>('hardest');
   const scope = qualityScope(tree, wanted);
-  const { query, indexes } = useCardQuality(scope.deck, catalog.data, tree);
+  const { query, indexes } = useCardQuality(scope.deck, tree);
   const report = query.data ?? null;
   const ok = report?.status === 'ok' ? report : null;
   const rows = qualityRows(ok?.[list] ?? [], indexes, tree);
@@ -43,7 +42,7 @@ export function CardQualityPage() {
   const download = () => {
     saveFile(
       new Blob([qualityCsv(rows)], { type: 'text/csv;charset=utf-8' }),
-      csvName(scope.deck ? deckTitle(scope.deck) : '', listName),
+      csvName(scope.title, listName),
     );
   };
 

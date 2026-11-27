@@ -77,7 +77,8 @@ export function demoCardQuality(
         const shown = inScope
           .filter((c) => c.i % 6 !== 5)
           .map((c) => made(c.guid, c.ord, c.deckId, c.version, c.i));
-        const low = (c: AdminCardQualityCard) => c.reviews?.low ?? 0;
+        // Every made-up card has its reviews' rate.
+        const low = (c: AdminCardQualityCard) => c.reviews!.low;
         return {
           refreshed_at: new Date(now() - 5 * 3_600_000).toISOString(),
           min_students: CARD_QUALITY_LIMITS.minStudents,

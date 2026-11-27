@@ -7,6 +7,7 @@ import { CATALOG } from '../../../../test/fixtures/catalog';
 import { buildAnkiTree } from '../../../catalog/model/tree';
 import {
   emptyText,
+  indexRefs,
   interval,
   percent,
   qualityCsv,
@@ -45,6 +46,7 @@ describe('qualityScope', () => {
     expect(first.assessments.map((a) => a.label)).toEqual(['Todo el ramo', 'Certamen 1']);
     expect(first.units).toEqual([{ value: '', label: 'Todo el certamen' }]);
     expect(first.deck?.id).toBe('3');
+    expect(first.title).toBe('Anatomía I');
     const week = qualityScope(tree, { course: '3', assessment: '4', unit: '5' });
     expect(week.units.map((u) => u.value)).toEqual(['', '5']);
     expect(week.deck?.id).toBe('5');
@@ -65,6 +67,7 @@ describe('qualityScope', () => {
   it('without a tree or courses with cards, nothing to look at', () => {
     const none = qualityScope(null, { course: '', assessment: '', unit: '' });
     expect(none.deck).toBeNull();
+    expect(none.title).toBe('');
     expect(none.courses).toEqual([]);
     expect(none.choice).toEqual({ course: '', assessment: '', unit: '' });
   });
@@ -81,6 +84,26 @@ describe('qualityRows', () => {
     expect(row!.explorer).toBe(
       '/semesters/1/courses/anatomia-1/anki/certamen-1/cards?card=1%3Acloze-1',
     );
+  });
+
+  it('a card right under the course opens in the course’s explorer', () => {
+    expect(qualityRows([card({ deckId: '3' })], [], tree)[0]!.explorer).toBe(
+      '/semesters/1/courses/anatomia-1/anki/cards?card=1%3Acloze-1',
+    );
+  });
+
+  it('the indexes to read: one per assessment with an index, none for a deck it does not know', () => {
+    expect(indexRefs([card(), card({ noteGuid: 'x' }), card({ deckId: '999' })], tree)).toEqual([
+      {
+        id: 'anatomia-1/certamen-1',
+        hash: CATALOG.semesters[0]!.courses[0]!.assessments[0]!.cardIndex!.hash,
+      },
+    ]);
+    expect(indexRefs([card({ deckId: '3' })], tree)).toEqual([]);
+    expect(indexRefs([card()], null)).toEqual([]);
+    const withoutIndex = structuredClone(CATALOG);
+    delete withoutIndex.semesters[0]!.courses[0]!.assessments[0]!.cardIndex;
+    expect(indexRefs([card()], buildAnkiTree(withoutIndex))).toEqual([]);
   });
 
   it('before its index, or of a deck the tree does not have: no text, no explorer', () => {

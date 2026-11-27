@@ -36,12 +36,16 @@ export interface QualityScope {
   units: ScopeOption[];
   /** What is looked at: the unit, else the assessment, else the course; null without any course with cards. */
   deck: CourseDeckNode | null;
+  /** Its name, for the CSV file's. */
+  title: string;
   choice: ScopeChoice;
 }
 
 const pages = (nodes: DeckNode[]) =>
   nodes.filter((n): n is CourseDeckNode => hasPage(n) && n.label !== 'Extras');
 const option = (n: DeckNode): ScopeOption => ({ value: n.id, label: deckTitle(n) });
+
+const deckTitleOf = (n: DeckNode | null) => (n ? deckTitle(n) : '');
 
 /** The choice made valid: a course that is not there is the first one, and what was below it is dropped. */
 export function qualityScope(tree: AnkiTree | null, wanted: ScopeChoice): QualityScope {
@@ -56,6 +60,7 @@ export function qualityScope(tree: AnkiTree | null, wanted: ScopeChoice): Qualit
     assessments: [{ value: '', label: scopeStrings.wholeCourse }, ...assessments.map(option)],
     units: [{ value: '', label: scopeStrings.wholeAssessment }, ...units.map(option)],
     deck: unit ?? assessment ?? course,
+    title: deckTitleOf(unit ?? assessment ?? course),
     choice: { course: course?.id ?? '', assessment: assessment?.id ?? '', unit: unit?.id ?? '' },
   };
 }
@@ -74,6 +79,20 @@ function explorerOf(node: DeckNode | undefined, card: CardQuality): string | nul
   const scope =
     line.find((n) => n.depth === 3 && hasPage(n)) ?? line.find((n) => n.depth === 2 && hasPage(n));
   return scope?.ref ? paths.cards(scope.ref, { card: cardParam(card) }) : null;
+}
+
+/** The indexes to read for the code and front of these cards: those of their assessments that have one. */
+export function indexRefs(
+  cards: readonly CardQuality[],
+  tree: AnkiTree | null,
+): { id: string; hash: string }[] {
+  const refs = new Map<string, string>();
+  for (const c of cards) {
+    const node = tree?.byId.get(c.deckId);
+    const assessment = node?.course?.assessments.find((a) => a.id === node.assessmentId);
+    if (assessment?.cardIndex) refs.set(assessment.id, assessment.cardIndex.hash);
+  }
+  return [...refs].map(([id, hash]) => ({ id, hash }));
 }
 
 const deckLabelOf = (node: DeckNode | undefined) =>

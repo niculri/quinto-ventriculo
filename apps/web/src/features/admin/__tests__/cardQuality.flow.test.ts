@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CardQuality, CardQualityReport } from '@qv/schema';
 import { ApiRequestError } from '../../../shared/lib/api';
 import { fakeApi } from '../../../test/fakes/api';
+import { CATALOG } from '../../../test/fixtures/catalog';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 
@@ -47,6 +48,20 @@ const report = (
   hardest: [
     card(),
     card({ noteGuid: 'oclusion-1', ord: 0, reasons: [], openReports: 0, flagged: 0, leeches: 0 }),
+    card({
+      noteGuid: 'fuera',
+      ord: 0,
+      deckId: '999',
+      version: null,
+      firstView: null,
+      reviews: null,
+      predicted: null,
+      medianMs: null,
+      reasons: [],
+      openReports: 3,
+      flagged: 0,
+      leeches: 2,
+    }),
   ],
   suspicious: [card()],
   ...over,
@@ -96,6 +111,14 @@ describe('«Tarjetas»', () => {
     );
     expect(second).toHaveTextContent('Vértebra de prueba');
     expect(second).not.toHaveTextContent('bandera');
+    // A card of a deck the catalog no longer has: its figures without a link, and «—» where there are none.
+    const third = within(list).getAllByRole('listitem')[2]!;
+    expect(within(third).queryByRole('link', { name: /explorador/ })).toBeNull();
+    expect(third).toHaveTextContent('Otra vez, 1.ª vista—');
+    expect(third).toHaveTextContent('FSRS esperaba—');
+    expect(third).toHaveTextContent('Mediana—');
+    expect(third).toHaveTextContent('2 sanguijuelas');
+    expect(within(third).getByRole('link', { name: '3 reportes abiertos' })).toBeInTheDocument();
     expect(
       screen.getByText(
         'Calculado el 26 de noviembre de 2026 a las 06:37 · 2 tarjetas con cifras · 4 con menos de 5 estudiantes',
@@ -144,7 +167,7 @@ describe('«Tarjetas»', () => {
     await userEvent.click(screen.getByRole('button', { name: /Exportar la lista/ }));
     expect(saved).toEqual(['Las más difíciles - Anatomía I.csv']);
     const text = await blobs[0]!.text();
-    expect(text.split('\r\n')).toHaveLength(4);
+    expect(text.split('\r\n')).toHaveLength(5);
     expect(text).toContain('T-PR-01-002;2;');
   });
 
@@ -182,5 +205,24 @@ describe('«Tarjetas»', () => {
     fail = false;
     await userEvent.click(await screen.findByRole('button', { name: 'Reintentar' }));
     expect(await screen.findByRole('list', { name: 'Las más difíciles' })).toBeInTheDocument();
+  });
+
+  it('without any course with cards there is nothing to ask for', async () => {
+    const empty = structuredClone(CATALOG);
+    empty.anki.decks = [];
+    const asked: string[] = [];
+    renderApp('/admin/cards', {
+      admin: admin(),
+      api: fakeApi({
+        catalog: async () => empty,
+        cardQuality: async (deckId) => {
+          asked.push(deckId);
+          return report(deckId);
+        },
+      }),
+    });
+    expect(await screen.findByText('Todavía no hay ramos con tarjetas.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ramo' })).toBeDisabled();
+    expect(asked).toEqual([]);
   });
 });

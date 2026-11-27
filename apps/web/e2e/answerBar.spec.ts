@@ -73,3 +73,18 @@ test('studying a deck and answering a test: the same «Volver», the counts cent
   await expect(page.getByRole('button', { name: 'Comenzar' })).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`${TEST_URL}/pautas$`));
 });
+
+test('the site’s bar does not move on entering to study: the search box stays where it was', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'a phone studies without the site’s bar');
+  await signIn(page);
+  const search = page.getByRole('banner').getByRole('button', { name: /^Buscar/ });
+  await page.goto(DECK_URL);
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+  const before = await box(search);
+  await page.goto(`${DECK_URL}/study`);
+  await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
+  expect(await box(search)).toEqual(before);
+});

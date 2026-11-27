@@ -62,7 +62,8 @@ export function TopBar({
             {keys('Ctrl+K')}
           </kbd>
         </button>
-        {hideNav ? null : <NewsBell />}
+        {/* Studying keeps the bell's room, so the search box stays where it was. */}
+        {hideNav ? <span aria-hidden="true" className="size-9 flex-none" /> : <NewsBell />}
         <UserMenu />
       </div>
     </header>

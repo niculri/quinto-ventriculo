@@ -9,7 +9,8 @@ import { button } from '../../../shared/ui/styles';
 import { useHeatmapGrid } from '../hooks/useHeatmapGrid';
 import type { GridData } from '../hooks/useHeatmapGrid';
 import type { HeatmapGroups } from '../model/groups';
-import { GAP, GRID_WIDTH, columnLeft } from '../model/layout';
+import { CELL, GAP, GRID_WIDTH, columnLeft } from '../model/layout';
+import { LEGEND_LEVELS, legendShade } from '../model/shade';
 import { DayBox } from './DayBox';
 import { WeekRows } from './WeekRows';
 
@@ -73,6 +74,7 @@ export function HeatmapGrid({
           </table>
         </div>
       </div>
+      <Legend />
       {error ? (
         <div className="absolute inset-0 flex items-center justify-center gap-3 rounded-lg bg-surface/85 text-sm">
           <span className="text-muted">{s.loadFailed}</span>
@@ -109,6 +111,26 @@ function MonthNames({ months }: { months: readonly { month: number; column: numb
           {SHORT_MONTHS[month]}
         </span>
       ))}
+    </div>
+  );
+}
+
+/** How to read the turquoise: from few answers on a day to many (the cells say their number to a screen reader). */
+function Legend() {
+  return (
+    <div
+      className="mt-2 flex h-4 items-center justify-end gap-1 text-[0.6875rem] leading-4 text-muted"
+      aria-hidden="true"
+    >
+      <span className="mr-1">{s.less}</span>
+      {LEGEND_LEVELS.map((level) => (
+        <span
+          key={level}
+          className="rounded-[2px]"
+          style={{ width: CELL, height: CELL, background: legendShade(level) }}
+        />
+      ))}
+      <span className="ml-1">{s.more}</span>
     </div>
   );
 }

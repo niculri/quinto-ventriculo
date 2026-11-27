@@ -6,7 +6,7 @@ import { keyed } from '../../../shared/lib/keyed';
 import type { CellValue, yearGrid } from '@qv/study';
 import { CELL, GAP, LABELS } from '../model/layout';
 import { weekRowsStrings as s } from './strings/WeekRows.strings';
-import { shade } from '../model/shade';
+import { outline, shade } from '../model/shade';
 
 export function WeekRows({
   grid,
@@ -74,7 +74,10 @@ export function WeekRows({
                   width: CELL,
                   height: CELL,
                   background: shade(cell),
-                  boxShadow: isToday ? '0 0 0 1.5px var(--ink)' : undefined,
+                  boxShadow:
+                    [isToday ? '0 0 0 1.5px var(--ink)' : null, outline(cell)]
+                      .filter(Boolean)
+                      .join(', ') || undefined,
                 }}
               />
             );

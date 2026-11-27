@@ -116,10 +116,16 @@ export const seconds = (ms: number | null) =>
 export const rateText = (r: CardRate | null) => (r ? percent(r.again / r.n) : s.none);
 export const reasonText = (r: CardQualityReason) => s.reasons[r];
 
-/** One CSV value: `;` between them and decimal commas, as a spreadsheet in Spanish opens it. */
+/** A text a spreadsheet would run as a formula: it starts with one of these. */
+const FORMULA = /^[=+\-@\t\r]/;
+
+/**
+ * One CSV value: `;` between them and decimal commas, as a spreadsheet in Spanish opens it. A text that starts like a
+ * formula goes after a «'», so that it is shown and never run; a number (a negative one too) goes as a number.
+ */
 function cell(v: string | number | null): string {
   if (v === null) return '';
-  const text = typeof v === 'number' ? number(v, 1) : v;
+  const text = typeof v === 'number' ? number(v, 1) : FORMULA.test(v) ? `'${v}` : v;
   return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 

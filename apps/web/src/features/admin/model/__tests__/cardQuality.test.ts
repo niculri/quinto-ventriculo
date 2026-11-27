@@ -189,4 +189,23 @@ describe('qualityCsv', () => {
     expect(csv.endsWith('\r\n')).toBe(true);
     expect(csv).not.toMatch(/@ug\.uchile\.cl/);
   });
+
+  it("a text that starts like a formula goes after a «'», a negative number goes as a number", () => {
+    const [row] = qualityRows([card()], [], tree);
+    const cells = (over: Partial<NonNullable<typeof row>>) =>
+      qualityCsv([{ ...row!, ...over }])
+        .slice(1)
+        .split('\r\n')[1]!
+        .split(';');
+    const formula = cells({ code: '=HYPERLINK("http://x")', deckLabel: '-2+3', text: '@SUM(A1)' });
+    expect(formula.slice(0, 1)).toEqual([`"'=HYPERLINK(""http://x"")"`]);
+    expect(formula[2]).toBe("'-2+3");
+    expect(formula[3]).toBe("'@SUM(A1)");
+    expect(cells({ code: '+1' })[0]).toBe("'+1");
+    expect(cells({ code: '\tx' })[0]).toBe("'\tx");
+    expect(cells({ code: '\rx' })[0]).toBe(`"'\rx"`);
+    expect(cells({ code: 'T-1=2' })[0]).toBe('T-1=2');
+    expect(cells({ students: -3, suspended: -1.5 })[4]).toBe('-3');
+    expect(cells({ students: -3, suspended: -1.5 })[15]).toBe('-1,5');
+  });
 });

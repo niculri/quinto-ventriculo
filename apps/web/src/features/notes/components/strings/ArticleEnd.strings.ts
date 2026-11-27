@@ -5,7 +5,8 @@ export const articleEndStrings = {
   orSelect: 'O selecciona el texto que está mal.',
   tip: {
     text: '¿Buscas otro tema? El buscador de arriba encuentra cualquier apunte',
-    key: ', también con la tecla /',
+    /** The same shortcut the search box of the bar shows («Ctrl+K», «⌘K» on a Mac). */
+    key: (keys: string) => `, también con ${keys}`,
     close: 'Cerrar el consejo',
   },
 } as const;

@@ -1,6 +1,7 @@
 // The end of an article: the line to report an error in it and, once read, the tip about the search.
 import { MessageSquareWarning, Search, X } from 'lucide-react';
 import { button } from '../../../shared/ui/styles';
+import { keys } from '../../../shared/ui/keys';
 import { articleEndStrings as s } from './strings/ArticleEnd.strings';
 
 export function ReportLine({ onReport }: { onReport: () => void }) {
@@ -24,7 +25,7 @@ export function SearchTip({ tip }: { tip: { slot: boolean; show: boolean; close:
           <Search className="size-4 flex-none text-brand" aria-hidden="true" />
           <span className="min-w-0 flex-1">
             {s.tip.text}
-            <span className="pointer-coarse:hidden">{s.tip.key}</span>.
+            <span className="pointer-coarse:hidden">{s.tip.key(keys('Ctrl+K'))}</span>.
           </span>
           <button
             type="button"

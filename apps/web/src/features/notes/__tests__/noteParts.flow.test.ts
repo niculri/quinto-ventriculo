@@ -116,7 +116,7 @@ describe('the end of the article', () => {
     const tip = await screen.findByText(/¿Buscas otro tema\?/);
     expect(textNodes(tip)).toEqual([
       '¿Buscas otro tema? El buscador de arriba encuentra cualquier apunte',
-      ', también con la tecla /',
+      ', también con Ctrl+K',
       '.',
     ]);
     expect(screen.getByRole('button', { name: 'Cerrar el consejo' })).toBeInTheDocument();

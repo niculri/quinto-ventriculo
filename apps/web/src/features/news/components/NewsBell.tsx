@@ -29,7 +29,7 @@ export function NewsBell() {
     >
       <Menu.Trigger
         aria-label={news.unread.length ? s.openUnread : s.open}
-        className="relative flex size-9 flex-none items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+        className="relative flex size-9 flex-none items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
       >
         <Bell className="size-5" aria-hidden="true" />
         <span

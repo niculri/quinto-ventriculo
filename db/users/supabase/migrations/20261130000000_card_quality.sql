@@ -4,7 +4,8 @@
 --   * card_quality keeps one row per card (note_guid, ord) with sums of every student: how many saw it, «Otra vez» on
 --     the first view and on the reviews, the recall FSRS predicted (review_log.r_before), the median answer time and
 --     how many have it suspended, buried, flagged or as a leech. Never a row per student. The answers counted are those
---     of the card's latest version (review_log.card_version): a card fixed starts again from zero.
+--     of the card's latest version that 5 students answered (review_log.card_version): a card fixed starts again from
+--     zero once 5 students answered its new version.
 --   * refresh_card_quality() rebuilds it from review_log and card_states, every night (pg_cron) and once here. Reading
 --     the whole log on each visit would grow with every answer of every student; one pass a night does not.
 --   * admin_card_quality(p) is what an administrator with an open session reads: the cards of the decks of `p` (the
@@ -30,12 +31,17 @@ create table public.card_quality (
   review_students integer not null,
   reviews integer not null,
   review_again integer not null,
-  -- The reviews with FSRS's predicted recall, those failed among them and the sum of 1 - recall (the failures
-  -- FSRS expected).
+  -- The reviews with FSRS's predicted recall, the students they are of, those failed and the sum of 1 - recall (the
+  -- failures FSRS expected).
   calibrated integer not null,
+  calibrated_students integer not null,
   calibrated_again integer not null,
   expected_again double precision,
+  -- The answers on the first view and on the reviews with a time, the students they are of, and the median of each
+  -- one's median (a student who answers it many times counts once; a same-day step, just after seeing the answer,
+  -- does not count).
   answers integer not null,
+  time_students integer not null,
   median_ms integer,
   -- Students with it so now, or who buried it by hand at least once.
   suspended integer not null,
@@ -110,6 +116,7 @@ set search_path = ''
 as $$
 declare
   started timestamptz := clock_timestamp();
+  v_min integer := (public.card_quality_limits() ->> 'min_students')::integer;
   v_rows bigint;
   v_cards integer;
   v_ms integer;
@@ -132,22 +139,36 @@ begin
   delete from public.card_quality where true;
   insert into public.card_quality (
     note_guid, ord, deck_id, card_version, students, answer_students, first_students, first_again,
-    review_students, reviews, review_again, calibrated, calibrated_again, expected_again, answers, median_ms,
-    suspended, buried, flagged, leeches)
+    review_students, reviews, review_again, calibrated, calibrated_students, calibrated_again, expected_again,
+    answers, time_students, median_ms, suspended, buried, flagged, leeches)
   with cards as (
-    select g.note_guid, g.ord, count(distinct g.user_id) as students,
-           max(g.v) filter (where g.answered) as v
+    select g.note_guid, g.ord, count(distinct g.user_id) as students
       from pg_temp.card_quality_log g
      group by g.note_guid, g.ord
   ),
-  -- The deck where it was last seen: of its latest answer, or of its latest hiding if it was never answered.
+  -- The version counted: the latest that v_min students answered, else the latest answered. The version is what the
+  -- browser says, so one answer with a made-up number cannot hide everybody else's.
+  versions as (
+    select g.note_guid, g.ord, g.v, count(distinct g.user_id) as k
+      from pg_temp.card_quality_log g
+     where g.answered
+     group by g.note_guid, g.ord, g.v
+  ),
+  chosen as (
+    select distinct on (s.note_guid, s.ord) s.note_guid, s.ord, s.v
+      from versions s
+     order by s.note_guid, s.ord, s.k >= v_min desc, s.v desc
+  ),
+  -- The deck where it was last seen: of its latest answer of that version, or of its latest hiding if it was never
+  -- answered.
   decks as (
     select distinct on (g.note_guid, g.ord) g.note_guid, g.ord, g.deck_id
       from pg_temp.card_quality_log g
-     order by g.note_guid, g.ord, g.answered desc, g.v desc, g.reviewed_at desc
+      left join chosen c using (note_guid, ord)
+     order by g.note_guid, g.ord, coalesce(g.answered and g.v = c.v, false) desc, g.reviewed_at desc
   ),
   latest as (
-    select g.* from pg_temp.card_quality_log g join cards c using (note_guid, ord)
+    select g.* from pg_temp.card_quality_log g join chosen c using (note_guid, ord)
      where g.answered and g.v = c.v
   ),
   per_student as (
@@ -157,7 +178,10 @@ begin
            count(*) filter (where a.reviewed and a.rating = 1) as review_again,
            count(*) filter (where a.reviewed and a.r_before is not null) as calibrated,
            count(*) filter (where a.reviewed and a.r_before is not null and a.rating = 1) as calibrated_again,
-           sum(1 - a.r_before) filter (where a.reviewed and a.r_before is not null) as expected
+           sum(1 - a.r_before) filter (where a.reviewed and a.r_before is not null) as expected,
+           count(a.duration_ms) filter (where a.first or a.reviewed) as timed,
+           percentile_disc(0.5) within group (order by a.duration_ms) filter (where a.first or a.reviewed)
+             as median_ms
       from latest a
      group by a.note_guid, a.ord, a.user_id
   ),
@@ -167,17 +191,12 @@ begin
            count(*) filter (where s.first_rating = 1) as first_again,
            count(*) filter (where s.reviews > 0) as review_students,
            sum(s.reviews) as reviews, sum(s.review_again) as review_again,
-           sum(s.calibrated) as calibrated, sum(s.calibrated_again) as calibrated_again,
-           sum(s.expected) as expected
+           sum(s.calibrated) as calibrated, count(*) filter (where s.calibrated > 0) as calibrated_students,
+           sum(s.calibrated_again) as calibrated_again, sum(s.expected) as expected,
+           sum(s.timed) as answers, count(s.median_ms) as time_students,
+           percentile_disc(0.5) within group (order by s.median_ms) as median_ms
       from per_student s
      group by s.note_guid, s.ord
-  ),
-  times as (
-    select a.note_guid, a.ord, count(*) as answers,
-           percentile_disc(0.5) within group (order by a.duration_ms) as median_ms
-      from latest a
-     where a.duration_ms is not null
-     group by a.note_guid, a.ord
   ),
   states as (
     select s.note_guid, s.ord, count(*) filter (where s.suspended) as suspended,
@@ -192,16 +211,16 @@ begin
      where g.action in ('bury_card', 'bury_note')
      group by g.note_guid, g.ord
   )
-  select c.note_guid, c.ord, d.deck_id, nullif(c.v, 0), c.students,
+  select c.note_guid, c.ord, d.deck_id, nullif(v.v, 0), c.students,
          coalesce(a.answer_students, 0), coalesce(a.first_students, 0), coalesce(a.first_again, 0),
          coalesce(a.review_students, 0), coalesce(a.reviews, 0), coalesce(a.review_again, 0),
-         coalesce(a.calibrated, 0), coalesce(a.calibrated_again, 0), a.expected,
-         coalesce(t.answers, 0), t.median_ms,
+         coalesce(a.calibrated, 0), coalesce(a.calibrated_students, 0), coalesce(a.calibrated_again, 0), a.expected,
+         coalesce(a.answers, 0), coalesce(a.time_students, 0), a.median_ms,
          coalesce(st.suspended, 0), coalesce(b.buried, 0), coalesce(st.flagged, 0), coalesce(st.leeches, 0)
     from cards c
     join decks d using (note_guid, ord)
+    left join chosen v using (note_guid, ord)
     left join answered a using (note_guid, ord)
-    left join times t using (note_guid, ord)
     left join states st using (note_guid, ord)
     left join buried b using (note_guid, ord);
   get diagnostics v_cards = row_count;
@@ -231,8 +250,8 @@ as $$
   ),
   r as (
     select x.*,
-           q.review_students >= x.m and q.calibrated >= x.mc as calibrated_ok,
-           q.answer_students >= x.m as times_ok
+           q.calibrated_students >= x.m and q.calibrated >= x.mc as calibrated_ok,
+           q.time_students >= x.m as times_ok
       from x
   )
   select jsonb_build_object(

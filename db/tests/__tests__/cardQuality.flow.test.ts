@@ -78,7 +78,7 @@ interface Answer {
   lastInterval?: number;
   version?: number | null;
   r?: number | null;
-  ms?: number;
+  ms?: number | null;
   daysAgo?: number;
 }
 
@@ -96,7 +96,7 @@ async function answer(who: Claims, a: Answer) {
       a.rating,
       a.queue ?? 'review',
       a.lastInterval ?? null,
-      a.ms ?? 8000,
+      a.ms === undefined ? 8000 : a.ms,
       a.r ?? null,
       a.version === undefined ? 1 : a.version,
     ],
@@ -342,6 +342,96 @@ describe('the figures', () => {
     expect(bad.reasons).toEqual(['unexpected']);
     expect(card(q, 'fine')!.reasons).toEqual([]);
     expect(q.suspicious.map((c) => c.note_guid)).toEqual(['bad']);
+  });
+
+  it('FSRS is compared only with predicted recalls of 5 students: never one student’s', async () => {
+    const people = await students(5);
+    for (const p of people) await answer(p, { guid: 'g1', rating: 3 });
+    // 12 reviews with a recall, all of one student: they would say how that student did.
+    for (let i = 0; i < 12; i += 1) {
+      await answer(people[0]!, { guid: 'g1', rating: i < 7 ? 1 : 3, r: 0.9 });
+    }
+    await refresh();
+    let c = card(await quality(owner), 'g1')!;
+    expect(c.reviews).toMatchObject({ n: 17, again: 7 });
+    expect(c.expected).toBeNull();
+    expect(c.reasons).toEqual([]);
+    for (const p of people.slice(1)) await answer(p, { guid: 'g1', rating: 1, r: 0.9 });
+    await refresh();
+    c = card(await quality(owner), 'g1')!;
+    expect(c.expected).toEqual({ n: 16, again: 11, expected: 0.1 });
+    expect(c.reasons).toEqual(['unexpected']);
+  });
+
+  it('the version counted is the latest that 5 students answered: one made-up version hides nobody', async () => {
+    const people = await students(8);
+    for (const p of people) {
+      await answer(p, { guid: 'g1', rating: 1, queue: 'new', daysAgo: 3 });
+      await answer(p, { guid: 'g1', rating: 1, daysAgo: 2 });
+    }
+    // The browser says the version: one answer of a student with a number that does not exist.
+    const forger = await person();
+    await answer(forger, { guid: 'g1', rating: 3, version: 9999 });
+    await refresh();
+    let c = card(await quality(owner), 'g1')!;
+    expect(c).toMatchObject({ version: 1, students: 9, reviews: { n: 8, again: 8 } });
+    // A real fix: until 5 students answered version 2 the figures are those of version 1, then it starts again.
+    for (const p of people.slice(0, 4)) await answer(p, { guid: 'g1', rating: 3, version: 2 });
+    await refresh();
+    expect(card(await quality(owner), 'g1')).toMatchObject({ version: 1 });
+    await answer(people[4]!, { guid: 'g1', rating: 3, version: 2 });
+    await refresh();
+    c = card(await quality(owner), 'g1')!;
+    expect(c).toMatchObject({ version: 2, first: null, reviews: { n: 5, again: 0 } });
+  });
+
+  it('answers without a version (before it was kept) count until 5 students answer a known one', async () => {
+    const people = await students(6);
+    for (const p of people) {
+      await answer(p, { guid: 'g1', rating: 1, queue: 'new', version: null, daysAgo: 30 });
+      await answer(p, { guid: 'g1', rating: 1, version: null, daysAgo: 20 });
+    }
+    await answer(people[0]!, { guid: 'g1', rating: 3 });
+    await refresh();
+    expect(card(await quality(owner), 'g1')).toMatchObject({
+      version: null,
+      first: { n: 6, again: 6 },
+      reviews: { n: 6, again: 6 },
+    });
+  });
+
+  it('the time is the median of each student’s, on the first view and the reviews only', async () => {
+    const people = await students(5);
+    for (const p of people.slice(1)) await answer(p, { guid: 'many', rating: 3, ms: 9000 });
+    // One student who answers it 20 times fast counts once.
+    for (let i = 0; i < 20; i += 1) await answer(people[0]!, { guid: 'many', rating: 3, ms: 500 });
+    for (const p of people) {
+      await answer(p, { guid: 'steps', rating: 3, queue: 'new', ms: 6000, daysAgo: 2 });
+      // A same-day step comes just after seeing the answer: quick for any card.
+      await answer(p, { guid: 'steps', rating: 3, queue: 'learn', lastInterval: -60, ms: 1500 });
+      await answer(p, { guid: 'steps', rating: 3, queue: 'learn', lastInterval: -600, ms: 1500 });
+      await answer(p, { guid: 'steps', rating: 3, ms: 5000 });
+    }
+    await refresh();
+    const q = await quality(owner);
+    expect(card(q, 'many')).toMatchObject({ median_ms: 9000, reasons: [] });
+    expect(card(q, 'steps')).toMatchObject({ median_ms: 5000, reasons: [] });
+    const { rows } = await db.query<{ answers: number; time_students: number }>(
+      `select answers, time_students from public.card_quality where note_guid = 'steps'`,
+    );
+    expect(rows[0]).toEqual({ answers: 10, time_students: 5 });
+  });
+
+  it('a time only goes with 5 students behind it', async () => {
+    const people = await students(5);
+    for (const p of people) await answer(p, { guid: 'g1', rating: 3, queue: 'new', ms: 900 });
+    // Five students reviewed it, but only four with a time.
+    await answer(people[0]!, { guid: 'g2', rating: 3, ms: null });
+    for (const p of people.slice(1)) await answer(p, { guid: 'g2', rating: 3, ms: 900 });
+    await refresh();
+    const q = await quality(owner);
+    expect(card(q, 'g1')).toMatchObject({ median_ms: 900, reasons: ['fast'] });
+    expect(card(q, 'g2')).toMatchObject({ median_ms: null, reasons: [] });
   });
 
   it('without enough reviews with a predicted recall there is nothing to compare with', async () => {

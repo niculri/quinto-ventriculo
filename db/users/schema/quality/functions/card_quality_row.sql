@@ -12,8 +12,8 @@ AS $function$
   ),
   r as (
     select x.*,
-           q.review_students >= x.m and q.calibrated >= x.mc as calibrated_ok,
-           q.answer_students >= x.m as times_ok
+           q.calibrated_students >= x.m and q.calibrated >= x.mc as calibrated_ok,
+           q.time_students >= x.m as times_ok
       from x
   )
   select jsonb_build_object(

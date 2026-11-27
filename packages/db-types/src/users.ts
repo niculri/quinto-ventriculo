@@ -122,6 +122,7 @@ export type Database = {
           buried: number
           calibrated: number
           calibrated_again: number
+          calibrated_students: number
           card_version: number | null
           deck_id: string
           expected_again: number | null
@@ -137,6 +138,7 @@ export type Database = {
           reviews: number
           students: number
           suspended: number
+          time_students: number
         }
         Insert: {
           answer_students: number
@@ -144,6 +146,7 @@ export type Database = {
           buried: number
           calibrated: number
           calibrated_again: number
+          calibrated_students: number
           card_version?: number | null
           deck_id: string
           expected_again?: number | null
@@ -159,6 +162,7 @@ export type Database = {
           reviews: number
           students: number
           suspended: number
+          time_students: number
         }
         Update: {
           answer_students?: number
@@ -166,6 +170,7 @@ export type Database = {
           buried?: number
           calibrated?: number
           calibrated_again?: number
+          calibrated_students?: number
           card_version?: number | null
           deck_id?: string
           expected_again?: number | null
@@ -181,6 +186,7 @@ export type Database = {
           reviews?: number
           students?: number
           suspended?: number
+          time_students?: number
         }
         Relationships: []
       }

@@ -87,7 +87,7 @@ test('the assessment’s «Estudiar» keeps its size with either label, and the 
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
   const panel = page.getByRole('region', { name: 'Estudiar' });
   const measure = async (name: string) => {
-    const button = panel.getByRole('link', { name });
+    const button = panel.getByRole('link', { name, exact: true });
     await expect(button).toBeVisible();
     return button.evaluate((b) => {
       const box = b.getBoundingClientRect();

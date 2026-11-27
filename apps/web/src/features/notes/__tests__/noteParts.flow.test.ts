@@ -326,7 +326,12 @@ describe('what the page does besides showing the note', () => {
         },
       }),
     });
-    expect(await screen.findByText('404')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Esta página no aparece ni en el Netter',
+      }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
   });
 
@@ -340,7 +345,9 @@ describe('what the page does besides showing the note', () => {
     });
     expect(await screen.findByText('Falló de prueba.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
-    expect(screen.queryByText('404')).toBeNull();
+    expect(
+      screen.queryByRole('heading', { level: 1, name: 'Esta página no aparece ni en el Netter' }),
+    ).toBeNull();
   });
 
   it('too many requests in a row says to wait, and «Reintentar» opens the note once it went through', async () => {

@@ -147,6 +147,8 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
   expect(await where()).toEqual(course);
   await page.goto('/semesters/1/courses/anatomia-1/anki/cards');
   expect(await where()).toEqual(course);
+  await page.goto('/semesters/2/courses/inventado');
+  expect(await where()).toEqual(course);
   await page.goto('/home');
   expect(await where()).toEqual(course);
 });

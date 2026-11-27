@@ -75,7 +75,15 @@ describe('the addresses', () => {
     '/semesters/9',
   ])('%s does not exist', async (path) => {
     renderApp(path);
-    expect(await screen.findByText('404')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Esta página no aparece ni en el Netter',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Ruta' })).toHaveTextContent(
+      'InicioNo encontrado',
+    );
   });
 });
 

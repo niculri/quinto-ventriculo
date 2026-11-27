@@ -129,6 +129,8 @@ describe('a course’s cards', () => {
     renderApp('/semesters/1/courses/anatomia-1', { api: fakeApi({ catalog: async () => c }) });
     const today = await (await inMain()).findByRole('group', { name: 'Hoy en Certamen 1' });
     await waitFor(() => expect(today).toHaveTextContent('Sin activar'));
+    // Over the card's drawing, its text keeps the card's background: a long load never has a stroke across it.
+    expect(today).toHaveClass('bg-surface');
     expect(main().queryByRole('button', { name: /Qué estás estudiando/ })).toBeNull();
   });
 });

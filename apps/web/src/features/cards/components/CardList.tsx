@@ -142,7 +142,10 @@ function Item({
   switch (it.kind) {
     case 'lecture':
       return (
-        <h2 className="flex h-full items-end justify-between gap-3 px-1 pb-2">
+        <h2
+          aria-label={cardListStrings.heading(lectureTitle(it.lectureId), it.notes)}
+          className="flex h-full items-end justify-between gap-3 px-1 pb-2"
+        >
           <span className="min-w-0 truncate font-serif text-lg font-semibold">
             {lectureTitle(it.lectureId)}
           </span>
@@ -153,7 +156,10 @@ function Item({
       );
     case 'topic':
       return (
-        <h3 className="flex h-full items-center justify-between gap-3 border-b border-border px-1 text-sm">
+        <h3
+          aria-label={cardListStrings.heading(it.title, it.notes)}
+          className="flex h-full items-center justify-between gap-3 border-b border-border px-1 text-sm"
+        >
           <span className="min-w-0 truncate font-medium text-muted">{it.title}</span>
           <span className="flex-none text-xs text-muted tabular-nums">{it.notes}</span>
         </h3>

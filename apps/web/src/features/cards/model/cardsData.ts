@@ -58,10 +58,12 @@ export function cardsData({
     ]),
   );
   const byRow = new Map(rows.map((r) => [cardKey(r), r]));
+  const listed = new Map(tree.nodes.map((n, i) => [n.id, i]));
   const notes = explorerNotes(
     list,
     (deckId) => lectureOf(tree.byId.get(deckId))?.id ?? deckId,
     byRow,
+    (lectureId) => listed.get(lectureId) ?? tree.nodes.length,
   );
   const noteTypes = uniqueTypes(list);
   const cards = buildBrowseCards(

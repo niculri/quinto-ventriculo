@@ -21,6 +21,7 @@ import { memoryRepository } from '../adapters/memory/content';
 import { memorySiteSettings } from '../adapters/memory/settings';
 import type { ReleaseRepository } from '../ports/releases';
 import type { UnpublishedRepository } from '../ports/unpublished';
+import type { CardQualitySource } from '../ports/cardQuality';
 import type { UsageEvent, UsageStatsSource } from '../ports/usage';
 
 const ADMIN = 'dueno@ug.uchile.cl';
@@ -604,6 +605,7 @@ describe('who is not an administrator gets nothing of the admin mode', () => {
     usageOpen: ['POST', '/api/usage/open', '{"kind":"note","id":"ap-fi-1"}'],
     clientError: ['POST', '/api/client-error', '{}'],
     usage: ['GET', '/api/admin/usage'],
+    cardQuality: ['GET', '/api/admin/card-quality?deck=20'],
     release: ['GET', '/api/admin/release'],
     releaseItems: ['GET', '/api/admin/release/items?kind=notes&assessment=a'],
     releaseTexts: ['GET', '/api/admin/release/texts'],
@@ -625,6 +627,7 @@ describe('who is not an administrator gets nothing of the admin mode', () => {
         releases: UNUSED as ReleaseRepository,
         unpublished: UNUSED as UnpublishedRepository,
         usageStats: UNUSED as UsageStatsSource,
+        cardQuality: UNUSED as CardQualitySource,
         deepHealth: deepHealth({}),
       }),
     );

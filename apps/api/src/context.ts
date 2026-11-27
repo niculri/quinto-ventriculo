@@ -7,6 +7,8 @@ import { revalidate } from './middleware/revalidate';
 import { requireSession } from './middleware/session';
 import { sharedContent } from './middleware/sharedContent';
 import { visibleContent } from './middleware/visibleContent';
+import { cardQualityReader } from './services/cardQuality';
+import type { CardQualityReader } from './services/cardQuality';
 import { contentVersionReader } from './services/contentVersion';
 import type { ContentVersionReader } from './services/contentVersion';
 import { publishedIds } from './services/publishedIds';
@@ -32,6 +34,7 @@ interface Middlewares {
   settingsAdmin: MiddlewareHandler<AppEnv>;
   unpublishedAdmin: MiddlewareHandler<AppEnv>;
   usageAdmin: MiddlewareHandler<AppEnv>;
+  cardQualityAdmin: MiddlewareHandler<AppEnv>;
 }
 
 interface Services {
@@ -39,6 +42,7 @@ interface Services {
   contentVersion: ContentVersionReader;
   publishedIds: PublishedIds;
   usage: UsageReader;
+  cardQuality: CardQualityReader;
   news: StudentNews;
 }
 
@@ -65,12 +69,14 @@ export function createContext(deps: Dependencies): AppContext {
       settingsAdmin: requireAdmin(deps, configured.settings),
       unpublishedAdmin: requireAdmin(deps, configured.unpublished),
       usageAdmin: requireAdmin(deps, configured.usageStats),
+      cardQualityAdmin: requireAdmin(deps, configured.cardQuality),
     },
     services: {
       settings,
       contentVersion,
       publishedIds: publishedIds(deps),
       usage: usageReader(deps),
+      cardQuality: cardQualityReader(deps),
       news: studentNews(deps),
     },
   };

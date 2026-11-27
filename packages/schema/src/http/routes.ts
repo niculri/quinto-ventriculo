@@ -29,6 +29,7 @@ export const API_ROUTES = {
   usageOpen: route('POST', '/usage/open'),
   clientError: route('POST', '/client-error'),
   usage: route('GET', '/admin/usage'),
+  cardQuality: route('GET', '/admin/card-quality'),
   release: route('GET', '/admin/release'),
   releaseItems: route('GET', '/admin/release/items'),
   releaseTexts: route('GET', '/admin/release/texts'),
@@ -95,6 +96,8 @@ export const apiPaths = {
   usageOpen: () => fill(R.usageOpen.pattern),
   clientError: () => fill(R.clientError.pattern),
   usage: () => fill(R.usage.pattern),
+  cardQuality: (deckId: string) =>
+    `${fill(R.cardQuality.pattern)}?${new URLSearchParams({ deck: deckId }).toString()}`,
   release: () => fill(R.release.pattern),
   releaseItems: (assessment: string, kind: ReleaseItemKind, afterKey: string | null) =>
     `${fill(R.releaseItems.pattern)}?${new URLSearchParams({ assessment, kind, ...(afterKey ? { after: afterKey } : {}) }).toString()}`,

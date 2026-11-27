@@ -1,7 +1,7 @@
 // What the API accepts in a route's path, query, body and headers. A query or header that is missing comes as
 // `undefined`; the ones that only normalize (search, the list of tests, the image's signature) never fail.
 import { z } from 'zod';
-import { NoteGuid } from '../anki/flashcards';
+import { DeckId, NoteGuid } from '../anki/flashcards';
 import { ReleaseItemKind, ReleaseMarkId } from '../release/release';
 import { ClientErrorReport, UsageOpenRequest } from './usage';
 import { PREVIEW_VALUE } from './headers';
@@ -54,6 +54,9 @@ export const CardIndexParams = z.object({
   assessment: z.string().regex(INDEX_SEGMENT),
   hash: z.string().regex(HEX_32),
 });
+
+/** The deck whose cards (and those of the decks below it) «Tarjetas» of the panel shows. */
+export const CardQualityQuery = z.object({ deck: DeckId });
 
 export const CardChangesQuery = z.object({ since: z.string().regex(/^\d{1,15}$/) });
 

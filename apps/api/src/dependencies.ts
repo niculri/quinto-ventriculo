@@ -4,6 +4,8 @@ import { ANYONE_INVITED } from './ports/access';
 import { NO_ANNOUNCEMENTS } from './ports/announcements';
 import type { AnnouncementRepository } from './ports/announcements';
 import type { AccessChecker } from './ports/access';
+import { NO_CARD_QUALITY } from './ports/cardQuality';
+import type { CardQualitySource } from './ports/cardQuality';
 import { NO_ADMINS } from './ports/admin';
 import type { AdminChecker } from './ports/admin';
 import { NO_CLIENT_ERRORS, NO_CLIENT_ERRORS_READER } from './ports/clientErrors';
@@ -54,6 +56,9 @@ export interface AppOptions {
   usageEvents?: UsageRecorder;
   /** Seconds the usage report is kept (60 by default). */
   usageTtl?: number;
+  cardQuality?: CardQualitySource;
+  /** Seconds the summary of a deck's cards is kept (60 by default). */
+  cardQualityTtl?: number;
   /** Milliseconds a read of the settings is kept (3000 by default); a change through the panel drops it at once. */
   settingsTtl?: number;
   /** What changes when the students' material does: without it, the material always goes in full. */
@@ -84,6 +89,7 @@ interface Configured {
   settings: boolean;
   unpublished: boolean;
   usageStats: boolean;
+  cardQuality: boolean;
   usageOpens: boolean;
   usageEvents: boolean;
   clientErrorsReader: boolean;
@@ -109,6 +115,8 @@ export interface Dependencies {
   usageOpens: UsageOpensReader;
   usageEvents: UsageRecorder;
   usageTtl: number;
+  cardQuality: CardQualitySource;
+  cardQualityTtl: number;
   settingsTtl: number;
   contentVersion: ContentVersionSource;
   contentVersionTtl: number;
@@ -143,6 +151,8 @@ export function resolveDependencies(options: AppOptions): Dependencies {
     usageOpens: options.usageOpens ?? NO_USAGE_OPENS,
     usageEvents: options.usageEvents ?? NO_USAGE_EVENTS,
     usageTtl: options.usageTtl ?? 60,
+    cardQuality: options.cardQuality ?? NO_CARD_QUALITY,
+    cardQualityTtl: options.cardQualityTtl ?? 60,
     settingsTtl: options.settingsTtl ?? 3000,
     contentVersion: options.contentVersion ?? NO_CONTENT_VERSION,
     contentVersionTtl: options.contentVersionTtl ?? 3000,
@@ -162,6 +172,7 @@ export function resolveDependencies(options: AppOptions): Dependencies {
       settings: !!options.settings,
       unpublished: !!options.unpublished,
       usageStats: !!options.usageStats,
+      cardQuality: !!options.cardQuality,
       usageOpens: !!options.usageOpens,
       usageEvents: !!options.usageEvents,
       clientErrorsReader: !!options.clientErrorsReader,

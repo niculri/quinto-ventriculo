@@ -185,7 +185,7 @@ describe('worker composition', () => {
   it('with every binding, every route of the panel exists for an administrator and for nobody else', async () => {
     const { call } = await workerWith();
     const panel = Object.values(API_ROUTES).filter((r) => r.pattern.startsWith('/admin/'));
-    expect(panel).toHaveLength(15);
+    expect(panel).toHaveLength(16);
     for (const { method, pattern } of panel) {
       const path = `/api${pattern}`;
       expect((await call(path, ADMIN, method, '{}')).status, `${method} ${path}`).not.toBe(404);

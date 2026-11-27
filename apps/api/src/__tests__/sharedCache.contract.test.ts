@@ -37,6 +37,7 @@ const NOT_CACHED = {
   usageOpen: 'a write',
   clientError: 'a write',
   usage: 'administration',
+  cardQuality: 'administration',
   release: 'administration',
   releaseItems: 'administration',
   releaseTexts: 'administration',

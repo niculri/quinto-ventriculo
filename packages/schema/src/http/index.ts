@@ -35,6 +35,7 @@ export {
   AcceptsGzip,
   BearerToken,
   CardChangesQuery,
+  CardQualityQuery,
   CardIndexParams,
   CardParams,
   MediaKey,

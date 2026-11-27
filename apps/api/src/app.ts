@@ -10,6 +10,7 @@ import type { AppEnv } from './env';
 import { apiError } from './http';
 import { limitRequests } from './middleware/rateLimit';
 import { announcementsRoutes } from './routes/admin/announcements';
+import { cardQualityRoutes } from './routes/admin/cardQuality';
 import { releasesRoutes } from './routes/admin/releases';
 import { siteSettingsRoutes } from './routes/admin/siteSettings';
 import { unpublishedRoutes } from './routes/admin/unpublished';
@@ -51,6 +52,7 @@ export function createApp(options: AppOptions) {
     clientErrorRoutes,
     usageOpenRoutes,
     usageRoutes,
+    cardQualityRoutes,
     releasesRoutes,
     announcementsRoutes,
     newsRoutes,

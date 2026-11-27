@@ -25,7 +25,8 @@ begin
         or l.action in ('suspend_card', 'suspend_note', 'bury_card', 'bury_note');
   get diagnostics v_rows = row_count;
 
-  delete from public.card_quality;
+  -- «where true»: pg-safeupdate refuses a DELETE without WHERE, also inside a function.
+  delete from public.card_quality where true;
   insert into public.card_quality (
     note_guid, ord, deck_id, card_version, students, answer_students, first_students, first_again,
     review_students, reviews, review_again, calibrated, calibrated_again, expected_again, answers, median_ms,

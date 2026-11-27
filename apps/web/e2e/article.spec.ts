@@ -118,7 +118,6 @@ test('the site menu: the way to the note, the other parts of its assessment, and
 
 test('nothing moves between pages: the breadcrumbs (from «Inicio») and the title at the same place', async ({
   page,
-  isMobile,
 }) => {
   await signIn(page);
   const where = async () => {
@@ -130,8 +129,9 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
     const a = (await crumbs.boundingBox())!;
     const b = (await main.getByRole('heading', { level: 1 }).boundingBox())!;
     const width = await main.evaluate((m) => m.getBoundingClientRect().width);
-    // On the phone a long trail wraps (and pushes the title down): there only the breadcrumbs and the width.
-    return (isMobile ? [a.x, a.y, width] : [a.x, a.y, b.x, b.y, width]).map(Math.round);
+    // The breadcrumbs are one line on every screen, however long (a phone cuts their middle): the title never goes down.
+    expect(a.height).toBeLessThan(24);
+    return [a.x, a.y, b.x, b.y, width].map(Math.round);
   };
   await page.goto('/semesters/2/courses/biologia-celular');
   const course = await where();
@@ -142,6 +142,10 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
   );
   expect(await where()).toEqual(course);
   await page.goto('/semesters/1/courses/anatomia-1/anki/certamen-1');
+  expect(await where()).toEqual(course);
+  await page.goto('/semesters/2/courses/biologia-celular/assessments/certamen-2/notes');
+  expect(await where()).toEqual(course);
+  await page.goto('/semesters/1/courses/anatomia-1/anki/cards');
   expect(await where()).toEqual(course);
   await page.goto('/home');
   expect(await where()).toEqual(course);

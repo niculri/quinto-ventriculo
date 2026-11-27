@@ -1,16 +1,25 @@
 /* A round's results: the score, its bar and the wrong answers. */
 .quiz .res {
-  padding-block: 28px 44px;
+  padding-block: 0 44px;
 }
+/* The title of every page (as the cover's), right under the breadcrumbs. */
 .quiz .res h1 {
-  font-size: clamp(26px, 6vw, 34px);
-  line-height: 1.1;
+  font-family: var(--font-serif);
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.025em;
 }
+/* The three figures in one row from 360 px: «33 %» never alone on a second one. */
 .quiz .marcador {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
   margin: 20px 0 6px;
+}
+@media (min-width: 360px) {
+  .quiz .marcador {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .quiz .mcell {
   background: var(--surf);
@@ -41,6 +50,15 @@
 }
 .quiz .mcell.p .n {
   color: var(--ac);
+}
+/* A cell of a third of a phone still holds «100%». */
+@media (max-width: 639.98px) {
+  .quiz .mcell {
+    padding: 14px 10px;
+  }
+  .quiz .mcell .n {
+    font-size: clamp(24px, 7vw, 38px);
+  }
 }
 .quiz .barra {
   height: 12px;

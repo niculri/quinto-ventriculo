@@ -59,7 +59,9 @@ export function Results({
   const wrong = wrongAnswers(round);
   return (
     <section className="wrap wide res" aria-labelledby="quiz-result">
-      <p className="kicker">
+      {/* As every page: the title where the others have it, and its line right under it. */}
+      <h1 id="quiz-result">{resultTitle(result.percent)}</h1>
+      <p className="res-line mt-1 text-sm text-muted">
         {sectionName ? (
           <>
             <Html html={sectionName} />
@@ -71,7 +73,6 @@ export function Results({
         {result.total}
         {s.results.answered}
       </p>
-      <h1 id="quiz-result">{resultTitle(result.percent)}</h1>
       <Scoreboard correct={result.correct} wrong={result.wrong} percent={result.percent} />
       <div className="acciones">
         <button type="button" className="btn" onClick={onRepeatAll}>

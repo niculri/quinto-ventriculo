@@ -97,9 +97,19 @@ test('a round: right and wrong, «Saltar», continuing after reloading, «Volver
   await option(page, /Sólo I$/).click();
   await expect(page.getByText('Incorrecta. La correcta es la B')).toBeVisible();
   await page.getByRole('button', { name: 'Ver resultado' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Hay que repasar' })).toBeVisible();
+  const title = page.getByRole('heading', { level: 1, name: 'Hay que repasar' });
+  await expect(title).toBeVisible();
   await expect(page.getByText('33%')).toBeVisible();
   await noSideScroll(page);
+  // The title where every page has it (nothing over it) and the three figures in one row, also on a phone.
+  await expect(title.locator('xpath=following-sibling::p[1]')).toHaveText(
+    'Pautas de prueba · 3 de 3 respondidas',
+  );
+  expect(Math.round((await title.boundingBox())!.y)).toBe(121);
+  const cells = await page
+    .locator('.mcell')
+    .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().y)));
+  expect(new Set(cells).size).toBe(1);
 
   await page.getByRole('button', { name: 'Repetir solo las malas' }).click();
   await expect(heading(page)).toHaveText('¿Qué muestra la foto?');

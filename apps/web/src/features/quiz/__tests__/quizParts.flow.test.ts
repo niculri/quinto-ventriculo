@@ -334,7 +334,7 @@ describe('the bar while answering', () => {
 
     await user.click(finish);
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Hay que repasar');
-    expect(document.querySelector('.res .kicker')).toHaveTextContent(
+    expect(document.querySelector('.res .res-line')).toHaveTextContent(
       'Pautas de años pasados · 1 de 3 respondidas',
     );
   });
@@ -727,7 +727,7 @@ describe('the results', () => {
     await user.click(option(/A la caja TATA/));
     await user.click(screen.getByRole('button', { name: 'Terminar ahora' }));
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Hay que repasar');
-    expect(document.querySelector('.res .kicker')).toHaveTextContent(
+    expect(document.querySelector('.res .res-line')).toHaveTextContent(
       'Pautas de años pasados · 2 de 3 respondidas',
     );
     const cells = [...document.querySelectorAll('.marcador .mcell')].map((c) => [

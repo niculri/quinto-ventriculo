@@ -63,7 +63,7 @@ describe('a single tab outside its assessment, without kicker, heading, descript
       await screen.findByText('Sin errores. Todas las respuestas fueron correctas.'),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Repetir solo las malas' })).toBeNull();
-    expect(document.querySelector('.res .kicker')).toHaveTextContent(/^3 de 3 respondidas$/);
+    expect(document.querySelector('.res .res-line')).toHaveTextContent(/^3 de 3 respondidas$/);
   });
 
   it('the topics of a link choose its only tab’s groups, and leave the address', async () => {

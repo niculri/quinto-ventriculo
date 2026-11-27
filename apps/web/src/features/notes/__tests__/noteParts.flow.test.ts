@@ -335,6 +335,22 @@ describe('what the page does besides showing the note', () => {
     expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
   });
 
+  it('an error of the note without the catalog: the error alone, where the page starts', async () => {
+    renderApp(PATH, {
+      api: fakeApi({
+        catalog: async () => {
+          throw new ApiRequestError(500, 'internal', 'Sin catálogo.');
+        },
+        note: async () => {
+          throw new ApiRequestError(500, 'internal', 'Falló de prueba.');
+        },
+      }),
+    });
+    expect(await screen.findByText('Falló de prueba.')).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Ruta' })).toBeNull();
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+  });
+
   it('an error of the server shows its message with «Reintentar»', async () => {
     renderApp(PATH, {
       api: fakeApi({
@@ -345,6 +361,9 @@ describe('what the page does besides showing the note', () => {
     });
     expect(await screen.findByText('Falló de prueba.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
+    // The breadcrumbs and the title the catalog knows stay where they are.
+    expect(screen.getByRole('navigation', { name: 'Ruta' })).toHaveTextContent(/^Inicio/);
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { level: 1, name: 'Esta página no aparece ni en el Netter' }),
     ).toBeNull();

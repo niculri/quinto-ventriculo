@@ -104,7 +104,8 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
 
   const onScroll = () => {
     if (open) setOpen(null);
-    if (scrollerRef.current) wholeMonths(scrollerRef.current);
+    // It scrolls only once the box is there.
+    wholeMonths(scrollerRef.current!);
   };
 
   const onClose = () => {

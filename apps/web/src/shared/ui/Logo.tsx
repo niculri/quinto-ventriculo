@@ -87,7 +87,7 @@ export function Logo({
         ) : null}
       </span>
       <span className={compact ? 'max-sm:sr-only' : ''}>
-        <span className="block font-serif text-[1.05rem] leading-none font-semibold tracking-tight text-ink">
+        <span className="block font-serif text-[1.05rem] leading-none font-semibold tracking-tight text-ink md:whitespace-nowrap">
           {sharedStrings.siteName}
         </span>
         {tagline ? (

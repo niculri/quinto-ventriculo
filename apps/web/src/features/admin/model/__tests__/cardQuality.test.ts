@@ -146,7 +146,7 @@ describe('the figures as text', () => {
       'Las cifras todavía no se calculan: se calculan cada noche.',
     );
     expect(emptyText({ ...report, measured: 0 }, 'hardest', 5)).toBe(
-      'Todavía ninguna tarjeta de aquí la vieron 5 estudiantes o más.',
+      'Todavía no hay ninguna tarjeta de aquí vista por 5 estudiantes o más.',
     );
     expect(emptyText(report, 'hardest', 5)).toContain('tiene repasos de 5 estudiantes');
     expect(emptyText(null, 'hardest', 5)).toContain('tiene repasos de 5 estudiantes');

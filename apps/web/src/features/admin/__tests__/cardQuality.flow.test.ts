@@ -180,7 +180,9 @@ describe('«Tarjetas»', () => {
       report(deck, { measured: 0, few: 3, hardest: [], suspicious: [], refreshedAt: null }),
     );
     expect(
-      await screen.findByText('Todavía ninguna tarjeta de aquí la vieron 5 estudiantes o más.'),
+      await screen.findByText(
+        'Todavía no hay ninguna tarjeta de aquí vista por 5 estudiantes o más.',
+      ),
     ).toBeInTheDocument();
     // Its place keeps the longest summary too, hidden: the one that is read is the other.
     expect(

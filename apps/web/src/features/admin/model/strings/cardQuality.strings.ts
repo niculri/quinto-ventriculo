@@ -13,7 +13,7 @@ export const cardQualityStrings = {
   notYet: 'Las cifras todavía no se calculan: se calculan cada noche.',
   empty: {
     nothing: (min: number) =>
-      `Todavía ninguna tarjeta de aquí la vieron ${String(min)} estudiantes o más.`,
+      `Todavía no hay ninguna tarjeta de aquí vista por ${String(min)} estudiantes o más.`,
     hardest: (min: number) =>
       `Todavía ninguna tarjeta de aquí tiene repasos de ${String(min)} estudiantes o más.`,
     suspicious: 'Ninguna tarjeta de aquí es sospechosa por ahora.',

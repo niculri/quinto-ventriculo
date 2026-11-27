@@ -3,7 +3,8 @@ import { useParams } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
 import { ApiRequestError } from '../../../shared/lib/api';
-import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { PageError } from '../../../shared/ui/PageStates';
+import { noteCrumbs } from '../model/noteCrumbs';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { useReadingFonts } from '../../../shared/lib/useReadingFonts';
 import { locateNote } from '../../catalog/model/catalog';
@@ -23,7 +24,14 @@ export function NotePage() {
 
   if (note.isError) {
     if (note.error instanceof ApiRequestError && note.error.status === 404) return <NotFoundPage />;
-    return <ErrorWithRetry error={note.error} onRetry={() => void note.refetch()} />;
+    return (
+      <PageError
+        error={note.error}
+        onRetry={() => void note.refetch()}
+        crumbs={location ? noteCrumbs(location, location.note.title) : null}
+        title={location?.note.title ?? null}
+      />
+    );
   }
   // Without the catalog the path is not known yet: drawn later, it would push the article down a line or two. Only
   // its first request is awaited: once it failed (it retries for seconds) or waits for the connection, the article goes.

@@ -4,8 +4,7 @@ import { Link, useParams } from 'react-router';
 import { courseHasMaterial, semesterHasMaterial } from '@qv/schema/http';
 import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
-import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { Loading } from '../../../shared/ui/Loading';
+import { PageError, PageLoading } from '../../../shared/ui/PageStates';
 import { card, linkCard, page } from '../../../shared/ui/styles';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { ListMark, PageCrumbs } from '../../catalog/components/AdminMarks';
@@ -20,8 +19,8 @@ export function SemesterPage() {
   const shown = semester && catalog.data && semesterHasMaterial(catalog.data, semester);
   useTitle(shown ? semester.name : null);
   if (catalog.isError)
-    return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
-  if (!catalog.data) return <Loading />;
+    return <PageError error={catalog.error} onRetry={() => void catalog.refetch()} />;
+  if (!catalog.data) return <PageLoading />;
   if (!semester || !shown) return <NotFoundPage />;
 
   return (

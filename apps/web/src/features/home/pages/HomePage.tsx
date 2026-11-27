@@ -28,7 +28,11 @@ export function HomePage() {
       </div>
       <NewsLine />
       {catalog.isError ? (
-        <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />
+        <ErrorWithRetry
+          error={catalog.error}
+          onRetry={() => void catalog.refetch()}
+          className="mt-8 max-w-lg"
+        />
       ) : (
         <HomeBody catalog={catalog.data} />
       )}

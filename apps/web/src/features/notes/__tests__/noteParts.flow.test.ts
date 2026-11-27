@@ -269,7 +269,7 @@ describe('arriving at a section', () => {
     await waitFor(() => expect(scrolledTo(spy)).toEqual(['núcleo celular']));
   });
 
-  it('the article waits for the catalog, whose breadcrumbs would push it down, and then goes to the section once', async () => {
+  it('the article waits for the catalog in the frame of a page that loads, and then goes to the section once', async () => {
     let arrive: () => void = () => undefined;
     const gate = new Promise<void>((resolve) => (arrive = resolve));
     const spy = vi.spyOn(Element.prototype, 'scrollIntoView');
@@ -282,7 +282,9 @@ describe('arriving at a section', () => {
         },
       }),
     });
-    expect(await screen.findByRole('status', { name: 'Cargando el apunte' })).toBeEmptyDOMElement();
+    const main = await screen.findByRole('main');
+    expect(await within(main).findByRole('status')).toHaveTextContent('Cargando…');
+    expect(within(main).queryByRole('navigation', { name: 'Ruta' })).toBeNull();
     expect(screen.queryByRole('heading', { level: 2, name: 'Ribosomas' })).toBeNull();
     await act(async () => arrive());
     await screen.findByRole('heading', { level: 2, name: 'Ribosomas' });

@@ -20,7 +20,11 @@ export function CareerPage() {
       <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: s.title }]} />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{s.title}</h1>
       {catalog.isError ? (
-        <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />
+        <ErrorWithRetry
+          error={catalog.error}
+          onRetry={() => void catalog.refetch()}
+          className="mt-8 max-w-lg"
+        />
       ) : !catalog.data ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {Array.from({ length: 8 }, (_, i) => (

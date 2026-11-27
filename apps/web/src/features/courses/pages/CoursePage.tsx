@@ -6,8 +6,7 @@ import type { Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/sc
 import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
-import { ErrorWithRetry } from '../../../shared/ui/Notice';
-import { Loading } from '../../../shared/ui/Loading';
+import { PageError, PageLoading } from '../../../shared/ui/PageStates';
 import { page } from '../../../shared/ui/styles';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
@@ -25,8 +24,8 @@ export function CoursePage() {
   const { courseId = '', number = '' } = useParams();
   const catalog = useCatalog();
   if (catalog.isError)
-    return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
-  if (!catalog.data) return <Loading />;
+    return <PageError error={catalog.error} onRetry={() => void catalog.refetch()} />;
+  if (!catalog.data) return <PageLoading />;
   const found = findCourse(catalog.data, courseId);
   // A course without anything published does not exist, as an address made up.
   if (!found || !courseHasMaterial(catalog.data, found.course)) return <NotFoundPage />;

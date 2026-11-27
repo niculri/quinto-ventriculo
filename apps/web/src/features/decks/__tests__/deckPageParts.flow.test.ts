@@ -186,9 +186,9 @@ it('with every card suspended, the deck has no mastery yet, and the list none at
   renderApp(ASSESSMENT_PATH, { study });
   const panel = await screen.findByRole('region', { name: 'Estudiar' });
   await waitFor(() => expect(panel.querySelector('[data-mastery]')).not.toBeNull());
-  const meters = [...panel.querySelectorAll('[data-mastery]')].map((m) => m.textContent);
+  const meters = [...panel.querySelectorAll('[data-mastery]')];
   expect(meters).toHaveLength(1);
-  expect(meters[0]).toContain('Sin dominio todavía');
+  expect(meters[0]).toHaveClass('invisible');
 });
 
 it('with a large backlog, «Estudiar» gives the plan to catch up instead of what to turn on', async () => {

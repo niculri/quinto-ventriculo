@@ -1,5 +1,5 @@
-// Dominio as a small bar and «62 %» («—» while nothing was seen), always as wide, with what it means on hover or touch
-// (also inside a link).
+// Dominio as a small bar and «62 %», with what it means on hover or touch (also inside a link). While nothing was seen
+// it is not drawn, but its room is kept: nothing moves when the first review brings it.
 
 import { useState } from 'react';
 import { masteryPercent } from '@qv/study';
@@ -16,9 +16,30 @@ export function MasteryMeter({
   align?: 'left' | 'above';
   className?: string;
 }) {
+  if (value === null) {
+    return (
+      <span
+        aria-hidden="true"
+        data-mastery=""
+        className={`invisible inline-flex h-4 w-[5.375rem] flex-none ${className}`}
+      />
+    );
+  }
+  return <Meter value={value} align={align} className={className} />;
+}
+
+function Meter({
+  value,
+  align,
+  className,
+}: {
+  value: number;
+  align: 'left' | 'above';
+  className: string;
+}) {
   const [open, setOpen] = useState(false);
   const boxRef = useOutsideClose(open, setOpen);
-  const percent = value === null ? 0 : masteryPercent(value);
+  const percent = masteryPercent(value);
   const place = align === 'above' ? 'bottom-full left-0 mb-1' : 'top-full left-0 mt-1';
   return (
     <span
@@ -38,18 +59,9 @@ export function MasteryMeter({
         <span className="block h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
       </span>
       <span className="w-10 flex-none text-left text-xs font-normal whitespace-nowrap text-muted tabular-nums">
-        {value === null ? (
-          <>
-            <span aria-hidden="true">{s.mastery.none}</span>
-            <span className="sr-only">{s.mastery.noneRead}</span>
-          </>
-        ) : (
-          <>
-            {percent}
-            {s.mastery.percent}
-            <span className="sr-only">{s.mastery.of}</span>
-          </>
-        )}
+        {percent}
+        {s.mastery.percent}
+        <span className="sr-only">{s.mastery.of}</span>
       </span>
       <span
         role="tooltip"

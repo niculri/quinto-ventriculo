@@ -291,7 +291,7 @@ test('«Modo avanzado» keeps the page of the assessment, and adds a configurati
   await expect(options.getByRole('status')).toContainText('Faltan 15 días');
   await expect(page.getByRole('table', { name: 'Submazos' })).toHaveCount(0);
   await expect(page.getByText('Repaso final')).toBeVisible();
-  await expect(page.locator('[data-mastery]').first()).toBeVisible();
+  await expect(page.locator('[data-mastery]').first()).toBeAttached();
   await page
     .getByRole('button', { name: `Configuración de ${WEEK.replace('Activar ', '')}` })
     .click();

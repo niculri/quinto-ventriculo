@@ -12,10 +12,10 @@ for (const width of [360, 390, 640, 768, 832, 900, 1024, 1280]) {
     await page.setViewportSize({ width, height: 800 });
     await signIn(page);
     const bar = page.getByRole('banner');
-    const search = bar.getByRole('button', { name: 'Buscar en la página' });
+    const search = bar.getByRole('button', { name: /^Buscar en la página/ });
     await expect(search).toBeVisible();
     const cut = await search.evaluate((button) =>
-      [...button.querySelectorAll('span span')]
+      [...button.querySelectorAll('span > span:not(.sr-only)')]
         .filter((e) => e.getClientRects().length)
         .map(
           (e) =>

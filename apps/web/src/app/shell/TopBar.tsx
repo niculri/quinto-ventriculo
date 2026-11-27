@@ -59,13 +59,16 @@ export function TopBar({
         <button
           type="button"
           onClick={onSearch}
-          aria-label={topBarStrings.searchLabel}
           className="mx-auto flex h-10 w-full max-w-md min-w-0 items-center gap-2.5 rounded-lg border border-border bg-surface px-3 text-sm text-muted shadow-xs transition hover:border-border-strong"
         >
           <Search className="size-4" aria-hidden="true" />
-          {/* Up to 52rem the whole text does not fit beside the name, the bell and the account: never «Buscar en la p…». */}
+          {/* Up to 52rem the whole text does not fit beside the name, the bell and the account: never «Buscar en la p…».
+              The rest is still read, so the name is the same at every width. */}
           <span className="flex-1 truncate text-left">
-            <span className="min-[52rem]:hidden">{topBarStrings.searchShort}</span>
+            <span className="min-[52rem]:hidden">
+              {topBarStrings.searchShort}
+              <span className="sr-only">{topBarStrings.searchRest}</span>
+            </span>
             <span className="max-[52rem]:hidden">{topBarStrings.search}</span>
           </span>
           <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-sans text-[0.7rem] sm:block">

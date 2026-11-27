@@ -7,5 +7,5 @@ export const topBarStrings = {
   homeLink: 'El Quinto Ventrículo, inicio',
   search: 'Buscar en la página…',
   searchShort: 'Buscar',
-  searchLabel: 'Buscar en la página',
+  searchRest: ' en la página…',
 } as const;

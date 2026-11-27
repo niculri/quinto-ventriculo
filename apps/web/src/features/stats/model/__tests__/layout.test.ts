@@ -1,7 +1,7 @@
 // Tests where the heatmap's day box goes (above its day, else below, always on screen) and how far the grid scrolls.
 import { yearGrid } from '@qv/study';
 import { describe, expect, it } from 'vitest';
-import { BOX_WIDTH, MARGIN, boxLeft, boxTop, columnLeft, gridScroll } from '../layout';
+import { BOX_WIDTH, MARGIN, boxLeft, boxTop, columnLeft, gridScroll, monthShown } from '../layout';
 
 const rect = (left: number, top: number, size = 12) =>
   ({ left, top, width: size, height: size, right: left + size, bottom: top + size }) as DOMRect;
@@ -71,5 +71,15 @@ describe('how far the grid scrolls', () => {
     const thursday = yearGrid(2026);
     expect(thursday.columns[0]![0]).toBeNull();
     expect(gridScroll(scroll, thursday.first + 210, thursday)).toBe(columnLeft(30) - 300 + 4 * 14);
+  });
+});
+
+describe('a month’s name', () => {
+  const view = { left: 100, width: 300 };
+  it('shows when the part in view has it whole, never cut at an edge', () => {
+    expect(monthShown(100, view)).toBe(true);
+    expect(monthShown(376, view)).toBe(true);
+    expect(monthShown(90, view)).toBe(false);
+    expect(monthShown(380, view)).toBe(false);
   });
 });

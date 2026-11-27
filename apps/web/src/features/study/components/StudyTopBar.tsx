@@ -145,6 +145,7 @@ function Left({
       counts={counts}
       medianAnswerMs={medianAnswerMs}
       empty=""
+      short
       className="truncate text-sm font-medium sm:text-base"
     />
   );

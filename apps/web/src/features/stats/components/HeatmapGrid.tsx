@@ -34,6 +34,7 @@ export function HeatmapGrid({
     valueOf,
     current,
     onKeyDown,
+    onScroll,
     onClick,
     onHover,
     onFocus,
@@ -45,16 +46,10 @@ export function HeatmapGrid({
       <div
         ref={scrollerRef}
         className="overflow-x-auto overscroll-x-contain pb-1"
-        onScroll={() => open && setOpen(null)}
+        onScroll={onScroll}
       >
         <div style={{ width: GRID_WIDTH }} className="relative">
-          <div className="relative h-4 text-[0.6875rem] leading-4 text-muted" aria-hidden="true">
-            {grid.months.map(({ month, column }) => (
-              <span key={month} className="absolute top-0" style={{ left: columnLeft(column) }}>
-                {SHORT_MONTHS[month]}
-              </span>
-            ))}
-          </div>
+          <MonthNames months={grid.months} />
           <table
             ref={tableRef}
             role="grid"
@@ -97,6 +92,23 @@ export function HeatmapGrid({
           onOutside={() => setOpen(null)}
         />
       ) : null}
+    </div>
+  );
+}
+
+function MonthNames({ months }: { months: readonly { month: number; column: number }[] }) {
+  return (
+    <div className="relative h-4 text-[0.6875rem] leading-4 text-muted" aria-hidden="true">
+      {months.map(({ month, column }) => (
+        <span
+          key={month}
+          data-month-left={columnLeft(column)}
+          className="absolute top-0"
+          style={{ left: columnLeft(column) }}
+        >
+          {SHORT_MONTHS[month]}
+        </span>
+      ))}
     </div>
   );
 }

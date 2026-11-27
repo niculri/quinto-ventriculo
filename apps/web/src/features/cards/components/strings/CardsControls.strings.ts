@@ -5,7 +5,7 @@ export const cardsControlsStrings = {
     unit: 'Semana o clase',
     search: 'Buscar en estas tarjetas',
     searchHint: (full: boolean) =>
-      full ? 'Texto, código o sintaxis de Anki' : 'Buscar por texto o código',
+      full ? 'Texto, código o sintaxis de Anki' : 'Buscar texto o código',
     view: 'Vista',
     list: 'Lista',
     table: 'Tabla',

@@ -9,7 +9,7 @@ export const columnsStrings = {
       'Hay tarjetas que solo están en el borrador: se miran, no se suspenden, entierran ni marcan.',
     searchLabel: (full: boolean) => (full ? 'Buscar (sintaxis de Anki)' : 'Buscar tarjetas'),
     searchHint: (full: boolean) =>
-      full ? 'deck:"…" tag:… is:due vértebra' : 'Buscar por texto o código',
+      full ? 'deck:"…" tag:… is:due vértebra' : 'Buscar texto o código',
     search: 'Buscar',
     actions: 'Acciones',
     show: 'Mostrar',

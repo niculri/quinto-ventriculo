@@ -54,10 +54,15 @@ export function TopBar({
         <button
           type="button"
           onClick={onSearch}
+          aria-label={topBarStrings.searchLabel}
           className="mx-auto flex h-10 w-full max-w-md min-w-0 items-center gap-2.5 rounded-lg border border-border bg-surface px-3 text-sm text-muted shadow-xs transition hover:border-border-strong"
         >
           <Search className="size-4" aria-hidden="true" />
-          <span className="flex-1 truncate text-left">{topBarStrings.search}</span>
+          {/* On a phone the whole text does not fit beside the bell and the account: never «Buscar en la p…». */}
+          <span className="flex-1 truncate text-left">
+            <span className="sm:hidden">{topBarStrings.searchShort}</span>
+            <span className="max-sm:hidden">{topBarStrings.search}</span>
+          </span>
           <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-sans text-[0.7rem] sm:block">
             {keys('Ctrl+K')}
           </kbd>

@@ -2,7 +2,14 @@
 
 import { useId, useState } from 'react';
 import type { Counts } from '@qv/srs';
-import { breakdownText, loadText, todayText, totalCards } from '@qv/study';
+import {
+  breakdownText,
+  estimateMinutes,
+  loadText,
+  minutesText,
+  todayText,
+  totalCards,
+} from '@qv/study';
 import { tapArea } from '../../../shared/ui/styles';
 import { useHoverOpen } from '../hooks/useHoverOpen';
 import { useOutsideClose } from '../hooks/useOutsideClose';
@@ -15,7 +22,10 @@ const SIDE = {
   right: 'sm:left-full sm:ml-2',
 } as const;
 
-/** With `split`, new cards and reviews apart («20 nuevas · 15 repasos · ~12 min»), as the deck list says them. */
+/**
+ * With `split`, new cards and reviews apart («20 nuevas · 15 repasos · ~12 min»), as the deck list says them. With
+ * `short`, a phone reads «20 · ~12 min»: the minutes are what «20 para hoy · ~…» lost in a narrow bar.
+ */
 export function DayLoad({
   counts,
   medianAnswerMs,
@@ -23,6 +33,7 @@ export function DayLoad({
   split = false,
   side = 'left',
   empty = s.nothingToday,
+  short = false,
   className = '',
 }: {
   counts: Counts;
@@ -31,6 +42,7 @@ export function DayLoad({
   split?: boolean;
   side?: keyof typeof SIDE;
   empty?: string;
+  short?: boolean;
   className?: string;
 }) {
   const load = split ? todayText : loadText;
@@ -39,7 +51,19 @@ export function DayLoad({
   if (!detail || totalCards(counts) === 0) {
     return (
       <span className={`tabular-nums ${className}`} title={breakdown}>
-        {text}
+        {short && totalCards(counts) > 0 ? (
+          <>
+            <span className="max-sm:hidden">{text}</span>
+            <span className="sm:hidden">
+              {s.shortLoad(
+                totalCards(counts).toLocaleString('es-CL'),
+                minutesText(estimateMinutes(counts, medianAnswerMs)),
+              )}
+            </span>
+          </>
+        ) : (
+          text
+        )}
         <span className="sr-only"> ({breakdown})</span>
       </span>
     );

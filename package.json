@@ -18,7 +18,7 @@
     "dev:local": "npm run dev:local -w @qv/web",
     "build": "npm run build -w @qv/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint .",
+    "lint": "NODE_OPTIONS=--max-old-space-size=8192 eslint .",
     "suppressions": "tsx packages/ops/src/suppressionsCli.ts",
     "deps": "tsx packages/ops/src/cyclesCli.ts",
     "deps:baseline": "tsx packages/ops/src/cyclesCli.ts --write-baseline",

@@ -1,4 +1,5 @@
-// A search's results grouped by note, the link of each one, and where a search was made from.
+// A search's results grouped by note, the open note's first among equals, the link of each one, and where a search was
+// made from.
 import type { Catalog, SearchContext, SearchResult } from '@qv/schema';
 import { paths } from '../../../shared/lib/paths';
 import { locateNote } from '../../catalog/model/catalog';
@@ -50,4 +51,18 @@ export function searchContext(pathname: string): SearchContext {
     return 'course';
   }
   return 'other';
+}
+
+/**
+ * Searching from a note, its own sections go first among results that match as well (same score): the API sorts them
+ * by score, and a tie kept another note's sections over the one being read.
+ */
+export function openNoteFirst(results: readonly SearchResult[], pathname: string): SearchResult[] {
+  const slug = /\/notes\/([^/]+)/.exec(pathname)?.[1];
+  if (!slug) return [...results];
+  const open = decodeURIComponent(slug);
+  return results
+    .map((r, i) => ({ r, i, own: r.noteSlug === open ? 0 : 1 }))
+    .sort((a, b) => b.r.score - a.r.score || a.own - b.own || a.i - b.i)
+    .map(({ r }) => r);
 }

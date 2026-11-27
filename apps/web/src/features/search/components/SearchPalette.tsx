@@ -9,7 +9,7 @@ import { BlurredBackdrop } from '../../../shared/ui/Dialog';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { countSearch } from '../../usage/api/count';
 import { useSearch } from '../hooks/useSearch';
-import { resultLink, searchContext } from '../model/results';
+import { openNoteFirst, resultLink, searchContext } from '../model/results';
 import { PaletteResults } from './PaletteResults';
 import { searchPaletteStrings as s } from './strings/SearchPalette.strings';
 
@@ -43,7 +43,8 @@ function PaletteContent({ close }: { close: () => void }) {
   const catalog = useCatalog().data;
   const { pathname } = useLocation();
   const api = useApi();
-  const { results, active, isFetching, query } = useSearch(text, 8);
+  const { results: found, active, isFetching, query } = useSearch(text, 8);
+  const results = openNoteFirst(found, pathname);
   const go = (to: string) => {
     countSearch(api, text, searchContext(pathname));
     close();

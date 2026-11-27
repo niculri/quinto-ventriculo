@@ -9,7 +9,7 @@ import type { Round } from '@qv/study';
 import { prefetchCards } from '../api/prefetchCards';
 import { useReviewShortcuts } from '../hooks/useReviewShortcuts';
 import type { CardRef } from '../../progress/api/repository';
-import { RATINGS } from './ratings';
+import { ANSWER_BUTTON, ANSWER_ROW, RATINGS } from './ratings';
 import { StudyCard } from './StudyCard';
 import { reviewScreenStrings } from './strings/ReviewScreen.strings';
 
@@ -45,7 +45,7 @@ export function ReviewScreen({
         onChange(answerRound(round, which));
         e.currentTarget.blur();
       }}
-      className={`${button.base} ${button.secondary} h-[4.125rem] px-1 py-2`}
+      className={`${ANSWER_BUTTON} h-[4.125rem] px-1 py-2`}
     >
       <span className={`font-semibold ${info.className}`}>{info.label}</span>
     </button>
@@ -62,7 +62,7 @@ export function ReviewScreen({
       </div>
       <div className="py-3" aria-label={reviewScreenStrings.answer} role="group">
         {revealed ? (
-          <div className="mx-auto grid max-w-md grid-cols-2 gap-2">
+          <div className={`${ANSWER_ROW} grid-cols-2`}>
             {answer('again', again)}
             {answer('good', good)}
           </div>

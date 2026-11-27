@@ -3,6 +3,7 @@
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
+import { ACCEPTED_ACCOUNT, PORT } from './accepted';
 
 const TEST_URL = '/semesters/2/courses/biologia-celular/tests/certamen-2/preguntas-de-practica';
 
@@ -88,3 +89,52 @@ test('the site’s bar does not move on entering to study: the search box stays 
   await expect(page.getByRole('region', { name: 'Frente de la tarjeta' })).toBeVisible();
   expect(await box(search)).toEqual(before);
 });
+
+for (const mode of ['four', 'two'] as const) {
+  test.describe(`the ${mode} answer buttons`, () => {
+    if (mode === 'two') {
+      test.use({
+        storageState: {
+          cookies: [],
+          origins: [
+            {
+              origin: `http://localhost:${PORT}`,
+              localStorage: [
+                ACCEPTED_ACCOUNT,
+                {
+                  name: 'qv-demo-study',
+                  value: JSON.stringify({
+                    preferences: { welcomeSeen: true },
+                    activations: [{ deckId: '1006809718735317183', active: true }],
+                  }),
+                },
+              ],
+            },
+          ],
+        },
+      });
+    }
+
+    test('take the width of «Mostrar respuesta», joined: a second tap where it was answers', async ({
+      page,
+    }) => {
+      await signIn(page);
+      await page.goto(`${DECK_URL}/study`);
+      const show = page.getByRole('button', { name: 'Mostrar respuesta' });
+      await expect(show).toBeVisible();
+      const before = await box(show);
+      await show.click();
+      const answers = page.getByRole('group', { name: 'Responder' }).getByRole('button');
+      await expect(answers).toHaveCount(mode === 'four' ? 4 : 2);
+      const first = await box(answers.first());
+      const last = await box(answers.last());
+      expect(Math.abs(first.x - before.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(last.x + last.width - (before.x + before.width))).toBeLessThanOrEqual(1);
+      const hit = await page.evaluate(
+        ([x, y]) => document.elementFromPoint(x!, y!)?.closest('button')?.textContent ?? null,
+        [before.x + before.width / 2, before.y + before.height / 2],
+      );
+      expect(hit).not.toBeNull();
+    });
+  });
+}

@@ -2,7 +2,7 @@
 import type { Shown } from '@qv/study';
 import { button } from '../../../shared/ui/styles';
 import type { StudyActions } from '../hooks/useStudySession';
-import { RATINGS } from './ratings';
+import { ANSWER_BUTTON, ANSWER_ROW, RATINGS } from './ratings';
 import { studyAnswersStrings } from './strings/StudyAnswers.strings';
 import { reviewScreenStrings } from './strings/ReviewScreen.strings';
 
@@ -24,16 +24,14 @@ export function StudyAnswers({
   // Simple mode: «Mostrar respuesta» as high as the buttons that replace it, so the card does not change size.
   const barHeight = full ? '' : 'h-[4.125rem]';
   return revealed ? (
-    <div
-      className={`mx-auto grid gap-2 ${fourButtons ? 'max-w-2xl grid-cols-4' : 'max-w-md grid-cols-2'}`}
-    >
+    <div className={`${ANSWER_ROW} ${fourButtons ? 'grid-cols-4' : 'grid-cols-2'}`}>
       {RATINGS.filter((r) => fourButtons || r.rating === 1 || r.rating === 3).map(
         ({ rating, label, className }) => (
           <button
             key={rating}
             type="button"
             onClick={() => act.answer(rating)}
-            className={`${button.base} ${button.secondary} flex-col gap-0.5 px-1 py-2 ${barHeight}`}
+            className={`${ANSWER_BUTTON} flex-col gap-0.5 px-1 py-2 ${barHeight}`}
             aria-label={studyAnswersStrings.ratingLabel(label, shown.labels[rating - 1]!)}
             disabled={failed}
           >

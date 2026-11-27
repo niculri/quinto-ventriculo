@@ -3,6 +3,7 @@ import { ChartColumn, Layers, Search } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { courseHasMaterial } from '@qv/schema/http';
 import type { Catalog, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
@@ -44,6 +45,7 @@ function CourseView({
   course: CourseWithAssessments;
 }) {
   const decks = useCourseDecks(catalog, course);
+  useTitle(course.name);
   const assessments = withMaterial(catalog, course);
   const notes = countNotes(course);
   const quizzes = course.assessments.reduce((t, a) => t + a.quizzes.length, 0);

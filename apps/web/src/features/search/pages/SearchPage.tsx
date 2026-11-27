@@ -1,6 +1,7 @@
 // The search page: every result for the `?q=` text, grouped by note.
 import { Search } from 'lucide-react';
 import { useSearchParams } from 'react-router';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { page } from '../../../shared/ui/styles';
 import { paths } from '../../../shared/lib/paths';
 import { useApi } from '../../../shared/hooks/useApi';
@@ -21,6 +22,7 @@ export function SearchPage() {
   const complete = () => countSearch(api, text, 'search');
   const groups = groupByNote(search.results);
   const catalog = useCatalog().data;
+  useTitle(s.title);
 
   return (
     <div className={page}>

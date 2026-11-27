@@ -2,6 +2,7 @@
 import { ArrowRight } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { courseHasMaterial, semesterHasMaterial } from '@qv/schema/http';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { Loading } from '../../../shared/ui/Loading';
@@ -15,11 +16,13 @@ import { semesterPageStrings as s } from './strings/SemesterPage.strings';
 export function SemesterPage() {
   const { number } = useParams();
   const catalog = useCatalog();
+  const semester = catalog.data?.semesters.find((s) => String(s.number) === number);
+  const shown = semester && catalog.data && semesterHasMaterial(catalog.data, semester);
+  useTitle(shown ? semester.name : null);
   if (catalog.isError)
     return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
   if (!catalog.data) return <Loading />;
-  const semester = catalog.data.semesters.find((s) => String(s.number) === number);
-  if (!semester || !semesterHasMaterial(catalog.data, semester)) return <NotFoundPage />;
+  if (!semester || !shown) return <NotFoundPage />;
 
   return (
     <div className={page}>

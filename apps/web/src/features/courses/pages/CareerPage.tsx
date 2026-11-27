@@ -1,4 +1,5 @@
 // «La carrera»: every semester, grouped by year, with its courses and how much material each has.
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import type { Catalog, SemesterWithCourses } from '@qv/schema';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
@@ -13,6 +14,7 @@ import { SemesterCard } from '../components/SemesterCard';
 
 export function CareerPage() {
   const catalog = useCatalog();
+  useTitle(s.title);
   return (
     <div className={page}>
       <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: s.title }]} />

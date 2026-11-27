@@ -1,6 +1,7 @@
 // The home page: the line of «Novedades», first steps, «Hoy», «Seguir», the study heatmap and «Tus ramos». Its sections appear together, in a
 // space as tall as the page was the last time on this device, so nothing moves while it loads.
 
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { firstName } from '../../../shared/lib/firstName';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
@@ -14,6 +15,7 @@ import { homePageStrings as s } from './strings/HomePage.strings';
 export function HomePage() {
   const user = useUser();
   const catalog = useCatalog();
+  useTitle(s.crumb);
 
   return (
     <div className={page}>

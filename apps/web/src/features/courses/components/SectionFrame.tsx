@@ -1,6 +1,7 @@
 // The frame of an assessment's «Apuntes» and «Tests» pages: breadcrumbs, title and the course with the assessment.
 import type { ReactNode } from 'react';
 import type { AssessmentWithNotes, CourseWithAssessments, SemesterWithCourses } from '@qv/schema';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import { page } from '../../../shared/ui/styles';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
@@ -19,6 +20,7 @@ export function SectionFrame({
   title: string;
   children: ReactNode;
 }) {
+  useTitle(s.tabTitle(title, course.name, assessment.name));
   return (
     <div className={page}>
       <PageCrumbs

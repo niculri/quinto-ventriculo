@@ -2,8 +2,10 @@
 import { useEffect } from 'react';
 import { sharedStrings } from '../strings/shared.strings';
 
-export function useTitle(title: string) {
+/** With `null` (the page is still loading, or what it shows instead names the tab itself) the tab is left alone. */
+export function useTitle(title: string | null) {
   useEffect(() => {
+    if (title === null) return;
     document.title = sharedStrings.pageTitle(title);
     return () => {
       document.title = sharedStrings.siteName;

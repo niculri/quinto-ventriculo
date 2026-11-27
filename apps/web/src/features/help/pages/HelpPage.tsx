@@ -5,6 +5,7 @@ import { CALLOUT_LABELS } from '@qv/schema';
 import { ContactLink } from '../../../shared/ui/ContactLink';
 import { HowToUse } from '../components/HowToUse';
 import { keys } from '../../../shared/ui/keys';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { page } from '../../../shared/ui/styles';
 import { paths } from '../../../shared/lib/paths';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
@@ -67,6 +68,7 @@ const STUDY_SHORTCUTS: [string, string][] = [
 const link = 'text-brand underline underline-offset-2';
 
 export function HelpPage() {
+  useTitle('Ayuda');
   return (
     <div className={page}>
       <Breadcrumbs items={[{ label: 'Inicio', to: paths.home }, { label: 'Ayuda' }]} />

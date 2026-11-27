@@ -4,9 +4,12 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { linkCard } from '../../../shared/ui/styles';
 
-/** Bigger than the corner it sits in, so the card cuts it; faint enough never to lower the contrast of the text. */
+/**
+ * In the card's lower right corner, with room on its right and cut only by the bottom, below the card's text (smaller
+ * in a narrow card, where the text reaches further); faint, and never under a letter.
+ */
 export const ART =
-  'pointer-events-none absolute -right-5 -bottom-7 size-28 text-brand sm:-right-6 sm:-bottom-8 sm:size-36 opacity-[0.16] transition-opacity group-hover:opacity-25 dark:opacity-[0.22] dark:group-hover:opacity-30';
+  'pointer-events-none absolute right-4 -bottom-11 size-28 text-brand sm:-bottom-10 @max-[13rem]:right-3 @max-[13rem]:-bottom-3 @max-[13rem]:size-20 @max-[13rem]:[stroke-width:9] opacity-[0.16] transition-opacity group-hover:opacity-25 dark:opacity-[0.22] dark:group-hover:opacity-30';
 
 export function SectionCard({
   to,
@@ -24,7 +27,7 @@ export function SectionCard({
   return (
     <Link
       to={to}
-      className={`${linkCard} group relative flex min-h-36 flex-col sm:min-h-44 overflow-hidden p-5`}
+      className={`${linkCard} group @container relative flex min-h-36 flex-col sm:min-h-44 overflow-hidden p-5`}
     >
       {art}
       <div className="relative flex items-start justify-between gap-2">

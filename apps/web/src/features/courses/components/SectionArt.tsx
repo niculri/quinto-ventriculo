@@ -36,22 +36,23 @@ export function NotesArt(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Anki: two cards, one behind the other. */
+/** Anki: two cards, one just behind the other: the front one is opaque, so no line of the back one crosses it. */
 export function AnkiArt(props: SVGProps<SVGSVGElement>) {
   return (
     <Art {...props}>
       <rect
-        x="40"
-        y="22"
-        width="96"
+        x="36"
+        y="26"
+        width="104"
         height="70"
         rx="10"
-        transform="rotate(10 88 57)"
+        transform="rotate(6 88 61)"
         fill="currentColor"
         fillOpacity=".06"
       />
-      <rect x="22" y="58" width="96" height="70" rx="10" fill="currentColor" fillOpacity=".12" />
-      <path d="M46 84h48M46 104h30" />
+      <rect x="20" y="52" width="104" height="70" rx="10" fill="var(--surface)" stroke="none" />
+      <rect x="20" y="52" width="104" height="70" rx="10" fill="currentColor" fillOpacity=".12" />
+      <path d="M42 80h56M42 100h34" />
     </Art>
   );
 }
@@ -71,13 +72,16 @@ export function TestsArt(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Gymkana: a pin over a figure, as in the gymkana's photos. */
+/** Gymkana: a long bone across the corner, with its two ends. */
 export function GymkanaArt(props: SVGProps<SVGSVGElement>) {
   return (
     <Art {...props}>
-      <path d="M30 146c4-40 22-70 50-70s46 30 50 70" fill="currentColor" fillOpacity=".1" />
-      <path d="M80 104 108 40" />
-      <circle cx="112" cy="30" r="13" fill="currentColor" fillOpacity=".45" />
+      <path
+        d="M53.1 72h53.8a14 14 0 1 1 18.3 8 14 14 0 1 1-18.3 8H53.1a14 14 0 1 1-18.3-8 14 14 0 1 1 18.3-8Z"
+        transform="translate(0 -16) rotate(-30 80 80)"
+        fill="currentColor"
+        fillOpacity=".1"
+      />
     </Art>
   );
 }

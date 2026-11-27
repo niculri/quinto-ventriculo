@@ -4,8 +4,9 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { linkCard } from '../../../shared/ui/styles';
 
+/** Bigger than the corner it sits in, so the card cuts it; faint enough never to lower the contrast of the text. */
 export const ART =
-  'pointer-events-none absolute -right-2 -bottom-3 size-28 text-brand opacity-30 transition-opacity group-hover:opacity-50';
+  'pointer-events-none absolute -right-5 -bottom-7 size-28 text-brand sm:-right-6 sm:-bottom-8 sm:size-36 opacity-[0.16] transition-opacity group-hover:opacity-25 dark:opacity-[0.22] dark:group-hover:opacity-30';
 
 export function SectionCard({
   to,

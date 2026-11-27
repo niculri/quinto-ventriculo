@@ -8,6 +8,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { initExtras, toggleExtraPanel } from './extras';
 import { occlusionSnapshot, setupOcclusion } from './occlusion';
+import { activeFocus } from '../model/activeFocus';
 import { ImageViewer } from '../../../shared/ui/ImageViewer';
 import { useMediaRecovery } from '../../../shared/hooks/useMediaRecovery';
 import { useSignedHtml } from '../../../shared/hooks/useSignedHtml';
@@ -153,11 +154,13 @@ function zoomable(root: ShadowRoot, target: Element | null): OpenImage | null {
     if (!src) return null;
     // A snapshot exists only with the image loaded.
     const base = root.querySelector<HTMLImageElement>('#image-occlusion-container img')!;
+    // It opens at its natural size on the mask asked for: on a phone the whole plate is too small to read it.
     return {
       src,
       alt: base.alt || s.frame.image,
       caption: '',
       shown: base.getBoundingClientRect().width,
+      focus: activeFocus(root) ?? undefined,
     };
   }
   const img = target?.closest('img');

@@ -1,7 +1,7 @@
 // Pinch, drag, double tap, wheel and keys over the stage of the image viewer.
 import type { KeyboardEvent, RefObject } from 'react';
 import { fitScale, fitView, isFitted, maxScale, panBy, zoomAt } from '../lib/zoom';
-import type { Size } from '../lib/zoom';
+import type { Point, Size } from '../lib/zoom';
 import { useImageGestures } from './useImageGestures';
 import { useStageView } from './useStageView';
 import { useWheelZoom } from './useWheelZoom';
@@ -20,8 +20,9 @@ export function useImageZoom(
   image: Size | null,
   onTapOutside: () => void,
   shown?: number,
+  focus?: Point,
 ) {
-  const { stage, view, setView } = useStageView(stageRef, image, shown);
+  const { stage, view, setView } = useStageView(stageRef, image, shown, focus);
   const ready = image && stage && view ? { image, stage, view } : null;
   useWheelZoom(stageRef, ready, setView);
   const { handlers, toggleAt } = useImageGestures(stageRef, ready, setView, onTapOutside);

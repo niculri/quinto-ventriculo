@@ -123,4 +123,17 @@ describe('the image viewer’s geometry', () => {
     expect(openView(small, narrow, 250).scale).toBeCloseTo(250 / 300);
     expect(openView(small, narrow, 300 * 9).scale).toBe(maxScale(small, narrow));
   });
+
+  it('with a point to open on (an occlusion’s mask): at its natural size, that point in the middle', () => {
+    const plate = { width: 1200, height: 800 };
+    const phone = { width: 390, height: 700 };
+    const opened = openView(plate, phone, 356, { x: 0.25, y: 0.5 });
+    expect(opened.scale).toBe(1);
+    expect(opened.x + 0.25 * 1200).toBeCloseTo(195);
+    expect(opened.y + 0.5 * 800).toBeCloseTo(350);
+    // At an edge it stays in bounds, and an image smaller than the stage is centered as it fits.
+    expect(openView(plate, phone, 356, { x: 0, y: 0 })).toMatchObject({ x: 0, y: 0 });
+    const small = { width: 200, height: 100 };
+    expect(openView(small, phone, 100, { x: 0.9, y: 0.9 })).toEqual(fitView(small, phone));
+  });
 });

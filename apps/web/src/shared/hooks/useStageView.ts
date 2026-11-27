@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 import { clampView, isFitted, openView } from '../lib/zoom';
-import type { Size, View } from '../lib/zoom';
+import type { Point, Size, View } from '../lib/zoom';
 
 /** What can be done to the image once its size, the stage's and the view are known. */
 export interface Ready {
@@ -17,6 +17,7 @@ export function useStageView(
   stageRef: RefObject<HTMLElement | null>,
   image: Size | null,
   shown?: number,
+  focus?: Point,
 ) {
   const [stage, setStage] = useState<Size | null>(null);
   const [view, setView] = useState<View | null>(null);
@@ -45,7 +46,7 @@ export function useStageView(
     setView((v) =>
       v && fittedFor && !isFitted(v, fittedFor.image, fittedFor.stage)
         ? clampView(v, sizes.image, sizes.stage)
-        : openView(sizes.image, sizes.stage, shown),
+        : openView(sizes.image, sizes.stage, shown, focus),
     );
   }
   return { stage, view, setView };

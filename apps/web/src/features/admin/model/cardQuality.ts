@@ -25,7 +25,7 @@ export interface ScopeChoice {
   unit: string;
 }
 
-export interface ScopeOption {
+interface ScopeOption {
   value: string;
   label: string;
 }

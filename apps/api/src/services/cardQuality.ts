@@ -51,7 +51,7 @@ const card = (c: AdminCardQualityCard): CardQuality => ({
   reasons: c.reasons,
 });
 
-export function cardQualityReport(deckId: string, raw: unknown): CardQualityReport {
+function cardQualityReport(deckId: string, raw: unknown): CardQualityReport {
   if (raw === null) return { status: 'unavailable', deckId };
   const row = AdminCardQualityRow.parse(raw);
   return CardQualityReport.parse({

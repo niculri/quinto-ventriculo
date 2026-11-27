@@ -49,6 +49,7 @@ const SIGNED_IN = [
   '/admin/announcements',
   '/admin/reports',
   '/admin/usage',
+  '/admin/cards',
   '/admin/access',
   '/admin/site',
   '/admin/unpublished',

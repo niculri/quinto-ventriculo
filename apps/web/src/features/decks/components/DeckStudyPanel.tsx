@@ -47,7 +47,6 @@ export function DeckStudyPanel({
                 labels keep the width of the longest, so it does not change when the plan arrives. */}
             {choose ? (
               <a href={`#${SUBDECKS_ANCHOR}`} className={studyClass}>
-                <ListChecks className="size-4" aria-hidden="true" />
                 <StudyLabel choose />
               </a>
             ) : (
@@ -56,7 +55,6 @@ export function DeckStudyPanel({
                 {...preloadOnIntent('anki-study')}
                 className={studyClass}
               >
-                <Play className="size-4" aria-hidden="true" />
                 <StudyLabel choose={false} />
               </Link>
             )}
@@ -99,16 +97,18 @@ export function DeckStudyPanel({
   );
 }
 
+const LABEL = 'col-start-1 row-start-1 inline-flex items-center gap-2';
+
+/** Both labels with their icons, one over the other: the shown one goes in the middle of the room of the longest. */
 function StudyLabel({ choose }: { choose: boolean }) {
   return (
-    <span className="inline-grid">
-      <span aria-hidden={choose} className={`col-start-1 row-start-1 ${choose ? 'invisible' : ''}`}>
+    <span className="inline-grid place-items-center">
+      <span aria-hidden={choose} className={`${LABEL} ${choose ? 'invisible' : ''}`}>
+        <Play className="size-4 flex-none" aria-hidden="true" />
         {s.panel.study}
       </span>
-      <span
-        aria-hidden={!choose}
-        className={`col-start-1 row-start-1 ${choose ? '' : 'invisible'}`}
-      >
+      <span aria-hidden={!choose} className={`${LABEL} ${choose ? '' : 'invisible'}`}>
+        <ListChecks className="size-4 flex-none" aria-hidden="true" />
         {s.panel.choose}
       </span>
     </span>

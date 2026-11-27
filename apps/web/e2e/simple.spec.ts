@@ -80,6 +80,37 @@ test('with nothing turned on, «Estudiar» says what to do and links to where to
   await expect(page.getByRole('switch', { name: 'Activar S1 - Semana de prueba' })).toBeVisible();
 });
 
+test('the assessment’s «Estudiar» keeps its size with either label, and the one shown is in its middle', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto(`${COURSE_URL}/anki/certamen-1`);
+  const panel = page.getByRole('region', { name: 'Estudiar' });
+  const measure = async (name: string) => {
+    const button = panel.getByRole('link', { name });
+    await expect(button).toBeVisible();
+    return button.evaluate((b) => {
+      const box = b.getBoundingClientRect();
+      const label = [...b.querySelectorAll(':scope > span > span')].find(
+        (e) => getComputedStyle(e).visibility === 'visible',
+      )!;
+      const shown = label.getBoundingClientRect();
+      return {
+        box: [box.x, box.y + window.scrollY, box.width, box.height].map(Math.round),
+        off: [
+          shown.x + shown.width / 2 - (box.x + box.width / 2),
+          shown.y + shown.height / 2 - (box.y + box.height / 2),
+        ].map((d) => Math.abs(Math.round(d))),
+      };
+    });
+  };
+  const choose = await measure('Elegir qué estudiar');
+  await panel.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
+  const study = await measure('Estudiar');
+  expect(study.box).toEqual(choose.box);
+  for (const { off } of [choose, study]) expect(Math.max(...off)).toBeLessThanOrEqual(1);
+});
+
 test('the assessment’s page: new cards a day and «Incluir extras», and its Extras only with it', async ({
   page,
 }) => {

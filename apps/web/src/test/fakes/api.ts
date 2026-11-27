@@ -107,6 +107,7 @@ export function fakeApi(changes: Partial<ApiClient> = {}): ApiClient {
     setSiteSettings: notAdmin,
     unpublishedLog: notAdmin,
     usage: notAdmin,
+    cardQuality: notAdmin,
     announcements: notAdmin,
     saveAnnouncement: notAdmin,
     withdrawAnnouncement: notAdmin,

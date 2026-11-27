@@ -103,6 +103,7 @@ export const paths = {
   adminReleases: '/admin/releases',
   adminReports: '/admin/reports',
   adminUsage: '/admin/usage',
+  adminCards: '/admin/cards',
   adminAccess: '/admin/access',
   adminSite: '/admin/site',
   adminUnpublished: '/admin/unpublished',

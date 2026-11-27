@@ -12,6 +12,7 @@ export const adminKeys = {
   siteSettings: ['site-settings'] as const,
   access: ['access-report'] as const,
   usage: ['usage-report'] as const,
+  cardQuality: (deckId: string) => ['card-quality', deckId] as const,
   unpublished: ['unpublished-log'] as const,
   /** After a change of the site settings the catalog is read again. */
   catalog: catalogKeys.catalog,
@@ -31,6 +32,13 @@ export const usageQuery = (api: ApiClient) =>
   queryOptions({
     queryKey: adminKeys.usage,
     queryFn: ({ signal }) => api.usage(signal),
+    staleTime: 60_000,
+  });
+
+export const cardQualityQuery = (api: ApiClient, deckId: string) =>
+  queryOptions({
+    queryKey: adminKeys.cardQuality(deckId),
+    queryFn: ({ signal }) => api.cardQuality(deckId, signal),
     staleTime: 60_000,
   });
 

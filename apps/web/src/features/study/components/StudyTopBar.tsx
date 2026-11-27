@@ -6,7 +6,7 @@ import { FLAGS } from '@qv/study';
 import type { Shown } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
 import { BackButton } from '../../../shared/ui/BackButton';
-import { answerBar, button } from '../../../shared/ui/styles';
+import { answerBar, button, fingerArea } from '../../../shared/ui/styles';
 import { keys } from '../../../shared/ui/keys';
 import { studyBackLabel } from '../../catalog/model/tree';
 import type { CourseDeckNode } from '../../catalog/model/tree';
@@ -183,7 +183,7 @@ function UndoButton({ canUndo, onUndo }: { canUndo: boolean; onUndo: () => void 
         // Focus does not stay here: space and Enter have to keep showing the answer.
         e.currentTarget.blur();
       }}
-      className={`${button.base} ${button.ghost}`}
+      className={`${button.base} ${button.ghost} ${fingerArea}`}
       aria-label={studyTopBarStrings.topBar.undo}
       title={studyTopBarStrings.topBar.undoTitle(keys('Ctrl+Z'))}
     >

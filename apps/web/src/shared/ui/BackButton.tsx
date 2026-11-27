@@ -2,7 +2,7 @@
 // goes back to, only the arrow on a phone.
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router';
-import { button } from './styles';
+import { button, fingerArea } from './styles';
 
 export function BackButton({
   label,
@@ -16,7 +16,8 @@ export function BackButton({
   className?: string;
 }) {
   const props = {
-    className: `${button.base} ${button.ghost} min-w-0 max-w-full ${className}`.trim(),
+    className:
+      `${button.base} ${button.ghost} ${fingerArea} min-w-0 max-w-full ${className}`.trim(),
     'aria-label': `Volver a ${label}`,
     title: label,
   };

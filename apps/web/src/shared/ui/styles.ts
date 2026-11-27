@@ -16,6 +16,13 @@ export const button = {
  */
 export const tapArea = 'relative after:absolute after:-inset-x-1 after:-inset-y-1.5';
 
+/**
+ * An icon button that answers to a finger 44 px wide and high however small it is drawn (bigger ones keep their size),
+ * and nothing moves: what grows is its ::after.
+ */
+export const fingerArea =
+  'relative after:absolute after:inset-x-[min(0px,calc((100%_-_2.75rem)/2))] after:inset-y-[min(0px,calc((100%_-_2.75rem)/2))]';
+
 export const card = 'rounded-xl border border-border bg-surface shadow-soft';
 
 export const linkCard = `${card} block transition hover:border-border-strong hover:-translate-y-px`;

@@ -14,13 +14,14 @@ describe('the switch', () => {
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
-  it('covers only itself by default, and its row with wholeRow', () => {
+  it('covers a finger’s 44 px around itself by default, and its row with wholeRow', () => {
     const { container, rerender } = render(<Switch label="A" checked onChange={() => {}} />);
     const wrapper = () => container.firstElementChild!;
     expect(wrapper().className).toMatch(/\brelative\b/);
+    expect(screen.getByRole('switch').className).toMatch(/-inset-x-0\.5 -inset-y-2\.5/);
     rerender(<Switch label="A" checked wholeRow onChange={() => {}} />);
     expect(wrapper().className).not.toMatch(/\brelative\b/);
-    expect(screen.getByRole('switch').className).toMatch(/absolute inset-0/);
+    expect(screen.getByRole('switch').className).toMatch(/\binset-0\b/);
   });
 
   it('does nothing while disabled', async () => {

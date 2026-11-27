@@ -3,7 +3,7 @@ import { useId } from 'react';
 import type { ReactNode } from 'react';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
-import { button } from '../../../shared/ui/styles';
+import { button, fingerArea } from '../../../shared/ui/styles';
 import { keys } from '../../../shared/ui/keys';
 import { moreMenuPartsStrings } from './strings/MoreMenuParts.strings';
 
@@ -22,7 +22,7 @@ export function MoreTrigger({ hint }: { hint?: string | undefined }) {
   const id = useId();
   return (
     <Menu.Trigger
-      className={`${button.base} ${button.ghost} relative`}
+      className={`${button.base} ${button.ghost} ${fingerArea}`}
       aria-label={moreMenuPartsStrings.menu.more}
       aria-describedby={hint ? id : undefined}
       title={hint}

@@ -3,6 +3,7 @@
 import { Menu, Search } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
+import { fingerArea } from '../../shared/ui/styles';
 import { Logo } from '../../shared/ui/Logo';
 import { keys } from '../../shared/ui/keys';
 import { UserMenu } from '../../features/nav/components/UserMenu';
@@ -43,12 +44,16 @@ export function TopBar({
             type="button"
             onClick={onMenu}
             aria-label={topBarStrings.openMenu}
-            className="-ml-1.5 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink lg:hidden"
+            className={`${fingerArea} -ml-1.5 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink lg:hidden`}
           >
             <Menu className="size-5" aria-hidden="true" />
           </button>
         )}
-        <Link to={paths.home} className="rounded-md" aria-label={topBarStrings.homeLink}>
+        <Link
+          to={paths.home}
+          className={`${fingerArea} rounded-md`}
+          aria-label={topBarStrings.homeLink}
+        >
           <Logo compact tagline adminMode={adminMode} />
         </Link>
         <button

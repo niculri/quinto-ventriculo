@@ -149,6 +149,8 @@ test('nothing moves between pages: the breadcrumbs (from «Inicio») and the tit
   expect(await where()).toEqual(course);
   await page.goto('/semesters/2/courses/inventado');
   expect(await where()).toEqual(course);
+  await page.goto('/privacy');
+  expect(await where()).toEqual(course);
   await page.goto('/home');
   expect(await where()).toEqual(course);
 });

@@ -99,7 +99,7 @@ test('narrowing to an assessment and a week, and the suspicious: the list change
   await expect(
     first.getByText(/Falla más|Respuesta en menos|Muchos la suspenden|Sanguijuela/).first(),
   ).toBeVisible();
-  await first.getByRole('link', { name: /en el explorador de tarjetas/ }).click();
+  await first.getByRole('link').first().click();
   await expect(page).toHaveURL(/\/anki\/.+\/cards\?card=/);
 });
 

@@ -24,6 +24,7 @@ export function ScopePicker({
         options={scope.courses}
         onChange={(course) => onScope({ course, assessment: '', unit: '' })}
         disabled={none}
+        placeholder={s.noCourse}
       />
       <Select
         label={s.assessment}

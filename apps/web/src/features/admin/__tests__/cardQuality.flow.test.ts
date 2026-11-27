@@ -90,7 +90,7 @@ describe('«Tarjetas»', () => {
     expect(asked).toEqual(['3']);
     expect(
       await within(first!).findByRole('link', {
-        name: 'Abrir «T-PR-01-002» en el explorador de tarjetas',
+        name: /^La columna tiene \[…\] vértebras \[…\]\s*T-PR-01-002/,
       }),
     ).toHaveAttribute(
       'href',
@@ -113,7 +113,11 @@ describe('«Tarjetas»', () => {
     expect(second).not.toHaveTextContent('bandera');
     // A card of a deck the catalog no longer has: its figures without a link, and «—» where there are none.
     const third = within(list).getAllByRole('listitem')[2]!;
-    expect(within(third).queryByRole('link', { name: /explorador/ })).toBeNull();
+    expect(
+      within(third)
+        .getAllByRole('link')
+        .map((l) => l.textContent),
+    ).toEqual(['3 reportes abiertos']);
     expect(third).toHaveTextContent('Otra vez, 1.ª vista—');
     expect(third).toHaveTextContent('FSRS esperaba—');
     expect(third).toHaveTextContent('Mediana—');
@@ -223,6 +227,7 @@ describe('«Tarjetas»', () => {
     });
     expect(await screen.findByText('Todavía no hay ramos con tarjetas.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ramo' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Ramo' })).toHaveTextContent('—');
     expect(asked).toEqual([]);
   });
 });

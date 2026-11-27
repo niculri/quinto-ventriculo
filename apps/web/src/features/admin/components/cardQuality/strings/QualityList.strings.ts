@@ -1,8 +1,6 @@
 // The texts of QualityList.
 
 export const qualityListStrings = {
-  noText: 'Tarjeta sin texto en el índice',
-  open: (what: string) => `Abrir «${what}» en el explorador de tarjetas`,
   version: (v: number) => `versión ${String(v)}`,
   reports: (n: number) => (n === 1 ? '1 reporte abierto' : `${String(n)} reportes abiertos`),
   figures: {

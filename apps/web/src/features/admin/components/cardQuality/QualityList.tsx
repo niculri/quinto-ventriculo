@@ -30,7 +30,6 @@ const marks = (r: QualityRow) =>
     .join(' · ');
 
 function Row({ row: r }: { row: QualityRow }) {
-  const what = r.code ?? r.text ?? s.noText;
   const head = (
     <>
       {/* The front arrives with its assessment's index, in a line already there. */}
@@ -45,11 +44,7 @@ function Row({ row: r }: { row: QualityRow }) {
   return (
     <li className="px-4 py-3 sm:px-5">
       {r.explorer ? (
-        <Link
-          to={r.explorer}
-          aria-label={s.open(what)}
-          className="block rounded-md hover:text-brand hover:underline"
-        >
+        <Link to={r.explorer} className="block rounded-md hover:text-brand hover:underline">
           {head}
         </Link>
       ) : (

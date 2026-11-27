@@ -5,6 +5,7 @@ export const sectionsStrings = {
   announcements: 'Anuncios',
   reports: 'Reportes',
   usage: 'Uso',
+  cards: 'Tarjetas',
   access: 'Acceso',
   site: 'Sitio',
   unpublished: 'Fuera del sitio',

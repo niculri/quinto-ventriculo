@@ -15,6 +15,12 @@ export {
   WebCode,
 } from './content/content';
 export {
+  AdminCardQualityRow,
+  CARD_QUALITY_LIMITS,
+  CARD_QUALITY_REASONS,
+  CardQuality,
+  CardQualityReport,
+  CardRate,
   AdminUsageRow,
   AnkiCatalog,
   ApiError,
@@ -57,6 +63,8 @@ export {
   withoutEmptySemesters,
 } from './http';
 export type {
+  AdminCardQualityCard,
+  CardQualityReason,
   AdminUsageFigures,
   AdminUsageGroup,
   ClientErrorKind,

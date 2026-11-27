@@ -2068,6 +2068,140 @@ exports[`the answer to each input stays the same > the announcements 1`] = `
 }
 `;
 
+exports[`the answer to each input stays the same > the cards of the panel 1`] = `
+{
+  "anonymous": {
+    "body": {
+      "error": "unauthenticated",
+      "message": "Entra con tu cuenta @ug.uchile.cl para ver esto.",
+    },
+    "calls": [],
+    "headers": {},
+    "status": 401,
+  },
+  "deck20": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "deck21": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "empty": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "encoded": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "letters": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "missing": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "negative": {
+    "body": {
+      "error": "invalid_deck",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 400,
+  },
+  "notInCatalog": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "student": {
+    "body": {
+      "error": "not_found",
+      "message": "No existe esa ruta.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+  "twice": {
+    "body": {
+      "error": "not_found",
+      "message": "Ese mazo no existe.",
+    },
+    "calls": [],
+    "headers": {
+      "cache-control": "no-store",
+      "vary": "Authorization, X-QV-Preview",
+    },
+    "status": 404,
+  },
+}
+`;
+
 exports[`the answer to each input stays the same > the cards: index, changes, a card 1`] = `
 {
   "card": {

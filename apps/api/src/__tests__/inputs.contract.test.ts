@@ -157,6 +157,7 @@ beforeAll(() => {
     announcements,
     settings: memorySiteSettings({}, () => new Date('2026-11-14T12:00:00.000Z')),
     usageEvents: { record: (event) => seen(null, 'record', event) },
+    cardQuality: { read: async (token, scope) => seen(null, 'cardQuality', token, scope) },
   });
 });
 
@@ -606,6 +607,28 @@ describe('the answer to each input stays the same', () => {
           token: ADMIN,
           headers: { 'X-QV-Preview': 'draft' },
         },
+      }),
+    ).toMatchSnapshot();
+  });
+
+  it('the cards of the panel', async () => {
+    const admin = (query: string): Case => ({
+      path: `/api/admin/card-quality${query}`,
+      token: ADMIN,
+    });
+    expect(
+      await run({
+        student: { path: '/api/admin/card-quality?deck=1' },
+        anonymous: { path: '/api/admin/card-quality?deck=1', token: null },
+        notInCatalog: admin('?deck=1'),
+        deck20: admin(`?deck=${'9'.repeat(20)}`),
+        deck21: admin(`?deck=${'9'.repeat(21)}`),
+        missing: admin(''),
+        empty: admin('?deck='),
+        letters: admin('?deck=abc'),
+        negative: admin('?deck=-1'),
+        encoded: admin('?deck=%31'),
+        twice: admin('?deck=1&deck=abc'),
       }),
     ).toMatchSnapshot();
   });

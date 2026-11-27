@@ -29,6 +29,7 @@ import { supabaseReleaseRepository } from './adapters/supabase/release';
 import { supabaseVerifier } from './adapters/supabase/session';
 import { supabaseSiteSettingsRepository } from './adapters/supabase/settings';
 import { supabaseUnpublishedRepository } from './adapters/supabase/unpublished';
+import { supabaseCardQuality } from './adapters/supabase/cardQuality';
 import { supabaseUsageStats } from './adapters/supabase/usageStats';
 import { createApp } from './app';
 import { ACCESS_UNAVAILABLE } from './ports/access';
@@ -161,6 +162,10 @@ function getApp(env: Env, origin: string) {
     ...(env.USERS_SUPABASE_PUBLISHABLE_KEY
       ? {
           usageStats: supabaseUsageStats({
+            supabaseUrl: env.USERS_SUPABASE_URL,
+            publishableKey: env.USERS_SUPABASE_PUBLISHABLE_KEY,
+          }),
+          cardQuality: supabaseCardQuality({
             supabaseUrl: env.USERS_SUPABASE_URL,
             publishableKey: env.USERS_SUPABASE_PUBLISHABLE_KEY,
           }),

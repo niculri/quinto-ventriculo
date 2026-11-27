@@ -115,6 +115,102 @@ export type Database = {
         }
         Relationships: []
       }
+      card_quality: {
+        Row: {
+          answer_students: number
+          answers: number
+          buried: number
+          calibrated: number
+          calibrated_again: number
+          calibrated_students: number
+          card_version: number | null
+          deck_id: string
+          expected_again: number | null
+          first_again: number
+          first_students: number
+          flagged: number
+          leeches: number
+          median_ms: number | null
+          note_guid: string
+          ord: number
+          review_again: number
+          review_students: number
+          reviews: number
+          students: number
+          suspended: number
+          time_students: number
+        }
+        Insert: {
+          answer_students: number
+          answers: number
+          buried: number
+          calibrated: number
+          calibrated_again: number
+          calibrated_students: number
+          card_version?: number | null
+          deck_id: string
+          expected_again?: number | null
+          first_again: number
+          first_students: number
+          flagged: number
+          leeches: number
+          median_ms?: number | null
+          note_guid: string
+          ord: number
+          review_again: number
+          review_students: number
+          reviews: number
+          students: number
+          suspended: number
+          time_students: number
+        }
+        Update: {
+          answer_students?: number
+          answers?: number
+          buried?: number
+          calibrated?: number
+          calibrated_again?: number
+          calibrated_students?: number
+          card_version?: number | null
+          deck_id?: string
+          expected_again?: number | null
+          first_again?: number
+          first_students?: number
+          flagged?: number
+          leeches?: number
+          median_ms?: number | null
+          note_guid?: string
+          ord?: number
+          review_again?: number
+          review_students?: number
+          reviews?: number
+          students?: number
+          suspended?: number
+          time_students?: number
+        }
+        Relationships: []
+      }
+      card_quality_refresh: {
+        Row: {
+          id: number
+          log_rows: number
+          refreshed_at: string
+          took_ms: number
+        }
+        Insert: {
+          id?: number
+          log_rows: number
+          refreshed_at: string
+          took_ms: number
+        }
+        Update: {
+          id?: number
+          log_rows?: number
+          refreshed_at?: string
+          took_ms?: number
+        }
+        Relationships: []
+      }
       card_states: {
         Row: {
           buried_until: string | null
@@ -846,6 +942,7 @@ export type Database = {
         Returns: string
       }
       admin_access_report: { Args: never; Returns: Json }
+      admin_card_quality: { Args: { p: Json }; Returns: Json }
       admin_deck_impact: {
         Args: { deck_ids: string[] }
         Returns: {
@@ -886,6 +983,15 @@ export type Database = {
         Returns: number
       }
       caller_is_owner: { Args: never; Returns: boolean }
+      card_quality_limits: { Args: never; Returns: Json }
+      card_quality_row: {
+        Args: {
+          lim: Json
+          open_reports: number
+          q: Database["public"]["Tables"]["card_quality"]["Row"]
+        }
+        Returns: Json
+      }
       card_states_of_decks: { Args: { p_deck_ids: string[] }; Returns: Json }
       change_card: {
         Args: {
@@ -992,6 +1098,7 @@ export type Database = {
       reconcile_cards: { Args: { p: Json }; Returns: Json }
       record_practice: { Args: { p: Json }; Returns: Json }
       record_review: { Args: { a: Json }; Returns: Json }
+      refresh_card_quality: { Args: never; Returns: Json }
       remove_invites: { Args: { p: Json }; Returns: Json }
       report_content: { Args: { p: Json }; Returns: Json }
       report_limits: { Args: never; Returns: Json }
@@ -1025,6 +1132,8 @@ export type Database = {
       unbury_cards: { Args: { cards: Json }; Returns: number }
       undo_last_review: { Args: { expected?: Json }; Returns: Json }
       unsuspend_cards: { Args: { cards: Json }; Returns: number }
+      wilson_high: { Args: { k: number; n: number }; Returns: number }
+      wilson_low: { Args: { k: number; n: number }; Returns: number }
     }
     Enums: {
       [_ in never]: never

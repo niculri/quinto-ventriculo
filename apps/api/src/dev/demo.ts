@@ -4,6 +4,7 @@ import { access, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { AnnouncementRow, ContentBundle } from '@qv/schema';
 import { memoryAnnouncements } from '../adapters/memory/announcements';
+import { demoCardQuality } from '../adapters/memory/cardQuality';
 import { memoryClientErrors } from '../adapters/memory/clientErrors';
 import { memoryContentCache } from '../adapters/memory/contentCache';
 import { memoryRepository } from '../adapters/memory/content';
@@ -99,6 +100,7 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
       isAdmin: (token) => Promise.resolve(!options.supabaseUrl && token === DEMO_TOKEN),
     },
     usageStats: demoUsageStats(),
+    cardQuality: demoCardQuality(bundle),
     usageOpens: usageEvents,
     usageEvents,
     clientErrors,

@@ -6,6 +6,7 @@ import {
   ApiError,
   CardChanges,
   CardIndex,
+  CardQualityReport,
   CardDetail,
   Catalog,
   DeckDetail,
@@ -257,6 +258,9 @@ export function createApiClient(
       request(apiPaths.unpublished(), UnpublishedLog, signal),
     /** Usage figures, only of groups of 5 students or more. */
     usage: (signal?: AbortSignal) => request(apiPaths.usage(), UsageReport, signal),
+    /** Which cards of a deck (and those below it) work, in sums of 5 students or more. */
+    cardQuality: (deckId: string, signal?: AbortSignal) =>
+      request(apiPaths.cardQuality(deckId), CardQualityReport, signal),
     /**
      * Counts, without who, a note, deck or test opened by its page, or a search completed. `keepalive`: it arrives even
      * if the page changes right after (a search that opens a result).

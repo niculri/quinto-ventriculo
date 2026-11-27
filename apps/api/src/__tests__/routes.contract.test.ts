@@ -9,6 +9,7 @@ import { memoryRepository } from '../adapters/memory/content';
 import { memorySiteSettings } from '../adapters/memory/settings';
 import type { ReleaseRepository } from '../ports/releases';
 import type { UnpublishedRepository } from '../ports/unpublished';
+import type { CardQualitySource } from '../ports/cardQuality';
 import type { UsageStatsSource } from '../ports/usage';
 
 const EMPTY = {
@@ -36,6 +37,7 @@ function served(): string[] {
     settings: memorySiteSettings(),
     unpublished: unused as UnpublishedRepository,
     usageStats: unused as UsageStatsSource,
+    cardQuality: unused as CardQualitySource,
     deepHealth: deepHealth({}),
   });
   // Each handler of a route (its middlewares too) is an entry; `ALL` are the app's middlewares.

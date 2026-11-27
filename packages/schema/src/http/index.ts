@@ -35,6 +35,7 @@ export {
   AcceptsGzip,
   BearerToken,
   CardChangesQuery,
+  CardQualityQuery,
   CardIndexParams,
   CardParams,
   MediaKey,
@@ -72,6 +73,15 @@ export {
   WORKER_REQUEST_DAYS,
   WorkerRequestDay,
 } from './usage';
+export {
+  AdminCardQualityRow,
+  CARD_QUALITY_LIMITS,
+  CARD_QUALITY_REASONS,
+  CardQuality,
+  CardQualityReport,
+  CardRate,
+} from './cardQuality';
+export type { AdminCardQualityCard, CardQualityReason } from './cardQuality';
 export type {
   AdminUsageFigures,
   AdminUsageGroup,

@@ -14,7 +14,7 @@ export function AnkiBlock({ node }: { node: CourseDeckNode }) {
   const on = plan.data ? activation([node], plan.data).on.has(node.id) : false;
   return (
     <section className={`${card} mt-4 p-4 sm:p-6`} aria-labelledby="gymkana-anki">
-      <h2 id="gymkana-anki" className="text-lg font-semibold">
+      <h2 id="gymkana-anki" className="font-serif text-lg font-semibold">
         {s.title}
       </h2>
       <p className="mt-1 text-sm text-muted">{s.text}</p>

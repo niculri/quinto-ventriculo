@@ -85,7 +85,7 @@ function Cover({
       <Summary data={data} />
       <AnkiBlock node={node} />
       <section className="mt-8" aria-labelledby="gymkana-write">
-        <h2 id="gymkana-write" className="text-lg font-semibold">
+        <h2 id="gymkana-write" className="font-serif text-lg font-semibold">
           {s.write}
         </h2>
         <p className="mt-1 text-sm text-muted">{s.intro}</p>

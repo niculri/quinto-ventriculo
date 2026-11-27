@@ -77,7 +77,8 @@
   margin-top: 30px;
 }
 .quiz .repaso h2 {
-  font-size: 17px;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
 }
 .quiz .fallo {
   background: var(--surf);

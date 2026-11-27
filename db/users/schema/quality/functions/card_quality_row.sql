@@ -44,8 +44,9 @@ AS $function$
             and public.wilson_low(q.calibrated_again, q.calibrated) > q.expected_again / q.calibrated
            then 'unexpected' end,
       case when r.times_ok and q.median_ms < r.fast then 'fast' end,
-      case when public.wilson_low(q.suspended, q.students) > r.hidden then 'hidden' end,
-      case when public.wilson_low(q.leeches, q.students) > r.hidden then 'leech' end], null)))
+      -- Never more than who saw it (a share over 1 has no interval).
+      case when public.wilson_low(least(q.suspended, q.students), q.students) > r.hidden then 'hidden' end,
+      case when public.wilson_low(least(q.leeches, q.students), q.students) > r.hidden then 'leech' end], null)))
   from r;
 $function$;
 

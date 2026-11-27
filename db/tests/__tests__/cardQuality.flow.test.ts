@@ -391,6 +391,18 @@ describe('the figures', () => {
     expect(q.suspicious.map((c) => c.note_guid).sort()).toEqual(['fast', 'hid', 'leech']);
   });
 
+  it('more students with it suspended than who saw it (rows without a log): still a share, never an error', async () => {
+    const people = await students(8);
+    for (const p of people.slice(0, 5)) await answer(p, { guid: 'g1', rating: 3 });
+    for (const p of people) await state(p, 'g1', { suspended: true });
+    await refresh();
+    expect(card(await quality(owner), 'g1')).toMatchObject({
+      students: 5,
+      suspended: 8,
+      reasons: ['hidden'],
+    });
+  });
+
   it('a card fixed starts again: only the answers of its latest version count', async () => {
     const people = await students(5);
     for (const p of people) {

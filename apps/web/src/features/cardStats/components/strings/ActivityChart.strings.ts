@@ -20,4 +20,5 @@ export const activityChartStrings = {
     return `Hoy te toca repasar ${cards}${overdue ? `, más ${late}` : ''}.`;
   },
   max: (n: number) => `máx. ${count(n)}`,
+  empty: 'Sin respuestas en los últimos 30 días ni repasos en los próximos 30.',
 } as const;

@@ -21,6 +21,21 @@ export function ActivityChart({
   const sum = (c: Chart, kind: 'past' | 'due') =>
     c.bars.filter((b) => b.kind === kind).reduce((t, b) => t + b.value, 0);
   const dueToday = data?.due.find((d) => d.day === data.today)?.cards ?? 0;
+  const empty = !!chart && sum(chart, 'past') + sum(chart, 'due') === 0;
+  const todayLine = (
+    <p className="mt-2 h-5 text-sm tabular-nums">
+      {data ? s.dueToday(dueToday, data.overdue) : null}
+    </p>
+  );
+  // Nothing answered nor to review: a line of text (empty axes said nothing), in a room as tall as the chart's.
+  if (empty) {
+    return (
+      <div>
+        <p className="h-48 text-sm text-muted">{s.empty}</p>
+        {todayLine}
+      </div>
+    );
+  }
   return (
     <div>
       <div className="flex h-5 items-center gap-4 text-xs text-muted">
@@ -83,9 +98,7 @@ export function ActivityChart({
         <span className="text-center">{s.today}</span>
         <span className="text-right">{s.after}</span>
       </div>
-      <p className="mt-2 h-5 text-sm tabular-nums">
-        {data ? s.dueToday(dueToday, data.overdue) : null}
-      </p>
+      {todayLine}
     </div>
   );
 }

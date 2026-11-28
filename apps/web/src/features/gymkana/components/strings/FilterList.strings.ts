@@ -3,5 +3,8 @@
 import { pluralGrouped } from '../../../../shared/lib/plural';
 
 export const filterListStrings = {
-  stations: (n: number) => pluralGrouped(n, 'estación', 'estaciones'),
+  stations: (n: number, total: number) =>
+    n === total
+      ? pluralGrouped(total, 'estación', 'estaciones')
+      : `${n.toLocaleString('es-CL')} de ${pluralGrouped(total, 'estación', 'estaciones')}`,
 } as const;

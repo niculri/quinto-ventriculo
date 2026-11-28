@@ -54,17 +54,18 @@ export function StationScreen({
         backLabel={backLabel}
       />
       <p className="sr-only">{s.noDates}</p>
-      <div className="h-1.5">
-        {round.seconds > 0 && !result ? (
-          <CaTimer
-            key={station.key}
-            seconds={round.seconds}
-            onTimeout={() => onSubmit(text, true)}
-          />
-        ) : null}
-      </div>
-      <div className="mt-2 min-h-0 flex-1 overflow-hidden rounded-xl border border-border">
+      <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-border">
         <StudyCard entry={station} revealed={shown} night={night} />
+        {round.seconds > 0 && !result ? (
+          // Over the card's top edge, so the card starts where it does when studying with Anki.
+          <div className="absolute inset-x-0 top-0 h-1.5">
+            <CaTimer
+              key={station.key}
+              seconds={round.seconds}
+              onTimeout={() => onSubmit(text, true)}
+            />
+          </div>
+        ) : null}
       </div>
       <div className="mx-auto flex h-36 w-full max-w-2xl items-start gap-3 py-3">
         {shown ? (

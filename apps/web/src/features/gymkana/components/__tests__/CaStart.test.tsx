@@ -1,4 +1,5 @@
-// The cover's filters: only those the gymkana has, and a region without stations counts zero.
+// The cover's filters: only those the gymkana has, a region without stations counts zero, and each switch says
+// what it adds with the others as chosen beside all it has.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { defaultPreferences } from '@qv/gymkana';
@@ -56,5 +57,35 @@ describe('CaStart', () => {
     );
     expect(screen.getAllByText('0 estaciones')).toHaveLength(3);
     expect(screen.getByRole('button', { name: 'Empezar otra' })).toBeInTheDocument();
+  });
+
+  it('each switch counts what it adds with the other filters, beside all its stations', () => {
+    const data = {
+      places: {
+        regions: [
+          { tag: 'oido', label: 'Oído' },
+          { tag: 'cuello', label: 'Cuello' },
+        ],
+        sources: [],
+      },
+      stations: [
+        { ...station, key: 'a:0', region: 'oido', priority: 1 },
+        { ...station, key: 'b:0', region: 'cuello', priority: 1 },
+        { ...station, key: 'c:0', region: 'cuello', priority: 2 },
+      ],
+    };
+    const preferences = defaultPreferences(data.places, data.stations);
+    render(
+      <CaStart
+        data={data}
+        preferences={{ ...preferences, filter: { ...preferences.filter, regions: ['cuello'] } }}
+        replacing={false}
+        onChoose={vi.fn()}
+        onStart={vi.fn()}
+      />,
+    );
+    // Priority 1 and the neck: one of their two stations passes the other filter.
+    expect(screen.getAllByText('1 de 2 estaciones')).toHaveLength(2);
+    expect(screen.getAllByText('1 estación')).toHaveLength(2);
   });
 });

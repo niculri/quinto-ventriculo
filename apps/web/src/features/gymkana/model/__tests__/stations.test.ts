@@ -5,6 +5,7 @@ import { GYM_DECK, GYM_INDEX } from '../../../../test/fixtures/gymkana';
 import {
   chosenStations,
   countBy,
+  countWithin,
   currentOf,
   gymkanaStations,
   stationCard,
@@ -55,6 +56,19 @@ describe('what the cover and the round take from the stations', () => {
         (s) => s.key,
       ),
     ).toEqual(['gym-3:0']);
+  });
+
+  it('counts what each value adds with the other dimensions as chosen, its own dimension left open', () => {
+    const filter = { regions: ['cuello'], sources: ['Atlas', 'Modelos'], priorities: [1] };
+    expect([...countWithin(stations, 'priority', filter)]).toEqual([
+      [1, 1],
+      [3, 1],
+    ]);
+    expect([...countWithin(stations, 'region', filter)]).toEqual([
+      ['orbita', 1],
+      ['cuello', 1],
+    ]);
+    expect([...countWithin(stations, 'source', { ...filter, priorities: [] })]).toEqual([]);
   });
 
   it('splits a key whose guid has «:», and finds the station on screen and the next ones', () => {

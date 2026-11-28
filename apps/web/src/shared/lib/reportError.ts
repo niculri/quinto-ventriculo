@@ -1,5 +1,5 @@
-// Hands the errors React catches to public/error-report.js, which sends them without who; and keeps logging them in
-// the console, as React does when nobody asks it for them.
+// Hands the errors React catches, with their stack, to public/error-report.js, which sends them; and keeps logging
+// them in the console, as React does when nobody asks it for them.
 type Reporter = (kind: 'chunk' | 'render', message: string, stack?: string) => void;
 
 const CHUNK =

@@ -41,4 +41,11 @@ describe('CopyButton', () => {
     expect(shown()).toEqual(['No se pudo copiar']);
     expect(screen.getByText('Copiado')).toHaveAttribute('aria-hidden', 'true');
   });
+
+  it('a page without HTTPS, which has no clipboard, says it could not instead of failing', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+    render(<CopyButton text="x" label="Copiar todo" />);
+    await act(async () => screen.getByRole('button').click());
+    expect(shown()).toEqual(['No se pudo copiar']);
+  });
 });

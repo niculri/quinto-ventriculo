@@ -14,7 +14,11 @@ const REPORT: ClientErrorReport = {
   page: '/semesters/2/courses/anatomia-2',
   message: 'No cargó /assets/index.ABC123.js',
   version: 'ABC123',
+  stack: '',
+  viewport: '390x844',
 };
+const IPHONE =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
 
 const EMPTY = {
   semesters: [],
@@ -51,12 +55,25 @@ const send = (
   });
 
 describe('POST /api/client-error', () => {
-  it('keeps a well-formed report from the site, without a session, and answers 204', async () => {
+  it('keeps a well-formed report from the site, without a session, with the system and browser of its User-Agent', async () => {
     const errors = memoryClientErrors();
-    const r = await send(appWith({ clientErrors: errors }), REPORT);
+    const r = await send(appWith({ clientErrors: errors }), REPORT, {
+      Origin: SITE,
+      'User-Agent': IPHONE,
+    });
     expect(r.status).toBe(204);
     expect(r.headers.get('Cache-Control')).toBe('no-store');
-    expect(errors.points).toMatchObject([REPORT]);
+    expect(errors.points).toMatchObject([
+      { ...REPORT, os: 'iOS 18', browser: 'Safari 18', phone: true, account: null },
+    ]);
+    expect(Object.values(errors.points[0]!)).not.toContain(IPHONE);
+  });
+
+  it('an older page, without stack nor window, counts too', async () => {
+    const errors = memoryClientErrors();
+    const { stack: _s, viewport: _v, ...old } = REPORT;
+    expect((await send(appWith({ clientErrors: errors }), old)).status).toBe(204);
+    expect(errors.points).toMatchObject([{ ...old, stack: '', viewport: '', os: '', phone: null }]);
   });
 
   it('a report without Origin (an old sendBeacon) is kept too', async () => {
@@ -81,7 +98,9 @@ describe('POST /api/client-error', () => {
     ['a page that is not a path', { ...REPORT, page: 'https://otro.test/' }],
     ['an extra field', { ...REPORT, email: 'ana@ug.uchile.cl' }],
     ['a version with odd characters', { ...REPORT, version: '../x' }],
-    ['more than 1 KB', { ...REPORT, message: 'x'.repeat(1100) }],
+    ['more than 2.5 KB', { ...REPORT, stack: 'x'.repeat(2600) }],
+    ['a stack of more than 1,500', { ...REPORT, stack: 'x'.repeat(1501) }],
+    ['a window that is not a size', { ...REPORT, viewport: 'grande' }],
   ])('refuses %s with 400', async (_what, body) => {
     const errors = memoryClientErrors();
     const r = await send(appWith({ clientErrors: errors }), body);
@@ -107,19 +126,20 @@ describe('POST /api/client-error', () => {
     expect(errors.points).toEqual([]);
   });
 
-  it('takes 1,024 units of JSON and 300 of message, not one more', async () => {
+  it('takes 2,560 units of JSON, 300 of message and 1,500 of stack, not one more', async () => {
     const json = JSON.stringify(REPORT);
     const padded = (units: number) => json + ' '.repeat(units - json.length);
     const errors = memoryClientErrors();
     const app = appWith({ clientErrors: errors });
-    expect((await send(app, padded(1024))).status).toBe(204);
-    expect((await send(app, padded(1025))).status).toBe(400);
+    expect((await send(app, padded(2560))).status).toBe(204);
+    expect((await send(app, padded(2561))).status).toBe(400);
+    expect((await send(app, { ...REPORT, stack: 'x'.repeat(1500) })).status).toBe(204);
     expect((await send(app, { ...REPORT, message: 'x'.repeat(300) })).status).toBe(204);
     expect((await send(app, { ...REPORT, message: 'x'.repeat(301) })).status).toBe(400);
-    expect(errors.points).toHaveLength(2);
+    expect(errors.points).toHaveLength(3);
   });
 
-  it('a body above 3 KB is refused with 413 after reading little of it', async () => {
+  it('a body above 7.5 KB is refused with 413 after reading little of it', async () => {
     const errors = memoryClientErrors();
     let pulled = 0;
     const body = new ReadableStream<Uint8Array>({
@@ -136,11 +156,11 @@ describe('POST /api/client-error', () => {
       duplex: 'half',
     } as RequestInit);
     expect(r.status).toBe(413);
-    expect(pulled).toBeLessThanOrEqual(5);
+    expect(pulled).toBeLessThanOrEqual(10);
     expect(errors.points).toEqual([]);
   });
 
-  it('a Content-Length above 3 KB is refused with 413 without looking at the body', async () => {
+  it('a Content-Length above 7.5 KB is refused with 413 without looking at the body', async () => {
     const errors = memoryClientErrors();
     const r = await send(appWith({ clientErrors: errors }), JSON.stringify(REPORT), {
       Origin: SITE,

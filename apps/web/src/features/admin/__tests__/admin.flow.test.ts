@@ -82,7 +82,13 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
           ['Tarjetas', '/admin/cards'],
         ],
       ],
-      ['Sitio', [['Ajustes', '/admin/site']]],
+      [
+        'Sitio',
+        [
+          ['Errores', '/admin/errors'],
+          ['Ajustes', '/admin/site'],
+        ],
+      ],
     ];
     const linksOf = (group: HTMLElement) =>
       within(group)

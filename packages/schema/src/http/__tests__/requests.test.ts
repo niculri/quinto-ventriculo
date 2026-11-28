@@ -154,16 +154,24 @@ describe('the bodies that are read as text', () => {
     expect(Array.from(body(300)).length).toBeLessThan(512);
   });
 
-  it('a client error is JSON of at most 1,024 characters, a path without query, a short message and a version', () => {
+  it('a client error is JSON of at most 2,560 characters, a path without query, a short message and a version', () => {
     const report = { kind: 'chunk', page: '/notes/x', message: 'failed', version: 'abc-123' };
-    expect(ClientErrorBody.parse(JSON.stringify(report))).toEqual(report);
+    expect(ClientErrorBody.parse(JSON.stringify(report))).toEqual({
+      ...report,
+      stack: '',
+      viewport: '',
+    });
+    const full = { ...report, stack: 's'.repeat(1500), viewport: '390x844' };
+    expect(ClientErrorBody.parse(JSON.stringify(full))).toEqual(full);
+    expect(ok(ClientErrorBody, JSON.stringify({ ...full, stack: 's'.repeat(1501) }))).toBe(false);
+    expect(ok(ClientErrorBody, JSON.stringify({ ...full, viewport: '390 x 844' }))).toBe(false);
     expect(ok(ClientErrorBody, JSON.stringify({ ...report, page: '/notes/x?q=1' }))).toBe(false);
     expect(ok(ClientErrorBody, JSON.stringify({ ...report, page: 'notes' }))).toBe(false);
     expect(ok(ClientErrorBody, JSON.stringify({ ...report, version: 'a b' }))).toBe(false);
     expect(ok(ClientErrorBody, JSON.stringify({ ...report, message: 'm'.repeat(301) }))).toBe(
       false,
     );
-    expect(ok(ClientErrorBody, 'x'.repeat(1025))).toBe(false);
+    expect(ok(ClientErrorBody, 'x'.repeat(2561))).toBe(false);
     expect(ok(ClientErrorBody, '{broken')).toBe(false);
     expect(ok(ClientErrorBody, JSON.stringify({ ...report, version: '' }))).toBe(true);
   });

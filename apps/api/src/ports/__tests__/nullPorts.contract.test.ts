@@ -14,7 +14,18 @@ describe('the parts that only report', () => {
   it('a point that nobody listens to is lost without an error, never held back', () => {
     expect(() => {
       NO_USAGE_EVENTS.record({ kind: 'note', path: '/x' });
-      NO_CLIENT_ERRORS.record({ kind: 'boot', page: '/', message: 'm', version: 'v' });
+      NO_CLIENT_ERRORS.record({
+        kind: 'boot',
+        page: '/',
+        message: 'm',
+        version: 'v',
+        stack: '',
+        viewport: '',
+        os: '',
+        browser: '',
+        phone: null,
+        account: null,
+      });
     }).not.toThrow();
   });
 });
@@ -30,7 +41,7 @@ describe('the parts that read or write', () => {
     ['opens', () => NO_USAGE_OPENS.read(), 'opens'],
     ['usage figures', () => NO_USAGE_STATS.stats('t', { decks: {}, quizzes: {} }), 'usage figures'],
     ['card quality', () => NO_CARD_QUALITY.read('t', { decks: [], limit: 1 }), 'card quality'],
-    ['errors of the browsers', () => NO_CLIENT_ERRORS_READER.read(), 'errors'],
+    ['errors of the browsers', () => NO_CLIENT_ERRORS_READER.read(30), 'errors'],
     ["the Worker's requests", () => NO_WORKER_REQUESTS.read(), 'Worker requests'],
     ['deep health', () => NO_DEEP_HEALTH.run(), 'deep health'],
     ['unpublished record', () => NO_UNPUBLISHED.log(), 'unpublished'],

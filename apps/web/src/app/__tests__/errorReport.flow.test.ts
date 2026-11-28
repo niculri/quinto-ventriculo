@@ -10,7 +10,14 @@ const SOURCE = readFileSync(
   'utf8',
 );
 
-type Sent = { kind: string; page: string; message: string; version: string };
+type Sent = {
+  kind: string;
+  page: string;
+  message: string;
+  version: string;
+  stack: string;
+  viewport: string;
+};
 let sent: Sent[];
 let listeners: [
   string,
@@ -63,6 +70,8 @@ describe('public/error-report.js', () => {
         page: '/semesters/2',
         message: 'No cargó /assets/StudyPage.OLD123.js',
         version: 'CXEF97yv',
+        stack: '',
+        viewport: '1024x768',
       },
     ]);
   });
@@ -80,6 +89,40 @@ describe('public/error-report.js', () => {
       ['unhandled', 'falló para (correo)'],
       ['unhandled', 'token … vencido'],
     ]);
+  });
+
+  it('sends the stack of an error, line by line, without the origin, emails nor tokens', () => {
+    load();
+    const error = new Error('falló');
+    error.stack = [
+      'Error: falló para ana@ug.uchile.cl',
+      `    at f (${location.origin}/assets/index.CXEF97yv.js:3:1120)   `,
+      `    at g (${location.origin}/assets/${'a'.repeat(30)}.js:1:2)`,
+      ...Array.from({ length: 20 }, (_, i) => `    at h${String(i)} (${'b'.repeat(300)})`),
+    ].join('\n');
+    window.dispatchEvent(new ErrorEvent('error', { message: 'falló', error }));
+    const rejection = new Event('unhandledrejection') as Event & { reason: unknown };
+    rejection.reason = 'solo texto';
+    window.dispatchEvent(rejection);
+    const lines = sent[0]!.stack.split('\n');
+    expect(lines.slice(0, 3)).toEqual([
+      'Error: falló para (correo)',
+      '    at f (/assets/index.CXEF97yv.js:3:1120)',
+      '    at g (/assets/….js:1:2)',
+    ]);
+    expect(lines).toHaveLength(15);
+    expect(sent[0]!.stack.length).toBeLessThanOrEqual(1500);
+    expect(sent[1]).toMatchObject({ message: 'solo texto', stack: '' });
+  });
+
+  it('a window without a size sends none', () => {
+    vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(0);
+    load();
+    (window as unknown as { __qvReportError: (k: string, m: string) => void }).__qvReportError(
+      'render',
+      'uno',
+    );
+    expect(sent[0]!.viewport).toBe('');
   });
 
   it('reports an error of the app with where it came from, without the origin', () => {

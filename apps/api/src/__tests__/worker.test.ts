@@ -185,7 +185,7 @@ describe('worker composition', () => {
   it('with every binding, every route of the panel exists for an administrator and for nobody else', async () => {
     const { call } = await workerWith();
     const panel = Object.values(API_ROUTES).filter((r) => r.pattern.startsWith('/admin/'));
-    expect(panel).toHaveLength(16);
+    expect(panel).toHaveLength(17);
     for (const { method, pattern } of panel) {
       const path = `/api${pattern}`;
       expect((await call(path, ADMIN, method, '{}')).status, `${method} ${path}`).not.toBe(404);
@@ -210,10 +210,11 @@ describe('worker composition', () => {
     });
     const usage = await (await call('/api/admin/usage', ADMIN)).json<{
       opensStatus: string;
-      clientErrors: unknown[] | null;
       workerRequests: { requests: number }[] | null;
     }>();
-    expect([usage.opensStatus, Array.isArray(usage.clientErrors)]).toEqual(['ok', true]);
+    expect(usage.opensStatus).toBe('ok');
+    const errors = await (await call('/api/admin/errors?days=7', ADMIN)).json<{ days: number }>();
+    expect(errors.days).toBe(7);
     expect(usage.workerRequests?.map((d) => d.requests).at(-1)).toBe(1234);
     const bare = await workerWith(['CF_ANALYTICS_TOKEN']);
     const without = await (await bare.call('/api/admin/usage', ADMIN)).json<{
@@ -258,9 +259,9 @@ describe('worker composition', () => {
     expect(bare.points).toEqual([]);
     const usage = await (await bare.call('/api/admin/usage', ADMIN)).json<{
       opensStatus: string;
-      clientErrors: unknown[] | null;
     }>();
-    expect([usage.opensStatus, usage.clientErrors]).toEqual(['not_configured', null]);
+    expect(usage.opensStatus).toBe('not_configured');
+    expect((await bare.call('/api/admin/errors', ADMIN)).status).toBe(404);
   });
 
   it('without the users’ publishable key nothing of the material is served and there is no panel', async () => {

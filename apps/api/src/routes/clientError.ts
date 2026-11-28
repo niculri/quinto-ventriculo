@@ -1,17 +1,18 @@
 // `POST /api/client-error`: the pages that fail in the browsers, reported without a session: the worst error, the app
-// that does not start, comes before the login.
+// that does not start, comes before the login. The Worker adds the system and the browser, read from the User-Agent.
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
-import { API_ROUTES as R, ClientErrorBody } from '@qv/schema/http';
+import { API_ROUTES as R, CLIENT_ERROR_BODY_UNITS, ClientErrorBody } from '@qv/schema/http';
 import type { AppContext } from '../context';
 import type { AppEnv } from '../env';
 import { apiError } from '../http';
 import { errorBudget } from '../services/clientErrors';
+import { browserLabels } from '../services/userAgent';
 
 const MAX_A_MINUTE = 60;
 
-/** `ClientErrorBody` takes 1,024 UTF-16 units, three bytes each at most. */
-const MAX_BODY_BYTES = 3 * 1024;
+/** `ClientErrorBody` takes `CLIENT_ERROR_BODY_UNITS` UTF-16 units, three bytes each at most. */
+const MAX_BODY_BYTES = 3 * CLIENT_ERROR_BODY_UNITS;
 
 /** Before anything is read: the route has no session, so it never buffers what a stranger sends. */
 const limitBody = bodyLimit({ maxSize: MAX_BODY_BYTES, onError: (c) => c.body(null, 413) });
@@ -31,7 +32,13 @@ export function clientErrorRoutes({ deps }: AppContext) {
     if (!report.success) {
       return c.json(apiError('invalid_client_error', 'Ese informe no se puede guardar.'), 400);
     }
-    if (take()) deps.clientErrors.record(report.data);
+    if (take()) {
+      deps.clientErrors.record({
+        ...report.data,
+        ...browserLabels(c.req.header('User-Agent')),
+        account: null,
+      });
+    }
     return c.body(null, 204);
   });
 }

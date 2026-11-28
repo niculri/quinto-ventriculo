@@ -605,6 +605,7 @@ describe('who is not an administrator gets nothing of the admin mode', () => {
     usageOpen: ['POST', '/api/usage/open', '{"kind":"note","id":"ap-fi-1"}'],
     clientError: ['POST', '/api/client-error', '{}'],
     usage: ['GET', '/api/admin/usage'],
+    clientErrors: ['GET', '/api/admin/errors'],
     cardQuality: ['GET', '/api/admin/card-quality?deck=20'],
     release: ['GET', '/api/admin/release'],
     releaseItems: ['GET', '/api/admin/release/items?kind=notes&assessment=a'],

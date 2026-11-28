@@ -4,7 +4,7 @@ import { useId } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from 'react-router';
 
-export interface MenuSection {
+interface MenuSection {
   label: string;
   to: string;
   icon: LucideIcon;

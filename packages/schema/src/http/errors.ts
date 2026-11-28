@@ -12,6 +12,8 @@ export const ErrorCode = z.enum([
   'admin_unavailable',
   'admin_only',
   'usage_unavailable',
+  'errors_unavailable',
+  'invalid_period',
   'card_quality_unavailable',
   'settings_unavailable',
   'link_expired',

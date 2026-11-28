@@ -1,9 +1,10 @@
 // «Administración» → «Uso»: how much the site is used, in figures of 5 students or more, never who.
 import { ExternalLink } from 'lucide-react';
+import { Link } from 'react-router';
+import { paths } from '../../../shared/lib/paths';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { AdminSectionTitle } from '../components/AdminSectionTitle';
-import { ClientErrors } from '../components/usage/ClientErrors';
 import { UsageChart } from '../components/usage/UsageChart';
 import { DetailsLoading, UsageDetails } from '../components/usage/UsageDetails';
 import { UsageSummary } from '../components/usage/UsageSummary';
@@ -31,7 +32,13 @@ export function UsagePage() {
           <ExternalLink className="size-3.5" aria-hidden="true" />
         </a>
       </AdminSectionTitle>
-      <p className="mt-2 text-sm text-muted">{s.intro}</p>
+      <p className="mt-2 text-sm text-muted">
+        {s.intro} {s.errorsBefore}
+        <Link to={paths.adminErrors} className="font-medium text-brand hover:underline">
+          {s.errors}
+        </Link>
+        .
+      </p>
       {usage.isError || catalog.isError ? (
         <div className="mt-6">
           <ErrorWithRetry
@@ -46,7 +53,6 @@ export function UsagePage() {
           {data ? (
             <>
               <UsageDetails report={data.usage} catalog={data.catalog} />
-              <ClientErrors report={data.usage} />
               <WorkerRequests report={data.usage} />
             </>
           ) : (

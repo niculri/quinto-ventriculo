@@ -57,7 +57,6 @@ const REPORT: UsageReport = {
   activation: { eligible: 20, activated: 15, notActivated: 5, percent: 75 },
   opens: null,
   opensStatus: 'not_configured',
-  clientErrors: null,
   workerRequests: null,
 };
 
@@ -202,83 +201,6 @@ describe('«Uso»', () => {
     ).toBe('course');
     expect(searchContext('/admin/usage')).toBe('other');
   });
-  it('«Errores en el navegador»: each group with what, how many times, when, where and which deploy', async () => {
-    renderApp('/admin/usage', {
-      admin: admin(),
-      api: fakeApi({
-        usage: async () => ({
-          ...REPORT,
-          clientErrors: [
-            {
-              kind: 'chunk',
-              page: '/semesters/2/courses/anatomia-2',
-              message: 'No cargó /assets/StudyPage.OLD.js',
-              version: 'CXEF97yv',
-              count: 3,
-              lastSeen: '2026-11-19T19:05:00.000Z',
-            },
-            {
-              kind: 'boot',
-              page: '/home',
-              message: 'La página quedó en blanco',
-              version: '',
-              count: 1,
-              lastSeen: '2026-11-19T18:00:00.000Z',
-            },
-          ],
-        }),
-      }),
-    });
-    const section = await screen.findByRole('region', { name: 'Errores en el navegador' });
-    const items = within(section).getAllByRole('listitem');
-    expect(items).toHaveLength(2);
-    expect(items[0]).toHaveTextContent('No cargó un archivo');
-    expect(items[0]).toHaveTextContent('3 veces');
-    expect(items[0]).toHaveTextContent(/Última vez: 19 nov\.?,? 16:05/);
-    expect(items[0]).toHaveTextContent('/semesters/2/courses/anatomia-2 · versión CXEF97yv');
-    expect(items[1]).toHaveTextContent('La página quedó en blanco');
-    expect(items[1]).toHaveTextContent('1 vez');
-    expect(items[1]).toHaveTextContent('/home · sin versión');
-  });
-
-  it('«Errores en el navegador» says when there are none and when they could not be read', async () => {
-    const view = renderApp('/admin/usage', {
-      admin: admin(),
-      api: fakeApi({ usage: async () => ({ ...REPORT, clientErrors: [] }) }),
-    });
-    expect(await screen.findByText('Ningún error en los últimos 7 días.')).toBeInTheDocument();
-    view.unmount();
-    renderApp('/admin/usage', { admin: admin(), api: fakeApi({ usage: async () => REPORT }) });
-    expect(
-      await screen.findByText('No se pudieron leer los errores. Intenta de nuevo en un rato.'),
-    ).toBeInTheDocument();
-  });
-
-  it('an error without a message shows only what failed and where', async () => {
-    renderApp('/admin/usage', {
-      admin: admin(),
-      api: fakeApi({
-        usage: async () => ({
-          ...REPORT,
-          clientErrors: [
-            {
-              kind: 'render',
-              page: '/home',
-              message: '',
-              version: 'v1',
-              count: 2,
-              lastSeen: '2026-11-19T18:00:00.000Z',
-            },
-          ],
-        }),
-      }),
-    });
-    const section = await screen.findByRole('region', { name: 'Errores en el navegador' });
-    const item = within(section).getByRole('listitem');
-    expect(item.querySelectorAll('p')).toHaveLength(1);
-    expect(item).toHaveTextContent('/home · versión v1');
-  });
-
   it('«Pedidos al Worker» shows each UTC day against the 100.000, today first, and marks the days near it', async () => {
     const days = Array.from({ length: 14 }, (_, i) => ({
       day: `2026-11-${String(10 + i).padStart(2, '0')}`,
@@ -321,9 +243,7 @@ describe('«Uso»', () => {
     const before = usage.mock.calls.length;
     fails = false;
     await userEvent.click(retry);
-    expect(
-      await screen.findByRole('region', { name: 'Errores en el navegador' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('region', { name: 'Pedidos al Worker' })).toBeInTheDocument();
     expect(usage.mock.calls.length).toBeGreaterThan(before);
   });
 });

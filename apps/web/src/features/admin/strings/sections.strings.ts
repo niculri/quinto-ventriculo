@@ -12,5 +12,6 @@ export const sectionsStrings = {
   reports: 'Reportes',
   usage: 'Uso',
   cards: 'Tarjetas',
+  errors: 'Errores',
   settings: 'Ajustes',
 } as const;

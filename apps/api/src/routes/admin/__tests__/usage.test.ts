@@ -1,49 +1,10 @@
 // Tests for GET /api/admin/usage: the figures only an administrator reads.
 import { describe, expect, it } from 'vitest';
 import { UsageReport } from '@qv/schema';
-import { memoryClientErrors } from '../../../adapters/memory/clientErrors';
 import { memoryUsageEvents } from '../../../adapters/memory/usageEvents';
 import { ADMIN, STUDENT, appWith, get, open, row } from '../../../test/usageApp';
 
 describe('GET /api/admin/usage', () => {
-  it("brings the browsers' errors from their reader, and null without one or when it fails", async () => {
-    const errors = memoryClientErrors();
-    errors.record({
-      kind: 'boot',
-      page: '/home',
-      message: 'La página quedó en blanco',
-      version: 'v1',
-    });
-    const withErrors = UsageReport.parse(
-      await (
-        await get(appWith({ clientErrorsReader: errors }).app, '/api/admin/usage', ADMIN)
-      ).json(),
-    );
-    expect(withErrors.clientErrors).toMatchObject([
-      {
-        kind: 'boot',
-        page: '/home',
-        message: 'La página quedó en blanco',
-        version: 'v1',
-        count: 1,
-      },
-    ]);
-    const without = UsageReport.parse(
-      await (await get(appWith().app, '/api/admin/usage', ADMIN)).json(),
-    );
-    expect(without.clientErrors).toBeNull();
-    const failing = appWith({
-      clientErrorsReader: {
-        read: async () => {
-          throw new Error('Analytics Engine caído');
-        },
-      },
-    }).app;
-    const r = await get(failing, '/api/admin/usage', ADMIN);
-    expect(r.status).toBe(200);
-    expect(UsageReport.parse(await r.json()).clientErrors).toBeNull();
-  });
-
   it('a student and an anonymous visitor get «no existe», never a figure', async () => {
     const { app, asked } = appWith();
     const r = await get(app, '/api/admin/usage', STUDENT);

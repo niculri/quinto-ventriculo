@@ -143,7 +143,6 @@ describe('«Administración», the texts of each section', () => {
         ],
       },
       opensStatus: 'unavailable',
-      clientErrors: null,
       workerRequests: null,
     };
     renderApp('/admin/usage', {

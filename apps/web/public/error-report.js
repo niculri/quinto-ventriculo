@@ -1,6 +1,6 @@
 // Tells the administrators, without who, that a page failed in this browser: a file that did not load, an error nothing
 // caught or a page left blank. A classic script loaded first, so it works even when the app itself cannot start.
-(function () {
+(function (text) {
   var ENDPOINT = '/api/client-error';
   var MAX = 5;
   var sent = 0;
@@ -13,33 +13,20 @@
     return typeof url === 'string' && url.indexOf(location.origin + '/') === 0;
   }
 
-  function version() {
-    var s = document.querySelector('script[type="module"][src*="/assets/"]');
-    var m = s && /\/assets\/index[.-]([A-Za-z0-9_-]+)\.js/.exec(s.src);
-    return m ? m[1] : '';
-  }
-
-  function scrub(text) {
-    return String(text || '')
-      .split(location.origin)
-      .join('')
-      .replace(/[^\s@<>()"']+@[^\s@<>()"']+/g, '(correo)')
-      .replace(/[A-Za-z0-9_-]{24,}/g, '…')
-      .slice(0, 300);
-  }
-
-  function report(kind, message) {
-    var text = scrub(message);
+  function report(kind, message, stack) {
+    var said = text.clean(message).slice(0, 300);
     if (kind === 'chunk') lastChunk = Date.now();
-    var key = kind + '|' + text;
+    var key = kind + '|' + said;
     if (sent >= MAX || seen[key]) return;
     seen[key] = true;
     sent += 1;
     var body = JSON.stringify({
       kind: kind,
       page: location.pathname.slice(0, 200),
-      message: text,
-      version: version(),
+      message: said,
+      version: text.version(),
+      stack: text.stack(stack),
+      viewport: text.viewport(),
     });
     try {
       if (navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, body)) return;
@@ -70,7 +57,7 @@
       }
       if ((e.filename && !own(e.filename)) || NOISE.test(e.message || '')) return;
       var where = e.filename ? ' (' + e.filename + ':' + e.lineno + ')' : '';
-      report('unhandled', (e.message || 'Error') + where);
+      report('unhandled', (e.message || 'Error') + where, e.error && e.error.stack);
     },
     true,
   );
@@ -89,7 +76,7 @@
 
   window.addEventListener('unhandledrejection', function (e) {
     var r = e.reason;
-    report('unhandled', r && r.message ? r.message : String(r));
+    report('unhandled', r && r.message ? r.message : String(r), r && r.stack);
   });
 
   // The app mounts in #root: still empty some seconds after everything loaded means a blank page.
@@ -99,4 +86,42 @@
       if (root && !root.firstChild) report('boot', 'La página quedó en blanco');
     }, 8000);
   });
-})();
+})(
+  // What a report says of the page, apart, so that each function stays short: the text without the site's address,
+  // emails nor tokens, the stack as the Worker keeps it, the window and the deploy.
+  (function () {
+    function clean(text) {
+      return String(text || '')
+        .split(location.origin)
+        .join('')
+        .replace(/[^\s@<>()"']+@[^\s@<>()"']+/g, '(correo)')
+        .replace(/[A-Za-z0-9_-]{24,}/g, '…');
+    }
+
+    // At most 15 lines of 200 characters.
+    function stack(text) {
+      return clean(text)
+        .split('\n')
+        .slice(0, 15)
+        .map(function (line) {
+          return line.replace(/\s+$/, '').slice(0, 200);
+        })
+        .join('\n')
+        .slice(0, 1500);
+    }
+
+    function viewport() {
+      var w = Math.round(window.innerWidth || 0);
+      var h = Math.round(window.innerHeight || 0);
+      return w > 0 && h > 0 && w < 100000 && h < 100000 ? w + 'x' + h : '';
+    }
+
+    function version() {
+      var s = document.querySelector('script[type="module"][src*="/assets/"]');
+      var m = s && /\/assets\/index[.-]([A-Za-z0-9_-]+)\.js/.exec(s.src);
+      return m ? m[1] : '';
+    }
+
+    return { clean: clean, stack: stack, viewport: viewport, version: version };
+  })(),
+);

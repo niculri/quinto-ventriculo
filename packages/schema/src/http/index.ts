@@ -49,16 +49,24 @@ export {
   ReleasePageQuery,
   SearchQuery,
   UsageOpenBody,
+  CLIENT_ERROR_BODY_UNITS,
   ClientErrorBody,
 } from './requests';
 export { API_PREFIX, API_ROUTES, apiPaths } from './routes';
+export {
+  CLIENT_ERROR_KINDS,
+  CLIENT_ERROR_PERIODS,
+  ClientErrorGroup,
+  ClientErrorReport,
+  ClientErrorsQuery,
+  ClientErrorsReport,
+  ERRORS_SHOWN,
+  ERROR_ACCOUNTS_SHOWN,
+} from './clientErrors';
+export type { ClientErrorKind, ClientErrorPeriod } from './clientErrors';
 export type { ApiRouteName } from './routes';
 export {
   AdminUsageRow,
-  CLIENT_ERROR_DAYS,
-  CLIENT_ERROR_KINDS,
-  ClientErrorGroup,
-  ClientErrorReport,
   FEW,
   SEARCH_CONTEXTS,
   USAGE_EVENT_KINDS,
@@ -85,7 +93,6 @@ export type { AdminCardQualityCard, CardQualityReason } from './cardQuality';
 export type {
   AdminUsageFigures,
   AdminUsageGroup,
-  ClientErrorKind,
   SearchContext,
   UsageEventKind,
 } from './usage';

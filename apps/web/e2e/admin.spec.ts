@@ -8,6 +8,7 @@ const SECTIONS = [
   ['Publicaciones', '/admin/releases', 'Publicaciones'],
   ['Reportes', '/admin/reports', 'Reportes'],
   ['Uso', '/admin/usage', 'Uso'],
+  ['Errores', '/admin/errors', 'Errores'],
   ['Acceso', '/admin/access', 'Acceso'],
   ['Ajustes', '/admin/site', 'Ajustes'],
   ['Fuera del sitio', '/admin/unpublished', 'Fuera del sitio'],

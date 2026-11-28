@@ -221,6 +221,13 @@ export const routes: RouteObject[] = [
                 ),
               },
               {
+                path: 'errors',
+                lazy: page(
+                  () => import('../features/admin/pages/ErrorsPage'),
+                  (m) => m.ErrorsPage,
+                ),
+              },
+              {
                 path: 'cards',
                 lazy: page(
                   () => import('../features/admin/pages/CardQualityPage'),

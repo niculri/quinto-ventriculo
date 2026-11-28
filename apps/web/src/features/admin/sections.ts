@@ -1,5 +1,6 @@
 // The sections of «Administración» by group, in order, for its own menu and the site's; `/admin` opens the first one.
 import {
+  Bug,
   ChartColumn,
   EyeOff,
   Flag,
@@ -38,6 +39,9 @@ export const ADMIN_GROUPS = [
   },
   {
     title: s.site,
-    sections: [{ label: s.settings, to: paths.adminSite, icon: SlidersHorizontal }],
+    sections: [
+      { label: s.errors, to: paths.adminErrors, icon: Bug },
+      { label: s.settings, to: paths.adminSite, icon: SlidersHorizontal },
+    ],
   },
 ] as const satisfies readonly MenuGroup[];

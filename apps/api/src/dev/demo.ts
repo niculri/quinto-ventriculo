@@ -19,6 +19,7 @@ import type { MediaStore } from '../ports/media';
 import type { SessionVerifier } from '../ports/session';
 import { deepHealth } from '../services/health';
 import { MediaSigner, isValidKey } from '../services/mediaSigner';
+import { demoClientErrors } from './demoErrors';
 
 export const DEMO_TOKEN = 'demo-local';
 export const DEMO_USER = {
@@ -71,7 +72,7 @@ export async function createDemoApp(outputFolder: string, options: DemoOptions =
     : { verify: (token) => Promise.resolve(token === DEMO_TOKEN ? DEMO_USER : null) };
   const media = folderMedia(outputFolder);
   const usageEvents = demoUsageEvents(bundle);
-  const clientErrors = memoryClientErrors();
+  const clientErrors = memoryClientErrors({ start: demoClientErrors(Date.now()) });
   const preview = memoryRepository(draft);
   const { repository, releases, contentVersion } = publishingSite({
     published: memoryRepository(bundle),

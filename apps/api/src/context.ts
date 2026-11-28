@@ -34,6 +34,7 @@ interface Middlewares {
   settingsAdmin: MiddlewareHandler<AppEnv>;
   unpublishedAdmin: MiddlewareHandler<AppEnv>;
   usageAdmin: MiddlewareHandler<AppEnv>;
+  errorsAdmin: MiddlewareHandler<AppEnv>;
   cardQualityAdmin: MiddlewareHandler<AppEnv>;
 }
 
@@ -69,6 +70,7 @@ export function createContext(deps: Dependencies): AppContext {
       settingsAdmin: requireAdmin(deps, configured.settings),
       unpublishedAdmin: requireAdmin(deps, configured.unpublished),
       usageAdmin: requireAdmin(deps, configured.usageStats),
+      errorsAdmin: requireAdmin(deps, configured.clientErrorsReader),
       cardQualityAdmin: requireAdmin(deps, configured.cardQuality),
     },
     services: {

@@ -86,6 +86,10 @@ describe('the gymkana’s page', () => {
     expect(screen.getByRole('button', { name: 'Comenzar' })).toBeDisabled();
     await user.click(screen.getByRole('switch', { name: 'Atlas' }));
     expect(screen.getByRole('button', { name: 'Comenzar' })).toBeEnabled();
+
+    await user.click(screen.getByRole('tab', { name: /Modo Anki/ }));
+    expect(screen.getByRole('switch', { name: 'Activada en tu Anki' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Comenzar' })).toBeNull();
   });
 
   it('says when it could not turn the deck on', async () => {

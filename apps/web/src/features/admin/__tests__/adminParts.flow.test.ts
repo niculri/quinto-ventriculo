@@ -157,7 +157,7 @@ describe('«Administración», the texts of each section', () => {
     expect(
       within(chart)
         .getAllByRole('listitem')
-        .map((li) => li.getAttribute('title')),
+        .map((li) => li.textContent),
     ).toMatchSnapshot('by day');
     expect(
       within(chart)
@@ -170,7 +170,7 @@ describe('«Administración», the texts of each section', () => {
     expect(
       within(weeks)
         .getAllByRole('listitem')
-        .map((li) => li.getAttribute('title')),
+        .map((li) => li.textContent),
     ).toMatchSnapshot('by week');
     expect(text(screen.getByRole('region', { name: 'Por semana' }))).toMatchSnapshot('chart');
     for (const name of [

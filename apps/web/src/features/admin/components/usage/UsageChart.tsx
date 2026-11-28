@@ -1,22 +1,15 @@
-// The chart of «Uso»: one figure by day (or by week, except the opens, kept by day only), with its first and last day
-// and its maximum.
+// The chart of «Uso»: one figure by day (or by week, except the opens, kept by day only), with an axis of round marks,
+// its first and last day, and the data of each column in a box.
 import { useState } from 'react';
 import { FEW } from '@qv/schema';
 import type { UsageReport } from '@qv/schema';
 import { Reserved } from '../../../../shared/ui/Reserved';
 import { Select } from '../../../../shared/ui/Select';
 import { card } from '../../../../shared/ui/styles';
-import {
-  NUMBER,
-  OPEN_ROWS,
-  ROWS,
-  barHeight,
-  chartPoints,
-  figure,
-  isOpenKey,
-  shortDay,
-} from '../../model/usage';
+import { OPEN_ROWS, ROWS, isOpenKey, shortDay } from '../../model/usage';
 import type { Metric, Period } from '../../model/usage';
+import { WIDEST_MARK, axisTicks, chartColumns } from '../../model/usageChart';
+import { BarChart } from './BarChart';
 import { usageChartStrings as s } from './strings/UsageChart.strings';
 
 export function UsageChart({ report }: { report: UsageReport | null }) {
@@ -28,12 +21,11 @@ export function UsageChart({ report }: { report: UsageReport | null }) {
     ...(opens ? OPEN_ROWS.map((r) => ({ value: r.key, label: r.label })) : []),
   ];
   const byWeek = period === 'week' && !isOpenKey(metric);
-  const students = ROWS.find((r) => r.key === metric)?.students ?? false;
-  const points = chartPoints(report, metric, byWeek);
-  const max = Math.max(1, ...points.map((p) => (p.value === FEW ? 0 : p.value)));
+  const columns = chartColumns(report, metric, byWeek);
+  const ticks = axisTicks(Math.max(0, ...columns.map((c) => (c.value === FEW ? 0 : c.value))));
   const name = metrics.find((m) => m.value === metric)?.label ?? '';
-  const label = (day: string, value: string) =>
-    `${byWeek ? s.chart.weekOf : ''}${s.chart.point(shortDay(day), value)}`;
+  const first = columns[0];
+  const last = columns.at(-1);
   return (
     <section aria-labelledby="usage-chart" className="mt-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -63,37 +55,19 @@ export function UsageChart({ report }: { report: UsageReport | null }) {
         </div>
       </div>
       <div className={`${card} mt-3 px-4 pt-4 pb-3 sm:px-5`}>
-        <ol
-          aria-label={s.chart.label(name, byWeek)}
-          className="flex h-40 items-end gap-[2px] sm:gap-1"
-        >
-          {points.length
-            ? points.map((p) => (
-                <li
-                  key={p.label}
-                  className="flex h-full min-w-0 flex-1 items-end"
-                  title={label(p.label, figure(p.value, students))}
-                >
-                  <span className="sr-only">{label(p.label, figure(p.value, students))}</span>
-                  <span
-                    aria-hidden="true"
-                    className={`block w-full rounded-t-sm ${p.value === FEW ? 'bg-border-strong' : 'bg-brand'}`}
-                    style={{ height: barHeight(p.value, max) }}
-                  />
-                </li>
-              ))
-            : null}
-        </ol>
-        <div className="mt-2 flex justify-between text-xs text-muted tabular-nums">
-          <Reserved longest={s.chart.longestDay} className="text-left">
-            <span>{points[0] ? shortDay(points[0].label) : ''}</span>
-          </Reserved>
-          <Reserved longest={s.chart.max(NUMBER.format(100000))} className="text-center">
-            <span>{points.length ? s.chart.max(NUMBER.format(max)) : ''}</span>
-          </Reserved>
-          <Reserved longest={s.chart.longestDay} className="text-right">
-            <span>{points.at(-1) ? shortDay(points.at(-1)!.label) : ''}</span>
-          </Reserved>
+        <BarChart label={s.chart.label(name, byWeek)} columns={columns} ticks={ticks} />
+        <div className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 text-xs text-muted tabular-nums">
+          <span aria-hidden="true" className="invisible">
+            {WIDEST_MARK}
+          </span>
+          <div className="flex justify-between">
+            <Reserved longest={s.chart.longestDay} className="text-left">
+              <span>{first ? shortDay(first.key) : ''}</span>
+            </Reserved>
+            <Reserved longest={s.chart.longestDay} className="text-right">
+              <span>{last ? shortDay(last.key) : ''}</span>
+            </Reserved>
+          </div>
         </div>
       </div>
     </section>

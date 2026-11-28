@@ -149,7 +149,7 @@ describe('«Uso»', () => {
     });
     const chart = await screen.findByRole('list', { name: 'Alumnos activos, por día' });
     expect(await within(chart).findAllByRole('listitem')).toHaveLength(30);
-    expect(within(chart).getAllByRole('listitem')[0]).toHaveTextContent(/: 1$/);
+    expect(within(chart).getAllByRole('listitem')[0]).toHaveTextContent(/: 1 alumno activo;/);
     await userEvent.click(screen.getByRole('button', { name: 'Periodo: Últimos 30 días' }));
     await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Últimas 12 semanas' }));
     expect(

@@ -12,7 +12,7 @@ export const accountSectionsStrings = {
   },
   data: {
     title: 'Tus datos',
-    text: 'Un archivo JSON con todo lo que el sitio guarda de ti: tu cuenta, tus sesiones, tu invitación, tu avance de tarjetas, tus tests, tus opciones, tus reportes y tus aceptaciones.',
+    text: 'Un archivo JSON con lo que guarda de ti la base de datos del sitio: tu cuenta, tus sesiones, tu invitación, tu avance de tarjetas, tus tests, tus opciones, tus reportes y tus aceptaciones.',
     preparing: 'Preparando el archivo…',
     download: 'Descargar mis datos',
     failed: 'No se pudo preparar el archivo. Revisa tu conexión e intenta de nuevo.',

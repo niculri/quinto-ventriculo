@@ -247,6 +247,9 @@ describe('«Datos de usuario»: download and delete', () => {
     const user = userEvent.setup();
     renderApp('/settings/account', { account });
     await user.click(await screen.findByRole('button', { name: 'Descargar mis datos' }));
+    expect(
+      screen.getByText(/^Un archivo JSON con lo que guarda de ti la base de datos del sitio:/),
+    ).toBeInTheDocument();
     await waitFor(() => expect(clicked).toHaveLength(1));
     expect(created).toHaveBeenCalledWith(blob);
     expect(clicked[0]).toMatch(/^el-quinto-ventriculo-mis-datos-\d{4}-\d{2}-\d{2}\.json$/);

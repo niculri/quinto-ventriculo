@@ -63,7 +63,10 @@ describe('access', () => {
     expect(screen.queryByText(/quedaste|a medias/)).toBeNull();
     const data = screen.getByText('¿Qué datos míos se guardan?').nextElementSibling as HTMLElement;
     expect(data).toHaveTextContent(/tus respuestas en los tests; los errores que reportas/);
-    expect(data).toHaveTextContent(/el administrador ve la lista de invitados y los reportes/);
+    expect(data).toHaveTextContent(
+      /el administrador ve la lista de invitados, los reportes con el nombre de quien los escribió y las fallas de páginas con la cuenta a la que le pasaron\. Puedes descargar tus datos o eliminar tu cuenta cuando quieras\./,
+    );
+    expect(data).not.toHaveTextContent(/descargar todo/);
     expect(within(data).getByRole('link', { name: 'política de privacidad' })).toHaveAttribute(
       'href',
       '/privacy',

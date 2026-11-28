@@ -25,9 +25,10 @@ export function Faq() {
             Tu nombre, tu correo y tu foto de Google; tu invitación (la lista con que te invitaron y
             su fecha); tu avance y tus opciones de las tarjetas; tus respuestas en los tests; los
             errores que reportas; y qué versión de los términos aceptaste. Ningún otro estudiante ve
-            tu avance ni tus respuestas; el administrador ve la lista de invitados y los reportes
-            con el nombre de quien los escribió. Puedes descargar todo o eliminar tu cuenta cuando
-            quieras. El detalle está en la{' '}
+            tu avance ni tus respuestas; el administrador ve la lista de invitados, los reportes con
+            el nombre de quien los escribió y las fallas de páginas con la cuenta a la que le
+            pasaron. Puedes descargar tus datos o eliminar tu cuenta cuando quieras. El detalle está
+            en la{' '}
             <Link
               to={paths.privacy}
               className="font-medium text-brand underline underline-offset-2"

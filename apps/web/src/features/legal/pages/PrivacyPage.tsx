@@ -298,10 +298,10 @@ export function PrivacyPage() {
             <Link to={paths.accountSettings} className="text-brand underline underline-offset-2">
               Opciones → Datos de usuario
             </Link>
-            , «Descargar mis datos» te entrega un archivo JSON con todo lo tuyo, que puedes abrir o
-            llevar a otro programa. Las fallas de páginas no van en ese archivo, porque no están en
-            la base de datos: si quieres saber cuáles quedaron anotadas con tu cuenta, escribe a{' '}
-            <ContactLink />.
+            , «Descargar mis datos» te entrega un archivo JSON con todo lo tuyo que está en la base
+            de datos, que puedes abrir o llevar a otro programa. Las fallas de páginas no van en ese
+            archivo, porque no están en la base de datos: si quieres saber cuáles quedaron anotadas
+            con tu cuenta, escribe a <ContactLink />.
           </li>
           <li>
             <strong>Rectificación:</strong> tu nombre y tu foto vienen de Google: si los cambias

@@ -1,5 +1,6 @@
-// An assessment's «Gymkana» page: its stations, studying them as Anki cards, and the writing mode with its choices.
-import { useNavigate } from 'react-router';
+// An assessment's «Gymkana» page: its stations and its two modes as tabs, «Modo Anki» (its cards) and «Modo CA»
+// (writing the name, with its choices); the tab chosen is in the address (`?modo=ca`).
+import { useNavigate, useSearchParams } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
 import { Loading } from '../../../shared/ui/Loading';
@@ -13,6 +14,8 @@ import { useCaRound } from '../hooks/useCaRound';
 import { CaResume } from '../components/CaResume';
 import { CaStart } from '../components/CaStart';
 import { AnkiBlock } from '../components/AnkiBlock';
+import { MODE_PARAM, ModeTabs, modePanelId, modeTabId } from '../components/ModeTabs';
+import type { GymkanaMode } from '../components/ModeTabs';
 import { countBy } from '../model/stations';
 import type { GymkanaStations } from '../model/stations';
 import type { SavedSection } from '../../quiz/api/repository';
@@ -80,26 +83,41 @@ function Cover({
 }) {
   const ca = useCaRound({ quizId, data, saved });
   const navigate = useNavigate();
+  const [search, setSearch] = useSearchParams();
+  const mode: GymkanaMode = search.get(MODE_PARAM) === 'ca' ? 'ca' : 'anki';
   return (
     <>
       <Summary data={data} />
-      <AnkiBlock node={node} />
-      <section className="mt-8" aria-labelledby="gymkana-write">
-        <h2 id="gymkana-write" className="font-serif text-lg font-semibold">
-          {s.write}
-        </h2>
-        <p className="mt-1 text-sm text-muted">{s.intro}</p>
-        {ca.round ? <CaResume round={ca.round} to={write} onDiscard={ca.discard} /> : null}
-        <CaStart
-          data={data}
-          preferences={ca.preferences}
-          replacing={!!ca.round && !ca.round.finished}
-          onChoose={ca.choose}
-          onStart={() => {
-            ca.start();
-            void navigate(write);
-          }}
-        />
+      <ModeTabs
+        active={mode}
+        onMode={(m) => {
+          setSearch(m === 'ca' ? { [MODE_PARAM]: 'ca' } : {}, { replace: true });
+        }}
+      />
+      <section
+        id={modePanelId(mode)}
+        role="tabpanel"
+        aria-labelledby={modeTabId(mode)}
+        className="mt-4"
+      >
+        {mode === 'anki' ? (
+          <AnkiBlock node={node} />
+        ) : (
+          <>
+            <p className="text-sm text-muted">{s.intro}</p>
+            {ca.round ? <CaResume round={ca.round} to={write} onDiscard={ca.discard} /> : null}
+            <CaStart
+              data={data}
+              preferences={ca.preferences}
+              replacing={!!ca.round && !ca.round.finished}
+              onChoose={ca.choose}
+              onStart={() => {
+                ca.start();
+                void navigate(write);
+              }}
+            />
+          </>
+        )}
       </section>
     </>
   );

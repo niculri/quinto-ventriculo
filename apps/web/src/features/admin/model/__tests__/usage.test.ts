@@ -141,7 +141,7 @@ describe('the name of a test and a note', () => {
 
   it('a gymkana’s writing rounds read by the gymkana, and link to it', () => {
     expect(quizNamed(GYM_CATALOG, `gymkana-${GYM_DECK}`)).toEqual({
-      name: 'Gymkana del Certamen 2: escribir el nombre',
+      name: 'Gymkana del Certamen 2: Modo CA',
       detail: 'Anatomía II',
       to: GYM_PAGE,
     });

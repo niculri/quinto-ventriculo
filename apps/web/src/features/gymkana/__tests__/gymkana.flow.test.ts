@@ -8,6 +8,7 @@ import { fullAnkiStudy } from '../../../test/fakes/repositories';
 import {
   GYM_DECK,
   GYM_INDEX,
+  GYM_CA,
   GYM_PAGE,
   GYM_WRITE,
   gymkanaApi,
@@ -73,6 +74,8 @@ describe('the gymkana’s page', () => {
     await user.click(on);
     await waitFor(() => expect(on).toBeChecked());
 
+    await user.click(screen.getByRole('tab', { name: /Modo CA/ }));
+    expect(screen.queryByRole('switch', { name: 'Activada en tu Anki' })).toBeNull();
     expect(screen.getByText('2 estaciones elegidas')).toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: 'Prioridad 3' }));
     expect(screen.getByText('3 estaciones elegidas')).toBeInTheDocument();
@@ -103,7 +106,7 @@ describe('the gymkana’s page', () => {
     const api = gymkanaApi();
     const cardIndex = api.cardIndex;
     const user = userEvent.setup();
-    renderApp(GYM_PAGE, {
+    renderApp(GYM_CA, {
       api: {
         ...api,
         cardIndex: async (...a) => {
@@ -125,7 +128,7 @@ describe('the gymkana’s page', () => {
     expect(await screen.findByRole('switch', { name: 'Activada en tu Anki' })).toBeDisabled();
     first.unmount();
 
-    const broken = renderApp(GYM_PAGE, {
+    const broken = renderApp(GYM_CA, {
       api: gymkanaApi({ catalog: async () => Promise.reject(new Error('red')) }),
     });
     await userEvent.click(
@@ -133,7 +136,7 @@ describe('the gymkana’s page', () => {
     );
     broken.unmount();
 
-    const onePriority = renderApp(GYM_PAGE, {
+    const onePriority = renderApp(GYM_CA, {
       api: gymkanaApi({
         cardIndex: async () => ({
           ...GYM_INDEX,
@@ -147,7 +150,7 @@ describe('the gymkana’s page', () => {
     const user = userEvent.setup();
     const inner = localQuizRepository(null);
     let fail = true;
-    renderApp(GYM_PAGE, {
+    renderApp(GYM_CA, {
       api: gymkanaApi(),
       quiz: {
         ...inner,
@@ -185,7 +188,7 @@ describe('a round of writing the name', () => {
     const user = userEvent.setup();
     const { repo, steps } = recording();
     const study = fullAnkiStudy();
-    const first = renderApp(GYM_PAGE, { api: gymkanaApi(), quiz: repo, study });
+    const first = renderApp(GYM_CA, { api: gymkanaApi(), quiz: repo, study });
     await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
     await waitFor(() => expect(first.router.state.location.pathname).toBe(GYM_WRITE));
 
@@ -243,7 +246,7 @@ describe('a round of writing the name', () => {
   it('corrected at the end goes on at once; a half-done round can be resumed or dropped', async () => {
     const user = userEvent.setup();
     const { repo } = recording();
-    renderApp(GYM_PAGE, { api: gymkanaApi(), quiz: repo });
+    renderApp(GYM_CA, { api: gymkanaApi(), quiz: repo });
     await user.click(await screen.findByRole('button', { name: /Corrección/ }));
     await user.click(screen.getByRole('menuitemradio', { name: 'Al final' }));
     await user.click(screen.getByRole('button', { name: 'Comenzar' }));
@@ -266,7 +269,7 @@ describe('a round of writing the name', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) });
-      renderApp(GYM_PAGE, { api: gymkanaApi() });
+      renderApp(GYM_CA, { api: gymkanaApi() });
       await user.click(await screen.findByRole('button', { name: /Tiempo por estación/ }));
       await user.click(screen.getByRole('menuitemradio', { name: '15 segundos' }));
       await user.click(screen.getByRole('button', { name: /Estaciones por ronda/ }));
@@ -336,7 +339,7 @@ describe('a round of writing the name', () => {
         await inner.save(s);
       },
     };
-    renderApp(GYM_PAGE, { api: gymkanaApi(), quiz: repo });
+    renderApp(GYM_CA, { api: gymkanaApi(), quiz: repo });
     await user.click(await screen.findByRole('button', { name: 'Comenzar' }));
     await answer(user, 'recto lateral');
     const alert = await screen.findByRole('alert', {}, { timeout: 5_000 });

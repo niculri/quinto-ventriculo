@@ -1,4 +1,5 @@
-// The gymkana as an Anki deck: its switch (a unit of the assessment, like a week), studying it and its cards.
+// The «Modo Anki» tab: the gymkana as an Anki deck, its switch (a unit of the assessment, like a week), studying
+// it and its cards.
 import { Link } from 'react-router';
 import { activation } from '@qv/study';
 import { paths } from '../../../shared/lib/paths';
@@ -13,11 +14,8 @@ export function AnkiBlock({ node }: { node: CourseDeckNode }) {
   const activate = useSetActivation();
   const on = plan.data ? activation([node], plan.data).on.has(node.id) : false;
   return (
-    <section className={`${card} mt-4 p-4 sm:p-6`} aria-labelledby="gymkana-anki">
-      <h2 id="gymkana-anki" className="font-serif text-lg font-semibold">
-        {s.title}
-      </h2>
-      <p className="mt-1 text-sm text-muted">{s.text}</p>
+    <div className={`${card} p-4 sm:p-6`}>
+      <p className="text-sm text-muted">{s.text}</p>
       <label className="mt-4 flex cursor-pointer items-center justify-between gap-4 text-sm font-medium">
         {s.on}
         <Switch
@@ -40,6 +38,6 @@ export function AnkiBlock({ node }: { node: CourseDeckNode }) {
           {s.seeStations}
         </Link>
       </div>
-    </section>
+    </div>
   );
 }

@@ -9,6 +9,7 @@ import { CATALOG } from './catalog';
 const GYM_INDEX_HASH = 'fedcbafedcbafedcbafedcbafedcba98';
 export const GYM_PAGE = '/semesters/2/courses/anatomia-2/assessments/certamen-2/gymkana';
 export const GYM_WRITE = `${GYM_PAGE}/write`;
+export const GYM_CA = `${GYM_PAGE}?modo=ca`;
 export const GYM_DECK = '32';
 
 const ROOT = '() Medicina UCH::2° Semestre::🦴 Anatomía II';

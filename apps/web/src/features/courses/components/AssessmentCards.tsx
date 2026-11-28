@@ -31,7 +31,7 @@ export function AssessmentCards({
   const onlyQuiz = a.quizzes.length === 1 ? a.quizzes[0]! : null;
   return (
     <section className="mt-10" aria-labelledby={assessmentAnchor(a.id)}>
-      <h2 id={assessmentAnchor(a.id)} className="scroll-mt-24 text-xl font-semibold">
+      <h2 id={assessmentAnchor(a.id)} className="scroll-mt-24 font-serif text-xl font-semibold">
         {a.name}
         <ListMark thing={['assessment', a.id]} holder={['course', course.id]} />
       </h2>

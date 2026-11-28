@@ -157,6 +157,9 @@ describe('the popups on entering', () => {
     const user = userEvent.setup();
     renderApp('/home', { account });
     const dialog = await screen.findByRole('dialog', { name: 'Antes de entrar' });
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: 'Acepto' })).toHaveFocus(),
+    );
     expect(
       within(dialog).getByText(
         'Para usar El Quinto Ventrículo, lee y acepta los términos de uso y la política de privacidad.',

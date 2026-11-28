@@ -163,7 +163,7 @@ test('«Modo avanzado»: «Lista / Tabla»; the simple mode has no table nor syn
   await expect(page.getByRole('grid')).toHaveCount(0);
   await expect(page.getByRole('searchbox', { name: 'Buscar en estas tarjetas' })).toHaveAttribute(
     'placeholder',
-    'Buscar por texto o código',
+    'Buscar texto o código',
   );
 });
 

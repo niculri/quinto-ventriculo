@@ -70,7 +70,7 @@ export function MyCourses({
                   onChange(removeCourse(prefs, c.id));
                   refocus();
                 }}
-                className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:outline-none"
+                className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-ink"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>

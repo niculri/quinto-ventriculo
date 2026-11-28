@@ -1,5 +1,5 @@
 // Tests the heatmap grid's scroll: to today when the year, today or the data change, and never while the student scrolls.
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { yearGrid } from '@qv/study';
 import { describe, expect, it } from 'vitest';
 import { gridScroll } from '../../model/layout';
@@ -9,7 +9,18 @@ import type { GridData } from '../useHeatmapGrid';
 const YEAR = 2026;
 const grid = yearGrid(YEAR);
 const TODAY = grid.first + 200;
-const BOX = { scrollWidth: 2000, clientWidth: 500, scrollLeft: 0 };
+/** Two months' names: one at the grid's start and one at 1.000 px. */
+const MONTHS = [0, 1000].map((left) => {
+  const label = document.createElement('span');
+  label.dataset.monthLeft = String(left);
+  return label;
+});
+const BOX = {
+  scrollWidth: 2000,
+  clientWidth: 500,
+  scrollLeft: 0,
+  querySelectorAll: () => MONTHS,
+};
 
 const data = (over: Partial<GridData> = {}): GridData => ({
   year: YEAR,
@@ -24,7 +35,7 @@ const data = (over: Partial<GridData> = {}): GridData => ({
 // The effect runs after the mount, when the box is already in its ref, as in the page.
 function heatmap(initial: GridData) {
   const hook = renderHook((props: GridData) => useHeatmapGrid(props), { initialProps: initial });
-  hook.result.current.scrollerRef.current = BOX as HTMLDivElement;
+  hook.result.current.scrollerRef.current = BOX as unknown as HTMLDivElement;
   BOX.scrollLeft = 0;
   return hook;
 }
@@ -63,6 +74,28 @@ describe('scrolling the grid', () => {
     Object.assign(BOX, { scrollWidth: 500 });
     rerender(data({ ready: true }));
     expect(BOX.scrollLeft).toBe(0);
+    Object.assign(BOX, { scrollWidth: 2000 });
+  });
+});
+
+describe('the months’ names', () => {
+  const shown = () => MONTHS.map((m) => m.style.visibility !== 'hidden');
+
+  it('show only those the part in view has whole, and follow the scroll', () => {
+    const { result, rerender } = heatmap(data({ ready: false }));
+    rerender(data({ ready: true }));
+    expect(BOX.scrollLeft).toBeGreaterThan(0);
+    expect(shown()).toEqual([false, BOX.scrollLeft <= 1000 && BOX.scrollLeft + 500 >= 1024]);
+    BOX.scrollLeft = 0;
+    act(() => result.current.onScroll());
+    expect(shown()).toEqual([true, false]);
+  });
+
+  it('all show when the grid fits without scrolling', () => {
+    const { rerender } = heatmap(data({ ready: false }));
+    Object.assign(BOX, { scrollWidth: 500 });
+    rerender(data({ ready: true }));
+    expect(shown()).toEqual([true, true]);
     Object.assign(BOX, { scrollWidth: 2000 });
   });
 });

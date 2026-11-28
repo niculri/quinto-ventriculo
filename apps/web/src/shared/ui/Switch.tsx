@@ -1,6 +1,9 @@
 // The site's on/off switch; `label` is its name for screen readers (the text beside it, or the row it is in), and
 // `mixed` draws it half on, for a group with some of its parts on (`describedBy` names the text that says how many).
 
+/** On its own, the switch answers to a finger 44 px wide and high: its input goes past the 40 × 24 track. */
+const FINGER = '-inset-x-0.5 -inset-y-2.5';
+
 // Half of the track on and half off, in full colors: a faded track was hard to tell from off in the dark theme.
 const HALF_TRACK = 'bg-linear-to-r from-brand from-50% to-border-strong to-50%';
 
@@ -42,7 +45,7 @@ export function Switch({
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
-        className="absolute inset-0 z-10 cursor-pointer opacity-0 disabled:cursor-default"
+        className={`absolute z-10 cursor-pointer opacity-0 disabled:cursor-default ${wholeRow ? 'inset-0' : FINGER}`}
       />
       <span aria-hidden="true" className="relative inline-flex h-6 w-10 items-center">
         <span

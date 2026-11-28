@@ -42,18 +42,23 @@ export function Notice({
   );
 }
 
-/** `message`: what the caller knows to say about this error, instead of the text errorMessage() gives it. */
+/**
+ * `message`: what the caller knows to say about this error, instead of the text errorMessage() gives it. `className`:
+ * where the box goes (by default, centered in what holds it).
+ */
 export function ErrorWithRetry({
   error,
   onRetry,
   message,
+  className = 'mx-auto max-w-lg py-16',
 }: {
   error: unknown;
   onRetry: () => void;
   message?: string | undefined;
+  className?: string;
 }) {
   return (
-    <div className="mx-auto max-w-lg py-16">
+    <div className={className}>
       <Notice title={noticeStrings.loadError.title}>
         <p>{withContactLink(message ?? errorMessage(error))}</p>
         <button

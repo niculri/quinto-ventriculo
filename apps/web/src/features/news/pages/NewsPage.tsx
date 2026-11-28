@@ -1,6 +1,7 @@
 // «Novedades»: every announcement the student may read, by day, with a filter by course. Opening it keeps them as seen;
 // what was unread when it opened stays marked.
 import { useEffect, useEffectEvent, useState } from 'react';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { formatDate } from '../../../shared/lib/dates';
 import { paths } from '../../../shared/lib/paths';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
@@ -17,6 +18,7 @@ import { newsPageStrings as s } from './strings/NewsPage.strings';
 export function NewsPage() {
   const news = useNews();
   const catalog = useCatalog();
+  useTitle(s.title);
   const [course, setCourse] = useState('all');
   // undefined until the list and what was read came: then what was read before this visit.
   const [openedWith, setOpenedWith] = useState<string | null | undefined>(undefined);

@@ -5,6 +5,7 @@ import { CALLOUT_LABELS } from '@qv/schema';
 import { ContactLink } from '../../../shared/ui/ContactLink';
 import { HowToUse } from '../components/HowToUse';
 import { keys } from '../../../shared/ui/keys';
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { page } from '../../../shared/ui/styles';
 import { paths } from '../../../shared/lib/paths';
 import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
@@ -67,6 +68,7 @@ const STUDY_SHORTCUTS: [string, string][] = [
 const link = 'text-brand underline underline-offset-2';
 
 export function HelpPage() {
+  useTitle('Ayuda');
   return (
     <div className={page}>
       <Breadcrumbs items={[{ label: 'Inicio', to: paths.home }, { label: 'Ayuda' }]} />
@@ -76,7 +78,7 @@ export function HelpPage() {
       </p>
 
       <section className="mt-10" aria-labelledby="steps">
-        <h2 id="steps" className="mb-4 text-xl font-semibold">
+        <h2 id="steps" className="mb-4 font-serif text-xl font-semibold">
           En tres pasos
         </h2>
         <HowToUse />
@@ -85,7 +87,7 @@ export function HelpPage() {
       <StudySection />
 
       <section className="mt-12" aria-labelledby="callouts">
-        <h2 id="callouts" className="text-xl font-semibold">
+        <h2 id="callouts" className="font-serif text-xl font-semibold">
           Los recuadros de los apuntes
         </h2>
         <p className="mt-2 text-muted">
@@ -111,7 +113,7 @@ export function HelpPage() {
       </section>
 
       <section className="mt-12" aria-labelledby="shortcuts">
-        <h2 id="shortcuts" className="text-xl font-semibold">
+        <h2 id="shortcuts" className="font-serif text-xl font-semibold">
           Atajos de teclado
         </h2>
         <ShortcutList shortcuts={SHORTCUTS} />
@@ -120,7 +122,7 @@ export function HelpPage() {
       </section>
 
       <section className="mt-12" aria-labelledby="search-tips">
-        <h2 id="search-tips" className="text-xl font-semibold">
+        <h2 id="search-tips" className="font-serif text-xl font-semibold">
           Cómo buscar mejor
         </h2>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-muted">
@@ -132,7 +134,7 @@ export function HelpPage() {
       </section>
 
       <section className="mt-12" aria-labelledby="news">
-        <h2 id="news" className="text-xl font-semibold">
+        <h2 id="news" className="font-serif text-xl font-semibold">
           Novedades y la campana
         </h2>
         <p className="mt-3 leading-relaxed text-muted">
@@ -147,7 +149,7 @@ export function HelpPage() {
       </section>
 
       <section className="mt-12" aria-labelledby="progress">
-        <h2 id="progress" className="text-xl font-semibold">
+        <h2 id="progress" className="font-serif text-xl font-semibold">
           Tu avance
         </h2>
         <p className="mt-3 leading-relaxed text-muted">
@@ -182,7 +184,7 @@ function ShortcutList({ shortcuts }: { shortcuts: [string, string][] }) {
 function StudySection() {
   return (
     <section className="mt-12" aria-labelledby="cards">
-      <h2 id="cards" className="text-xl font-semibold">
+      <h2 id="cards" className="font-serif text-xl font-semibold">
         Las tarjetas: lo que cambia respecto de Anki
       </h2>
       <p className="mt-2 leading-relaxed text-muted">
@@ -269,7 +271,7 @@ function StudySection() {
 function TroubleSection() {
   return (
     <section className="mt-12" aria-labelledby="trouble">
-      <h2 id="trouble" className="text-xl font-semibold">
+      <h2 id="trouble" className="font-serif text-xl font-semibold">
         Si algo falla
       </h2>
       <ul className="mt-3 list-disc space-y-1.5 pl-5 leading-relaxed text-muted">

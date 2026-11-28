@@ -8,6 +8,7 @@ import { paths } from '../shared/lib/paths';
 import { Loading } from '../shared/ui/Loading';
 import { ErrorWithRetry } from '../shared/ui/Notice';
 import { NotFoundPage } from '../shared/ui/NotFoundPage';
+import { PageError, PageLoading } from '../shared/ui/PageStates';
 import { Canonical } from '../shared/ui/Canonical';
 import { StudyFallback } from '../features/study/components/StudyFallback';
 import { StudyLoading } from '../features/study/components/StudyLoading';
@@ -30,21 +31,26 @@ export function AnkiRoute() {
   useEffect(() => {
     ankiScreens[screenOfPath(location.pathname)].preload().catch(() => undefined);
   }, [location.pathname]);
-  // Studying without the catalog yet: its deck has no name, but «Volver» is needed (no site bar on a phone).
-  const frame = (body: ReactNode) => {
-    const back = answerScreenBack(location.pathname, location.search);
+  // Studying without the catalog yet: its deck has no name, but «Volver» is needed (no site bar on a phone). Any other
+  // screen waits in the frame of a page, as the rest of the site.
+  const back = answerScreenBack(location.pathname, location.search);
+  if (catalog.isError) {
+    const retry = () => void catalog.refetch();
     return back ? (
       <StudyFallback back={back.to} label={back.label}>
-        {body}
+        <ErrorWithRetry error={catalog.error} onRetry={retry} />
       </StudyFallback>
     ) : (
-      body
+      <PageError error={catalog.error} onRetry={retry} />
     );
-  };
-  if (catalog.isError) {
-    return frame(<ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />);
   }
-  const loading = frame(<Loading />);
+  const loading = back ? (
+    <StudyFallback back={back.to} label={back.label}>
+      <Loading />
+    </StudyFallback>
+  ) : (
+    <PageLoading />
+  );
   if (!tree) return loading;
   const splat = rest.split('/').filter(Boolean);
   const resolved = resolveCourseDeck(tree, number, courseId, splat, search.get('subdeck'));

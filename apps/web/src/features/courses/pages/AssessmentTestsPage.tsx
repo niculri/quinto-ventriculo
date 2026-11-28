@@ -1,8 +1,7 @@
 // An assessment's «Tests» page: its tests; without any, it does not exist.
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
-import { Loading } from '../../../shared/ui/Loading';
-import { ErrorWithRetry } from '../../../shared/ui/Notice';
+import { PageError, PageLoading } from '../../../shared/ui/PageStates';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
 import { card } from '../../../shared/ui/styles';
 import { useAssessmentSection } from '../hooks/useAssessmentSection';
@@ -13,8 +12,8 @@ import { assessmentTestsPageStrings as s } from './strings/AssessmentTestsPage.s
 export function AssessmentTestsPage() {
   const { catalog, found, number, assessment } = useAssessmentSection();
   if (catalog.isError)
-    return <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />;
-  if (!catalog.data) return <Loading />;
+    return <PageError error={catalog.error} onRetry={() => void catalog.refetch()} />;
+  if (!catalog.data) return <PageLoading />;
   if (!found || !assessment?.quizzes.length) return <NotFoundPage />;
   const { semester, course } = found;
   if (String(semester.number) !== number) {

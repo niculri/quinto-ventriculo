@@ -186,6 +186,17 @@ describe('a deck’s statistics', () => {
     expect(screen.getByText('Hoy no te toca repasar ninguna tarjeta.')).toBeInTheDocument();
   });
 
+  it('with nothing answered nor to review in the 60 days, the chart is a line of text, as tall as the chart', async () => {
+    const { study: s } = study({ ...DATA, days: [], due: [], overdue: 0, hardest: [] });
+    renderApp(PAGE, { study: s });
+    const text = await screen.findByText(
+      'Sin respuestas en los últimos 30 días ni repasos en los próximos 30.',
+    );
+    expect(text).toHaveClass('h-48');
+    expect(screen.queryByRole('img', { name: /Últimos 30 días/ })).toBeNull();
+    expect(screen.queryByText(/^máx\./)).toBeNull();
+  });
+
   it('says in words what is due today and how the hidden ones split', () => {
     expect(cardStatesStrings.hiddenSplit(2, 0)).toEqual(['2 suspendidas', '0 enterradas']);
     expect(activityChartStrings.dueToday(1, 1)).toBe(

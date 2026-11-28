@@ -1,4 +1,6 @@
-// The frame of the public pages /privacy, /terms, /licenses and /about, with or without a session.
+// The frame of the pages /privacy, /terms, /licenses and /about: the app's for a session that accepted the terms
+// (app/LegalRoute.tsx), a public one with the logo otherwise.
+import { use } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { paths } from '../../../shared/lib/paths';
@@ -7,6 +9,9 @@ import { Logo } from '../../../shared/ui/Logo';
 import { SiteFooter } from '../../nav/components/SiteFooter';
 import { legalPageStrings as s } from './strings/LegalPage.strings';
 import { useTitle } from '../../../shared/hooks/useTitle';
+import { Breadcrumbs } from '../../../shared/ui/Breadcrumbs';
+import { page } from '../../../shared/ui/styles';
+import { LegalFrameContext } from '../model/frame';
 
 export function LegalPage({
   title,
@@ -20,7 +25,25 @@ export function LegalPage({
   children: ReactNode;
 }) {
   useTitle(title);
+  const framed = use(LegalFrameContext);
+  const versionLine =
+    version && date ? (
+      <p className={`${framed ? 'mt-1' : 'mt-2'} text-sm text-muted`}>
+        {s.version}
+        {version} · {formatDay(date)}
+      </p>
+    ) : null;
 
+  if (framed) {
+    return (
+      <div className={page}>
+        <Breadcrumbs items={[{ label: s.crumb, to: paths.home }, { label: title }]} />
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">{title}</h1>
+        {versionLine}
+        <div className="mt-8 space-y-8 leading-relaxed text-ink">{children}</div>
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-border bg-chrome">
@@ -32,12 +55,7 @@ export function LegalPage({
       </header>
       <main id="content" className="mx-auto w-full max-w-[55.5rem] flex-1 px-4 pt-8 pb-16 sm:px-5">
         <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
-        {version && date ? (
-          <p className="mt-2 text-sm text-muted">
-            {s.version}
-            {version} · {formatDay(date)}
-          </p>
-        ) : null}
+        {versionLine}
         <div className="mt-8 space-y-8 leading-relaxed text-ink">{children}</div>
       </main>
       <SiteFooter />

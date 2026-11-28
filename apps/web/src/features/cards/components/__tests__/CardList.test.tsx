@@ -77,6 +77,16 @@ describe('CardList', () => {
     expect((onOpen.mock.calls[0]![0] as Matched).note.note.guid).toBe('p3');
   });
 
+  it('a screen reader hears each heading and its count apart, not «Imágenes3 notas»', () => {
+    const { section } = list();
+    expect(within(section).getByRole('heading', { level: 2 })).toHaveAccessibleName(
+      'Clase 20, 3 notas',
+    );
+    expect(within(section).getByRole('heading', { level: 3 })).toHaveAccessibleName(
+      'Imágenes, 3 notas',
+    );
+  });
+
   it('while the list is below the site’s bar, its lecture is not pinned', () => {
     const { pinned } = listAt(500);
     expect(pinned).toHaveClass('invisible');

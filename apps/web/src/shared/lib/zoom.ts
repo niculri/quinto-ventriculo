@@ -51,11 +51,24 @@ export function fitView(image: Size, stage: Size): View {
 /**
  * Where the viewer opens: what fits, unless the image was shown bigger than that where it was opened (a tall plate in
  * an article). Then it opens as wide as the stage allows, up to its natural size and never smaller than it was, from its
- * top: the rest is a drag away.
+ * top: the rest is a drag away. With `focus` (a point of the image, in fractions of its size: the mask asked on an
+ * occlusion), it opens at its natural size (or as it was, if bigger) with that point in the middle of the stage.
  */
-export function openView(image: Size, stage: Size, shown?: number): View {
+export function openView(image: Size, stage: Size, shown?: number, focus?: Point): View {
   const fit = fitScale(image, stage);
   const was = shown ? shown / image.width : 0;
+  if (focus) {
+    const scale = clampScale(Math.max(1, was), image, stage);
+    return clampView(
+      {
+        scale,
+        x: stage.width / 2 - focus.x * image.width * scale,
+        y: stage.height / 2 - focus.y * image.height * scale,
+      },
+      image,
+      stage,
+    );
+  }
   if (was <= fit) return fitView(image, stage);
   const scale = Math.min(
     maxScale(image, stage),

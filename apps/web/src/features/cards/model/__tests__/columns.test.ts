@@ -59,6 +59,12 @@ describe('what a cell says', () => {
     ['the lapses', { lapses: 2 }, 'lapses', '2'],
     ['the template', { template: 'Cloze 2' }, 'card', 'Cloze 2'],
     ['the sort field', { note: { sortField: 'Atlas' } }, 'sortField', 'Atlas'],
+    [
+      'the sort field without the space the index leaves before a sign',
+      { note: { sortField: 'con el esqueleto axial . « llave »' } },
+      'sortField',
+      'con el esqueleto axial. «llave»',
+    ],
   ])('%s', (_, patch, column, text) => {
     expect(cellText(browseCard(patch), column, TIMING)).toBe(text);
   });

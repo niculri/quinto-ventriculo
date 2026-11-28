@@ -1,4 +1,5 @@
 // The account menu of the top bar: theme, options, administration, help and signing out.
+import { fingerArea } from '../../../shared/ui/styles';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { paths } from '../../../shared/lib/paths';
 import { CircleHelp, LogOut, Settings, ShieldCheck } from 'lucide-react';
@@ -58,7 +59,7 @@ export function UserMenu() {
     <MenuRoot closeOnly={isAnswerScreen(pathname)}>
       <Menu.Trigger
         aria-label={first ? userMenuStrings.accountOf(first) : userMenuStrings.account}
-        className="flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5"
+        className={`${fingerArea} flex items-center gap-2.5 rounded-full py-0.5 pr-0.5 pl-3 text-sm font-medium text-ink ring-offset-2 ring-offset-bg transition hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-brand max-sm:pl-0.5`}
       >
         {first ? (
           <span className="hidden max-w-[12rem] truncate sm:block">

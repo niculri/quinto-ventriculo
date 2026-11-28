@@ -15,6 +15,13 @@ export const MARGIN = 8;
 
 export const columnLeft = (column: number) => GAP + LABELS + GAP + column * PITCH;
 
+/** The room of a month's short name («sept», the longest). */
+const MONTH_LABEL = 24;
+
+/** A month's name shows only when the part of the grid in view has it whole: never «o» for «ago» at an edge. */
+export const monthShown = (left: number, view: { left: number; width: number }) =>
+  left >= view.left && left + MONTH_LABEL <= view.left + view.width;
+
 export function boxLeft(rect: DOMRect, viewportWidth: number) {
   return Math.min(
     Math.max(MARGIN, rect.left + rect.width / 2 - BOX_WIDTH / 2),

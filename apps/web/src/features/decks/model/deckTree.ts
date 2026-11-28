@@ -2,6 +2,7 @@
 // which are folded, and what each row's switch is: a topic or lecture, a week of topics, or none.
 
 import {
+  activation,
   includesExtras,
   isExtras,
   switchesUnder,
@@ -70,6 +71,16 @@ export function rowSwitch(node: DeckNode, decks: readonly DeckNode[], a: Activat
 }
 
 export const isOff = (row: RowSwitch) => (row.kind === 'unit' ? row.on === 0 : !row.on);
+
+/** Where a deck's page lists its subdecks: «Elegir qué estudiar» goes there. */
+export const SUBDECKS_ANCHOR = 'que-estudiar';
+
+/** Nothing of a deck is on yet, and its list has what to turn on: its «Estudiar» would open an empty session. */
+export function nothingOnToStudy(node: DeckNode, plan: StudyPlan, listed: boolean): boolean {
+  if (!listed) return false;
+  const nodes = allNodes(node);
+  return isOff(rowSwitch(node, nodes, activation(nodes, plan)));
+}
 
 /** What its switch saves: a topic or lecture (with its week, when that leaves the week off), a week with all its topics. */
 export function switchRows(node: DeckNode, a: Activation, active: boolean): DeckActivation[] {

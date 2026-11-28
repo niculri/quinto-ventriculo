@@ -39,6 +39,21 @@ describe('without the catalog', () => {
   });
 });
 
+describe('without the catalog, outside studying', () => {
+  it('a deck’s page shows the error where the page starts, with «Reintentar»', async () => {
+    const api = fakeApi({
+      catalog: async () => {
+        throw new ApiRequestError(503, 'unavailable', 'El catálogo no llegó.');
+      },
+    });
+    renderApp(ASSESSMENT, { api });
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('El catálogo no llegó.');
+    expect(alert.parentElement).not.toHaveClass('mx-auto');
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
+  });
+});
+
 describe('the canonical place of a screen', () => {
   it.each([
     [`${WRONG}/review`, `${ASSESSMENT}/review`],

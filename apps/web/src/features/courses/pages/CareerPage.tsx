@@ -1,4 +1,5 @@
 // «La carrera»: every semester, grouped by year, with its courses and how much material each has.
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import type { Catalog, SemesterWithCourses } from '@qv/schema';
 import { ErrorWithRetry } from '../../../shared/ui/Notice';
@@ -13,12 +14,17 @@ import { SemesterCard } from '../components/SemesterCard';
 
 export function CareerPage() {
   const catalog = useCatalog();
+  useTitle(s.title);
   return (
     <div className={page}>
       <Breadcrumbs items={[{ label: s.home, to: paths.home }, { label: s.title }]} />
       <h1 className="font-serif text-3xl font-semibold tracking-tight">{s.title}</h1>
       {catalog.isError ? (
-        <ErrorWithRetry error={catalog.error} onRetry={() => void catalog.refetch()} />
+        <ErrorWithRetry
+          error={catalog.error}
+          onRetry={() => void catalog.refetch()}
+          className="mt-8 max-w-lg"
+        />
       ) : !catalog.data ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {Array.from({ length: 8 }, (_, i) => (

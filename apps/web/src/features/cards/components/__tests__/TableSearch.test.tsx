@@ -24,7 +24,7 @@ describe('TableSearch', () => {
   it('in the simple mode it searches by text or code, with the one-click filters', async () => {
     const p = search(false);
     const box = screen.getByRole('searchbox', { name: 'Buscar tarjetas' });
-    expect(box).toHaveAttribute('placeholder', 'Buscar por texto o código');
+    expect(box).toHaveAttribute('placeholder', 'Buscar texto o código');
     expect(screen.getByRole('group', { name: 'Filtros rápidos' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Nuevas' }));
     expect(String(p.onSearch.mock.calls[0]![0]).trim()).toBe('is:new');

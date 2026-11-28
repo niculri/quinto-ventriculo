@@ -24,7 +24,7 @@ describe('the cards page’s controls', () => {
   it('searches a moment after typing stops, and the unit goes to the URL', async () => {
     const { router } = renderApp(PAGE, { study: localStudyRepository(null) });
     const box = await screen.findByRole('searchbox', { name: 'Buscar en estas tarjetas' });
-    expect(box).toHaveAttribute('placeholder', 'Buscar por texto o código');
+    expect(box).toHaveAttribute('placeholder', 'Buscar texto o código');
     await userEvent.type(box, 'columna');
     expect(search(router).get('q')).toBeNull();
     await waitFor(() => expect(search(router).get('q')).toBe('columna'));

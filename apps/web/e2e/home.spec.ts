@@ -44,8 +44,12 @@ async function homeLoad(page: Page) {
 }
 
 async function studyLoad(page: Page) {
-  const line = page.getByText(/para hoy · ~\d+ min/).first();
-  const text = await line.evaluate((e) => e.firstChild?.textContent ?? '');
+  // The study bar says the load in full (and in short on a phone, «4 · ~2 min»), with the breakdown beside it.
+  const text = await page
+    .getByText(/para hoy · ~\d+ min/)
+    .first()
+    .evaluate((e) => e.textContent);
+  const line = page.locator('span[title^="Nuevas:"]').first();
   const breakdown = /Nuevas: (\d+) · Aprendiendo: (\d+) · A repasar: (\d+)/.exec(
     (await line.textContent())!,
   )!;

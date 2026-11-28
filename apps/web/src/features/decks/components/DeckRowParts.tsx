@@ -9,7 +9,7 @@ import { paths } from '../../../shared/lib/paths';
 import type { DeckRef } from '../../../shared/lib/paths';
 import { preloadOnIntent } from '../../../shared/lib/preload';
 import { Skeleton } from '../../../shared/ui/Loading';
-import { button } from '../../../shared/ui/styles';
+import { button, fingerArea } from '../../../shared/ui/styles';
 import { deckTreeRowStrings as s } from './strings/DeckTreeRow.strings';
 
 /**
@@ -133,7 +133,7 @@ export function FoldButton({
       onClick={onToggle}
       aria-expanded={open}
       aria-label={s.tree.fold(open, label)}
-      className="flex size-6 flex-none items-center justify-center rounded text-muted hover:bg-surface-2 hover:text-ink"
+      className={`${fingerArea} flex size-6 flex-none items-center justify-center rounded text-muted hover:bg-surface-2 hover:text-ink`}
     >
       <ChevronRight
         className={`size-4 transition-transform ${open ? 'rotate-90' : ''}`}
@@ -157,7 +157,7 @@ export function StudyButton({
   busy: boolean;
   onStudy: () => void;
 }) {
-  const className = `${button.base} ${button.ghost} flex-none px-2`;
+  const className = `${button.base} ${button.ghost} ${fingerArea} flex-none px-2`;
   const icon = <Play className="size-4" aria-hidden="true" />;
   if (!turnsOn) {
     return (

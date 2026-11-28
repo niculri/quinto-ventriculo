@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import { formatDate } from '../../../shared/lib/dates';
 import { paths } from '../../../shared/lib/paths';
 import { MenuRoot } from '../../../shared/ui/MenuRoot';
+import { fingerArea } from '../../../shared/ui/styles';
 import { useNews } from '../hooks/useNews';
 import { isUnread } from '../model/news';
 import { newsBellStrings as s } from './strings/NewsBell.strings';
@@ -29,7 +30,7 @@ export function NewsBell() {
     >
       <Menu.Trigger
         aria-label={news.unread.length ? s.openUnread : s.open}
-        className="relative flex size-9 flex-none items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+        className={`${fingerArea} flex size-9 flex-none items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink`}
       >
         <Bell className="size-5" aria-hidden="true" />
         <span

@@ -68,7 +68,11 @@ test('the landing page says where to write, as a mailto link, and nothing moves'
   await expect(faq.getByText('No puedo entrar, ¿qué hago?')).toBeVisible();
   const links = faq.getByRole('link', { name: CONTACT_EMAIL });
   await expect(links).toHaveCount(3);
-  for (const link of await links.all()) await expect(link).toHaveAttribute('href', MAILTO);
+  for (const link of await links.all()) {
+    await expect(link).toHaveAttribute('href', MAILTO);
+    // Never «contacto@quintoventricul / o.cl»: the address is one line.
+    expect(await link.evaluate((e) => e.getClientRects().length)).toBe(1);
+  }
   const first = links.first();
   await first.scrollIntoViewIfNeeded();
   const before = await first.boundingBox();

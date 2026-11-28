@@ -45,17 +45,18 @@ describe('access', () => {
         .getAllByRole('listitem')
         .map((li) => [
           within(li).getByRole('heading', { level: 3 }).textContent,
-          within(li).getByText(/^(Disponible|Pronto)$/).textContent,
+          within(li).queryByText(/^(Disponible|Pronto)$/)?.textContent ?? null,
         ]);
+    // What is there has no mark (all of it is there); what is coming says «Pronto».
     expect(items(inside)).toEqual([
-      ['Apuntes tipo wiki, con buscador', 'Disponible'],
-      ['Tarjetas de estudio con FSRS', 'Disponible'],
-      ['Tests de práctica', 'Disponible'],
-      ['Ordenado como la carrera', 'Disponible'],
+      ['Apuntes tipo wiki, con buscador', null],
+      ['Tarjetas de estudio con FSRS', null],
+      ['Tests de práctica', null],
+      ['Estadísticas de estudio', null],
+      ['Ordenado como la carrera', null],
     ]);
     expect(items(coming)).toEqual([
       ['Gymkana de anatomía', 'Pronto'],
-      ['Estadísticas de estudio', 'Pronto'],
       ['Resúmenes de certamen', 'Pronto'],
     ]);
     expect(screen.queryByText(/Pronto se lanzará/)).toBeNull();

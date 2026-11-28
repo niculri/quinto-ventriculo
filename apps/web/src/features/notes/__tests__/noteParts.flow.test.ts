@@ -116,7 +116,7 @@ describe('the end of the article', () => {
     const tip = await screen.findByText(/¿Buscas otro tema\?/);
     expect(textNodes(tip)).toEqual([
       '¿Buscas otro tema? El buscador de arriba encuentra cualquier apunte',
-      ', también con la tecla /',
+      ', también con Ctrl+K',
       '.',
     ]);
     expect(screen.getByRole('button', { name: 'Cerrar el consejo' })).toBeInTheDocument();
@@ -269,7 +269,7 @@ describe('arriving at a section', () => {
     await waitFor(() => expect(scrolledTo(spy)).toEqual(['núcleo celular']));
   });
 
-  it('the article waits for the catalog, whose breadcrumbs would push it down, and then goes to the section once', async () => {
+  it('the article waits for the catalog in the frame of a page that loads, and then goes to the section once', async () => {
     let arrive: () => void = () => undefined;
     const gate = new Promise<void>((resolve) => (arrive = resolve));
     const spy = vi.spyOn(Element.prototype, 'scrollIntoView');
@@ -282,7 +282,9 @@ describe('arriving at a section', () => {
         },
       }),
     });
-    expect(await screen.findByRole('status', { name: 'Cargando el apunte' })).toBeEmptyDOMElement();
+    const main = await screen.findByRole('main');
+    expect(await within(main).findByRole('status')).toHaveTextContent('Cargando…');
+    expect(within(main).queryByRole('navigation', { name: 'Ruta' })).toBeNull();
     expect(screen.queryByRole('heading', { level: 2, name: 'Ribosomas' })).toBeNull();
     await act(async () => arrive());
     await screen.findByRole('heading', { level: 2, name: 'Ribosomas' });
@@ -324,8 +326,29 @@ describe('what the page does besides showing the note', () => {
         },
       }),
     });
-    expect(await screen.findByText('404')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Esta página no aparece ni en el Netter',
+      }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
+  });
+
+  it('an error of the note without the catalog: the error alone, where the page starts', async () => {
+    renderApp(PATH, {
+      api: fakeApi({
+        catalog: async () => {
+          throw new ApiRequestError(500, 'internal', 'Sin catálogo.');
+        },
+        note: async () => {
+          throw new ApiRequestError(500, 'internal', 'Falló de prueba.');
+        },
+      }),
+    });
+    expect(await screen.findByText('Falló de prueba.')).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Ruta' })).toBeNull();
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
   });
 
   it('an error of the server shows its message with «Reintentar»', async () => {
@@ -338,7 +361,12 @@ describe('what the page does besides showing the note', () => {
     });
     expect(await screen.findByText('Falló de prueba.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
-    expect(screen.queryByText('404')).toBeNull();
+    // The breadcrumbs and the title the catalog knows stay where they are.
+    expect(screen.getByRole('navigation', { name: 'Ruta' })).toHaveTextContent(/^Inicio/);
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { level: 1, name: 'Esta página no aparece ni en el Netter' }),
+    ).toBeNull();
   });
 
   it('too many requests in a row says to wait, and «Reintentar» opens the note once it went through', async () => {

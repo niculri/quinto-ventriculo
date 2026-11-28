@@ -1,4 +1,4 @@
-// A card of what is inside the site or is coming, with its icon and a mark saying which.
+// A card of what is inside the site or is coming, with its icon; what is coming has the mark «Pronto».
 import type { ReactNode } from 'react';
 import { featureStrings as s } from './strings/Feature.strings';
 
@@ -31,11 +31,7 @@ export function Feature({
           <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-[#9a4a12] dark:text-accent">
             {s.soon}
           </span>
-        ) : (
-          <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-brand">
-            {s.available}
-          </span>
-        )}
+        ) : null}
       </div>
       <h3 className="mt-4 font-semibold text-ink">{title}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-muted">{children}</p>

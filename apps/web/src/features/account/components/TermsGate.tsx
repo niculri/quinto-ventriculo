@@ -51,8 +51,10 @@ export function TermsGate({
             <button type="button" onClick={onLeave} className={`${button.base} ${button.ghost}`}>
               {s.signOut}
             </button>
+            {/* The first focus: an Enter accepts, never signs out. */}
             <button
               type="button"
+              autoFocus
               onClick={onAccept}
               disabled={saving}
               className={`${button.base} ${button.primary}`}

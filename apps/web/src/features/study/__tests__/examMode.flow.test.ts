@@ -371,14 +371,19 @@ describe('dominio and the summary', () => {
   it('without a date there is no summary, and with nothing seen, no mastery yet', async () => {
     renderApp(COURSE_PATH, { study: await student() });
     await waitFor(() => expect(document.querySelector('[data-mastery]')).toBeTruthy());
-    expect(document.querySelector('[data-mastery]')).toHaveTextContent('Sin dominio todavía');
+    // Its room is kept, empty: no bar nor «—» until the first review.
+    expect(document.querySelector('[data-mastery]')).toHaveClass('invisible');
+    expect(document.querySelector('[data-mastery]')).toBeEmptyDOMElement();
     expect(screen.queryByText(/Faltan \d+ días/)).toBeNull();
   });
 
   it('a touch on it does not follow the link of the card', async () => {
     const study = await student();
+    await seenCards(study);
     const { router } = renderApp(COURSE_PATH, { study });
-    await waitFor(() => expect(document.querySelector('a [data-mastery]')).toBeTruthy());
+    await waitFor(() =>
+      expect(document.querySelector('a [data-mastery]')).toHaveTextContent(/% de dominio/),
+    );
     await userEvent.click(document.querySelector('a [data-mastery]')!);
     expect(router.state.location.pathname).toBe(COURSE_PATH);
   });

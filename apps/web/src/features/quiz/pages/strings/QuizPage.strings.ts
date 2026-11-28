@@ -5,4 +5,5 @@ export const quizPageStrings = {
     home: 'Inicio',
     tests: 'Tests',
   },
+  tabTitle: (quiz: string, course: string) => `${quiz} · ${course}`,
 } as const;

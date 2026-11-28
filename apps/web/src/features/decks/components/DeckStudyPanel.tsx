@@ -2,7 +2,7 @@
 // the whole assessment shares), dominio, the final review and what is below.
 
 import { Link } from 'react-router';
-import { Play } from 'lucide-react';
+import { ListChecks, Play } from 'lucide-react';
 import { paths } from '../../../shared/lib/paths';
 import { preloadOnIntent } from '../../../shared/lib/preload';
 import { Skeleton } from '../../../shared/ui/Loading';
@@ -14,6 +14,7 @@ import type { useDeckCounts } from '../../progress/hooks/useDeckCounts';
 import { MasteryMeter } from '../../progress/components/MasteryMeter';
 import { usePreferences, useStudyPlan } from '../../progress/queries';
 import type { CourseDeckNode } from '../../catalog/model/tree';
+import { nothingOnToStudy, SUBDECKS_ANCHOR, visibleChildren } from '../model/deckTree';
 import { FinalReviewLink } from './FinalReviewLink';
 import { SimpleDetails } from './SimpleDetails';
 import { deckStudyPanelStrings as s } from './strings/DeckStudyPanel.strings';
@@ -32,6 +33,9 @@ export function DeckStudyPanel({
   const { prefs } = usePreferences();
   const plan = useStudyPlan();
   const own = counts?.get(node.id);
+  const choose =
+    !!plan.data && nothingOnToStudy(node, plan.data, visibleChildren(node, plan.data).length > 0);
+  const studyClass = `${button.base} ${button.primary} order-1 flex-1 py-3 text-base sm:flex-none sm:px-10`;
   return (
     <section aria-label={s.panel.study} className={`${card} mt-6 p-4 sm:p-6`}>
       {error ? (
@@ -39,13 +43,21 @@ export function DeckStudyPanel({
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-4">
-            <Link
-              to={paths.deckStudy(node.ref)}
-              {...preloadOnIntent('anki-study')}
-              className={`${button.base} ${button.primary} order-1 flex-1 py-3 text-base sm:flex-none sm:px-10`}
-            >
-              <Play className="size-4" aria-hidden="true" /> {s.panel.study}
-            </Link>
+            {/* With nothing on, studying would open an empty session: the button goes to the list to choose. Both
+                labels keep the width of the longest, so it does not change when the plan arrives. */}
+            {choose ? (
+              <a href={`#${SUBDECKS_ANCHOR}`} className={studyClass}>
+                <StudyLabel choose />
+              </a>
+            ) : (
+              <Link
+                to={paths.deckStudy(node.ref)}
+                {...preloadOnIntent('anki-study')}
+                className={studyClass}
+              >
+                <StudyLabel choose={false} />
+              </Link>
+            )}
             <div
               aria-label={s.panel.today}
               role="group"
@@ -82,5 +94,23 @@ export function DeckStudyPanel({
         </>
       )}
     </section>
+  );
+}
+
+const LABEL = 'col-start-1 row-start-1 inline-flex items-center gap-2';
+
+/** Both labels with their icons, one over the other: the shown one goes in the middle of the room of the longest. */
+function StudyLabel({ choose }: { choose: boolean }) {
+  return (
+    <span className="inline-grid place-items-center">
+      <span aria-hidden={choose} className={`${LABEL} ${choose ? 'invisible' : ''}`}>
+        <Play className="size-4 flex-none" aria-hidden="true" />
+        {s.panel.study}
+      </span>
+      <span aria-hidden={!choose} className={`${LABEL} ${choose ? '' : 'invisible'}`}>
+        <ListChecks className="size-4 flex-none" aria-hidden="true" />
+        {s.panel.choose}
+      </span>
+    </span>
   );
 }

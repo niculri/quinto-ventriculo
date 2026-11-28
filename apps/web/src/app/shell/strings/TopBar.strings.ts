@@ -6,4 +6,6 @@ export const topBarStrings = {
   openMenu: 'Abrir el menú',
   homeLink: 'El Quinto Ventrículo, inicio',
   search: 'Buscar en la página…',
+  searchShort: 'Buscar',
+  searchRest: ' en la página…',
 } as const;

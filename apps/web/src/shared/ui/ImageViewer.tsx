@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { Maximize2, MessageSquareWarning, Minimize2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useImageZoom } from '../hooks/useImageZoom';
-import type { Size } from '../lib/zoom';
+import type { Point, Size } from '../lib/zoom';
 import { imageViewerStrings } from './strings/ImageViewer.strings';
 import { sharedStrings } from '../strings/shared.strings';
 
@@ -16,6 +16,8 @@ export interface OpenImage {
   caption: string;
   /** How wide (CSS px) it was where it was opened: the viewer never opens it smaller than that. */
   shown?: number | undefined;
+  /** A point to open on, in fractions of the image (an occlusion's mask), at its natural size. */
+  focus?: Point | undefined;
   section?: string | undefined;
   sectionTitle?: string | undefined;
 }
@@ -151,7 +153,7 @@ function Viewer({
   // Radix gives the focus back only to a Dialog.Trigger: the figure, the card or the photo that opened it is none.
   const [opener] = useState(() => document.activeElement);
   const [natural, setNatural] = useState<Size | null>(null);
-  const zoom = useImageZoom(stageRef, natural, onClose, image.shown);
+  const zoom = useImageZoom(stageRef, natural, onClose, image.shown, image.focus);
 
   return (
     <Dialog.Content

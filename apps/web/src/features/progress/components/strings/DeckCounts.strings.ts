@@ -6,4 +6,5 @@ export const deckCountsStrings = {
   learning: 'Aprendiendo',
   review: 'A repasar',
   labelOf: ': ',
+  shortLoad: (total: string, minutes: string) => `${total} · ${minutes}`,
 } as const;

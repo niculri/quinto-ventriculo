@@ -81,6 +81,8 @@ export function Reviewer({
 
   return (
     <div className={studyScreen}>
+      {/* A screen reader says where it is; the end of the session has its own title. */}
+      {shown ? <h1 className="sr-only">{reviewerStrings.studyTitle(rootName)}</h1> : null}
       <StudyTopBar
         counts={countsOf(state)}
         shown={shown}

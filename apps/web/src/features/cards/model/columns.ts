@@ -3,6 +3,7 @@ import { timeSpan } from '@qv/srs';
 import type { SchedTiming } from '@qv/srs';
 import { columnsStrings } from './strings/columns.strings';
 import type { BrowseCard } from './browseCards';
+import { tidyText } from './explorer';
 
 export type ColumnKey =
   | 'sortField'
@@ -112,7 +113,7 @@ export function cellText(c: BrowseCard, column: ColumnKey, timing: SchedTiming):
   const wrap = (t: string) => (c.queue === 'suspended' || c.queue === 'buried' ? `(${t})` : t);
   switch (column) {
     case 'sortField':
-      return c.note.sortField;
+      return tidyText(c.note.sortField);
     case 'code':
       return codeText(c);
     case 'deck':

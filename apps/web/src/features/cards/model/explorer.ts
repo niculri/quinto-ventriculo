@@ -28,21 +28,37 @@ export interface ExplorerNote {
   index: number;
 }
 
+/**
+ * The index turns every tag into a space (`<b>axial</b>.` is «axial .», the text the search reads): the list shows it
+ * without the space before a closing sign or after an opening one.
+ */
+export const tidyText = (text: string) =>
+  text.replace(/\s+([.,;:!?…)\]»])/g, '$1').replace(/([([«¿¡])\s+/g, '$1');
+
+/**
+ * The notes of the indexes with the student's state, by lecture in the order of the deck list (`position`), which the
+ * codes do not always follow (S10 is before S9 by code), and in the index's order within a lecture.
+ */
 export function explorerNotes(
   indexes: readonly { assessmentId: string; notes: readonly CardIndexNote[] }[],
   lectureOf: (deckId: string) => string,
   rows: ReadonlyMap<string, StoredCard>,
+  position: (lectureId: string) => number = () => 0,
 ): ExplorerNote[] {
-  const out: ExplorerNote[] = [];
+  const out: Omit<ExplorerNote, 'index'>[] = [];
   for (const index of indexes) {
     for (const note of index.notes) {
       if (!note.cards.length) continue;
       out.push({
-        note,
+        note: {
+          ...note,
+          topic: tidyText(note.topic),
+          front: tidyText(note.front),
+          back: tidyText(note.back),
+        },
         assessmentId: index.assessmentId,
         lectureId: lectureOf(note.cards[0]!.deckId),
         image: note.kind === 'occlusion' || note.kind === 'photo',
-        index: out.length,
         cards: note.cards.map((c) => {
           const key = cardKey({ noteGuid: note.guid, ord: c.ord });
           const row = rows.get(key);
@@ -58,5 +74,8 @@ export function explorerNotes(
       });
     }
   }
-  return out;
+  return out
+    .map((n, i) => ({ n, i, at: position(n.lectureId) }))
+    .sort((a, b) => a.at - b.at || a.i - b.i)
+    .map(({ n }, index) => ({ ...n, index }));
 }

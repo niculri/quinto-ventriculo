@@ -12,7 +12,7 @@ import {
 } from '@qv/study';
 import type { CatchUp, SeenCounts, StudyPlan } from '@qv/study';
 import type { CourseDeckNode } from '../../catalog/model/tree';
-import { visibleChildren } from '../model/deckTree';
+import { SUBDECKS_ANCHOR, visibleChildren } from '../model/deckTree';
 import { SimpleDeckTree } from './SimpleDeckTree';
 import { simpleDetailsStrings as s } from './strings/SimpleDetails.strings';
 
@@ -47,7 +47,7 @@ export function SimpleDetails({
         )}
       </Reserved>
       {visibleChildren(node, known).length ? (
-        <div className="mt-5">
+        <div id={SUBDECKS_ANCHOR} className="mt-5 scroll-mt-24">
           <SimpleDeckTree
             root={node}
             counts={counts}

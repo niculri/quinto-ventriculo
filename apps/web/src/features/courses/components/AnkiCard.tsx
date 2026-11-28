@@ -52,10 +52,13 @@ export function AnkiCard({
       art={art}
       footer={
         <>
-          {/* Their lines are always there: a date or the numbers arriving move nothing. */}
+          {/* Their lines are always there: a date or the numbers arriving move nothing. Their text covers the drawing
+              behind (a long load can reach it), so a stroke never crosses a letter. */}
           {failed ? null : (
             <span className="mb-1.5 block space-y-1">
-              <span className="block h-4 truncate text-xs text-muted">{summary}</span>
+              <span className="block h-4 truncate text-xs text-muted">
+                {summary ? <span className="bg-surface pr-1.5">{summary}</span> : null}
+              </span>
               <span className="flex h-4 items-center">
                 {mastery ? (
                   <MasteryMeter value={mastery.get(node.id) ?? null} align="above" />
@@ -70,7 +73,7 @@ export function AnkiCard({
               <span
                 role="group"
                 aria-label={s.todayIn(a.name)}
-                className="flex items-center gap-2 text-xs text-muted"
+                className="flex items-center gap-2 bg-surface pr-1.5 text-xs text-muted"
               >
                 <DayLoad
                   counts={own}

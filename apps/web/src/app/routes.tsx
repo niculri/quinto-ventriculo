@@ -5,6 +5,7 @@ import type { RouteObject } from 'react-router';
 import { LandingPage } from '../features/landing/pages/LandingPage';
 import { AuthCallbackPage } from '../features/session/pages/AuthCallbackPage';
 import { ProtectedRoute } from './ProtectedRoute';
+import { LegalRoute } from './LegalRoute';
 import { RouteError } from '../shared/ui/RouteError';
 import { paths } from '../shared/lib/paths';
 import { SETTINGS_GROUPS } from '../features/settings/sections';
@@ -39,32 +40,37 @@ export const routes: RouteObject[] = [
       { index: true, Component: LandingPage },
       { path: 'auth/callback', Component: AuthCallbackPage },
       {
-        path: 'privacy',
-        lazy: page(
-          () => import('../features/legal/pages/PrivacyPage'),
-          (m) => m.PrivacyPage,
-        ),
-      },
-      {
-        path: 'terms',
-        lazy: page(
-          () => import('../features/legal/pages/TermsPage'),
-          (m) => m.TermsPage,
-        ),
-      },
-      {
-        path: 'licenses',
-        lazy: page(
-          () => import('../features/legal/pages/LicensesPage'),
-          (m) => m.LicensesPage,
-        ),
-      },
-      {
-        path: 'about',
-        lazy: page(
-          () => import('../features/legal/pages/AboutPage'),
-          (m) => m.AboutPage,
-        ),
+        Component: LegalRoute,
+        children: [
+          {
+            path: 'privacy',
+            lazy: page(
+              () => import('../features/legal/pages/PrivacyPage'),
+              (m) => m.PrivacyPage,
+            ),
+          },
+          {
+            path: 'terms',
+            lazy: page(
+              () => import('../features/legal/pages/TermsPage'),
+              (m) => m.TermsPage,
+            ),
+          },
+          {
+            path: 'licenses',
+            lazy: page(
+              () => import('../features/legal/pages/LicensesPage'),
+              (m) => m.LicensesPage,
+            ),
+          },
+          {
+            path: 'about',
+            lazy: page(
+              () => import('../features/legal/pages/AboutPage'),
+              (m) => m.AboutPage,
+            ),
+          },
+        ],
       },
       {
         Component: ProtectedRoute,

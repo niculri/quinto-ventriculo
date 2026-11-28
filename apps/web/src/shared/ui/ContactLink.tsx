@@ -8,7 +8,7 @@ export function ContactLink() {
   return (
     <a
       href={`mailto:${CONTACT_EMAIL}`}
-      className="font-medium break-all text-brand underline underline-offset-2"
+      className="font-medium whitespace-nowrap text-brand underline underline-offset-2"
     >
       {CONTACT_EMAIL}
     </a>

@@ -6,7 +6,7 @@ import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { cellValue, yearGrid } from '@qv/study';
 import type { CellValue } from '@qv/study';
 import { keyTarget } from '../model/keys';
-import { gridScroll } from '../model/layout';
+import { gridScroll, monthShown } from '../model/layout';
 
 export interface OpenDay {
   day: number;
@@ -22,6 +22,16 @@ export interface GridData {
   studied: ReadonlyMap<number, number>;
   due: ReadonlyMap<number, number>;
   scale: number;
+}
+
+/** Hides the months' names that the scroll cuts (on the box, not in a state: it follows every scroll). */
+function wholeMonths(box: HTMLElement) {
+  const view = { left: box.scrollLeft, width: box.clientWidth };
+  const scrolls = box.scrollWidth > box.clientWidth;
+  for (const label of box.querySelectorAll<HTMLElement>('[data-month-left]')) {
+    const shown = !scrolls || monthShown(Number(label.dataset.monthLeft), view);
+    label.style.visibility = shown ? '' : 'hidden';
+  }
 }
 
 export function useHeatmapGrid({ year, today, ready, studied, due, scale }: GridData) {
@@ -43,8 +53,8 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
     const box = scrollerRef.current;
     if (!box) return;
     const max = box.scrollWidth - box.clientWidth;
-    if (max <= 0) return;
-    box.scrollLeft = gridScroll({ max, width: box.clientWidth }, today, grid);
+    if (max > 0) box.scrollLeft = gridScroll({ max, width: box.clientWidth }, today, grid);
+    wholeMonths(box);
   });
   useLayoutEffect(() => {
     scrollToToday();
@@ -92,6 +102,12 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
     if (!open?.pinned) show(day, false);
   };
 
+  const onScroll = () => {
+    if (open) setOpen(null);
+    // It scrolls only once the box is there.
+    wholeMonths(scrollerRef.current!);
+  };
+
   const onClose = () => {
     const day = open!.day;
     setOpen(null);
@@ -107,6 +123,7 @@ export function useHeatmapGrid({ year, today, ready, studied, due, scale }: Grid
     current,
     valueOf,
     onKeyDown,
+    onScroll,
     onClick,
     onHover,
     onFocus: setFocusDay,

@@ -1,9 +1,9 @@
 // A practice test page: finds the test in the catalog, picks the section (tab) and runs the cover, rounds and results.
+import { useTitle } from '../../../shared/hooks/useTitle';
 import { paths } from '../../../shared/lib/paths';
 import { Canonical } from '../../../shared/ui/Canonical';
-import { Loading } from '../../../shared/ui/Loading';
+import { PageError, PageLoading } from '../../../shared/ui/PageStates';
 import { NotFoundPage } from '../../../shared/ui/NotFoundPage';
-import { ErrorWithRetry } from '../../../shared/ui/Notice';
 import { PageCrumbs } from '../../catalog/components/AdminMarks';
 import { QuizScreen } from '../components/QuizScreen';
 import { useQuizPage } from '../hooks/useQuizPage';
@@ -42,11 +42,12 @@ function Crumbs({ view }: { view: Ready }) {
 
 export function QuizPage() {
   const view = useQuizPage();
+  useTitle(view.kind === 'ready' ? s.tabTitle(view.quiz.title, view.found.course.name) : null);
   if (view.kind === 'error') {
     const q = view.query;
-    return <ErrorWithRetry error={q.error} onRetry={() => void q.refetch()} />;
+    return <PageError error={q.error} onRetry={() => void q.refetch()} />;
   }
-  if (view.kind === 'loading') return <Loading />;
+  if (view.kind === 'loading') return <PageLoading />;
   if (view.kind === 'notFound') return <NotFoundPage />;
   if (view.kind === 'canonical') return <Canonical path={view.path} />;
   const { assessment } = view;

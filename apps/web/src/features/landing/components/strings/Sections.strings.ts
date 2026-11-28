@@ -16,6 +16,10 @@ export const sectionsStrings = {
       title: 'Tests de práctica',
       text: 'Preguntas de alternativas de certámenes de años anteriores y preguntas nuevas, con el veredicto al instante, la explicación de cada alternativa y la opción de repetir solo las que fallaste.',
     },
+    stats: {
+      title: 'Estadísticas de estudio',
+      text: 'Tus días de estudio, cuánto respondes y aciertas, y las tarjetas que más te cuestan, por ramo y por certamen.',
+    },
     career: {
       title: 'Ordenado como la carrera',
       text: 'Por semestre, ramo y certamen (y por semana, donde el ramo va así), desde el computador o el teléfono. El material se va sumando ramo por ramo.',
@@ -27,10 +31,6 @@ export const sectionsStrings = {
     gymkana: {
       title: 'Gymkana de anatomía',
       text: 'Fotos de preparados con alfileres, en modo repaso y en modo certamen.',
-    },
-    stats: {
-      title: 'Estadísticas de estudio',
-      text: 'Cuánto estudias, qué retienes y cuántas tarjetas se vienen, día a día.',
     },
     summaries: {
       title: 'Resúmenes de certamen',

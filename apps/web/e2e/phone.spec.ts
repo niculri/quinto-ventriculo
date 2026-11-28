@@ -153,6 +153,24 @@ for (const screen of SCREENS) {
   });
 }
 
+const ICONS =
+  /«(Abrir el menú|El Quinto Ventrículo, inicio|Novedades.*|.*tu cuenta|Plegar .*|Desplegar .*|Estudiar .*|Activar y estudiar .*|Volver a .*|Más|Deshacer.*)»/;
+
+for (const screen of SCREENS.filter((x) => ['assessment', 'study'].includes(x.name))) {
+  test(`the icon buttons of the ${screen.name} answer to a finger 44 px wide and high`, async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, 'the phone’s targets');
+    await signIn(page);
+    await screen.open(page);
+    await settle(page);
+    const icons = (await targets(page)).filter((t) => ICONS.test(t.name));
+    expect(icons.length).toBeGreaterThanOrEqual(2);
+    expect(icons.filter((t) => t.hit[0] < 44 || t.hit[1] < 44).map((t) => t.name)).toEqual([]);
+  });
+}
+
 /** Every field on screen, with its font size: under 16 px, iOS zooms the page into it. */
 const smallFields = (page: Page) =>
   page.evaluate(() =>

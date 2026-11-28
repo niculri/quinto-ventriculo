@@ -186,9 +186,9 @@ it('with every card suspended, the deck has no mastery yet, and the list none at
   renderApp(ASSESSMENT_PATH, { study });
   const panel = await screen.findByRole('region', { name: 'Estudiar' });
   await waitFor(() => expect(panel.querySelector('[data-mastery]')).not.toBeNull());
-  const meters = [...panel.querySelectorAll('[data-mastery]')].map((m) => m.textContent);
+  const meters = [...panel.querySelectorAll('[data-mastery]')];
   expect(meters).toHaveLength(1);
-  expect(meters[0]).toContain('Sin dominio todavía');
+  expect(meters[0]).toHaveClass('invisible');
 });
 
 it('with a large backlog, «Estudiar» gives the plan to catch up instead of what to turn on', async () => {
@@ -279,4 +279,18 @@ it('a long day ahead says it is a lot, under «Estudiar», in the place of what 
   expect(
     within(panel).queryByText(/^Activa lo que estás viendo/, { ignore: '[aria-hidden]' }),
   ).toBeNull();
+});
+
+it('with nothing on, «Estudiar» becomes «Elegir qué estudiar» and goes to the list; with a topic on, it studies', async () => {
+  const user = userEvent.setup();
+  renderApp(ASSESSMENT_PATH, { study: localStudyRepository(null, { welcomeSeen: true }) });
+  const panel = await screen.findByRole('region', { name: 'Estudiar' });
+  const choose = await within(panel).findByRole('link', { name: 'Elegir qué estudiar' });
+  expect(choose).toHaveAttribute('href', '#que-estudiar');
+  expect(document.getElementById('que-estudiar')).toContainElement(
+    within(panel).getByRole('list', { name: /Submazos|Qué estás estudiando/ }),
+  );
+  await user.click(within(panel).getAllByRole('switch')[0]!);
+  const study = await within(panel).findByRole('link', { name: 'Estudiar' });
+  expect(study.getAttribute('href')).toMatch(/\/study$/);
 });

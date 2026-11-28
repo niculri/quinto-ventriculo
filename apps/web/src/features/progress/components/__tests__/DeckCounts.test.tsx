@@ -25,6 +25,12 @@ describe('DayLoad', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
+  it('short, a phone reads the load and its minutes, «6 · ~N min», and a wider screen the whole line', () => {
+    render(<DayLoad counts={SOME} medianAnswerMs={10_000} short />);
+    expect(screen.getByText(/^6 · ~\d+ min$/)).toHaveClass('sm:hidden');
+    expect(screen.getByText(/^6 para hoy · ~\d+ min$/)).toHaveClass('max-sm:hidden');
+  });
+
   it('with the detail, a tap opens the breakdown; a touch inside keeps it, one outside closes it', async () => {
     render(
       <>

@@ -3,6 +3,7 @@
 import { Menu, Search } from 'lucide-react';
 import { Link } from 'react-router';
 import { paths } from '../../shared/lib/paths';
+import { fingerArea } from '../../shared/ui/styles';
 import { Logo } from '../../shared/ui/Logo';
 import { keys } from '../../shared/ui/keys';
 import { UserMenu } from '../../features/nav/components/UserMenu';
@@ -43,12 +44,16 @@ export function TopBar({
             type="button"
             onClick={onMenu}
             aria-label={topBarStrings.openMenu}
-            className="-ml-1.5 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink lg:hidden"
+            className={`${fingerArea} -ml-1.5 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink lg:hidden`}
           >
             <Menu className="size-5" aria-hidden="true" />
           </button>
         )}
-        <Link to={paths.home} className="rounded-md" aria-label={topBarStrings.homeLink}>
+        <Link
+          to={paths.home}
+          className={`${fingerArea} rounded-md`}
+          aria-label={topBarStrings.homeLink}
+        >
           <Logo compact tagline adminMode={adminMode} />
         </Link>
         <button
@@ -57,12 +62,21 @@ export function TopBar({
           className="mx-auto flex h-10 w-full max-w-md min-w-0 items-center gap-2.5 rounded-lg border border-border bg-surface px-3 text-sm text-muted shadow-xs transition hover:border-border-strong"
         >
           <Search className="size-4" aria-hidden="true" />
-          <span className="flex-1 truncate text-left">{topBarStrings.search}</span>
+          {/* Up to 52rem the whole text does not fit beside the name, the bell and the account: never «Buscar en la p…».
+              The rest is still read, so the name is the same at every width. */}
+          <span className="flex-1 truncate text-left">
+            <span className="min-[52rem]:hidden">
+              {topBarStrings.searchShort}
+              <span className="sr-only">{topBarStrings.searchRest}</span>
+            </span>
+            <span className="max-[52rem]:hidden">{topBarStrings.search}</span>
+          </span>
           <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-sans text-[0.7rem] sm:block">
             {keys('Ctrl+K')}
           </kbd>
         </button>
-        {hideNav ? null : <NewsBell />}
+        {/* Studying keeps the bell's room, so the search box stays where it was. */}
+        {hideNav ? <span aria-hidden="true" className="size-9 flex-none" /> : <NewsBell />}
         <UserMenu />
       </div>
     </header>

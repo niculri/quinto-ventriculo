@@ -115,6 +115,24 @@ describe('public/error-report.js', () => {
     expect(sent[1]).toMatchObject({ message: 'solo texto', stack: '' });
   });
 
+  it('keeps the frames of Safari and Firefox, whose `name@file` is not an email', () => {
+    load();
+    const error = new Error('falló');
+    error.stack = [
+      `deckRows@${location.origin}/assets/DeckPage.C1x9Qa2b.js:1:4821`,
+      `@${location.origin}/assets/index.CXEF97yv.js:8:100`,
+      'promiseReactionJob@[native code]',
+      'de ana.prueba@ug.uchile.cl',
+    ].join('\n');
+    window.dispatchEvent(new ErrorEvent('error', { message: 'falló', error }));
+    expect(sent[0]!.stack.split('\n')).toEqual([
+      'deckRows@/assets/DeckPage.C1x9Qa2b.js:1:4821',
+      '@/assets/index.CXEF97yv.js:8:100',
+      'promiseReactionJob@[native code]',
+      'de (correo)',
+    ]);
+  });
+
   it('a window without a size sends none', () => {
     vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(0);
     load();

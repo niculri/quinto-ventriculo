@@ -46,6 +46,28 @@ describe('scrubStack', () => {
     expect(lines).toHaveLength(15);
     expect(scrubStack(`${'c '.repeat(150)}\n`.repeat(15)).length).toBeLessThanOrEqual(1500);
   });
+
+  it('keeps the frames of Safari and Firefox, whose `name@file` is not an email', () => {
+    const stack = [
+      'deckRows@/assets/DeckPage.C1x9Qa2b.js:1:4821',
+      '@/assets/index.D4f7Kp1z.js:8:100',
+      'promiseReactionJob@[native code]',
+      'module code@/assets/index.D4f7Kp1z.js:2:7',
+      'f@https://cdn.example.com/x.js:1:2',
+      'mailto:ana.prueba@ug.uchile.cl y x+y@gmail.com',
+    ].join('\n');
+    expect(scrubStack(stack).split('\n')).toEqual([
+      'deckRows@/assets/DeckPage.C1x9Qa2b.js:1:4821',
+      '@/assets/index.D4f7Kp1z.js:8:100',
+      'promiseReactionJob@[native code]',
+      'module code@/assets/index.D4f7Kp1z.js:2:7',
+      'f@https://cdn.example.com/x.js:1:2',
+      'mailto:(correo) y (correo)',
+    ]);
+    expect(scrubErrorMessage('e@/assets/index.D4f7Kp1z.js:3:1')).toBe(
+      'e@/assets/index.D4f7Kp1z.js:3:1',
+    );
+  });
 });
 
 describe('clientErrorsReport', () => {

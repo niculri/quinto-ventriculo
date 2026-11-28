@@ -2,12 +2,18 @@
 import { ERRORS_SHOWN } from '@qv/schema';
 import type { ClientErrorGroup, ClientErrorPeriod, ClientErrorsReport } from '@qv/schema';
 
+/**
+ * An email needs a domain with a dot right after the `@`: a frame of Safari or Firefox (`f@/assets/x.js:1:2`,
+ * `map@[native code]`) is not one.
+ */
+const EMAIL = /[^\s@<>()"'/:[\]]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g;
+const TOKEN = /[A-Za-z0-9_-]{24,}/g;
+
+const scrub = (text: string) => text.replace(EMAIL, '(correo)').replace(TOKEN, '…');
+
 /** Emails and long runs of letters and digits (tokens, ids) out, in case a message carries them. */
 export function scrubErrorMessage(message: string): string {
-  return message
-    .replace(/[^\s@<>()"']+@[^\s@<>()"']+/g, '(correo)')
-    .replace(/[A-Za-z0-9_-]{24,}/g, '…')
-    .slice(0, 300);
+  return scrub(message).slice(0, 300);
 }
 
 /** The same for a stack, line by line: at most 15 lines, each of 200 characters. */
@@ -15,13 +21,7 @@ export function scrubStack(stack: string): string {
   return stack
     .split('\n')
     .slice(0, 15)
-    .map((line) =>
-      line
-        .replace(/[^\s@<>()"']+@[^\s@<>()"']+/g, '(correo)')
-        .replace(/[A-Za-z0-9_-]{24,}/g, '…')
-        .trimEnd()
-        .slice(0, 200),
-    )
+    .map((line) => scrub(line).trimEnd().slice(0, 200))
     .join('\n')
     .slice(0, 1500);
 }

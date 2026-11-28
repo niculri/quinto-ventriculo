@@ -95,11 +95,12 @@
   // What a report says of the page, apart, so that each function stays short: the text without the site's address,
   // emails nor tokens, the stack as the Worker keeps it, the window and the deploy.
   (function () {
+    // An email needs a domain with a dot right after the @: a Safari or Firefox frame (f@/assets/x.js:1:2) is not one.
     function clean(text) {
       return String(text || '')
         .split(location.origin)
         .join('')
-        .replace(/[^\s@<>()"']+@[^\s@<>()"']+/g, '(correo)')
+        .replace(/[^\s@<>()"'/:[\]]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g, '(correo)')
         .replace(/[A-Za-z0-9_-]{24,}/g, '…');
     }
 

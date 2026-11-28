@@ -171,6 +171,8 @@ describe('«Errores»', () => {
     await choose('Periodo', 'Últimos 7 días');
     await screen.findByText('1 error · 3 veces');
     expect(clientErrors).toHaveBeenLastCalledWith(7, expect.anything());
+    await choose('Periodo', 'Últimos 30 días');
+    await screen.findByText('2 errores · 4 veces');
   });
 
   it('says when there are none, and when they could not be read', async () => {

@@ -5,6 +5,19 @@ import { memoryUsageEvents } from '../../../adapters/memory/usageEvents';
 import { ADMIN, STUDENT, appWith, get, open, row } from '../../../test/usageApp';
 
 describe('GET /api/admin/usage', () => {
+  it('the Worker requests are null when their reader fails, and the rest of the report still comes', async () => {
+    const failing = appWith({
+      workerRequests: {
+        read: async () => {
+          throw new Error('Analytics caído');
+        },
+      },
+    }).app;
+    const r = await get(failing, '/api/admin/usage', ADMIN);
+    expect(r.status).toBe(200);
+    expect(UsageReport.parse(await r.json()).workerRequests).toBeNull();
+  });
+
   it('a student and an anonymous visitor get «no existe», never a figure', async () => {
     const { app, asked } = appWith();
     const r = await get(app, '/api/admin/usage', STUDENT);

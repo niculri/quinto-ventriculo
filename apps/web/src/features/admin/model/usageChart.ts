@@ -34,8 +34,7 @@ const LONG_DAY = new Intl.DateTimeFormat('es-CL', {
 /** «lunes 23 de noviembre», or «Semana del lunes 23 de noviembre». */
 export function longDay(day: string, byWeek: boolean): string {
   const parts = LONG_DAY.formatToParts(new Date(`${day}T12:00:00Z`));
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((p) => p.type === type)?.value ?? '';
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)!.value;
   const text = s.day(part('weekday'), part('day'), part('month'));
   return byWeek ? s.week(text) : text;
 }

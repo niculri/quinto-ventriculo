@@ -308,11 +308,26 @@ describe('supabaseAdminRepository: the impact of a release', () => {
     expect((spy.mock.calls[0]![1] as { deck_ids: string[] }).deck_ids).not.toBe(ids);
   });
 
+  it('asks admin_account_labels() with a copy of the ids and gives who each one is', async () => {
+    const spy = vi.fn(async (_fn: string, _args?: unknown) => ({
+      data: [{ id: 'a', email: 'ana@ug.uchile.cl', name: null }],
+      error: null,
+    }));
+    const client = { rpc: spy } as unknown as SupabaseClient<Database>;
+    const ids = ['a'];
+    expect(await supabaseAdminRepository(client).accountLabels(ids)).toEqual([
+      { id: 'a', email: 'ana@ug.uchile.cl', name: null },
+    ]);
+    expect(spy).toHaveBeenCalledWith('admin_account_labels', { ids: ['a'] });
+    expect((spy.mock.calls[0]![1] as { ids: string[] }).ids).not.toBe(ids);
+  });
+
   it('a refusal is thrown as the database gave it, also when asking whether one is an administrator', async () => {
     const error = { code: '42501', message: 'admin_only' };
     const rpc = async () => ({ data: null, error });
     const repo = supabaseAdminRepository({ rpc } as unknown as SupabaseClient<Database>);
     await expect(repo.deckImpact(['1'])).rejects.toBe(error);
+    await expect(repo.accountLabels(['1'])).rejects.toBe(error);
     await expect(repo.isAdmin()).rejects.toBe(error);
   });
 });

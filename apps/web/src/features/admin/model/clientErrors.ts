@@ -51,7 +51,7 @@ export function aliasesOf(groups: readonly ClientErrorGroup[]): Map<string, stri
 
 /** «2 personas (alumno A, alumno B) y 1 vez sin sesión». */
 function peopleLine(g: ClientErrorGroup, aliases: Map<string, string>): string {
-  const names = g.accounts.map((id) => aliases.get(id) ?? '').filter(Boolean);
+  const names = g.accounts.map((id) => aliases.get(id)!);
   const more = g.people - names.length;
   return s.claude.people(
     s.people(g.people),

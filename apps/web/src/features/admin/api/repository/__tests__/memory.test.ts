@@ -39,6 +39,21 @@ describe('who can use it', () => {
     await expect(
       student.setAdmin({ email: 'ana.perez@ug.uchile.cl', admin: true }),
     ).rejects.toThrow('Solo para administradores.');
+    await expect(student.accountLabels(['x'])).rejects.toThrow('Solo para administradores.');
+  });
+
+  it('the demo knows its accounts; an id that is not there does not come back', async () => {
+    const labels = await repo({ admin: true }).accountLabels([
+      '00000000-0000-4000-8000-0000000000a1',
+      '00000000-0000-4000-8000-0000000000ff',
+    ]);
+    expect(labels).toEqual([
+      {
+        id: '00000000-0000-4000-8000-0000000000a1',
+        email: 'ana.perez@ug.uchile.cl',
+        name: 'Ana Pérez',
+      },
+    ]);
   });
 });
 

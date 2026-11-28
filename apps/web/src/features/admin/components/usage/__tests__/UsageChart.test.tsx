@@ -75,6 +75,8 @@ describe('UsageChart', () => {
     expect(screen.getByRole('list', { name: 'Mazos abiertos, por día' })).toBeInTheDocument();
     expect(columns()).toHaveLength(1);
     expect(columns()[0]).toHaveAccessibleName('martes 24 de noviembre: —');
+    await userEvent.hover(columns()[0]!);
+    expect(tip()?.querySelectorAll('p')).toHaveLength(2);
     expect(axis()).toEqual(['0', '1', '2']);
   });
 

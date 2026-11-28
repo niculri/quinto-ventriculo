@@ -26,7 +26,7 @@ describe('/privacy and /terms', () => {
       await screen.findByRole('heading', { level: 1, name: 'Política de privacidad' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(`Versión ${LEGAL_VERSIONS.privacy.version} · 10 de noviembre de 2026`),
+      screen.getByText(`Versión ${LEGAL_VERSIONS.privacy.version} · 27 de noviembre de 2026`),
     ).toBeInTheDocument();
     expect(screen.queryByText('Traducción')).toBeNull();
     expect(screen.queryByRole('button', { name: /Entrar con Google/ })).toBeNull();
@@ -53,6 +53,7 @@ describe('/privacy and /terms', () => {
       /Tus reportes de errores/,
       /Tu aceptación/,
       /Si pides eliminar tu cuenta/,
+      /Fallas de una página.*mensaje del error.*identificador de tu cuenta en el sitio/,
     ]) {
       expect(data).toHaveTextContent(kind);
     }
@@ -71,6 +72,7 @@ describe('/privacy and /terms', () => {
     expect(time).toHaveTextContent(/36 meses sin entrar/);
     expect(time).toHaveTextContent(/quedan sin tu nombre ni tu correo/);
     expect(time).toHaveTextContent(/copias de seguridad.*cada noche.*30 días como máximo/);
+    expect(time).toHaveTextContent(/fallas de una página, tres meses.*últimos 30 días/);
     expect(time).not.toHaveTextContent(/cuando las hay/);
     const rights = part(/Tus derechos/);
     for (const right of [/Acceso y portabilidad/, /Rectificación/, /Supresión/, /Oposición/]) {

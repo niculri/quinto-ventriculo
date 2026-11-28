@@ -10,7 +10,6 @@ import type {
   AdminUsageFigures,
   AdminUsageGroup,
   Catalog,
-  ClientErrorGroup,
   UsageEventKind,
   UsageFigures,
   UsageOpenFigures,
@@ -161,10 +160,7 @@ export function opensFigures(counts: OpenCounts, raw: AdminUsageRow): UsageOpens
 export function usageReport(
   stats: unknown,
   opens: { status: 'ok'; counts: OpenCounts } | { status: 'not_configured' | 'unavailable' },
-  extra: {
-    clientErrors?: ClientErrorGroup[] | null;
-    workerRequests?: WorkerRequestDay[] | null;
-  } = {},
+  extra: { workerRequests?: WorkerRequestDay[] | null } = {},
 ): UsageReport {
   const raw = AdminUsageRow.parse(stats);
   return UsageReport.parse({
@@ -205,7 +201,6 @@ export function usageReport(
     },
     opens: opens.status === 'ok' ? opensFigures(opens.counts, raw) : null,
     opensStatus: opens.status,
-    clientErrors: extra.clientErrors ?? null,
     workerRequests: extra.workerRequests ?? null,
   });
 }

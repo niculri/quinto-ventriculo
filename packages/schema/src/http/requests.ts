@@ -3,7 +3,8 @@
 import { z } from 'zod';
 import { DeckId, NoteGuid } from '../anki/flashcards';
 import { ReleaseItemKind, ReleaseMarkId } from '../release/release';
-import { ClientErrorReport, UsageOpenRequest } from './usage';
+import { ClientErrorReport } from './clientErrors';
+import { UsageOpenRequest } from './usage';
 import { PREVIEW_VALUE } from './headers';
 
 const BEARER = /^Bearer\s+(\S+)$/i;
@@ -74,8 +75,9 @@ export const UsageOpenBody = upTo(512)
   })
   .pipe(UsageOpenRequest);
 
-/** At most 1,024 UTF-16 units of JSON: a page's error, sent without a session. */
-export const ClientErrorBody = upTo(1024)
+/** At most 2,560 UTF-16 units of JSON: a page's error with its stack, sent with or without a session. */
+export const CLIENT_ERROR_BODY_UNITS = 2560;
+export const ClientErrorBody = upTo(CLIENT_ERROR_BODY_UNITS)
   .transform((text, ctx) => {
     try {
       return JSON.parse(text) as unknown;

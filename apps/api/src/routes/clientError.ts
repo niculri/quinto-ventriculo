@@ -1,17 +1,19 @@
-// `POST /api/client-error`: the pages that fail in the browsers, reported without a session: the worst error, the app
-// that does not start, comes before the login.
+// `POST /api/client-error`: the pages that fail in the browsers, with or without a session (the app that does not start
+// fails before the login), plus the system and browser of the User-Agent and the account of a session that verifies.
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
-import { API_ROUTES as R, ClientErrorBody } from '@qv/schema/http';
+import { API_ROUTES as R, CLIENT_ERROR_BODY_UNITS, ClientErrorBody } from '@qv/schema/http';
 import type { AppContext } from '../context';
 import type { AppEnv } from '../env';
 import { apiError } from '../http';
+import { verifiedSession } from '../middleware/authenticate';
 import { errorBudget } from '../services/clientErrors';
+import { browserLabels } from '../services/userAgent';
 
 const MAX_A_MINUTE = 60;
 
-/** `ClientErrorBody` takes 1,024 UTF-16 units, three bytes each at most. */
-const MAX_BODY_BYTES = 3 * 1024;
+/** `ClientErrorBody` takes `CLIENT_ERROR_BODY_UNITS` UTF-16 units, three bytes each at most. */
+const MAX_BODY_BYTES = 3 * CLIENT_ERROR_BODY_UNITS;
 
 /** Before anything is read: the route has no session, so it never buffers what a stranger sends. */
 const limitBody = bodyLimit({ maxSize: MAX_BODY_BYTES, onError: (c) => c.body(null, 413) });
@@ -31,7 +33,15 @@ export function clientErrorRoutes({ deps }: AppContext) {
     if (!report.success) {
       return c.json(apiError('invalid_client_error', 'Ese informe no se puede guardar.'), 400);
     }
-    if (take()) deps.clientErrors.record(report.data);
+    if (take()) {
+      // Already verified by the rate limit, which counts a request with a session by student: kept in the context.
+      const { user } = await verifiedSession(deps, c);
+      deps.clientErrors.record({
+        ...report.data,
+        ...browserLabels(c.req.header('User-Agent')),
+        account: user?.id ?? null,
+      });
+    }
     return c.body(null, 204);
   });
 }

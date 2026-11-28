@@ -1,4 +1,4 @@
-// «Administración» → «Sitio»: the switch that hides the semesters without published material, at once.
+// «Administración» → «Ajustes»: the switch that hides the semesters without published material, at once.
 import { useId } from 'react';
 import { formatDateTime } from '../../../shared/lib/dates';
 import { Skeleton } from '../../../shared/ui/Loading';

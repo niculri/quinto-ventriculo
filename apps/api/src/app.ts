@@ -15,6 +15,7 @@ import { releasesRoutes } from './routes/admin/releases';
 import { siteSettingsRoutes } from './routes/admin/siteSettings';
 import { unpublishedRoutes } from './routes/admin/unpublished';
 import { usageRoutes } from './routes/admin/usage';
+import { clientErrorsRoutes } from './routes/admin/clientErrors';
 import { ankiRoutes } from './routes/anki';
 import { cardIndexRoutes } from './routes/cardIndex';
 import { catalogRoutes } from './routes/catalog';
@@ -52,6 +53,7 @@ export function createApp(options: AppOptions) {
     clientErrorRoutes,
     usageOpenRoutes,
     usageRoutes,
+    clientErrorsRoutes,
     cardQualityRoutes,
     releasesRoutes,
     announcementsRoutes,

@@ -362,6 +362,7 @@ const CHECKS = {
   },
   clientError: 'no material',
   usage: 'only for administrators, who see the figures of every course',
+  clientErrors: 'only for administrators: no material',
   cardQuality: 'only for administrators, who see the figures of every course',
   release: 'only for administrators: the draft that is about to be published',
   releaseItems: 'only for administrators',

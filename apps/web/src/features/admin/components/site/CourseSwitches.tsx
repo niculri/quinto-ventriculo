@@ -1,4 +1,4 @@
-// «Sitio»'s list of courses by semester, one switch each (on: it shows), with «Guardar» fixed at the top.
+// «Ajustes»'s list of courses by semester, one switch each (on: it shows), with «Guardar» fixed at the top.
 import type { SiteSemester, SiteSettingsView } from '@qv/schema/http';
 import { Switch } from '../../../../shared/ui/Switch';
 import { SaveControls } from '../../../../shared/ui/SaveControls';

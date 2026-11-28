@@ -32,9 +32,11 @@ import {
   UnpublishedLog,
   UsageOpenAck,
   UsageReport,
+  ClientErrorsReport,
 } from '@qv/schema';
 import { PREVIEW_HEADER, PREVIEW_VALUE, apiPaths } from '@qv/schema/http';
 import type {
+  ClientErrorPeriod,
   PublishRequest,
   SaveAnnouncementRequest,
   ReleaseMarkId,
@@ -258,6 +260,8 @@ export function createApiClient(
       request(apiPaths.unpublished(), UnpublishedLog, signal),
     /** Usage figures, only of groups of 5 students or more. */
     usage: (signal?: AbortSignal) => request(apiPaths.usage(), UsageReport, signal),
+    clientErrors: (days: ClientErrorPeriod, signal?: AbortSignal) =>
+      request(apiPaths.clientErrors(days), ClientErrorsReport, signal),
     /** Which cards of a deck (and those below it) work, in sums of 5 students or more. */
     cardQuality: (deckId: string, signal?: AbortSignal) =>
       request(apiPaths.cardQuality(deckId), CardQualityReport, signal),

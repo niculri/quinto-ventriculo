@@ -10,7 +10,14 @@ const SOURCE = readFileSync(
   'utf8',
 );
 
-type Sent = { kind: string; page: string; message: string; version: string };
+type Sent = {
+  kind: string;
+  page: string;
+  message: string;
+  version: string;
+  stack: string;
+  viewport: string;
+};
 let sent: Sent[];
 let listeners: [
   string,
@@ -63,6 +70,8 @@ describe('public/error-report.js', () => {
         page: '/semesters/2',
         message: 'No cargó /assets/StudyPage.OLD123.js',
         version: 'CXEF97yv',
+        stack: '',
+        viewport: '1024x768',
       },
     ]);
   });
@@ -80,6 +89,58 @@ describe('public/error-report.js', () => {
       ['unhandled', 'falló para (correo)'],
       ['unhandled', 'token … vencido'],
     ]);
+  });
+
+  it('sends the stack of an error, line by line, without the origin, emails nor tokens', () => {
+    load();
+    const error = new Error('falló');
+    error.stack = [
+      'Error: falló para ana@ug.uchile.cl',
+      `    at f (${location.origin}/assets/index.CXEF97yv.js:3:1120)   `,
+      `    at g (${location.origin}/assets/${'a'.repeat(30)}.js:1:2)`,
+      ...Array.from({ length: 20 }, (_, i) => `    at h${String(i)} (${'b'.repeat(300)})`),
+    ].join('\n');
+    window.dispatchEvent(new ErrorEvent('error', { message: 'falló', error }));
+    const rejection = new Event('unhandledrejection') as Event & { reason: unknown };
+    rejection.reason = 'solo texto';
+    window.dispatchEvent(rejection);
+    const lines = sent[0]!.stack.split('\n');
+    expect(lines.slice(0, 3)).toEqual([
+      'Error: falló para (correo)',
+      '    at f (/assets/index.CXEF97yv.js:3:1120)',
+      '    at g (/assets/….js:1:2)',
+    ]);
+    expect(lines).toHaveLength(15);
+    expect(sent[0]!.stack.length).toBeLessThanOrEqual(1500);
+    expect(sent[1]).toMatchObject({ message: 'solo texto', stack: '' });
+  });
+
+  it('keeps the frames of Safari and Firefox, whose `name@file` is not an email', () => {
+    load();
+    const error = new Error('falló');
+    error.stack = [
+      `deckRows@${location.origin}/assets/DeckPage.C1x9Qa2b.js:1:4821`,
+      `@${location.origin}/assets/index.CXEF97yv.js:8:100`,
+      'promiseReactionJob@[native code]',
+      'de ana.prueba@ug.uchile.cl',
+    ].join('\n');
+    window.dispatchEvent(new ErrorEvent('error', { message: 'falló', error }));
+    expect(sent[0]!.stack.split('\n')).toEqual([
+      'deckRows@/assets/DeckPage.C1x9Qa2b.js:1:4821',
+      '@/assets/index.CXEF97yv.js:8:100',
+      'promiseReactionJob@[native code]',
+      'de (correo)',
+    ]);
+  });
+
+  it('a window without a size sends none', () => {
+    vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(0);
+    load();
+    (window as unknown as { __qvReportError: (k: string, m: string) => void }).__qvReportError(
+      'render',
+      'uno',
+    );
+    expect(sent[0]!.viewport).toBe('');
   });
 
   it('reports an error of the app with where it came from, without the origin', () => {
@@ -205,6 +266,52 @@ describe('public/error-report.js', () => {
     expect(sent.map((s) => s.message)).toEqual(['uno', 'dos', 'tres', 'cuatro', 'cinco']);
   });
 
+  describe('with a session open', () => {
+    afterEach(() => {
+      localStorage.clear();
+    });
+    const sentWith = () => {
+      const fetch = vi
+        .spyOn(window, 'fetch')
+        .mockResolvedValue(new Response(null, { status: 204 }));
+      load();
+      (window as unknown as { __qvReportError: (k: string, m: string) => void }).__qvReportError(
+        'render',
+        'uno',
+      );
+      return fetch;
+    };
+
+    it('goes by fetch with the token Supabase keeps, never in the body', () => {
+      localStorage.setItem(
+        'sb-abcdef-auth-token',
+        JSON.stringify({ access_token: 'token-de-prueba', expires_at: Date.now() / 1000 + 3600 }),
+      );
+      const fetch = sentWith();
+      expect(sent).toEqual([]);
+      const init = fetch.mock.calls[0]![1]!;
+      expect(init.headers).toEqual({ Authorization: 'Bearer token-de-prueba' });
+      expect(init.body as string).not.toContain('token-de-prueba');
+    });
+
+    it('the demo’s session goes with its token', () => {
+      localStorage.setItem('qv-demo-session', '1');
+      expect(sentWith().mock.calls[0]![1]!.headers).toEqual({ Authorization: 'Bearer demo-local' });
+    });
+
+    it.each([
+      ['an expired token', JSON.stringify({ access_token: 'viejo', expires_at: 1 })],
+      ['a value that is not JSON', '{roto'],
+      ['a value without a token', JSON.stringify({ user: {} })],
+    ])('%s goes alone, by sendBeacon', (_what, value) => {
+      localStorage.setItem('otra-cosa', 'x');
+      localStorage.setItem('sb-abcdef-auth-token', value);
+      const fetch = sentWith();
+      expect(sent.map((s) => s.message)).toEqual(['uno']);
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
+
   it('without sendBeacon it uses fetch, and an error in either never escapes', () => {
     Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: undefined });
     const fetch = vi.spyOn(window, 'fetch').mockRejectedValue(new Error('sin red'));
@@ -214,7 +321,7 @@ describe('public/error-report.js', () => {
     expect(() => report('render', 'uno')).not.toThrow();
     expect(fetch).toHaveBeenCalledWith(
       '/api/client-error',
-      expect.objectContaining({ method: 'POST', keepalive: true }),
+      expect.objectContaining({ method: 'POST', keepalive: true, headers: {} }),
     );
   });
 });

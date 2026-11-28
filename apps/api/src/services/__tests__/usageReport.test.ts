@@ -248,23 +248,6 @@ describe('usageReport', () => {
     expect(some.opensStatus).toBe('ok');
   });
 
-  it('the errors of the browsers go as they are, or null when nobody read them', () => {
-    expect(usageReport(stats(), { status: 'unavailable' }).clientErrors).toBeNull();
-    const errors = [
-      {
-        kind: 'chunk' as const,
-        page: '/',
-        message: 'm',
-        version: 'v',
-        count: 2,
-        lastSeen: '2026-11-19T12:00:00.000Z',
-      },
-    ];
-    expect(
-      usageReport(stats(), { status: 'unavailable' }, { clientErrors: errors }).clientErrors,
-    ).toEqual(errors);
-  });
-
   it('the Worker requests go as they are, or null when nobody read them', () => {
     expect(usageReport(stats(), { status: 'unavailable' }).workerRequests).toBeNull();
     const days = [{ day: '2026-11-23', requests: 4210 }];

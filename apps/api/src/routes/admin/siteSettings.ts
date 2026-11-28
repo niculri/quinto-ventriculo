@@ -1,4 +1,4 @@
-// The panel's «Sitio»: which semesters and courses show. Read and changed by an administrator.
+// The panel's «Ajustes»: which semesters and courses show. Read and changed by an administrator.
 import { Hono } from 'hono';
 import { SiteSettingsUpdate } from '@qv/schema';
 import type { SiteSettings, SiteSettingsView } from '@qv/schema';

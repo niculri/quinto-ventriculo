@@ -1,4 +1,4 @@
-// «Sitio»'s settings, read and changed; after a change the catalog is fetched fresh, so this tab shows it at once.
+// «Ajustes»'s settings, read and changed; after a change the catalog is fetched fresh, so this tab shows it at once.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../shared/hooks/useApi';
 import { useRefreshContent } from '../../../shared/hooks/useRefreshContent';

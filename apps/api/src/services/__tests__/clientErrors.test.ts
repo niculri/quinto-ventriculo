@@ -1,6 +1,8 @@
-// Tests for what is kept of a browser's error report and for the per-minute budget.
+// Tests for what is kept of a browser's error report, the per-minute budget and the panel's list.
 import { describe, expect, it } from 'vitest';
-import { errorBudget, scrubErrorMessage } from '../clientErrors';
+import { ERRORS_SHOWN } from '@qv/schema';
+import type { ClientErrorGroup } from '@qv/schema';
+import { clientErrorsReport, errorBudget, scrubErrorMessage, scrubStack } from '../clientErrors';
 
 describe('scrubErrorMessage', () => {
   it('takes out emails and long runs of letters and digits, and cuts at 300 characters', () => {
@@ -22,5 +24,58 @@ describe('errorBudget', () => {
     expect(take()).toBe(false);
     ms += 1;
     expect(take()).toBe(true);
+  });
+});
+
+describe('scrubStack', () => {
+  it('keeps the lines with the app’s files, scrubbed: at most 15 lines of 200 characters', () => {
+    const stack = [
+      'TypeError: de ana@ug.uchile.cl',
+      '    at f (/assets/index-D4f7Kp1z.js:3:1120)   ',
+      `    at g (/assets/${'a'.repeat(30)}.js:1:2)`,
+      ...Array.from({ length: 20 }, (_, i) =>
+        `    at h${String(i)} (${'b'.repeat(300)})`.slice(0, 20),
+      ),
+    ].join('\n');
+    const lines = scrubStack(stack).split('\n');
+    expect(lines.slice(0, 3)).toEqual([
+      'TypeError: de (correo)',
+      '    at f (/assets/index-D4f7Kp1z.js:3:1120)',
+      '    at g (/assets/….js:1:2)',
+    ]);
+    expect(lines).toHaveLength(15);
+    expect(scrubStack(`${'c '.repeat(150)}\n`.repeat(15)).length).toBeLessThanOrEqual(1500);
+  });
+
+  it('keeps the frames of Safari and Firefox, whose `name@file` is not an email', () => {
+    const stack = [
+      'deckRows@/assets/DeckPage.C1x9Qa2b.js:1:4821',
+      '@/assets/index.D4f7Kp1z.js:8:100',
+      'promiseReactionJob@[native code]',
+      'module code@/assets/index.D4f7Kp1z.js:2:7',
+      'f@https://cdn.example.com/x.js:1:2',
+      'mailto:ana.prueba@ug.uchile.cl y x+y@gmail.com',
+    ].join('\n');
+    expect(scrubStack(stack).split('\n')).toEqual([
+      'deckRows@/assets/DeckPage.C1x9Qa2b.js:1:4821',
+      '@/assets/index.D4f7Kp1z.js:8:100',
+      'promiseReactionJob@[native code]',
+      'module code@/assets/index.D4f7Kp1z.js:2:7',
+      'f@https://cdn.example.com/x.js:1:2',
+      'mailto:(correo) y (correo)',
+    ]);
+    expect(scrubErrorMessage('e@/assets/index.D4f7Kp1z.js:3:1')).toBe(
+      'e@/assets/index.D4f7Kp1z.js:3:1',
+    );
+  });
+});
+
+describe('clientErrorsReport', () => {
+  it('shows at most ERRORS_SHOWN and says when there were more', () => {
+    const g = { page: '/' } as ClientErrorGroup;
+    const many = Array.from({ length: ERRORS_SHOWN + 1 }, () => g);
+    expect(clientErrorsReport(many, 30)).toMatchObject({ days: 30, more: true });
+    expect(clientErrorsReport(many, 30).groups).toHaveLength(ERRORS_SHOWN);
+    expect(clientErrorsReport([g], 7)).toEqual({ days: 7, groups: [g], more: false });
   });
 });

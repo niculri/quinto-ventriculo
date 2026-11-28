@@ -4,7 +4,7 @@
 // joined by a dot: the database takes nothing else.
 export const LEGAL_VERSIONS = {
   terms: { version: '3', date: '2026-11-08' },
-  privacy: { version: '4', date: '2026-11-10' },
+  privacy: { version: '5', date: '2026-11-27' },
 } as const;
 
 export const ACCOUNT_DELETION_DAYS = 7;

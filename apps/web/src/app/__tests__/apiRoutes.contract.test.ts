@@ -40,6 +40,7 @@ const CALLS: { [K in keyof ApiClient]: (api: ApiClient) => Promise<unknown> } = 
   setSiteSettings: (api) => api.setSiteSettings({ hideEmptySemesters: true }),
   unpublishedLog: (api) => api.unpublishedLog(),
   usage: (api) => api.usage(),
+  clientErrors: (api) => api.clientErrors(30),
   cardQuality: (api) => api.cardQuality('20'),
   usageOpen: (api) => api.usageOpen({ kind: 'search', from: 'home' }),
   releaseOverview: (api) => api.releaseOverview(),

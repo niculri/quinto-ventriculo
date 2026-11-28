@@ -12,6 +12,8 @@ export type {
 
 export const MAX_EMAILS = 500;
 
+export type { AccountLabel } from '../../model/clientErrors';
+
 export class AccessError extends Error {
   constructor(message: string) {
     super(message);

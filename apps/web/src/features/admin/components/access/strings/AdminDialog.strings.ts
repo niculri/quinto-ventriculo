@@ -19,7 +19,7 @@ export const adminDialogStrings = {
     unappointRules: [
       'Sigue invitado, con su cuenta, su avance y sus sesiones.',
       'Deja de poder cambiar cosas de inmediato: publicar, deshacer, el interruptor del sitio, invitar o sacar personas.',
-      'Ver el modo admin y lo que muestran Publicaciones, Sitio y Fuera del sitio puede quedarle hasta un minuto.',
+      'Ver el modo admin y lo que muestran Publicaciones, Ajustes y Fuera del sitio puede quedarle hasta un minuto.',
       'Después, si hace falta, se puede sacar como a cualquier invitado.',
     ],
     confirm: 'Para confirmar, escribe el correo (',

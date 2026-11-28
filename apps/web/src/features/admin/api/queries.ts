@@ -1,6 +1,7 @@
 // What the administration pages read, with their keys: the site settings, access, usage and the unpublished log (the
 // admin role is in `isAdmin.ts`).
 import { queryOptions } from '@tanstack/react-query';
+import type { ClientErrorPeriod } from '@qv/schema';
 import type { ApiClient } from '../../../shared/lib/api';
 import { catalogKeys } from '../../catalog/api/queries';
 import { isAdminKey } from './isAdmin';
@@ -12,6 +13,8 @@ export const adminKeys = {
   siteSettings: ['site-settings'] as const,
   access: ['access-report'] as const,
   usage: ['usage-report'] as const,
+  clientErrors: (days: number) => ['client-errors', days] as const,
+  accountLabels: (ids: readonly string[]) => ['account-labels', ...ids] as const,
   cardQuality: (deckId: string) => ['card-quality', deckId] as const,
   unpublished: ['unpublished-log'] as const,
   /** After a change of the site settings the catalog is read again. */
@@ -32,6 +35,13 @@ export const usageQuery = (api: ApiClient) =>
   queryOptions({
     queryKey: adminKeys.usage,
     queryFn: ({ signal }) => api.usage(signal),
+    staleTime: 60_000,
+  });
+
+export const clientErrorsQuery = (api: ApiClient, days: ClientErrorPeriod) =>
+  queryOptions({
+    queryKey: adminKeys.clientErrors(days),
+    queryFn: ({ signal }) => api.clientErrors(days, signal),
     staleTime: 60_000,
   });
 

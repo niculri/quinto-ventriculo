@@ -1,6 +1,6 @@
-// Hands the errors React catches to public/error-report.js, which sends them without who; and keeps logging them in
-// the console, as React does when nobody asks it for them.
-type Reporter = (kind: 'chunk' | 'render', message: string) => void;
+// Hands the errors React catches, with their stack, to public/error-report.js, which sends them; and keeps logging
+// them in the console, as React does when nobody asks it for them.
+type Reporter = (kind: 'chunk' | 'render', message: string, stack?: string) => void;
 
 const CHUNK =
   /dynamically imported module|Importing a module script failed|error loading dynamically/i;
@@ -20,7 +20,8 @@ export function reportError(error: unknown): void {
   if (!report) return;
   try {
     const message = messageOf(error);
-    report(CHUNK.test(message) ? 'chunk' : 'render', message);
+    const stack = error instanceof Error ? error.stack : undefined;
+    report(CHUNK.test(message) ? 'chunk' : 'render', message, stack);
   } catch {
     // an error report never breaks the page
   }

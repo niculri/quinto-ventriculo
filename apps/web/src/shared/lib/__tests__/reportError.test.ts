@@ -29,7 +29,9 @@ describe('reportError', () => {
       new TypeError('Failed to fetch dynamically imported module: /assets/StudyPage.ABC.js'),
     );
     reportError({ status: 404, statusText: 'Not Found' });
-    expect(report.mock.calls).toEqual([
+    expect(report.mock.calls[0]![2]).toMatch(/^TypeError: x is undefined\n\s+at /);
+    expect(report.mock.calls[2]![2]).toBeUndefined();
+    expect(report.mock.calls.map((c: unknown[]) => c.slice(0, 2))).toEqual([
       ['render', 'x is undefined'],
       ['chunk', 'Failed to fetch dynamically imported module: /assets/StudyPage.ABC.js'],
       ['render', '404 Not Found'],
@@ -47,7 +49,7 @@ describe('reportError', () => {
     const report = vi.fn();
     (window as unknown as W).__qvReportError = report;
     reportError(error);
-    expect(report).toHaveBeenCalledWith('render', message);
+    expect(report.mock.calls.map((c: unknown[]) => c.slice(0, 2))).toEqual([['render', message]]);
   });
 
   it('without the reporter, or with one that throws, nothing breaks', () => {
@@ -95,7 +97,7 @@ describe('reportError', () => {
     } finally {
       env.IS_REACT_ACT_ENVIRONMENT = inAct;
     }
-    expect(report.mock.calls).toEqual([
+    expect(report.mock.calls.map((c: unknown[]) => c.slice(0, 2))).toEqual([
       ['render', 'se rompió'],
       ['render', 'se rompió'],
     ]);

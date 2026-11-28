@@ -10,8 +10,9 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
     <button
       type="button"
       onClick={() => {
-        void navigator.clipboard
-          .writeText(text)
+        // Without HTTPS there is no `navigator.clipboard`: that throws inside the promise, and says it could not.
+        void Promise.resolve()
+          .then(() => navigator.clipboard.writeText(text))
           .then(() => setDone('copied'))
           .catch(() => setDone('failed'));
         setTimeout(() => setDone('idle'), 2500);

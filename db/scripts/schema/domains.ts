@@ -37,7 +37,8 @@ const USERS: Record<string, Domain> = {
   },
   news: { table: 'news_reads', function: 'mark_news_seen' },
   admin: {
-    function: 'admin_deck_impact admin_usage health site_day site_day_start storage_health',
+    function:
+      'admin_account_labels admin_deck_impact admin_usage health site_day site_day_start storage_health',
   },
   quality: {
     table: 'card_quality card_quality_refresh',

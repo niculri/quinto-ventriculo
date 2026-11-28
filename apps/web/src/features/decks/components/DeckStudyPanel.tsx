@@ -44,9 +44,10 @@ export function DeckStudyPanel({
         <>
           <div className="flex flex-wrap items-center gap-4">
             {/* With nothing on, studying would open an empty session: the button goes to the list to choose. Both
-                labels keep the width of the longest, so it does not change when the plan arrives. */}
+                labels keep the width of the longest, so it does not change when the plan arrives; on a phone the
+                long one is cut to one word, to stay on one line. */}
             {choose ? (
-              <a href={`#${SUBDECKS_ANCHOR}`} className={studyClass}>
+              <a href={`#${SUBDECKS_ANCHOR}`} aria-label={s.panel.choose} className={studyClass}>
                 <StudyLabel choose />
               </a>
             ) : (
@@ -109,7 +110,8 @@ function StudyLabel({ choose }: { choose: boolean }) {
       </span>
       <span aria-hidden={!choose} className={`${LABEL} ${choose ? '' : 'invisible'}`}>
         <ListChecks className="size-4 flex-none" aria-hidden="true" />
-        {s.panel.choose}
+        <span className="sm:hidden">{s.panel.chooseShort}</span>
+        <span className="max-sm:hidden">{s.panel.choose}</span>
       </span>
     </span>
   );

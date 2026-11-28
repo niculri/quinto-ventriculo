@@ -82,6 +82,7 @@ test('with nothing turned on, «Estudiar» says what to do and links to where to
 
 test('the assessment’s «Estudiar» keeps its size with either label, and the one shown is in its middle', async ({
   page,
+  isMobile,
 }) => {
   await signIn(page);
   await page.goto(`${COURSE_URL}/anki/certamen-1`);
@@ -105,6 +106,11 @@ test('the assessment’s «Estudiar» keeps its size with either label, and the 
     });
   };
   const choose = await measure('Elegir qué estudiar');
+  // On a phone the long label is cut to one word, so the button is one line high.
+  if (isMobile) {
+    await expect(panel.getByText('Elegir', { exact: true })).toBeVisible();
+    expect(choose.box[3]).toBeLessThanOrEqual(52);
+  }
   await panel.getByRole('switch', { name: 'Activar S1 - Semana de prueba' }).click();
   const study = await measure('Estudiar');
   expect(study.box).toEqual(choose.box);

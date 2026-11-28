@@ -942,6 +942,14 @@ export type Database = {
         Returns: string
       }
       admin_access_report: { Args: never; Returns: Json }
+      admin_account_labels: {
+        Args: { ids: string[] }
+        Returns: {
+          email: string
+          id: string
+          name: string
+        }[]
+      }
       admin_card_quality: { Args: { p: Json }; Returns: Json }
       admin_deck_impact: {
         Args: { deck_ids: string[] }

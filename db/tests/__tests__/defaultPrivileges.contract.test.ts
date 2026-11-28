@@ -13,6 +13,7 @@ const NEXT = readdirSync(join(import.meta.dirname, '../../users/supabase/migrati
   .find((f) => f > MIGRATION);
 /** The functions the later migrations made that a signed-in student calls: each granted on purpose. */
 const GRANTED_LATER = [
+  'admin_account_labels(uuid[])',
   'admin_card_quality(jsonb)',
   'admin_move_invites(jsonb)',
   'mark_news_seen(timestamp with time zone)',

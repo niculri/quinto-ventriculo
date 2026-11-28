@@ -10,18 +10,21 @@ import { AdminSectionTitle } from '../components/AdminSectionTitle';
 import { ErrorFilters } from '../components/errors/ErrorFilters';
 import { ErrorItem } from '../components/errors/ErrorItem';
 import { CopyButton } from '../components/reports/CopyButton';
+import { useAccountLabels } from '../hooks/useAccountLabels';
 import { useClientErrors } from '../hooks/useClientErrors';
-import { claudeTextAll, filterErrors, versionsOf } from '../model/clientErrors';
+import { accountsOf, claudeTextAll, filterErrors, versionsOf } from '../model/clientErrors';
 import type { ErrorFilter } from '../model/clientErrors';
 import { clientErrorsStrings as e } from '../model/strings/clientErrors.strings';
 import { errorsPageStrings as s } from './strings/ErrorsPage.strings';
 
 export function ErrorsPage() {
   const [days, setDays] = useState<ClientErrorPeriod>(30);
-  const [filter, setFilter] = useState<ErrorFilter>({ kind: '', version: '' });
+  const [filter, setFilter] = useState<ErrorFilter>({ kind: '', version: '', account: '' });
   const query = useClientErrors(days);
   const groups = query.data?.groups ?? [];
   const shown = filterErrors(groups, filter);
+  const accounts = accountsOf(groups);
+  const labels = useAccountLabels(accounts);
   const times = shown.reduce((n, g) => n + g.count, 0);
   return (
     <>
@@ -35,6 +38,8 @@ export function ErrorsPage() {
         filter={filter}
         onFilter={setFilter}
         versions={versionsOf(groups)}
+        accounts={accounts}
+        labels={labels}
       />
       <Reserved longest={s.longestSummary} className="mt-4 text-sm text-muted tabular-nums">
         <p>{query.data ? s.summary(shown.length, e.times(times)) : ''}</p>
@@ -56,6 +61,7 @@ export function ErrorsPage() {
                 key={[g.kind, g.page, g.message, g.version].join('\u0000')}
                 group={g}
                 days={days}
+                labels={labels}
               />
             ))}
           </ul>

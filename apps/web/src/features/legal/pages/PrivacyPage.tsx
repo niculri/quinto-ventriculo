@@ -103,6 +103,13 @@ export function PrivacyPage() {
           encontrar fallas y frenar ataques. Se borran solos en pocos días (a lo más 7).
         </p>
         <p>
+          <strong>Fallas de una página.</strong> Si una página del sitio falla en tu navegador, se
+          anota qué falló, en qué página y versión del sitio, el sistema y el navegador con su
+          versión (por ejemplo, «iOS 18 · Safari 18»), el tamaño de la ventana y si era un teléfono.
+          Si tenías la sesión abierta, se anota también el identificador de tu cuenta, para saber a
+          quién le pasó y poder arreglarlo. Lo guarda Cloudflare.
+        </p>
+        <p>
           No guardamos tu clave (entras con Google, que nunca nos la da), tu RUT ni tus notas del
           curso. Para contar las visitas usamos Cloudflare Web Analytics, que no usa cookies ni
           guarda datos que te identifiquen.
@@ -125,6 +132,7 @@ export function PrivacyPage() {
             mostrártelo en cualquier dispositivo.
           </li>
           <li>Para corregir el material con los errores que reportas.</li>
+          <li>Para encontrar y arreglar las páginas que fallan.</li>
           <li>Para poner límites que eviten abusos y mantener el sitio funcionando.</li>
           <li>Para saber qué versión de estos textos aceptaste.</li>
         </ul>
@@ -159,10 +167,11 @@ export function PrivacyPage() {
             invitados (correo, lista, nota, fecha, si ya tienes cuenta y tu último ingreso), los
             reportes de errores con el nombre y el correo de quien los escribió (ocultos hasta que
             los pide), y cifras que suman a muchos estudiantes sin decir quiénes (por ejemplo,
-            cuántos estudiaron un mazo). Qué parte de tus reportes resultaron ser errores no lo ve:
-            el sitio solo lo usa para ordenar los reportes que revisa primero. Como administra la
-            base de datos, también puede ver lo guardado: solo lo usa para mantener el sitio y
-            responder tus pedidos.
+            cuántos estudiaron un mazo). También ve las fallas de páginas de los últimos 30 días,
+            con el correo y el nombre de la cuenta a la que le pasaron. Qué parte de tus reportes
+            resultaron ser errores no lo ve: el sitio solo lo usa para ordenar los reportes que
+            revisa primero. Como administra la base de datos, también puede ver lo guardado: solo lo
+            usa para mantener el sitio y responder tus pedidos.
           </li>
           <li>
             <strong>Si escribes al correo de contacto</strong>, tu mensaje llega a la casilla de
@@ -183,9 +192,9 @@ export function PrivacyPage() {
           </li>
           <li>
             <strong>Cloudflare:</strong> entrega el sitio y sus imágenes, reenvía el correo de
-            contacto, cuenta las visitas (Web Analytics) y guarda las copias de seguridad cifradas
-            de la base de datos. Su red tiene servidores en muchos países, y la empresa es de
-            Estados Unidos.
+            contacto, cuenta las visitas (Web Analytics), guarda las fallas de páginas (Analytics
+            Engine) y las copias de seguridad cifradas de la base de datos. Su red tiene servidores
+            en muchos países, y la empresa es de Estados Unidos.
           </li>
           <li>
             <strong>GitHub:</strong> cada noche hace la copia de seguridad de la base de datos en
@@ -263,6 +272,13 @@ export function PrivacyPage() {
           <li>Cada sesión, hasta que la cierras.</li>
           <li>Los registros técnicos, unos pocos días (a lo más 7).</li>
           <li>
+            <strong>Las fallas de una página,</strong> tres meses: Cloudflare las borra solo al
+            cumplirse. El administrador ve las de los últimos 30 días. No se pueden borrar una por
+            una antes de ese plazo, pero si eliminas tu cuenta, las que quedan ya no dicen quién
+            eras: tu correo y tu nombre se borran de la base de datos, y el identificador solo no
+            lleva a nadie.
+          </li>
+          <li>
             Las copias de seguridad de la base de datos se hacen cada noche y se guardan cifradas en
             Cloudflare, por 30 días como máximo: lo que se borra de tu cuenta desaparece también de
             ellas cuando vence la última copia que lo tenía.
@@ -282,7 +298,9 @@ export function PrivacyPage() {
               Opciones → Datos de usuario
             </Link>
             , «Descargar mis datos» te entrega un archivo JSON con todo lo tuyo, que puedes abrir o
-            llevar a otro programa.
+            llevar a otro programa. Las fallas de páginas no van en ese archivo, porque no están en
+            la base de datos: si quieres saber cuáles quedaron anotadas con tu cuenta, escribe a{' '}
+            <ContactLink />.
           </li>
           <li>
             <strong>Rectificación:</strong> tu nombre y tu foto vienen de Google: si los cambias

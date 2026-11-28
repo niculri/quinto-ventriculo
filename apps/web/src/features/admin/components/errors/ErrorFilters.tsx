@@ -1,8 +1,9 @@
-// «Errores»'s filters: the period, the kind and the deploy.
+// «Errores»'s filters: the period, the kind, the deploy and the person.
 import { CLIENT_ERROR_KINDS, CLIENT_ERROR_PERIODS } from '@qv/schema';
 import type { ClientErrorKind, ClientErrorPeriod } from '@qv/schema';
 import { Select } from '../../../../shared/ui/Select';
-import { NO_VERSION } from '../../model/clientErrors';
+import type { AccountLabel } from '../../api/repository';
+import { NO_VERSION, personName } from '../../model/clientErrors';
 import type { ErrorFilter } from '../../model/clientErrors';
 import { clientErrorsStrings as e } from '../../model/strings/clientErrors.strings';
 import { errorFiltersStrings as s } from './strings/ErrorFilters.strings';
@@ -13,12 +14,16 @@ export function ErrorFilters({
   filter,
   onFilter,
   versions,
+  accounts,
+  labels,
 }: {
   days: ClientErrorPeriod;
   onDays: (d: ClientErrorPeriod) => void;
   filter: ErrorFilter;
   onFilter: (f: ErrorFilter) => void;
   versions: readonly string[];
+  accounts: readonly string[];
+  labels: readonly AccountLabel[];
 }) {
   return (
     <div className="mt-4 flex flex-wrap gap-2">
@@ -54,6 +59,18 @@ export function ErrorFilters({
           onFilter({ ...filter, version });
         }}
         className="w-56"
+      />
+      <Select
+        label={s.person}
+        value={filter.account}
+        options={[
+          { value: '', label: s.everybody },
+          ...accounts.map((id) => ({ value: id, label: personName(id, labels) })),
+        ]}
+        onChange={(account) => {
+          onFilter({ ...filter, account });
+        }}
+        className="w-72"
       />
     </div>
   );

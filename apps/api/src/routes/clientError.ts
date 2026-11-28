@@ -1,11 +1,12 @@
-// `POST /api/client-error`: the pages that fail in the browsers, reported without a session: the worst error, the app
-// that does not start, comes before the login. The Worker adds the system and the browser, read from the User-Agent.
+// `POST /api/client-error`: the pages that fail in the browsers, with or without a session (the app that does not start
+// fails before the login), plus the system and browser of the User-Agent and the account of a session that verifies.
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { API_ROUTES as R, CLIENT_ERROR_BODY_UNITS, ClientErrorBody } from '@qv/schema/http';
 import type { AppContext } from '../context';
 import type { AppEnv } from '../env';
 import { apiError } from '../http';
+import { verifiedSession } from '../middleware/authenticate';
 import { errorBudget } from '../services/clientErrors';
 import { browserLabels } from '../services/userAgent';
 
@@ -33,10 +34,12 @@ export function clientErrorRoutes({ deps }: AppContext) {
       return c.json(apiError('invalid_client_error', 'Ese informe no se puede guardar.'), 400);
     }
     if (take()) {
+      // Already verified by the rate limit, which counts a request with a session by student: kept in the context.
+      const { user } = await verifiedSession(deps, c);
       deps.clientErrors.record({
         ...report.data,
         ...browserLabels(c.req.header('User-Agent')),
-        account: null,
+        account: user?.id ?? null,
       });
     }
     return c.body(null, 204);

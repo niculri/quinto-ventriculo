@@ -1,5 +1,5 @@
-// Made-up errors of the demo's browsers for the panel's «Errores»: several kinds, pages, deploys, systems and browsers
-// over the last 30 days.
+// Made-up errors of the demo's browsers for the panel's «Errores»: several kinds, pages, deploys, systems, browsers and
+// accounts (the demo's and two of the demo's «Acceso») over the last 30 days.
 import type { ClientErrorPoint } from '../ports/clientErrors';
 
 const HOUR = 3_600_000;
@@ -17,10 +17,15 @@ const STACK = [
   '    at beginWork (/assets/index-D4f7Kp1z.js:8:43012)',
 ].join('\n');
 
+const DEMO = '00000000-0000-4000-8000-0000000000de';
+const ANA = '00000000-0000-4000-8000-0000000000a1';
+const LUIS = '00000000-0000-4000-8000-0000000000a2';
+
 type Seed = [
   hoursAgo: number,
   env: typeof IPHONE | typeof OLD,
   error: Omit<ClientErrorPoint, keyof typeof OLD | 'account'>,
+  account: string | null,
 ];
 
 const RENDER = {
@@ -53,22 +58,22 @@ const BOOT = {
 } as const;
 
 const SEEDS: Seed[] = [
-  [1, IPHONE, RENDER],
-  [5, IPHONE, RENDER],
-  [26, ANDROID, RENDER],
-  [3, MAC, UNHANDLED],
-  [50, WINDOWS, UNHANDLED],
-  [200, ANDROID, CHUNK],
-  [210, IPHONE, CHUNK],
-  [400, OLD, BOOT],
-  [600, MAC, BOOT],
+  [1, IPHONE, RENDER, DEMO],
+  [5, IPHONE, RENDER, DEMO],
+  [26, ANDROID, RENDER, ANA],
+  [3, MAC, UNHANDLED, LUIS],
+  [50, WINDOWS, UNHANDLED, null],
+  [200, ANDROID, CHUNK, ANA],
+  [210, IPHONE, CHUNK, null],
+  [400, OLD, BOOT, null],
+  [600, MAC, BOOT, null],
 ];
 
 export function demoClientErrors(now: number): (ClientErrorPoint & { at: number })[] {
-  return SEEDS.map(([hours, env, error]) => ({
+  return SEEDS.map(([hours, env, error, account]) => ({
     ...error,
     ...env,
-    account: null,
+    account,
     at: now - hours * HOUR,
   }));
 }

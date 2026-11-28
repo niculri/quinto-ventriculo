@@ -69,6 +69,36 @@ describe('POST /api/client-error', () => {
     expect(Object.values(errors.points[0]!)).not.toContain(IPHONE);
   });
 
+  it('with a session that verifies, keeps its account; with one that does not, keeps none', async () => {
+    const errors = memoryClientErrors();
+    const app = appWith({
+      clientErrors: errors,
+      verifier: {
+        verify: async (token) =>
+          token === 'valido'
+            ? { id: '00000000-0000-4000-8000-0000000000a1', email: 'ana@ug.uchile.cl' }
+            : null,
+      },
+    });
+    await send(app, REPORT, { Origin: SITE, Authorization: 'Bearer valido' });
+    await send(app, REPORT, { Origin: SITE, Authorization: 'Bearer falso' });
+    expect(errors.points.map((p) => p.account)).toEqual([
+      '00000000-0000-4000-8000-0000000000a1',
+      null,
+    ]);
+    expect(JSON.stringify(errors.points)).not.toContain('ana@ug.uchile.cl');
+  });
+
+  it('an account in the body is refused: only the session says whose it is', async () => {
+    const errors = memoryClientErrors();
+    const r = await send(appWith({ clientErrors: errors }), {
+      ...REPORT,
+      account: '00000000-0000-4000-8000-0000000000a1',
+    });
+    expect(r.status).toBe(400);
+    expect(errors.points).toEqual([]);
+  });
+
   it('an older page, without stack nor window, counts too', async () => {
     const errors = memoryClientErrors();
     const { stack: _s, viewport: _v, ...old } = REPORT;

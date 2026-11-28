@@ -14,6 +14,7 @@ export const adminKeys = {
   access: ['access-report'] as const,
   usage: ['usage-report'] as const,
   clientErrors: (days: number) => ['client-errors', days] as const,
+  accountLabels: (ids: readonly string[]) => ['account-labels', ...ids] as const,
   cardQuality: (deckId: string) => ['card-quality', deckId] as const,
   unpublished: ['unpublished-log'] as const,
   /** After a change of the site settings the catalog is read again. */

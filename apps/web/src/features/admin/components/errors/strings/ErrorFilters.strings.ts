@@ -7,4 +7,6 @@ export const errorFiltersStrings = {
   allKinds: 'Todos los tipos',
   version: 'Versión',
   allVersions: 'Todas las versiones',
+  person: 'Persona',
+  everybody: 'Todas las personas',
 } as const;

@@ -1,5 +1,5 @@
-// Tells the administrators, without who, that a page failed in this browser: a file that did not load, an error nothing
-// caught or a page left blank. A classic script loaded first, so it works even when the app itself cannot start.
+// Tells the administrators that a page failed in this browser: a file that did not load, an error nothing caught or a
+// page left blank. A classic script loaded first, so it works even when the app itself cannot start.
 (function (text) {
   var ENDPOINT = '/api/client-error';
   var MAX = 5;
@@ -28,15 +28,20 @@
       stack: text.stack(stack),
       viewport: text.viewport(),
     });
+    // With a session it goes by fetch, which can carry it; sendBeacon cannot.
+    var session = text.session();
     try {
-      if (navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, body)) return;
+      if (!session && navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, body)) return;
     } catch {
       // falls back to fetch
     }
+    var headers = session ? { Authorization: 'Bearer ' + session } : {};
     try {
-      fetch(ENDPOINT, { method: 'POST', body: body, keepalive: true }).catch(function () {
-        // nothing else to try
-      });
+      fetch(ENDPOINT, { method: 'POST', body: body, keepalive: true, headers: headers }).catch(
+        function () {
+          // nothing else to try
+        },
+      );
     } catch {
       // nothing else to try: an error report never breaks the page
     }
@@ -122,6 +127,24 @@
       return m ? m[1] : '';
     }
 
-    return { clean: clean, stack: stack, viewport: viewport, version: version };
+    // The token of the session the site already keeps (Supabase's; the demo's, which only the local demo accepts), so
+    // that the Worker, which verifies it, knows whose browser it was. Without one, or expired, the report goes alone.
+    function session() {
+      try {
+        if (localStorage.getItem('qv-demo-session') === '1') return 'demo-local';
+        for (var i = 0; i < localStorage.length; i++) {
+          var key = localStorage.key(i) || '';
+          if (!/^sb-[a-z0-9]+-auth-token$/.test(key)) continue;
+          var s = JSON.parse(localStorage.getItem(key) || 'null');
+          var fresh = s && (!s.expires_at || s.expires_at * 1000 > Date.now());
+          if (fresh && typeof s.access_token === 'string') return s.access_token;
+        }
+      } catch {
+        // blocked storage or a value that is not JSON: without a session
+      }
+      return '';
+    }
+
+    return { clean: clean, stack: stack, viewport: viewport, version: version, session: session };
   })(),
 );

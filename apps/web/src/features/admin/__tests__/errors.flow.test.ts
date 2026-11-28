@@ -9,7 +9,14 @@ import { fakeApi } from '../../../test/fakes/api';
 import { renderApp } from '../../../test/render';
 import { localAdminRepository } from '../api/repository';
 
-const admin = () => localAdminRepository({ admin: true, email: 'dueno@ug.uchile.cl' });
+const A1 = '00000000-0000-4000-8000-0000000000a1';
+const X = '00000000-0000-4000-8000-0000000000ff';
+const admin = () =>
+  localAdminRepository({
+    admin: true,
+    email: 'dueno@ug.uchile.cl',
+    accounts: [{ id: A1, email: 'ana.perez@ug.uchile.cl', name: 'Ana Pérez' }],
+  });
 
 const RENDER: ClientErrorGroup = {
   kind: 'render',
@@ -26,9 +33,9 @@ const RENDER: ClientErrorGroup = {
   stack: 'TypeError: x\n    at deckRows (/assets/DeckPage-C1x9Qa2b.js:1:4821)',
   systems: ['iOS 18', 'Android 14'],
   browsers: ['Safari 18', 'Chrome 131'],
-  anonymous: 3,
-  people: 0,
-  accounts: [],
+  anonymous: 1,
+  people: 3,
+  accounts: [A1, X],
 };
 const OLD: ClientErrorGroup = {
   ...RENDER,
@@ -46,6 +53,9 @@ const OLD: ClientErrorGroup = {
   stack: '',
   systems: [],
   browsers: [],
+  anonymous: 1,
+  people: 0,
+  accounts: [],
 };
 
 const report = (groups: ClientErrorGroup[], more = false): ClientErrorsReport => ({
@@ -78,7 +88,12 @@ describe('«Errores»', () => {
     await screen.findByText('2 errores · 4 veces');
     const [first, old] = items();
     expect(first).toHaveTextContent('Una página falló');
-    expect(first).toHaveTextContent(/3 veces · Última vez: 27 nov\.?,? 14:02/);
+    expect(first).toHaveTextContent(/3 veces · 3 personas · Última vez: 27 nov\.?,? 14:02/);
+    expect(
+      await within(first!).findByText(
+        'Ana Pérez (ana.perez@ug.uchile.cl), cuenta 00000000…, 1 más · 1 vez sin sesión',
+      ),
+    ).toBeInTheDocument();
     expect(first).toHaveTextContent(RENDER.message);
     expect(first).toHaveTextContent('Sistema y navegadoriOS 18 · Safari 18');
     expect(first).toHaveTextContent('También enAndroid 14, Chrome 131');
@@ -88,6 +103,7 @@ describe('«Errores»', () => {
     expect(old).toHaveTextContent('Versiónsin versión (desarrollo)');
     expect(old).toHaveTextContent('Sistema y navegador—');
     expect(old).toHaveTextContent('Ventana—');
+    expect(old).toHaveTextContent('PersonasNadie con sesión · 1 vez sin sesión');
     expect(old).not.toHaveTextContent('También en');
     expect(old!.querySelector('pre')).toBeNull();
   });
@@ -114,6 +130,7 @@ describe('«Errores»', () => {
       'Sistema y navegador: iOS 18 · Safari 18 (también: Android 14, Chrome 131)',
       'Ventana: 390 × 844, teléfono',
       'Veces: 3 veces en los últimos 30 días',
+      'Personas con sesión: 3 personas (alumno A, alumno B, 1 más); sin sesión: 1 vez',
       expect.stringMatching(/^Primera vez: 25 nov\.?,? 10:00 · Última vez: 27 nov\.?,? 14:02$/),
       'Pila:',
       '```',
@@ -128,6 +145,8 @@ describe('«Errores»', () => {
     expect(all.split('\n\n---\n\n')).toHaveLength(2);
     expect(all).toContain('Versión del despliegue: sin versión (desarrollo)');
     expect(all).toContain('Pila: no llegó');
+    expect(all).toContain('Personas con sesión: 0 personas; sin sesión: 1 vez');
+    expect(all).not.toMatch(/ana\.perez|Ana Pérez|00000000-/);
   });
 
   it('filters by kind and by deploy, and the period asks the API again', async () => {
@@ -145,6 +164,10 @@ describe('«Errores»', () => {
     await choose('Versión', 'sin versión (desarrollo)');
     expect(items()[0]).toHaveTextContent('La página quedó en blanco');
     await choose('Versión', 'Todas las versiones');
+    await choose('Persona', 'Ana Pérez (ana.perez@ug.uchile.cl)');
+    expect(items()).toHaveLength(1);
+    expect(items()[0]).toHaveTextContent('Una página falló');
+    await choose('Persona', 'Todas las personas');
     await choose('Periodo', 'Últimos 7 días');
     await screen.findByText('1 error · 3 veces');
     expect(clientErrors).toHaveBeenLastCalledWith(7, expect.anything());

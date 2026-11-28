@@ -3,7 +3,7 @@
 export const errorsPageStrings = {
   title: 'Errores',
   intro:
-    'Páginas que fallaron en el navegador de un alumno: qué pasó, dónde, en qué versión del sitio, con qué sistema y navegador. La última primero.',
+    'Páginas que fallaron en el navegador de un alumno: qué pasó, a quién (si tenía la sesión abierta), dónde, en qué versión del sitio, con qué sistema y navegador. La última primero. Lo que se copia para Claude no dice quién.',
   copyAll: 'Copiar todos para Claude',
   summary: (errors: number, times: string) =>
     `${errors === 1 ? '1 error' : `${errors.toLocaleString('es-CL')} errores`} · ${times}`,

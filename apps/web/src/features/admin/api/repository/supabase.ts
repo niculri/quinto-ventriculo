@@ -70,6 +70,11 @@ export function supabaseAdminRepository(client: SupabaseClient<Database>): Admin
       if (error) throw error;
       return data;
     },
+    async accountLabels(ids) {
+      const { data, error } = await client.rpc('admin_account_labels', { ids: [...ids] });
+      if (error) throw error;
+      return data.map((r) => ({ id: r.id, email: r.email, name: r.name }));
+    },
     async deckImpact(deckIds) {
       const { data, error } = await client.rpc('admin_deck_impact', { deck_ids: [...deckIds] });
       if (error) throw error;

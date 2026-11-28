@@ -248,6 +248,52 @@ describe('public/error-report.js', () => {
     expect(sent.map((s) => s.message)).toEqual(['uno', 'dos', 'tres', 'cuatro', 'cinco']);
   });
 
+  describe('with a session open', () => {
+    afterEach(() => {
+      localStorage.clear();
+    });
+    const sentWith = () => {
+      const fetch = vi
+        .spyOn(window, 'fetch')
+        .mockResolvedValue(new Response(null, { status: 204 }));
+      load();
+      (window as unknown as { __qvReportError: (k: string, m: string) => void }).__qvReportError(
+        'render',
+        'uno',
+      );
+      return fetch;
+    };
+
+    it('goes by fetch with the token Supabase keeps, never in the body', () => {
+      localStorage.setItem(
+        'sb-abcdef-auth-token',
+        JSON.stringify({ access_token: 'token-de-prueba', expires_at: Date.now() / 1000 + 3600 }),
+      );
+      const fetch = sentWith();
+      expect(sent).toEqual([]);
+      const init = fetch.mock.calls[0]![1]!;
+      expect(init.headers).toEqual({ Authorization: 'Bearer token-de-prueba' });
+      expect(init.body as string).not.toContain('token-de-prueba');
+    });
+
+    it('the demo’s session goes with its token', () => {
+      localStorage.setItem('qv-demo-session', '1');
+      expect(sentWith().mock.calls[0]![1]!.headers).toEqual({ Authorization: 'Bearer demo-local' });
+    });
+
+    it.each([
+      ['an expired token', JSON.stringify({ access_token: 'viejo', expires_at: 1 })],
+      ['a value that is not JSON', '{roto'],
+      ['a value without a token', JSON.stringify({ user: {} })],
+    ])('%s goes alone, by sendBeacon', (_what, value) => {
+      localStorage.setItem('otra-cosa', 'x');
+      localStorage.setItem('sb-abcdef-auth-token', value);
+      const fetch = sentWith();
+      expect(sent.map((s) => s.message)).toEqual(['uno']);
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
+
   it('without sendBeacon it uses fetch, and an error in either never escapes', () => {
     Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: undefined });
     const fetch = vi.spyOn(window, 'fetch').mockRejectedValue(new Error('sin red'));
@@ -257,7 +303,7 @@ describe('public/error-report.js', () => {
     expect(() => report('render', 'uno')).not.toThrow();
     expect(fetch).toHaveBeenCalledWith(
       '/api/client-error',
-      expect.objectContaining({ method: 'POST', keepalive: true }),
+      expect.objectContaining({ method: 'POST', keepalive: true, headers: {} }),
     );
   });
 });

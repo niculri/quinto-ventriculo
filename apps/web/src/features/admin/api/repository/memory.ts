@@ -1,7 +1,7 @@
 // Administrators and invitations kept in the browser, for the demo, the admin mode and the tests.
 import type { AdminRepository } from './port';
 import { AccessError } from './model';
-import type { AccessInvite, AccessReport } from './model';
+import type { AccessInvite, AccessReport, AccountLabel } from './model';
 import {
   addInvites,
   deckImpactOf,
@@ -17,6 +17,21 @@ const DEMO_INVITES: AccessInvite[] = [
   invite('ana.perez@ug.uchile.cl', 'Curso de prueba', false, true),
   invite('luis.soto@ug.uchile.cl', 'Curso de prueba', false, false),
 ];
+/** The made-up accounts of the demo's errors (apps/api/src/dev/demoErrors.ts). */
+const DEMO_ACCOUNTS: AccountLabel[] = [
+  {
+    id: '00000000-0000-4000-8000-0000000000de',
+    email: 'demo@ug.uchile.cl',
+    name: 'Estudiante de prueba',
+  },
+  {
+    id: '00000000-0000-4000-8000-0000000000a1',
+    email: 'ana.perez@ug.uchile.cl',
+    name: 'Ana Pérez',
+  },
+  { id: '00000000-0000-4000-8000-0000000000a2', email: 'luis.soto@ug.uchile.cl', name: null },
+];
+
 function invite(email: string, list: string, admin: boolean, hasAccount: boolean): AccessInvite {
   return {
     email,
@@ -39,6 +54,7 @@ export function localAdminRepository(
     invites?: AccessInvite[];
     accountsWithoutInvite?: AccessReport['accountsWithoutInvite'];
     openToDomain?: boolean;
+    accounts?: AccountLabel[];
   } = {},
 ): AdminRepository {
   const storage = options.storage ?? null;
@@ -108,6 +124,11 @@ export function localAdminRepository(
     invite: (input) => change((list) => addInvites(list, input, me)),
     removeInvites: (target) => change((list) => removeFromInvites(list, target, openToDomain)),
     moveInvites: (moves) => change((list) => moveInInvites(list, moves, me)),
+    accountLabels: (ids) =>
+      settle(() => {
+        onlyAdmin();
+        return (options.accounts ?? DEMO_ACCOUNTS).filter((a) => ids.includes(a.id));
+      }),
     deckImpact: (deckIds) =>
       settle(() => {
         onlyAdmin();

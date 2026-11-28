@@ -9,5 +9,8 @@ export const errorItemStrings = {
   others: 'También en',
   window: 'Ventana',
   first: 'Primera vez',
+  people: 'Personas',
+  nobody: 'Nadie con sesión',
+  withoutSession: (times: string) => `${times} sin sesión`,
   stack: 'Pila',
 } as const;

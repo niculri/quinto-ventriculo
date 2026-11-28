@@ -2,6 +2,7 @@
 export { AccessError, MAX_EMAILS, normalizeEmail } from './model';
 export type {
   AccessInvite,
+  AccountLabel,
   AccessReport,
   InviteRejection,
   InviteResult,

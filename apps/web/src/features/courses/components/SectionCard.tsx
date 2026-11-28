@@ -5,11 +5,14 @@ import { Link } from 'react-router';
 import { linkCard } from '../../../shared/ui/styles';
 
 /**
- * In the card's lower right corner, with room on its right and cut only by the bottom, below the card's text (smaller
- * in a narrow card, where the text reaches further); faint, and never under a letter.
+ * Large in the card's lower right corner, cut by its right and bottom edges; it may pass under the card's text, so it
+ * is faint enough for that text to keep its contrast, also when the card is hovered.
  */
 export const ART =
-  'pointer-events-none absolute right-4 -bottom-11 size-28 text-brand sm:-bottom-10 @max-[13rem]:right-3 @max-[13rem]:-bottom-4 @max-[13rem]:size-20 @max-[13rem]:[stroke-width:9] opacity-[0.16] transition-opacity group-hover:opacity-25 dark:opacity-[0.22] dark:group-hover:opacity-30';
+  'pointer-events-none absolute -right-7 -bottom-8 size-40 text-brand sm:-right-8 sm:-bottom-9 sm:size-44 @max-[13rem]:-right-6 @max-[13rem]:-bottom-6 @max-[13rem]:size-36 opacity-[0.12] transition-opacity group-hover:opacity-[0.14] dark:opacity-[0.14] dark:group-hover:opacity-[0.16]';
+
+/** The tilt of the drawings that are not already drawn across the corner. */
+export const TILT = '-rotate-12';
 
 export function SectionCard({
   to,

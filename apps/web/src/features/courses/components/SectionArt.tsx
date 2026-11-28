@@ -1,5 +1,5 @@
 // The drawings behind the cards of a course's page, one per section and the same for every course: thick lines in the
-// current color, cut by the card's corner, so that they read as a background and never as content.
+// current color, larger than the card's corner and cut by it, so that they read as a background and never as content.
 import type { SVGProps } from 'react';
 
 function Art({ children, ...props }: SVGProps<SVGSVGElement>) {
@@ -72,16 +72,18 @@ export function TestsArt(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Gymkana: a long bone across the corner, with its two ends. */
+/** Gymkana: a long bone across the corner, with a pin on its right end. */
 export function GymkanaArt(props: SVGProps<SVGSVGElement>) {
   return (
     <Art {...props}>
       <path
         d="M53.1 72h53.8a14 14 0 1 1 18.3 8 14 14 0 1 1-18.3 8H53.1a14 14 0 1 1-18.3-8 14 14 0 1 1 18.3-8Z"
-        transform="translate(0 -16) rotate(-30 80 80)"
+        transform="translate(-8 22) rotate(-30 80 80)"
         fill="currentColor"
         fillOpacity=".1"
       />
+      <path d="M101 75 77 29" />
+      <circle cx="72" cy="19" r="11" fill="currentColor" fillOpacity=".45" />
     </Art>
   );
 }

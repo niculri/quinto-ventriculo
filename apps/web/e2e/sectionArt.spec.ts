@@ -1,94 +1,68 @@
-// E2e test of the drawings behind a course's cards: never under a letter of their card, at any width, also with an
-// exam date and something turned on (the Anki card's longest lines), and with room on their right.
+// E2e test of the drawings behind a course's cards: they pass under the card's text, so in both themes, resting and
+// hovered, the gray text over the drawing's darkest stroke keeps the contrast of WCAG AA; and they are decoration.
 import type { Page } from '@playwright/test';
 import { expect, test } from './test';
 import { signIn } from './helpers';
 
-const COURSES = [
-  '/semesters/2/courses/biologia-celular',
-  '/semesters/2/courses/anatomia-2',
-  '/semesters/1/courses/anatomia-1',
-];
+const COURSES = ['/semesters/2/courses/biologia-celular', '/semesters/1/courses/anatomia-1'];
 
-/** Each card's drawing: the letters of its card it reaches, and how far its right edge is from the card's. */
-const drawings = (page: Page) =>
-  page.locator('main a.group').evaluateAll((cards) =>
-    cards.map((card) => {
+/** Each card's contrast between its gray text and the card's color under a full stroke of its drawing. */
+const contrasts = (page: Page) =>
+  page.locator('main a.group').evaluateAll((cards) => {
+    const probe = document.createElement('canvas').getContext('2d')!;
+    const rgb = (color: string) => {
+      probe.fillStyle = color;
+      probe.fillRect(0, 0, 1, 1);
+      return [...probe.getImageData(0, 0, 1, 1).data].slice(0, 3);
+    };
+    const luminance = (c: number[]) => {
+      const [r, g, b] = c.map((v) => {
+        const x = v / 255;
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+      }) as [number, number, number];
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    return cards.map((card) => {
       const art = card.querySelector('svg.pointer-events-none')!;
-      const half = Number.parseFloat(getComputedStyle(art).strokeWidth) / 2;
-      let [left, top, right] = [Infinity, Infinity, -Infinity];
-      for (const shape of art.querySelectorAll<SVGGraphicsElement>('path, rect, circle')) {
-        const b = shape.getBBox();
-        const m = shape.getScreenCTM()!;
-        const scale = Math.hypot(m.a, m.b);
-        for (const [x, y] of [
-          [b.x, b.y],
-          [b.x + b.width, b.y],
-          [b.x, b.y + b.height],
-          [b.x + b.width, b.y + b.height],
-        ] as const) {
-          const px = m.a * x + m.c * y + m.e;
-          const py = m.b * x + m.d * y + m.f;
-          left = Math.min(left, px - half * scale);
-          top = Math.min(top, py - half * scale);
-          right = Math.max(right, px + half * scale);
-        }
-      }
-      const box = card.getBoundingClientRect();
-      const under: string[] = [];
-      const walker = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
-      while (walker.nextNode()) {
-        const text = walker.currentNode;
-        const holder = text.parentElement!;
-        if (!text.textContent?.trim() || holder.closest('.sr-only')) continue;
-        if (getComputedStyle(holder).visibility === 'hidden') continue;
-        const range = document.createRange();
-        range.selectNodeContents(text);
-        for (const r of range.getClientRects()) {
-          if (r.right > left && r.left < right && r.bottom > top && r.top < box.bottom) {
-            under.push(text.textContent.trim());
-          }
-        }
-      }
+      const style = getComputedStyle(art);
+      const alpha = Number.parseFloat(style.opacity);
+      const stroke = rgb(style.color);
+      const under = rgb(getComputedStyle(card).backgroundColor).map(
+        (v, i) => v * (1 - alpha) + (stroke[i] ?? 0) * alpha,
+      );
+      const text = luminance(rgb(getComputedStyle(card.querySelector('p')!).color));
+      const [light, dark] = [text, luminance(under)].sort((a, b) => b - a) as [number, number];
       return {
         card: card.querySelector('h3')!.textContent,
-        under,
-        room: Math.round(box.right - right),
+        hidden: art.getAttribute('aria-hidden'),
+        contrast: (light + 0.05) / (dark + 0.05),
       };
-    }),
-  );
+    });
+  });
 
-async function check(page: Page) {
-  for (const url of COURSES) {
-    await page.goto(url);
-    await expect(page.locator('main a.group').first()).toBeVisible();
-    // Every line of the cards in, not their gray stand-ins.
-    await expect(page.locator('main a.group .animate-pulse')).toHaveCount(0);
-    for (const d of await drawings(page)) {
-      expect(d.under, `${url} · ${d.card}`).toEqual([]);
-      expect(d.room, `${url} · ${d.card}`).toBeGreaterThanOrEqual(8);
-    }
-  }
-}
-
-test('the drawings behind the cards never go under their letters, at every width', async ({
+test('the text of a card keeps its contrast over the drawing behind it, in both themes', async ({
   page,
   isMobile,
 }) => {
   test.slow();
   await signIn(page);
-  await check(page);
-  // With a date, the Anki card of the week turned on says the days left over today's load.
-  await page.goto('/semesters/1/courses/anatomia-1/anki/certamen-1');
-  const date = page.locator('input[type="date"]').first();
-  await date.fill('2026-12-12');
-  await date.blur();
-  await page.goto('/semesters/1/courses/anatomia-1');
-  await expect(page.getByText(/^Faltan \d+ días/)).toBeVisible();
-  await check(page);
-  if (isMobile) return;
-  for (const width of [1024, 1440]) {
-    await page.setViewportSize({ width, height: 900 });
-    await check(page);
+  for (const url of COURSES) {
+    await page.goto(url);
+    await expect(page.locator('main a.group').first()).toBeVisible();
+    for (const dark of [false, true]) {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.evaluate((on) => document.documentElement.classList.toggle('dark', on), dark);
+      for (const hovered of isMobile ? [false] : [false, true]) {
+        const cards = page.locator('main a.group');
+        const count = await cards.count();
+        for (let i = 0; i < count; i += 1) {
+          if (hovered) await cards.nth(i).hover();
+          const found = (await contrasts(page))[i]!;
+          const label = `${url} · ${found.card} · ${dark ? 'dark' : 'light'}`;
+          expect(found.hidden, label).toBe('true');
+          expect(found.contrast, label).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    }
   }
 });

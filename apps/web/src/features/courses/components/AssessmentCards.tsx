@@ -8,7 +8,7 @@ import type { CourseDecks } from '../hooks/useCourseDecks';
 import { assessmentDeck, notesLine } from '../model/material';
 import { AnkiArt, GymkanaArt, NotesArt, TestsArt } from './SectionArt';
 import { gymkanaDeck } from '../../catalog/model/gymkana';
-import { ART, SectionCard } from './SectionCard';
+import { ART, SectionCard, TILT } from './SectionCard';
 import { AnkiCard } from './AnkiCard';
 import { ChooseUnits } from './ChooseUnits';
 import { assessmentCardsStrings as s } from './strings/AssessmentCards.strings';
@@ -40,7 +40,7 @@ export function AssessmentCards({
           <SectionCard
             to={paths.assessmentNotes(course, a.id)}
             title={s.section.notes}
-            art={<NotesArt className={ART} />}
+            art={<NotesArt className={`${ART} ${TILT}`} />}
           >
             {notesLine(a)}
           </SectionCard>
@@ -49,7 +49,7 @@ export function AssessmentCards({
           <SectionCard
             to={onlyQuiz ? paths.quiz(course, onlyQuiz) : paths.assessmentTests(course, a.id)}
             title={s.section.tests}
-            art={<TestsArt className={ART} />}
+            art={<TestsArt className={`${ART} ${TILT}`} />}
           >
             {onlyQuiz ? `${onlyQuiz.title} · ` : `${s.tests(a.quizzes.length)} · `}
             {s.questions(questions)}
@@ -62,7 +62,7 @@ export function AssessmentCards({
             assessment={a}
             node={node}
             decks={decks}
-            art={<AnkiArt className={ART} />}
+            art={<AnkiArt className={`${ART} ${TILT}`} />}
           />
         ) : null}
         {gymkana ? (

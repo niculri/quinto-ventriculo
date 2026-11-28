@@ -1,4 +1,4 @@
-// Tests «Sitio»'s switches for the courses: edit, save at the top, and what the catalog does after.
+// Tests «Ajustes»'s switches for the courses: edit, save at the top, and what the catalog does after.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -65,7 +65,7 @@ function panel(options: { failSave?: boolean } = {}) {
   return { api, sent, catalogCalls };
 }
 
-describe('«Sitio»: the courses', () => {
+describe('«Ajustes»: the courses', () => {
   it('lists them by semester with what each one holds, all on', async () => {
     renderApp('/admin/site', { admin: admin(), api: panel().api });
     const bio = await screen.findByRole('switch', { name: 'Biología celular' });

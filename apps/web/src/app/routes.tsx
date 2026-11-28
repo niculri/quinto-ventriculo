@@ -9,7 +9,7 @@ import { LegalRoute } from './LegalRoute';
 import { RouteError } from '../shared/ui/RouteError';
 import { paths } from '../shared/lib/paths';
 import { SETTINGS_GROUPS } from '../features/settings/sections';
-import { ADMIN_SECTIONS } from '../features/admin';
+import { ADMIN_GROUPS } from '../features/admin';
 import { NotFoundPage } from '../shared/ui/NotFoundPage';
 import {
   LegacyCourseRedirect,
@@ -198,7 +198,7 @@ export const routes: RouteObject[] = [
               (m) => m.AdminLayout,
             ),
             children: [
-              { index: true, element: <Navigate to={ADMIN_SECTIONS[0].to} replace /> },
+              { index: true, element: <Navigate to={ADMIN_GROUPS[0].sections[0].to} replace /> },
               {
                 path: 'releases',
                 lazy: page(

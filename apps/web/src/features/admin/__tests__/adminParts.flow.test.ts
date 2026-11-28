@@ -1,4 +1,4 @@
-// Tests the texts of «Acceso», «Uso», «Fuera del sitio» and «Sitio» as each one shows them, with every kind of row.
+// Tests the texts of «Acceso», «Uso», «Fuera del sitio» and «Ajustes» as each one shows them, with every kind of row.
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -247,7 +247,7 @@ describe('«Administración», the texts of each section', () => {
     expect(text(screen.getByRole('region', { name: 'Registro' }))).toMatchSnapshot('record');
   });
 
-  it('«Sitio»: a setting that does not load', async () => {
+  it('«Ajustes»: a setting that does not load', async () => {
     renderApp('/admin/site', {
       admin: localAdminRepository({ admin: true }),
       api: fakeApi({
@@ -264,7 +264,7 @@ describe('«Administración», the texts of each section', () => {
     ).toBeDisabled();
   });
 
-  it('«Sitio»: a change that is not saved goes back, and says so', async () => {
+  it('«Ajustes»: a change that is not saved goes back, and says so', async () => {
     renderApp('/admin/site', {
       admin: localAdminRepository({ admin: true }),
       api: fakeApi({
@@ -291,7 +291,7 @@ describe('«Administración», the texts of each section', () => {
     expect(toggle).not.toBeChecked();
   });
 
-  it('«Sitio»: while it saves, the switch shows what is being saved and waits', async () => {
+  it('«Ajustes»: while it saves, the switch shows what is being saved and waits', async () => {
     let answer: (v: typeof NO_SETTINGS) => void = () => undefined;
     renderApp('/admin/site', {
       admin: localAdminRepository({ admin: true }),

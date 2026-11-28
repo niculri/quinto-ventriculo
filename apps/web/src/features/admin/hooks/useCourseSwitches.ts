@@ -1,4 +1,4 @@
-// The courses turned off in «Sitio»: the edit in progress, whether it differs from what is saved, and saving it.
+// The courses turned off in «Ajustes»: the edit in progress, whether it differs from what is saved, and saving it.
 import { useState } from 'react';
 import type { SiteSettingsView } from '@qv/schema/http';
 import { useSetSiteSettings } from './useSiteSettings';

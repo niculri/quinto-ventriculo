@@ -9,7 +9,7 @@ const SECTIONS = [
   ['Reportes', '/admin/reports', 'Reportes'],
   ['Uso', '/admin/usage', 'Uso'],
   ['Acceso', '/admin/access', 'Acceso'],
-  ['Sitio', '/admin/site', 'Sitio'],
+  ['Ajustes', '/admin/site', 'Ajustes'],
   ['Fuera del sitio', '/admin/unpublished', 'Fuera del sitio'],
 ] as const;
 

@@ -1,4 +1,4 @@
-// Tests «Administración» as a whole: who sees it, its menus and sections, the old URLs, «Reportes» and «Sitio».
+// Tests «Administración» as a whole: who sees it, its menus and sections, the old URLs, «Reportes» and «Ajustes».
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -59,25 +59,43 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     expect(
       await screen.findByRole('heading', { level: 2, name: 'Publicaciones' }),
     ).toBeInTheDocument();
-    const sections: [string, string][] = [
-      ['Publicaciones', '/admin/releases'],
-      ['Anuncios', '/admin/announcements'],
-      ['Reportes', '/admin/reports'],
-      ['Uso', '/admin/usage'],
-      ['Tarjetas', '/admin/cards'],
-      ['Acceso', '/admin/access'],
-      ['Sitio', '/admin/site'],
-      ['Fuera del sitio', '/admin/unpublished'],
+    const groups: [string, [string, string][]][] = [
+      [
+        'Contenido',
+        [
+          ['Publicaciones', '/admin/releases'],
+          ['Anuncios', '/admin/announcements'],
+          ['Fuera del sitio', '/admin/unpublished'],
+        ],
+      ],
+      [
+        'Alumnos',
+        [
+          ['Acceso', '/admin/access'],
+          ['Reportes', '/admin/reports'],
+        ],
+      ],
+      [
+        'Estadísticas',
+        [
+          ['Uso', '/admin/usage'],
+          ['Tarjetas', '/admin/cards'],
+        ],
+      ],
+      ['Sitio', [['Ajustes', '/admin/site']]],
     ];
-    const own = screen.getByRole('navigation', { name: 'Secciones de la administración' });
-    expect(
-      within(own)
+    const linksOf = (group: HTMLElement) =>
+      within(group)
         .getAllByRole('link')
-        .map((l) => [l.textContent.trim(), l.getAttribute('href')]),
-    ).toEqual(sections);
-    const menu = screen.getByRole('navigation', { name: 'Menú del sitio' });
-    for (const [label, href] of sections) {
-      expect(within(menu).getByRole('link', { name: label })).toHaveAttribute('href', href);
+        .map((l) => [l.textContent.trim(), l.getAttribute('href')]);
+    // The same groups, always open, in the page's own menu and in the site's.
+    for (const nav of [
+      screen.getByRole('navigation', { name: 'Secciones de la administración' }),
+      screen.getByRole('navigation', { name: 'Menú del sitio' }),
+    ]) {
+      for (const [title, links] of groups) {
+        expect(linksOf(within(nav).getByRole('group', { name: title }))).toEqual(links);
+      }
     }
   });
 
@@ -114,7 +132,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     expect(screen.getByRole('link', { name: 'T-BC-C2-11-086.2' })).toBeInTheDocument();
   });
 
-  it('«Sitio»: the switch hides the semesters without material, and the catalog is asked for again, fresh', async () => {
+  it('«Ajustes»: the switch hides the semesters without material, and the catalog is asked for again, fresh', async () => {
     let settings: SiteSettingsView = { ...NO_SETTINGS };
     const catalogCalls: { fresh?: boolean }[] = [];
     const api = fakeApi({
@@ -145,7 +163,7 @@ describe('«Administración»: its own page, apart from «Opciones»', () => {
     expect(catalogCalls).toContainEqual({ fresh: true });
   });
 
-  it('«Sitio»: saved is saved, even if the catalog does not come right after', async () => {
+  it('«Ajustes»: saved is saved, even if the catalog does not come right after', async () => {
     let settings: SiteSettingsView = { ...NO_SETTINGS };
     const api = fakeApi({
       catalog: async (_signal, options?: { fresh?: boolean }) => {

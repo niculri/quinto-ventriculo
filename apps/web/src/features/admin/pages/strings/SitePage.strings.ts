@@ -1,7 +1,7 @@
 // The texts of SitePage.
 
 export const sitePageStrings = {
-  title: 'Sitio',
+  title: 'Ajustes',
   label: 'Ocultar los semestres sin contenido',
   help: 'Los semestres sin ningún apunte, mazo ni test publicado no aparecen en el sitio ni se abren por su enlace. En su lugar, Inicio dice «Los próximos semestres vienen pronto».',
   notSaved: 'No se pudo guardar. Inténtalo de nuevo.',

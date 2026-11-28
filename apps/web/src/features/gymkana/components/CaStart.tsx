@@ -5,7 +5,7 @@ import { COUNT_CHOICES, SECONDS_CHOICES } from '@qv/gymkana';
 import type { CaPreferences, Correction } from '@qv/gymkana';
 import { Select } from '../../../shared/ui/Select';
 import { button, card } from '../../../shared/ui/styles';
-import { chosenStations, countBy } from '../model/stations';
+import { chosenStations, countBy, countWithin } from '../model/stations';
 import type { GymkanaStations } from '../model/stations';
 import { FilterList } from './FilterList';
 import { caStartStrings as s } from './strings/CaStart.strings';
@@ -120,6 +120,9 @@ function CaFilters({
   const regions = countBy(stations, 'region');
   const sources = countBy(stations, 'source');
   const priorities = countBy(stations, 'priority');
+  const inRegions = countWithin(stations, 'region', p.filter);
+  const inSources = countWithin(stations, 'source', p.filter);
+  const inPriorities = countWithin(stations, 'priority', p.filter);
   const filter = (f: Partial<CaPreferences['filter']>) =>
     onChoose({ ...p, filter: { ...p.filter, ...f } });
   return (
@@ -130,7 +133,8 @@ function CaFilters({
           options={[...priorities.keys()].sort().map((n) => ({
             value: Number(n),
             label: s.priority(Number(n)),
-            count: priorities.get(n)!,
+            count: inPriorities.get(n) ?? 0,
+            total: priorities.get(n)!,
           }))}
           chosen={p.filter.priorities}
           onChange={(priorities) => filter({ priorities })}
@@ -142,7 +146,8 @@ function CaFilters({
           options={places.regions.map((r) => ({
             value: r.tag,
             label: r.label,
-            count: regions.get(r.tag) ?? 0,
+            count: inRegions.get(r.tag) ?? 0,
+            total: regions.get(r.tag) ?? 0,
           }))}
           chosen={p.filter.regions}
           onChange={(regions) => filter({ regions })}
@@ -154,7 +159,8 @@ function CaFilters({
           options={places.sources.map((x) => ({
             value: x.label,
             label: x.label,
-            count: sources.get(x.label) ?? 0,
+            count: inSources.get(x.label) ?? 0,
+            total: sources.get(x.label) ?? 0,
           }))}
           chosen={p.filter.sources}
           onChange={(sources) => filter({ sources })}

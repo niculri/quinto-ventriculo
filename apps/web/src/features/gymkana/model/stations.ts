@@ -75,6 +75,24 @@ export function chosenStations(stations: readonly Station[], filter: StationFilt
 
 type Dimension = 'region' | 'source' | 'priority';
 
+const FILTER_KEY = { region: 'regions', source: 'sources', priority: 'priorities' } as const;
+
+/**
+ * How many stations each value of a dimension adds to the round with the other two dimensions as chosen: what
+ * turning that switch on or off changes.
+ */
+export function countWithin(
+  stations: readonly Station[],
+  dimension: Dimension,
+  filter: StationFilter,
+) {
+  const open = { ...filter, [FILTER_KEY[dimension]]: [] };
+  return countBy(
+    stations.filter((s) => passes({ ...s, [dimension]: null }, open)),
+    dimension,
+  );
+}
+
 /** How many stations each value of a dimension has. */
 export function countBy(stations: readonly Station[], dimension: Dimension) {
   const out = new Map<string | number, number>();

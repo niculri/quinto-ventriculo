@@ -1,5 +1,5 @@
-// E2e tests of «Administración»: hidden from a student, nothing moves entering or changing section, «Acceso» with
-// popups of its own and «Fuera del sitio» only to look at. `qv-demo-role` turns the demo's administrator into another.
+// E2e tests of «Administración»: hidden from a student, nothing moves, «Acceso», «Fuera del sitio» and the chart of
+// «Uso». `qv-demo-role` turns the demo's administrator into another.
 import { expect, test } from './test';
 import type { Page } from '@playwright/test';
 import { signIn } from './helpers';
@@ -341,4 +341,40 @@ test('«Fuera del sitio»: what is off now and the record, only to look at', asy
   await expect(log.getByRole('listitem')).toHaveCount(3);
   await expect(log).toContainText('Volvió al sitio');
   await expect(page.getByRole('main').getByRole('button')).toHaveCount(0);
+});
+
+test('«Uso»: a day shows its data beside its column, or on a phone in a strip above the bars, moving nothing', async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page);
+  await page.goto('/admin/usage');
+  const chart = page.getByRole('list', { name: 'Alumnos activos, por día' });
+  const days = chart.getByRole('button');
+  await expect(days.first()).toBeVisible();
+  const middle = days.nth(Math.floor((await days.count()) / 2));
+  const when = ((await middle.textContent()) ?? '').split(':')[0]!;
+  const strip = page.locator('[data-chart-tip="strip"]');
+  const box = page.locator('[data-chart-tip="box"]');
+  const bars = 'ol[aria-label="Alumnos activos, por día"]';
+  // A hidden element measures 0 × 0 wherever the page scrolled: the strip only counts where it shows.
+  const FIXED = isMobile ? ['[data-chart-tip="strip"]', bars] : [bars];
+  const boxes = await boxesWhile(page, FIXED, async () => {
+    await (isMobile ? middle.tap() : middle.click());
+    await expect(middle).toHaveClass(/bg-brand-soft/);
+  });
+  for (const s of FIXED) expect(boxes[s], s).toHaveLength(1);
+  if (!isMobile) {
+    await expect(strip).toBeHidden();
+    await expect(box).toBeVisible();
+    await expect(box).toContainText(when);
+    return;
+  }
+  await expect(box).toBeHidden();
+  await expect(strip).toContainText(when);
+  const s = (await strip.boundingBox())!;
+  expect(s.y + s.height).toBeLessThanOrEqual((await chart.boundingBox())!.y);
+  await page.getByRole('heading', { level: 2, name: 'Uso' }).tap();
+  await expect(strip).toBeEmpty();
+  expect((await strip.boundingBox())!.height).toBe(s.height);
 });

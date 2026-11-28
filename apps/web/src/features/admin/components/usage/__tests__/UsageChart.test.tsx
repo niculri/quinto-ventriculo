@@ -1,5 +1,5 @@
 // Tests the chart of «Uso»: a figure by day or by week, the opens only by day, its axis of round marks, and the box with
-// the data of a column under the mouse, the keyboard or a tap.
+// the data of a column under the mouse, the keyboard or a tap, or the strip above the bars on a phone.
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FEW } from '@qv/schema';
@@ -40,6 +40,7 @@ const axis = () =>
     (e) => e.textContent,
   );
 const tip = () => document.querySelector('.pointer-events-none.absolute');
+const strip = () => document.querySelector('[data-chart-tip="strip"]');
 
 async function choose(label: string, option: string) {
   await userEvent.click(screen.getByRole('button', { name: new RegExp(`^${label}`) }));
@@ -142,6 +143,24 @@ describe('UsageChart', () => {
     expect(tip()).toHaveTextContent(/^lunes 23/);
     fireEvent.pointerDown(document.body);
     expect(tip()).toBeNull();
+  });
+
+  it('on a phone the data goes in a strip kept above the bars, empty until a tap, and the box hides', () => {
+    render(<UsageChart report={report(null)} />);
+    expect(strip()).toHaveAttribute('aria-hidden', 'true');
+    expect(strip()).toHaveClass('h-13', 'sm:hidden');
+    expect(strip()).toBeEmptyDOMElement();
+    fireEvent.click(columns()[1]!);
+    expect(strip()).toHaveTextContent('martes 24 de noviembre5 alumnos activos5 alumnos nuevos');
+    expect(tip()).toHaveTextContent('martes 24 de noviembre5 alumnos activos5 alumnos nuevos');
+    expect(tip()).toHaveClass('hidden', 'sm:block');
+    expect([...strip()!.querySelectorAll('p')].every((p) => p.classList.contains('truncate'))).toBe(
+      true,
+    );
+    expect(tip()?.querySelector('p.truncate')).toBeNull();
+    fireEvent.pointerDown(document.body);
+    expect(strip()).toBeEmptyDOMElement();
+    expect(strip()?.nextElementSibling).toHaveClass('relative', 'h-40');
   });
 
   it('without days the keys do nothing', async () => {

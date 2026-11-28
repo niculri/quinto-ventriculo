@@ -77,6 +77,7 @@ async function choose(label: string, option: string) {
 
 const items = () =>
   within(screen.getByRole('list', { name: 'Errores del periodo' })).getAllByRole('listitem');
+const listShown = () => screen.findByRole('list', { name: 'Errores del periodo' });
 
 describe('«Errores»', () => {
   it('each error says what, how many times, when, where, which deploy, system, browser, window and its stack', async () => {
@@ -86,6 +87,7 @@ describe('«Errores»', () => {
     });
     expect(await screen.findByRole('heading', { level: 2, name: 'Errores' })).toBeInTheDocument();
     await screen.findByText('2 errores · 4 veces');
+    await listShown();
     const [first, old] = items();
     expect(first).toHaveTextContent('Una página falló');
     expect(first).toHaveTextContent(/3 veces · 3 personas · Última vez: 27 nov\.?,? 14:02/);
@@ -114,7 +116,7 @@ describe('«Errores»', () => {
       admin: admin(),
       api: fakeApi({ clientErrors: async () => report([RENDER, OLD]) }),
     });
-    await screen.findByText('2 errores · 4 veces');
+    await listShown();
     await act(async () =>
       within(items()[0]!)
         .getByRole('button', { name: /Copiar para Claude/ })
@@ -154,7 +156,7 @@ describe('«Errores»', () => {
       days === 7 ? report([RENDER]) : report([RENDER, OLD], true),
     );
     renderApp('/admin/errors', { admin: admin(), api: fakeApi({ clientErrors }) });
-    await screen.findByText('2 errores · 4 veces');
+    await listShown();
     expect(screen.getByText(/Hay más errores que los 100/)).toBeInTheDocument();
     await choose('Tipo', 'La página quedó en blanco');
     expect(items()).toHaveLength(1);
@@ -201,6 +203,36 @@ describe('«Errores»', () => {
     fails = false;
     await userEvent.click(retry);
     expect(await screen.findByText('1 error · 1 vez')).toBeInTheDocument();
+  });
+
+  it('the list waits for who each account is, so its names never change in view; without them, the ids', async () => {
+    let answer: (labels: { id: string; email: string; name: string | null }[]) => void = () =>
+      undefined;
+    const slow = {
+      ...admin(),
+      accountLabels: () =>
+        new Promise<{ id: string; email: string; name: string | null }[]>((resolve) => {
+          answer = resolve;
+        }),
+    };
+    const view = renderApp('/admin/errors', {
+      admin: slow,
+      api: fakeApi({ clientErrors: async () => report([RENDER]) }),
+    });
+    await screen.findByText('1 error · 3 veces');
+    expect(screen.queryByRole('list', { name: 'Errores del periodo' })).toBeNull();
+    await act(async () => {
+      answer([{ id: A1, email: 'ana.perez@ug.uchile.cl', name: 'Ana Pérez' }]);
+    });
+    await listShown();
+    expect(items()[0]).toHaveTextContent('Ana Pérez (ana.perez@ug.uchile.cl), cuenta 00000000…');
+    view.unmount();
+    renderApp('/admin/errors', {
+      admin: { ...admin(), accountLabels: () => Promise.reject(new Error('PGRST202')) },
+      api: fakeApi({ clientErrors: async () => report([RENDER]) }),
+    });
+    await listShown();
+    expect(items()[0]).toHaveTextContent('cuenta 00000000…, cuenta 00000000…, 1 más');
   });
 
   it('«Uso» points to it', async () => {

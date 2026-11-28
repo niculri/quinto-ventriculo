@@ -24,7 +24,7 @@ export function ErrorsPage() {
   const groups = query.data?.groups ?? [];
   const shown = filterErrors(groups, filter);
   const accounts = accountsOf(groups);
-  const labels = useAccountLabels(accounts);
+  const { labels, known } = useAccountLabels(accounts);
   const times = shown.reduce((n, g) => n + g.count, 0);
   return (
     <>
@@ -50,7 +50,7 @@ export function ErrorsPage() {
         <div className="mt-4">
           <ErrorWithRetry error={query.error} onRetry={() => void query.refetch()} />
         </div>
-      ) : !query.data ? (
+      ) : !query.data || !known ? (
         <Loading />
       ) : shown.length === 0 ? (
         <p className="mt-4 text-sm text-muted">{groups.length ? s.noneFiltered : s.none}</p>

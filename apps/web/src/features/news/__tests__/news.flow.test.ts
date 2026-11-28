@@ -1,4 +1,4 @@
-// Tests for the news as a student sees them: the bell's dot and menu, the line of the home page and «Novedades» with
+// Tests for the news as a student sees them: the bell's dot and menu, what counts as unread, and «Novedades» with
 // its filter; opening the bell or the page keeps them as seen, and what was new stays marked while it is open.
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -97,47 +97,54 @@ describe('the bell', () => {
   });
 });
 
-describe('the line of the home page', () => {
-  it('says the newest unread and how many more', async () => {
-    renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-21T00:00:00.000Z') });
-    const line = await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ });
-    expect(line).toHaveTextContent('Nuevo: Aviso 3 y 1 más');
-    expect(line).toHaveAttribute('href', '/news');
-  });
+describe('what is unread, as the bell shows it', () => {
+  /** The bell's name and dot before it opens, and which announcements its menu marks as new. */
+  const unreadOnBell = async () => {
+    const button = await screen.findByRole('button', { name: /^Novedades/ });
+    await waitFor(() => expect(screen.getByTestId('news-dot')).not.toHaveClass('hidden'));
+    const name = button.getAttribute('aria-label');
+    await userEvent.click(button);
+    const menu = await screen.findByRole('menu');
+    const marked = within(menu)
+      .getAllByRole('menuitem')
+      .filter((i) => i.textContent.endsWith('Nuevo'))
+      .map((i) => within(i).getByText(/^Aviso/).textContent);
+    return { name, marked };
+  };
 
-  it('one unread is just its title; nothing unread is «No hay novedades»', async () => {
-    const one = renderApp('/home', {
-      api: apiWith(FEED),
-      news: await seenAt('2026-11-24T20:00:00.000Z'),
+  it('only what came out after the newest seen', async () => {
+    renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-24T20:00:00.000Z') });
+    expect(await unreadOnBell()).toEqual({
+      name: 'Novedades: hay algo nuevo',
+      marked: ['Aviso 3'],
     });
-    expect(
-      await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ }),
-    ).not.toHaveTextContent('más');
-    one.unmount();
-    renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-25T15:00:00.000Z') });
-    expect(
-      await screen.findByRole('link', { name: /^Novedades: No hay novedades/ }),
-    ).toBeInTheDocument();
   });
 
-  it('what was read cannot be known nor kept: what came out since the account counts as unread, and opening the bell keeps showing it', async () => {
+  it('nothing unread: no dot, and nothing marked', async () => {
+    renderApp('/home', { api: apiWith(FEED), news: await seenAt('2026-11-25T15:00:00.000Z') });
+    await userEvent.click(await screen.findByRole('button', { name: 'Novedades' }));
+    const menu = await screen.findByRole('menu');
+    await within(menu).findByText('Aviso 3');
+    expect(screen.getByTestId('news-dot')).toHaveClass('hidden');
+    expect(within(menu).queryByText('Nuevo')).toBeNull();
+  });
+
+  it('what was read cannot be known nor kept: what came out since the account counts as unread, and opening the bell keeps it as seen', async () => {
     const failing: NewsRepository = {
       seenUntil: () => Promise.reject(new Error('caído')),
       markSeen: () => Promise.resolve(null),
     };
     renderApp('/home', { api: apiWith(FEED), news: failing });
-    expect(
-      await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ }),
-    ).toHaveTextContent('y 2 más');
-    await userEvent.click(await bell());
-    await screen.findByRole('menu');
+    expect(await unreadOnBell()).toEqual({
+      name: 'Novedades: hay algo nuevo',
+      marked: ['Aviso 3', 'Aviso 2', 'Aviso 1'],
+    });
     await userEvent.keyboard('{Escape}');
-    expect(
-      await screen.findByRole('link', { name: /^Novedades: No hay novedades/ }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Novedades' })).toBeInTheDocument();
+    expect(screen.getByTestId('news-dot')).toHaveClass('hidden');
   });
 
-  it('news that cannot be read are not «Al día»', async () => {
+  it('news that cannot be read have no dot and are not «No hay novedades»', async () => {
     renderApp('/home', {
       api: fakeApi({
         news: async () => {
@@ -145,10 +152,10 @@ describe('the line of the home page', () => {
         },
       }),
     });
-    expect(
-      await screen.findByRole('link', { name: /^Novedades: No se pudieron cargar las novedades/ }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('No hay novedades')).toBeNull();
+    await userEvent.click(await bell());
+    expect(await screen.findByText('No se pudieron cargar las novedades.')).toBeInTheDocument();
+    expect(screen.getByTestId('news-dot')).toHaveClass('hidden');
+    expect(screen.queryByText('No hay novedades.')).toBeNull();
   });
 
   it('a new student: only what came out after the account was made is new', async () => {
@@ -157,9 +164,14 @@ describe('the line of the home page', () => {
       user: { ...SESSION_ANA.user, createdAt: '2026-11-24T20:00:00.000Z' },
     };
     renderApp('/home', { api: apiWith(FEED), news: await seenAt(null), session });
-    expect(
-      await screen.findByRole('link', { name: /^Novedades: Nuevo: Aviso 3/ }),
-    ).not.toHaveTextContent('más');
+    expect((await unreadOnBell()).marked).toEqual(['Aviso 3']);
+  });
+
+  it('the home page has no line of its own', async () => {
+    renderApp('/home', { api: apiWith(FEED), news: await seenAt(null) });
+    expect(await screen.findByRole('heading', { level: 1, name: /^Hola/ })).toBeInTheDocument();
+    await screen.findByRole('button', { name: 'Novedades: hay algo nuevo' });
+    expect(screen.queryByRole('link', { name: /^Novedades/ })).toBeNull();
   });
 });
 

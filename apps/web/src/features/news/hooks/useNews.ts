@@ -24,7 +24,7 @@ export function useNews() {
   });
   const announcements = feed.data?.announcements;
   // Never opened (or a failure): only what came out after the account was made is new to its owner, rather than every
-  // announcement of other years; the line does not wait forever for what was read.
+  // announcement of other years; the bell does not wait forever for what was read.
   const seenUntil = seen.data ?? user.createdAt;
   const ready = announcements !== undefined && (seen.isSuccess || seen.isError);
   const unread = ready ? announcements.filter((a) => isUnread(a, seenUntil)) : [];

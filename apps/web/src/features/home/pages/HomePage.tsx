@@ -1,4 +1,4 @@
-// The home page: the line of «Novedades», first steps, «Hoy», «Seguir», the study heatmap and «Tus ramos». Its sections appear together, in a
+// The home page: the greeting, first steps, «Hoy», «Seguir», the study heatmap and «Tus ramos». Its sections appear together, in a
 // space as tall as the page was the last time on this device, so nothing moves while it loads.
 
 import { useTitle } from '../../../shared/hooks/useTitle';
@@ -9,7 +9,6 @@ import { page } from '../../../shared/ui/styles';
 import { useCatalog } from '../../catalog/hooks/useCatalog';
 import { useUser } from '../../session/context';
 import { HomeBody } from '../components/HomeBody';
-import { NewsLine } from '../../news/components/NewsLine';
 import { homePageStrings as s } from './strings/HomePage.strings';
 
 export function HomePage() {
@@ -26,7 +25,6 @@ export function HomePage() {
         </h1>
         <p className="mt-1.5 text-muted">{s.question}</p>
       </div>
-      <NewsLine />
       {catalog.isError ? (
         <ErrorWithRetry
           error={catalog.error}

@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { runInThisContext } from 'node:vm';
+import { LEGAL_VERSIONS } from '@qv/schema';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const SOURCE = readFileSync(
@@ -267,6 +268,27 @@ describe('public/error-report.js', () => {
   });
 
   describe('with a session open', () => {
+    const PRIVACY = LEGAL_VERSIONS.privacy.version;
+    const supabase = (user: string, extra: object = {}) => {
+      localStorage.setItem(
+        'sb-abcdef-auth-token',
+        JSON.stringify({
+          access_token: 'token-de-prueba',
+          expires_at: Date.now() / 1000 + 3600,
+          user: { id: user },
+          ...extra,
+        }),
+      );
+    };
+    const mark = (privacy: string, user = 'cuenta-1') => {
+      localStorage.setItem('qv-privacy-accepted', JSON.stringify({ privacy, user }));
+    };
+    beforeEach(() => {
+      document.head.insertAdjacentHTML(
+        'afterbegin',
+        `<meta name="qv-privacy-version" content="${PRIVACY}">`,
+      );
+    });
     afterEach(() => {
       localStorage.clear();
     });
@@ -281,12 +303,15 @@ describe('public/error-report.js', () => {
       );
       return fetch;
     };
+    const wentAlone = () => {
+      const fetch = sentWith();
+      expect(sent.map((s) => s.message)).toEqual(['uno']);
+      expect(fetch).not.toHaveBeenCalled();
+    };
 
-    it('goes by fetch with the token Supabase keeps, never in the body', () => {
-      localStorage.setItem(
-        'sb-abcdef-auth-token',
-        JSON.stringify({ access_token: 'token-de-prueba', expires_at: Date.now() / 1000 + 3600 }),
-      );
+    it('goes by fetch with the token Supabase keeps once its account accepted the policy in force, never in the body', () => {
+      supabase('cuenta-1');
+      mark(PRIVACY);
       const fetch = sentWith();
       expect(sent).toEqual([]);
       const init = fetch.mock.calls[0]![1]!;
@@ -294,21 +319,68 @@ describe('public/error-report.js', () => {
       expect(init.body as string).not.toContain('token-de-prueba');
     });
 
-    it('the demo’s session goes with its token', () => {
+    it('the demo’s session goes with its token once accepted', () => {
       localStorage.setItem('qv-demo-session', '1');
+      mark(PRIVACY, '00000000-0000-4000-8000-0000000000de');
       expect(sentWith().mock.calls[0]![1]!.headers).toEqual({ Authorization: 'Bearer demo-local' });
     });
 
     it.each([
-      ['an expired token', JSON.stringify({ access_token: 'viejo', expires_at: 1 })],
-      ['a value that is not JSON', '{roto'],
-      ['a value without a token', JSON.stringify({ user: {} })],
-    ])('%s goes alone, by sendBeacon', (_what, value) => {
+      ['an expired token', { expires_at: 1 }],
+      ['a value without a token', { access_token: undefined }],
+      ['a session without its account', { user: undefined }],
+    ])('%s goes alone, by sendBeacon', (_what, extra) => {
       localStorage.setItem('otra-cosa', 'x');
-      localStorage.setItem('sb-abcdef-auth-token', value);
-      const fetch = sentWith();
-      expect(sent.map((s) => s.message)).toEqual(['uno']);
-      expect(fetch).not.toHaveBeenCalled();
+      supabase('cuenta-1', extra);
+      mark(PRIVACY);
+      wentAlone();
+    });
+
+    it('a session that is not JSON goes alone', () => {
+      localStorage.setItem('sb-abcdef-auth-token', '{roto');
+      mark(PRIVACY);
+      wentAlone();
+    });
+
+    it('before accepting the policy in force it goes alone: no mark, an older version, or another account’s', () => {
+      supabase('cuenta-1');
+      wentAlone();
+      for (const [privacy, user] of [
+        [`${PRIVACY}0`, 'cuenta-1'],
+        [PRIVACY, 'cuenta-2'],
+      ] as const) {
+        sent = [];
+        vi.restoreAllMocks();
+        mark(privacy, user);
+        wentAlone();
+      }
+      localStorage.setItem('qv-demo-session', '1');
+      localStorage.removeItem('qv-privacy-accepted');
+      sent = [];
+      vi.restoreAllMocks();
+      wentAlone();
+    });
+
+    it('a mark that is not JSON or has no account, or a page that names no version, goes alone', () => {
+      supabase('cuenta-1');
+      localStorage.setItem('qv-privacy-accepted', '{roto');
+      wentAlone();
+      sent = [];
+      vi.restoreAllMocks();
+      localStorage.setItem('qv-privacy-accepted', JSON.stringify({ privacy: PRIVACY }));
+      wentAlone();
+      sent = [];
+      vi.restoreAllMocks();
+      mark(PRIVACY);
+      document.querySelector('meta[name="qv-privacy-version"]')!.remove();
+      wentAlone();
+    });
+
+    it('a browser whose storage is blocked sends alone', () => {
+      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('blocked');
+      });
+      wentAlone();
     });
   });
 

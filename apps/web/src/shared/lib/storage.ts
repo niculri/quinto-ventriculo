@@ -11,6 +11,7 @@ export const storageKeys = {
   cardsHideAnswers: 'qv-cards-hide-answers',
   collapsedDecks: 'qv-anki-collapsed',
   homeHeight: 'qv-home-height',
+  privacyAccepted: 'qv-privacy-accepted',
   examDateHint: (nodeId: string) => `qv-exam-date:${nodeId}`,
   quizTab: (quizId: string) => `qv-quiz-tab:${quizId}`,
   demo: {

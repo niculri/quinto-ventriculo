@@ -49,6 +49,37 @@ test.describe('without a session', () => {
 test.describe('the first time', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
+  test('a page failure carries the account only once the policy in force is accepted, and not after signing out', async ({
+    page,
+  }) => {
+    const reported = async (message: string) => {
+      const [request] = await Promise.all([
+        page.waitForRequest((r) => new URL(r.url()).pathname === '/api/client-error'),
+        page.evaluate((m) => {
+          (
+            window as unknown as { __qvReportError: (k: string, m: string) => void }
+          ).__qvReportError('render', m);
+        }, message),
+      ]);
+      return request.headers().authorization ?? null;
+    };
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Entrar con Google' }).first().click();
+    const dialog = page.getByRole('dialog', { name: 'Antes de entrar' });
+    await expect(dialog).toBeVisible();
+    expect(await reported('antes de aceptar')).toBeNull();
+    await dialog.getByRole('button', { name: 'Acepto' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: /^Hola/ })).toBeVisible();
+    expect(await reported('después de aceptar')).toBe('Bearer demo-local');
+    await page.reload();
+    await expect(page.getByRole('heading', { level: 1, name: /^Hola/ })).toBeVisible();
+    expect(await reported('al volver')).toBe('Bearer demo-local');
+    await page.getByRole('button', { name: /tu cuenta$/i }).click();
+    await page.getByRole('menuitem', { name: 'Cerrar sesión' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    expect(await reported('después de salir')).toBeNull();
+  });
+
   test('the popup comes once, nothing of the material is behind it, and «Acepto» lets in', async ({
     page,
   }) => {

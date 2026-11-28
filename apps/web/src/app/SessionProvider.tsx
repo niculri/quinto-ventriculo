@@ -6,6 +6,7 @@ import { isAllowedEmail } from '@qv/schema';
 import { paths } from '../shared/lib/paths';
 import { useSessionService } from '../features/session/api/context';
 import { forgetAccounts } from '../features/account/api/remembered';
+import { forgetAcceptance } from '../features/account/api/acceptanceMark';
 import { DOMAIN_NOTICE } from '../features/session/model/notices';
 import { SessionContext } from '../features/session/context';
 import type { SessionState } from '../features/session/context';
@@ -21,6 +22,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       if (!s) {
         forgetAccounts();
+        forgetAcceptance();
         setState((prev) => ({
           status: 'signed-out',
           notice: prev.status === 'signed-out' ? prev.notice : null,

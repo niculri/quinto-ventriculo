@@ -129,16 +129,24 @@
     }
 
     // The token of the session the site already keeps (Supabase's; the demo's, which only the local demo accepts), so
-    // that the Worker, which verifies it, knows whose browser it was. Without one, or expired, the report goes alone.
+    // that the Worker, which verifies it, knows whose browser it was. Only if this browser's account accepted the
+    // privacy policy this page names; without that, or without a session, or expired, the report goes alone.
     function session() {
       try {
+        var meta = document.querySelector('meta[name="qv-privacy-version"]');
+        var inForce = meta && meta.getAttribute('content');
+        var mark = JSON.parse(localStorage.getItem('qv-privacy-accepted') || 'null');
+        if (!inForce || !mark || mark.privacy !== inForce || typeof mark.user !== 'string')
+          return '';
+        // The demo has a single account.
         if (localStorage.getItem('qv-demo-session') === '1') return 'demo-local';
         for (var i = 0; i < localStorage.length; i++) {
           var key = localStorage.key(i) || '';
           if (!/^sb-[a-z0-9]+-auth-token$/.test(key)) continue;
           var s = JSON.parse(localStorage.getItem(key) || 'null');
           var fresh = s && (!s.expires_at || s.expires_at * 1000 > Date.now());
-          if (fresh && typeof s.access_token === 'string') return s.access_token;
+          var own = s && s.user && s.user.id === mark.user;
+          if (fresh && own && typeof s.access_token === 'string') return s.access_token;
         }
       } catch {
         // blocked storage or a value that is not JSON: without a session

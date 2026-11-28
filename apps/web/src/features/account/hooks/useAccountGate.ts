@@ -12,6 +12,7 @@ import { useAccountRepository } from '../api/context';
 import { AccountError } from '../api/repository';
 import type { AccountState } from '../api/repository';
 import { accountKeys } from '../api/queries';
+import { forgetAcceptance, markAccepted } from '../api/acceptanceMark';
 import { rememberAccount } from '../api/remembered';
 import { acceptedNow } from '../model/accepted';
 import { useAccount } from './useAccount';
@@ -51,6 +52,13 @@ export function useAccountGate() {
   });
 
   const accepted = acceptedNow(state.data);
+  const known = state.data !== undefined;
+  // Written only once the account state is read: a version in force not accepted yet removes the mark.
+  useEffect(() => {
+    if (!known) return;
+    if (accepted) markAccepted(user.id);
+    else forgetAcceptance();
+  }, [known, accepted, user.id]);
   const told = () =>
     queryClient.setQueryData<AccountState>(accountKeys.user(user.id), (prev) =>
       // The notice that calls it only shows with the account state read.

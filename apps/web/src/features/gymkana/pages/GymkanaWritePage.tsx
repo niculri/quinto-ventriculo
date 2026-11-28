@@ -13,6 +13,7 @@ import { useGymkana } from '../hooks/useGymkana';
 import { useCaRound } from '../hooks/useCaRound';
 import { CaResults } from '../components/CaResults';
 import { StationScreen } from '../components/StationScreen';
+import { caTab } from '../components/ModeTabs';
 import type { GymkanaStations } from '../model/stations';
 import { gymkanaWritePageStrings as s } from './strings/GymkanaWritePage.strings';
 
@@ -20,7 +21,7 @@ export function GymkanaWritePage() {
   const g = useGymkana();
   useTitle(s.title);
   const { found, assessment, node } = g;
-  const cover = found && assessment ? paths.gymkana(found.course, assessment.id) : null;
+  const cover = found && assessment ? caTab(paths.gymkana(found.course, assessment.id)) : null;
   let body;
   if (g.catalog.isError)
     body = <ErrorWithRetry error={g.catalog.error} onRetry={() => void g.catalog.refetch()} />;

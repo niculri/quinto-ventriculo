@@ -41,6 +41,15 @@ test('the gymkana from the course: its card, its page and a round written, reloa
   await expect(page).toHaveURL(GYMKANA);
   await expect(page.getByRole('heading', { level: 1, name: 'Gymkana' })).toBeVisible();
   await expect(page.getByText('6 estaciones · 4 son de prioridad 1')).toBeVisible();
+  // «Modo Anki» first; «Modo CA» is the other tab, and the address keeps it.
+  await expect(page.getByRole('tab', { name: /Modo Anki/ })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(page.getByRole('switch', { name: 'Activada en tu Anki' })).toBeVisible();
+  await page.getByRole('tab', { name: /Modo CA/ }).click();
+  await expect(page).toHaveURL(`${GYMKANA}?modo=ca`);
+  await expect(page.getByRole('switch', { name: 'Activada en tu Anki' })).toHaveCount(0);
   await expect(page.getByText('4 estaciones elegidas')).toBeVisible();
   const before = await studyRows(page);
 
@@ -75,13 +84,13 @@ test('the gymkana from the course: its card, its page and a round written, reloa
   // A round of writing is not studying: the cards' rows and the deck's switch are as they were.
   expect(await studyRows(page)).toEqual(before);
   await page.getByRole('link', { name: 'Otra ronda' }).click();
-  await expect(page).toHaveURL(GYMKANA);
+  await expect(page).toHaveURL(`${GYMKANA}?modo=ca`);
   await expect(page.getByText(/^Tu última ronda: \d de 2 buenas\.$/)).toBeVisible();
 });
 
 test('a station can be reported with its code', async ({ page }) => {
   await signIn(page);
-  await page.goto(GYMKANA);
+  await page.goto(`${GYMKANA}?modo=ca`);
   await page.getByRole('button', { name: 'Comenzar' }).click();
   await expect(
     page.getByText(/^(Estación 1 de \d|1 \/ \d)$/).filter({ visible: true }),

@@ -300,6 +300,8 @@ test('«Modo avanzado» keeps the page of the assessment, and adds a configurati
 
 test('on a small phone, in the dark too: nothing scrolls sideways', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
+  // The site is light unless asked: «Como el sistema» follows the device.
+  await page.addInitScript(() => localStorage.setItem('qv-theme', 'system'));
   await page.emulateMedia({ colorScheme: 'dark' });
   await signIn(page);
   await page.goto(ASSESSMENT_URL);

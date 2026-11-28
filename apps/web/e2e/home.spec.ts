@@ -283,6 +283,10 @@ test.describe('«Hoy»', () => {
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`nothing moves while it loads (${scheme})`, () => {
     test.use({ storageState: WEEK_ON, colorScheme: scheme });
+    // The site is light unless asked: «Como el sistema» follows the device.
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem('qv-theme', 'system'));
+    });
 
     test('a student with progress, and the data late', async ({ page }) => {
       await signIn(page);
@@ -321,6 +325,7 @@ test.describe('nothing moves for a student who just arrived', () => {
 
   for (const scheme of ['light', 'dark'] as const) {
     test(`with the first steps (${scheme})`, async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem('qv-theme', 'system'));
       await page.emulateMedia({ colorScheme: scheme });
       await watchShifts(page);
       await signIn(page);

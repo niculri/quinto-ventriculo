@@ -1,4 +1,4 @@
-// Tests the theme picker: it starts on the saved theme, and choosing one applies and saves it without closing the menu.
+// Tests the theme picker: it starts on the saved theme (light when none is), and choosing one applies and saves it without closing the menu.
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -29,13 +29,13 @@ afterEach(() => document.documentElement.classList.remove('dark'));
 
 describe('the theme picker', () => {
   it('starts on the saved theme', async () => {
-    localStorage.setItem('qv-theme', 'light');
+    localStorage.setItem('qv-theme', 'system');
     await openMenu();
-    expect(screen.getByRole('menuitemradio', { name: 'Claro' })).toHaveAttribute(
+    expect(screen.getByRole('menuitemradio', { name: 'Como el sistema' })).toHaveAttribute(
       'aria-checked',
       'true',
     );
-    expect(screen.getByRole('menuitemradio', { name: 'Como el sistema' })).toHaveAttribute(
+    expect(screen.getByRole('menuitemradio', { name: 'Claro' })).toHaveAttribute(
       'aria-checked',
       'false',
     );
@@ -43,7 +43,7 @@ describe('the theme picker', () => {
 
   it('applies and saves the theme chosen, and the menu stays open to see it', async () => {
     await openMenu();
-    expect(screen.getByRole('menuitemradio', { name: 'Como el sistema' })).toHaveAttribute(
+    expect(screen.getByRole('menuitemradio', { name: 'Claro' })).toHaveAttribute(
       'aria-checked',
       'true',
     );

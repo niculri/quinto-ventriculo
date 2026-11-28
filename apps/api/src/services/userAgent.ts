@@ -9,15 +9,24 @@ const SYSTEMS: [RegExp, (m: RegExpExecArray) => string][] = [
   [/Linux/, () => 'Linux'],
 ];
 
-/** In order: Edge, Opera and Samsung say «Chrome» too, and every browser on iOS says «Safari». */
+/**
+ * In order: an app's own browser first (Android's says «Chrome», iOS's says nothing), then Edge, Opera and Samsung,
+ * which say «Chrome» too; every browser on iOS says «Safari».
+ */
 const BROWSERS: [RegExp, string][] = [
+  [/\bInstagram (\d+)/, 'Instagram'],
+  [/\bFBAV\/(\d+)/, 'Facebook'],
   [/Edg(?:e|A|iOS)?\/(\d+)/, 'Edge'],
   [/(?:OPR|OPT)\/(\d+)/, 'Opera'],
   [/SamsungBrowser\/(\d+)/, 'Samsung Internet'],
   [/(?:Firefox|FxiOS)\/(\d+)/, 'Firefox'],
+  [/; wv\).*?Chrome\/(\d+)/, 'WebView de Android'],
   [/(?:CriOS|Chrome)\/(\d+)/, 'Chrome'],
   [/Version\/(\d+).*Safari\//, 'Safari'],
 ];
+
+/** An iPhone or iPad page without a browser's name is an app's WebView (WhatsApp, Gmail…). */
+const IOS_WEBVIEW = /(?:iPhone|iPad|iPod).*AppleWebKit\//;
 
 export function browserLabels(ua: string | undefined): {
   os: string;
@@ -35,7 +44,7 @@ export function browserLabels(ua: string | undefined): {
   }).find((l) => l !== null);
   return {
     os: system ?? '',
-    browser: browser ?? '',
+    browser: browser ?? (IOS_WEBVIEW.test(ua) ? 'WebView de iOS' : ''),
     phone: /iPhone|iPod|Mobile|Mobi/.test(ua) && !ua.includes('iPad'),
   };
 }

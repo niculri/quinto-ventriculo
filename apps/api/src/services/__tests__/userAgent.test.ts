@@ -19,6 +19,16 @@ const UA = {
   firefox: 'Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0',
   chromebook:
     'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  instagramIos:
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 330.0.0.40.92 (iPhone14,5; iOS 17_5; es_CL; es; scale=3.00; 1170x2532; 604857574)',
+  instagramAndroid:
+    'Mozilla/5.0 (Linux; Android 14; SM-S918B Build/UP1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0.6778.39 Mobile Safari/537.36 Instagram 330.0.0.40.92 Android',
+  facebookIos:
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/470.0.0.40.98;FBBV/619873291;FBSN/iOS;FBSV/17.5]',
+  androidWebView:
+    'Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/AP2A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0.6778.39 Mobile Safari/537.36',
+  iosWebView:
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
 };
 
 describe('browserLabels', () => {
@@ -33,6 +43,11 @@ describe('browserLabels', () => {
     ['opera', 'Windows', 'Opera 115', false],
     ['firefox', 'Linux', 'Firefox 133', false],
     ['chromebook', 'ChromeOS', 'Chrome 131', false],
+    ['instagramIos', 'iOS 17', 'Instagram 330', true],
+    ['instagramAndroid', 'Android 14', 'Instagram 330', true],
+    ['facebookIos', 'iOS 17', 'Facebook 470', true],
+    ['androidWebView', 'Android 14', 'WebView de Android 131', true],
+    ['iosWebView', 'iOS 18', 'WebView de iOS', true],
   ] as const)('%s: %s · %s', (name, os, browser, phone) => {
     expect(browserLabels(UA[name])).toEqual({ os, browser, phone });
   });

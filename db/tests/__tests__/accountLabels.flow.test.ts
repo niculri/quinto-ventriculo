@@ -56,6 +56,21 @@ describe('admin_account_labels', () => {
     await expect(labels(OWNER, [ANA.sub])).rejects.toThrow(/session_closed/);
   });
 
+  it('gives only the ids asked for: an empty list, or one of nulls, lists nobody', async () => {
+    const owner = await signIn(db, OWNER);
+    expect(await labels(owner, [])).toEqual([]);
+    const nulls = await asUser(
+      db,
+      owner,
+      async (tx) =>
+        (await tx.query('select * from public.admin_account_labels(array[null]::uuid[])')).rows,
+    );
+    expect(nulls).toEqual([]);
+    await expect(
+      asUser(db, owner, (tx) => tx.query('select * from public.admin_account_labels(null)')),
+    ).rejects.toThrow(/at most 500/);
+  });
+
   it('at most 500 at a time', async () => {
     const owner = await signIn(db, OWNER);
     const many = Array.from(

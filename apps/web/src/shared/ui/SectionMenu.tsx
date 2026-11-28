@@ -32,14 +32,15 @@ export function SectionMenu({ label, groups }: { label: string; groups: readonly
             aria-labelledby={`${id}-${String(i)}`}
             className="flex flex-none items-center gap-1 md:flex-col md:items-stretch md:gap-0.5"
           >
-            <h2
+            {/* Not a heading: the page's sections are its h2, and this menu sits before them. */}
+            <p
               id={`${id}-${String(i)}`}
               className={`flex-none px-2 text-xs font-medium text-muted md:px-3 md:pb-1.5 md:text-sm ${
                 i > 0 ? 'ml-2 md:mt-6 md:ml-0' : ''
               }`}
             >
               {group.title}
-            </h2>
+            </p>
             <ul className="flex gap-1 md:flex-col md:gap-0.5">
               {group.sections.map(({ label: name, to, icon: Icon }) => (
                 <li key={to} className="flex-none">

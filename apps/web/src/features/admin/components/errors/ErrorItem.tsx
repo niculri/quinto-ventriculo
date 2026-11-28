@@ -69,7 +69,12 @@ export function ErrorItem({
       {g.stack ? (
         <div className="mt-3">
           <p className="text-sm text-muted">{s.stack}</p>
-          <pre className="mt-1 max-h-40 overflow-auto rounded-md bg-surface-2 p-3 font-mono text-xs leading-relaxed">
+          {/* It scrolls: focusable, so the keyboard can scroll it too. */}
+          <pre
+            tabIndex={0}
+            aria-label={s.stack}
+            className="mt-1 max-h-40 overflow-auto rounded-md bg-surface-2 p-3 font-mono text-xs leading-relaxed"
+          >
             {g.stack}
           </pre>
         </div>

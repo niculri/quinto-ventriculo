@@ -1,5 +1,5 @@
-// E2e tests of the news: the line of the home page, the bell of the top bar and «Novedades», with the announcements of
-// e2e/content/announcements.json. Nothing moves while they load nor when the bell opens, and the bar fits at 375 px.
+// E2e tests of the news: Inicio without a line of its own, the bell and «Novedades» (e2e/content/announcements.json).
+// Nothing moves while they load nor when the bell opens, and the bar fits at 375 px.
 import { expect, test } from './test';
 import type { Locator, Page } from '@playwright/test';
 import { DECK_URL, signIn } from './helpers';
@@ -42,16 +42,14 @@ const bar = async (page: Page) => ({
   account: await box(page.getByRole('button', { name: /tu cuenta$/i })),
 });
 
-test('the home page’s line: nothing moves while it loads, and it says the newest unread', async ({
+test('the home page has no line of news, only the bell, and nothing moves while it loads', async ({
   page,
 }) => {
   await watchShifts(page);
   await signIn(page);
-  const line = page.getByRole('link', { name: new RegExp(`^Novedades: Nuevo: ${NEWEST}`) });
-  await expect(line).toBeVisible();
-  await expect(line).toHaveAttribute('href', '/news');
-  const height = (await line.boundingBox())!.height;
-  expect(height).toBe(48);
+  await expect(bell(page)).toHaveAccessibleName('Novedades: hay algo nuevo');
+  await expect(page.getByRole('main').getByText(/Novedades|No hay novedades/)).toHaveCount(0);
+  await expect(page.getByRole('main').getByRole('link', { name: /^Novedades/ })).toHaveCount(0);
   await page.waitForTimeout(800);
   expect(await shift(page)).toBeLessThan(0.02);
 });
@@ -78,12 +76,12 @@ test('the bell: a dot while something is unread, between the search and the name
   await expect(bell(page)).toHaveAccessibleName('Novedades');
   await expect(page.getByTestId('news-dot')).toBeHidden();
   expect(await bar(page)).toEqual(before);
-  await expect(page.getByRole('link', { name: /^Novedades: No hay novedades/ })).toBeVisible();
 
   // What was seen stays seen after a reload.
   await page.reload();
-  await expect(page.getByRole('link', { name: /^Novedades: No hay novedades/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /^Hola/ })).toBeVisible();
   await expect(bell(page)).toHaveAccessibleName('Novedades');
+  await expect(page.getByTestId('news-dot')).toBeHidden();
 });
 
 test('«Novedades»: every announcement by day, «Ver todas» from the bell, and nothing moves while it loads', async ({

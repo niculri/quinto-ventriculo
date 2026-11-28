@@ -143,8 +143,8 @@ export function HelpPage() {
             Novedades
           </Link>
           . La campana de la barra de arriba, junto a tu nombre, muestra un punto mientras haya algo
-          que no has visto, y al abrirla ves los últimos avisos; en Inicio, una línea dice lo más
-          reciente o «No hay novedades». Cada aviso lleva a la clase o al certamen de que habla.
+          que no has visto, y al abrirla ves los últimos avisos. Cada aviso lleva a la clase o al
+          certamen de que habla.
         </p>
       </section>
 

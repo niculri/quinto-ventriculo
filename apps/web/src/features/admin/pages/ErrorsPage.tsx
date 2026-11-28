@@ -28,9 +28,7 @@ export function ErrorsPage() {
   const times = shown.reduce((n, g) => n + g.count, 0);
   return (
     <>
-      <AdminSectionTitle title={s.title}>
-        <CopyButton text={claudeTextAll(shown, days)} label={s.copyAll} />
-      </AdminSectionTitle>
+      <AdminSectionTitle title={s.title} />
       <p className="mt-2 text-sm text-muted">{s.intro}</p>
       <ErrorFilters
         days={days}
@@ -41,9 +39,13 @@ export function ErrorsPage() {
         accounts={accounts}
         labels={labels}
       />
-      <Reserved longest={s.longestSummary} className="mt-4 text-sm text-muted tabular-nums">
-        <p>{query.data ? s.summary(shown.length, e.times(times)) : ''}</p>
-      </Reserved>
+      {/* Beside the summary, not beside the title: a button taller than the h2 would move it. */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <Reserved longest={s.longestSummary} className="text-sm text-muted tabular-nums">
+          <p>{query.data ? s.summary(shown.length, e.times(times)) : ''}</p>
+        </Reserved>
+        <CopyButton text={claudeTextAll(shown, days)} label={s.copyAll} />
+      </div>
       {query.isError ? (
         <div className="mt-4">
           <ErrorWithRetry error={query.error} onRetry={() => void query.refetch()} />

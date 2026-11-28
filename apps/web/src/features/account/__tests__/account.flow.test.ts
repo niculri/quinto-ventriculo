@@ -53,7 +53,7 @@ describe('/privacy and /terms', () => {
       /Tus reportes de errores/,
       /Tu aceptación/,
       /Si pides eliminar tu cuenta/,
-      /Fallas de una página.*mensaje del error.*identificador de tu cuenta en el sitio/,
+      /Fallas de una página.*mensaje del error.*sesión abierta y ya habías aceptado esta política, se anota también el identificador de tu cuenta en el sitio/,
     ]) {
       expect(data).toHaveTextContent(kind);
     }
@@ -139,6 +139,43 @@ describe('accepting on entering', () => {
       terms: LEGAL_VERSIONS.terms.version,
       privacy: LEGAL_VERSIONS.privacy.version,
     });
+  });
+
+  it('this browser keeps that the account accepted the policy in force, for the error reports, until signing out', async () => {
+    const key = 'qv-privacy-accepted';
+    const read = () => JSON.parse(localStorage.getItem(key) ?? 'null') as unknown;
+    const theMark = { privacy: LEGAL_VERSIONS.privacy.version, user: SESSION_ANA.user.id };
+    localStorage.setItem(key, JSON.stringify({ privacy: '0', user: SESSION_ANA.user.id }));
+    const user = userEvent.setup();
+    const { router } = renderApp('/home', { account: notAccepted() });
+    const dialog = await screen.findByRole('dialog', { name: 'Antes de entrar' });
+    await waitFor(() => expect(read()).toBeNull());
+    await user.click(within(dialog).getByRole('button', { name: 'Acepto' }));
+    await waitFor(() => expect(read()).toEqual(theMark));
+    await user.click(await screen.findByRole('button', { name: /tu cuenta$/i }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Cerrar sesión' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    expect(read()).toBeNull();
+  });
+
+  it('an acceptance made on another device leaves the mark on entering; blocked storage breaks nothing', async () => {
+    renderApp('/home');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Hola, Ana' })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(JSON.parse(localStorage.getItem('qv-privacy-accepted') ?? 'null')).toEqual({
+        privacy: LEGAL_VERSIONS.privacy.version,
+        user: SESSION_ANA.user.id,
+      }),
+    );
+    localStorage.clear();
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    renderApp('/home', { account: notAccepted() });
+    expect(await screen.findByRole('dialog', { name: 'Antes de entrar' })).toBeInTheDocument();
   });
 
   it('a new version asks again, saying that it changed', async () => {

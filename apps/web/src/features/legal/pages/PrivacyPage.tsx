@@ -106,9 +106,10 @@ export function PrivacyPage() {
           <strong>Fallas de una página.</strong> Si una página del sitio falla en tu navegador, se
           anota qué falló (el mensaje del error y en qué parte del código del sitio ocurrió), en qué
           página y versión del sitio, el sistema y el navegador con su versión (por ejemplo, «iOS 18
-          · Safari 18»), el tamaño de la ventana y si era un teléfono. Si tenías la sesión abierta,
-          se anota también el identificador de tu cuenta en el sitio (un código, no tu correo ni tu
-          nombre), para saber a quién le pasó y poder arreglarlo. Lo guarda Cloudflare.
+          · Safari 18»), el tamaño de la ventana y si era un teléfono. Si tenías la sesión abierta y
+          ya habías aceptado esta política, se anota también el identificador de tu cuenta en el
+          sitio (un código, no tu correo ni tu nombre), para saber a quién le pasó y poder
+          arreglarlo. Lo guarda Cloudflare.
         </p>
         <p>
           No guardamos tu clave (entras con Google, que nunca nos la da), tu RUT ni tus notas del

@@ -10,6 +10,7 @@ import { creatorPhoto } from './build/creatorPhoto';
 import { obfuscate } from './build/obfuscate';
 import { compilerPreset } from './build/reactCompiler';
 import { preloadFont } from './build/preloadFont';
+import { privacyVersion } from './build/privacyVersion';
 import { securityHeaders } from './build/securityHeaders';
 import { thirdPartyLicenses } from './build/licenses';
 
@@ -103,6 +104,7 @@ export default defineConfig(({ command, mode }) => {
       thirdPartyLicenses(),
       creatorPhoto(),
       preloadFont(),
+      privacyVersion(),
       obfuscate(),
     ],
     define: { 'import.meta.env.VITE_DEMO': JSON.stringify(demo ? '1' : '') },
